@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,28 +23,35 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions {
+namespace MongoDB.BsonUnitTests.Serialization.Conventions
+{
     [TestFixture]
-    public class IdMemberConventionsTests {
-        private class TestClassA {
+    public class IdMemberConventionsTests
+    {
+        private class TestClassA
+        {
             public Guid Id { get; set; }
             public ObjectId OtherId { get; set; }
         }
 
-        private class TestClassB {
+        private class TestClassB
+        {
             public ObjectId OtherId { get; set; }
         }
 
-        private class TestClassC {
+        private class TestClassC
+        {
             public ObjectId id { get; set; }
         }
 
-        private class TestClassD {
+        private class TestClassD
+        {
             public ObjectId _id { get; set; }
         }
 
         [Test]
-        public void TestNamedIdMemberConvention() {
+        public void TestNamedIdMemberConvention()
+        {
             var convention = new NamedIdMemberConvention("Id", "id", "_id");
 
             var idMemberName = convention.FindIdMember(typeof(TestClassA));

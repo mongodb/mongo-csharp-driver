@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// An interface implemented by BSON serializers.
     /// </summary>
-    public interface IBsonSerializer {
+    public interface IBsonSerializer
+    {
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>

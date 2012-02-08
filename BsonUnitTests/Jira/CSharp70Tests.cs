@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,23 +24,28 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp70Tests {
-        private class TestClass {
+    public class CSharp70Tests
+    {
+        private class TestClass
+        {
             public string PrivateSetter { get; private set; }
             public string PrivateGetter { private get; set; }
         }
 
         [Test]
-        public void TestThatPrivateSettersAreValid() {
+        public void TestThatPrivateSettersAreValid()
+        {
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());
 
             var setter = classMap.GetMemberMap(x => x.PrivateSetter).Setter;
         }
 
         [Test]
-        public void TestThatPrivateGettersAreValid(){
+        public void TestThatPrivateGettersAreValid()
+        {
             var classMap = new BsonClassMap<TestClass>(c => c.AutoMap());
 
             var getter = classMap.GetMemberMap("PrivateGetter").Getter;

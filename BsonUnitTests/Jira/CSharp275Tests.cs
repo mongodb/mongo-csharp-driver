@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,19 +24,24 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp275Tests {
-        private class Test {
+    public class CSharp275Tests
+    {
+        private class Test
+        {
             public string Json;
             public string Iso;
-            public Test(string json, string iso) {
+            public Test(string json, string iso)
+            {
                 this.Json = json;
                 this.Iso = iso;
             }
         }
 
-        private Test[] tests = new Test[] {
+        private Test[] _tests = new Test[]
+        {
             // note: use EST/EDT in all Json values to ensure DateTime.Parse doesn't work
             // test with dayOfWeek
             new Test("Mon, 10 Oct 2011 11:22:33 EDT", "2011-10-10T11:22:33-04:00"),
@@ -70,8 +75,10 @@ namespace MongoDB.BsonUnitTests.Jira {
             // test 2-digit year
             new Test("Mon, 1 Jan 01 11:22:33 EST", "2001-01-01T11:22:33-5:00"),
             new Test("Mon, 1 Jan 29 11:22:33 EST", "2029-01-01T11:22:33-5:00"),
-            new Test("Wed, 1 Jan 30 11:22:33 EST", "1930-01-01T11:22:33-5:00"),
-            new Test("Thu, 1 Jan 31 11:22:33 EST", "1931-01-01T11:22:33-5:00"),
+            new Test("Tue, 1 Jan 30 11:22:33 EST", "2030-01-01T11:22:33-5:00"),
+            new Test("Thu, 1 Jan 31 11:22:33 EST", "1931-01-01T11:22:33-5:00"), // starting in 2013 year 31 will become 2031 instead of 1931
+            new Test("Fri, 1 Jan 32 11:22:33 EST", "1932-01-01T11:22:33-5:00"),
+            new Test("Sun, 1 Jan 33 11:22:33 EST", "1933-01-01T11:22:33-5:00"),
             new Test("Fri, 1 Jan 99 11:22:33 EST", "1999-01-01T11:22:33-5:00"),
             // test time zones
             new Test("Mon, 10 Oct 2011 11:22:33 UT", "2011-10-10T11:22:33-00:00"),
@@ -116,21 +123,27 @@ namespace MongoDB.BsonUnitTests.Jira {
         };
 
         [Test]
-        public void TestParseDates() {
-            foreach (var test in tests) {
+        public void TestParseDates()
+        {
+            foreach (var test in _tests)
+            {
                 var json = string.Format("{{ date : new Date('{0}') }}", test.Json);
                 BsonDocument document = null;
-                try {
+                try
+                {
                     document = BsonDocument.Parse(json);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     var message = string.Format("Error parsing: new Date(\"{0}\"). Message: {1}.", test.Json, ex.Message);
-                    Assert.Fail(message);
+                    Assert.Fail(message); // note: the test data for 2-digit years needs to be adjusted at the beginning of each year
                 }
                 var dateTime = document["date"].AsDateTime;
                 var expected = DateTime.Parse(test.Iso).ToUniversalTime();
                 Assert.AreEqual(DateTimeKind.Utc, dateTime.Kind);
                 Assert.AreEqual(DateTimeKind.Utc, expected.Kind);
-                if (dateTime != expected) {
+                if (dateTime != expected)
+                {
                     var message = string.Format("Parsing new Date(\"{0}\") did not yield expected result {1}.", test.Json, expected.ToString("o"));
                     Assert.Fail(message);
                 }

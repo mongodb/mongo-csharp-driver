@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,20 +27,25 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp81Tests {
-        private class BaseModel {
+    public class CSharp81Tests
+    {
+        private class BaseModel
+        {
             [BsonId]
             public ObjectId Id { get; set; }
         }
 
-        private class User : BaseModel {
+        private class User : BaseModel
+        {
             public ObjectId FriendId { get; set; }
         }
 
         [Test]
-        public void TestIdMember() {
+        public void TestIdMember()
+        {
             var u = new User { Id = ObjectId.Empty, FriendId = ObjectId.Empty };
 
             var classMap = BsonClassMap.LookupClassMap(typeof(User));

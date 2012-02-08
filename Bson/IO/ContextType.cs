@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Used by BsonReaders and BsonWriters to represent the current context.
     /// </summary>
-    public enum ContextType {
+    public enum ContextType
+    {
         /// <summary>
         /// The top level of a BSON document.
         /// </summary>

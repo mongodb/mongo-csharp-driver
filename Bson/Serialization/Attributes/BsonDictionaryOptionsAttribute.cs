@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,52 +21,52 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies serialization options for a Dictionary field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDictionaryOptionsAttribute : BsonSerializationOptionsAttribute {
-        #region private fields
-        private DictionaryRepresentation representation = DictionaryRepresentation.Dynamic;
-        #endregion
+    public class BsonDictionaryOptionsAttribute : BsonSerializationOptionsAttribute
+    {
+        // private fields
+        private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDictionaryOptionsAttribute class.
         /// </summary>
-        public BsonDictionaryOptionsAttribute() {
+        public BsonDictionaryOptionsAttribute()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDictionaryOptionsAttribute class.
         /// </summary>
         /// <param name="representation">The representation to use for the Dictionary.</param>
-        public BsonDictionaryOptionsAttribute(
-            DictionaryRepresentation representation
-        ) {
-            this.representation = representation;
+        public BsonDictionaryOptionsAttribute(DictionaryRepresentation representation)
+        {
+            _representation = representation;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the external representation.
         /// </summary>
-        public DictionaryRepresentation Representation {
-            get { return representation; }
-            set { representation = value; }
+        public DictionaryRepresentation Representation
+        {
+            get { return _representation; }
+            set { _representation = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the serialization options specified by this attribute.
         /// </summary>
         /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions() {
-            return new DictionarySerializationOptions(representation);
+        public override IBsonSerializationOptions GetOptions()
+        {
+            return new DictionarySerializationOptions(_representation);
         }
-        #endregion
     }
 }

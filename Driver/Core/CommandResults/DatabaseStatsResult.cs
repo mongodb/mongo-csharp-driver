@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,83 +21,93 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the result of the database stats command.
     /// </summary>
     [Serializable]
-    public class DatabaseStatsResult : CommandResult {
-        #region constructors
+    public class DatabaseStatsResult : CommandResult
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DatabaseStatsResult class.
         /// </summary>
-        public DatabaseStatsResult() {
+        public DatabaseStatsResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the average object size.
         /// </summary>
-        public double AverageObjectSize {
-            get { return response["avgObjSize"].ToDouble(); }
+        public double AverageObjectSize
+        {
+            get { return _response["avgObjSize"].ToDouble(); }
         }
 
         /// <summary>
         /// Gets the collection count.
         /// </summary>
-        public int CollectionCount {
-            get { return response["collections"].ToInt32(); }
+        public int CollectionCount
+        {
+            get { return _response["collections"].ToInt32(); }
         }
 
         /// <summary>
         /// Gets the data size.
         /// </summary>
-        public long DataSize {
-            get { return response["dataSize"].ToInt64(); }
+        public long DataSize
+        {
+            get { return _response["dataSize"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the extent count.
         /// </summary>
-        public int ExtentCount {
-            get { return response["numExtents"].ToInt32(); }
+        public int ExtentCount
+        {
+            get { return _response["numExtents"].ToInt32(); }
         }
 
         /// <summary>
         /// Gets the file size.
         /// </summary>
-        public long FileSize {
-            get { return response["fileSize"].ToInt64(); }
+        public long FileSize
+        {
+            get { return _response["fileSize"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the index count.
         /// </summary>
-        public int IndexCount {
-            get { return response["indexes"].ToInt32(); }
+        public int IndexCount
+        {
+            get { return _response["indexes"].ToInt32(); }
         }
 
         /// <summary>
         /// Gets the index size.
         /// </summary>
-        public long IndexSize {
-            get { return response["indexSize"].ToInt64(); }
+        public long IndexSize
+        {
+            get { return _response["indexSize"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the object count.
         /// </summary>
-        public long ObjectCount {
-            get { return response["objects"].ToInt64(); }
+        public long ObjectCount
+        {
+            get { return _response["objects"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the storage size.
         /// </summary>
-        public long StorageSize {
-            get { return response["storageSize"].ToInt64(); }
+        public long StorageSize
+        {
+            get { return _response["storageSize"].ToInt64(); }
         }
-        #endregion
     }
 }

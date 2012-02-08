@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,32 +23,36 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp281Tests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+    public class CSharp281Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["testcollection"];
-            collection.Drop();
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
+            _collection.Drop();
         }
 
         [Test]
-        public void TestPopFirst() {
+        public void TestPopFirst()
+        {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            collection.RemoveAll();
-            collection.Insert(document);
+            _collection.RemoveAll();
+            _collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = Update.PopFirst("x");
-            collection.Update(query, update);
+            _collection.Update(query, update);
 
-            document = collection.FindOne();
+            document = _collection.FindOne();
             var array = document["x"].AsBsonArray;
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual(2, array[0].AsInt32);
@@ -56,16 +60,17 @@ namespace MongoDB.DriverOnlineTests.Jira {
         }
 
         [Test]
-        public void TestPopLast() {
+        public void TestPopLast()
+        {
             var document = new BsonDocument("x", new BsonArray { 1, 2, 3 });
-            collection.RemoveAll();
-            collection.Insert(document);
+            _collection.RemoveAll();
+            _collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = Update.PopLast("x");
-            collection.Update(query, update);
+            _collection.Update(query, update);
 
-            document = collection.FindOne();
+            document = _collection.FindOne();
             var array = document["x"].AsBsonArray;
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual(1, array[0].AsInt32);

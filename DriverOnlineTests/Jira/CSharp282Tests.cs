@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,29 +23,33 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp282Tests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+    public class CSharp282Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["testcollection"];
-            collection.Drop();
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
+            _collection.Drop();
         }
 
         [Test]
-        public void TestEmptyUpdateBuilder() {
+        public void TestEmptyUpdateBuilder()
+        {
             var document = new BsonDocument("x", 1);
-            collection.Insert(document);
+            _collection.Insert(document);
 
             var query = Query.EQ("_id", document["_id"]);
             var update = new UpdateBuilder();
-            Assert.Throws<ArgumentException>(() => collection.Update(query, update));
+            Assert.Throws<ArgumentException>(() => _collection.Update(query, update));
         }
     }
 }

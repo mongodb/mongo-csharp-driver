@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,42 +18,52 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies whether extra elements should be ignored when this class is deserialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonIgnoreExtraElementsAttribute : Attribute {
-        #region private fields
-        private bool ignoreExtraElements;
-        #endregion
+    public class BsonIgnoreExtraElementsAttribute : Attribute
+    {
+        // private fields
+        private bool _ignoreExtraElements;
+        private bool _inherited;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
         /// </summary>
         public BsonIgnoreExtraElementsAttribute()
-            : this(true) {
+            : this(true)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonIgnoreExtraElementsAttribute class.
         /// </summary>
         /// <param name="ignoreExtraElements">Whether extra elements should be ignored when this class is deserialized.</param>
-        public BsonIgnoreExtraElementsAttribute(
-            bool ignoreExtraElements
-        ) {
-            this.ignoreExtraElements = ignoreExtraElements;
+        public BsonIgnoreExtraElementsAttribute(bool ignoreExtraElements)
+        {
+            _ignoreExtraElements = ignoreExtraElements;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets whether extra elements should be ignored when this class is deserialized.
         /// </summary>
-        public bool IgnoreExtraElements {
-            get { return ignoreExtraElements; }
+        public bool IgnoreExtraElements
+        {
+            get { return _ignoreExtraElements; }
         }
-        #endregion
+
+        /// <summary>
+        /// Gets whether extra elements should also be ignored when any class derived from this one is deserialized.
+        /// </summary>
+        public bool Inherited
+        {
+            get { return _inherited; }
+            set { _inherited = value; }
+        }
     }
 }

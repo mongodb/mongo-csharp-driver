@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the type of a BSON element.
     /// </summary>
     [Serializable]
-    public enum BsonType {
+    public enum BsonType
+    {
         /// <summary>
         /// Not a real BSON type. Used to signal the end of a document.
         /// </summary>

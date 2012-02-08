@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,375 +23,405 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a document from the system.profile collection.
     /// </summary>
     [Serializable]
-    public class SystemProfileInfo : IBsonSerializable {
-        #region private fields
-        private string abbreviated;
-        private string client;
-        private BsonDocument command;
-        private long cursorId;
-        private TimeSpan duration;
-        private string error;
-        private string exception;
-        private int exceptionCode;
-        private bool exhaust;
-        private bool fastMod;
-        private bool fastModInsert;
-        private bool idHack;
-        private string info;
-        private int keyUpdates;
-        private bool moved;
-        private string @namespace;
-        private int numberReturned;
-        private int numberScanned;
-        private int numberToReturn;
-        private int numberToSkip;
-        private string op;
-        private BsonDocument query;
-        private int responseLength;
-        private bool scanAndOrder;
-        private DateTime timestamp;
-        private BsonDocument updateObject;
-        private bool upsert;
-        private string user;
-        #endregion
+    public class SystemProfileInfo : IBsonSerializable
+    {
+        // private fields
+        private string _abbreviated;
+        private string _client;
+        private BsonDocument _command;
+        private long _cursorId;
+        private TimeSpan _duration;
+        private string _error;
+        private string _exception;
+        private int _exceptionCode;
+        private bool _exhaust;
+        private bool _fastMod;
+        private bool _fastModInsert;
+        private bool _idHack;
+        private string _info;
+        private int _keyUpdates;
+        private bool _moved;
+        private string _namespace;
+        private int _numberReturned;
+        private int _numberScanned;
+        private int _numberToReturn;
+        private int _numberToSkip;
+        private string _op;
+        private BsonDocument _query;
+        private int _responseLength;
+        private bool _scanAndOrder;
+        private DateTime _timestamp;
+        private BsonDocument _updateObject;
+        private bool _upsert;
+        private string _user;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the SystemProfileInfo class.
         /// </summary>
-        public SystemProfileInfo() {
+        public SystemProfileInfo()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the abbreviated profile info (only used when the profile info would have exceeded 100KB).
         /// </summary>
-        public string Abbreviated {
-            get { return abbreviated; }
-            set { abbreviated = value; }
+        public string Abbreviated
+        {
+            get { return _abbreviated; }
+            set { _abbreviated = value; }
         }
 
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
-        public string Client {
-            get { return client; }
-            set { client = value; }
+        public string Client
+        {
+            get { return _client; }
+            set { _client = value; }
         }
 
         /// <summary>
         /// Gets or sets the command.
         /// </summary>
-        public BsonDocument Command {
-            get { return command; }
-            set { command = value; }
+        public BsonDocument Command
+        {
+            get { return _command; }
+            set { _command = value; }
         }
 
         /// <summary>
         /// Gets or sets the cursor Id.
         /// </summary>
-        public long CursorId {
-            get { return cursorId; }
-            set { cursorId = value; }
+        public long CursorId
+        {
+            get { return _cursorId; }
+            set { _cursorId = value; }
         }
 
         /// <summary>
         /// Gets or sets the duration.
         /// </summary>
-        public TimeSpan Duration {
-            get { return duration; }
-            set { duration = value; }
+        public TimeSpan Duration
+        {
+            get { return _duration; }
+            set { _duration = value; }
         }
 
         /// <summary>
         /// Gets or sets the error message.
         /// </summary>
-        public string Error {
-            get { return error; }
-            set { error = value; }
+        public string Error
+        {
+            get { return _error; }
+            set { _error = value; }
         }
 
         /// <summary>
         /// Gets or sets the exception message.
         /// </summary>
-        public string Exception {
-            get { return exception; }
-            set { exception = value; }
+        public string Exception
+        {
+            get { return _exception; }
+            set { _exception = value; }
         }
 
         /// <summary>
         /// Gets or sets the exception code.
         /// </summary>
-        public int ExceptionCode {
-            get { return exceptionCode; }
-            set { exceptionCode = value; }
+        public int ExceptionCode
+        {
+            get { return _exceptionCode; }
+            set { _exceptionCode = value; }
         }
 
         /// <summary>
         /// Gets or sets whether exhaust was true.
         /// </summary>
-        public bool Exhaust {
-            get { return exhaust; }
-            set { exhaust = value; }
+        public bool Exhaust
+        {
+            get { return _exhaust; }
+            set { _exhaust = value; }
         }
 
         /// <summary>
         /// Gets or sets whether fastMod was true.
         /// </summary>
-        public bool FastMod {
-            get { return fastMod; }
-            set { fastMod = value; }
+        public bool FastMod
+        {
+            get { return _fastMod; }
+            set { _fastMod = value; }
         }
 
         /// <summary>
         /// Gets or sets whether fastModInsert was true.
         /// </summary>
-        public bool FastModInsert {
-            get { return fastModInsert; }
-            set { fastModInsert = value; }
+        public bool FastModInsert
+        {
+            get { return _fastModInsert; }
+            set { _fastModInsert = value; }
         }
 
         /// <summary>
         /// Gets or sets whether idHack was true.
         /// </summary>
-        public bool IdHack {
-            get { return idHack; }
-            set { idHack = value; }
+        public bool IdHack
+        {
+            get { return _idHack; }
+            set { _idHack = value; }
         }
 
         /// <summary>
         /// Gets or sets the info string (only present with pre 2.0 servers).
         /// </summary>
-        public string Info {
-            get { return info; }
-            set { info = value; }
+        public string Info
+        {
+            get { return _info; }
+            set { _info = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of key updates.
         /// </summary>
-        public int KeyUpdates {
-            get { return keyUpdates; }
-            set { keyUpdates = value; }
+        public int KeyUpdates
+        {
+            get { return _keyUpdates; }
+            set { _keyUpdates = value; }
         }
 
         /// <summary>
         /// Gets or sets whether moved was true.
         /// </summary>
-        public bool Moved {
-            get { return moved; }
-            set { moved = value; }
+        public bool Moved
+        {
+            get { return _moved; }
+            set { _moved = value; }
         }
 
         /// <summary>
         /// Gets or sets the namespace.
         /// </summary>
-        public string Namespace {
-            get { return @namespace; }
-            set { @namespace = value; }
+        public string Namespace
+        {
+            get { return _namespace; }
+            set { _namespace = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of documents returned.
         /// </summary>
-        public int NumberReturned {
-            get { return numberReturned; }
-            set { numberReturned = value; }
+        public int NumberReturned
+        {
+            get { return _numberReturned; }
+            set { _numberReturned = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of documents scanned.
         /// </summary>
-        public int NumberScanned {
-            get { return numberScanned; }
-            set { numberScanned = value; }
+        public int NumberScanned
+        {
+            get { return _numberScanned; }
+            set { _numberScanned = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of documents to return.
         /// </summary>
-        public int NumberToReturn {
-            get { return numberToReturn; }
-            set { numberToReturn = value; }
+        public int NumberToReturn
+        {
+            get { return _numberToReturn; }
+            set { _numberToReturn = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of documents to skip.
         /// </summary>
-        public int NumberToSkip {
-            get { return numberToSkip; }
-            set { numberToSkip = value; }
+        public int NumberToSkip
+        {
+            get { return _numberToSkip; }
+            set { _numberToSkip = value; }
         }
 
         /// <summary>
         /// Gets or sets the operation.
         /// </summary>
-        public string Op {
-            get { return op; }
-            set { op = value; }
+        public string Op
+        {
+            get { return _op; }
+            set { _op = value; }
         }
 
         /// <summary>
         /// Gets or sets the query.
         /// </summary>
-        public BsonDocument Query {
-            get { return query; }
-            set { query = value; }
+        public BsonDocument Query
+        {
+            get { return _query; }
+            set { _query = value; }
         }
 
         /// <summary>
         /// Gets or sets the response length.
         /// </summary>
-        public int ResponseLength {
-            get { return responseLength; }
-            set { responseLength = value; }
+        public int ResponseLength
+        {
+            get { return _responseLength; }
+            set { _responseLength = value; }
         }
 
         /// <summary>
         /// Gets or sets whether scanAndOrder was true.
         /// </summary>
-        public bool ScanAndOrder {
-            get { return scanAndOrder; }
-            set { scanAndOrder = value; }
+        public bool ScanAndOrder
+        {
+            get { return _scanAndOrder; }
+            set { _scanAndOrder = value; }
         }
 
         /// <summary>
         /// Gets or sets the timestamp.
         /// </summary>
-        public DateTime Timestamp {
-            get { return timestamp; }
-            set { timestamp = value; }
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
+            set { _timestamp = value; }
         }
 
         /// <summary>
         /// Gets or sets the update object.
         /// </summary>
-        public BsonDocument UpdateObject {
-            get { return updateObject; }
-            set { updateObject = value; }
+        public BsonDocument UpdateObject
+        {
+            get { return _updateObject; }
+            set { _updateObject = value; }
         }
 
         /// <summary>
         /// Gets or sets whether upsert was true.
         /// </summary>
-        public bool Upsert {
-            get { return upsert; }
-            set { upsert = value; }
+        public bool Upsert
+        {
+            get { return _upsert; }
+            set { _upsert = value; }
         }
 
         /// <summary>
         /// Gets or sets the user.
         /// </summary>
-        public string User {
-            get { return user; }
-            set { user = value; }
+        public string User
+        {
+            get { return _user; }
+            set { _user = value; }
         }
-        #endregion
 
-        #region explicit interface implementation
-        object IBsonSerializable.Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null) {
+        // explicit interface implementation
+        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
+            }
+            else
+            {
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument) {
+                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+                {
                     var name = bsonReader.ReadName();
-                    switch (name) {
+                    switch (name)
+                    {
                         case "abbreviated":
-                            abbreviated = bsonReader.ReadString();
+                            _abbreviated = bsonReader.ReadString();
                             break;
                         case "client":
-                            client = bsonReader.ReadString();
+                            _client = bsonReader.ReadString();
                             break;
                         case "command":
-                            command = BsonDocument.ReadFrom(bsonReader);
+                            _command = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "cursorid":
-                            cursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
+                            _cursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
                             break;
                         case "err":
-                            error = bsonReader.ReadString();
+                            _error = bsonReader.ReadString();
                             break;
                         case "exception":
-                            exception = bsonReader.ReadString();
+                            _exception = bsonReader.ReadString();
                             break;
                         case "exceptionCode":
-                            exceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _exceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "exhaust":
-                            exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmod":
-                            fastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _fastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmodinsert":
-                            fastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _fastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "idhack":
-                            idHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _idHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "info":
-                            info = bsonReader.ReadString();
+                            _info = bsonReader.ReadString();
                             break;
                         case "keyUpdates":
-                            keyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _keyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "millis":
-                            duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
+                            _duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
                             break;
                         case "moved":
-                            moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "nreturned":
-                            numberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ns":
-                            @namespace = bsonReader.ReadString();
+                            _namespace = bsonReader.ReadString();
                             break;
                         case "nscanned":
-                            numberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoreturn":
-                            numberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoskip":
-                            numberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _numberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "op":
-                            op = bsonReader.ReadString();
+                            _op = bsonReader.ReadString();
                             break;
                         case "query":
-                            query = BsonDocument.ReadFrom(bsonReader);
+                            _query = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "responseLength":
-                            responseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            _responseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "scanAndOrder":
-                            scanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _scanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "ts":
-                            timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
+                            _timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
                             break;
                         case "updateobj":
-                            updateObject = BsonDocument.ReadFrom(bsonReader);
+                            _updateObject = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "upsert":
-                            upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            _upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "user":
-                            user = bsonReader.ReadString();
+                            _user = bsonReader.ReadString();
                             break;
                         default:
                             break; // ignore unknown elements
@@ -402,111 +432,129 @@ namespace MongoDB.Driver {
             }
         }
 
-        bool IBsonSerializable.GetDocumentId(
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        {
             throw new NotSupportedException();
         }
 
-        void IBsonSerializable.Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
+        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(timestamp));
-            if (info != null) {
-                bsonWriter.WriteString("info", info);
+            bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(_timestamp));
+            if (_info != null)
+            {
+                bsonWriter.WriteString("info", _info);
             }
-            if (op != null) {
-                bsonWriter.WriteString("op", op);
+            if (_op != null)
+            {
+                bsonWriter.WriteString("op", _op);
             }
-            if (@namespace != null) {
-                bsonWriter.WriteString("ns", @namespace);
+            if (_namespace != null)
+            {
+                bsonWriter.WriteString("ns", _namespace);
             }
-            if (command != null) {
+            if (_command != null)
+            {
                 bsonWriter.WriteName("command");
-                command.WriteTo(bsonWriter);
+                _command.WriteTo(bsonWriter);
             }
-            if (query != null) {
+            if (_query != null)
+            {
                 bsonWriter.WriteName("query");
-                query.WriteTo(bsonWriter);
+                _query.WriteTo(bsonWriter);
             }
-            if (updateObject != null) {
+            if (_updateObject != null)
+            {
                 bsonWriter.WriteName("updateobj");
-                updateObject.WriteTo(bsonWriter);
+                _updateObject.WriteTo(bsonWriter);
             }
-            if (cursorId != 0) {
-                bsonWriter.WriteInt64("cursorid", cursorId);
+            if (_cursorId != 0)
+            {
+                bsonWriter.WriteInt64("cursorid", _cursorId);
             }
-            if (numberToReturn != 0) {
-                bsonWriter.WriteInt32("ntoreturn", numberToReturn);
+            if (_numberToReturn != 0)
+            {
+                bsonWriter.WriteInt32("ntoreturn", _numberToReturn);
             }
-            if (numberToSkip != 0) {
-                bsonWriter.WriteInt32("ntoskip", numberToSkip);
+            if (_numberToSkip != 0)
+            {
+                bsonWriter.WriteInt32("ntoskip", _numberToSkip);
             }
-            if (exhaust) {
-                bsonWriter.WriteBoolean("exhaust", exhaust);
+            if (_exhaust)
+            {
+                bsonWriter.WriteBoolean("exhaust", _exhaust);
             }
-            if (numberScanned != 0) {
-                bsonWriter.WriteInt32("nscanned", numberScanned);
+            if (_numberScanned != 0)
+            {
+                bsonWriter.WriteInt32("nscanned", _numberScanned);
             }
-            if (idHack) {
-                bsonWriter.WriteBoolean("idhack", idHack);
+            if (_idHack)
+            {
+                bsonWriter.WriteBoolean("idhack", _idHack);
             }
-            if (scanAndOrder) {
-                bsonWriter.WriteBoolean("scanAndOrder", scanAndOrder);
+            if (_scanAndOrder)
+            {
+                bsonWriter.WriteBoolean("scanAndOrder", _scanAndOrder);
             }
-            if (moved) {
-                bsonWriter.WriteBoolean("moved", moved);
+            if (_moved)
+            {
+                bsonWriter.WriteBoolean("moved", _moved);
             }
-            if (fastMod) {
-                bsonWriter.WriteBoolean("fastmod", fastMod);
+            if (_fastMod)
+            {
+                bsonWriter.WriteBoolean("fastmod", _fastMod);
             }
-            if (fastModInsert) {
-                bsonWriter.WriteBoolean("fastmodinsert", fastModInsert);
+            if (_fastModInsert)
+            {
+                bsonWriter.WriteBoolean("fastmodinsert", _fastModInsert);
             }
-            if (upsert) {
-                bsonWriter.WriteBoolean("upsert", upsert);
+            if (_upsert)
+            {
+                bsonWriter.WriteBoolean("upsert", _upsert);
             }
-            if (keyUpdates != 0) {
-                bsonWriter.WriteInt32("keyUpdates", keyUpdates);
+            if (_keyUpdates != 0)
+            {
+                bsonWriter.WriteInt32("keyUpdates", _keyUpdates);
             }
-            if (exception != null) {
-                bsonWriter.WriteString("exception", exception);
+            if (_exception != null)
+            {
+                bsonWriter.WriteString("exception", _exception);
             }
-            if (exceptionCode != 0) {
-                bsonWriter.WriteInt32("exceptionCode", exceptionCode);
+            if (_exceptionCode != 0)
+            {
+                bsonWriter.WriteInt32("exceptionCode", _exceptionCode);
             }
-            if (numberReturned != 0) {
-                bsonWriter.WriteInt32("nreturned", numberReturned);
+            if (_numberReturned != 0)
+            {
+                bsonWriter.WriteInt32("nreturned", _numberReturned);
             }
-            if (responseLength != 0) {
-                bsonWriter.WriteInt32("responseLength", responseLength);
+            if (_responseLength != 0)
+            {
+                bsonWriter.WriteInt32("responseLength", _responseLength);
             }
-            bsonWriter.WriteDouble("millis", duration.TotalMilliseconds);
-            if (client != null) {
-                bsonWriter.WriteString("client", client);
+            bsonWriter.WriteDouble("millis", _duration.TotalMilliseconds);
+            if (_client != null)
+            {
+                bsonWriter.WriteString("client", _client);
             }
-            if (user != null) {
-                bsonWriter.WriteString("user", user);
+            if (_user != null)
+            {
+                bsonWriter.WriteString("user", _user);
             }
-            if (error != null) {
-                bsonWriter.WriteString("err", error);
+            if (_error != null)
+            {
+                bsonWriter.WriteString("err", _error);
             }
-            if (abbreviated != null) {
-                bsonWriter.WriteString("abbreviated", abbreviated);
+            if (_abbreviated != null)
+            {
+                bsonWriter.WriteString("abbreviated", _abbreviated);
             }
             bsonWriter.WriteEndDocument();
         }
 
-        void IBsonSerializable.SetDocumentId(
-            object id
-        ) {
+        void IBsonSerializable.SetDocumentId(object id)
+        {
             throw new NotSupportedException();
         }
-        #endregion
     }
 }

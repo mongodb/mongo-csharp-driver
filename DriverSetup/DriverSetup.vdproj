@@ -57,12 +57,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A859C8D6AE9C46888F4068577C580DD9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_B80D9A001D7444C18198B456B82DACA6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -70,6 +64,12 @@
         "Entry"
         {
         "MsmKey" = "8:_BD76DB2CA357431595A0F671A8188FDD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C1FEA74DAE42457F83AE940CBBEE0E1E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -266,7 +266,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.3.0.4309, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:MongoDB.Bson, Version=1.3.1.4349, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_68791BFCA02EDE379F08E6AC19E7F96F"
@@ -293,10 +293,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A859C8D6AE9C46888F4068577C580DD9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C1FEA74DAE42457F83AE940CBBEE0E1E"
             {
-            "SourcePath" = "8:..\\Release Notes v1.3.txt"
-            "TargetName" = "8:Release Notes v1.3.txt"
+            "SourcePath" = "8:..\\Release Notes v1.3.1.txt"
+            "TargetName" = "8:Release Notes v1.3.1.txt"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
             "Condition" = "8:"
@@ -350,7 +350,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_714AC4AABA3743F280D3824A1345875C"
                             {
-                            "Name" = "8:CSharpDriver 1.3"
+                            "Name" = "8:CSharpDriver 1.3.1"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -376,7 +376,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_D4C7539AEF6E411F98A857872FF5F2FC"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.3"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\MongoDB\\CSharpDriver 1.3.1"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -401,16 +401,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:MongoDB CSharpDriver 1.3"
-        "ProductCode" = "8:{835C0C6A-43BF-4016-9F73-D918A3491A34}"
-        "PackageCode" = "8:{8AF43F1E-8002-4DA8-B8F4-3470887A8D24}"
+        "ProductName" = "8:MongoDB CSharpDriver 1.3.1"
+        "ProductCode" = "8:{EE2CA625-852C-4554-99FD-10DF46F7A49C}"
+        "PackageCode" = "8:{8A7436F2-25AE-4E83-AE0A-D5A4BD7813E3}"
         "UpgradeCode" = "8:{B144CF09-09EC-4B64-9981-236E85AC93F7}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.3.0"
+        "ProductVersion" = "8:1.3.1"
         "Manufacturer" = "8:10gen Inc."
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -573,15 +573,15 @@
             "Icon" = "8:"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_D4456E43F1E24C8896A822E04570ED72"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_FCF89FFF7CA1494B8DF1870B0730EA03"
             {
-            "Name" = "8:Release Notes v1.3.txt"
+            "Name" = "8:Release Notes v1.3.1.txt"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_A859C8D6AE9C46888F4068577C580DD9"
+            "Target" = "8:_C1FEA74DAE42457F83AE940CBBEE0E1E"
             "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
             "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
             "Icon" = "8:"

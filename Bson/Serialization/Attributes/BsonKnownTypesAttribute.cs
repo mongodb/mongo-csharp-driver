@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,35 +18,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the known types for this class (the derived classes).
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-    public class BsonKnownTypesAttribute : Attribute {
-        #region private fields
-        private Type[] knownTypes;
-        #endregion
+    public class BsonKnownTypesAttribute : Attribute
+    {
+        // private fields
+        private Type[] _knownTypes;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonKnownTypesAttribute class.
         /// </summary>
         /// <param name="knownTypes">One or more known types.</param>
-        public BsonKnownTypesAttribute(
-            params Type[] knownTypes
-        ) {
-            this.knownTypes = knownTypes;
+        public BsonKnownTypesAttribute(params Type[] knownTypes)
+        {
+            _knownTypes = knownTypes;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets a list of the known types.
         /// </summary>
-        public Type[] KnownTypes {
-            get { return knownTypes; }
+        public Type[] KnownTypes
+        {
+            get { return _knownTypes; }
         }
-        #endregion
     }
 }

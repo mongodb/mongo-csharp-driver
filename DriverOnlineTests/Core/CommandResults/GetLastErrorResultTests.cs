@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,25 +24,30 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.CommandResults {
+namespace MongoDB.DriverOnlineTests.CommandResults
+{
     [TestFixture]
-    public class GetLastErrorResultTests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+    public class GetLastErrorResultTests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database["test"];
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]
-        public void TestInsert() {
-            using (database.RequestStart()) {
-                collection.Insert(new BsonDocument());
-                var result = server.GetLastError();
+        public void TestInsert()
+        {
+            using (_database.RequestStart())
+            {
+                _collection.Insert(new BsonDocument());
+                var result = _server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
                 Assert.AreEqual(0, result.DocumentsAffected); // note: DocumentsAffected is only set after an Update?
@@ -50,19 +55,22 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestUpdate() {
-            using (database.RequestStart()) {
+        public void TestUpdate()
+        {
+            using (_database.RequestStart())
+            {
                 var id = ObjectId.GenerateNewId();
-                var document = new BsonDocument {
+                var document = new BsonDocument
+                {
                     { "_id", id },
                     { "x", 1 }
                 };
-                collection.Insert(document);
+                _collection.Insert(document);
 
                 var query = Query.EQ("_id", id);
                 var update = Update.Inc("x", 1);
-                collection.Update(query, update);
-                var result = server.GetLastError();
+                _collection.Update(query, update);
+                var result = _server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsTrue(result.UpdatedExisting);
                 Assert.AreEqual(1, result.DocumentsAffected);

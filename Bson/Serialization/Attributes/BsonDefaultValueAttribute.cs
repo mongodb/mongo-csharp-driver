@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,44 +18,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the default value for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDefaultValueAttribute : Attribute {
-        #region private fields
-        private object defaultValue;
-        private bool serializeDefaultValue = true;
-        #endregion
+    public class BsonDefaultValueAttribute : Attribute
+    {
+        // private fields
+        private object _defaultValue;
+        private bool _serializeDefaultValue;
+        private bool _serializeDefaultValueWasSet;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDefaultValueAttribute class.
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
-        public BsonDefaultValueAttribute(
-            object defaultValue
-        ) {
-            this.defaultValue = defaultValue;
+        public BsonDefaultValueAttribute(object defaultValue)
+        {
+            _defaultValue = defaultValue;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the default value.
         /// </summary>
-        public object DefaultValue {
-            get { return defaultValue; }
+        public object DefaultValue
+        {
+            get { return _defaultValue; }
         }
 
         /// <summary>
         /// Gets or sets whether to serialize the default value.
         /// </summary>
-        public bool SerializeDefaultValue {
-            get { return serializeDefaultValue; }
-            set { serializeDefaultValue = value; }
+        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
+        public bool SerializeDefaultValue
+        {
+            get { return _serializeDefaultValue; }
+            set {
+                _serializeDefaultValue = value;
+                _serializeDefaultValueWasSet = true;
+            }
         }
-        #endregion
+
+        /// <summary>
+        /// Gets whether SerializeDefaultValue was set.
+        /// </summary>
+        internal bool SerializeDefaultValueWasSet
+        {
+            get { return _serializeDefaultValueWasSet; }
+        }
     }
 }

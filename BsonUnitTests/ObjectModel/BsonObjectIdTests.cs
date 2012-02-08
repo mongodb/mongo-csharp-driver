@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonObjectIdTests {
+    public class BsonObjectIdTests
+    {
         [Test]
-        public void TestByteArrayConstructor() {
+        public void TestByteArrayConstructor()
+        {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new BsonObjectId(bytes);
             Assert.AreEqual(0x01020304, objectId.Timestamp);
@@ -41,7 +44,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestIntIntShortIntConstructor() {
+        public void TestIntIntShortIntConstructor()
+        {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new BsonObjectId(0x01020304, 0x050607, 0x0809, 0x0a0b0c);
             Assert.AreEqual(0x01020304, objectId.Timestamp);
@@ -57,7 +61,26 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestStringConstructor() {
+        public void TestDateTimeConstructor()
+        {
+            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            var timestamp = BsonConstants.UnixEpoch.AddSeconds(0x01020304);
+            var objectId = new BsonObjectId(timestamp, 0x050607, 0x0809, 0x0a0b0c);
+            Assert.AreEqual(0x01020304, objectId.Timestamp);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
+            Assert.AreEqual(0x050607, objectId.Machine);
+            Assert.AreEqual(0x0809, objectId.Pid);
+            Assert.AreEqual(0x0a0b0c, objectId.Increment);
+            Assert.AreEqual(BsonConstants.UnixEpoch.AddSeconds(0x01020304), objectId.CreationTime);
+            Assert.AreEqual("0102030405060708090a0b0c", objectId.ToString());
+            Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
+        }
+
+        [Test]
+        public void TestStringConstructor()
+        {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId = new BsonObjectId("0102030405060708090a0b0c");
             Assert.AreEqual(0x01020304, objectId.Timestamp);
@@ -73,7 +96,40 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestIComparable() {
+        public void TestGenerateNewId()
+        {
+            // compare against two timestamps in case seconds since epoch changes in middle of test
+            var timestamp1 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
+            var objectId = BsonObjectId.GenerateNewId();
+            var timestamp2 = (int)Math.Floor((DateTime.UtcNow - BsonConstants.UnixEpoch).TotalSeconds);
+            Assert.IsTrue(objectId.Timestamp == timestamp1 || objectId.Timestamp == timestamp2);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
+        }
+
+        [Test]
+        public void TestGenerateNewIdWithDateTime()
+        {
+            var timestamp = new DateTime(2011, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+            var objectId = BsonObjectId.GenerateNewId(timestamp);
+            Assert.IsTrue(objectId.CreationTime == timestamp);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
+        }
+
+        [Test]
+        public void TestGenerateNewIdWithTimestamp()
+        {
+            var timestamp = 0x01020304;
+            var objectId = BsonObjectId.GenerateNewId(timestamp);
+            Assert.IsTrue(objectId.Timestamp == timestamp);
+            Assert.IsTrue(objectId.Machine != 0);
+            Assert.IsTrue(objectId.Pid != 0);
+        }
+
+        [Test]
+        public void TestIComparable()
+        {
             var objectId1 = BsonObjectId.GenerateNewId();
             var objectId2 = BsonObjectId.GenerateNewId();
             Assert.AreEqual(0, objectId1.CompareTo(objectId1));
@@ -83,7 +139,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareEqualGeneratedIds() {
+        public void TestCompareEqualGeneratedIds()
+        {
             var objectId1 = BsonObjectId.GenerateNewId();
             var objectId2 = objectId1;
             Assert.IsFalse(objectId1 < objectId2);
@@ -95,7 +152,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareSmallerTimestamp() {
+        public void TestCompareSmallerTimestamp()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0c");
             var objectId2 = new BsonObjectId("0102030505060708090a0b0c");
             Assert.IsTrue(objectId1 < objectId2);
@@ -107,7 +165,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareSmallerMachine() {
+        public void TestCompareSmallerMachine()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0c");
             var objectId2 = new BsonObjectId("0102030405060808090a0b0c");
             Assert.IsTrue(objectId1 < objectId2);
@@ -119,7 +178,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareSmallerPid() {
+        public void TestCompareSmallerPid()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0c");
             var objectId2 = new BsonObjectId("01020304050607080a0a0b0c");
             Assert.IsTrue(objectId1 < objectId2);
@@ -131,7 +191,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareSmallerIncrement() {
+        public void TestCompareSmallerIncrement()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0c");
             var objectId2 = new BsonObjectId("0102030405060708090a0b0d");
             Assert.IsTrue(objectId1 < objectId2);
@@ -143,7 +204,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareSmallerGeneratedId() {
+        public void TestCompareSmallerGeneratedId()
+        {
             var objectId1 = BsonObjectId.GenerateNewId();
             var objectId2 = BsonObjectId.GenerateNewId();
             Assert.IsTrue(objectId1 < objectId2);
@@ -155,7 +217,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareLargerTimestamp() {
+        public void TestCompareLargerTimestamp()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0c");
             var objectId2 = new BsonObjectId("0102030305060708090a0b0c");
             Assert.IsFalse(objectId1 < objectId2);
@@ -167,7 +230,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareLargerMachine() {
+        public void TestCompareLargerMachine()
+        {
             var objectId1 = new BsonObjectId("0102030405060808090a0b0c");
             var objectId2 = new BsonObjectId("0102030405060708090a0b0c");
             Assert.IsFalse(objectId1 < objectId2);
@@ -179,7 +243,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareLargerPid() {
+        public void TestCompareLargerPid()
+        {
             var objectId1 = new BsonObjectId("01020304050607080a0a0b0c");
             var objectId2 = new BsonObjectId("0102030405060708090a0b0c");
             Assert.IsFalse(objectId1 < objectId2);
@@ -191,7 +256,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareLargerIncrement() {
+        public void TestCompareLargerIncrement()
+        {
             var objectId1 = new BsonObjectId("0102030405060708090a0b0d");
             var objectId2 = new BsonObjectId("0102030405060708090a0b0c");
             Assert.IsFalse(objectId1 < objectId2);
@@ -203,7 +269,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestCompareLargerGeneratedId() {
+        public void TestCompareLargerGeneratedId()
+        {
             var objectId2 = BsonObjectId.GenerateNewId(); // generate before objectId2
             var objectId1 = BsonObjectId.GenerateNewId();
             Assert.IsFalse(objectId1 < objectId2);
@@ -215,7 +282,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestParse() {
+        public void TestParse()
+        {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId1 = BsonObjectId.Parse("0102030405060708090a0b0c"); // lower case
             var objectId2 = BsonObjectId.Parse("0102030405060708090A0B0C"); // upper case
@@ -228,7 +296,8 @@ namespace MongoDB.BsonUnitTests {
         }
 
         [Test]
-        public void TestTryParse() {
+        public void TestTryParse()
+        {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             BsonObjectId objectId1, objectId2;
             Assert.IsTrue(BsonObjectId.TryParse("0102030405060708090a0b0c", out objectId1)); // lower case

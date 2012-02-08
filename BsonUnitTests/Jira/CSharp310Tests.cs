@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,34 +24,46 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp310Tests {
-        private class C {
+    public class CSharp310Tests
+    {
+        private class C
+        {
             public int Id;
             public Guid G = Guid.Empty;
         }
 
-        private class EmptyGuidDefaultValueConvention : IDefaultValueConvention {
-            public object GetDefaultValue(MemberInfo memberInfo) {
-                var type = (memberInfo.MemberType == MemberTypes.Field) ? ((FieldInfo) memberInfo).FieldType : ((PropertyInfo) memberInfo).PropertyType;
-                if (type == typeof(Guid)) {
+        private class EmptyGuidDefaultValueConvention : IDefaultValueConvention
+        {
+            public object GetDefaultValue(MemberInfo memberInfo)
+            {
+                var type = (memberInfo.MemberType == MemberTypes.Field) ? ((FieldInfo)memberInfo).FieldType : ((PropertyInfo)memberInfo).PropertyType;
+                if (type == typeof(Guid))
+                {
                     return Guid.Empty;
-                } else {
+                }
+                else
+                {
                     return null;
                 }
-            }       
+            }
         }
 
-        private static void InitializeSerialization() {
+        private static void InitializeSerialization()
+        {
             var conventions = new ConventionProfile();
             conventions.SetDefaultValueConvention(new EmptyGuidDefaultValueConvention());
+#pragma warning disable 618 // SetSerializeDefaultValueConvention and NeverSerializeDefaultValueConvention are obsolete
             conventions.SetSerializeDefaultValueConvention(new NeverSerializeDefaultValueConvention());
-            BsonClassMap.RegisterConventions(conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests"));
+#pragma warning restore 618
+            BsonClassMap.RegisterConventions(conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests", StringComparison.Ordinal));
         }
 
         [Test]
-        public void TestNeverSerializeDefaultValueConvention() {
+        public void TestNeverSerializeDefaultValueConvention()
+        {
             InitializeSerialization();
 
             var c = new C { Id = 1 };

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,33 +23,34 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for objects.
     /// </summary>
-    public class ObjectSerializer : IBsonSerializer {
-        #region private static fields
-        private static ObjectSerializer instance = new ObjectSerializer();
-        #endregion
+    public class ObjectSerializer : IBsonSerializer
+    {
+        // private static fields
+        private static ObjectSerializer __instance = new ObjectSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ObjectSerializer class.
         /// </summary>
-        public ObjectSerializer() {
+        public ObjectSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the ObjectSerializer class.
         /// </summary>
-        public static ObjectSerializer Instance {
-            get { return instance; }
+        public static ObjectSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -57,34 +58,39 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            if (nominalType != typeof(object)) {
-                var message = string.Format("ObjectSerializer can only be used with nominal type System.Object, not type {1}.", nominalType.FullName);
+        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            if (nominalType != typeof(object))
+            {
+                var message = string.Format("ObjectSerializer can only be used with nominal type System.Object, not type {0}.", nominalType.FullName);
                 throw new InvalidOperationException(message);
             }
 
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else if (bsonType == BsonType.Document) {
+            }
+            else if (bsonType == BsonType.Document)
+            {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
-                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument) {
+                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument)
+                {
                     bsonReader.ReadEndDocument();
                     return new object();
-                } else {
+                }
+                else
+                {
                     bsonReader.ReturnToBookmark(bookmark);
                 }
             }
 
             var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-            if (actualType == typeof(object)) {
+            if (actualType == typeof(object))
+            {
                 var message = string.Format("Unable to determine actual type of object to deserialize. NominalType is System.Object and BsonType is {0}.", bsonType);
                 throw new FileFormatException(message);
             }
@@ -102,30 +108,39 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
         public object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options
-        ) {
-            if (actualType != typeof(object)) {
-                var message = string.Format("ObjectSerializer can only be used with actual type System.Object, not type {1}.", actualType.FullName);
+           BsonReader bsonReader,
+           Type nominalType,
+           Type actualType,
+           IBsonSerializationOptions options)
+        {
+            if (actualType != typeof(object))
+            {
+                var message = string.Format("ObjectSerializer can only be used with actual type System.Object, not type {0}.", actualType.FullName);
                 throw new ArgumentException(message, "actualType");
             }
 
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else if (bsonType == BsonType.Document) {
+            }
+            else if (bsonType == BsonType.Document)
+            {
                 bsonReader.ReadStartDocument();
-                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument) {
+                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument)
+                {
                     bsonReader.ReadEndDocument();
                     return new object();
-                } else {
+                }
+                else
+                {
                     var message = string.Format("A document being deserialized to System.Object must be empty.");
                     throw new FileFormatException(message);
                 }
-            } else {
+            }
+            else
+            {
                 var message = string.Format("Cannot deserialize System.Object from BsonType {0}.", bsonType);
                 throw new FileFormatException(message);
             }
@@ -140,11 +155,11 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
         public bool GetDocumentId(
-            object document,
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
+           object document,
+           out object id,
+           out Type idNominalType,
+           out IIdGenerator idGenerator)
+        {
             throw new NotSupportedException();
         }
 
@@ -159,14 +174,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            if (value == null) {
+            IBsonSerializationOptions options)
+        {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
+            }
+            else
+            {
                 var actualType = value.GetType();
-                if (actualType != typeof(object)) {
-                    var message = string.Format("ObjectSerializer can only be used with type System.Object, not type {1}.", actualType.FullName);
+                if (actualType != typeof(object))
+                {
+                    var message = string.Format("ObjectSerializer can only be used with type System.Object, not type {0}.", actualType.FullName);
                     throw new InvalidOperationException(message);
                 }
 
@@ -180,12 +199,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
-        public void SetDocumentId(
-            object document,
-            object id
-        ) {
+        public void SetDocumentId(object document, object id)
+        {
             throw new NotSupportedException();
         }
-        #endregion
     }
 }

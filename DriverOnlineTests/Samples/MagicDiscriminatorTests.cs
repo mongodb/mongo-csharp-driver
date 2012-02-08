@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,12 +27,16 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.Samples {
+namespace MongoDB.DriverOnlineTests.Samples
+{
     [TestFixture]
-    public class MagicDiscriminatorTests {
+    public class MagicDiscriminatorTests
+    {
         [BsonKnownTypes(typeof(B), typeof(C))]
-        private class A {
-            static A() {
+        private class A
+        {
+            static A()
+            {
                 BsonDefaultSerializer.RegisterDiscriminatorConvention(typeof(A), new MagicDiscriminatorConvention());
             }
 
@@ -40,31 +44,36 @@ namespace MongoDB.DriverOnlineTests.Samples {
         }
 
         [BsonIgnoreExtraElements] // ignore _id
-        private class B : A {
+        private class B : A
+        {
             public string OnlyInB { get; set; }
         }
 
         [BsonIgnoreExtraElements] // ignore _id
-        private class C : A {
+        private class C : A
+        {
             public string OnlyInC { get; set; }
         }
 
-        private class MagicDiscriminatorConvention : IDiscriminatorConvention {
+        private class MagicDiscriminatorConvention : IDiscriminatorConvention
+        {
             public string ElementName { get { return null; } }
 
-            public Type GetActualType(
-                BsonReader bsonReader,
-                Type nominalType
-            ) {
+            public Type GetActualType(BsonReader bsonReader, Type nominalType)
+            {
                 var bookmark = bsonReader.GetBookmark();
                 bsonReader.ReadStartDocument();
                 var actualType = nominalType;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument) {
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
                     var name = bsonReader.ReadName();
-                    if (name == "OnlyInB") {
+                    if (name == "OnlyInB")
+                    {
                         actualType = typeof(B);
                         break;
-                    } else if (name == "OnlyInC") {
+                    }
+                    else if (name == "OnlyInC")
+                    {
                         actualType = typeof(C);
                         break;
                     }
@@ -74,52 +83,53 @@ namespace MongoDB.DriverOnlineTests.Samples {
                 return actualType;
             }
 
-            public BsonValue GetDiscriminator(
-                Type nominalType,
-                Type actualType
-            ) {
+            public BsonValue GetDiscriminator(Type nominalType, Type actualType)
+            {
                 return null;
             }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<A> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<A> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["test"];
-            collection = database.GetCollection<A>("magicdiscriminator");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<A>();
         }
 
         [Test]
-        public void TestBAsA() {
+        public void TestBAsA()
+        {
             var b = new B { InA = "a", OnlyInB = "b" };
 
             var json = b.ToJson();
             var expected = "{ 'InA' : 'a', 'OnlyInB' : 'b' }".Replace("'", "\""); // note: no _t discriminator!
             Assert.AreEqual(expected, json);
 
-            collection.RemoveAll();
-            collection.Insert(b);
-            var copy = (B) collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(b);
+            var copy = (B)_collection.FindOne();
             Assert.IsInstanceOf<B>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("b", copy.OnlyInB);
         }
 
         [Test]
-        public void TestCAsA() {
+        public void TestCAsA()
+        {
             var c = new C { InA = "a", OnlyInC = "c" };
 
             var json = c.ToJson();
             var expected = "{ 'InA' : 'a', 'OnlyInC' : 'c' }".Replace("'", "\""); // note: no _t discriminator!
             Assert.AreEqual(expected, json);
 
-            collection.RemoveAll();
-            collection.Insert(c);
-            var copy = (C) collection.FindOne();
+            _collection.RemoveAll();
+            _collection.Insert(c);
+            var copy = (C)_collection.FindOne();
             Assert.IsInstanceOf<C>(copy);
             Assert.AreEqual("a", copy.InA);
             Assert.AreEqual("c", copy.OnlyInC);

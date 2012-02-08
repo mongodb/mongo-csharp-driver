@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,30 +27,38 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp269 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp269
+{
     [TestFixture]
-    public class CSharp269Tests {
-        private MongoServer server;
-        private MongoDatabase database;
+    public class CSharp269Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true;slaveOk=true");
-            database = server["onlinetests"];
-            database.GridFS.Files.Drop();
-            database.GridFS.Chunks.Drop();
+        public void TestFixtureSetup()
+        {
+            var serverSettings = Configuration.TestServer.Settings.Clone();
+            serverSettings.SlaveOk = true;
+            _server = MongoServer.Create(serverSettings); // slaveOk=true
+            _database = Configuration.TestDatabase;
+            _database.GridFS.Files.Drop();
+            _database.GridFS.Chunks.Drop();
         }
 
         [Test]
-        public void TestUploadAndDownload() {
+        public void TestUploadAndDownload()
+        {
             var text = "HelloWorld";
             var bytes = Encoding.UTF8.GetBytes(text);
-            using (var stream = new MemoryStream(bytes)) {
-                database.GridFS.Upload(stream, "HelloWorld.txt");
+            using (var stream = new MemoryStream(bytes))
+            {
+                _database.GridFS.Upload(stream, "HelloWorld.txt");
             }
 
-            using (var stream = new MemoryStream()) {
-                database.GridFS.Download(stream, "HelloWorld.txt");
+            using (var stream = new MemoryStream())
+            {
+                _database.GridFS.Download(stream, "HelloWorld.txt");
                 var downloadedBytes = stream.ToArray();
                 var downloadedText = Encoding.UTF8.GetString(downloadedBytes);
                 Assert.AreEqual("HelloWorld", downloadedText);

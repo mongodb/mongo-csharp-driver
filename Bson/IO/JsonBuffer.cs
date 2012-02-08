@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,53 +18,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// This class represents a JSON string buffer.
     /// </summary>
-    public class JsonBuffer {
-        #region private fields
-        private string buffer;
-        private int position;
-        #endregion
+    public class JsonBuffer
+    {
+        // private fields
+        private string _buffer;
+        private int _position;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonBuffer class.
         /// </summary>
         /// <param name="buffer">The string.</param>
-        public JsonBuffer(
-            string buffer
-        ) {
-            this.buffer = buffer;
-            this.position = 0;
+        public JsonBuffer(string buffer)
+        {
+            _buffer = buffer;
+            _position = 0;
         }
-        #endregion
 
-        #region internal properties
+        // internal properties
         /// <summary>
         /// Gets the length of the JSON string.
         /// </summary>
-        public int Length {
-            get { return buffer.Length; }
+        public int Length
+        {
+            get { return _buffer.Length; }
         }
 
         /// <summary>
         /// Gets or sets the current position.
         /// </summary>
-        public int Position {
-            get { return position; }
-            set { position = value; }
+        public int Position
+        {
+            get { return _position; }
+            set { _position = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Reads a character from the buffer.
         /// </summary>
         /// <returns>The next character (or -1 if at the end of the buffer).</returns>
-        public int Read() {
-            return (position >= buffer.Length) ? -1 : buffer[position++];
+        public int Read()
+        {
+            return (_position >= _buffer.Length) ? -1 : _buffer[_position++];
         }
 
         /// <summary>
@@ -72,10 +73,9 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="start">The zero based index of the start of the substring.</param>
         /// <returns>The substring.</returns>
-        public string Substring(
-            int start
-        ) {
-            return buffer.Substring(start);
+        public string Substring(int start)
+        {
+            return _buffer.Substring(start);
         }
 
         /// <summary>
@@ -84,24 +84,21 @@ namespace MongoDB.Bson.IO {
         /// <param name="start">The zero based index of the start of the substring.</param>
         /// <param name="count">The number of characters in the substring.</param>
         /// <returns>The substring.</returns>
-        public string Substring(
-            int start,
-            int count
-        ) {
-            return buffer.Substring(start, count);
+        public string Substring(int start, int count)
+        {
+            return _buffer.Substring(start, count);
         }
 
         /// <summary>
         /// Returns one character to the buffer (if the character matches the one at the current position the current position is moved back by one).
         /// </summary>
         /// <param name="c">The character to return.</param>
-        public void UnRead(
-            int c
-        ) {
-            if (c != -1 && buffer[position - 1] == c) {
-                position -= 1;
+        public void UnRead(int c)
+        {
+            if (c != -1 && _buffer[_position - 1] == c)
+            {
+                _position -= 1;
             }
         }
-        #endregion
     }
 }

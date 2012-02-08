@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,76 +22,82 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.Driver.GridFS {
+namespace MongoDB.Driver.GridFS
+{
     /// <summary>
     /// Represents options used when creating a GridFS file.
     /// </summary>
-    public class MongoGridFSCreateOptions {
-        #region private fields
-        private string[] aliases;
-        private int chunkSize;
-        private string contentType;
-        private BsonValue id; // usually a BsonObjectId but not required to be
-        private BsonDocument metadata;
-        private DateTime uploadDate;
-        #endregion
+    public class MongoGridFSCreateOptions
+    {
+        // private fields
+        private string[] _aliases;
+        private int _chunkSize;
+        private string _contentType;
+        private BsonValue _id; // usually a BsonObjectId but not required to be
+        private BsonDocument _metadata;
+        private DateTime _uploadDate;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoGridFSCreateOptions class.
         /// </summary>
-        public MongoGridFSCreateOptions() {
+        public MongoGridFSCreateOptions()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the aliases.
         /// </summary>
-        public string[] Aliases {
-            get { return aliases; }
-            set { aliases = value; }
+        public string[] Aliases
+        {
+            get { return _aliases; }
+            set { _aliases = value; }
         }
 
         /// <summary>
         /// Gets or sets the chunk size.
         /// </summary>
-        public int ChunkSize {
-            get { return chunkSize; }
-            set { chunkSize = value; }
+        public int ChunkSize
+        {
+            get { return _chunkSize; }
+            set { _chunkSize = value; }
         }
 
         /// <summary>
         /// Gets or sets the content type.
         /// </summary>
-        public string ContentType {
-            get { return contentType; }
-            set { contentType = value; }
+        public string ContentType
+        {
+            get { return _contentType; }
+            set { _contentType = value; }
         }
 
         /// <summary>
         /// Gets or sets the file Id.
         /// </summary>
-        public BsonValue Id {
-            get { return id; }
-            set { id = value; }
+        public BsonValue Id
+        {
+            get { return _id; }
+            set { _id = value; }
         }
 
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
-        public BsonDocument Metadata {
-            get { return metadata; }
-            set { metadata = value; }
+        public BsonDocument Metadata
+        {
+            get { return _metadata; }
+            set { _metadata = value; }
         }
 
         /// <summary>
         /// Gets or sets the upload date.
         /// </summary>
-        public DateTime UploadDate {
-            get { return uploadDate; }
-            set { uploadDate = value; }
+        public DateTime UploadDate
+        {
+            get { return _uploadDate; }
+            set { _uploadDate = value; }
         }
-        #endregion
     }
 }

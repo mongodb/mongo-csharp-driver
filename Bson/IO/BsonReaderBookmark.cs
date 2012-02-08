@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,65 +18,64 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public abstract class BsonReaderBookmark {
-        #region protected fields
+    public abstract class BsonReaderBookmark
+    {
+        // protected fields
         /// <summary>
         /// The state of the reader.
         /// </summary>
-        protected BsonReaderState state;
+        protected BsonReaderState _state;
         /// <summary>
         /// The current BSON type.
         /// </summary>
-        protected BsonType currentBsonType;
+        protected BsonType _currentBsonType;
         /// <summary>
         /// The name of the current element.
         /// </summary>
-        protected string currentName;
-        #endregion
+        protected string _currentName;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonReaderBookmark class.
         /// </summary>
         /// <param name="state">The state of the reader.</param>
         /// <param name="currentBsonType">The current BSON type.</param>
         /// <param name="currentName">The name of the current element.</param>
-        protected BsonReaderBookmark(
-            BsonReaderState state,
-            BsonType currentBsonType,
-            string currentName
-        ) {
-            this.state = state;
-            this.currentBsonType = currentBsonType;
-            this.currentName = currentName;
+        protected BsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName)
+        {
+            _state = state;
+            _currentBsonType = currentBsonType;
+            _currentName = currentName;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the current state of the reader.
         /// </summary>
-        public BsonReaderState State {
-            get { return state; }
+        public BsonReaderState State
+        {
+            get { return _state; }
         }
 
         /// <summary>
         /// Gets the current BsonType;
         /// </summary>
-        public BsonType CurrentBsonType {
-            get { return currentBsonType; }
+        public BsonType CurrentBsonType
+        {
+            get { return _currentBsonType; }
         }
 
         /// <summary>
         /// Gets the name of the current element.
         /// </summary>
-        public string CurrentName {
-            get { return currentName; }
+        public string CurrentName
+        {
+            get { return _currentName; }
         }
-        #endregion
     }
 }

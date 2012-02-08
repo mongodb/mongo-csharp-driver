@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,17 +27,22 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp170 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp170
+{
     [TestFixture]
-    public class CSharp170Tests {
-        public class C {
+    public class CSharp170Tests
+    {
+        public class C
+        {
             public Collection<int> Collection;
             public ObservableCollection<int> Observable;
         }
 
         [Test]
-        public void TestDeserializeDouble() {
-            var obj = new C {
+        public void TestDeserializeDouble()
+        {
+            var obj = new C
+            {
                 Collection = new Collection<int> { 1, 2, 3 },
                 Observable = new ObservableCollection<int> { 1, 2, 3 }
             };

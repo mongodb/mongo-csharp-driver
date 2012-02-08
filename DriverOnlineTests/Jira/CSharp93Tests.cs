@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,18 +24,24 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp93 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp93
+{
     [TestFixture]
-    public class CSharp93Tests {
+    public class CSharp93Tests
+    {
         [Test]
-        public void TestDropAllIndexes() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp93");
+        public void TestDropAllIndexes()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
-            if (collection.Exists()) {
+            if (collection.Exists())
+            {
                 collection.DropAllIndexes();
-            } else {
+            }
+            else
+            {
                 collection.Insert(new BsonDocument()); // make sure collection exists
             }
 
@@ -47,14 +53,18 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp93 {
         }
 
         [Test]
-        public void EnsureIndex_SetUniqueTrue_Success() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp93");
+        public void EnsureIndex_SetUniqueTrue_Success()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
-            if (collection.Exists()) {
+            if (collection.Exists())
+            {
                 collection.DropAllIndexes();
-            } else {
+            }
+            else
+            {
                 collection.Insert(new BsonDocument()); // make sure collection exists
             }
 

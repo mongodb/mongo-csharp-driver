@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,25 +26,30 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp111 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp111
+{
     [TestFixture]
-    public class CSharp111Tests {
+    public class CSharp111Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public List<D> InnerObjects;
         }
 #pragma warning restore
 
-        private class D {
+        private class D
+        {
             public int X;
         }
 
         [Test]
-        public void TestAddToSetEach() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp111");
+        public void TestAddToSetEach()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<C>();
 
             collection.RemoveAll();
             var c = new C { InnerObjects = new List<D>() };

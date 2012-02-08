@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,27 +24,36 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
-namespace MongoDB.BsonUnitTests.Serialization.Attributes {
+namespace MongoDB.BsonUnitTests.Serialization.Attributes
+{
     [TestFixture]
-    public class BsonAttributeTests {
-        [BsonDiscriminator("discriminator", Required=true)]
+    public class BsonAttributeTests
+    {
+        [BsonDiscriminator("discriminator", Required = true)]
         [BsonIgnoreExtraElements(false)]
-        public class Test {
+        public class Test
+        {
             [BsonDefaultValue("default1")]
             public string SerializedDefaultValue1 { get; set; }
-            [BsonDefaultValue("default2", SerializeDefaultValue=true)]
+#pragma warning disable 618 // SerializeDefaultValue is obsolete
+            [BsonDefaultValue("default2", SerializeDefaultValue = true)]
             public string SerializedDefaultValue2 { get; set; }
-            [BsonDefaultValue("default3", SerializeDefaultValue=false)]
+            [BsonDefaultValue("default3", SerializeDefaultValue = false)]
             public string NotSerializedDefaultValue { get; set; }
+#pragma warning restore 618
             public string NoDefaultValue { get; set; }
 
-            [BsonId(IdGenerator=typeof(ObjectIdGenerator))]
+            [BsonId(IdGenerator = typeof(ObjectIdGenerator))]
             public ObjectId IsId { get; set; }
             public ObjectId IsNotId { get; set; }
 
             [BsonIgnore]
             public string Ignored { get; set; }
             public string NotIgnored { get; set; }
+
+            [BsonIgnoreIfDefault]
+            public string IgnoredIfDefault { get; set; }
+            public string NotIgnoredIfDefault { get; set; }
 
             [BsonIgnoreIfNull]
             public string IgnoredIfNull { get; set; }
@@ -56,51 +65,51 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
 
             [BsonElement("notordered")]
             public string NotOrdered { get; set; }
-            [BsonElement("ordered", Order=1)]
+            [BsonElement("ordered", Order = 1)]
             public string Ordered { get; set; }
             public string NoElement { get; set; }
         }
 
         [Test]
-        public void TestDiscriminator() {
+        public void TestDiscriminator()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual("discriminator", classMap.Discriminator);
             Assert.AreEqual(true, classMap.DiscriminatorIsRequired);
         }
 
         [Test]
-        public void TestIgnoreExtraElements() {
+        public void TestIgnoreExtraElements()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
             Assert.AreEqual(false, classMap.IgnoreExtraElements);
         }
 
         [Test]
-        public void TestDefaultValue() {
+        public void TestDefaultValue()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var serializedDefaultValue1 = classMap.GetMemberMap("SerializedDefaultValue1");
-            Assert.AreEqual(true, serializedDefaultValue1.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue1.SerializeDefaultValue);
+            Assert.AreEqual(false, serializedDefaultValue1.IgnoreIfDefault);
             Assert.AreEqual("default1", serializedDefaultValue1.DefaultValue);
 
             var serializedDefaultValue2 = classMap.GetMemberMap("SerializedDefaultValue2");
-            Assert.AreEqual(true, serializedDefaultValue2.HasDefaultValue);
-            Assert.AreEqual(true, serializedDefaultValue2.SerializeDefaultValue);
+            Assert.AreEqual(false, serializedDefaultValue2.IgnoreIfDefault);
             Assert.AreEqual("default2", serializedDefaultValue2.DefaultValue);
 
             var notSerializedDefaultValue = classMap.GetMemberMap("NotSerializedDefaultValue");
-            Assert.AreEqual(true, notSerializedDefaultValue.HasDefaultValue);
-            Assert.AreEqual(false, notSerializedDefaultValue.SerializeDefaultValue);
+            Assert.AreEqual(true, notSerializedDefaultValue.IgnoreIfDefault);
             Assert.AreEqual("default3", notSerializedDefaultValue.DefaultValue);
 
             var noDefaultValue = classMap.GetMemberMap("NoDefaultValue");
-            Assert.AreEqual(false, noDefaultValue.HasDefaultValue);
-            Assert.AreEqual(true, noDefaultValue.SerializeDefaultValue);
+            Assert.AreEqual(false, noDefaultValue.IgnoreIfDefault);
             Assert.IsNull(noDefaultValue.DefaultValue);
         }
 
         [Test]
-        public void TestId() {
+        public void TestId()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var isId = classMap.GetMemberMap("IsId");
@@ -113,7 +122,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestIgnored() {
+        public void TestIgnored()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignored = classMap.GetMemberMap("Ignored");
@@ -124,7 +134,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestIgnoredIfNull() {
+        public void TestIgnoredIfNull()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var ignoredIfNull = classMap.GetMemberMap("IgnoredIfNull");
@@ -135,7 +146,20 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestRequired() {
+        public void TestIgnoredIfDefault()
+        {
+            var classMap = BsonClassMap.LookupClassMap(typeof(Test));
+
+            var ignoredIfDefault = classMap.GetMemberMap("IgnoredIfDefault");
+            Assert.AreEqual(true, ignoredIfDefault.IgnoreIfDefault);
+
+            var notIgnoredIfDefault = classMap.GetMemberMap("NotIgnoredIfDefault");
+            Assert.AreEqual(false, notIgnoredIfDefault.IgnoreIfDefault);
+        }
+
+        [Test]
+        public void TestRequired()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var required = classMap.GetMemberMap("Required");
@@ -146,7 +170,8 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes {
         }
 
         [Test]
-        public void TestElement() {
+        public void TestElement()
+        {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var notOrdered = classMap.GetMemberMap("NotOrdered");

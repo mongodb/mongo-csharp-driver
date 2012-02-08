@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,35 +26,40 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp172 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp172
+{
     [TestFixture]
-    public class CSharp172Tests {
-        public class C {
+    public class CSharp172Tests
+    {
+        public class C
+        {
             [BsonRepresentation(BsonType.ObjectId)]
             public string Id;
             public int N;
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp172");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<C>();
         }
 
         [Test]
-        public void TestRoundtrip() {
+        public void TestRoundtrip()
+        {
             var obj1 = new C { N = 1 };
             Assert.IsNullOrEmpty(obj1.Id);
-            collection.RemoveAll();
-            collection.Insert(obj1);
+            _collection.RemoveAll();
+            _collection.Insert(obj1);
             Assert.IsNotNullOrEmpty(obj1.Id);
 
-            var obj2 = collection.FindOne();
+            var obj2 = _collection.FindOne();
             Assert.AreEqual(obj1.Id, obj2.Id);
             Assert.AreEqual(obj1.N, obj2.N);
         }

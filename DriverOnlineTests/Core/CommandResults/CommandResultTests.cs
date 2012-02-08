@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,32 +23,40 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.CommandResults {
+namespace MongoDB.DriverOnlineTests.CommandResults
+{
     [TestFixture]
-    public class CommandResultTests {
-        private MongoServer server;
-        private MongoDatabase database;
+    public class CommandResultTests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
-        public void Setup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
         }
 
         [Test]
-        public void TestOkMissing() {
+        public void TestOkMissing()
+        {
             var command = new CommandDocument("invalid", true);
             var document = new BsonDocument();
             var result = new CommandResult(command, document);
-            try {
+            try
+            {
                 var dummy = result.Ok;
-            } catch (MongoCommandException ex) {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was "));
+            }
+            catch (MongoCommandException ex)
+            {
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed. Response has no ok element (response was ", StringComparison.Ordinal));
             }
         }
 
         [Test]
-        public void TestOkFalse() {
+        public void TestOkFalse()
+        {
             var document = new BsonDocument("ok", false);
             var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
@@ -56,7 +64,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestOkTrue() {
+        public void TestOkTrue()
+        {
             var document = new BsonDocument("ok", true);
             var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
@@ -64,7 +73,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestOkZero() {
+        public void TestOkZero()
+        {
             var document = new BsonDocument("ok", 0);
             var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
@@ -72,7 +82,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestOkZeroPointZero() {
+        public void TestOkZeroPointZero()
+        {
             var document = new BsonDocument("ok", 0.0);
             var result = new CommandResult(null, document);
             Assert.IsFalse(result.Ok);
@@ -80,7 +91,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestOkOne() {
+        public void TestOkOne()
+        {
             var document = new BsonDocument("ok", 1);
             var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
@@ -88,7 +100,8 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestOkOnePointZero() {
+        public void TestOkOnePointZero()
+        {
             var document = new BsonDocument("ok", 1.0);
             var result = new CommandResult(null, document);
             Assert.IsTrue(result.Ok);
@@ -96,38 +109,46 @@ namespace MongoDB.DriverOnlineTests.CommandResults {
         }
 
         [Test]
-        public void TestErrorMessageMissing() {
+        public void TestErrorMessageMissing()
+        {
             var document = new BsonDocument();
             var result = new CommandResult(null, document);
             Assert.AreEqual("Unknown error", result.ErrorMessage);
         }
 
         [Test]
-        public void TestErrorMessagePresent() {
+        public void TestErrorMessagePresent()
+        {
             var document = new BsonDocument("errmsg", "An error message");
             var result = new CommandResult(null, document);
             Assert.AreEqual("An error message", result.ErrorMessage);
         }
 
         [Test]
-        public void TestErrorMessageNotString() {
+        public void TestErrorMessageNotString()
+        {
             var document = new BsonDocument("errmsg", 3.14159);
             var result = new CommandResult(null, document);
             Assert.AreEqual("3.14159", result.ErrorMessage);
         }
 
         [Test]
-        public void TestIsMasterCommand() {
-            var result = database.RunCommand("ismaster");
+        public void TestIsMasterCommand()
+        {
+            var result = _database.RunCommand("ismaster");
             Assert.IsTrue(result.Ok);
         }
 
         [Test]
-        public void TestInvalidCommand() {
-            try {
-                var result = database.RunCommand("invalid");
-            } catch (MongoCommandException ex) {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd"));
+        public void TestInvalidCommand()
+        {
+            try
+            {
+                var result = _database.RunCommand("invalid");
+            }
+            catch (MongoCommandException ex)
+            {
+                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
             }
         }
     }

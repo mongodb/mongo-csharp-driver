@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,57 +22,56 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver.Internal {
-    internal abstract class MongoMessage {
-        #region protected fields
-        protected int messageLength;
-        protected int requestId;
-        protected int responseTo;
-        protected MessageOpcode opcode;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal abstract class MongoMessage
+    {
+        // protected fields
+        protected int _messageLength;
+        protected int _requestId;
+        protected int _responseTo;
+        protected MessageOpcode _opcode;
 
-        #region constructors
-        protected MongoMessage(
-            MessageOpcode opcode
-        ) {
-            this.opcode = opcode;
-        }
-        #endregion
-
-        #region internal properties
-        internal int MessageLength {
-            get { return messageLength; }
+        // constructors
+        protected MongoMessage(MessageOpcode opcode)
+        {
+            _opcode = opcode;
         }
 
-        internal int RequestId {
-            get { return requestId; }
+        // internal properties
+        internal int MessageLength
+        {
+            get { return _messageLength; }
         }
 
-        internal int ResponseTo {
-            get { return responseTo; }
+        internal int RequestId
+        {
+            get { return _requestId; }
         }
-        #endregion
 
-        #region protected methods
-        protected void ReadMessageHeaderFrom(
-            BsonBuffer buffer
-        ) {
-            messageLength = buffer.ReadInt32();
-            requestId = buffer.ReadInt32();
-            responseTo = buffer.ReadInt32();
-            if ((MessageOpcode) buffer.ReadInt32() != opcode) {
+        internal int ResponseTo
+        {
+            get { return _responseTo; }
+        }
+
+        // protected methods
+        protected void ReadMessageHeaderFrom(BsonBuffer buffer)
+        {
+            _messageLength = buffer.ReadInt32();
+            _requestId = buffer.ReadInt32();
+            _responseTo = buffer.ReadInt32();
+            if ((MessageOpcode)buffer.ReadInt32() != _opcode)
+            {
                 throw new FileFormatException("Message header opcode is not the expected one.");
             }
         }
 
-        protected void WriteMessageHeaderTo(
-            BsonBuffer buffer
-        ) {
+        protected void WriteMessageHeaderTo(BsonBuffer buffer)
+        {
             buffer.WriteInt32(0); // messageLength will be backpatched later
-            buffer.WriteInt32(requestId);
+            buffer.WriteInt32(_requestId);
             buffer.WriteInt32(0); // responseTo not used in requests sent by client
-            buffer.WriteInt32((int) opcode);
+            buffer.WriteInt32((int)_opcode);
         }
-        #endregion
     }
 }

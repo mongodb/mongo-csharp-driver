@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,71 +26,87 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp258 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp258
+{
     [TestFixture]
-    public class CSharp258Tests {
-        public class C {
+    public class CSharp258Tests
+    {
+        public class C
+        {
             public ObjectId Id { get; set; }
             public DateTime DateTime { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("testcollection");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<C>();
         }
 
         [Test]
-        public void TestDateTimePropertyWithNewMaxDateTimeRepresentation() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300799999) }
-            });
+        public void TestDateTimePropertyWithNewMaxDateTimeRepresentation()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300799999) }
+                });
 
-            var c = collection.FindOne();
+            var c = _collection.FindOne();
             Assert.AreEqual(DateTime.MaxValue, c.DateTime);
         }
 
         [Test]
-        public void TestDateTimePropertyWithOldMaxDateTimeRepresentation() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300800000) }
-            });
+        public void TestDateTimePropertyWithOldMaxDateTimeRepresentation()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300800000) }
+                });
 
-            var c = collection.FindOne();
+            var c = _collection.FindOne();
             Assert.AreEqual(DateTime.MaxValue, c.DateTime);
         }
 
         [Test]
-        public void TestDocumentWithNewMaxDateTimeRepresentation() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300799999) }
-            });
+        public void TestDocumentWithNewMaxDateTimeRepresentation()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300799999) }
+                });
 
-            var document = collection.FindOneAs<BsonDocument>();
+            var document = _collection.FindOneAs<BsonDocument>();
             Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);
             Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }
 
         [Test]
-        public void TestDocumentWithOldMaxDateTimeRepresentation() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument {
-                { "_id", ObjectId.GenerateNewId() },
-                { "DateTime", new BsonDateTime(253402300800000) }
-            });
+        public void TestDocumentWithOldMaxDateTimeRepresentation()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(
+                new BsonDocument
+                {
+                    { "_id", ObjectId.GenerateNewId() },
+                    { "DateTime", new BsonDateTime(253402300800000) }
+                });
 
-            var document = collection.FindOneAs<BsonDocument>();
+            var document = _collection.FindOneAs<BsonDocument>();
             Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);
             Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }

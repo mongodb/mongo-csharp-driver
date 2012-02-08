@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,59 +19,54 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonBinaryReaderContext {
-        #region private fields
-        private BsonBinaryReaderContext parentContext;
-        private ContextType contextType;
-        private int startPosition;
-        private int size;
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class BsonBinaryReaderContext
+    {
+        // private fields
+        private BsonBinaryReaderContext _parentContext;
+        private ContextType _contextType;
+        private int _startPosition;
+        private int _size;
 
-        #region constructors
+        // constructors
         internal BsonBinaryReaderContext(
             BsonBinaryReaderContext parentContext,
             ContextType contextType,
-            int startPosition,
-            int size
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.startPosition = startPosition;
-            this.size = size;
+            int startPosition, 
+            int size)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _startPosition = startPosition;
+            _size = size;
         }
-        #endregion
 
-        #region internal properties
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public BsonBinaryReaderContext Clone() {
-            return new BsonBinaryReaderContext(
-                parentContext,
-                contextType,
-                startPosition,
-                size
-            );
+        public BsonBinaryReaderContext Clone()
+        {
+            return new BsonBinaryReaderContext(_parentContext, _contextType, _startPosition, _size);
         }
 
-        public BsonBinaryReaderContext PopContext(
-            int position
-        ) {
-            int actualSize = position - startPosition;
-            if (actualSize != size) {
-                var message = string.Format("Expected size to be {0}, not {1}.", size, actualSize);
+        public BsonBinaryReaderContext PopContext(int position)
+        {
+            int actualSize = position - _startPosition;
+            if (actualSize != _size)
+            {
+                var message = string.Format("Expected size to be {0}, not {1}.", _size, actualSize);
                 throw new FileFormatException(message);
             }
-            return parentContext;
+            return _parentContext;
         }
-        #endregion
     }
 }

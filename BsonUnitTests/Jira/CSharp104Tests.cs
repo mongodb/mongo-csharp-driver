@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,41 +26,47 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira {
+namespace MongoDB.BsonUnitTests.Jira
+{
     [TestFixture]
-    public class CSharp104Tests {
-        private static bool firstTime = true;
+    public class CSharp104Tests
+    {
+        private static bool __firstTime = true;
 
 #pragma warning disable 169 // never used
-        private class Test {
-            static Test() {
+        private class Test
+        {
+            static Test()
+            {
             }
 
-            private const string literal = "constant";
-            private readonly string readOnly;
-            private string getOnly;
-            private string setOnly;
+            private const string _literal = "constant";
+            private readonly string _readOnly;
+            private string _getOnly;
+            private string _setOnly;
 
-            public Test(
-                string value
-            ) {
-                this.getOnly = value;
+            public Test(string value)
+            {
+                _getOnly = value;
             }
 
             public ObjectId Id { get; set; }
-            public string GetOnly { get { return getOnly; } }
-            public string SetOnly { set { setOnly = value; } }
+            public string GetOnly { get { return _getOnly; } }
+            public string SetOnly { set { _setOnly = value; } }
         }
 #pragma warning restore
 
         [Test]
-        public void TestClassMap() {
+        public void TestClassMap()
+        {
             // this test passes normally when the Test class is automapped
             // uncomment all or parts of the class map initialization code to test
             // the exceptions thrown for each non-compliant field or property
 
-            if (firstTime) {
-                BsonClassMap.RegisterClassMap<Test>(cm => {
+            if (__firstTime)
+            {
+                BsonClassMap.RegisterClassMap<Test>(cm =>
+                {
                     cm.AutoMap();
                     // cm.MapField("literal");
                     // cm.MapField("readOnly");
@@ -70,7 +76,7 @@ namespace MongoDB.BsonUnitTests.Jira {
                     // cm.MapProperty("notfound");
                     // cm.MapMember(null);
                 });
-                firstTime = false;
+                __firstTime = false;
             }
 
             var test = new Test("x") { SetOnly = "y" };

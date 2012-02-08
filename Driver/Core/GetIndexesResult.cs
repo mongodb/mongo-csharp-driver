@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,100 +24,103 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the result of GetIndexes.
     /// </summary>
-    public class GetIndexesResult : IEnumerable<IndexInfo> {
-        #region private fields
-        private BsonDocument[] documents;
-        private IndexInfo[] indexes;
-        #endregion
+    public class GetIndexesResult : IEnumerable<IndexInfo>
+    {
+        // private fields
+        private BsonDocument[] _documents;
+        private IndexInfo[] _indexes;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GetIndexesResult class.
         /// </summary>
         /// <param name="documents">The raw documents containing the information about the indexes.</param>
-        public GetIndexesResult(
-            BsonDocument[] documents
-        ) {
-            this.documents = documents;
-            this.indexes = this.documents.Select(d => new IndexInfo(d)).ToArray();
+        public GetIndexesResult(BsonDocument[] documents)
+        {
+            _documents = documents;
+            _indexes = _documents.Select(d => new IndexInfo(d)).ToArray();
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Gets the IndexInfo at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the IndexInfo to get.</param>
         /// <returns>An IndexInfo.</returns>
-        public IndexInfo this[int index] {
-            get { return indexes[index]; }
+        public IndexInfo this[int index]
+        {
+            get { return _indexes[index]; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the count of indexes.
         /// </summary>
-        public int Count {
-            get { return indexes.Length; }
+        public int Count
+        {
+            get { return _indexes.Length; }
         }
 
         /// <summary>
         /// Gets the raw BSON documents containing the information about the indexes.
         /// </summary>
-        public IEnumerable<BsonDocument> RawDocuments {
-            get { return documents; }
-        }
-        #endregion
-
-        #region public methods
-        #endregion
-
-        #region explicit interface implementations
-        IEnumerator<IndexInfo> IEnumerable<IndexInfo>.GetEnumerator() {
-            return ((IEnumerable<IndexInfo>) indexes).GetEnumerator();
+        public IEnumerable<BsonDocument> RawDocuments
+        {
+            get { return _documents; }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() {
-            return indexes.GetEnumerator();
+        // public methods
+
+        // explicit interface implementations
+        IEnumerator<IndexInfo> IEnumerable<IndexInfo>.GetEnumerator()
+        {
+            return ((IEnumerable<IndexInfo>)_indexes).GetEnumerator();
         }
-        #endregion
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _indexes.GetEnumerator();
+        }
     }
 
     /// <summary>
     /// Represents information about an index.
     /// </summary>
-    public class IndexInfo {
-        #region private fields
-        private BsonDocument document;
-        #endregion
+    public class IndexInfo
+    {
+        // private fields
+        private BsonDocument _document;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Creates a new instance of the IndexInfo class.
         /// </summary>
         /// <param name="document">The BSON document that contains information about the index.</param>
-        public IndexInfo(
-            BsonDocument document
-        ) {
-            this.document = document;
+        public IndexInfo(BsonDocument document)
+        {
+            _document = document;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets whether the dups were dropped when the index was created.
         /// </summary>
-        public bool DroppedDups {
-            get {
+        public bool DroppedDups
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("dropDups", out value)) {
+                if (_document.TryGetValue("dropDups", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -126,12 +129,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index was created in the background.
         /// </summary>
-        public bool IsBackground {
-            get {
+        public bool IsBackground
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("background", out value)) {
+                if (_document.TryGetValue("background", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -140,12 +148,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index is sparse.
         /// </summary>
-        public bool IsSparse {
-            get {
+        public bool IsSparse
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("sparse", out value)) {
+                if (_document.TryGetValue("sparse", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -154,12 +167,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the index is unique.
         /// </summary>
-        public bool IsUnique {
-            get {
+        public bool IsUnique
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("unique", out value)) {
+                if (_document.TryGetValue("unique", out value))
+                {
                     return value.ToBoolean();
-                } else {
+                }
+                else
+                {
                     return false;
                 }
             }
@@ -168,50 +186,61 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets the key of the index.
         /// </summary>
-        public IndexKeysDocument Key {
-            get {
-                return new IndexKeysDocument(document["key"].AsBsonDocument.Elements);
+        public IndexKeysDocument Key
+        {
+            get
+            {
+                return new IndexKeysDocument(_document["key"].AsBsonDocument.Elements);
             }
         }
 
         /// <summary>
         /// Gets the name of the index.
         /// </summary>
-        public string Name {
-            get {
-                return document["name"].AsString;
+        public string Name
+        {
+            get
+            {
+                return _document["name"].AsString;
             }
         }
 
         /// <summary>
         /// Gets the namespace of the collection that the index is for.
         /// </summary>
-        public string Namespace {
-            get {
-                return document["ns"].AsString;
+        public string Namespace
+        {
+            get
+            {
+                return _document["ns"].AsString;
             }
         }
 
         /// <summary>
         /// Gets the raw BSON document containing the index information.
         /// </summary>
-        public BsonDocument RawDocument {
-            get { return document; }
+        public BsonDocument RawDocument
+        {
+            get { return _document; }
         }
 
         /// <summary>
         /// Gets the version of the index.
         /// </summary>
-        public int Version {
-            get {
+        public int Version
+        {
+            get
+            {
                 BsonValue value;
-                if (document.TryGetValue("v", out value)) {
+                if (_document.TryGetValue("v", out value))
+                {
                     return value.ToInt32();
-                } else {
+                }
+                else
+                {
                     return 0;
                 }
             }
         }
-        #endregion
     }
 }

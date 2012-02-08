@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,59 +18,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the discriminator and related options for a class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonDiscriminatorAttribute : Attribute {
-        #region private fields
-        private string discriminator;
-        private bool required;
-        private bool rootClass;
-        #endregion
+    public class BsonDiscriminatorAttribute : Attribute
+    {
+        // private fields
+        private string _discriminator;
+        private bool _required;
+        private bool _rootClass;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDiscriminatorAttribute class.
         /// </summary>
-        public BsonDiscriminatorAttribute() {
+        public BsonDiscriminatorAttribute()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDiscriminatorAttribute class.
         /// </summary>
         /// <param name="discriminator">The discriminator.</param>
-        public BsonDiscriminatorAttribute(
-            string discriminator
-        ) {
-            this.discriminator = discriminator;
+        public BsonDiscriminatorAttribute(string discriminator)
+        {
+            _discriminator = discriminator;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the discriminator.
         /// </summary>
-        public string Discriminator {
-            get { return discriminator; }
+        public string Discriminator
+        {
+            get { return _discriminator; }
         }
 
         /// <summary>
         /// Gets or sets whether the discriminator is required.
         /// </summary>
-        public bool Required {
-            get { return required; }
-            set { required = value; }
+        public bool Required
+        {
+            get { return _required; }
+            set { _required = value; }
         }
 
         /// <summary>
         /// Gets or sets whether this is a root class.
         /// </summary>
-        public bool RootClass {
-            get { return rootClass; }
-            set { rootClass = value; }
+        public bool RootClass
+        {
+            get { return _rootClass; }
+            set { _rootClass = value; }
         }
-        #endregion
     }
 }

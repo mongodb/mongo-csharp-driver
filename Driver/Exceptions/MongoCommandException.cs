@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,35 +21,34 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents a MongoDB command exception.
     /// </summary>
     [Serializable]
-    public class MongoCommandException : MongoException {
-        #region private fields
-        private CommandResult commandResult;
-        #endregion
+    public class MongoCommandException : MongoException
+    {
+        // private fields
+        private CommandResult _commandResult;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoCommandException class.
         /// </summary>
         /// <param name="commandResult">The command result (an error message will be constructed using the result).</param>
-        public MongoCommandException(
-            CommandResult commandResult
-        )
-            : this(FormatErrorMessage(commandResult), commandResult) {
+        public MongoCommandException(CommandResult commandResult)
+            : this(FormatErrorMessage(commandResult), commandResult)
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the MongoCommandException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        public MongoCommandException(
-            string message
-        )
-            : base(message) {
+        public MongoCommandException(string message)
+            : base(message)
+        {
         }
 
         /// <summary>
@@ -57,11 +56,9 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoCommandException(
-            string message,
-            Exception innerException
-        )
-            : base(message, innerException) {
+        public MongoCommandException(string message, Exception innerException)
+            : base(message, innerException)
+        {
         }
 
         /// <summary>
@@ -69,12 +66,10 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="commandResult">The command result.</param>
-        public MongoCommandException(
-            string message,
-            CommandResult commandResult
-        )
-            : this(message) {
-                this.commandResult = commandResult;
+        public MongoCommandException(string message, CommandResult commandResult)
+            : this(message)
+        {
+            _commandResult = commandResult;
         }
 
         /// <summary>
@@ -82,29 +77,24 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="info">The SerializationInfo.</param>
         /// <param name="context">The StreamingContext.</param>
-        public MongoCommandException(
-            SerializationInfo info,
-            StreamingContext context
-        )
-            : base(info, context) {
+        public MongoCommandException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the command result.
         /// </summary>
-        public CommandResult CommandResult {
-            get { return commandResult; }
+        public CommandResult CommandResult
+        {
+            get { return _commandResult; }
         }
-        #endregion
 
-        #region private static methods
-        private static string FormatErrorMessage(
-            CommandResult commandResult
-        ) {
+        // private static methods
+        private static string FormatErrorMessage(CommandResult commandResult)
+        {
             return string.Format("Command '{0}' failed: {1} (response: {2})", commandResult.CommandName, commandResult.ErrorMessage, commandResult.Response.ToJson());
         }
-        #endregion
     }
 }

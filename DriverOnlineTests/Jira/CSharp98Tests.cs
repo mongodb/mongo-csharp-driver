@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,24 +25,29 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp98 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp98
+{
     [TestFixture]
-    public class CSharp98Tests {
-        private class A {
+    public class CSharp98Tests
+    {
+        private class A
+        {
             [BsonId]
             public ObjectId Id { get; set; }
             public int PA { get; set; }
         }
 
-        private class B : A {
+        private class B : A
+        {
             public int PB { get; set; }
         }
 
         [Test]
-        public void TestDeserializationOfTwoBs() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<A>("csharp98");
+        public void TestDeserializationOfTwoBs()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<A>();
 
             collection.RemoveAll();
             var b1 = new B { PA = 1, PB = 2 };

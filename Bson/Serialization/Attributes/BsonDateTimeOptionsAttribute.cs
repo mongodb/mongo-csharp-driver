@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,64 +21,70 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies serialization options for a DateTime field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute {
-        #region private fields
-        private bool dateOnly = false;
-        private DateTimeKind kind = DateTimeKind.Utc;
-        private BsonType representation = BsonType.DateTime;
-        #endregion
+    public class BsonDateTimeOptionsAttribute : BsonSerializationOptionsAttribute
+    {
+        // private fields
+        private bool _dateOnly = false;
+        private DateTimeKind _kind = DateTimeKind.Utc;
+        private BsonType _representation = BsonType.DateTime;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDateTimeOptionsAttribute class.
         /// </summary>
-        public BsonDateTimeOptionsAttribute() {
+        public BsonDateTimeOptionsAttribute()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether the DateTime consists of a Date only.
         /// </summary>
-        public bool DateOnly {
-            get { return dateOnly; }
-            set { dateOnly = value; }
+        public bool DateOnly
+        {
+            get { return _dateOnly; }
+            set { _dateOnly = value; }
         }
 
         /// <summary>
         /// Gets or sets the DateTimeKind (Local, Unspecified or Utc).
         /// </summary>
-        public DateTimeKind Kind {
-            get { return kind; }
-            set { kind = value; }
+        public DateTimeKind Kind
+        {
+            get { return _kind; }
+            set { _kind = value; }
         }
 
         /// <summary>
         /// Gets or sets the external representation.
         /// </summary>
-        public BsonType Representation {
-            get { return representation; }
-            set { representation = value; }
+        public BsonType Representation
+        {
+            get { return _representation; }
+            set { _representation = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the serialization options specified by this attribute.
         /// </summary>
         /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions() {
-            if (dateOnly) {
-                return new DateTimeSerializationOptions(dateOnly, representation);
-            } else {
-                return new DateTimeSerializationOptions(kind, representation);
+        public override IBsonSerializationOptions GetOptions()
+        {
+            if (_dateOnly)
+            {
+                return new DateTimeSerializationOptions(_dateOnly, _representation);
+            }
+            else
+            {
+                return new DateTimeSerializationOptions(_kind, _representation);
             }
         }
-        #endregion
     }
 }

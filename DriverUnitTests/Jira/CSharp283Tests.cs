@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,22 +27,25 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp283
+{
     [TestFixture]
-    public class CSharp283Tests {
-        private BsonArray bsonArray = new BsonArray { 1, 2, 3 };
-        private BsonValue bsonValue = 1;
-        private BsonValue[] bsonValueArray = new BsonValue[] { 1, 2, 3 };
-        private List<BsonValue> bsonValueList = new List<BsonValue> { 1, 2, 3 };
-        private IEnumerable<BsonValue> ienumerableBsonValue = new BsonValue[] { 1, 2, 3 };
+    public class CSharp283Tests
+    {
+        private BsonArray _bsonArray = new BsonArray { 1, 2, 3 };
+        private BsonValue _bsonValue = 1;
+        private BsonValue[] _bsonValueArray = new BsonValue[] { 1, 2, 3 };
+        private List<BsonValue> _bsonValueList = new List<BsonValue> { 1, 2, 3 };
+        private IEnumerable<BsonValue> _ienumerableBsonValue = new BsonValue[] { 1, 2, 3 };
 
         [Test]
-        public void TestQueryAll() {
-            var query1 = Query.All("name", bsonValue);
-            var query2 = Query.All("name", bsonArray);
-            var query3 = Query.All("name", bsonValueArray);
-            var query4 = Query.All("name", bsonValueList);
-            var query5 = Query.All("name", ienumerableBsonValue);
+        public void TestQueryAll()
+        {
+            var query1 = Query.All("name", _bsonValue);
+            var query2 = Query.All("name", _bsonArray);
+            var query3 = Query.All("name", _bsonValueArray);
+            var query4 = Query.All("name", _bsonValueList);
+            var query5 = Query.All("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$all' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$all' : [1, 2, 3] } }".Replace("'", "\"");
@@ -55,12 +58,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryIn() {
-            var query1 = Query.In("name", bsonValue);
-            var query2 = Query.In("name", bsonArray);
-            var query3 = Query.In("name", bsonValueArray);
-            var query4 = Query.In("name", bsonValueList);
-            var query5 = Query.In("name", ienumerableBsonValue);
+        public void TestQueryIn()
+        {
+            var query1 = Query.In("name", _bsonValue);
+            var query2 = Query.In("name", _bsonArray);
+            var query3 = Query.In("name", _bsonValueArray);
+            var query4 = Query.In("name", _bsonValueList);
+            var query5 = Query.In("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$in' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$in' : [1, 2, 3] } }".Replace("'", "\"");
@@ -73,12 +77,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNin() {
-            var query1 = Query.NotIn("name", bsonValue);
-            var query2 = Query.NotIn("name", bsonArray);
-            var query3 = Query.NotIn("name", bsonValueArray);
-            var query4 = Query.NotIn("name", bsonValueList);
-            var query5 = Query.NotIn("name", ienumerableBsonValue);
+        public void TestQueryNin()
+        {
+            var query1 = Query.NotIn("name", _bsonValue);
+            var query2 = Query.NotIn("name", _bsonArray);
+            var query3 = Query.NotIn("name", _bsonValueArray);
+            var query4 = Query.NotIn("name", _bsonValueList);
+            var query5 = Query.NotIn("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$nin' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$nin' : [1, 2, 3] } }".Replace("'", "\"");
@@ -91,12 +96,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotAll() {
-            var query1 = Query.Not("name").All(bsonValue);
-            var query2 = Query.Not("name").All(bsonArray);
-            var query3 = Query.Not("name").All(bsonValueArray);
-            var query4 = Query.Not("name").All(bsonValueList);
-            var query5 = Query.Not("name").All(ienumerableBsonValue);
+        public void TestQueryNotAll()
+        {
+            var query1 = Query.Not("name").All(_bsonValue);
+            var query2 = Query.Not("name").All(_bsonArray);
+            var query3 = Query.Not("name").All(_bsonValueArray);
+            var query4 = Query.Not("name").All(_bsonValueList);
+            var query5 = Query.Not("name").All(_ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$not' : { '$all' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$all' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -109,12 +115,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotIn() {
-            var query1 = Query.Not("name").In(bsonValue);
-            var query2 = Query.Not("name").In(bsonArray);
-            var query3 = Query.Not("name").In(bsonValueArray);
-            var query4 = Query.Not("name").In(bsonValueList);
-            var query5 = Query.Not("name").In(ienumerableBsonValue);
+        public void TestQueryNotIn()
+        {
+            var query1 = Query.Not("name").In(_bsonValue);
+            var query2 = Query.Not("name").In(_bsonArray);
+            var query3 = Query.Not("name").In(_bsonValueArray);
+            var query4 = Query.Not("name").In(_bsonValueList);
+            var query5 = Query.Not("name").In(_ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$not' : { '$in' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$in' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -127,12 +134,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestQueryNotNin() {
-            var query1 = Query.Not("name").NotIn(bsonValue);
-            var query2 = Query.Not("name").NotIn(bsonArray);
-            var query3 = Query.Not("name").NotIn(bsonValueArray);
-            var query4 = Query.Not("name").NotIn(bsonValueList);
-            var query5 = Query.Not("name").NotIn(ienumerableBsonValue);
+        public void TestQueryNotNin()
+        {
+            var query1 = Query.Not("name").NotIn(_bsonValue);
+            var query2 = Query.Not("name").NotIn(_bsonArray);
+            var query3 = Query.Not("name").NotIn(_bsonValueArray);
+            var query4 = Query.Not("name").NotIn(_bsonValueList);
+            var query5 = Query.Not("name").NotIn(_ienumerableBsonValue);
 
             var expectedSingle = "{ 'name' : { '$not' : { '$nin' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$nin' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -145,12 +153,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdateAddToSetEach() {
-            var update1 = Update.AddToSetEach("name", bsonValue);
-            var update2 = Update.AddToSetEach("name", bsonArray);
-            var update3 = Update.AddToSetEach("name", bsonValueArray);
-            var update4 = Update.AddToSetEach("name", bsonValueList);
-            var update5 = Update.AddToSetEach("name", ienumerableBsonValue);
+        public void TestUpdateAddToSetEach()
+        {
+            var update1 = Update.AddToSetEach("name", _bsonValue);
+            var update2 = Update.AddToSetEach("name", _bsonArray);
+            var update3 = Update.AddToSetEach("name", _bsonValueArray);
+            var update4 = Update.AddToSetEach("name", _bsonValueList);
+            var update5 = Update.AddToSetEach("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ '$addToSet' : { 'name' : { '$each' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ '$addToSet' : { 'name' : { '$each' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -163,12 +172,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdatePullAll() {
-            var update1 = Update.PullAll("name", bsonValue);
-            var update2 = Update.PullAll("name", bsonArray);
-            var update3 = Update.PullAll("name", bsonValueArray);
-            var update4 = Update.PullAll("name", bsonValueList);
-            var update5 = Update.PullAll("name", ienumerableBsonValue);
+        public void TestUpdatePullAll()
+        {
+            var update1 = Update.PullAll("name", _bsonValue);
+            var update2 = Update.PullAll("name", _bsonArray);
+            var update3 = Update.PullAll("name", _bsonValueArray);
+            var update4 = Update.PullAll("name", _bsonValueList);
+            var update5 = Update.PullAll("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ '$pullAll' : { 'name' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ '$pullAll' : { 'name' : [1, 2, 3] } }".Replace("'", "\"");
@@ -181,12 +191,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283 {
         }
 
         [Test]
-        public void TestUpdatePushAll() {
-            var update1 = Update.PushAll("name", bsonValue);
-            var update2 = Update.PushAll("name", bsonArray);
-            var update3 = Update.PushAll("name", bsonValueArray);
-            var update4 = Update.PushAll("name", bsonValueList);
-            var update5 = Update.PushAll("name", ienumerableBsonValue);
+        public void TestUpdatePushAll()
+        {
+            var update1 = Update.PushAll("name", _bsonValue);
+            var update2 = Update.PushAll("name", _bsonArray);
+            var update3 = Update.PushAll("name", _bsonValueArray);
+            var update4 = Update.PushAll("name", _bsonValueList);
+            var update5 = Update.PushAll("name", _ienumerableBsonValue);
 
             var expectedSingle = "{ '$pushAll' : { 'name' : [1] } }".Replace("'", "\"");
             var expectedMultiple = "{ '$pushAll' : { 'name' : [1, 2, 3] } }".Replace("'", "\"");

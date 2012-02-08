@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,41 +18,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies that this is the Id field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIdAttribute : Attribute {
-        #region private fields
-        private Type idGenerator;
-        private int order = int.MaxValue;
-        #endregion
+    public class BsonIdAttribute : Attribute
+    {
+        // private fields
+        private Type _idGenerator;
+        private int _order = int.MaxValue;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIdAttribute class.
         /// </summary>
-        public BsonIdAttribute() {
+        public BsonIdAttribute()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the Id generator for the Id.
         /// </summary>
-        public Type IdGenerator {
-            get { return idGenerator; }
-            set { idGenerator = value; }
+        public Type IdGenerator
+        {
+            get { return _idGenerator; }
+            set { _idGenerator = value; }
         }
 
         /// <summary>
         /// Gets or sets the Id element serialization order.
         /// </summary>
-        public int Order {
-            get { return order; }
-            set { order = value; }
+        public int Order
+        {
+            get { return _order; }
+            set { _order = value; }
         }
-        #endregion
     }
 }

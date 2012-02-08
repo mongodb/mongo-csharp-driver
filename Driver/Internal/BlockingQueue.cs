@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,45 +19,50 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal {
+namespace MongoDB.Driver.Internal
+{
     /// <summary>
     /// Represents a thread-safe queue.
     /// </summary>
     /// <typeparam name="T">The type of elements.</typeparam>
-    internal class BlockingQueue<T> {
-        #region private fields
-        private object syncRoot = new object();
-        private Queue<T> queue = new Queue<T>();
-        #endregion
+    internal class BlockingQueue<T>
+    {
+        // private fields
+        private object _syncRoot = new object();
+        private Queue<T> _queue = new Queue<T>();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BlockingQueue class.
         /// </summary>
-        internal BlockingQueue() {
+        internal BlockingQueue()
+        {
         }
-        #endregion
 
-        #region internal methods
+        // internal methods
         /// <summary>
         /// Dequeues one item from the queue. Will block waiting for an item if the queue is empty.
         /// </summary>
         /// <param name="timeout">The timeout for waiting for an item to appear in the queue.</param>
         /// <returns>The first item in the queue (null if it timed out).</returns>
-        internal T Dequeue(
-            TimeSpan timeout
-        ) {
-            lock (syncRoot) {
+        internal T Dequeue(TimeSpan timeout)
+        {
+            lock (_syncRoot)
+            {
                 var timeoutAt = DateTime.UtcNow + timeout;
-                while (queue.Count == 0) {
+                while (_queue.Count == 0)
+                {
                     var timeRemaining = timeoutAt - DateTime.UtcNow;
-                    if (timeRemaining > TimeSpan.Zero) {
-                        Monitor.Wait(syncRoot, timeRemaining);
-                    } else {
+                    if (timeRemaining > TimeSpan.Zero)
+                    {
+                        Monitor.Wait(_syncRoot, timeRemaining);
+                    }
+                    else
+                    {
                         return default(T);
                     }
                 }
-                return queue.Dequeue();
+                return _queue.Dequeue();
             }
         }
 
@@ -65,14 +70,13 @@ namespace MongoDB.Driver.Internal {
         /// Enqueues an item on to the queue.
         /// </summary>
         /// <param name="item">The item to be queued.</param>
-        internal void Enqueue(
-            T item
-        ) {
-            lock (syncRoot) {
-                queue.Enqueue(item);
-                Monitor.Pulse(syncRoot);
+        internal void Enqueue(T item)
+        {
+            lock (_syncRoot)
+            {
+                _queue.Enqueue(item);
+                Monitor.Pulse(_syncRoot);
             }
         }
-        #endregion
     }
 }

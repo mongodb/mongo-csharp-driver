@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,35 +26,40 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp230 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp230
+{
     [TestFixture]
-    public class CSharp230Tests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+    public class CSharp230Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection("testcollection");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]
-        public void TestEnsureIndexAfterDropCollection() {
-            if (collection.Exists()) {
-                collection.Drop();
+        public void TestEnsureIndexAfterDropCollection()
+        {
+            if (_collection.Exists())
+            {
+                _collection.Drop();
             }
-            server.ResetIndexCache();
+            _server.ResetIndexCache();
 
-            Assert.IsFalse(collection.IndexExists("x"));
-            collection.EnsureIndex("x");
-            Assert.IsTrue(collection.IndexExists("x"));
+            Assert.IsFalse(_collection.IndexExists("x"));
+            _collection.EnsureIndex("x");
+            Assert.IsTrue(_collection.IndexExists("x"));
 
-            collection.Drop();
-            Assert.IsFalse(collection.IndexExists("x"));
-            collection.EnsureIndex("x");
-            Assert.IsTrue(collection.IndexExists("x"));
+            _collection.Drop();
+            Assert.IsFalse(_collection.IndexExists("x"));
+            _collection.EnsureIndex("x");
+            Assert.IsTrue(_collection.IndexExists("x"));
         }
     }
 }

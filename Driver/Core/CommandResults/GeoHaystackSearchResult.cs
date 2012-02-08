@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,98 +23,100 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the result of a GeoHaystackSearch command.
     /// </summary>
     [Serializable]
-    public abstract class GeoHaystackSearchResult : CommandResult {
-        #region private fields
-        private GeoHaystackSearchStats stats;
-        #endregion
+    public abstract class GeoHaystackSearchResult : CommandResult
+    {
+        // private fields
+        private GeoHaystackSearchStats _stats;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoHaystackSearchResult class.
         /// </summary>
-        protected GeoHaystackSearchResult() {
+        protected GeoHaystackSearchResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the hits.
         /// </summary>
-        public GeoHaystackSearchHits Hits {
+        public GeoHaystackSearchHits Hits
+        {
             get { return HitsImplementation; }
         }
 
         /// <summary>
         /// Gets the stats.
         /// </summary>
-        public GeoHaystackSearchStats Stats {
-            get {
-                if (stats == null) {
-                    stats = new GeoHaystackSearchStats(response["stats"].AsBsonDocument);
+        public GeoHaystackSearchStats Stats
+        {
+            get
+            {
+                if (_stats == null)
+                {
+                    _stats = new GeoHaystackSearchStats(_response["stats"].AsBsonDocument);
                 }
-                return stats;
+                return _stats;
             }
         }
-        #endregion
 
-        #region protected properties
+        // protected properties
         /// <summary>
         /// Gets the hits.
         /// </summary>
         protected abstract GeoHaystackSearchHits HitsImplementation { get; }
-        #endregion
 
-        #region nested classes
+        // nested classes
         /// <summary>
         /// Represents a collection of GeoHaystackSearch hits.
         /// </summary>
-        public abstract class GeoHaystackSearchHits : IEnumerable {
-            #region constructors
+        public abstract class GeoHaystackSearchHits : IEnumerable
+        {
+            // constructors
             /// <summary>
             /// Initializes a new instance of the GeoHaystackSearchHits class.
             /// </summary>
-            protected GeoHaystackSearchHits() {
+            protected GeoHaystackSearchHits()
+            {
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the count of the number of hits.
             /// </summary>
             public abstract int Count { get; }
-            #endregion
 
-            #region indexers
+            // indexers
             /// <summary>
             /// Gets an individual hit.
             /// </summary>
             /// <param name="index">The zero based index of the hit.</param>
             /// <returns>The hit.</returns>
-            public GeoHaystackSearchHit this[
-                int index
-            ] {
-                get {
+            public GeoHaystackSearchHit this[int index]
+            {
+                get
+                {
                     return GetHitImplementation(index);
                 }
             }
-            #endregion
 
-            #region public methods
+            // public methods
             /// <summary>
             /// Gets an enumerator for the hits.
             /// </summary>
             /// <returns>An enumerator.</returns>
-            public IEnumerator<GeoHaystackSearchHit> GetEnumerator() {
+            public IEnumerator<GeoHaystackSearchHit> GetEnumerator()
+            {
                 return GetEnumeratorImplementation();
             }
-            #endregion
 
-            #region protected methods
+            // protected methods
             /// <summary>
             /// Gets the enumerator.
             /// </summary>
@@ -126,106 +128,100 @@ namespace MongoDB.Driver {
             /// </summary>
             /// <param name="index">The zero based index of the hit.</param>
             /// <returns>The hit.</returns>
-            protected abstract GeoHaystackSearchHit GetHitImplementation(
-                int index
-            );
-            #endregion
+            protected abstract GeoHaystackSearchHit GetHitImplementation(int index);
 
-            #region explicit interface implementations
-            IEnumerator IEnumerable.GetEnumerator() {
+            // explicit interface implementations
+            IEnumerator IEnumerable.GetEnumerator()
+            {
                 return GetEnumeratorImplementation();
             }
-            #endregion
         }
 
         /// <summary>
         /// Represents a GeoHaystackSearch hit.
         /// </summary>
-        public abstract class GeoHaystackSearchHit {
-            #region private fields
-            private BsonDocument hit;
-            #endregion
+        public abstract class GeoHaystackSearchHit
+        {
+            // private fields
+            private BsonDocument _hit;
 
-            #region constructors
+            // constructors
             /// <summary>
             /// Initializes a new instance of the GeoHaystackSearchHit class.
             /// </summary>
             /// <param name="hit">The hit.</param>
-            public GeoHaystackSearchHit(
-                BsonDocument hit
-            ) {
-                this.hit = hit;
+            public GeoHaystackSearchHit(BsonDocument hit)
+            {
+                _hit = hit;
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the document.
             /// </summary>
-            public object Document {
+            public object Document
+            {
                 get { return DocumentImplementation; }
             }
 
             /// <summary>
             /// Gets the document as a BsonDocument.
             /// </summary>
-            public BsonDocument RawDocument {
-                get { return hit; }
+            public BsonDocument RawDocument
+            {
+                get { return _hit; }
             }
-            #endregion
 
-            #region protected properties
+            // protected properties
             /// <summary>
             /// Gets the document.
             /// </summary>
             protected abstract object DocumentImplementation { get; }
-            #endregion
         }
 
         /// <summary>
         /// Represents the stats of a GeoHaystackSearch command.
         /// </summary>
-        public class GeoHaystackSearchStats {
-            #region private fields
-            private BsonDocument stats;
-            #endregion
+        public class GeoHaystackSearchStats
+        {
+            // private fields
+            private BsonDocument _stats;
 
-            #region constructors
+            // constructors
             /// <summary>
             /// Initializes a new instance of the GeoHaystackSearchStats class.
             /// </summary>
             /// <param name="stats">The stats.</param>
-            public GeoHaystackSearchStats(
-                BsonDocument stats
-            ) {
-                this.stats = stats;
+            public GeoHaystackSearchStats(BsonDocument stats)
+            {
+                _stats = stats;
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the count of b-tree matches.
             /// </summary>
-            public int BTreeMatches {
-                get { return stats["btreeMatches"].ToInt32(); }
+            public int BTreeMatches
+            {
+                get { return _stats["btreeMatches"].ToInt32(); }
             }
 
             /// <summary>
             /// Gets the duration.
             /// </summary>
-            public TimeSpan Duration {
-                get { return TimeSpan.FromMilliseconds(stats["time"].ToInt32()); }
+            public TimeSpan Duration
+            {
+                get { return TimeSpan.FromMilliseconds(_stats["time"].ToInt32()); }
             }
 
             /// <summary>
             /// Gets the number of hits.
             /// </summary>
-            public int NumberOfHits {
-                get { return stats["n"].ToInt32(); }
+            public int NumberOfHits
+            {
+                get { return _stats["n"].ToInt32(); }
             }
-            #endregion
         }
-        #endregion
     }
 
     /// <summary>
@@ -233,155 +229,156 @@ namespace MongoDB.Driver {
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
-    public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult {
-        #region private fields
-        private GeoHaystackSearchHits hits;
-        #endregion
+    public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult
+    {
+        // private fields
+        private GeoHaystackSearchHits _hits;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GeoHaystackSearchResult class.
         /// </summary>
-        public GeoHaystackSearchResult() {
+        public GeoHaystackSearchResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the hits.
         /// </summary>
-        public new GeoHaystackSearchHits Hits {
-            get {
-                if (hits == null) {
-                    hits = new GeoHaystackSearchHits(response["results"].AsBsonArray);
+        public new GeoHaystackSearchHits Hits
+        {
+            get
+            {
+                if (_hits == null)
+                {
+                    _hits = new GeoHaystackSearchHits(_response["results"].AsBsonArray);
                 }
-                return hits;
+                return _hits;
             }
         }
-        #endregion
 
-        #region protected properties
+        // protected properties
         /// <summary>
         /// Gets the hits.
         /// </summary>
-        protected override GeoHaystackSearchResult.GeoHaystackSearchHits HitsImplementation {
+        protected override GeoHaystackSearchResult.GeoHaystackSearchHits HitsImplementation
+        {
             get { return Hits; }
         }
-        #endregion
 
-        #region nested classes
+        // nested classes
         /// <summary>
         /// Represents a collection of GeoHaystackSearch hits.
         /// </summary>
-        public new class GeoHaystackSearchHits : GeoHaystackSearchResult.GeoHaystackSearchHits, IEnumerable<GeoHaystackSearchHit> {
-            #region private fields
-            private List<GeoHaystackSearchHit> hits;
-            #endregion
+        public new class GeoHaystackSearchHits : GeoHaystackSearchResult.GeoHaystackSearchHits, IEnumerable<GeoHaystackSearchHit>
+        {
+            // private fields
+            private List<GeoHaystackSearchHit> _hits;
 
-            #region constructors
+            // constructors
             /// <summary>
             /// Initializes a new instance of the GeoHaystackSearchHits class.
             /// </summary>
             /// <param name="hits">The hits.</param>
-            public GeoHaystackSearchHits(
-                BsonArray hits
-            ) {
-                this.hits = hits.Select(h => new GeoHaystackSearchHit(h.AsBsonDocument)).ToList();
+            public GeoHaystackSearchHits(BsonArray hits)
+            {
+                _hits = hits.Select(h => new GeoHaystackSearchHit(h.AsBsonDocument)).ToList();
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the count of the number of hits.
             /// </summary>
-            public override int Count {
-                get { return hits.Count; }
+            public override int Count
+            {
+                get { return _hits.Count; }
             }
-            #endregion
 
-            #region indexers
+            // indexers
             /// <summary>
             /// Gets an individual hit.
             /// </summary>
             /// <param name="index">The zero based index of the hit.</param>
             /// <returns>The hit.</returns>
-            public new GeoHaystackSearchHit this[
-                int index
-            ] {
-                get { return hits[index]; }
+            public new GeoHaystackSearchHit this[int index]
+            {
+                get { return _hits[index]; }
             }
-            #endregion
 
-            #region public methods
+            // public methods
             /// <summary>
             /// Gets an enumerator for the hits.
             /// </summary>
             /// <returns>An enumerator.</returns>
-            public new IEnumerator<GeoHaystackSearchHit> GetEnumerator() {
-                return hits.GetEnumerator();
+            public new IEnumerator<GeoHaystackSearchHit> GetEnumerator()
+            {
+                return _hits.GetEnumerator();
             }
-            #endregion
 
-            #region protected methods
+            // protected methods
             /// <summary>
             /// Gets a hit.
             /// </summary>
             /// <param name="index">The zero based index of the hit.</param>
             /// <returns>The hit.</returns>
-            protected override GeoHaystackSearchResult.GeoHaystackSearchHit GetHitImplementation(int index) {
-                return hits[index];
+            protected override GeoHaystackSearchResult.GeoHaystackSearchHit GetHitImplementation(int index)
+            {
+                return _hits[index];
             }
 
             /// <summary>
             /// Gets an enumerator for the hits.
             /// </summary>
             /// <returns>An enumerator.</returns>
-            protected override IEnumerator<GeoHaystackSearchResult.GeoHaystackSearchHit> GetEnumeratorImplementation() {
-                return hits.Cast<GeoHaystackSearchResult.GeoHaystackSearchHit>().GetEnumerator();
+            protected override IEnumerator<GeoHaystackSearchResult.GeoHaystackSearchHit> GetEnumeratorImplementation()
+            {
+                return _hits.Cast<GeoHaystackSearchResult.GeoHaystackSearchHit>().GetEnumerator();
             }
-            #endregion
         }
 
         /// <summary>
         /// Represents a GeoHaystackSearch hit.
         /// </summary>
-        public new class GeoHaystackSearchHit : GeoHaystackSearchResult.GeoHaystackSearchHit {
-            #region constructors
+        public new class GeoHaystackSearchHit : GeoHaystackSearchResult.GeoHaystackSearchHit
+        {
+            // constructors
             /// <summary>
             /// Initializes a new instance of the GeoHaystackSearchHit class.
             /// </summary>
             /// <param name="hit">The hit.</param>
-            public GeoHaystackSearchHit(
-                BsonDocument hit
-            )
-                : base(hit) {
+            public GeoHaystackSearchHit(BsonDocument hit)
+                : base(hit)
+            {
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the document.
             /// </summary>
-            public new TDocument Document {
-                get {
-                    if (typeof(TDocument) == typeof(BsonDocument)) {
-                        return (TDocument) (object) RawDocument;
-                    } else {
+            public new TDocument Document
+            {
+                get
+                {
+                    if (typeof(TDocument) == typeof(BsonDocument))
+                    {
+                        return (TDocument)(object)RawDocument;
+                    }
+                    else
+                    {
                         return BsonSerializer.Deserialize<TDocument>(RawDocument);
                     }
                 }
             }
-            #endregion
 
-            #region protected properties
+            // protected properties
             /// <summary>
             /// Gets the document.
             /// </summary>
-            protected override object DocumentImplementation {
+            protected override object DocumentImplementation
+            {
                 get { return Document; }
             }
-            #endregion
         }
-        #endregion
     }
 }

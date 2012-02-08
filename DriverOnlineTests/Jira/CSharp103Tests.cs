@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,17 +24,22 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp103 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp103
+{
     [TestFixture]
-    public class CSharp103Tests {
+    public class CSharp103Tests
+    {
         [Test]
-        public void TestNullReferenceException() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database["csharp103"];
+        public void TestNullReferenceException()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
             collection.RemoveAll();
-            using (database.RequestStart()) {
-                for (int i = 0; i < 1; i++) {
+            using (database.RequestStart())
+            {
+                for (int i = 0; i < 1; i++)
+                {
                     collection.Insert(new BsonDocument { { "blah", i } }, SafeMode.True);
                 }
             }

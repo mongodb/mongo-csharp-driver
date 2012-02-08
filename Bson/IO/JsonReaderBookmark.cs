@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,20 +18,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public class JsonReaderBookmark : BsonReaderBookmark {
-        #region private fields
-        private JsonReaderContext context;
-        private JsonToken currentToken;
-        private BsonValue currentValue;
-        private JsonToken pushedToken;
-        private int position;
-        #endregion
+    public class JsonReaderBookmark : BsonReaderBookmark
+    {
+        // private fields
+        private JsonReaderContext _context;
+        private JsonToken _currentToken;
+        private BsonValue _currentValue;
+        private JsonToken _pushedToken;
+        private int _position;
 
-        #region constructors
+        // constructors
         internal JsonReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
@@ -40,39 +41,41 @@ namespace MongoDB.Bson.IO {
             JsonToken currentToken,
             BsonValue currentValue,
             JsonToken pushedToken,
-            int position
-        )
-            : base(state, currentBsonType, currentName) {
-            this.context = context.Clone();
-            this.currentToken = currentToken;
-            this.currentValue = currentValue;
-            this.pushedToken = pushedToken;
-            this.position = position;
-        }
-        #endregion
-
-        #region internal properties
-        internal JsonToken CurrentToken {
-            get { return currentToken; }
+            int position)
+            : base(state, currentBsonType, currentName)
+        {
+            _context = context.Clone();
+            _currentToken = currentToken;
+            _currentValue = currentValue;
+            _pushedToken = pushedToken;
+            _position = position;
         }
 
-        internal BsonValue CurrentValue {
-            get { return currentValue; }
+        // internal properties
+        internal JsonToken CurrentToken
+        {
+            get { return _currentToken; }
         }
 
-        internal int Position {
-            get { return position; }
+        internal BsonValue CurrentValue
+        {
+            get { return _currentValue; }
         }
 
-        internal JsonToken PushedToken {
-            get { return pushedToken; }
+        internal int Position
+        {
+            get { return _position; }
         }
-        #endregion
 
-        #region internal methods
-        internal JsonReaderContext CloneContext() {
-            return context.Clone();
+        internal JsonToken PushedToken
+        {
+            get { return _pushedToken; }
         }
-        #endregion
+
+        // internal methods
+        internal JsonReaderContext CloneContext()
+        {
+            return _context.Clone();
+        }
     }
 }

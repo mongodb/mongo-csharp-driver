@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents an element name convention.
     /// </summary>
-    public interface IElementNameConvention {
+    public interface IElementNameConvention
+    {
         /// <summary>
         /// Gets the element name for a member.
         /// </summary>
@@ -35,15 +37,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents an element name convention where the element name is the same as the member name.
     /// </summary>
-    public class MemberNameElementNameConvention : IElementNameConvention {
+    public class MemberNameElementNameConvention : IElementNameConvention
+    {
         /// <summary>
         /// Gets the element name for a member.
         /// </summary>
         /// <param name="member">The member.</param>
         /// <returns>The element name.</returns>
-        public string GetElementName(
-            MemberInfo member
-        ) {
+        public string GetElementName(MemberInfo member)
+        {
             return member.Name;
         }
     }
@@ -51,15 +53,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents an element name convention where the element name is the member name with the first character lower cased.
     /// </summary>
-    public class CamelCaseElementNameConvention : IElementNameConvention {
+    public class CamelCaseElementNameConvention : IElementNameConvention
+    {
         /// <summary>
         /// Gets the element name for a member.
         /// </summary>
         /// <param name="member">The member.</param>
         /// <returns>The element name.</returns>
-        public string GetElementName(
-            MemberInfo member
-        ) {
+        public string GetElementName(MemberInfo member)
+        {
             string name = member.Name;
             return Char.ToLowerInvariant(name[0]) + name.Substring(1);
         }

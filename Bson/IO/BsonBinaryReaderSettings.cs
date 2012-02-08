@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,28 +18,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonBinaryReader.
     /// </summary>
     [Serializable]
-    public class BsonBinaryReaderSettings : BsonReaderSettings {
-        #region private static fields
-        private static BsonBinaryReaderSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
+    public class BsonBinaryReaderSettings : BsonReaderSettings
+    {
+        // private static fields
+        private static BsonBinaryReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
-        #region private fields
-        private bool closeInput = false;
-        private bool fixOldBinarySubTypeOnInput = true;
-        private bool fixOldDateTimeMaxValueOnInput = true;
-        private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
-        #endregion
+        // private fields
+        private bool _closeInput = false;
+        private bool _fixOldBinarySubTypeOnInput = true;
+        private bool _fixOldDateTimeMaxValueOnInput = true;
+        private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonBinaryReaderSettings class.
         /// </summary>
-        public BsonBinaryReaderSettings() {
+        public BsonBinaryReaderSettings()
+        {
         }
 
         /// <summary>
@@ -55,101 +56,103 @@ namespace MongoDB.Bson.IO {
             bool fixOldBinarySubTypeOnInput,
             bool fixOldDateTimeMaxValueOnInput,
             GuidRepresentation guidRepresentation,
-            int maxDocumentSize
-        ) 
-            : base(guidRepresentation) {
-            this.closeInput = closeInput;
-            this.fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
-            this.fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
-            this.maxDocumentSize = maxDocumentSize;
+            int maxDocumentSize)
+            : base(guidRepresentation)
+        {
+            _closeInput = closeInput;
+            _fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
+            _fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
+            _maxDocumentSize = maxDocumentSize;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default settings for a BsonBinaryReader.
         /// </summary>
-        public static BsonBinaryReaderSettings Defaults {
-            get {
-                if (defaults == null) {
-                    defaults = new BsonBinaryReaderSettings();
+        public static BsonBinaryReaderSettings Defaults
+        {
+            get
+            {
+                if (__defaults == null)
+                {
+                    __defaults = new BsonBinaryReaderSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the input stream when the reader is closed.
         /// </summary>
-        public bool CloseInput {
-            get { return closeInput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                closeInput = value;
+        public bool CloseInput
+        {
+            get { return _closeInput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _closeInput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets whether to fix occurrences of the old binary subtype on input. 
         /// </summary>
-        public bool FixOldBinarySubTypeOnInput {
-            get { return fixOldBinarySubTypeOnInput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                fixOldBinarySubTypeOnInput = value;
+        public bool FixOldBinarySubTypeOnInput
+        {
+            get { return _fixOldBinarySubTypeOnInput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _fixOldBinarySubTypeOnInput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets whether to fix occurrences of the old representation of DateTime.MaxValue on input. 
         /// </summary>
-        public bool FixOldDateTimeMaxValueOnInput {
-            get { return fixOldDateTimeMaxValueOnInput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                fixOldDateTimeMaxValueOnInput = value;
+        public bool FixOldDateTimeMaxValueOnInput
+        {
+            get { return _fixOldDateTimeMaxValueOnInput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _fixOldDateTimeMaxValueOnInput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the max document size.
         /// </summary>
-        public int MaxDocumentSize {
-            get { return maxDocumentSize; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                maxDocumentSize = value;
+        public int MaxDocumentSize
+        {
+            get { return _maxDocumentSize; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _maxDocumentSize = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new BsonBinaryReaderSettings Clone() {
-            return (BsonBinaryReaderSettings) CloneImplementation();
+        public new BsonBinaryReaderSettings Clone()
+        {
+            return (BsonBinaryReaderSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonReaderSettings CloneImplementation() {
-            return new BsonBinaryReaderSettings(
-                closeInput,
-                fixOldBinarySubTypeOnInput,
-                fixOldDateTimeMaxValueOnInput,
-                guidRepresentation,
-                maxDocumentSize
-            );
+        protected override BsonReaderSettings CloneImplementation()
+        {
+            return new BsonBinaryReaderSettings(_closeInput, _fixOldBinarySubTypeOnInput, _fixOldDateTimeMaxValueOnInput, _guidRepresentation, _maxDocumentSize);
         }
-        #endregion
     }
 }

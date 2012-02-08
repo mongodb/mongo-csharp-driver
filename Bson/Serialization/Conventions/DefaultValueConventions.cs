@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents a default value convention.
     /// </summary>
-    public interface IDefaultValueConvention {
+    public interface IDefaultValueConvention
+    {
         /// <summary>
         /// Gets the default value for a member.
         /// </summary>
@@ -35,15 +37,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents a default value convention of null.
     /// </summary>
-    public class NullDefaultValueConvention : IDefaultValueConvention {
+    public class NullDefaultValueConvention : IDefaultValueConvention
+    {
         /// <summary>
         /// Gets the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>null.</returns>
-        public object GetDefaultValue(
-            MemberInfo memberInfo
-        ) {
+        public object GetDefaultValue(MemberInfo memberInfo)
+        {
             return null;
         }
     }

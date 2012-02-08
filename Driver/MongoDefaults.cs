@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,46 +21,53 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Default values for various Mongo settings.
     /// </summary>
-    public static class MongoDefaults {
-        #region public static fields
-        private static bool assignIdOnInsert = true;
-        private static TimeSpan connectTimeout = TimeSpan.FromSeconds(30);
-        private static TimeSpan maxConnectionIdleTime = TimeSpan.FromMinutes(10);
-        private static TimeSpan maxConnectionLifeTime = TimeSpan.FromMinutes(30);
-        private static int maxConnectionPoolSize = 100;
-        private static int maxMessageLength = 16000000; // 16MB (not 16 MiB!)
-        private static int minConnectionPoolSize = 0;
-        private static SafeMode safeMode = SafeMode.False;
-        private static TimeSpan socketTimeout = TimeSpan.FromSeconds(30);
-        private static int tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
-        private static int tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
-        private static double waitQueueMultiple = 1.0; // default multiple of 1
-        private static int waitQueueSize = 0; // use multiple by default
-        private static TimeSpan waitQueueTimeout = TimeSpan.FromMilliseconds(500);
-        #endregion
+    public static class MongoDefaults
+    {
+        // public static fields
+        private static bool __assignIdOnInsert = true;
+        private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
+        private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
+        private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
+        private static int __maxConnectionPoolSize = 100;
+        private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
+        private static int __minConnectionPoolSize = 0;
+        private static SafeMode __safeMode = SafeMode.False;
+        private static TimeSpan __socketTimeout = TimeSpan.FromSeconds(30);
+        private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
+        private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
+        private static double __waitQueueMultiple = 1.0; // default multiple of 1
+        private static int __waitQueueSize = 0; // use multiple by default
+        private static TimeSpan __waitQueueTimeout = TimeSpan.FromMilliseconds(500);
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets whether the driver should assign a value to empty Ids on Insert.
         /// </summary>
-        public static bool AssignIdOnInsert {
-            get { return assignIdOnInsert; }
-            set { assignIdOnInsert = value; }
+        public static bool AssignIdOnInsert
+        {
+            get { return __assignIdOnInsert; }
+            set { __assignIdOnInsert = value; }
         }
 
         /// <summary>
         /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
-        public static int ComputedWaitQueueSize {
-            get {
-                if (waitQueueMultiple == 0.0) {
-                    return waitQueueSize;
-                } else {
-                    return (int) (waitQueueMultiple * maxConnectionPoolSize);
+        public static int ComputedWaitQueueSize
+        {
+            get
+            {
+                if (__waitQueueMultiple == 0.0)
+                {
+                    return __waitQueueSize;
+                }
+                else
+                {
+                    return (int)(__waitQueueMultiple * __maxConnectionPoolSize);
                 }
             }
         }
@@ -68,15 +75,17 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the connect timeout.
         /// </summary>
-        public static TimeSpan ConnectTimeout {
-            get { return connectTimeout; }
-            set { connectTimeout = value; }
+        public static TimeSpan ConnectTimeout
+        {
+            get { return __connectTimeout; }
+            set { __connectTimeout = value; }
         }
 
         /// <summary>
         /// Gets or sets the representation to use for Guids (this is an alias for BsonDefaults.GuidRepresentation).
         /// </summary>
-        public static GuidRepresentation GuidRepresentation {
+        public static GuidRepresentation GuidRepresentation
+        {
             get { return BsonDefaults.GuidRepresentation; }
             set { BsonDefaults.GuidRepresentation = value; }
         }
@@ -84,31 +93,35 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the max connection idle time.
         /// </summary>
-        public static TimeSpan MaxConnectionIdleTime {
-            get { return maxConnectionIdleTime; }
-            set { maxConnectionIdleTime = value; }
+        public static TimeSpan MaxConnectionIdleTime
+        {
+            get { return __maxConnectionIdleTime; }
+            set { __maxConnectionIdleTime = value; }
         }
 
         /// <summary>
         /// Gets or sets the max connection life time.
         /// </summary>
-        public static TimeSpan MaxConnectionLifeTime {
-            get { return maxConnectionLifeTime; }
-            set { maxConnectionLifeTime = value; }
+        public static TimeSpan MaxConnectionLifeTime
+        {
+            get { return __maxConnectionLifeTime; }
+            set { __maxConnectionLifeTime = value; }
         }
 
         /// <summary>
         /// Gets or sets the max connection pool size.
         /// </summary>
-        public static int MaxConnectionPoolSize {
-            get { return maxConnectionPoolSize; }
-            set { maxConnectionPoolSize = value; }
+        public static int MaxConnectionPoolSize
+        {
+            get { return __maxConnectionPoolSize; }
+            set { __maxConnectionPoolSize = value; }
         }
 
         /// <summary>
         /// Gets or sets the max document size (this is an alias for BsonDefaults.MaxDocumentSize).
         /// </summary>
-        public static int MaxDocumentSize {
+        public static int MaxDocumentSize
+        {
             get { return BsonDefaults.MaxDocumentSize; }
             set { BsonDefaults.MaxDocumentSize = value; }
         }
@@ -116,80 +129,90 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets or sets the max message length.
         /// </summary>
-        public static int MaxMessageLength {
-            get { return maxMessageLength; }
-            set { maxMessageLength = value; }
+        public static int MaxMessageLength
+        {
+            get { return __maxMessageLength; }
+            set { __maxMessageLength = value; }
         }
 
         /// <summary>
         /// Gets or sets the min connection pool size.
         /// </summary>
-        public static int MinConnectionPoolSize {
-            get { return minConnectionPoolSize; }
-            set { minConnectionPoolSize = value; }
+        public static int MinConnectionPoolSize
+        {
+            get { return __minConnectionPoolSize; }
+            set { __minConnectionPoolSize = value; }
         }
 
         /// <summary>
         /// Gets or sets the safe mode.
         /// </summary>
-        public static SafeMode SafeMode {
-            get { return safeMode; }
-            set { safeMode = value; }
+        public static SafeMode SafeMode
+        {
+            get { return __safeMode; }
+            set { __safeMode = value; }
         }
 
         /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
-        public static TimeSpan SocketTimeout {
-            get { return socketTimeout; }
-            set { socketTimeout = value; }
+        public static TimeSpan SocketTimeout
+        {
+            get { return __socketTimeout; }
+            set { __socketTimeout = value; }
         }
 
         /// <summary>
         /// Gets or sets the TCP receive buffer size.
         /// </summary>
-        public static int TcpReceiveBufferSize {
-            get { return tcpReceiveBufferSize; }
-            set { tcpReceiveBufferSize = value; }
+        public static int TcpReceiveBufferSize
+        {
+            get { return __tcpReceiveBufferSize; }
+            set { __tcpReceiveBufferSize = value; }
         }
 
         /// <summary>
         /// Gets or sets the TCP send buffer size.
         /// </summary>
-        public static int TcpSendBufferSize {
-            get { return tcpSendBufferSize; }
-            set { tcpSendBufferSize = value; }
+        public static int TcpSendBufferSize
+        {
+            get { return __tcpSendBufferSize; }
+            set { __tcpSendBufferSize = value; }
         }
 
         /// <summary>
         /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize, see also WaitQueueSize).
         /// </summary>
-        public static double WaitQueueMultiple {
-            get { return waitQueueMultiple; }
-            set {
-                waitQueueMultiple = value;
-                waitQueueSize = 0;
+        public static double WaitQueueMultiple
+        {
+            get { return __waitQueueMultiple; }
+            set
+            {
+                __waitQueueMultiple = value;
+                __waitQueueSize = 0;
             }
         }
 
         /// <summary>
         /// Gets or sets the wait queue size (see also WaitQueueMultiple).
         /// </summary>
-        public static int WaitQueueSize {
-            get { return waitQueueSize; }
-            set {
-                waitQueueMultiple = 0;
-                waitQueueSize = value;
+        public static int WaitQueueSize
+        {
+            get { return __waitQueueSize; }
+            set
+            {
+                __waitQueueMultiple = 0;
+                __waitQueueSize = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the wait queue timeout.
         /// </summary>
-        public static TimeSpan WaitQueueTimeout {
-            get { return waitQueueTimeout; }
-            set { waitQueueTimeout = value; }
+        public static TimeSpan WaitQueueTimeout
+        {
+            get { return __waitQueueTimeout; }
+            set { __waitQueueTimeout = value; }
         }
-        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,34 +18,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the symbol table of BsonSymbols.
     /// </summary>
-    public static class BsonSymbolTable {
-        #region private static fields
-        private static object staticLock = new object();
-        private static Dictionary<string, BsonSymbol> symbolTable = new Dictionary<string, BsonSymbol>();
-        #endregion
+    public static class BsonSymbolTable
+    {
+        // private static fields
+        private static object __staticLock = new object();
+        private static Dictionary<string, BsonSymbol> __symbolTable = new Dictionary<string, BsonSymbol>();
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Looks up a symbol (and creates a new one if necessary).
         /// </summary>
         /// <param name="name">The name of the symbol.</param>
         /// <returns>The symbol.</returns>
-        public static BsonSymbol Lookup(
-            string name
-        ) {
-            lock (staticLock) {
+        public static BsonSymbol Lookup(string name)
+        {
+            lock (__staticLock)
+            {
                 BsonSymbol symbol;
-                if (!symbolTable.TryGetValue(name, out symbol)) {
+                if (!__symbolTable.TryGetValue(name, out symbol))
+                {
                     symbol = new BsonSymbol(name);
-                    symbolTable[name] = symbol;
+                    __symbolTable[name] = symbol;
                 }
                 return symbol;
             }
         }
-        #endregion
     }
 }

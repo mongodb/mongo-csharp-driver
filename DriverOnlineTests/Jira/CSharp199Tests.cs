@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,16 +25,20 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp199
+{
     [TestFixture]
-    public class CSharp199Tests {
+    public class CSharp199Tests
+    {
         [Test]
-        public void TestSingleRename() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+        public void TestSingleRename()
+        {
+            var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
@@ -52,12 +56,14 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
         }
 
         [Test]
-        public void TestMultipleRenames() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+        public void TestMultipleRenames()
+        {
+            var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
@@ -75,12 +81,14 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199 {
         }
 
         [Test]
-        public void TestRenameWithSet() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
+        public void TestRenameWithSet()
+        {
+            var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0)) {
-                var database = server["onlinetests"];
-                var collection = database.GetCollection("CSharp199");
+            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            {
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });

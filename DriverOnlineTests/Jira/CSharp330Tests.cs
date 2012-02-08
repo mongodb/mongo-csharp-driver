@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,21 +23,25 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp330Tests {
-        private MongoServer server;
-        private MongoDatabase database;
+    public class CSharp330Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
         }
 
         [Test]
-        public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase() {
-            var gridFS = database.GridFS;
+        public void TestMongoGridFSSettingsInheritsSafeModeFromDatabase()
+        {
+            var gridFS = _database.GridFS;
             Assert.AreEqual(true, gridFS.Settings.SafeMode.Enabled);
         }
     }

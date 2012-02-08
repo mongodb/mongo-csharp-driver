@@ -25,28 +25,35 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
+namespace MongoDB.DriverUnitTests.Jira.CSharp137
+{
     [TestFixture]
-    public class CSharp137Tests {
+    public class CSharp137Tests
+    {
         [Test]
-        public void TestAndInNotIn() {
+        public void TestAndInNotIn()
+        {
             var query = Query.And(
                 Query.In("value", 1, 2, 3, 4 ),
                 Query.NotIn("value", 11, 12, 13, 14)
             );
 
             Assert.AreEqual(
-                new BsonDocument {
-                    {"value", new BsonDocument {
-                        {"$in", new BsonArray { 1, 2, 3, 4 }},
-                        {"$nin", new BsonArray { 11, 12, 13, 14 }}
-                    }}
+                new BsonDocument
+                {
+                    { "value", new BsonDocument
+                        {
+                            { "$in", new BsonArray { 1, 2, 3, 4 } },
+                            { "$nin", new BsonArray { 11, 12, 13, 14 } }
+                        }
+                    }
                 },
                 query.ToBsonDocument());
         }
 
         [Test]
-        public void TestAndGtLt() {
+        public void TestAndGtLt()
+        {
             var query = Query.And(
                 Query.NotIn("value", 1, 2, 3),
                 Query.EQ("OtherValue", 1),
@@ -55,19 +62,23 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
             );
 
             Assert.AreEqual(
-                new BsonDocument {
-                    {"value", new BsonDocument {
-                        {"$nin", new BsonArray { 1, 2, 3 }},
-                        {"$gt", 6},
-                        {"$lt", 20}
-                    }},
-                    {"OtherValue", 1}
+                new BsonDocument
+                {
+                    { "value", new BsonDocument
+                        {
+                            {"$nin", new BsonArray { 1, 2, 3 }},
+                            {"$gt", 6},
+                            {"$lt", 20}
+                        }
+                    },
+                    { "OtherValue", 1 }
                 },
                 query.ToBsonDocument());
         }
 
         [Test]
-        public void TestDuplicateEq() {
+        public void TestDuplicateEq()
+        {
             // now that server supports $and this is actually syntactically valid
             var query = Query.And(
                 Query.EQ("value", 6),
@@ -79,7 +90,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         }
 
         [Test]
-        public void TestEq1() {
+        public void TestEq1()
+        {
             // now that server supports $and this is actually syntactically valid
             var query = Query.And(
                 Query.EQ("value", 6),
@@ -91,7 +103,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         }
 
         [Test]
-        public void TestEq2() {
+        public void TestEq2()
+        {
             // now that server supports $and this is actually syntactically valid
             var query = Query.And(
                 Query.GT("value", 6),
@@ -103,7 +116,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137 {
         }
 
         [Test]
-        public void TestDuplicateOperation() {
+        public void TestDuplicateOperation()
+        {
             // now that server supports $and this is actually syntactically valid
             var query = Query.And(
                 Query.LTE("value", 6),

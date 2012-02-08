@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,67 +18,70 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonWriter.
     /// </summary>
     [Serializable]
-    public abstract class BsonWriterSettings {
-        #region protected fields
+    public abstract class BsonWriterSettings
+    {
+        // protected fields
         /// <summary>
         /// The representation for Guids.
         /// </summary>
-        protected GuidRepresentation guidRepresentation = BsonDefaults.GuidRepresentation;
+        protected GuidRepresentation _guidRepresentation = BsonDefaults.GuidRepresentation;
         /// <summary>
         /// Whether the settings are frozen.
         /// </summary>
-        protected bool isFrozen;
-        #endregion
+        protected bool _isFrozen;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonWriterSettings class.
         /// </summary>
-        protected BsonWriterSettings() {
+        protected BsonWriterSettings()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonWriterSettings class.
         /// </summary>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        protected BsonWriterSettings(
-            GuidRepresentation guidRepresentation
-        ) {
-            this.guidRepresentation = guidRepresentation;
+        protected BsonWriterSettings(GuidRepresentation guidRepresentation)
+        {
+            _guidRepresentation = guidRepresentation;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets the representation for Guids.
         /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { ThrowFrozenException(); }
-                guidRepresentation = value;
+        public GuidRepresentation GuidRepresentation
+        {
+            get { return _guidRepresentation; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozenException(); }
+                _guidRepresentation = value;
             }
         }
 
         /// <summary>
         /// Gets whether the settings are frozen.
         /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
+        public bool IsFrozen
+        {
+            get { return _isFrozen; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public BsonWriterSettings Clone() {
+        public BsonWriterSettings Clone()
+        {
             return CloneImplementation();
         }
 
@@ -86,8 +89,9 @@ namespace MongoDB.Bson.IO {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The frozen settings.</returns>
-        public BsonWriterSettings Freeze() {
-            isFrozen = true;
+        public BsonWriterSettings Freeze()
+        {
+            _isFrozen = true;
             return this;
         }
 
@@ -95,16 +99,19 @@ namespace MongoDB.Bson.IO {
         /// Returns a frozen copy of the settings.
         /// </summary>
         /// <returns>A frozen copy of the settings.</returns>
-        public BsonWriterSettings FrozenCopy() {
-            if (isFrozen) {
+        public BsonWriterSettings FrozenCopy()
+        {
+            if (_isFrozen)
+            {
                 return this;
-            } else {
+            }
+            else
+            {
                 return Clone().Freeze();
             }
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
@@ -114,10 +121,10 @@ namespace MongoDB.Bson.IO {
         /// <summary>
         /// Throws an InvalidOperationException when an attempt is made to change a setting after the settings are frozen.
         /// </summary>
-        protected void ThrowFrozenException() {
+        protected void ThrowFrozenException()
+        {
             var message = string.Format("{0} is frozen.", this.GetType().Name);
             throw new InvalidOperationException(message);
         }
-        #endregion
     }
 }

@@ -40,7 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\CodeAnalysisRuleSet.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\MongoDB.Bson.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -93,9 +93,11 @@
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDictionaryOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonIgnoreIfDefaultAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
+    <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
@@ -131,6 +133,7 @@
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionarySerializer.cs" />
+    <Compile Include="Serialization\Serializers\ImageSerializers.cs" />
     <Compile Include="Serialization\Serializers\NullableGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\ObjectSerializer.cs" />
     <Compile Include="Exceptions\BsonInternalException.cs" />
@@ -225,6 +228,11 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
+      <Link>CustomDictionary.xml</Link>
+    </CodeAnalysisDictionary>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

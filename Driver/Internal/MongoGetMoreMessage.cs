@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,34 +21,31 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoGetMoreMessage : MongoRequestMessage {
-        #region private fields
-        private string collectionFullName;
-        private int numberToReturn;
-        private long cursorId;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoGetMoreMessage : MongoRequestMessage
+    {
+        // private fields
+        private string _collectionFullName;
+        private int _numberToReturn;
+        private long _cursorId;
 
-        #region constructors
-        internal MongoGetMoreMessage(
-            string collectionFullName,
-            int numberToReturn,
-            long cursorId
-        )
-            : base(MessageOpcode.GetMore, null, null) {
-            this.collectionFullName = collectionFullName;
-            this.numberToReturn = numberToReturn;
-            this.cursorId = cursorId;
+        // constructors
+        internal MongoGetMoreMessage(string collectionFullName, int numberToReturn, long cursorId)
+            : base(MessageOpcode.GetMore, null, null)
+        {
+            _collectionFullName = collectionFullName;
+            _numberToReturn = numberToReturn;
+            _cursorId = cursorId;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32(numberToReturn);
-            buffer.WriteInt64(cursorId);
+        // protected methods
+        protected override void WriteBody()
+        {
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteCString(_collectionFullName);
+            _buffer.WriteInt32(_numberToReturn);
+            _buffer.WriteInt64(_cursorId);
         }
-        #endregion
     }
 }

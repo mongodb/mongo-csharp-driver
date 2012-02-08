@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,25 +18,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a JsonReader.
     /// </summary>
     [Serializable]
-    public class JsonReaderSettings : BsonReaderSettings {
-        #region private static fields
-        private static JsonReaderSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
+    public class JsonReaderSettings : BsonReaderSettings
+    {
+        // private static fields
+        private static JsonReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
-        #region private fields
-        private bool closeInput = false;
-        #endregion
+        // private fields
+        private bool _closeInput = false;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
-        public JsonReaderSettings() {
+        public JsonReaderSettings()
+        {
         }
 
         /// <summary>
@@ -44,64 +45,61 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public JsonReaderSettings(
-            bool closeInput,
-            GuidRepresentation guidRepresentation
-        )
-            : base(guidRepresentation) {
-            this.closeInput = closeInput;
+        public JsonReaderSettings(bool closeInput, GuidRepresentation guidRepresentation)
+            : base(guidRepresentation)
+        {
+            _closeInput = closeInput;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default settings for a JsonReader.
         /// </summary>
-        public static JsonReaderSettings Defaults {
-            get {
-                if (defaults == null) {
-                    defaults = new JsonReaderSettings();
+        public static JsonReaderSettings Defaults
+        {
+            get
+            {
+                if (__defaults == null)
+                {
+                    __defaults = new JsonReaderSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the input stream when the reader is closed.
         /// </summary>
-        public bool CloseInput {
-            get { return closeInput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
-                closeInput = value;
+        public bool CloseInput
+        {
+            get { return _closeInput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
+                _closeInput = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new JsonReaderSettings Clone() {
-            return (JsonReaderSettings) CloneImplementation();
+        public new JsonReaderSettings Clone()
+        {
+            return (JsonReaderSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonReaderSettings CloneImplementation() {
-            return new JsonReaderSettings(
-                closeInput,
-                guidRepresentation
-            );
+        protected override BsonReaderSettings CloneImplementation()
+        {
+            return new JsonReaderSettings(_closeInput, _guidRepresentation);
         }
-        #endregion
     }
 }

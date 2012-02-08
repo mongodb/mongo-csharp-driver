@@ -29,6 +29,8 @@ http://jira.mongodb.org/browse/CSHARP
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
+* Alex Lyman				mail.alex.lyman@gmail.com
+* Alexander Nagy            optimiz3@gmail.com
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   

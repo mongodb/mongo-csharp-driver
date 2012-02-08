@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,43 +26,51 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp130 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp130
+{
     [TestFixture]
-    public class CSharp130Tests {
+    public class CSharp130Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public IList<int> List;
         }
 #pragma warning restore
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost"); // not safe=true
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp130");
+        public void TestFixtureSetup()
+        {
+            var serverSettings = Configuration.TestServer.Settings.Clone();
+            serverSettings.SafeMode = SafeMode.False;
+            _server = MongoServer.Create(serverSettings); // not safe=true
+            _database = _server[Configuration.TestDatabase.Name];
+            _collection = _database.GetCollection<C>(Configuration.TestCollection.Name);
         }
 
         [Test]
-        public void TestLastErrorMessage() {
-            using (server.RequestStart(database)) {
+        public void TestLastErrorMessage()
+        {
+            using (_server.RequestStart(_database))
+            {
                 var c = new C { List = new List<int>() };
 
                 // insert it once
-                collection.Insert(c);
-                var lastError = server.GetLastError();
+                _collection.Insert(c);
+                var lastError = _server.GetLastError();
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsFalse(lastError.HasLastErrorMessage);
                 Assert.IsNull(lastError.LastErrorMessage);
                 Assert.IsFalse(lastError.UpdatedExisting);
 
                 // insert it again (expect duplicate key error)
-                collection.Insert(c);
-                lastError = server.GetLastError();
+                _collection.Insert(c);
+                lastError = _server.GetLastError();
                 Assert.AreEqual(0, lastError.DocumentsAffected);
                 Assert.IsTrue(lastError.HasLastErrorMessage);
                 Assert.IsNotNull(lastError.LastErrorMessage);

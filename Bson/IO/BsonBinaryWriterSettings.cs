@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,27 +18,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a BsonBinaryWriter.
     /// </summary>
     [Serializable]
-    public class BsonBinaryWriterSettings : BsonWriterSettings {
-        #region private static fields
-        private static BsonBinaryWriterSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
+    public class BsonBinaryWriterSettings : BsonWriterSettings
+    {
+        // private static fields
+        private static BsonBinaryWriterSettings __defaults = null; // delay creation to pick up the latest default values
 
-        #region private fields
-        private bool closeOutput = false;
-        private bool fixOldBinarySubTypeOnOutput = true;
-        private int maxDocumentSize = BsonDefaults.MaxDocumentSize;
-        #endregion
+        // private fields
+        private bool _closeOutput = false;
+        private bool _fixOldBinarySubTypeOnOutput = true;
+        private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonBinaryWriterSettings class.
         /// </summary>
-        public BsonBinaryWriterSettings() {
+        public BsonBinaryWriterSettings()
+        {
         }
 
         /// <summary>
@@ -52,88 +53,89 @@ namespace MongoDB.Bson.IO {
             bool closeOutput,
             bool fixOldBinarySubTypeOnOutput,
             GuidRepresentation guidRepresentation,
-            int maxDocumentSize
-        )
-            : base(guidRepresentation) {
-            this.closeOutput = closeOutput;
-            this.fixOldBinarySubTypeOnOutput = fixOldBinarySubTypeOnOutput;
-            this.maxDocumentSize = maxDocumentSize;
+            int maxDocumentSize)
+            : base(guidRepresentation)
+        {
+            _closeOutput = closeOutput;
+            _fixOldBinarySubTypeOnOutput = fixOldBinarySubTypeOnOutput;
+            _maxDocumentSize = maxDocumentSize;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default BsonBinaryWriter settings.
         /// </summary>
-        public static BsonBinaryWriterSettings Defaults {
-            get {
-                if (defaults == null) {
-                    defaults = new BsonBinaryWriterSettings();
+        public static BsonBinaryWriterSettings Defaults
+        {
+            get
+            {
+                if (__defaults == null)
+                {
+                    __defaults = new BsonBinaryWriterSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the output when the writer is closed.
         /// </summary>
-        public bool CloseOutput {
-            get { return closeOutput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                closeOutput = value;
+        public bool CloseOutput
+        {
+            get { return _closeOutput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                _closeOutput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets whether to fix the old binary data subtype on output.
         /// </summary>
-        public bool FixOldBinarySubTypeOnOutput {
-            get { return fixOldBinarySubTypeOnOutput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                fixOldBinarySubTypeOnOutput = value;
+        public bool FixOldBinarySubTypeOnOutput
+        {
+            get { return _fixOldBinarySubTypeOnOutput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                _fixOldBinarySubTypeOnOutput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the max document size.
         /// </summary>
-        public int MaxDocumentSize {
-            get { return maxDocumentSize; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                maxDocumentSize = value;
+        public int MaxDocumentSize
+        {
+            get { return _maxDocumentSize; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                _maxDocumentSize = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new BsonBinaryWriterSettings Clone() {
-            return (BsonBinaryWriterSettings) CloneImplementation();
+        public new BsonBinaryWriterSettings Clone()
+        {
+            return (BsonBinaryWriterSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonWriterSettings CloneImplementation() {
-            return new BsonBinaryWriterSettings(
-                closeOutput,
-                fixOldBinarySubTypeOnOutput,
-                guidRepresentation,
-                maxDocumentSize
-            );
+        protected override BsonWriterSettings CloneImplementation()
+        {
+            return new BsonBinaryWriterSettings(_closeOutput, _fixOldBinarySubTypeOnOutput, _guidRepresentation, _maxDocumentSize);
         }
-        #endregion
     }
 }

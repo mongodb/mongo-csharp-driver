@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,35 +26,40 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp134 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp134
+{
     [TestFixture]
-    public class CSharp134Tests {
+    public class CSharp134Tests
+    {
 #pragma warning disable 649 // never assigned to
-        private class C {
+        private class C
+        {
             public ObjectId Id;
             public MongoDBRef DbRef;
         }
 #pragma warning restore
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<C> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection<C>("csharp134");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.GetTestCollection<C>();
         }
 
         [Test]
-        public void TestDeserializeMongoDBRef() {
+        public void TestDeserializeMongoDBRef()
+        {
             var dbRef = new MongoDBRef("test", ObjectId.GenerateNewId());
             var c = new C { DbRef = dbRef };
-            collection.RemoveAll();
-            collection.Insert(c);
+            _collection.RemoveAll();
+            _collection.Insert(c);
 
-            var rehydrated = collection.FindOne();
+            var rehydrated = _collection.FindOne();
             Assert.IsNull(rehydrated.DbRef.DatabaseName);
             Assert.AreEqual(dbRef.CollectionName, rehydrated.DbRef.CollectionName);
             Assert.AreEqual(dbRef.Id, rehydrated.DbRef.Id);

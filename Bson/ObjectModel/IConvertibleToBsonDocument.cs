@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// An interface implemented by objects that convert themselves to a BsonDocument.
     /// </summary>
-    public interface IConvertibleToBsonDocument {
+    public interface IConvertibleToBsonDocument
+    {
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>

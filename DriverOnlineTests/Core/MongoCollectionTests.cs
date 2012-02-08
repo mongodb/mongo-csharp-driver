@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,70 +24,79 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests {
+namespace MongoDB.DriverOnlineTests
+{
     [TestFixture]
-    public class MongoCollectionTests {
-        private class TestClass {
+    public class MongoCollectionTests
+    {
+        private class TestClass
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
         }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            server.Connect();
-            database = server["onlinetests"];
-            collection = database["testcollection"];
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _server.Connect();
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         // TODO: more tests for MongoCollection
 
         [Test]
-        public void TestCountZero() {
-            collection.RemoveAll();
-            var count = collection.Count();
+        public void TestCountZero()
+        {
+            _collection.RemoveAll();
+            var count = _collection.Count();
             Assert.AreEqual(0, count);
         }
 
         [Test]
-        public void TestCountOne() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument());
-            var count = collection.Count();
+        public void TestCountOne()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument());
+            var count = _collection.Count();
             Assert.AreEqual(1, count);
         }
 
         [Test]
-        public void TestCountWithQuery() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
+        public void TestCountWithQuery()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
             var query = Query.EQ("x", 1);
-            var count = collection.Count(query);
+            var count = _collection.Count(query);
             Assert.AreEqual(1, count);
         }
 
         [Test]
-        public void TestCreateCollection() {
-            var collection = database["testcreatecollection"];
+        public void TestCreateCollection()
+        {
+            var collection = Configuration.TestCollection;
             collection.Drop();
             Assert.IsFalse(collection.Exists());
-            database.CreateCollection("testcreatecollection");
+            _database.CreateCollection(collection.Name);
             Assert.IsTrue(collection.Exists());
             collection.Drop();
         }
 
         [Test]
-        public void TestCreateCollectionSetCappedSetMaxDocuments() {
-            var collection = database["testcreatecollection"];
+        public void TestCreateCollectionSetCappedSetMaxDocuments()
+        {
+            var collection = _database["cappedcollection"];
             collection.Drop();
             Assert.IsFalse(collection.Exists());
             var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000).SetMaxDocuments(1000);
-            database.CreateCollection("testcreatecollection", options);
+            _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
@@ -97,12 +106,13 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestCreateCollectionSetCappedSetMaxSize() {
-            var collection = database["testcreatecollection"];
+        public void TestCreateCollectionSetCappedSetMaxSize()
+        {
+            var collection = _database["cappedcollection"];
             collection.Drop();
             Assert.IsFalse(collection.Exists());
             var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
-            database.CreateCollection("testcreatecollection", options);
+            _database.CreateCollection(collection.Name, options);
             Assert.IsTrue(collection.Exists());
             var stats = collection.GetStats();
             Assert.IsTrue(stats.IsCapped);
@@ -111,11 +121,14 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestCreateIndex() {
-            var expectedIndexVersion = (server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
+        public void TestCreateIndex()
+        {
+            var expectedIndexVersion = (_server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
 
-            collection.DropAllIndexes();
-            var indexes = collection.GetIndexes();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.DropAllIndexes(); // doesn't drop the index on _id
+
+            var indexes = _collection.GetIndexes();
             Assert.AreEqual(1, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
@@ -123,12 +136,13 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(false, indexes[0].IsUnique);
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
-            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
 
-            collection.DropAllIndexes();
-            collection.CreateIndex("x");
-            indexes = collection.GetIndexes();
+            _collection.DropAllIndexes();
+            _collection.CreateIndex("x");
+
+            indexes = _collection.GetIndexes();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
@@ -136,7 +150,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(false, indexes[0].IsUnique);
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
-            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
             Assert.AreEqual(false, indexes[1].DroppedDups);
             Assert.AreEqual(false, indexes[1].IsBackground);
@@ -144,13 +158,13 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(false, indexes[1].IsUnique);
             Assert.AreEqual(new BsonDocument("x", 1), indexes[1].Key);
             Assert.AreEqual("x_1", indexes[1].Name);
-            Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
+            Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
 
-            collection.DropAllIndexes();
+            _collection.DropAllIndexes();
             var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-            collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
-            indexes = collection.GetIndexes();
+            _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            indexes = _collection.GetIndexes();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
@@ -158,7 +172,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(false, indexes[0].IsUnique);
             Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
-            Assert.AreEqual("onlinetests.testcollection", indexes[0].Namespace);
+            Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
             Assert.AreEqual(true, indexes[1].DroppedDups);
             Assert.AreEqual(true, indexes[1].IsBackground);
@@ -166,19 +180,20 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(true, indexes[1].IsUnique);
             Assert.AreEqual(new BsonDocument { { "x", 1 }, { "y", -1 } }, indexes[1].Key);
             Assert.AreEqual("x_1_y_-1", indexes[1].Name);
-            Assert.AreEqual("onlinetests.testcollection", indexes[1].Namespace);
+            Assert.AreEqual(_collection.FullName, indexes[1].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[1].Version);
         }
 
         [Test]
-        public void TestDistinct() {
-            collection.RemoveAll();
-            collection.DropAllIndexes();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
-            var values = new HashSet<BsonValue>(collection.Distinct("x"));
+        public void TestDistinct()
+        {
+            _collection.RemoveAll();
+            _collection.DropAllIndexes();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            var values = new HashSet<BsonValue>(_collection.Distinct("x"));
             Assert.AreEqual(3, values.Count);
             Assert.AreEqual(true, values.Contains(1));
             Assert.AreEqual(true, values.Contains(2));
@@ -187,15 +202,16 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDistinctWithQuery() {
-            collection.RemoveAll();
-            collection.DropAllIndexes();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
+        public void TestDistinctWithQuery()
+        {
+            _collection.RemoveAll();
+            _collection.DropAllIndexes();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
             var query = Query.LTE("x", 2);
-            var values = new HashSet<BsonValue>(collection.Distinct("x", query));
+            var values = new HashSet<BsonValue>(_collection.Distinct("x", query));
             Assert.AreEqual(2, values.Count);
             Assert.AreEqual(true, values.Contains(1));
             Assert.AreEqual(true, values.Contains(2));
@@ -204,56 +220,61 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestDropAllIndexes() {
-            collection.DropAllIndexes();
+        public void TestDropAllIndexes()
+        {
+            _collection.DropAllIndexes();
         }
 
         [Test]
-        public void TestDropIndex() {
-            collection.DropAllIndexes();
-            Assert.AreEqual(1, collection.GetIndexes().Count());
-            Assert.Throws<MongoCommandException>(() => collection.DropIndex("x"));
+        public void TestDropIndex()
+        {
+            _collection.DropAllIndexes();
+            Assert.AreEqual(1, _collection.GetIndexes().Count());
+            Assert.Throws<MongoCommandException>(() => _collection.DropIndex("x"));
 
-            collection.CreateIndex("x");
-            Assert.AreEqual(2, collection.GetIndexes().Count());
-            collection.DropIndex("x");
-            Assert.AreEqual(1, collection.GetIndexes().Count());
+            _collection.CreateIndex("x");
+            Assert.AreEqual(2, _collection.GetIndexes().Count());
+            _collection.DropIndex("x");
+            Assert.AreEqual(1, _collection.GetIndexes().Count());
         }
 
         [Test]
-        public void TestExplain() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.Find(Query.GT("x", 3)).Explain();
+        public void TestExplain()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = _collection.Find(Query.GT("x", 3)).Explain();
         }
 
         [Test]
-        public void TestFind() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.Find(Query.GT("x", 3));
+        public void TestFind()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = _collection.Find(Query.GT("x", 3));
             Assert.AreEqual(1, result.Count());
             Assert.AreEqual(4, result.Select(x => x["x"].AsInt32).FirstOrDefault());
         }
 
         [Test]
-        public void TestFindAndModify() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
-            collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
+        public void TestFindAndModify()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
+            _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
 
             var query = Query.EQ("inprogress", false);
             var sortBy = SortBy.Descending("priority");
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             var update = Update.Set("inprogress", true).Set("started", started);
-            var result = collection.FindAndModify(query, sortBy, update, false); // return old
+            var result = _collection.FindAndModify(query, sortBy, update, false); // return old
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(2, result.ModifiedDocument["_id"].AsInt32);
             Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
@@ -264,7 +285,7 @@ namespace MongoDB.DriverOnlineTests {
             started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             update = Update.Set("inprogress", true).Set("started", started);
-            result = collection.FindAndModify(query, sortBy, update, true); // return new
+            result = _collection.FindAndModify(query, sortBy, update, true); // return new
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(1, result.ModifiedDocument["_id"].AsInt32);
             Assert.AreEqual(1, result.ModifiedDocument["priority"].AsInt32);
@@ -274,15 +295,16 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestFindAndModifyNoMatchingDocument() {
-            collection.RemoveAll();
+        public void TestFindAndModifyNoMatchingDocument()
+        {
+            _collection.RemoveAll();
 
             var query = Query.EQ("inprogress", false);
             var sortBy = SortBy.Descending("priority");
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
             var update = Update.Set("inprogress", true).Set("started", started);
-            var result = collection.FindAndModify(query, sortBy, update, false); // return old
+            var result = _collection.FindAndModify(query, sortBy, update, false); // return old
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ModifiedDocument);
@@ -290,44 +312,48 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestFindAndModifyUpsert() {
-            collection.RemoveAll();
+        public void TestFindAndModifyUpsert()
+        {
+            _collection.RemoveAll();
 
             var query = Query.EQ("name", "Tom");
             var sortBy = SortBy.Null;
             var update = Update.Inc("count", 1);
-            var result = collection.FindAndModify(query, sortBy, update, true, true); // upsert
+            var result = _collection.FindAndModify(query, sortBy, update, true, true); // upsert
             Assert.AreEqual("Tom", result.ModifiedDocument["name"].AsString);
             Assert.AreEqual(1, result.ModifiedDocument["count"].AsInt32);
         }
 
-        private class FindAndModifyClass {
+        private class FindAndModifyClass
+        {
             public ObjectId Id;
             public int Value;
         }
 
         [Test]
-        public void TestFindAndModifyTyped() {
-            collection.RemoveAll();
+        public void TestFindAndModifyTyped()
+        {
+            _collection.RemoveAll();
             var obj = new FindAndModifyClass { Id = ObjectId.GenerateNewId(), Value = 1 };
-            collection.Insert(obj);
+            _collection.Insert(obj);
 
             var query = Query.EQ("_id", obj.Id);
             var sortBy = SortBy.Null;
             var update = Update.Inc("Value", 1);
-            var result = collection.FindAndModify(query, sortBy, update, true); // returnNew
+            var result = _collection.FindAndModify(query, sortBy, update, true); // returnNew
             var rehydrated = result.GetModifiedDocumentAs<FindAndModifyClass>();
             Assert.AreEqual(obj.Id, rehydrated.Id);
             Assert.AreEqual(2, rehydrated.Value);
         }
 
         [Test]
-        public void TestFindAndRemoveNoMatchingDocument() {
-            collection.RemoveAll();
+        public void TestFindAndRemoveNoMatchingDocument()
+        {
+            _collection.RemoveAll();
 
             var query = Query.EQ("inprogress", false);
             var sortBy = SortBy.Descending("priority");
-            var result = collection.FindAndRemove(query, sortBy);
+            var result = _collection.FindAndRemove(query, sortBy);
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ModifiedDocument);
@@ -335,15 +361,16 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestFindNearSphericalFalse() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestFindNearSphericalFalse()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.Near("Location", -74.0, 40.74);
-            var hits = collection.Find(query).ToArray();
+            var hits = _collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
 
             var hit0 = hits[0];
@@ -366,7 +393,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual("Coffee", hit2["Type"].AsString);
 
             query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
-            hits = collection.Find(query).ToArray();
+            hits = _collection.Find(query).ToArray();
             Assert.AreEqual(1, hits.Length);
 
             hit0 = hits[0];
@@ -376,21 +403,23 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual("Office", hit0["Type"].AsString);
 
             query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
-            hits = collection.Find(query).ToArray();
+            hits = _collection.Find(query).ToArray();
             Assert.AreEqual(0, hits.Length);
         }
 
         [Test]
-        public void TestFindNearSphericalTrue() {
-            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
-                if (collection.Exists()) { collection.Drop(); }
-                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestFindNearSphericalTrue()
+        {
+            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var query = Query.Near("Location", -74.0, 40.74, double.MaxValue, true); // spherical
-                var hits = collection.Find(query).ToArray();
+                var hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(3, hits.Length);
 
                 var hit0 = hits[0];
@@ -413,7 +442,7 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual("Coffee", hit2["Type"].AsString);
 
                 query = Query.Near("Location", -74.0, 40.74, 0.5); // with maxDistance
-                hits = collection.Find(query).ToArray();
+                hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(1, hits.Length);
 
                 hit0 = hits[0];
@@ -423,128 +452,139 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual("Office", hit0["Type"].AsString);
 
                 query = Query.Near("Location", -174.0, 40.74, 0.5); // with no hits
-                hits = collection.Find(query).ToArray();
+                hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(0, hits.Length);
             }
         }
 
         [Test]
-        public void TestFindOne() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.FindOne();
+        public void TestFindOne()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = _collection.FindOne();
             Assert.AreEqual(1, result["x"].AsInt32);
             Assert.AreEqual(2, result["y"].AsInt32);
         }
 
         [Test]
-        public void TestFindOneAs() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "X", 1 } });
-            var result = (TestClass) collection.FindOneAs(typeof(TestClass));
+        public void TestFindOneAs()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var result = (TestClass)_collection.FindOneAs(typeof(TestClass));
             Assert.AreEqual(1, result.X);
         }
 
         [Test]
-        public void TestFindOneAsGeneric() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "X", 1 } });
-            var result = collection.FindOneAs<TestClass>();
+        public void TestFindOneAsGeneric()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var result = _collection.FindOneAs<TestClass>();
             Assert.AreEqual(1, result.X);
         }
 
         [Test]
-        public void TestFindOneById() {
-            collection.RemoveAll();
+        public void TestFindOneById()
+        {
+            _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
-            var result = collection.FindOneById(id);
+            _collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
+            var result = _collection.FindOneById(id);
             Assert.AreEqual(1, result["x"].AsInt32);
             Assert.AreEqual(2, result["y"].AsInt32);
         }
 
         [Test]
-        public void TestFindOneByIdAs() {
-            collection.RemoveAll();
+        public void TestFindOneByIdAs()
+        {
+            _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
-            var result = (TestClass) collection.FindOneByIdAs(typeof(TestClass), id);
+            _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            var result = (TestClass)_collection.FindOneByIdAs(typeof(TestClass), id);
             Assert.AreEqual(id, result.Id);
             Assert.AreEqual(1, result.X);
         }
 
         [Test]
-        public void TestFindOneByIdAsGeneric() {
-            collection.RemoveAll();
+        public void TestFindOneByIdAsGeneric()
+        {
+            _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
-            var result = collection.FindOneByIdAs<TestClass>(id);
+            _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            var result = _collection.FindOneByIdAs<TestClass>(id);
             Assert.AreEqual(id, result.Id);
             Assert.AreEqual(1, result.X);
         }
 
         [Test]
-        public void TestFindWithinCircleSphericalFalse() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestFindWithinCircleSphericalFalse()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.WithinCircle("Location", -74.0, 40.74, 1.0, false); // not spherical
-            var hits = collection.Find(query).ToArray();
+            var hits = _collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
             // note: the hits are unordered
 
             query = Query.WithinCircle("Location", -74.0, 40.74, 0.5, false); // smaller radius
-            hits = collection.Find(query).ToArray();
+            hits = _collection.Find(query).ToArray();
             Assert.AreEqual(1, hits.Length);
 
             query = Query.WithinCircle("Location", -174.0, 40.74, 1.0, false); // different part of the world
-            hits = collection.Find(query).ToArray();
+            hits = _collection.Find(query).ToArray();
             Assert.AreEqual(0, hits.Length);
         }
 
         [Test]
-        public void TestFindWithinCircleSphericalTrue() {
-            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
-                if (collection.Exists()) { collection.Drop(); }
-                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestFindWithinCircleSphericalTrue()
+        {
+            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var query = Query.WithinCircle("Location", -74.0, 40.74, 0.1, true); // spherical
-                var hits = collection.Find(query).ToArray();
+                var hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(3, hits.Length);
                 // note: the hits are unordered
 
                 query = Query.WithinCircle("Location", -74.0, 40.74, 0.01, false); // smaller radius
-                hits = collection.Find(query).ToArray();
+                hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(1, hits.Length);
 
                 query = Query.WithinCircle("Location", -174.0, 40.74, 0.1, false); // different part of the world
-                hits = collection.Find(query).ToArray();
+                hits = _collection.Find(query).ToArray();
                 Assert.AreEqual(0, hits.Length);
             }
         }
 
         [Test]
-        public void TestFindWithinRectangle() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestFindWithinRectangle()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.WithinRectangle("Location", -75.0, 40, -73.0, 42.0);
-            var hits = collection.Find(query).ToArray();
+            var hits = _collection.Find(query).ToArray();
             Assert.AreEqual(3, hits.Length);
             // note: the hits are unordered
         }
 
 #pragma warning disable 649 // never assigned to
-        private class Place {
+        private class Place
+        {
             public ObjectId Id;
             public double[] Location;
             public string Name;
@@ -553,18 +593,19 @@ namespace MongoDB.DriverOnlineTests {
 #pragma warning restore
 
         [Test]
-        public void TestGeoHaystackSearch() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
-            collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
-            collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-            collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+        public void TestGeoHaystackSearch()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+            _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+            _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+            _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
             var options = GeoHaystackSearchOptions
                 .SetLimit(30)
                 .SetMaxDistance(6)
                 .SetQuery("Type", "restaurant");
-            var result = collection.GeoHaystackSearchAs<Place>(33, 33, options);
+            var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
             Assert.IsTrue(result.Ok);
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
             Assert.AreEqual(2, result.Stats.BTreeMatches);
@@ -578,21 +619,22 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGeoNear() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
-            collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
-            collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
-            collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestGeoNear()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var options = GeoNearOptions
                 .SetDistanceMultiplier(1)
                 .SetMaxDistance(100);
-            var result = collection.GeoNearAs(typeof(Place), Query.Null, 0.0, 0.0, 100, options);
+            var result = _collection.GeoNearAs(typeof(Place), Query.Null, 0.0, 0.0, 100, options);
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
             Assert.IsTrue(result.Stats.BTreeLocations >= 0);
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
@@ -606,7 +648,7 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
             Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
 
-            var place = (Place) result.Hits[1].Document;
+            var place = (Place)result.Hits[1].Document;
             Assert.AreEqual(1.0, place.Location[0]);
             Assert.AreEqual(2.0, place.Location[1]);
             Assert.AreEqual("Two", place.Name);
@@ -614,21 +656,22 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGeoNearGeneric() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
-            collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
-            collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
-            collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestGeoNearGeneric()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { 1.0, 1.0 }, Name = "One", Type = "Museum" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 2.0 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
+            _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var options = GeoNearOptions
                 .SetDistanceMultiplier(1)
                 .SetMaxDistance(100);
-            var result = collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
+            var result = _collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
             Assert.IsTrue(result.Stats.BTreeLocations >= 0);
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
@@ -650,17 +693,18 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGeoNearSphericalFalse() {
-            if (collection.Exists()) { collection.Drop(); }
-            collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-            collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-            collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestGeoNearSphericalFalse()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+            _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+            _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var options = GeoNearOptions.SetSpherical(false);
-            var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+            var result = _collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+            Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
             Assert.IsTrue(result.Stats.BTreeLocations >= 0);
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
@@ -694,18 +738,20 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGeoNearSphericalTrue() {
-            if (server.BuildInfo.Version >= new Version(1, 7, 0, 0)) {
-                if (collection.Exists()) { collection.Drop(); }
-                collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
-                collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
-                collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
+        public void TestGeoNearSphericalTrue()
+        {
+            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
+                _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
+                _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var options = GeoNearOptions.SetSpherical(true);
-                var result = collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+                var result = _collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
                 Assert.IsTrue(result.Ok);
-                Assert.AreEqual("onlinetests.testcollection", result.Namespace);
+                Assert.AreEqual(_collection.FullName, result.Namespace);
                 Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
                 Assert.IsTrue(result.Stats.BTreeLocations >= 0);
                 Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
@@ -740,39 +786,44 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGetIndexes() {
-            collection.DropAllIndexes();
-            var indexes = collection.GetIndexes();
+        public void TestGetIndexes()
+        {
+            _collection.DropAllIndexes();
+            var indexes = _collection.GetIndexes();
             Assert.AreEqual(1, indexes.Count);
             Assert.AreEqual("_id_", indexes[0].Name);
-			// see additional tests in TestCreateIndex
+            // see additional tests in TestCreateIndex
         }
 
         [Test]
-        public void TestGetMore() {
-            using (server.RequestStart(database)) {
-                collection.RemoveAll();
-                var count = server.Primary.MaxMessageLength / 1000000;
-                for (int i = 0; i < count; i++) {
+        public void TestGetMore()
+        {
+            using (_server.RequestStart(_database))
+            {
+                _collection.RemoveAll();
+                var count = _server.Primary.MaxMessageLength / 1000000;
+                for (int i = 0; i < count; i++)
+                {
                     var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
-                    collection.Insert(document);
+                    _collection.Insert(document);
                 }
-                var list = collection.FindAll().ToList();
+                var list = _collection.FindAll().ToList();
             }
         }
 
         [Test]
-        public void TestGroup() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
+        public void TestGroup()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
             var initial = new BsonDocument("count", 0);
             var reduce = "function(doc, prev) { prev.count += 1 }";
-            var results = collection.Group(Query.Null, "x", initial, reduce, null).ToArray();
+            var results = _collection.Group(Query.Null, "x", initial, reduce, null).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -783,18 +834,19 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestGroupByFunction() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
-            collection.Insert(new BsonDocument("x", 3));
-            var keyFunction = (BsonJavaScript) "function(doc) { return { x : doc.x }; }";
+        public void TestGroupByFunction()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            var keyFunction = (BsonJavaScript)"function(doc) { return { x : doc.x }; }";
             var initial = new BsonDocument("count", 0);
-            var reduce = (BsonJavaScript) "function(doc, prev) { prev.count += 1 }";
-            var results = collection.Group(Query.Null, keyFunction, initial, reduce, null).ToArray();
+            var reduce = (BsonJavaScript)"function(doc, prev) { prev.count += 1 }";
+            var results = _collection.Group(Query.Null, keyFunction, initial, reduce, null).ToArray();
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -805,24 +857,27 @@ namespace MongoDB.DriverOnlineTests {
         }
 
         [Test]
-        public void TestIndexExists() {
-            collection.DropAllIndexes();
-            Assert.AreEqual(false, collection.IndexExists("x"));
+        public void TestIndexExists()
+        {
+            _collection.DropAllIndexes();
+            Assert.AreEqual(false, _collection.IndexExists("x"));
 
-            collection.CreateIndex("x");
-            Assert.AreEqual(true, collection.IndexExists("x"));
+            _collection.CreateIndex("x");
+            Assert.AreEqual(true, _collection.IndexExists("x"));
 
-            collection.CreateIndex(IndexKeys.Ascending("y"));
-            Assert.AreEqual(true, collection.IndexExists(IndexKeys.Ascending("y")));
+            _collection.CreateIndex(IndexKeys.Ascending("y"));
+            Assert.AreEqual(true, _collection.IndexExists(IndexKeys.Ascending("y")));
         }
 
         [Test]
-        public void TestInsertBatchContinueOnError() {
-            var collection = database["continueonerror"];
+        public void TestInsertBatchContinueOnError()
+        {
+            var collection = Configuration.TestCollection;
             collection.Drop();
             collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
 
-            var batch = new BsonDocument[] {
+            var batch = new BsonDocument[]
+            {
                 new BsonDocument("x", 1),
                 new BsonDocument("x", 1), // duplicate
                 new BsonDocument("x", 2),
@@ -832,67 +887,79 @@ namespace MongoDB.DriverOnlineTests {
             };
 
             // try the batch without ContinueOnError
-            try {
+            try
+            {
                 collection.InsertBatch(batch);
-            } catch (MongoSafeModeException) {
+            }
+            catch (MongoSafeModeException)
+            {
                 Assert.AreEqual(1, collection.Count());
                 Assert.AreEqual(1, collection.FindOne()["x"].AsInt32);
             }
 
             // try the batch again with ContinueOnError
-            if (server.BuildInfo.Version >= new Version(2, 0, 0)) {
-                try {
-                    var options = new MongoInsertOptions(collection) { Flags = InsertFlags.ContinueOnError };
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
+            {
+                try
+                {
+                    var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
                     collection.InsertBatch(batch, options);
-                } catch (MongoSafeModeException) {
+                }
+                catch (MongoSafeModeException)
+                {
                     Assert.AreEqual(3, collection.Count());
                 }
             }
         }
 
         [Test]
-        public void TestIsCappedFalse() {
-            var collection = database["notcappedcollection"];
+        public void TestIsCappedFalse()
+        {
+            var collection = _database["notcappedcollection"];
             collection.Drop();
-            database.CreateCollection("notcappedcollection");
+            _database.CreateCollection("notcappedcollection");
 
             Assert.AreEqual(true, collection.Exists());
             Assert.AreEqual(false, collection.IsCapped());
         }
 
         [Test]
-        public void TestIsCappedTrue() {
-            var collection = database["cappedcollection"];
+        public void TestIsCappedTrue()
+        {
+            var collection = _database["cappedcollection"];
             collection.Drop();
             var options = CollectionOptions.SetCapped(true).SetMaxSize(100000);
-            database.CreateCollection("cappedcollection", options);
+            _database.CreateCollection("cappedcollection", options);
 
             Assert.AreEqual(true, collection.Exists());
             Assert.AreEqual(true, collection.IsCapped());
         }
 
 #pragma warning disable 649 // never assigned to
-        private class TestMapReduceDocument {
+        private class TestMapReduceDocument
+        {
             public string Id;
             [BsonElement("value")]
             public TestMapReduceValue Value;
         }
 
-        private class TestMapReduceValue {
+        private class TestMapReduceValue
+        {
             [BsonElement("count")]
             public int Count;
         }
 #pragma warning restore
 
         [Test]
-        public void TestMapReduce() {
+        public void TestMapReduce()
+        {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
-            collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
-            collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            _collection.Drop();
+            _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+            _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
             var map =
                 "function() {\n" +
@@ -911,7 +978,7 @@ namespace MongoDB.DriverOnlineTests {
                 "}\n";
 
             var options = MapReduceOptions.SetOutput("mrout");
-            var result = collection.MapReduce(map, reduce, options);
+            var result = _collection.MapReduce(map, reduce, options);
             Assert.IsTrue(result.Ok);
             Assert.IsTrue(result.Duration >= TimeSpan.Zero);
             Assert.AreEqual(9, result.EmitCount);
@@ -919,44 +986,50 @@ namespace MongoDB.DriverOnlineTests {
             Assert.AreEqual(3, result.InputCount);
             Assert.IsNotNullOrEmpty(result.CollectionName);
 
-            var expectedCounts = new Dictionary<string, int> {
-                    { "A", 1 },
-                    { "B", 3 },
-                    { "C", 1 },
-                    { "X", 1 },
-                    { "_id", 3 }
-                };
+            var expectedCounts = new Dictionary<string, int>
+            {
+                { "A", 1 },
+                { "B", 3 },
+                { "C", 1 },
+                { "X", 1 },
+                { "_id", 3 }
+            };
 
             // read output collection ourselves
-            foreach (var document in database[result.CollectionName].FindAll()) {
+            foreach (var document in _database[result.CollectionName].FindAll())
+            {
                 var key = document["_id"].AsString;
                 var count = document["value"].AsBsonDocument["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
 
             // test GetResults
-            foreach (var document in result.GetResults()) {
+            foreach (var document in result.GetResults())
+            {
                 var key = document["_id"].AsString;
                 var count = document["value"].AsBsonDocument["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
 
             // test GetResultsAs<>
-            foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+            foreach (var document in result.GetResultsAs<TestMapReduceDocument>())
+            {
                 Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
             }
         }
 
         [Test]
-        public void TestMapReduceInline() {
+        public void TestMapReduceInline()
+        {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            if (server.BuildInfo.Version >= new Version(1, 7, 4, 0)) {
-                collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
-                collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
-                collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            if (_server.BuildInfo.Version >= new Version(1, 7, 4, 0))
+            {
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+                _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+                _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
                 var map =
                     "function() {\n" +
@@ -974,7 +1047,7 @@ namespace MongoDB.DriverOnlineTests {
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = collection.MapReduce(map, reduce);
+                var result = _collection.MapReduce(map, reduce);
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
@@ -982,7 +1055,8 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual(3, result.InputCount);
                 Assert.IsNullOrEmpty(result.CollectionName);
 
-                var expectedCounts = new Dictionary<string, int> {
+                var expectedCounts = new Dictionary<string, int>
+                {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -991,43 +1065,49 @@ namespace MongoDB.DriverOnlineTests {
                 };
 
                 // test InlineResults as BsonDocuments
-                foreach (var document in result.InlineResults) {
+                foreach (var document in result.InlineResults)
+                {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test InlineResults as TestInlineResultDocument
-                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>())
+                {
                     var key = document.Id;
                     var count = document.Value.Count;
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test GetResults
-                foreach (var document in result.GetResults()) {
+                foreach (var document in result.GetResults())
+                {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test GetResultsAs<>
-                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>())
+                {
                     Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
                 }
             }
         }
 
         [Test]
-        public void TestMapReduceInlineWithQuery() {
+        public void TestMapReduceInlineWithQuery()
+        {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            if (server.BuildInfo.Version >= new Version(1, 7, 4, 0)) {
-                collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
-                collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
-                collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
+            if (_server.BuildInfo.Version >= new Version(1, 7, 4, 0))
+            {
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
+                _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
+                _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
                 var query = Query.Exists("B", true);
 
@@ -1047,7 +1127,7 @@ namespace MongoDB.DriverOnlineTests {
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = collection.MapReduce(query, map, reduce);
+                var result = _collection.MapReduce(query, map, reduce);
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
@@ -1055,7 +1135,8 @@ namespace MongoDB.DriverOnlineTests {
                 Assert.AreEqual(3, result.InputCount);
                 Assert.IsNullOrEmpty(result.CollectionName);
 
-                var expectedCounts = new Dictionary<string, int> {
+                var expectedCounts = new Dictionary<string, int>
+                {
                     { "A", 1 },
                     { "B", 3 },
                     { "C", 1 },
@@ -1064,151 +1145,172 @@ namespace MongoDB.DriverOnlineTests {
                 };
 
                 // test InlineResults as BsonDocuments
-                foreach (var document in result.InlineResults) {
+                foreach (var document in result.InlineResults)
+                {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test InlineResults as TestInlineResultDocument
-                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>()) {
+                foreach (var document in result.GetInlineResultsAs<TestMapReduceDocument>())
+                {
                     var key = document.Id;
                     var count = document.Value.Count;
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test GetResults
-                foreach (var document in result.GetResults()) {
+                foreach (var document in result.GetResults())
+                {
                     var key = document["_id"].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
                 // test GetResultsAs<>
-                foreach (var document in result.GetResultsAs<TestMapReduceDocument>()) {
+                foreach (var document in result.GetResultsAs<TestMapReduceDocument>())
+                {
                     Assert.AreEqual(expectedCounts[document.Id], document.Value.Count);
                 }
             }
         }
 
         [Test]
-        public void TestReIndex() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Insert(new BsonDocument("x", 2));
-            collection.DropAllIndexes();
-            collection.CreateIndex("x");
+        public void TestReIndex()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.DropAllIndexes();
+            _collection.CreateIndex("x");
             // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
-            try {
-                var result = collection.ReIndex();
+            try
+            {
+                var result = _collection.ReIndex();
                 Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
                 Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
-            } catch (InvalidOperationException ex) {
+            }
+            catch (InvalidOperationException ex)
+            {
                 Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
             }
         }
 
         [Test]
-        public void TestSetFields() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.FindAll().SetFields("x").FirstOrDefault();
+        public void TestSetFields()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = _collection.FindAll().SetFields("x").FirstOrDefault();
             Assert.AreEqual(2, result.ElementCount);
             Assert.AreEqual("_id", result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
         }
 
         [Test]
-        public void TestSetHint() {
-            collection.DropAllIndexes();
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            collection.CreateIndex(IndexKeys.Ascending("x"));
+        public void TestSetHint()
+        {
+            _collection.DropAllIndexes();
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
             var query = Query.EQ("x", 1);
-            var cursor = collection.Find(query).SetHint(new BsonDocument("x", 1));
+            var cursor = _collection.Find(query).SetHint(new BsonDocument("x", 1));
             var count = 0;
-            foreach (var document in cursor) {
+            foreach (var document in cursor)
+            {
                 Assert.AreEqual(1, ++count);
                 Assert.AreEqual(1, document["x"].AsInt32);
             }
         }
 
         [Test]
-        public void TestSetHintByIndexName() {
-            collection.DropAllIndexes();
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
+        public void TestSetHintByIndexName()
+        {
+            _collection.DropAllIndexes();
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            _collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
             var query = Query.EQ("x", 1);
-            var cursor = collection.Find(query).SetHint("xIndex");
+            var cursor = _collection.Find(query).SetHint("xIndex");
             var count = 0;
-            foreach (var document in cursor) {
+            foreach (var document in cursor)
+            {
                 Assert.AreEqual(1, ++count);
                 Assert.AreEqual(1, document["x"].AsInt32);
             }
         }
 
         [Test]
-        public void TestSortAndLimit() {
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
-            collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x => x["x"].AsInt32);
+        public void TestSortAndLimit()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+            var result = _collection.FindAll().SetSortOrder("x").SetLimit(3).Select(x => x["x"].AsInt32);
             Assert.AreEqual(3, result.Count());
             CollectionAssert.AreEqual(new[] { 1, 2, 3 }, result);
         }
 
         [Test]
-        public void TestGetStats() {
-            var dataSize = collection.GetStats();
+        public void TestGetStats()
+        {
+            var dataSize = _collection.GetStats();
         }
 
         [Test]
-        public void TestTotalDataSize() {
-            var dataSize = collection.GetTotalDataSize();
+        public void TestTotalDataSize()
+        {
+            var dataSize = _collection.GetTotalDataSize();
         }
 
         [Test]
-        public void TestTotalStorageSize() {
-            var dataSize = collection.GetTotalStorageSize();
+        public void TestTotalStorageSize()
+        {
+            var dataSize = _collection.GetTotalStorageSize();
         }
 
         [Test]
-        public void TestUpdate() {
-            collection.Drop();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
-            var document = collection.FindOne();
+        public void TestUpdate()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+            var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
         }
 
         [Test]
-        public void TestUpdateEmptyQueryDocument() {
-            collection.Drop();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Update(new QueryDocument(), Update.Set("x", 2));
-            var document = collection.FindOne();
+        public void TestUpdateEmptyQueryDocument()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Update(new QueryDocument(), Update.Set("x", 2));
+            var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
         }
 
         [Test]
-        public void TestUpdateNullQuery() {
-            collection.Drop();
-            collection.Insert(new BsonDocument("x", 1));
-            collection.Update(Query.Null, Update.Set("x", 2));
-            var document = collection.FindOne();
+        public void TestUpdateNullQuery()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Update(Query.Null, Update.Set("x", 2));
+            var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
         }
 
         [Test]
-        public void TestValidate() {
+        public void TestValidate()
+        {
             // ensure collection exists
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument("x", 1));
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument("x", 1));
 
-            var result = collection.Validate();
+            var result = _collection.Validate();
             var ns = result.Namespace;
             var firstExtent = result.FirstExtent;
             var lastExtent = result.LastExtent;

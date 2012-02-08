@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,69 +24,67 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoInsertMessage : MongoRequestMessage {
-        #region private fields
-        private string collectionFullName;
-        private bool checkElementNames;
-        private InsertFlags flags;
-        private int firstDocumentStartPosition;
-        private int lastDocumentStartPosition;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoInsertMessage : MongoRequestMessage
+    {
+        // private fields
+        private string _collectionFullName;
+        private bool _checkElementNames;
+        private InsertFlags _flags;
+        private int _firstDocumentStartPosition;
+        private int _lastDocumentStartPosition;
 
-        #region constructors
+        // constructors
         internal MongoInsertMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             bool checkElementNames,
-            InsertFlags flags
-        )
-            : base(MessageOpcode.Insert, null, writerSettings) {
-            this.collectionFullName = collectionFullName;
-            this.checkElementNames = checkElementNames;
-            this.flags = flags;
+            InsertFlags flags)
+            : base(MessageOpcode.Insert, null, writerSettings)
+        {
+            _collectionFullName = collectionFullName;
+            _checkElementNames = checkElementNames;
+            _flags = flags;
         }
-        #endregion
 
-        #region internal methods
-        internal void AddDocument(
-            Type nominalType,
-            object document
-        ) {
-            lastDocumentStartPosition = buffer.Position;
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
-                bsonWriter.CheckElementNames = checkElementNames;
+        // internal methods
+        internal void AddDocument(Type nominalType, object document)
+        {
+            _lastDocumentStartPosition = _buffer.Position;
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
+            {
+                bsonWriter.CheckElementNames = _checkElementNames;
                 BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
             BackpatchMessageLength();
         }
 
-        internal byte[] RemoveLastDocument() {
-            var lastDocumentLength = (int) (buffer.Position - lastDocumentStartPosition);
+        internal byte[] RemoveLastDocument()
+        {
+            var lastDocumentLength = (int)(_buffer.Position - _lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            buffer.CopyTo(lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
-            buffer.Position = lastDocumentStartPosition;
+            _buffer.CopyTo(_lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
+            _buffer.Position = _lastDocumentStartPosition;
             BackpatchMessageLength();
 
             return lastDocument;
         }
 
-        internal void ResetBatch(
-            byte[] lastDocument // as returned by RemoveLastDocument
-        ) {
-            buffer.Position = firstDocumentStartPosition;
-            buffer.WriteBytes(lastDocument);
+        internal void ResetBatch(byte[] lastDocument)
+        {
+            _buffer.Position = _firstDocumentStartPosition;
+            _buffer.WriteBytes(lastDocument);
             BackpatchMessageLength();
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32((int) flags);
-            buffer.WriteCString(collectionFullName);
-            firstDocumentStartPosition = buffer.Position;
+        // protected methods
+        protected override void WriteBody()
+        {
+            _buffer.WriteInt32((int)_flags);
+            _buffer.WriteCString(_collectionFullName);
+            _firstDocumentStartPosition = _buffer.Position;
             // documents to be added later by calling AddDocument
         }
-        #endregion
     }
 }

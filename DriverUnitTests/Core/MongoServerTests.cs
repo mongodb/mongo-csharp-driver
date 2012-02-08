@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ using NUnit.Framework;
 
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoServerTests {
+    public class MongoServerTests
+    {
         [Test]
-        public void TestCreateNoArgs() {
+        public void TestCreateNoArgs()
+        {
             var server = MongoServer.Create(); // no args!
             var expectedSeedList = new[] { new MongoServerAddress("localhost") };
             Assert.IsNull(server.Settings.DefaultCredentials);
@@ -35,6 +38,21 @@ namespace MongoDB.DriverUnitTests {
             Assert.AreEqual(false, server.Settings.SlaveOk);
             Assert.AreEqual(MongoServerState.Disconnected, server.State);
             Assert.IsTrue(expectedSeedList.SequenceEqual(server.Settings.Servers));
+        }
+
+        [Test]
+        public void TestGetAllServers()
+        {
+            var snapshot1 = MongoServer.GetAllServers();
+            var server = MongoServer.Create("mongodb://newhostnamethathasnotbeenusedbefore");
+            var snapshot2 = MongoServer.GetAllServers();
+            Assert.AreEqual(snapshot1.Length + 1, snapshot2.Length);
+            Assert.IsFalse(snapshot1.Contains(server));
+            Assert.IsTrue(snapshot2.Contains(server));
+            MongoServer.UnregisterServer(server);
+            var snapshot3 = MongoServer.GetAllServers();
+            Assert.AreEqual(snapshot1.Length, snapshot3.Length);
+            Assert.IsFalse(snapshot3.Contains(server));
         }
     }
 }

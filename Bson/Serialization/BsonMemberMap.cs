@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,196 +27,219 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// Represents the mapping between a field or property and a BSON element.
     /// </summary>
-    public class BsonMemberMap {
-        #region private fields
-        private ConventionProfile conventions;
-        private string elementName;
-        private int order = int.MaxValue;
-        private MemberInfo memberInfo;
-        private Type memberType;
-        private Func<object, object> getter;
-        private Action<object, object> setter;
-        private IBsonSerializationOptions serializationOptions;
-        private IBsonSerializer serializer;
-        private IIdGenerator idGenerator;
-        private bool isRequired;
-        private bool hasDefaultValue;
-        private bool serializeDefaultValue = true;
-        private Func<object, bool> shouldSerializeMethod = (obj) => true;
-        private bool ignoreIfNull;
-        private object defaultValue;
-        #endregion
+    public class BsonMemberMap
+    {
+        // private fields
+        private ConventionProfile _conventions;
+        private string _elementName;
+        private int _order = int.MaxValue;
+        private MemberInfo _memberInfo;
+        private Type _memberType;
+        private Func<object, object> _getter;
+        private Action<object, object> _setter;
+        private IBsonSerializationOptions _serializationOptions;
+        private IBsonSerializer _serializer;
+        private IIdGenerator _idGenerator;
+        private bool _isRequired;
+        private Func<object, bool> _shouldSerializeMethod;
+        private bool _ignoreIfDefault;
+        private bool _ignoreIfNull;
+        private object _defaultValue;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonMemberMap class.
         /// </summary>
         /// <param name="memberInfo">The member info.</param>
         /// <param name="conventions">The conventions to use with this member.</param>
-        public BsonMemberMap(
-            MemberInfo memberInfo,
-            ConventionProfile conventions
-        ) {
-            this.memberInfo = memberInfo;
-            this.memberType = BsonClassMap.GetMemberInfoType(memberInfo);
-            this.conventions = conventions;
+        public BsonMemberMap(MemberInfo memberInfo, ConventionProfile conventions)
+        {
+            _memberInfo = memberInfo;
+            _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            _defaultValue = GetDefaultValue(_memberType);
+            _conventions = conventions;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the name of the member.
         /// </summary>
-        public string MemberName {
-            get { return memberInfo.Name; }
+        public string MemberName
+        {
+            get { return _memberInfo.Name; }
         }
 
         /// <summary>
         /// Gets the type of the member.
         /// </summary>
-        public Type MemberType {
-            get { return memberType; }
+        public Type MemberType
+        {
+            get { return _memberType; }
         }
 
         /// <summary>
         /// Gets the name of the element.
         /// </summary>
-        public string ElementName {
-            get {
-                if (elementName == null) {
-                    elementName = conventions.ElementNameConvention.GetElementName(memberInfo);
+        public string ElementName
+        {
+            get
+            {
+                if (_elementName == null)
+                {
+                    _elementName = _conventions.ElementNameConvention.GetElementName(_memberInfo);
                 }
-                return elementName;
+                return _elementName;
             }
         }
 
         /// <summary>
         /// Gets the serialization order.
         /// </summary>
-        public int Order {
-            get { return order; }
+        public int Order
+        {
+            get { return _order; }
         }
 
         /// <summary>
         /// Gets the member info.
         /// </summary>
-        public MemberInfo MemberInfo {
-            get { return memberInfo; }
+        public MemberInfo MemberInfo
+        {
+            get { return _memberInfo; }
         }
 
         /// <summary>
         /// Gets the getter function.
         /// </summary>
-        public Func<object, object> Getter {
-            get {
-                if (getter == null) {
-                    getter = GetGetter();
+        public Func<object, object> Getter
+        {
+            get
+            {
+                if (_getter == null)
+                {
+                    _getter = GetGetter();
                 }
-                return getter;
+                return _getter;
             }
         }
 
         /// <summary>
         /// Gets the serialization options.
         /// </summary>
-        public IBsonSerializationOptions SerializationOptions {
-            get { return serializationOptions; }
+        public IBsonSerializationOptions SerializationOptions
+        {
+            get { return _serializationOptions; }
         }
 
         /// <summary>
         /// Gets the setter function.
         /// </summary>
-        public Action<object, object> Setter {
-            get {
-                if (setter == null) {
-                    if (memberInfo.MemberType == MemberTypes.Field) {
-                        setter = GetFieldSetter();
-                    } else {
-                        setter = GetPropertySetter();
+        public Action<object, object> Setter
+        {
+            get
+            {
+                if (_setter == null)
+                {
+                    if (_memberInfo.MemberType == MemberTypes.Field)
+                    {
+                        _setter = GetFieldSetter();
+                    }
+                    else
+                    {
+                        _setter = GetPropertySetter();
                     }
                 }
-                return setter;
+                return _setter;
             }
         }
 
         /// <summary>
         /// Gets the Id generator.
         /// </summary>
-        public IIdGenerator IdGenerator {
-            get {
-                if (idGenerator == null) {
+        public IIdGenerator IdGenerator
+        {
+            get
+            {
+                if (_idGenerator == null)
+                {
                     // special case IdGenerator for strings represented externally as ObjectId
-                    var memberInfoType = BsonClassMap.GetMemberInfoType(memberInfo);
-                    var representationOptions = serializationOptions as RepresentationSerializationOptions;
-                    if (memberInfoType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId) {
-                        idGenerator = StringObjectIdGenerator.Instance;
-                    } else {
-                        idGenerator = conventions.IdGeneratorConvention.GetIdGenerator(memberInfo);
+                    var memberInfoType = BsonClassMap.GetMemberInfoType(_memberInfo);
+                    var representationOptions = _serializationOptions as RepresentationSerializationOptions;
+                    if (memberInfoType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId)
+                    {
+                        _idGenerator = StringObjectIdGenerator.Instance;
+                    }
+                    else
+                    {
+                        _idGenerator = _conventions.IdGeneratorConvention.GetIdGenerator(_memberInfo);
                     }
                 }
-                return idGenerator;
+                return _idGenerator;
             }
         }
 
         /// <summary>
         /// Gets whether an element is required for this member when deserialized.
         /// </summary>
-        public bool IsRequired {
-            get { return isRequired; }
-        }
-
-        /// <summary>
-        /// Gets whether this member has a default value.
-        /// </summary>
-        public bool HasDefaultValue {
-            get { return hasDefaultValue; }
+        public bool IsRequired
+        {
+            get { return _isRequired; }
         }
 
         /// <summary>
         /// Gets whether the default value should be serialized.
         /// </summary>
-        public bool SerializeDefaultValue {
-            get { return serializeDefaultValue; }
+        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# Driver. Please use IgnoreIfDefault instead.")]
+        public bool SerializeDefaultValue
+        {
+            get { return !_ignoreIfDefault; }
         }
 
         /// <summary>
         /// Gets the method that will be called to determine whether the member should be serialized.
         /// </summary>
-        public Func<object, bool> ShouldSerializeMethod {
-            get { return shouldSerializeMethod; }
+        public Func<object, bool> ShouldSerializeMethod
+        {
+            get { return _shouldSerializeMethod; }
+        }
+
+        /// <summary>
+        /// Gets whether default values should be ignored when serialized.
+        /// </summary>
+        public bool IgnoreIfDefault
+        {
+            get { return _ignoreIfDefault; }
         }
 
         /// <summary>
         /// Gets whether null values should be ignored when serialized.
         /// </summary>
-        public bool IgnoreIfNull {
-            get { return ignoreIfNull; }
+        public bool IgnoreIfNull
+        {
+            get { return _ignoreIfNull; }
         }
 
         /// <summary>
         /// Gets the default value.
         /// </summary>
-        public object DefaultValue {
-            get { return defaultValue; }
+        public object DefaultValue
+        {
+            get { return _defaultValue; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public void ApplyDefaultValue(
-            object obj
-        ) {
-            if (!hasDefaultValue) {
-                throw new InvalidOperationException("BsonMemberMap has no default value.");
-            }
-            this.Setter(obj, defaultValue);
+        public void ApplyDefaultValue(object obj)
+        {
+            this.Setter(obj, _defaultValue);
         }
 
         /// <summary>
@@ -224,12 +247,14 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="actualType">The actual type of the member's value.</param>
         /// <returns>The member map.</returns>
-        public IBsonSerializer GetSerializer(
-            Type actualType
-        ) {
-            if (serializer != null) {
-                return serializer;
-            } else {
+        public IBsonSerializer GetSerializer(Type actualType)
+        {
+            if (_serializer != null)
+            {
+                return _serializer;
+            }
+            else
+            {
                 return BsonSerializer.LookupSerializer(actualType);
             }
         }
@@ -239,11 +264,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetDefaultValue(
-            object defaultValue
-        ) {
-            this.defaultValue = defaultValue;
-            this.hasDefaultValue = true;
+        public BsonMemberMap SetDefaultValue(object defaultValue)
+        {
+            _defaultValue = defaultValue;
             return this;
         }
 
@@ -253,12 +276,11 @@ namespace MongoDB.Bson.Serialization {
         /// <param name="defaultValue">The default value.</param>
         /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetDefaultValue(
-            object defaultValue,
-            bool serializeDefaultValue
-        ) {
+        [Obsolete("This overload of SetDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetDefaultValue(defaultValue) and SetIgnoreIfDefault instead.")]
+        public BsonMemberMap SetDefaultValue(object defaultValue, bool serializeDefaultValue)
+        {
             SetDefaultValue(defaultValue);
-            SetSerializeDefaultValue(serializeDefaultValue);
+            SetIgnoreIfDefault(!serializeDefaultValue);
             return this;
         }
 
@@ -267,10 +289,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetElementName(
-            string elementName
-        ) {
-            this.elementName = elementName;
+        public BsonMemberMap SetElementName(string elementName)
+        {
+            _elementName = elementName;
             return this;
         }
 
@@ -279,10 +300,24 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="idGenerator">The Id generator.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetIdGenerator(
-            IIdGenerator idGenerator
-        ) {
-            this.idGenerator = idGenerator;
+        public BsonMemberMap SetIdGenerator(IIdGenerator idGenerator)
+        {
+            _idGenerator = idGenerator;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether default values should be ignored when serialized.
+        /// </summary>
+        /// <param name="ignoreIfDefault">Whether default values should be ignored when serialized.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap SetIgnoreIfDefault(bool ignoreIfDefault)
+        {
+            if (ignoreIfDefault && _ignoreIfNull)
+            {
+                throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
+            }
+            _ignoreIfDefault = ignoreIfDefault;
             return this;
         }
 
@@ -291,10 +326,13 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="ignoreIfNull">Wether null values should be ignored when serialized.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetIgnoreIfNull(
-            bool ignoreIfNull
-        ) {
-            this.ignoreIfNull = ignoreIfNull;
+        public BsonMemberMap SetIgnoreIfNull(bool ignoreIfNull)
+        {
+            if (ignoreIfNull && _ignoreIfDefault)
+            {
+                throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
+            }
+            _ignoreIfNull = ignoreIfNull;
             return this;
         }
 
@@ -303,10 +341,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="isRequired">Whether an element is required for this member when deserialized</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetIsRequired(
-            bool isRequired
-        ) {
-            this.isRequired = isRequired;
+        public BsonMemberMap SetIsRequired(bool isRequired)
+        {
+            _isRequired = isRequired;
             return this;
         }
 
@@ -315,10 +352,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="order">The serialization order.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetOrder(
-            int order
-        ) {
-            this.order = order;
+        public BsonMemberMap SetOrder(int order)
+        {
+            _order = order;
             return this;
         }
 
@@ -327,10 +363,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="representation">The external representation.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetRepresentation(
-            BsonType representation
-        ) {
-            this.serializationOptions = new RepresentationSerializationOptions(representation);
+        public BsonMemberMap SetRepresentation(BsonType representation)
+        {
+            _serializationOptions = new RepresentationSerializationOptions(representation);
             return this;
         }
 
@@ -339,10 +374,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="serializationOptions">The serialization options.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetSerializationOptions(
-            IBsonSerializationOptions serializationOptions
-        ) {
-            this.serializationOptions = serializationOptions;
+        public BsonMemberMap SetSerializationOptions(IBsonSerializationOptions serializationOptions)
+        {
+            _serializationOptions = serializationOptions;
             return this;
         }
 
@@ -351,10 +385,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="serializer">The serializer.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetSerializer(
-            IBsonSerializer serializer
-        ) {
-            this.serializer = serializer;
+        public BsonMemberMap SetSerializer(IBsonSerializer serializer)
+        {
+            _serializer = serializer;
             return this;
         }
 
@@ -363,10 +396,10 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetSerializeDefaultValue(
-            bool serializeDefaultValue
-        ) {
-            this.serializeDefaultValue = serializeDefaultValue;
+        [Obsolete("SetSerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefault instead.")]
+        public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
+        {
+            _ignoreIfDefault = !serializeDefaultValue;
             return this;
         }
 
@@ -375,24 +408,87 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="shouldSerializeMethod">The method.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetShouldSerializeMethod(
-            Func<object, bool> shouldSerializeMethod
-        ) {
-            if (shouldSerializeMethod != null) {
-                this.shouldSerializeMethod = shouldSerializeMethod;
-            } else {
-                this.shouldSerializeMethod = (obj) => true;
-            }
+        public BsonMemberMap SetShouldSerializeMethod(Func<object, bool> shouldSerializeMethod)
+        {
+            _shouldSerializeMethod = shouldSerializeMethod;
             return this;
         }
-        #endregion
 
-        #region private methods
-        private Action<object, object> GetFieldSetter() {
-            var fieldInfo = (FieldInfo) memberInfo;
+        /// <summary>
+        /// Determines whether a value should be serialized
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>True if the value should be serialized.</returns>
+        public bool ShouldSerialize(object obj, object value)
+        {
+            if (_ignoreIfNull)
+            {
+                if (value == null)
+                {
+                    return false; // don't serialize null
+                }
+            }
 
-            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral) {
-                var message = string.Format("The field '{0} {1}' of class '{2}' is readonly.", fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
+            if (_ignoreIfDefault)
+            {
+                if (object.Equals(_defaultValue, value))
+                {
+                    return false; // don't serialize default value
+                }
+            }
+
+            if (_shouldSerializeMethod != null && !_shouldSerializeMethod(obj))
+            {
+                // the _shouldSerializeMethod determined that the member shouldn't be serialized
+                return false;
+            }
+
+            return true;
+        }
+
+        // private methods
+        private static object GetDefaultValue(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Empty:
+                case TypeCode.DBNull:
+                case TypeCode.String:
+                    break;
+                case TypeCode.Object:
+                    if (type.IsValueType)
+                    {
+                        return Activator.CreateInstance(type);
+                    }
+                    break;
+                case TypeCode.Boolean: return false;
+                case TypeCode.Char: return '\0';
+                case TypeCode.SByte: return (sbyte)0;
+                case TypeCode.Byte: return (byte)0;
+                case TypeCode.Int16: return (short)0;
+                case TypeCode.UInt16: return (ushort)0;
+                case TypeCode.Int32: return 0;
+                case TypeCode.UInt32: return 0U;
+                case TypeCode.Int64: return 0L;
+                case TypeCode.UInt64: return 0UL;
+                case TypeCode.Single: return 0F;
+                case TypeCode.Double: return 0D;
+                case TypeCode.Decimal: return 0M;
+                case TypeCode.DateTime: return DateTime.MinValue;
+            }
+            return null;
+        }
+
+        private Action<object, object> GetFieldSetter()
+        {
+            var fieldInfo = (FieldInfo)_memberInfo;
+
+            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+            {
+                var message = string.Format(
+                    "The field '{0} {1}' of class '{2}' is readonly.",
+                    fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
 
@@ -407,56 +503,66 @@ namespace MongoDB.Bson.Serialization {
             gen.Emit(OpCodes.Stfld, fieldInfo);
             gen.Emit(OpCodes.Ret);
 
-            return (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
+            return (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
         }
 
-        private Func<object, object> GetGetter() {
-            if (memberInfo is PropertyInfo) {
-                var propertyInfo = (PropertyInfo) memberInfo;
+        private Func<object, object> GetGetter()
+        {
+            var propertyInfo = _memberInfo as PropertyInfo;
+            if (propertyInfo != null)
+            {
                 var getMethodInfo = propertyInfo.GetGetMethod(true);
-                if (getMethodInfo == null) {
-                    var message = string.Format("The property '{0} {1}' of class '{2}' has no 'get' accessor.", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+                if (getMethodInfo == null)
+                {
+                    var message = string.Format(
+                        "The property '{0} {1}' of class '{2}' has no 'get' accessor.",
+                        propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                     throw new BsonSerializationException(message);
                 }
             }
 
-            var instance = Expression.Parameter(typeof(object), "obj");
-            var lambda = Expression.Lambda<Func<object, object>>(
+            // lambdaExpression = (obj) => (object) ((TClass) obj).Member
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+            var lambdaExpression = Expression.Lambda<Func<object, object>>(
                 Expression.Convert(
                     Expression.MakeMemberAccess(
-                        Expression.Convert(instance, memberInfo.DeclaringType),
-                        memberInfo
+                        Expression.Convert(objParameter, _memberInfo.DeclaringType),
+                        _memberInfo
                     ),
                     typeof(object)
                 ),
-                instance
+                objParameter
             );
 
-            return lambda.Compile();
+            return lambdaExpression.Compile();
         }
 
-        private Action<object, object> GetPropertySetter() {
-            var propertyInfo = (PropertyInfo) memberInfo;
+        private Action<object, object> GetPropertySetter()
+        {
+            var propertyInfo = (PropertyInfo)_memberInfo;
             var setMethodInfo = propertyInfo.GetSetMethod(true);
-            if (setMethodInfo == null) {
-                var message = string.Format("The property '{0} {1}' of class '{2}' has no 'set' accessor.", propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
+            if (setMethodInfo == null)
+            {
+                var message = string.Format(
+                    "The property '{0} {1}' of class '{2}' has no 'set' accessor.",
+                    propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
 
-            var instance = Expression.Parameter(typeof(object), "obj");
-            var argument = Expression.Parameter(typeof(object), "a");
-            var lambda = Expression.Lambda<Action<object, object>>(
+            // lambdaExpression = (obj, value) => ((TClass) obj).SetMethod((TMember) value)
+            var objParameter = Expression.Parameter(typeof(object), "obj");
+            var valueParameter = Expression.Parameter(typeof(object), "value");
+            var lambdaExpression = Expression.Lambda<Action<object, object>>(
                 Expression.Call(
-                    Expression.Convert(instance, memberInfo.DeclaringType),
+                    Expression.Convert(objParameter, _memberInfo.DeclaringType),
                     setMethodInfo,
-                    Expression.Convert(argument, memberType)
+                    Expression.Convert(valueParameter, _memberType)
                 ),
-                instance,
-                argument
+                objParameter,
+                valueParameter
             );
 
-            return lambda.Compile();
+            return lambdaExpression.Compile();
         }
-        #endregion
     }
 }

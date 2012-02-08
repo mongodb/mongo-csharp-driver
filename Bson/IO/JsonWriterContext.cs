@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,44 +19,44 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class JsonWriterContext {
-        #region private fields
-        private JsonWriterContext parentContext;
-        private ContextType contextType;
-        private string indentation;
-        private bool hasElements = false;
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class JsonWriterContext
+    {
+        // private fields
+        private JsonWriterContext _parentContext;
+        private ContextType _contextType;
+        private string _indentation;
+        private bool _hasElements = false;
 
-        #region constructors
-        internal JsonWriterContext(
-            JsonWriterContext parentContext,
-            ContextType contextType,
-            string indentChars
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
-        }
-        #endregion
-
-        #region internal properties
-        internal JsonWriterContext ParentContext {
-            get { return parentContext; }
+        // constructors
+        internal JsonWriterContext(JsonWriterContext parentContext, ContextType contextType, string indentChars)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _indentation = (parentContext == null) ? indentChars : parentContext.Indentation + indentChars;
         }
 
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal JsonWriterContext ParentContext
+        {
+            get { return _parentContext; }
         }
 
-        internal string Indentation {
-            get { return indentation; }
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
 
-        internal bool HasElements {
-            get { return hasElements; }
-            set { hasElements = value; }
+        internal string Indentation
+        {
+            get { return _indentation; }
         }
-        #endregion
+
+        internal bool HasElements
+        {
+            get { return _hasElements; }
+            set { _hasElements = value; }
+        }
     }
 }

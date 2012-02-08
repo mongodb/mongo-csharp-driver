@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,48 +24,55 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoUpdateMessage : MongoRequestMessage {
-        #region private fields
-        private string collectionFullName;
-        private UpdateFlags flags;
-        private IMongoQuery query;
-        private IMongoUpdate update;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoUpdateMessage : MongoRequestMessage
+    {
+        // private fields
+        private string _collectionFullName;
+        private bool _checkUpdateDocument;
+        private UpdateFlags _flags;
+        private IMongoQuery _query;
+        private IMongoUpdate _update;
 
-        #region constructors
+        // constructors
         internal MongoUpdateMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
+            bool checkUpdateDocument,
             UpdateFlags flags,
             IMongoQuery query,
-            IMongoUpdate update
-        ) :
-            base(MessageOpcode.Update, null, writerSettings) {
-            this.collectionFullName = collectionFullName;
-            this.flags = flags;
-            this.query = query;
-            this.update = update;
+            IMongoUpdate update)
+            : base(MessageOpcode.Update, null, writerSettings)
+        {
+            _collectionFullName = collectionFullName;
+            _checkUpdateDocument = checkUpdateDocument;
+            _flags = flags;
+            _query = query;
+            _update = update;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32((int) flags);
+        // protected methods
+        protected override void WriteBody()
+        {
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteCString(_collectionFullName);
+            _buffer.WriteInt32((int)_flags);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
-                if (query == null) {
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
+            {
+                if (_query == null)
+                {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
-                } else {
-                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
-                bsonWriter.CheckUpdateDocument = true;
-                BsonSerializer.Serialize(bsonWriter, update.GetType(), update, DocumentSerializationOptions.SerializeIdFirstInstance);
+                else
+                {
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                }
+                bsonWriter.CheckUpdateDocument = _checkUpdateDocument;
+                BsonSerializer.Serialize(bsonWriter, _update.GetType(), _update, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
         }
-        #endregion
     }
 }

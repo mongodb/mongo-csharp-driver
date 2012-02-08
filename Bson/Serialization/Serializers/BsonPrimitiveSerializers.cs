@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,33 +26,34 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for Booleans.
     /// </summary>
-    public class BooleanSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static BooleanSerializer instance = new BooleanSerializer();
-        #endregion
+    public class BooleanSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static BooleanSerializer __instance = new BooleanSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BooleanSerializer class.
         /// </summary>
-        public BooleanSerializer() {
+        public BooleanSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the BooleanSerializer class.
         /// </summary>
-        public static BooleanSerializer Instance {
-            get { return instance; }
+        public static BooleanSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -65,12 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(bool));
 
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Boolean:
                     return bsonReader.ReadBoolean();
                 case BsonType.Double:
@@ -101,11 +103,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var boolValue = (bool) value;
-            var representation = (options == null) ? BsonType.Boolean : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            IBsonSerializationOptions options)
+        {
+            var boolValue = (bool)value;
+            var representation = (options == null) ? BsonType.Boolean : ((RepresentationSerializationOptions)options).Representation;
+            switch (representation)
+            {
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(boolValue);
                     break;
@@ -126,35 +129,34 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for DateTimes.
     /// </summary>
-    public class DateTimeSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static DateTimeSerializer instance = new DateTimeSerializer();
-        #endregion
+    public class DateTimeSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static DateTimeSerializer __instance = new DateTimeSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DateTimeSerializer class.
         /// </summary>
-        public DateTimeSerializer() {
+        public DateTimeSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the DateTimeSerializer class.
         /// </summary>
-        public static DateTimeSerializer Instance {
-            get { return instance; }
+        public static DateTimeSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -167,15 +169,16 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(DateTime));
 
-            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
+            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions)options;
             DateTime value;
 
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.DateTime:
                     // use an intermediate BsonDateTime so MinValue and MaxValue are handled correctly
                     value = BsonDateTime.Create(bsonReader.ReadDateTime()).Value;
@@ -191,14 +194,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     break;
                 case BsonType.String:
                     // note: we're not using XmlConvert because of bugs in Mono
-                    if (dateTimeOptions.DateOnly) {
+                    if (dateTimeOptions.DateOnly)
+                    {
                         value = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
-                    } else {
-                        var formats = new string[] {
-                            "yyyy-MM-ddK",
-                            "yyyy-MM-ddTHH:mm:ssK",
-                            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK",
-                        };
+                    }
+                    else
+                    {
+                        var formats = new string[] { "yyyy-MM-ddK", "yyyy-MM-ddTHH:mm:ssK", "yyyy-MM-ddTHH:mm:ss.FFFFFFFK" };
                         value = DateTime.ParseExact(bsonReader.ReadString(), formats, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
                     }
                     break;
@@ -207,16 +209,21 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new FileFormatException(message);
             }
 
-            if (dateTimeOptions.DateOnly) {
-                if (value.TimeOfDay != TimeSpan.Zero) {
+            if (dateTimeOptions.DateOnly)
+            {
+                if (value.TimeOfDay != TimeSpan.Zero)
+                {
                     throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero.");
                 }
                 value = DateTime.SpecifyKind(value, dateTimeOptions.Kind); // not ToLocalTime or ToUniversalTime!
-            } else {
-                switch (dateTimeOptions.Kind) {
+            }
+            else
+            {
+                switch (dateTimeOptions.Kind)
+                {
                     case DateTimeKind.Local:
                     case DateTimeKind.Unspecified:
-                        value = BsonUtils.ToLocalTime(value, dateTimeOptions.Kind);
+                        value = DateTime.SpecifyKind(BsonUtils.ToLocalTime(value), dateTimeOptions.Kind);
                         break;
                     case DateTimeKind.Utc:
                         value = BsonUtils.ToUniversalTime(value);
@@ -238,23 +245,28 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var dateTime = (DateTime) value;
-            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions) options;
+            IBsonSerializationOptions options)
+        {
+            var dateTime = (DateTime)value;
+            var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions)options;
 
             DateTime utcDateTime;
-            if (dateTimeOptions.DateOnly) {
-                if (dateTime.TimeOfDay != TimeSpan.Zero) {
+            if (dateTimeOptions.DateOnly)
+            {
+                if (dateTime.TimeOfDay != TimeSpan.Zero)
+                {
                     throw new BsonSerializationException("TimeOfDay component is not zero.");
                 }
                 utcDateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc); // not ToLocalTime
-            } else {
+            }
+            else
+            {
                 utcDateTime = BsonUtils.ToUniversalTime(dateTime);
             }
             var millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(utcDateTime);
 
-            switch (dateTimeOptions.Representation) {
+            switch (dateTimeOptions.Representation)
+            {
                 case BsonType.DateTime:
                     bsonWriter.WriteDateTime(millisecondsSinceEpoch);
                     break;
@@ -268,14 +280,20 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     bsonWriter.WriteInt64(utcDateTime.Ticks);
                     break;
                 case BsonType.String:
-                    if (dateTimeOptions.DateOnly) {
+                    if (dateTimeOptions.DateOnly)
+                    {
                         bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
-                    } else {
+                    }
+                    else
+                    {
                         // we're not using XmlConvert.ToString because of bugs in Mono
-                        if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue) {
+                        if (dateTime == DateTime.MinValue || dateTime == DateTime.MaxValue)
+                        {
                             // serialize MinValue and MaxValue as Unspecified so we do NOT get the time zone offset
                             dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified);
-                        } else if (dateTime.Kind == DateTimeKind.Unspecified) {
+                        }
+                        else if (dateTime.Kind == DateTimeKind.Unspecified)
+                        {
                             // serialize Unspecified as Local se we get the time zone offset
                             dateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
                         }
@@ -287,36 +305,35 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Doubles.
     /// </summary>
-    public class DoubleSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static DoubleSerializer instance = new DoubleSerializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
-        #endregion
+    public class DoubleSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static DoubleSerializer __instance = new DoubleSerializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Double);
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DoubleSerializer class.
         /// </summary>
-        public DoubleSerializer() {
+        public DoubleSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the DoubleSerializer class.
         /// </summary>
-        public static DoubleSerializer Instance {
-            get { return instance; }
+        public static DoubleSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -329,13 +346,14 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(double));
 
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Double:
                     return bsonReader.ReadDouble();
                 case BsonType.Int32:
@@ -361,11 +379,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var doubleValue = (double) value;
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
-            switch (representationOptions.Representation) {
+            IBsonSerializationOptions options)
+        {
+            var doubleValue = (double)value;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
+            switch (representationOptions.Representation)
+            {
                 case BsonType.Double:
                     bsonWriter.WriteDouble(doubleValue);
                     break;
@@ -383,35 +402,34 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Guids.
     /// </summary>
-    public class GuidSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static GuidSerializer instance = new GuidSerializer();
-        #endregion
+    public class GuidSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static GuidSerializer __instance = new GuidSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GuidSerializer class.
         /// </summary>
-        public GuidSerializer() {
+        public GuidSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the GuidSerializer class.
         /// </summary>
-        public static GuidSerializer Instance {
-            get { return instance; }
+        public static GuidSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -424,27 +442,31 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(Guid));
 
             var bsonType = bsonReader.CurrentBsonType;
             string message;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Binary:
                     byte[] bytes;
                     BsonBinarySubType subType;
                     GuidRepresentation guidRepresentation;
                     bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
-                    if (bytes.Length != 16) {
+                    if (bytes.Length != 16)
+                    {
                         message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
                         throw new FileFormatException(message);
                     }
-                    if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy) {
+                    if (subType != BsonBinarySubType.UuidStandard && subType != BsonBinarySubType.UuidLegacy)
+                    {
                         message = string.Format("Expected binary sub type to be UuidStandard or UuidLegacy, not {0}.", subType);
                         throw new FileFormatException(message);
                     }
-                    if (guidRepresentation == GuidRepresentation.Unspecified) {
+                    if (guidRepresentation == GuidRepresentation.Unspecified)
+                    {
                         throw new BsonSerializationException("GuidSerializer cannot deserialize a Guid when GuidRepresentation is Unspecified.");
                     }
                     return GuidConverter.FromBytes(bytes, guidRepresentation);
@@ -467,15 +489,17 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var guid = (Guid) value;
-            var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions) options).Representation;
+            IBsonSerializationOptions options)
+        {
+            var guid = (Guid)value;
+            var representation = (options == null) ? BsonType.Binary : ((RepresentationSerializationOptions)options).Representation;
 
-            switch (representation) {
+            switch (representation)
+            {
                 case BsonType.Binary:
                     var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
-                    if (writerGuidRepresentation == GuidRepresentation.Unspecified) {
+                    if (writerGuidRepresentation == GuidRepresentation.Unspecified)
+                    {
                         throw new BsonSerializationException("GuidSerializer cannot serialize a Guid when GuidRepresentation is Unspecified.");
                     }
                     var bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
@@ -490,36 +514,35 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Int32.
     /// </summary>
-    public class Int32Serializer : BsonBaseSerializer {
-        #region private static fields
-        private static Int32Serializer instance = new Int32Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
-        #endregion
+    public class Int32Serializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static Int32Serializer __instance = new Int32Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int32);
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the Int32Serializer class.
         /// </summary>
-        public Int32Serializer() {
+        public Int32Serializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the Int32Serializer class.
         /// </summary>
-        public static Int32Serializer Instance {
-            get { return instance; }
+        public static Int32Serializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -532,13 +555,14 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(int));
 
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Double:
                     return representationOptions.ToInt32(bsonReader.ReadDouble());
                 case BsonType.Int32:
@@ -564,11 +588,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var int32Value = (int) value;
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
-            switch (representationOptions.Representation) {
+            IBsonSerializationOptions options)
+        {
+            var int32Value = (int)value;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
+            switch (representationOptions.Representation)
+            {
                 case BsonType.Double:
                     bsonWriter.WriteDouble(representationOptions.ToDouble(int32Value));
                     break;
@@ -586,36 +611,35 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Int64s.
     /// </summary>
-    public class Int64Serializer : BsonBaseSerializer {
-        #region private static fields
-        private static Int64Serializer instance = new Int64Serializer();
-        private static RepresentationSerializationOptions defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
-        #endregion
+    public class Int64Serializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static Int64Serializer __instance = new Int64Serializer();
+        private static RepresentationSerializationOptions __defaultRepresentationOptions = new RepresentationSerializationOptions(BsonType.Int64);
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the Int64Serializer class.
         /// </summary>
-        public Int64Serializer() {
+        public Int64Serializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the Int64Serializer class.
         /// </summary>
-        public static Int64Serializer Instance {
-            get { return instance; }
+        public static Int64Serializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -628,13 +652,14 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(long));
 
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
             var bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.Double:
                     return representationOptions.ToInt64(bsonReader.ReadDouble());
                 case BsonType.Int32:
@@ -660,11 +685,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var int64Value = (long) value;
-            var representationOptions = (RepresentationSerializationOptions) options ?? defaultRepresentationOptions;
-            switch (representationOptions.Representation) {
+            IBsonSerializationOptions options)
+        {
+            var int64Value = (long)value;
+            var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
+            switch (representationOptions.Representation)
+            {
                 case BsonType.Double:
                     bsonWriter.WriteDouble(representationOptions.ToDouble(int64Value));
                     break;
@@ -682,35 +708,34 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonSerializationException(message);
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for ObjectIds.
     /// </summary>
-    public class ObjectIdSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static ObjectIdSerializer instance = new ObjectIdSerializer();
-        #endregion
+    public class ObjectIdSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static ObjectIdSerializer __instance = new ObjectIdSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the ObjectIdSerializer class.
         /// </summary>
-        public ObjectIdSerializer() {
+        public ObjectIdSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the ObjectIdSerializer class.
         /// </summary>
-        public static ObjectIdSerializer Instance {
-            get { return instance; }
+        public static ObjectIdSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -723,12 +748,13 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(ObjectId));
 
             BsonType bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType) {
+            switch (bsonType)
+            {
                 case BsonType.ObjectId:
                     int timestamp;
                     int machine;
@@ -755,11 +781,12 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            var objectId = (ObjectId) value;
-            var representation = (options == null) ? BsonType.ObjectId : ((RepresentationSerializationOptions) options).Representation;
-            switch (representation) {
+            IBsonSerializationOptions options)
+        {
+            var objectId = (ObjectId)value;
+            var representation = (options == null) ? BsonType.ObjectId : ((RepresentationSerializationOptions)options).Representation;
+            switch (representation)
+            {
                 case BsonType.ObjectId:
                     bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
                     break;
@@ -770,35 +797,34 @@ namespace MongoDB.Bson.Serialization.Serializers {
                     throw new BsonInternalException("Unexpected representation.");
             }
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a serializer for Strings.
     /// </summary>
-    public class StringSerializer : BsonBaseSerializer {
-        #region private static fields
-        private static StringSerializer instance = new StringSerializer();
-        #endregion
+    public class StringSerializer : BsonBaseSerializer
+    {
+        // private static fields
+        private static StringSerializer __instance = new StringSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the StringSerializer class.
         /// </summary>
-        public StringSerializer() {
+        public StringSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the StringSerializer class.
         /// </summary>
-        public static StringSerializer Instance {
-            get { return instance; }
+        public static StringSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -811,17 +837,21 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
+            IBsonSerializationOptions options)
+        {
             VerifyTypes(nominalType, actualType, typeof(string));
 
             var bsonType = bsonReader.CurrentBsonType;
-            if (bsonType == BsonType.Null) {
+            if (bsonType == BsonType.Null)
+            {
                 bsonReader.ReadNull();
                 return null;
-            } else {
-                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions) options).Representation;
-                switch (representation) {
+            }
+            else
+            {
+                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
+                switch (representation)
+                {
                     case BsonType.ObjectId:
                         int timestamp, machine, increment;
                         short pid;
@@ -850,14 +880,18 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            if (value == null) {
+            IBsonSerializationOptions options)
+        {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
-                var stringValue = (string) value;
-                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions) options).Representation;
-                switch (representation) {
+            }
+            else
+            {
+                var stringValue = (string)value;
+                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
+                switch (representation)
+                {
                     case BsonType.ObjectId:
                         var id = ObjectId.Parse(stringValue);
                         bsonWriter.WriteObjectId(id.Timestamp, id.Machine, id.Pid, id.Increment);
@@ -873,6 +907,5 @@ namespace MongoDB.Bson.Serialization.Serializers {
                 }
             }
         }
-        #endregion
     }
 }

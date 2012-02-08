@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,52 +26,58 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.DriverOnlineTests.GridFS {
+namespace MongoDB.DriverOnlineTests.GridFS
+{
     [TestFixture]
-    public class MongoGridFSTests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoGridFS gridFS;
+    public class MongoGridFSTests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            gridFS = database.GridFS;
-            gridFS.Chunks.RemoveAll();
-            gridFS.Chunks.ResetIndexCache();
-            gridFS.Files.RemoveAll();
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _gridFS = _database.GridFS;
+            _gridFS.Chunks.RemoveAll();
+            _gridFS.Chunks.ResetIndexCache();
+            _gridFS.Files.RemoveAll();
         }
 
         [Test]
-        public void TestConstructorFeezesSettings() {
+        public void TestConstructorFeezesSettings()
+        {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
-            var gridFS = new MongoGridFS(database, settings);
+            var gridFS = new MongoGridFS(_database, settings);
             Assert.IsTrue(gridFS.Settings.IsFrozen);
         }
 
         [Test]
-        public void TestCopyTo() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestCopyTo()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
 
             var contents = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(contents);
             var uploadStream = new MemoryStream(bytes);
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
-                ChunkSize = gridFS.Settings.ChunkSize,
+                ChunkSize = _gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
                 Id = ObjectId.GenerateNewId(),
                 Metadata = new BsonDocument { { "a", 1 }, { "b", 2 } },
                 UploadDate = DateTime.UtcNow
             };
-            var fileInfo = gridFS.Upload(uploadStream, "HelloWorld.txt", createOptions);
+            var fileInfo = _gridFS.Upload(uploadStream, "HelloWorld.txt", createOptions);
             var copyInfo = fileInfo.CopyTo("HelloWorld2.txt");
-            Assert.AreEqual(2, gridFS.Chunks.Count());
-            Assert.AreEqual(2, gridFS.Files.Count());
+            Assert.AreEqual(2, _gridFS.Chunks.Count());
+            Assert.AreEqual(2, _gridFS.Files.Count());
             Assert.IsNull(copyInfo.Aliases);
             Assert.AreEqual(fileInfo.ChunkSize, copyInfo.ChunkSize);
             Assert.AreEqual(fileInfo.ContentType, copyInfo.ContentType);
@@ -84,20 +90,23 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestAppendText() {
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
-            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+        public void TestAppendText()
+        {
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
+            using (var writer = _gridFS.AppendText("HelloWorld.txt"))
+            {
                 Assert.IsFalse(writer.BaseStream.CanRead);
                 Assert.IsTrue(writer.BaseStream.CanSeek);
                 Assert.IsTrue(writer.BaseStream.CanWrite);
                 writer.Write("Hello");
             }
-            Assert.IsTrue(gridFS.Exists("HelloWorld.txt"));
-            using (var writer = gridFS.AppendText("HelloWorld.txt")) {
+            Assert.IsTrue(_gridFS.Exists("HelloWorld.txt"));
+            using (var writer = _gridFS.AppendText("HelloWorld.txt"))
+            {
                 writer.Write(" World");
             }
             var memoryStream = new MemoryStream();
-            gridFS.Download(memoryStream, "HelloWorld.txt");
+            _gridFS.Download(memoryStream, "HelloWorld.txt");
             var bytes = memoryStream.ToArray();
             Assert.AreEqual(0xEF, bytes[0]); // the BOM
             Assert.AreEqual(0xBB, bytes[1]);
@@ -107,233 +116,253 @@ namespace MongoDB.DriverOnlineTests.GridFS {
         }
 
         [Test]
-        public void TestDeleteByFileId() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestDeleteByFileId()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
 
             var fileInfo = UploadHelloWord();
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
 
-            gridFS.DeleteById(fileInfo.Id);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+            _gridFS.DeleteById(fileInfo.Id);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
         }
 
         [Test]
-        public void TestDeleteByFileName() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestDeleteByFileName()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
 
             UploadHelloWord();
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
 
-            gridFS.Delete("HelloWorld.txt");
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+            _gridFS.Delete("HelloWorld.txt");
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
         }
 
         [Test]
-        public void TestDeleteAll() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestDeleteAll()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
         }
 
         [Test]
-        public void TestDownload() {
-            gridFS.Delete(Query.Null);
+        public void TestDownload()
+        {
+            _gridFS.Delete(Query.Null);
             var fileInfo = UploadHelloWord();
 
             var downloadStream = new MemoryStream();
-            gridFS.Download(downloadStream, fileInfo);
+            _gridFS.Download(downloadStream, fileInfo);
             var downloadedBytes = downloadStream.ToArray();
             var downloadedContents = Encoding.UTF8.GetString(downloadedBytes);
             Assert.AreEqual("Hello World", downloadedContents);
         }
 
         [Test]
-        public void TestDownloadTwoChunks() {
-            gridFS.Delete(Query.Null);
+        public void TestDownloadTwoChunks()
+        {
+            _gridFS.Delete(Query.Null);
             var contents = new string('x', 256 * 1024) + new string('y', 256 * 1024);
             var bytes = Encoding.UTF8.GetBytes(contents);
             var stream = new MemoryStream(bytes);
-            var fileInfo = gridFS.Upload(stream, "TwoChunks.txt");
+            var fileInfo = _gridFS.Upload(stream, "TwoChunks.txt");
             Assert.AreEqual(2 * fileInfo.ChunkSize, fileInfo.Length);
-            Assert.AreEqual(2, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
+            Assert.AreEqual(2, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
 
             var downloadStream = new MemoryStream();
-            gridFS.Download(downloadStream, fileInfo);
+            _gridFS.Download(downloadStream, fileInfo);
             var downloadedBytes = downloadStream.ToArray();
             var downloadedContents = Encoding.UTF8.GetString(downloadedBytes);
             Assert.AreEqual(contents, downloadedContents);
         }
 
         [Test]
-        public void TestExists() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestExists()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            Assert.IsTrue(gridFS.Exists("HelloWorld.txt"));
-            Assert.IsTrue(gridFS.ExistsById(fileInfo.Id));
+            Assert.IsTrue(_gridFS.Exists("HelloWorld.txt"));
+            Assert.IsTrue(_gridFS.ExistsById(fileInfo.Id));
         }
 
         [Test]
-        public void TestFindAll() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindAll()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            foreach (var foundInfo in gridFS.FindAll()) {
+            foreach (var foundInfo in _gridFS.FindAll())
+            {
                 Assert.AreEqual(fileInfo, foundInfo);
             }
         }
 
         [Test]
-        public void TestFindByName() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindByName()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            foreach (var foundInfo in gridFS.Find("HelloWorld.txt")) {
+            foreach (var foundInfo in _gridFS.Find("HelloWorld.txt"))
+            {
                 Assert.AreEqual(fileInfo, foundInfo);
             }
         }
 
         [Test]
-        public void TestFindOneById() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindOneById()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            var foundInfo = gridFS.FindOneById(fileInfo.Id);
+            var foundInfo = _gridFS.FindOneById(fileInfo.Id);
             Assert.AreEqual(fileInfo, foundInfo);
         }
 
         [Test]
-        public void TestFindOneByName() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindOneByName()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo = UploadHelloWord();
-            var foundInfo = gridFS.FindOne("HelloWorld.txt");
+            var foundInfo = _gridFS.FindOne("HelloWorld.txt");
             Assert.AreEqual(fileInfo, foundInfo);
         }
 
         [Test]
-        public void TestFindOneNewest() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindOneNewest()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo1 = UploadHelloWord();
             Thread.Sleep(TimeSpan.FromMilliseconds(1));
             var fileInfo2 = UploadHelloWord();
-            var foundInfo = gridFS.FindOne("HelloWorld.txt", -1);
+            var foundInfo = _gridFS.FindOne("HelloWorld.txt", -1);
             Assert.AreEqual(fileInfo2, foundInfo);
         }
 
         [Test]
-        public void TestFindOneOldest() {
-            gridFS.Delete(Query.Null);
-            Assert.IsFalse(gridFS.Exists("HelloWorld.txt"));
+        public void TestFindOneOldest()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
             var fileInfo1 = UploadHelloWord();
             Thread.Sleep(TimeSpan.FromMilliseconds(1));
             var fileInfo2 = UploadHelloWord();
-            var foundInfo = gridFS.FindOne("HelloWorld.txt", 1);
+            var foundInfo = _gridFS.FindOne("HelloWorld.txt", 1);
             Assert.AreEqual(fileInfo1, foundInfo);
         }
 
         [Test]
-        public void TestMoveTo() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestMoveTo()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
 
             var contents = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(contents);
             var uploadStream = new MemoryStream(bytes);
-            var fileInfo = gridFS.Upload(uploadStream, "HelloWorld.txt");
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
+            var fileInfo = _gridFS.Upload(uploadStream, "HelloWorld.txt");
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
 
-            gridFS.MoveTo("HelloWorld.txt", "HelloWorld2.txt");
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
-            var movedInfo = gridFS.FindOne("HelloWorld2.txt");
+            _gridFS.MoveTo("HelloWorld.txt", "HelloWorld2.txt");
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
+            var movedInfo = _gridFS.FindOne("HelloWorld2.txt");
             Assert.AreEqual("HelloWorld2.txt", movedInfo.Name);
             Assert.AreEqual(fileInfo.Id, movedInfo.Id);
         }
 
         [Test]
-        public void TestSetAliases() {
+        public void TestSetAliases()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.Aliases);
 
             var aliases = new string[] { "a", "b" };
-            gridFS.SetAliases(fileInfo, aliases);
+            _gridFS.SetAliases(fileInfo, aliases);
             fileInfo.Refresh();
             Assert.IsTrue(aliases.SequenceEqual(fileInfo.Aliases));
 
-            gridFS.SetAliases(fileInfo, null);
+            _gridFS.SetAliases(fileInfo, null);
             fileInfo.Refresh();
             Assert.IsNull(fileInfo.Aliases);
         }
 
         [Test]
-        public void TestSetContentType() {
+        public void TestSetContentType()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.ContentType);
 
-            gridFS.SetContentType(fileInfo, "text/plain");
+            _gridFS.SetContentType(fileInfo, "text/plain");
             fileInfo.Refresh();
             Assert.AreEqual("text/plain", fileInfo.ContentType);
 
-            gridFS.SetContentType(fileInfo, null);
+            _gridFS.SetContentType(fileInfo, null);
             fileInfo.Refresh();
             Assert.IsNull(fileInfo.ContentType);
         }
 
         [Test]
-        public void TestSetMetadata() {
+        public void TestSetMetadata()
+        {
             var fileInfo = UploadHelloWord();
             Assert.IsNull(fileInfo.Metadata);
 
             var metadata = new BsonDocument { { "a", 1 }, { "b", 2 } };
-            gridFS.SetMetadata(fileInfo, metadata);
+            _gridFS.SetMetadata(fileInfo, metadata);
             fileInfo.Refresh();
             Assert.AreEqual(metadata, fileInfo.Metadata);
 
-            gridFS.SetMetadata(fileInfo, null);
+            _gridFS.SetMetadata(fileInfo, null);
             fileInfo.Refresh();
             Assert.IsNull(fileInfo.Metadata);
         }
 
         [Test]
-        public void TestUpload() {
-            gridFS.Delete(Query.Null);
-            Assert.AreEqual(0, gridFS.Chunks.Count());
-            Assert.AreEqual(0, gridFS.Files.Count());
+        public void TestUpload()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.AreEqual(0, _gridFS.Chunks.Count());
+            Assert.AreEqual(0, _gridFS.Files.Count());
 
             var contents = "Hello World";
             var bytes = Encoding.UTF8.GetBytes(contents);
             var uploadStream = new MemoryStream(bytes);
-            var createOptions = new MongoGridFSCreateOptions {
+            var createOptions = new MongoGridFSCreateOptions
+            {
                 Aliases = new[] { "HelloWorld", "HelloUniverse" },
-                ChunkSize = gridFS.Settings.ChunkSize,
+                ChunkSize = _gridFS.Settings.ChunkSize,
                 ContentType = "text/plain",
                 Id = ObjectId.GenerateNewId(),
                 Metadata = new BsonDocument { { "a", 1 }, { "b", 2 } },
                 UploadDate = DateTime.UtcNow
             };
-            var fileInfo = gridFS.Upload(uploadStream, "HelloWorld.txt", createOptions);
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
+            var fileInfo = _gridFS.Upload(uploadStream, "HelloWorld.txt", createOptions);
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
             Assert.IsTrue(createOptions.Aliases.SequenceEqual(fileInfo.Aliases));
             Assert.AreEqual(createOptions.ChunkSize, fileInfo.ChunkSize);
             Assert.AreEqual(createOptions.ContentType, fileInfo.ContentType);
@@ -345,10 +374,11 @@ namespace MongoDB.DriverOnlineTests.GridFS {
             Assert.AreEqual(createOptions.UploadDate.AddTicks(-(createOptions.UploadDate.Ticks % 10000)), fileInfo.UploadDate);
         }
 
-        private MongoGridFSFileInfo UploadHelloWord() {
+        private MongoGridFSFileInfo UploadHelloWord()
+        {
             var bytes = Encoding.UTF8.GetBytes("Hello World");
             var stream = new MemoryStream(bytes);
-            return gridFS.Upload(stream, "HelloWorld.txt");
+            return _gridFS.Upload(stream, "HelloWorld.txt");
         }
     }
 }

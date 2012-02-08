@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,41 +21,47 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the results of a GetLastError command.
     /// </summary>
     [Serializable]
-    public class GetLastErrorResult : CommandResult {
-        #region constructors
+    public class GetLastErrorResult : CommandResult
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the GetLastErrorResult class.
         /// </summary>
-        public GetLastErrorResult() {
+        public GetLastErrorResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the number of documents affected.
         /// </summary>
-        public long DocumentsAffected {
-            get { return response["n"].ToInt64(); }
+        public long DocumentsAffected
+        {
+            get { return _response["n"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets whether the result has a LastErrorMessage.
         /// </summary>
-        public bool HasLastErrorMessage {
-            get { return response["err", false].ToBoolean(); }
+        public bool HasLastErrorMessage
+        {
+            get { return _response["err", false].ToBoolean(); }
         }
 
         /// <summary>
         /// Gets the last error message (null if none).
         /// </summary>
-        public string LastErrorMessage {
-            get { 
-                var err = response["err", false];
+        public string LastErrorMessage
+        {
+            get
+            {
+                var err = _response["err", false];
                 return (err.ToBoolean()) ? err.ToString() : null;
             }
         }
@@ -63,12 +69,13 @@ namespace MongoDB.Driver {
         /// <summary>
         /// Gets whether the last command updated an existing document.
         /// </summary>
-        public bool UpdatedExisting {
-            get {
-                var updatedExisting = response["updatedExisting", false];
+        public bool UpdatedExisting
+        {
+            get
+            {
+                var updatedExisting = _response["updatedExisting", false];
                 return updatedExisting.ToBoolean();
             }
         }
-        #endregion
     }
 }

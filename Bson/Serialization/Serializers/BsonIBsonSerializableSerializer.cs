@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,33 +23,34 @@ using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Bson.Serialization.Serializers {
+namespace MongoDB.Bson.Serialization.Serializers
+{
     /// <summary>
     /// Represents a serializer for classes that implement IBsonSerializable.
     /// </summary>
-    public class BsonIBsonSerializableSerializer : IBsonSerializer {
-        #region private static fields
-        private static BsonIBsonSerializableSerializer instance = new BsonIBsonSerializableSerializer();
-        #endregion
+    public class BsonIBsonSerializableSerializer : IBsonSerializer
+    {
+        // private static fields
+        private static BsonIBsonSerializableSerializer __instance = new BsonIBsonSerializableSerializer();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonIBsonSerializableSerializer class.
         /// </summary>
-        public BsonIBsonSerializableSerializer() {
+        public BsonIBsonSerializableSerializer()
+        {
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of the BsonIBsonSerializableSerializer class.
         /// </summary>
-        public static BsonIBsonSerializableSerializer Instance {
-            get { return instance; }
+        public static BsonIBsonSerializableSerializer Instance
+        {
+            get { return __instance; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -57,12 +58,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="options">The serialization options.</param>
         /// <returns>An object.</returns>
-        public object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            IBsonSerializationOptions options
-        ) {
-            var value = (IBsonSerializable) Activator.CreateInstance(nominalType, true); // private default constructor OK
+        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        {
+            var value = (IBsonSerializable)Activator.CreateInstance(nominalType, true); // private default constructor OK
             return value.Deserialize(bsonReader, nominalType, options);
         }
 
@@ -78,9 +76,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonReader bsonReader,
             Type nominalType,
             Type actualType,
-            IBsonSerializationOptions options
-        ) {
-            var value = (IBsonSerializable) Activator.CreateInstance(actualType, true); // private default constructor OK
+            IBsonSerializationOptions options)
+        {
+            var value = (IBsonSerializable)Activator.CreateInstance(actualType, true); // private default constructor OK
             return value.Deserialize(bsonReader, nominalType, options);
         }
 
@@ -96,9 +94,9 @@ namespace MongoDB.Bson.Serialization.Serializers {
             object document,
             out object id,
             out Type idNominalType,
-            out IIdGenerator idGenerator
-        ) {
-            var bsonSerializable = (IBsonSerializable) document;
+            out IIdGenerator idGenerator)
+        {
+            var bsonSerializable = (IBsonSerializable)document;
             return bsonSerializable.GetDocumentId(out id, out idNominalType, out idGenerator);
         }
 
@@ -113,12 +111,15 @@ namespace MongoDB.Bson.Serialization.Serializers {
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options
-        ) {
-            if (value == null) {
+            IBsonSerializationOptions options)
+        {
+            if (value == null)
+            {
                 bsonWriter.WriteNull();
-            } else {
-                var serializable = (IBsonSerializable) value;
+            }
+            else
+            {
+                var serializable = (IBsonSerializable)value;
                 serializable.Serialize(bsonWriter, nominalType, options);
             }
         }
@@ -128,13 +129,10 @@ namespace MongoDB.Bson.Serialization.Serializers {
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
-        public void SetDocumentId(
-            object document,
-            object id
-        ) {
-            var bsonSerializable = (IBsonSerializable) document;
+        public void SetDocumentId(object document, object id)
+        {
+            var bsonSerializable = (IBsonSerializable)document;
             bsonSerializable.SetDocumentId(id);
         }
-        #endregion
     }
 }

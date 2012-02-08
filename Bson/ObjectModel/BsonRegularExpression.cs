@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,35 +19,38 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents a BSON regular expression value.
     /// </summary>
     [Serializable]
-    public class BsonRegularExpression : BsonValue, IComparable<BsonRegularExpression>, IEquatable<BsonRegularExpression> {
-        #region private fields
-        private string pattern;
-        private string options;
-        #endregion
+    public class BsonRegularExpression : BsonValue, IComparable<BsonRegularExpression>, IEquatable<BsonRegularExpression>
+    {
+        // private fields
+        private string _pattern;
+        private string _options;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonRegularExpression class.
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
-        public BsonRegularExpression(
-            string pattern
-        )
-            : base(BsonType.RegularExpression) {
-            if (pattern.Length > 0 && pattern[0] == '/') {
+        public BsonRegularExpression(string pattern)
+            : base(BsonType.RegularExpression)
+        {
+            if (pattern.Length > 0 && pattern[0] == '/')
+            {
                 var index = pattern.LastIndexOf('/');
                 var escaped = pattern.Substring(1, index - 1);
                 var unescaped = (escaped == "(?:)") ? "" : Regex.Replace(escaped, @"\\(.)", "$1");
-                this.pattern = unescaped;
-                this.options = pattern.Substring(index + 1);
-            } else {
-                this.pattern = pattern;
-                this.options = "";
+                _pattern = unescaped;
+                _options = pattern.Substring(index + 1);
+            }
+            else
+            {
+                _pattern = pattern;
+                _options = "";
             }
         }
 
@@ -56,65 +59,65 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">Regular expression options.</param>
-        public BsonRegularExpression(
-            string pattern,
-            string options
-        )
-            : base(BsonType.RegularExpression) {
-            this.pattern = pattern;
-            this.options = options ?? "";
+        public BsonRegularExpression(string pattern, string options)
+            : base(BsonType.RegularExpression)
+        {
+            _pattern = pattern;
+            _options = options ?? "";
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonRegularExpression class.
         /// </summary>
         /// <param name="regex">A Regex.</param>
-        public BsonRegularExpression(
-            Regex regex
-        )
-            : base(BsonType.RegularExpression) {
-            this.pattern = regex.ToString();
-            this.options = "";
-            if ((regex.Options & RegexOptions.IgnoreCase) != 0) {
-                this.options += "i";
+        public BsonRegularExpression(Regex regex)
+            : base(BsonType.RegularExpression)
+        {
+            _pattern = regex.ToString();
+            _options = "";
+            if ((regex.Options & RegexOptions.IgnoreCase) != 0)
+            {
+                _options += "i";
             }
-            if ((regex.Options & RegexOptions.Multiline) != 0) {
-                this.options += "m";
+            if ((regex.Options & RegexOptions.Multiline) != 0)
+            {
+                _options += "m";
             }
-            if ((regex.Options & RegexOptions.IgnorePatternWhitespace) != 0) {
-                this.options += "x";
+            if ((regex.Options & RegexOptions.IgnorePatternWhitespace) != 0)
+            {
+                _options += "x";
             }
-            if ((regex.Options & RegexOptions.Singleline) != 0) {
-                this.options += "s";
+            if ((regex.Options & RegexOptions.Singleline) != 0)
+            {
+                _options += "s";
             }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the regular expression pattern.
         /// </summary>
-        public string Pattern {
-            get { return pattern; }
+        public string Pattern
+        {
+            get { return _pattern; }
         }
 
         /// <summary>
         /// Gets the regular expression options.
         /// </summary>
-        public string Options {
-            get { return options; }
+        public string Options
+        {
+            get { return _options; }
         }
-        #endregion
 
-        #region public operators
+        // public operators
         /// <summary>
         /// Converts a Regex to a BsonRegularExpression.
         /// </summary>
         /// <param name="value">A Regex.</param>
         /// <returns>A BsonRegularExpression.</returns>
-        public static implicit operator BsonRegularExpression(
-            Regex value
-        ) {
+        public static implicit operator BsonRegularExpression(Regex value)
+        {
             return BsonRegularExpression.Create(value);
         }
 
@@ -123,9 +126,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="value">A string.</param>
         /// <returns>A BsonRegularExpression.</returns>
-        public static implicit operator BsonRegularExpression(
-            string value
-        ) {
+        public static implicit operator BsonRegularExpression(string value)
+        {
             return BsonRegularExpression.Create(value);
         }
 
@@ -135,10 +137,8 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonRegularExpression.</param>
         /// <param name="rhs">The other BsonRegularExpression.</param>
         /// <returns>True if the two BsonRegularExpression values are not equal according to ==.</returns>
-        public static bool operator !=(
-            BsonRegularExpression lhs,
-            BsonRegularExpression rhs
-        ) {
+        public static bool operator !=(BsonRegularExpression lhs, BsonRegularExpression rhs)
+        {
             return !(lhs == rhs);
         }
 
@@ -148,27 +148,26 @@ namespace MongoDB.Bson {
         /// <param name="lhs">The first BsonRegularExpression.</param>
         /// <param name="rhs">The other BsonRegularExpression.</param>
         /// <returns>True if the two BsonRegularExpression values are equal according to ==.</returns>
-        public static bool operator ==(
-            BsonRegularExpression lhs,
-            BsonRegularExpression rhs
-        ) {
+        public static bool operator ==(BsonRegularExpression lhs, BsonRegularExpression rhs)
+        {
             if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
             return lhs.Equals(rhs);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a new BsonRegularExpression.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonRegularExpression.</param>
         /// <returns>A BsonRegularExpression or null.</returns>
-        public new static BsonRegularExpression Create(
-            object value
-        ) {
-            if (value != null) {
-                return (BsonRegularExpression) BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
-            } else {
+        public new static BsonRegularExpression Create(object value)
+        {
+            if (value != null)
+            {
+                return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
+            }
+            else
+            {
                 return null;
             }
         }
@@ -178,12 +177,14 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="regex">A Regex.</param>
         /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(
-            Regex regex
-        ) {
-            if (regex != null) {
+        public static BsonRegularExpression Create(Regex regex)
+        {
+            if (regex != null)
+            {
                 return new BsonRegularExpression(regex);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
@@ -193,12 +194,14 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(
-            string pattern
-        ) {
-            if (pattern != null) {
+        public static BsonRegularExpression Create(string pattern)
+        {
+            if (pattern != null)
+            {
                 return new BsonRegularExpression(pattern);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
@@ -209,31 +212,30 @@ namespace MongoDB.Bson {
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">Regular expression options.</param>
         /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(
-            string pattern,
-            string options
-        ) {
-            if (pattern != null) {
+        public static BsonRegularExpression Create(string pattern, string options)
+        {
+            if (pattern != null)
+            {
                 return new BsonRegularExpression(pattern, options);
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Compares this BsonRegularExpression to another BsonRegularExpression.
         /// </summary>
         /// <param name="other">The other BsonRegularExpression.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonRegularExpression is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(
-            BsonRegularExpression other
-        ) {
+        public int CompareTo(BsonRegularExpression other)
+        {
             if (other == null) { return 1; }
-            int r = pattern.CompareTo(other.pattern);
+            int r = _pattern.CompareTo(other._pattern);
             if (r != 0) { return r; }
-            return options.CompareTo(other.options);
+            return _options.CompareTo(other._options);
         }
 
         /// <summary>
@@ -241,13 +243,13 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="other">The other BsonValue.</param>
         /// <returns>A 32-bit signed integer that indicates whether this BsonRegularExpression is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(
-            BsonValue other
-        ) {
+        public override int CompareTo(BsonValue other)
+        {
             if (other == null) { return 1; }
             var otherRegularExpression = other as BsonRegularExpression;
-            if (otherRegularExpression != null) {
-                return options.CompareTo(otherRegularExpression);
+            if (otherRegularExpression != null)
+            {
+                return _options.CompareTo(otherRegularExpression);
             }
             return CompareTypeTo(other);
         }
@@ -257,11 +259,10 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="rhs">The other BsonRegularExpression.</param>
         /// <returns>True if the two BsonRegularExpression values are equal.</returns>
-        public bool Equals(
-            BsonRegularExpression rhs
-        ) {
+        public bool Equals(BsonRegularExpression rhs)
+        {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.pattern == rhs.pattern && this.options == rhs.options;
+            return _pattern == rhs._pattern && _options == rhs._options;
         }
 
         /// <summary>
@@ -269,9 +270,8 @@ namespace MongoDB.Bson {
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if the other object is a BsonRegularExpression and equal to this one.</returns>
-        public override bool Equals(
-            object obj
-        ) {
+        public override bool Equals(object obj)
+        {
             return Equals(obj as BsonRegularExpression); // works even if obj is null or of a different type
         }
 
@@ -279,12 +279,13 @@ namespace MongoDB.Bson {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + bsonType.GetHashCode();
-            hash = 37 * hash + pattern.GetHashCode();
-            hash = 37 * hash + options.GetHashCode();
+            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + _pattern.GetHashCode();
+            hash = 37 * hash + _options.GetHashCode();
             return hash;
         }
 
@@ -292,31 +293,36 @@ namespace MongoDB.Bson {
         /// Converts the BsonRegularExpression to a Regex.
         /// </summary>
         /// <returns>A Regex.</returns>
-        public Regex ToRegex() {
+        public Regex ToRegex()
+        {
             var options = RegexOptions.None;
-            if (this.options.Contains("i")) {
+            if (_options.IndexOf('i') != -1)
+            {
                 options |= RegexOptions.IgnoreCase;
             }
-            if (this.options.Contains("m")) {
+            if (_options.IndexOf('m') != -1)
+            {
                 options |= RegexOptions.Multiline;
             }
-            if (this.options.Contains("x")) {
+            if (_options.IndexOf('x') != -1)
+            {
                 options |= RegexOptions.IgnorePatternWhitespace;
             }
-            if (this.options.Contains("s")) {
+            if (_options.IndexOf('s') != -1)
+            {
                 options |= RegexOptions.Singleline;
             }
-            return new Regex(pattern, options);
+            return new Regex(_pattern, options);
         }
 
         /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
-        public override string ToString() {
-            var escaped = pattern.Replace(@"\", @"\\").Replace("/", @"\/");
-            return string.Format("/{0}/{1}", escaped, options);
+        public override string ToString()
+        {
+            var escaped = _pattern.Replace(@"\", @"\\").Replace("/", @"\/");
+            return string.Format("/{0}/{1}", escaped, _options);
         }
-        #endregion
     }
 }

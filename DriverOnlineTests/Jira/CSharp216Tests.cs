@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,34 +26,39 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp216 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp216
+{
     [TestFixture]
-    public class CSharp216Tests {
-        private MongoServer server;
-        private MongoDatabase database;
+    public class CSharp216Tests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
         }
 
         [Test]
-        public void TestAmbiguousEvalArguments() {
+        public void TestAmbiguousEvalArguments()
+        {
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
-            var result = database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+            var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }
 
         [Test]
-        public void TestNoLock() {
+        public void TestNoLock()
+        {
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
-            var result = database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+            var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }

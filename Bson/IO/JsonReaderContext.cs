@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,48 +19,45 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class JsonReaderContext {
-        #region private fields
-        private JsonReaderContext parentContext;
-        private ContextType contextType;
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class JsonReaderContext
+    {
+        // private fields
+        private JsonReaderContext _parentContext;
+        private ContextType _contextType;
 
-        #region constructors
+        // constructors
         // used by Clone
-        private JsonReaderContext() {
+        private JsonReaderContext()
+        {
         }
 
-        internal JsonReaderContext(
-            JsonReaderContext parentContext,
-            ContextType contextType
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
+        internal JsonReaderContext(JsonReaderContext parentContext, ContextType contextType)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
         }
-        #endregion
 
-        #region internal properties
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public JsonReaderContext Clone() {
-            return new JsonReaderContext(
-                parentContext,
-                contextType
-            );
+        public JsonReaderContext Clone()
+        {
+            return new JsonReaderContext(_parentContext, _contextType);
         }
 
-        public JsonReaderContext PopContext() {
-            return parentContext;
+        public JsonReaderContext PopContext()
+        {
+            return _parentContext;
         }
-        #endregion
     }
 }

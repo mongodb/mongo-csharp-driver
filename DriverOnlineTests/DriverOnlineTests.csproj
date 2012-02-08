@@ -53,9 +53,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization">
     </Reference>
     <Reference Include="System.Xml.Linq">
@@ -85,6 +87,7 @@
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
     <Compile Include="GridFS\MongoGridFSTests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />
@@ -113,11 +116,19 @@
     <Compile Include="Jira\CSharp307Tests.cs" />
     <Compile Include="Jira\CSharp325Tests.cs" />
     <Compile Include="Jira\CSharp330Tests.cs" />
+    <Compile Include="Jira\CSharp353Tests.cs" />
+    <Compile Include="Jira\CSharp355Tests.cs" />
+    <Compile Include="Jira\CSharp358Tests.cs" />
+    <Compile Include="Jira\CSharp361Tests.cs" />
+    <Compile Include="Jira\CSharp365Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Jira\CSharp93Tests.cs" />
     <Compile Include="Jira\CSharp98Tests.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
+    <Compile Include="Linq\SelectQueryTests.cs" />
+    <Compile Include="Linq\MongoQueryableTests.cs" />
+    <Compile Include="Linq\MongoQueryProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
   </ItemGroup>

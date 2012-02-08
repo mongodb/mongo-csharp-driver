@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,29 +21,29 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoKillCursorsMessage : MongoRequestMessage {
-        #region private fields
-        private long[] cursorIds;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoKillCursorsMessage : MongoRequestMessage
+    {
+        // private fields
+        private long[] _cursorIds;
 
-        #region constructors
-        internal MongoKillCursorsMessage(
-            params long[] cursorIds
-        )
-            : base(MessageOpcode.KillCursors, null, null) {
-            this.cursorIds = cursorIds;
+        // constructors
+        internal MongoKillCursorsMessage(params long[] cursorIds)
+            : base(MessageOpcode.KillCursors, null, null)
+        {
+            _cursorIds = cursorIds;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteInt32(cursorIds.Length);
-            foreach (long cursorId in cursorIds) {
-                buffer.WriteInt64(cursorId);
+        // protected methods
+        protected override void WriteBody()
+        {
+            _buffer.WriteInt32(0); // reserved
+            _buffer.WriteInt32(_cursorIds.Length);
+            foreach (long cursorId in _cursorIds)
+            {
+                _buffer.WriteInt64(cursorId);
             }
         }
-        #endregion
     }
 }

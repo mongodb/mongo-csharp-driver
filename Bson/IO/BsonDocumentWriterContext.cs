@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,74 +19,79 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonDocumentWriterContext {
-        #region private fields
-        private BsonDocumentWriterContext parentContext;
-        private ContextType contextType;
-        private BsonDocument document;
-        private BsonArray array;
-        private string code;
-        private string name;
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class BsonDocumentWriterContext
+    {
+        // private fields
+        private BsonDocumentWriterContext _parentContext;
+        private ContextType _contextType;
+        private BsonDocument _document;
+        private BsonArray _array;
+        private string _code;
+        private string _name;
 
-        #region constructors
+        // constructors
         internal BsonDocumentWriterContext(
             BsonDocumentWriterContext parentContext,
             ContextType contextType,
-            BsonDocument document
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
-        }
-
-        internal BsonDocumentWriterContext(
-            BsonDocumentWriterContext parentContext,
-            ContextType contextType,
-            BsonArray array
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.array = array;
+            BsonDocument document)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
         }
 
         internal BsonDocumentWriterContext(
             BsonDocumentWriterContext parentContext,
             ContextType contextType,
-            string code
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.code = code;
-        }
-        #endregion
-
-        #region internal properties
-        internal BsonDocumentWriterContext ParentContext {
-            get { return parentContext; }
+            BsonArray array)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _array = array;
         }
 
-        internal string Name {
-            get { return name; }
-            set { name = value; }
+        internal BsonDocumentWriterContext(
+            BsonDocumentWriterContext parentContext,
+            ContextType contextType,
+            string code)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _code = code;
         }
 
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal BsonDocumentWriterContext ParentContext
+        {
+            get { return _parentContext; }
         }
 
-        internal BsonDocument Document {
-            get { return document; }
+        internal string Name
+        {
+            get { return _name; }
+            set { _name = value; }
         }
 
-        internal BsonArray Array {
-            get { return array; }
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
 
-        internal string Code {
-            get { return code; }
+        internal BsonDocument Document
+        {
+            get { return _document; }
         }
-        #endregion
+
+        internal BsonArray Array
+        {
+            get { return _array; }
+        }
+
+        internal string Code
+        {
+            get { return _code; }
+        }
     }
 }

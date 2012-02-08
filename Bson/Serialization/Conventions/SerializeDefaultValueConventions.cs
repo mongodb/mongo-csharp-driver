@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,14 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents a serialize default value convention.
     /// </summary>
-    public interface ISerializeDefaultValueConvention {
+    [Obsolete("ISerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use IIgnoreIfDefaultConvention instead.")]
+    public interface ISerializeDefaultValueConvention
+    {
         /// <summary>
         /// Determines whether to serialize the default value for a member.
         /// </summary>
@@ -35,15 +38,16 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents a serialize default value convention where default values are never serialized.
     /// </summary>
-    public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+    [Obsolete("NeverSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use AlwaysIgnoreIfDefaultConvention instead.")]
+    public class NeverSerializeDefaultValueConvention : ISerializeDefaultValueConvention
+    {
         /// <summary>
         /// Determines whether to serialize the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to serialize the default value.</returns>
-        public bool SerializeDefaultValue(
-            MemberInfo memberInfo
-        ) {
+        public bool SerializeDefaultValue(MemberInfo memberInfo)
+        {
             return false;
         }
     }
@@ -51,15 +55,16 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents a serialize default value convention where default values are always serialized.
     /// </summary>
-    public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention {
+    [Obsolete("AlwaysSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use NeverIgnoreIfDefaultConvention instead.")]
+    public class AlwaysSerializeDefaultValueConvention : ISerializeDefaultValueConvention
+    {
         /// <summary>
         /// Determines whether to serialize the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to serialize the default value.</returns>
-        public bool SerializeDefaultValue(
-            MemberInfo memberInfo
-        ) {
+        public bool SerializeDefaultValue(MemberInfo memberInfo)
+        {
             return true;
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -28,211 +28,235 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.Bson.Serialization {
+namespace MongoDB.Bson.Serialization
+{
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
     /// </summary>
-    public abstract class BsonClassMap {
-        #region private static fields
-        private static List<FilteredConventionProfile> profiles = new List<FilteredConventionProfile>();
-        private static ConventionProfile defaultProfile = ConventionProfile.GetDefault();
-        private static Dictionary<Type, BsonClassMap> classMaps = new Dictionary<Type, BsonClassMap>();
-        private static int freezeNestingLevel = 0;
-        private static Queue<Type> knownTypesQueue = new Queue<Type>();
-        #endregion
+    public abstract class BsonClassMap
+    {
+        // private static fields
+        private static List<FilteredConventionProfile> __profiles = new List<FilteredConventionProfile>();
+        private static ConventionProfile __defaultProfile = ConventionProfile.GetDefault();
+        private static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
+        private static int __freezeNestingLevel = 0;
+        private static Queue<Type> __knownTypesQueue = new Queue<Type>();
 
-        #region protected fields
+        // protected fields
         /// <summary>
         /// Whether the class map has been frozen.
         /// </summary>
-        protected bool frozen; // once a class map has been frozen no further changes are allowed
+        protected bool _frozen; // once a class map has been frozen no further changes are allowed
         /// <summary>
         /// The class map for the base class.
         /// </summary>
-        protected BsonClassMap baseClassMap; // null for class object and interfaces
+        protected BsonClassMap _baseClassMap; // null for class object and interfaces
         /// <summary>
         /// The class that this class map is for.
         /// </summary>
-        protected Type classType;
+        protected Type _classType;
         /// <summary>
         /// A function that creates a new instance of the class.
         /// </summary>
-        private Func<object> creator;
+        private Func<object> _creator;
         /// <summary>
         /// The convention profile used by this class map.
         /// </summary>
-        protected ConventionProfile conventions;
+        protected ConventionProfile _conventions;
         /// <summary>
         /// The discriminator value.
         /// </summary>
-        protected string discriminator;
+        protected string _discriminator;
         /// <summary>
         /// Whether a discriminator is required.
         /// </summary>
-        protected bool discriminatorIsRequired;
+        protected bool _discriminatorIsRequired;
         /// <summary>
         /// Whether this class is descended from a root class.
         /// </summary>
-        protected bool hasRootClass;
+        protected bool _hasRootClass;
         /// <summary>
         /// Whether this class is a root class.
         /// </summary>
-        protected bool isRootClass;
+        protected bool _isRootClass;
         /// <summary>
         /// Whether this class is an anonymous class.
         /// </summary>
-        protected bool isAnonymous;
+        protected bool _isAnonymous;
         /// <summary>
         /// The member map for the id property or field.
         /// </summary>
-        protected BsonMemberMap idMemberMap;
+        protected BsonMemberMap _idMemberMap;
         /// <summary>
         /// A list of all the member maps for this class map (including member maps for inherited properties and fields).
         /// </summary>
-        protected List<BsonMemberMap> allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        protected List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
         /// <summary>
         /// A list of member maps for properties or fields declared in this class.
         /// </summary>
-        protected List<BsonMemberMap> declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
+        protected List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
         /// <summary>
         /// A dictionary mapping element names to the corresponding member map.
         /// </summary>
-        protected Dictionary<string, BsonMemberMap> elementDictionary = new Dictionary<string, BsonMemberMap>();
+        protected Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
         /// <summary>
         /// Whether to ignore extra elements during deserialization.
         /// </summary>
-        protected bool ignoreExtraElements = true;
+        protected bool _ignoreExtraElements = true;
+        /// <summary>
+        /// Whether the ignoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        protected bool _ignoreExtraElementsIsInherited = false;
         /// <summary>
         /// The member map for the property or field (if any) used to hold any extra elements found during deserialization.
         /// </summary>
-        protected BsonMemberMap extraElementsMemberMap;
+        protected BsonMemberMap _extraElementsMemberMap;
         /// <summary>
         /// A list of known types derived from this class.
         /// </summary>
-        protected List<Type> knownTypes = new List<Type>();
-        #endregion
+        protected List<Type> _knownTypes = new List<Type>();
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonClassMap class.
         /// </summary>
         /// <param name="classType">The class type.</param>
-        protected BsonClassMap(
-            Type classType
-        ) {
-            this.classType = classType;
-            this.conventions = LookupConventions(classType);
-            this.discriminator = classType.Name;
-            this.isAnonymous = IsAnonymousType(classType);
+        protected BsonClassMap(Type classType)
+        {
+            _classType = classType;
+            _conventions = LookupConventions(classType);
+            _discriminator = classType.Name;
+            _isAnonymous = IsAnonymousType(classType);
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the base class map.
         /// </summary>
-        public BsonClassMap BaseClassMap {
-            get { return baseClassMap; }
+        public BsonClassMap BaseClassMap
+        {
+            get { return _baseClassMap; }
         }
 
         /// <summary>
         /// Gets the class type.
         /// </summary>
-        public Type ClassType {
-            get { return classType; }
+        public Type ClassType
+        {
+            get { return _classType; }
         }
 
         /// <summary>
         /// Gets the discriminator.
         /// </summary>
-        public string Discriminator {
-            get { return discriminator; }
+        public string Discriminator
+        {
+            get { return _discriminator; }
         }
 
         /// <summary>
         /// Gets whether a discriminator is required when serializing this class.
         /// </summary>
-        public bool DiscriminatorIsRequired {
-            get { return discriminatorIsRequired; }
+        public bool DiscriminatorIsRequired
+        {
+            get { return _discriminatorIsRequired; }
         }
 
         /// <summary>
         /// Gets the member map of the member used to hold extra elements.
         /// </summary>
-        public BsonMemberMap ExtraElementsMemberMap {
-            get { return extraElementsMemberMap; }
+        public BsonMemberMap ExtraElementsMemberMap
+        {
+            get { return _extraElementsMemberMap; }
         }
 
         /// <summary>
         /// Gets whether this class has a root class ancestor.
         /// </summary>
-        public bool HasRootClass {
-            get { return hasRootClass; }
+        public bool HasRootClass
+        {
+            get { return _hasRootClass; }
         }
 
         /// <summary>
         /// Gets the Id member map.
         /// </summary>
-        public BsonMemberMap IdMemberMap {
-            get { return idMemberMap; }
+        public BsonMemberMap IdMemberMap
+        {
+            get { return _idMemberMap; }
         }
 
         /// <summary>
         /// Gets whether extra elements should be ignored when deserializing.
         /// </summary>
-        public bool IgnoreExtraElements {
-            get { return ignoreExtraElements; }
+        public bool IgnoreExtraElements
+        {
+            get { return _ignoreExtraElements; }
+        }
+
+        /// <summary>
+        /// Gets whether the IgnoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        public bool IgnoreExtraElementsIsInherited
+        {
+            get { return _ignoreExtraElementsIsInherited; }
         }
 
         /// <summary>
         /// Gets whether this class is anonymous.
         /// </summary>
-        public bool IsAnonymous {
-            get { return isAnonymous; }
+        public bool IsAnonymous
+        {
+            get { return _isAnonymous; }
         }
 
         /// <summary>
         /// Gets whether the class map is frozen.
         /// </summary>
-        public bool IsFrozen {
-            get { return frozen; }
+        public bool IsFrozen
+        {
+            get { return _frozen; }
         }
 
         /// <summary>
         /// Gets whether this class is a root class.
         /// </summary>
-        public bool IsRootClass {
-            get { return isRootClass; }
+        public bool IsRootClass
+        {
+            get { return _isRootClass; }
         }
 
         /// <summary>
         /// Gets the known types of this class.
         /// </summary>
-        public IEnumerable<Type> KnownTypes {
-            get { return knownTypes; }
+        public IEnumerable<Type> KnownTypes
+        {
+            get { return _knownTypes; }
         }
 
         /// <summary>
         /// Gets the member maps.
         /// </summary>
-        public IEnumerable<BsonMemberMap> MemberMaps {
-            get { return allMemberMaps; }
+        public IEnumerable<BsonMemberMap> MemberMaps
+        {
+            get { return _allMemberMaps; }
         }
-        #endregion
 
-        #region public static methods
+        // public static methods
         /// <summary>
         /// Gets the type of a member.
         /// </summary>
         /// <param name="memberInfo">The member info.</param>
         /// <returns>The type of the member.</returns>
-        public static Type GetMemberInfoType(
-            MemberInfo memberInfo
-        ) {
-            if (memberInfo.MemberType == MemberTypes.Field) {
-                return ((FieldInfo) memberInfo).FieldType;
-            } else if (memberInfo.MemberType == MemberTypes.Property) {
-                return ((PropertyInfo) memberInfo).PropertyType;
+        public static Type GetMemberInfoType(MemberInfo memberInfo)
+        {
+            if (memberInfo.MemberType == MemberTypes.Field)
+            {
+                return ((FieldInfo)memberInfo).FieldType;
+            }
+            else if (memberInfo.MemberType == MemberTypes.Property)
+            {
+                return ((PropertyInfo)memberInfo).PropertyType;
             }
 
             throw new NotSupportedException("Only field and properties are supported at this time.");
@@ -243,42 +267,54 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The type name.</returns>
-        public static string GetTypeNameDiscriminator(
-            Type type
-        ) {
+        public static string GetTypeNameDiscriminator(Type type)
+        {
             string typeName;
-            if (type.IsGenericType) {
+            if (type.IsGenericType)
+            {
                 var genericTypeNames = "";
-                foreach (var genericType in type.GetGenericArguments()) {
+                foreach (var genericType in type.GetGenericArguments())
+                {
                     var genericTypeName = GetTypeNameDiscriminator(genericType);
-                    if (genericTypeName.Contains(',')) {
+                    if (genericTypeName.IndexOf(',') != -1)
+                    {
                         genericTypeName = "[" + genericTypeName + "]";
                     }
-                    if (genericTypeNames != "") {
+                    if (genericTypeNames != "")
+                    {
                         genericTypeNames += ",";
                     }
                     genericTypeNames += genericTypeName;
                 }
                 typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
-            } else {
+            }
+            else
+            {
                 typeName = type.FullName;
             }
 
             string assemblyName = type.Assembly.FullName;
             Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
-            if (match.Success) {
+            if (match.Success)
+            {
                 var dll = match.Groups["dll"].Value;
                 var publicKeyToken = match.Groups["token"].Value;
-                if (dll == "mscorlib") {
+                if (dll == "mscorlib")
+                {
                     assemblyName = null;
-                } else if (publicKeyToken == "null") {
+                }
+                else if (publicKeyToken == "null")
+                {
                     assemblyName = dll;
                 }
             }
 
-            if (assemblyName == null) {
+            if (assemblyName == null)
+            {
                 return typeName;
-            } else {
+            }
+            else
+            {
                 return typeName + ", " + assemblyName;
             }
         }
@@ -288,13 +324,15 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">The type to check.</param>
         /// <returns>True if there is a class map registered for the type.</returns>
-        public static bool IsClassMapRegistered(
-            Type type
-        ) {
+        public static bool IsClassMapRegistered(Type type)
+        {
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
-                return classMaps.ContainsKey(type);
-            } finally {
+            try
+            {
+                return __classMaps.ContainsKey(type);
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
         }
@@ -304,34 +342,42 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="classType">The class type.</param>
         /// <returns>The class map.</returns>
-        public static BsonClassMap LookupClassMap(
-            Type classType
-        ) {
+        public static BsonClassMap LookupClassMap(Type classType)
+        {
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
+            try
+            {
                 BsonClassMap classMap;
-                if (classMaps.TryGetValue(classType, out classMap)) {
-                    if (classMap.IsFrozen) {
+                if (__classMaps.TryGetValue(classType, out classMap))
+                {
+                    if (classMap.IsFrozen)
+                    {
                         return classMap;
                     }
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
+            try
+            {
                 BsonClassMap classMap;
-                if (!classMaps.TryGetValue(classType, out classMap)) {
+                if (!__classMaps.TryGetValue(classType, out classMap))
+                {
                     // automatically create a classMap for classType and register it
                     var classMapDefinition = typeof(BsonClassMap<>);
                     var classMapType = classMapDefinition.MakeGenericType(classType);
-                    classMap = (BsonClassMap) Activator.CreateInstance(classMapType);
+                    classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
                     classMap.AutoMap();
                     RegisterClassMap(classMap);
                 }
                 return classMap.Freeze();
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
@@ -341,16 +387,17 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>The conventions profile for that type.</returns>
-        public static ConventionProfile LookupConventions(
-            Type type
-        ) {
-            for (int i = 0; i < profiles.Count; i++) {
-                if (profiles[i].Filter(type)) {
-                    return profiles[i].Profile;
+        public static ConventionProfile LookupConventions(Type type)
+        {
+            for (int i = 0; i < __profiles.Count; i++)
+            {
+                if (__profiles[i].Filter(type))
+                {
+                    return __profiles[i].Profile;
                 }
             }
 
-            return defaultProfile;
+            return __defaultProfile;
         }
 
         /// <summary>
@@ -358,7 +405,8 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>() {
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>()
+        {
             return RegisterClassMap<TClass>(cm => { cm.AutoMap(); });
         }
 
@@ -368,9 +416,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TClass">The class.</typeparam>
         /// <param name="classMapInitializer">The class map initializer.</param>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>(
-            Action<BsonClassMap<TClass>> classMapInitializer
-        ) {
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        {
             var classMap = new BsonClassMap<TClass>(classMapInitializer);
             RegisterClassMap(classMap);
             return classMap;
@@ -380,15 +427,17 @@ namespace MongoDB.Bson.Serialization {
         /// Registers a class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public static void RegisterClassMap(
-            BsonClassMap classMap
-        ) {
+        public static void RegisterClassMap(BsonClassMap classMap)
+        {
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
+            try
+            {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
-                classMaps.Add(classMap.ClassType, classMap);
+                __classMaps.Add(classMap.ClassType, classMap);
                 BsonDefaultSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
         }
@@ -398,26 +447,25 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="conventions">The conventions profile.</param>
         /// <param name="filter">The filter function that determines which types this profile applies to.</param>
-        public static void RegisterConventions(
-            ConventionProfile conventions,
-            Func<Type, bool> filter
-        ) {
-            conventions.Merge(defaultProfile); // make sure all conventions exists
-            var filtered = new FilteredConventionProfile {
+        public static void RegisterConventions(ConventionProfile conventions, Func<Type, bool> filter)
+        {
+            conventions.Merge(__defaultProfile); // make sure all conventions exists
+            var filtered = new FilteredConventionProfile
+            {
                 Filter = filter,
                 Profile = conventions
             };
             // add new conventions to the front of the list
-            profiles.Insert(0, filtered);
+            __profiles.Insert(0, filtered);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Automaps the class.
         /// </summary>
-        public void AutoMap() {
-            if (frozen) { ThrowFrozenException(); }
+        public void AutoMap()
+        {
+            if (_frozen) { ThrowFrozenException(); }
             AutoMapClass();
         }
 
@@ -425,8 +473,9 @@ namespace MongoDB.Bson.Serialization {
         /// Creates an instance of the class.
         /// </summary>
         /// <returns>An object.</returns>
-        public object CreateInstance() {
-            if (!frozen) { ThrowNotFrozenException(); }
+        public object CreateInstance()
+        {
+            if (!_frozen) { ThrowNotFrozenException(); }
             var creator = GetCreator();
             return creator.Invoke();
         }
@@ -435,97 +484,115 @@ namespace MongoDB.Bson.Serialization {
         /// Freezes the class map.
         /// </summary>
         /// <returns>The frozen class map.</returns>
-        public BsonClassMap Freeze() {
+        public BsonClassMap Freeze()
+        {
             BsonSerializer.ConfigLock.EnterReadLock();
-            try {
-                if (frozen) {
+            try
+            {
+                if (_frozen)
+                {
                     return this;
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitReadLock();
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
-            try {
-                if (!frozen) {
-                    freezeNestingLevel++;
-                    try {
-                        var baseType = classType.BaseType;
-                        if (baseType != null) {
-                            baseClassMap = LookupClassMap(baseType);
-                            discriminatorIsRequired |= baseClassMap.discriminatorIsRequired;
-                            hasRootClass |= (isRootClass || baseClassMap.HasRootClass);
-                            allMemberMaps.AddRange(baseClassMap.MemberMaps);
+            try
+            {
+                if (!_frozen)
+                {
+                    __freezeNestingLevel++;
+                    try
+                    {
+                        var baseType = _classType.BaseType;
+                        if (baseType != null)
+                        {
+                            _baseClassMap = LookupClassMap(baseType);
+                            _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
+                            _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
+                            _allMemberMaps.AddRange(_baseClassMap.MemberMaps);
+                            if (_baseClassMap.IgnoreExtraElements && _baseClassMap.IgnoreExtraElementsIsInherited)
+                            {
+                                _ignoreExtraElements = true;
+                                _ignoreExtraElementsIsInherited = true;
+                            }
                         }
-                        allMemberMaps.AddRange(declaredMemberMaps);
+                        _allMemberMaps.AddRange(_declaredMemberMaps);
 
-                        if (idMemberMap == null) {
+                        if (_idMemberMap == null)
+                        {
                             // see if we can inherit the idMemberMap from our base class
-                            if (baseClassMap != null) {
-                                idMemberMap = baseClassMap.IdMemberMap;
+                            if (_baseClassMap != null)
+                            {
+                                _idMemberMap = _baseClassMap.IdMemberMap;
                             }
 
                             // if our base class did not have an idMemberMap maybe we have one?
-                            if (idMemberMap == null) {
-                                var memberName = conventions.IdMemberConvention.FindIdMember(classType);
-                                if (memberName != null) {
+                            if (_idMemberMap == null)
+                            {
+                                var memberName = _conventions.IdMemberConvention.FindIdMember(_classType);
+                                if (memberName != null)
+                                {
                                     var memberMap = GetMemberMap(memberName);
-                                    if (memberMap != null) {
+                                    if (memberMap != null)
+                                    {
                                         SetIdMember(memberMap);
                                     }
                                 }
                             }
                         }
 
-                        if (extraElementsMemberMap == null) {
+                        if (_extraElementsMemberMap == null)
+                        {
                             // see if we can inherit the extraElementsMemberMap from our base class
-                            if (baseClassMap != null) {
-                                extraElementsMemberMap = baseClassMap.ExtraElementsMemberMap;
+                            if (_baseClassMap != null)
+                            {
+                                _extraElementsMemberMap = _baseClassMap.ExtraElementsMemberMap;
                             }
 
                             // if our base class did not have an extraElementsMemberMap maybe we have one?
-                            if (extraElementsMemberMap == null) {
-                                var memberName = conventions.ExtraElementsMemberConvention.FindExtraElementsMember(classType);
-                                if (memberName != null) {
+                            if (_extraElementsMemberMap == null)
+                            {
+                                var memberName = _conventions.ExtraElementsMemberConvention.FindExtraElementsMember(_classType);
+                                if (memberName != null)
+                                {
                                     var memberMap = GetMemberMap(memberName);
-                                    if (memberMap != null) {
+                                    if (memberMap != null)
+                                    {
                                         SetExtraElementsMember(memberMap);
                                     }
                                 }
                             }
                         }
 
-                        foreach (var memberMap in allMemberMaps) {
+                        foreach (var memberMap in _allMemberMaps)
+                        {
                             BsonMemberMap conflictingMemberMap;
-                            if (!elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap)) {
-                                elementDictionary.Add(memberMap.ElementName, memberMap);
-                            } else {
+                            if (!_elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap))
+                            {
+                                _elementDictionary.Add(memberMap.ElementName, memberMap);
+                            }
+                            else
+                            {
                                 var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
                                 var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
                                 var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
 
                                 string message;
-                                if (conflictingType == classType) {
+                                if (conflictingType == _classType)
+                                {
                                     message = string.Format(
                                         "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}'.",
-                                        fieldOrProperty,
-                                        memberMap.MemberName,
-                                        classType.FullName,
-                                        memberMap.ElementName,
-                                        conflictingFieldOrProperty,
-                                        conflictingMemberMap.MemberName
-                                    );
-                                } else {
+                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName);
+                                }
+                                else
+                                {
                                     message = string.Format(
                                         "The {0} '{1}' of type '{2}' cannot use element name '{3}' because it is already being used by {4} '{5}' of type '{6}'.",
-                                        fieldOrProperty,
-                                        memberMap.MemberName,
-                                        classType.FullName,
-                                        memberMap.ElementName,
-                                        conflictingFieldOrProperty,
-                                        conflictingMemberMap.MemberName,
-                                        conflictingType.FullName
-                                    );
+                                        fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName, conflictingType.FullName);
                                 }
                                 throw new BsonSerializationException(message);
                             }
@@ -533,26 +600,33 @@ namespace MongoDB.Bson.Serialization {
 
                         // mark this classMap frozen before we start working on knownTypes
                         // because we might get back to this same classMap while processing knownTypes
-                        frozen = true;
+                        _frozen = true;
 
                         // use a queue to postpone processing of known types until we get back to the first level call to Freeze
                         // this avoids infinite recursion when going back down the inheritance tree while processing known types
-                        foreach (var knownType in knownTypes) {
-                            knownTypesQueue.Enqueue(knownType);
+                        foreach (var knownType in _knownTypes)
+                        {
+                            __knownTypesQueue.Enqueue(knownType);
                         }
 
                         // if we are back to the first level go ahead and process any queued known types
-                        if (freezeNestingLevel == 1) {
-                            while (knownTypesQueue.Count != 0) {
-                                var knownType = knownTypesQueue.Dequeue();
+                        if (__freezeNestingLevel == 1)
+                        {
+                            while (__knownTypesQueue.Count != 0)
+                            {
+                                var knownType = __knownTypesQueue.Dequeue();
                                 LookupClassMap(knownType); // will AutoMap and/or Freeze knownType if necessary
                             }
                         }
-                    } finally {
-                        freezeNestingLevel--;
+                    }
+                    finally
+                    {
+                        __freezeNestingLevel--;
                     }
                 }
-            } finally {
+            }
+            finally
+            {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
             return this;
@@ -563,11 +637,10 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap GetMemberMap(
-            string memberName
-        ) {
+        public BsonMemberMap GetMemberMap(string memberName)
+        {
             // can be called whether frozen or not
-            return declaredMemberMaps.Find(m => m.MemberName == memberName);
+            return _declaredMemberMaps.Find(m => m.MemberName == memberName);
         }
 
         /// <summary>
@@ -575,12 +648,11 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap GetMemberMapForElement(
-            string elementName
-        ) {
-            if (!frozen) { ThrowNotFrozenException(); }
+        public BsonMemberMap GetMemberMapForElement(string elementName)
+        {
+            if (!_frozen) { ThrowNotFrozenException(); }
             BsonMemberMap memberMap;
-            elementDictionary.TryGetValue(elementName, out memberMap);
+            _elementDictionary.TryGetValue(elementName, out memberMap);
             return memberMap;
         }
 
@@ -589,10 +661,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="fieldName">The name of the extra elements field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapExtraElementsField(
-            string fieldName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapExtraElementsField(string fieldName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var fieldMap = MapField(fieldName);
             SetExtraElementsMember(fieldMap);
             return fieldMap;
@@ -603,10 +674,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="memberInfo">The member info for the extra elements member.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapExtraElementsMember(
-            MemberInfo memberInfo
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapExtraElementsMember(MemberInfo memberInfo)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetExtraElementsMember(memberMap);
             return memberMap;
@@ -617,10 +687,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapExtraElementsProperty(
-            string propertyName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapExtraElementsProperty(string propertyName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var propertyMap = MapProperty(propertyName);
             SetExtraElementsMember(propertyMap);
             return propertyMap;
@@ -631,13 +700,13 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="fieldName">The name of the field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapField(
-            string fieldName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (fieldInfo == null) {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", classType.FullName, fieldName);
+        public BsonMemberMap MapField(string fieldName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (fieldInfo == null)
+            {
+                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
                 throw new BsonSerializationException(message);
             }
             return MapMember(fieldInfo);
@@ -648,10 +717,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="fieldName">The name of the Id field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapIdField(
-            string fieldName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapIdField(string fieldName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var fieldMap = MapField(fieldName);
             SetIdMember(fieldMap);
             return fieldMap;
@@ -662,10 +730,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="memberInfo">The member info for the Id member.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapIdMember(
-            MemberInfo memberInfo
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapIdMember(MemberInfo memberInfo)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetIdMember(memberMap);
             return memberMap;
@@ -676,10 +743,9 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="propertyName">The name of the Id property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapIdProperty(
-            string propertyName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
+        public BsonMemberMap MapIdProperty(string propertyName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
             var propertyMap = MapProperty(propertyName);
             SetIdMember(propertyMap);
             return propertyMap;
@@ -690,20 +756,22 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="memberInfo">The member info.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapMember(
-            MemberInfo memberInfo
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            if (memberInfo == null) {
+        public BsonMemberMap MapMember(MemberInfo memberInfo)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            if (memberInfo == null)
+            {
                 throw new ArgumentNullException("memberInfo");
             }
-            if (memberInfo.DeclaringType != classType) {
+            if (memberInfo.DeclaringType != _classType)
+            {
                 throw new ArgumentException("MemberInfo is not for this class.");
             }
-            var memberMap = declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
-            if (memberMap == null) {
-                memberMap = new BsonMemberMap(memberInfo, conventions);
-                declaredMemberMaps.Add(memberMap);
+            var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+            if (memberMap == null)
+            {
+                memberMap = new BsonMemberMap(memberInfo, _conventions);
+                _declaredMemberMaps.Add(memberMap);
             }
             return memberMap;
         }
@@ -713,13 +781,13 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
-        public BsonMemberMap MapProperty(
-            string propertyName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (propertyInfo == null) {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", classType.FullName, propertyName);
+        public BsonMemberMap MapProperty(string propertyName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (propertyInfo == null)
+            {
+                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
                 throw new BsonSerializationException(message);
             }
             return MapMember(propertyInfo);
@@ -729,100 +797,109 @@ namespace MongoDB.Bson.Serialization {
         /// Sets the discriminator.
         /// </summary>
         /// <param name="discriminator">The discriminator.</param>
-        public void SetDiscriminator(
-            string discriminator
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            this.discriminator = discriminator;
+        public void SetDiscriminator(string discriminator)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _discriminator = discriminator;
         }
 
         /// <summary>
         /// Sets whether a discriminator is required when serializing this class.
         /// </summary>
         /// <param name="discriminatorIsRequired">Whether a discriminator is required.</param>
-        public void SetDiscriminatorIsRequired(
-            bool discriminatorIsRequired
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            this.discriminatorIsRequired = discriminatorIsRequired;
+        public void SetDiscriminatorIsRequired(bool discriminatorIsRequired)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _discriminatorIsRequired = discriminatorIsRequired;
         }
 
         /// <summary>
         /// Sets the member map of the member used to hold extra elements.
         /// </summary>
         /// <param name="memberMap">The extra elements member map.</param>
-        public void SetExtraElementsMember(
-            BsonMemberMap memberMap
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            if (extraElementsMemberMap != null) {
-                var message = string.Format("Class {0} already has an extra elements member.", classType.FullName);
+        public void SetExtraElementsMember(BsonMemberMap memberMap)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            if (_extraElementsMemberMap != null)
+            {
+                var message = string.Format("Class {0} already has an extra elements member.", _classType.FullName);
                 throw new InvalidOperationException(message);
             }
-            if (!declaredMemberMaps.Contains(memberMap)) {
+            if (!_declaredMemberMaps.Contains(memberMap))
+            {
                 throw new BsonInternalException("Invalid memberMap.");
             }
-            if (memberMap.MemberType != typeof(BsonDocument)) {
+            if (memberMap.MemberType != typeof(BsonDocument))
+            {
                 var message = string.Format("Type of ExtraElements member must be BsonDocument.");
                 throw new InvalidOperationException(message);
             }
 
-            extraElementsMemberMap = memberMap;
+            _extraElementsMemberMap = memberMap;
         }
 
         /// <summary>
         /// Sets the Id member.
         /// </summary>
         /// <param name="memberMap">The Id member.</param>
-        public void SetIdMember(
-            BsonMemberMap memberMap
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            if (idMemberMap != null) {
-                var message = string.Format("Class {0} already has an Id.", classType.FullName);
+        public void SetIdMember(BsonMemberMap memberMap)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            if (_idMemberMap != null)
+            {
+                var message = string.Format("Class {0} already has an Id.", _classType.FullName);
                 throw new InvalidOperationException(message);
             }
-            if (!declaredMemberMaps.Contains(memberMap)) {
+            if (!_declaredMemberMaps.Contains(memberMap))
+            {
                 throw new BsonInternalException("Invalid memberMap.");
             }
 
             memberMap.SetElementName("_id");
-            idMemberMap = memberMap;
+            _idMemberMap = memberMap;
         }
 
         /// <summary>
         /// Sets whether extra elements should be ignored when deserializing.
         /// </summary>
         /// <param name="ignoreExtraElements">Whether extra elements should be ignored when deserializing.</param>
-        public void SetIgnoreExtraElements(
-            bool ignoreExtraElements
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            this.ignoreExtraElements = ignoreExtraElements;
+        public void SetIgnoreExtraElements(bool ignoreExtraElements)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _ignoreExtraElements = ignoreExtraElements;
+        }
+
+        /// <summary>
+        /// Sets whether the IgnoreExtraElements value should be inherited by derived classes.
+        /// </summary>
+        /// <param name="ignoreExtraElementsIsInherited">Whether the IgnoreExtraElements value should be inherited by derived classes.</param>
+        public void SetIgnoreExtraElementsIsInherited(bool ignoreExtraElementsIsInherited)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _ignoreExtraElementsIsInherited = ignoreExtraElementsIsInherited;
         }
 
         /// <summary>
         /// Sets whether this class is a root class.
         /// </summary>
         /// <param name="isRootClass">Whether this class is a root class.</param>
-        public void SetIsRootClass(
-            bool isRootClass
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            this.isRootClass = isRootClass;
+        public void SetIsRootClass(bool isRootClass)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            _isRootClass = isRootClass;
         }
 
         /// <summary>
         /// Removes the member map for a field from the class map.
         /// </summary>
         /// <param name="fieldName">The name of the field.</param>
-        public void UnmapField(
-            string fieldName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            var fieldInfo = classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (fieldInfo == null) {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", classType.FullName, fieldName);
+        public void UnmapField(string fieldName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (fieldInfo == null)
+            {
+                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
                 throw new BsonSerializationException(message);
             }
             UnmapMember(fieldInfo);
@@ -832,24 +909,28 @@ namespace MongoDB.Bson.Serialization {
         /// Removes a member map from the class map.
         /// </summary>
         /// <param name="memberInfo">The member info.</param>
-        public void UnmapMember(
-            MemberInfo memberInfo
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            if (memberInfo == null) {
+        public void UnmapMember(MemberInfo memberInfo)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            if (memberInfo == null)
+            {
                 throw new ArgumentNullException("memberInfo");
             }
-            if (memberInfo.DeclaringType != classType) {
+            if (memberInfo.DeclaringType != _classType)
+            {
                 throw new ArgumentException("MemberInfo is not for this class.");
             }
-            var memberMap = declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
-            if (memberMap != null) {
-                declaredMemberMaps.Remove(memberMap);
-                if (idMemberMap == memberMap) {
-                    idMemberMap = null;
+            var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+            if (memberMap != null)
+            {
+                _declaredMemberMaps.Remove(memberMap);
+                if (_idMemberMap == memberMap)
+                {
+                    _idMemberMap = null;
                 }
-                if (extraElementsMemberMap == memberMap) {
-                    extraElementsMemberMap = null;
+                if (_extraElementsMemberMap == memberMap)
+                {
+                    _extraElementsMemberMap = null;
                 }
             }
         }
@@ -858,130 +939,176 @@ namespace MongoDB.Bson.Serialization {
         /// Removes the member map for a property from the class map.
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
-        public void UnmapProperty(
-            string propertyName
-        ) {
-            if (frozen) { ThrowFrozenException(); }
-            var propertyInfo = classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (propertyInfo == null) {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", classType.FullName, propertyName);
+        public void UnmapProperty(string propertyName)
+        {
+            if (_frozen) { ThrowFrozenException(); }
+            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            if (propertyInfo == null)
+            {
+                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
                 throw new BsonSerializationException(message);
             }
             UnmapMember(propertyInfo);
         }
-        #endregion
 
-        #region private methods
-        private void AutoMapClass() {
-            foreach (BsonKnownTypesAttribute knownTypesAttribute in classType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false)) {
-                foreach (var knownType in knownTypesAttribute.KnownTypes) {
-                    knownTypes.Add(knownType); // knownTypes will be processed when Freeze is called
+        // private methods
+        private void AutoMapClass()
+        {
+            foreach (BsonKnownTypesAttribute knownTypesAttribute in _classType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false))
+            {
+                foreach (var knownType in knownTypesAttribute.KnownTypes)
+                {
+                    _knownTypes.Add(knownType); // knownTypes will be processed when Freeze is called
                 }
             }
 
-            var discriminatorAttribute = (BsonDiscriminatorAttribute) classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
-            if (discriminatorAttribute != null) {
-                if (discriminatorAttribute.Discriminator != null) {
-                    discriminator = discriminatorAttribute.Discriminator;
+            var discriminatorAttribute = (BsonDiscriminatorAttribute)_classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
+            if (discriminatorAttribute != null)
+            {
+                if (discriminatorAttribute.Discriminator != null)
+                {
+                    _discriminator = discriminatorAttribute.Discriminator;
                 }
-                discriminatorIsRequired = discriminatorAttribute.Required;
-                isRootClass = discriminatorAttribute.RootClass;
+                _discriminatorIsRequired = discriminatorAttribute.Required;
+                _isRootClass = discriminatorAttribute.RootClass;
             }
 
-            var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute) classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
-            if (ignoreExtraElementsAttribute != null) {
-                ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
-            } else {
-                ignoreExtraElements = conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(classType);
+            var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute)_classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
+            if (ignoreExtraElementsAttribute != null)
+            {
+                _ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
+                _ignoreExtraElementsIsInherited = ignoreExtraElementsAttribute.Inherited;
+            }
+            else
+            {
+                _ignoreExtraElements = _conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(_classType);
             }
 
             AutoMapMembers();
         }
 
-        private void AutoMapMembers() {
+        private void AutoMapMembers()
+        {
             // only auto map properties declared in this class (and not in base classes)
             var hasOrderedElements = false;
-            foreach (var memberInfo in FindMembers()) {
+            foreach (var memberInfo in FindMembers())
+            {
                 var memberMap = AutoMapMember(memberInfo);
                 hasOrderedElements = hasOrderedElements || memberMap.Order != int.MaxValue;
             }
 
-            if (hasOrderedElements) {
+            if (hasOrderedElements)
+            {
                 // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
                 // and then concatenate any items with no value for Order at the end (in their original order)
-                var sorted = new List<BsonMemberMap>(declaredMemberMaps.Where(pm => pm.Order != int.MaxValue));
-                var unsorted = new List<BsonMemberMap>(declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
+                var sorted = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order != int.MaxValue));
+                var unsorted = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
                 sorted.Sort((x, y) => x.Order.CompareTo(y.Order));
-                declaredMemberMaps = sorted.Concat(unsorted).ToList();
+                _declaredMemberMaps = sorted.Concat(unsorted).ToList();
             }
         }
 
-        private BsonMemberMap AutoMapMember(
-            MemberInfo memberInfo
-        ) {
+        private BsonMemberMap AutoMapMember(MemberInfo memberInfo)
+        {
             var memberMap = MapMember(memberInfo);
 
-            memberMap.SetElementName(conventions.ElementNameConvention.GetElementName(memberInfo));
-            memberMap.SetIgnoreIfNull(conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
-            memberMap.SetSerializeDefaultValue(conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo));
+            memberMap.SetElementName(_conventions.ElementNameConvention.GetElementName(memberInfo));
+            bool ignoreIfDefault;
+#pragma warning disable 618 // SerializeDefaultValueConvention is obsolete
+            if (_conventions.SerializeDefaultValueConvention != null)
+            {
+                ignoreIfDefault = !_conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo);
+            }
+#pragma warning restore 618
+            else
+            {
+                ignoreIfDefault = _conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo);
+            }
+            memberMap.SetIgnoreIfDefault(ignoreIfDefault);
+            memberMap.SetIgnoreIfNull(_conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
 
-            var defaultValue = conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
-            if (defaultValue != null) {
-                memberMap.SetDefaultValue(defaultValue, memberMap.SerializeDefaultValue);
+            var defaultValue = _conventions.DefaultValueConvention.GetDefaultValue(memberInfo);
+            if (defaultValue != null)
+            {
+                memberMap.SetDefaultValue(defaultValue);
             }
 
             // see if the class has a method called ShouldSerializeXyz where Xyz is the name of this member
             var shouldSerializeMethod = GetShouldSerializeMethod(memberInfo);
-            if (shouldSerializeMethod != null) {
+            if (shouldSerializeMethod != null)
+            {
                 memberMap.SetShouldSerializeMethod(shouldSerializeMethod);
             }
 
-            foreach (var attribute in memberInfo.GetCustomAttributes(false)) {
+            foreach (var attribute in memberInfo.GetCustomAttributes(false))
+            {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
-                if (defaultValueAttribute != null) {
+                if (defaultValueAttribute != null)
+                {
                     memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-                    memberMap.SetSerializeDefaultValue(defaultValueAttribute.SerializeDefaultValue);
+#pragma warning disable 618 // SerializeDefaultValue is obsolete
+                    if (defaultValueAttribute.SerializeDefaultValueWasSet)
+                    {
+                        memberMap.SetIgnoreIfNull(false);
+                        memberMap.SetIgnoreIfDefault(!defaultValueAttribute.SerializeDefaultValue);
+                    }
+#pragma warning restore 618
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
-                if (elementAttribute != null) {
+                if (elementAttribute != null)
+                {
                     memberMap.SetElementName(elementAttribute.ElementName);
                     memberMap.SetOrder(elementAttribute.Order);
                     continue;
                 }
 
                 var extraElementsAttribute = attribute as BsonExtraElementsAttribute;
-                if (extraElementsAttribute != null) {
+                if (extraElementsAttribute != null)
+                {
                     SetExtraElementsMember(memberMap);
                     continue;
                 }
 
                 var idAttribute = attribute as BsonIdAttribute;
-                if (idAttribute != null) {
+                if (idAttribute != null)
+                {
                     memberMap.SetElementName("_id");
                     memberMap.SetOrder(idAttribute.Order);
                     var idGeneratorType = idAttribute.IdGenerator;
-                    if (idGeneratorType != null) {
-                        var idGenerator = (IIdGenerator) Activator.CreateInstance(idGeneratorType); // public default constructor required
+                    if (idGeneratorType != null)
+                    {
+                        var idGenerator = (IIdGenerator)Activator.CreateInstance(idGeneratorType); // public default constructor required
                         memberMap.SetIdGenerator(idGenerator);
                     }
                     SetIdMember(memberMap);
                     continue;
                 }
 
+                var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
+                if (ignoreIfDefaultAttribute != null)
+                {
+                    memberMap.SetIgnoreIfNull(false);
+                    memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
+                }
+
                 var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
-                if (ignoreIfNullAttribute != null) {
-                    memberMap.SetIgnoreIfNull(true);
+                if (ignoreIfNullAttribute != null)
+                {
+                    memberMap.SetIgnoreIfDefault(false);
+                    memberMap.SetIgnoreIfNull(ignoreIfNullAttribute.Value);
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;
-                if (requiredAttribute != null) {
+                if (requiredAttribute != null)
+                {
                     memberMap.SetIsRequired(true);
                 }
 
                 // note: this handles subclasses of BsonSerializationOptionsAttribute also
                 var serializationOptionsAttribute = attribute as BsonSerializationOptionsAttribute;
-                if (serializationOptionsAttribute != null) {
+                if (serializationOptionsAttribute != null)
+                {
                     memberMap.SetSerializationOptions(serializationOptionsAttribute.GetOptions());
                 }
             }
@@ -989,39 +1116,46 @@ namespace MongoDB.Bson.Serialization {
             return memberMap;
         }
 
-        private IEnumerable<MemberInfo> FindMembers() {
+        private IEnumerable<MemberInfo> FindMembers()
+        {
             // use a List instead of a HashSet to preserver order
-            var memberInfos = new List<MemberInfo>(
-                conventions.MemberFinderConvention.FindMembers(classType)
-            );
-            
+            var memberInfos = new List<MemberInfo>(_conventions.MemberFinderConvention.FindMembers(_classType));
+
             // let other fields opt-in if they have a BsonElement attribute
-            foreach (var fieldInfo in classType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
-                var elementAttribute = (BsonElementAttribute) fieldInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute == null || fieldInfo.IsInitOnly || fieldInfo.IsLiteral) { 
+            foreach (var fieldInfo in _classType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+            {
+                var elementAttribute = (BsonElementAttribute)fieldInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
+                if (elementAttribute == null || fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+                {
                     continue;
                 }
 
-                if(!memberInfos.Contains(fieldInfo)) {
+                if (!memberInfos.Contains(fieldInfo))
+                {
                     memberInfos.Add(fieldInfo);
                 }
             }
 
             // let other properties opt-in if they have a BsonElement attribute
-            foreach (var propertyInfo in classType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)) {
-                var elementAttribute = (BsonElementAttribute) propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute == null || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !isAnonymous)) {
+            foreach (var propertyInfo in _classType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+            {
+                var elementAttribute = (BsonElementAttribute)propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
+                if (elementAttribute == null || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !_isAnonymous))
+                {
                     continue;
                 }
 
-                if(!memberInfos.Contains(propertyInfo)) {
+                if (!memberInfos.Contains(propertyInfo))
+                {
                     memberInfos.Add(propertyInfo);
                 }
             }
 
-            foreach(var memberInfo in memberInfos) {
-                var ignoreAttribute = (BsonIgnoreAttribute) memberInfo.GetCustomAttributes(typeof(BsonIgnoreAttribute), false).FirstOrDefault();
-                if (ignoreAttribute != null) {
+            foreach (var memberInfo in memberInfos)
+            {
+                var ignoreAttribute = (BsonIgnoreAttribute)memberInfo.GetCustomAttributes(typeof(BsonIgnoreAttribute), false).FirstOrDefault();
+                if (ignoreAttribute != null)
+                {
                     continue; // ignore this property
                 }
 
@@ -1029,110 +1163,112 @@ namespace MongoDB.Bson.Serialization {
             }
         }
 
-        private Func<object> GetCreator() {
-            if (creator == null) {
-                Expression expression;
+        private Func<object> GetCreator()
+        {
+            if (_creator == null)
+            {
+                Expression body;
                 var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-                var defaultConstructor = classType.GetConstructor(bindingFlags, null, new Type[0], null);
-                if (defaultConstructor != null) {
-                    expression = Expression.New(defaultConstructor);
-                } else {
-                    var getUnitializedObjectInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
-                    expression = Expression.Call(getUnitializedObjectInfo, Expression.Constant(classType));
+                var defaultConstructor = _classType.GetConstructor(bindingFlags, null, new Type[0], null);
+                if (defaultConstructor != null)
+                {
+                    // lambdaExpression = () => (object) new TClass()
+                    body = Expression.New(defaultConstructor);
                 }
-                var lambda = Expression.Lambda<Func<object>>(expression);
-                creator = lambda.Compile();
+                else
+                {
+                    // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
+                    var getUnitializedObjectMethodInfo = typeof(FormatterServices).GetMethod("GetUninitializedObject", BindingFlags.Public | BindingFlags.Static);
+                    body = Expression.Call(getUnitializedObjectMethodInfo, Expression.Constant(_classType));
+                }
+                var lambdaExpression = Expression.Lambda<Func<object>>(body);
+                _creator = lambdaExpression.Compile();
             }
-            return creator;
+            return _creator;
         }
 
-        private Func<object, bool> GetShouldSerializeMethod(
-            MemberInfo memberInfo
-        ) {
+        private Func<object, bool> GetShouldSerializeMethod(MemberInfo memberInfo)
+        {
             var shouldSerializeMethodName = "ShouldSerialize" + memberInfo.Name;
-            var shouldSerializeMethodInfo = classType.GetMethod(shouldSerializeMethodName, new Type[] { });
-            if (
-                shouldSerializeMethodInfo != null &&
+            var shouldSerializeMethodInfo = _classType.GetMethod(shouldSerializeMethodName, new Type[] { });
+            if (shouldSerializeMethodInfo != null &&
                 shouldSerializeMethodInfo.IsPublic &&
-                shouldSerializeMethodInfo.ReturnType == typeof(bool)
-            ) {
-                // we need to construct a lambda wich does the following
-                // (obj) => obj.ShouldSerializeXyz()
-                var parameter = Expression.Parameter(typeof(object), "obj");
-                var body = Expression.Call(
-                    Expression.Convert(parameter, classType),
-                    shouldSerializeMethodInfo
-                );
-                var lambdaExpression = Expression.Lambda<Func<object, bool>>(body, parameter);
+                shouldSerializeMethodInfo.ReturnType == typeof(bool))
+            {
+                // lambdaExpression = (obj) => ((TClass) obj).ShouldSerializeXyz()
+                var objParameter = Expression.Parameter(typeof(object), "obj");
+                var lambdaExpression = Expression.Lambda<Func<object, bool>>(Expression.Call(Expression.Convert(objParameter, _classType), shouldSerializeMethodInfo), objParameter);
                 return lambdaExpression.Compile();
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
 
-        private bool IsAnonymousType(
-            Type type
-        ) {
+        private bool IsAnonymousType(Type type)
+        {
             // don't test for too many things in case implementation details change in the future
             return
-                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && 
+                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
                 type.IsGenericType &&
                 type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
-        private void ThrowFrozenException() {
-            var message = string.Format("Class map for {0} has been frozen and no further changes are allowed.", classType.FullName);
+        private void ThrowFrozenException()
+        {
+            var message = string.Format("Class map for {0} has been frozen and no further changes are allowed.", _classType.FullName);
             throw new InvalidOperationException(message);
         }
 
-        private void ThrowNotFrozenException() {
-            var message = string.Format("Class map for {0} has been not been frozen yet.", classType.FullName);
+        private void ThrowNotFrozenException()
+        {
+            var message = string.Format("Class map for {0} has been not been frozen yet.", _classType.FullName);
             throw new InvalidOperationException(message);
         }
-        #endregion
 
-        #region private class
-        private class FilteredConventionProfile {
+        // private class
+        private class FilteredConventionProfile
+        {
             public Func<Type, bool> Filter;
             public ConventionProfile Profile;
         }
-        #endregion
     }
 
     /// <summary>
     /// Represents a mapping between a class and a BSON document.
     /// </summary>
     /// <typeparam name="TClass">The class.</typeparam>
-    public class BsonClassMap<TClass> : BsonClassMap {
-        #region constructors
+    public class BsonClassMap<TClass> : BsonClassMap
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonClassMap class.
         /// </summary>
         public BsonClassMap()
-            : base(typeof(TClass)) {
+            : base(typeof(TClass))
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonClassMap class.
         /// </summary>
         /// <param name="classMapInitializer">The class map initializer.</param>
-        public BsonClassMap(
-            Action<BsonClassMap<TClass>> classMapInitializer
-        ) : base(typeof(TClass)) {
+        public BsonClassMap(Action<BsonClassMap<TClass>> classMapInitializer)
+            : base(typeof(TClass))
+        {
             classMapInitializer(this);
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets a member map.
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap GetMemberMap<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        public BsonMemberMap GetMemberMap<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var memberName = GetMemberNameFromLambda(memberLambda);
             return GetMemberMap(memberName);
         }
@@ -1143,9 +1279,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the extra elements field.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapExtraElementsField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
+        public BsonMemberMap MapExtraElementsField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
+        {
             var fieldMap = MapField(fieldLambda);
             SetExtraElementsMember(fieldMap);
             return fieldMap;
@@ -1157,9 +1292,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the extra elements member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapExtraElementsMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        public BsonMemberMap MapExtraElementsMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var memberMap = MapMember(memberLambda);
             SetExtraElementsMember(memberMap);
             return memberMap;
@@ -1171,9 +1305,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the extra elements property.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapExtraElementsProperty<TMember>(
-            Expression<Func<TClass, TMember>> propertyLambda
-        ) {
+        public BsonMemberMap MapExtraElementsProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
+        {
             var propertyMap = MapProperty(propertyLambda);
             SetExtraElementsMember(propertyMap);
             return propertyMap;
@@ -1185,9 +1318,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
+        public BsonMemberMap MapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
+        {
             return MapMember(fieldLambda);
         }
 
@@ -1197,9 +1329,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the Id field.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapIdField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
+        public BsonMemberMap MapIdField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
+        {
             var fieldMap = MapField(fieldLambda);
             SetIdMember(fieldMap);
             return fieldMap;
@@ -1211,9 +1342,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the Id member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapIdMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        public BsonMemberMap MapIdMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var memberMap = MapMember(memberLambda);
             SetIdMember(memberMap);
             return memberMap;
@@ -1225,9 +1355,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapIdProperty<TMember>(
-            Expression<Func<TClass, TMember>> propertyLambda
-        ) {
+        public BsonMemberMap MapIdProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
+        {
             var propertyMap = MapProperty(propertyLambda);
             SetIdMember(propertyMap);
             return propertyMap;
@@ -1239,9 +1368,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        public BsonMemberMap MapMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var memberInfo = GetMemberInfoFromLambda(memberLambda);
             return MapMember(memberInfo);
         }
@@ -1252,9 +1380,8 @@ namespace MongoDB.Bson.Serialization {
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapProperty<TMember>(
-            Expression<Func<TClass, TMember>> propertyLambda
-        ) {
+        public BsonMemberMap MapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
+        {
             return MapMember(propertyLambda);
         }
 
@@ -1263,9 +1390,8 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
-        public void UnmapField<TMember>(
-            Expression<Func<TClass, TMember>> fieldLambda
-        ) {
+        public void UnmapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
+        {
             UnmapMember(fieldLambda);
         }
 
@@ -1274,9 +1400,8 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the member.</param>
-        public void UnmapMember<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        public void UnmapMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var memberInfo = GetMemberInfoFromLambda(memberLambda);
             UnmapMember(memberInfo);
         }
@@ -1286,39 +1411,43 @@ namespace MongoDB.Bson.Serialization {
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the property.</param>
-        public void UnmapProperty<TMember>(
-            Expression<Func<TClass, TMember>> propertyLambda
-        ) {
+        public void UnmapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
+        {
             UnmapMember(propertyLambda);
         }
-        #endregion
 
-        #region private methods
-        private MemberInfo GetMemberInfoFromLambda<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            return classType.GetMember(memberName).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-        }
-
-        private string GetMemberNameFromLambda<TMember>(
-            Expression<Func<TClass, TMember>> memberLambda
-        ) {
+        // private methods
+        private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
             var body = memberLambda.Body;
             MemberExpression memberExpression;
-            switch (body.NodeType) {
+            switch (body.NodeType)
+            {
                 case ExpressionType.MemberAccess:
-                    memberExpression = (MemberExpression) body;
+                    memberExpression = (MemberExpression)body;
                     break;
                 case ExpressionType.Convert:
-                    var convertExpression = (UnaryExpression) body;
-                    memberExpression = (MemberExpression) convertExpression.Operand;
+                    var convertExpression = (UnaryExpression)body;
+                    memberExpression = (MemberExpression)convertExpression.Operand;
                     break;
                 default:
-                    throw new BsonSerializationException("Invalid propertyLambda.");
+                    throw new BsonSerializationException("Invalid lambda expression");
             }
-            return memberExpression.Member.Name;
+            var memberInfo = memberExpression.Member;
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Field:
+                case MemberTypes.Property:
+                    break;
+                default:
+                    throw new BsonSerializationException("Invalid lambda expression");
+            }
+            return memberInfo;
         }
-        #endregion
+
+        private static string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        {
+            return GetMemberInfoFromLambda(memberLambda).Name;
+        }
     }
 }

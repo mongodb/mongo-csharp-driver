@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// Represents the binary data subtype of a BsonBinaryData.
     /// </summary>
     [Serializable]
-    public enum BsonBinarySubType {
+    public enum BsonBinarySubType
+    {
         /// <summary>
         /// Binary data.
         /// </summary>
@@ -35,7 +37,8 @@ namespace MongoDB.Bson {
         /// <summary>
         /// Obsolete binary data subtype (use Binary instead).
         /// </summary>
-        [Obsolete("Use Binary instead")] OldBinary = 0x02,
+        [Obsolete("Use Binary instead")]
+        OldBinary = 0x02,
         /// <summary>
         /// A UUID in a driver dependent legacy byte order.
         /// </summary>

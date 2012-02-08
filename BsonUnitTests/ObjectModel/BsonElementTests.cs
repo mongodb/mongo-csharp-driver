@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,18 +21,22 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 
-namespace MongoDB.BsonUnitTests {
+namespace MongoDB.BsonUnitTests
+{
     [TestFixture]
-    public class BsonElementTests {
+    public class BsonElementTests
+    {
         [Test]
-        public void TestNewBsonArray() {
+        public void TestNewBsonArray()
+        {
             BsonArray array;
             array = new BsonArray(new List<int>() { 1, 2, 3 });
             array = new BsonArray(new int[] { 4, 5, 6 });
         }
 
         [Test]
-        public void TestStringElement() {
+        public void TestStringElement()
+        {
             BsonElement element = new BsonElement("abc", "def");
             string value = element.Value.AsString;
             Assert.AreEqual("abc", element.Name);

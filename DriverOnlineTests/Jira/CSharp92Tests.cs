@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,20 +25,24 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp92 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp92
+{
     [TestFixture]
-    public class CSharp92Tests {
-        private class C {
+    public class CSharp92Tests
+    {
+        private class C
+        {
             [BsonId]
             public int Id { get; set; }
             public string P { get; set; }
         }
 
         [Test]
-        public void TestSaveDocument() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection("csharp92");
+        public void TestSaveDocument()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             var document = new BsonDocument { { "_id", -1 }, { "P", "x" } };
             collection.RemoveAll();
@@ -51,10 +55,11 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp92 {
         }
 
         [Test]
-        public void TestSaveClass() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<C>("csharp92");
+        public void TestSaveClass()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<C>();
 
             var document = new C { Id = -1, P = "x" };
             collection.RemoveAll();

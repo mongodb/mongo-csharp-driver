@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,63 +21,64 @@ using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the external representation and related options for this field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute {
-        #region private fields
-        private BsonType representation;
-        private bool allowOverflow;
-        private bool allowTruncation;
-        #endregion
+    public class BsonRepresentationAttribute : BsonSerializationOptionsAttribute
+    {
+        // private fields
+        private BsonType _representation;
+        private bool _allowOverflow;
+        private bool _allowTruncation;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonRepresentationAttribute class.
         /// </summary>
         /// <param name="representation">The external representation.</param>
-        public BsonRepresentationAttribute(
-            BsonType representation
-        ) {
-            this.representation = representation;
+        public BsonRepresentationAttribute(BsonType representation)
+        {
+            _representation = representation;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the external representation.
         /// </summary>
-        public BsonType Representation {
-            get { return representation; }
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
 
         /// <summary>
         /// Gets or sets whether to allow overflow.
         /// </summary>
-        public bool AllowOverflow {
-            get { return allowOverflow; }
-            set { allowOverflow = value; }
+        public bool AllowOverflow
+        {
+            get { return _allowOverflow; }
+            set { _allowOverflow = value; }
         }
 
         /// <summary>
         /// Gets or sets whether to allow truncation.
         /// </summary>
-        public bool AllowTruncation {
-            get { return allowTruncation; }
-            set { allowTruncation = value; }
+        public bool AllowTruncation
+        {
+            get { return _allowTruncation; }
+            set { _allowTruncation = value; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Gets the serialization options specified by this attribute.
         /// </summary>
         /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions() {
-            return new RepresentationSerializationOptions(representation, allowOverflow, allowTruncation);
+        public override IBsonSerializationOptions GetOptions()
+        {
+            return new RepresentationSerializationOptions(_representation, _allowOverflow, _allowTruncation);
         }
-        #endregion
     }
 }

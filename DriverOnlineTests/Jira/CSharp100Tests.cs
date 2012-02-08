@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,31 +26,37 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp100 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp100
+{
     [TestFixture]
-    public class CSharp100Tests {
+    public class CSharp100Tests
+    {
         [DataContract]
-        private class ParentClass {
+        private class ParentClass
+        {
             [BsonId]
             public ObjectId Id { get; set; }
         }
 
         [DataContract]
-        private class ChildClass : ParentClass {
+        private class ChildClass : ParentClass
+        {
             [DataMember(Order = 1)]
             [BsonIgnoreIfNull]
             public IList<SomeClass> SomeProperty { get; set; }
         }
 
         [DataContract]
-        public class SomeClass {
+        public class SomeClass
+        {
         }
 
         [Test]
-        public void TestDeserializationOfTwoBs() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database["csharp100"];
+        public void TestDeserializationOfTwoBs()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.TestCollection;
 
             collection.RemoveAll();
             var obj = new ChildClass { SomeProperty = null };
@@ -61,7 +67,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp100 {
             collection.Save(obj, SafeMode.True);
             obj = new ChildClass { SomeProperty = new List<SomeClass> { new SomeClass(), new SomeClass() } };
             collection.Save(obj, SafeMode.True);
-            obj = new ChildClass { SomeProperty = new [] { new SomeClass(), new SomeClass() } };
+            obj = new ChildClass { SomeProperty = new[] { new SomeClass(), new SomeClass() } };
             collection.Save(obj, SafeMode.True);
         }
     }

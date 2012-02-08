@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,39 +17,39 @@ using System;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization.Options {
+namespace MongoDB.Bson.Serialization.Options
+{
     /// <summary>
     /// Represents serialization options for a DateTime value.
     /// </summary>
-    public class DateTimeSerializationOptions : IBsonSerializationOptions {
-        #region private static fields
-        private static DateTimeSerializationOptions dateOnlyInstance = new DateTimeSerializationOptions(true);
-        private static DateTimeSerializationOptions defaults = new DateTimeSerializationOptions();
-        private static DateTimeSerializationOptions localInstance = new DateTimeSerializationOptions(DateTimeKind.Local);
-        private static DateTimeSerializationOptions utcInstance = new DateTimeSerializationOptions(DateTimeKind.Utc);
-        #endregion
+    public class DateTimeSerializationOptions : IBsonSerializationOptions
+    {
+        // private static fields
+        private static DateTimeSerializationOptions __dateOnlyInstance = new DateTimeSerializationOptions(true);
+        private static DateTimeSerializationOptions __defaults = new DateTimeSerializationOptions();
+        private static DateTimeSerializationOptions __localInstance = new DateTimeSerializationOptions(DateTimeKind.Local);
+        private static DateTimeSerializationOptions __utcInstance = new DateTimeSerializationOptions(DateTimeKind.Utc);
 
-        #region private fields
-        private bool dateOnly = false;
-        private DateTimeKind kind = DateTimeKind.Utc;
-        private BsonType representation = BsonType.DateTime;
-        #endregion
+        // private fields
+        private bool _dateOnly = false;
+        private DateTimeKind _kind = DateTimeKind.Utc;
+        private BsonType _representation = BsonType.DateTime;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the DateTimeSerializationOptions class.
         /// </summary>
-        public DateTimeSerializationOptions() {
+        public DateTimeSerializationOptions()
+        {
         }
 
         /// <summary>
         /// Initializes a new instance of the DateTimeSerializationOptions class.
         /// </summary>
         /// <param name="dateOnly">Whether this DateTime consists of a Date only.</param>
-        public DateTimeSerializationOptions(
-            bool dateOnly
-        ) {
-            this.dateOnly = dateOnly;
+        public DateTimeSerializationOptions(bool dateOnly)
+        {
+            _dateOnly = dateOnly;
         }
 
         /// <summary>
@@ -57,22 +57,19 @@ namespace MongoDB.Bson.Serialization.Options {
         /// </summary>
         /// <param name="dateOnly">Whether this DateTime consists of a Date only.</param>
         /// <param name="representation">The external representation.</param>
-        public DateTimeSerializationOptions(
-            bool dateOnly,
-            BsonType representation
-        ) {
-            this.dateOnly = dateOnly;
-            this.representation = representation;
+        public DateTimeSerializationOptions(bool dateOnly, BsonType representation)
+        {
+            _dateOnly = dateOnly;
+            _representation = representation;
         }
 
         /// <summary>
         /// Initializes a new instance of theDateTimeSerializationOptions  class.
         /// </summary>
         /// <param name="kind">The DateTimeKind (Local, Unspecified or Utc).</param>
-        public DateTimeSerializationOptions(
-            DateTimeKind kind
-        ) {
-            this.kind = kind;
+        public DateTimeSerializationOptions(DateTimeKind kind)
+        {
+            _kind = kind;
         }
 
         /// <summary>
@@ -80,67 +77,69 @@ namespace MongoDB.Bson.Serialization.Options {
         /// </summary>
         /// <param name="kind">The DateTimeKind (Local, Unspecified or Utc).</param>
         /// <param name="representation">The external representation.</param>
-        public DateTimeSerializationOptions(
-            DateTimeKind kind,
-            BsonType representation
-        ) {
-            this.kind = kind;
-            this.representation = representation;
+        public DateTimeSerializationOptions(DateTimeKind kind, BsonType representation)
+        {
+            _kind = kind;
+            _representation = representation;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets an instance of DateTimeSerializationOptions with DateOnly=true.
         /// </summary>
-        public static DateTimeSerializationOptions DateOnlyInstance {
-            get { return dateOnlyInstance; }
+        public static DateTimeSerializationOptions DateOnlyInstance
+        {
+            get { return __dateOnlyInstance; }
         }
 
         /// <summary>
         /// Gets or sets the default DateTime serialization options.
         /// </summary>
-        public static DateTimeSerializationOptions Defaults {
-            get { return defaults; }
-            set { defaults = value; }
+        public static DateTimeSerializationOptions Defaults
+        {
+            get { return __defaults; }
+            set { __defaults = value; }
         }
 
         /// <summary>
         /// Gets an instance of DateTimeSerializationOptions with Kind=Local.
         /// </summary>
-        public static DateTimeSerializationOptions LocalInstance {
-            get { return localInstance; }
+        public static DateTimeSerializationOptions LocalInstance
+        {
+            get { return __localInstance; }
         }
 
         /// <summary>
         /// Gets an instance of DateTimeSerializationOptions with Kind=Utc.
         /// </summary>
-        public static DateTimeSerializationOptions UtcInstance {
-            get { return utcInstance; }
+        public static DateTimeSerializationOptions UtcInstance
+        {
+            get { return __utcInstance; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets whether this DateTime consists of a Date only.
         /// </summary>
-        public bool DateOnly {
-            get { return dateOnly; }
+        public bool DateOnly
+        {
+            get { return _dateOnly; }
         }
 
         /// <summary>
         /// Gets the DateTimeKind (Local, Unspecified or Utc).
         /// </summary>
-        public DateTimeKind Kind {
-            get { return kind; }
+        public DateTimeKind Kind
+        {
+            get { return _kind; }
         }
 
         /// <summary>
         /// Gets the external representation.
         /// </summary>
-        public BsonType Representation {
-            get { return representation; }
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
-        #endregion
     }
 }

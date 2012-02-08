@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,12 +24,16 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class SystemProfileInfoTests {
+    public class SystemProfileInfoTests
+    {
         [Test]
-        public void TestMinimal() {
-            var info = new SystemProfileInfo {
+        public void TestMinimal()
+        {
+            var info = new SystemProfileInfo
+            {
                 Timestamp = new DateTime(2011, 10, 7, 0, 0, 0, DateTimeKind.Utc),
                 Duration = TimeSpan.FromMilliseconds(123)
             };
@@ -38,8 +42,10 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestAll() {
-            var info = new SystemProfileInfo {
+        public void TestAll()
+        {
+            var info = new SystemProfileInfo
+            {
                 Abbreviated = "abbreviated",
                 Client = "client",
                 Command = new BsonDocument("command", 1),

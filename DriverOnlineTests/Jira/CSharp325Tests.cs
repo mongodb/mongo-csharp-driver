@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,25 +24,30 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira {
+namespace MongoDB.DriverOnlineTests.Jira
+{
     [TestFixture]
-    public class CSharp325Tests {
-        private MongoServer server;
+    public class CSharp325Tests
+    {
+        private MongoServer _server;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
         }
 
         [Test]
-        public void TestValidateDatabaseName() {
+        public void TestValidateDatabaseName()
+        {
             var invalidChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
             foreach (var c in Path.GetInvalidPathChars()) { invalidChars.Add(c); }
             foreach (var c in Path.GetInvalidFileNameChars()) { invalidChars.Add(c); }
 
-            foreach (var c in invalidChars) {
+            foreach (var c in invalidChars)
+            {
                 var databaseName = new string(new char[] { 'x', c });
-                Assert.Throws<ArgumentException>(() => { var database = server[databaseName]; });
+                Assert.Throws<ArgumentException>(() => { var database = _server[databaseName]; });
             }
         }
     }

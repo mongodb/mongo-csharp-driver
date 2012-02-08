@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-namespace MongoDB.Bson.Serialization.Conventions {
+namespace MongoDB.Bson.Serialization.Conventions
+{
     /// <summary>
     /// Represents an ignore if null convention.
     /// </summary>
-    public interface IIgnoreIfNullConvention {
+    public interface IIgnoreIfNullConvention
+    {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
@@ -35,15 +37,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents an ignore if null convention where nulls are never ignored.
     /// </summary>
-    public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention {
+    public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention
+    {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to ignore nulls.</returns>
-        public bool IgnoreIfNull(
-            MemberInfo memberInfo
-        ) {
+        public bool IgnoreIfNull(MemberInfo memberInfo)
+        {
             return false;
         }
     }
@@ -51,15 +53,15 @@ namespace MongoDB.Bson.Serialization.Conventions {
     /// <summary>
     /// Represents an ignore if null convention where nulls are always ignored.
     /// </summary>
-    public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention {
+    public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention
+    {
         /// <summary>
         /// Determines whether to ignore nulls for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
         /// <returns>Whether to ignore nulls.</returns>
-        public bool IgnoreIfNull(
-            MemberInfo memberInfo
-        ) {
+        public bool IgnoreIfNull(MemberInfo memberInfo)
+        {
             return true;
         }
     }

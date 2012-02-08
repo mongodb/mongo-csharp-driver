@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,26 +23,31 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
-namespace MongoDB.DriverUnitTests.GridFS {
+namespace MongoDB.DriverUnitTests.GridFS
+{
     [TestFixture]
-    public class MongoGridFSFileInfoTests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoGridFS gridFS;
+    public class MongoGridFSFileInfoTests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetUp() {
-            server = MongoServer.Create();
-            database = server["test"];
-            gridFS = database.GridFS;
+        public void TestFixtureSetUp()
+        {
+            _server = MongoServer.Create();
+            _database = _server["test"];
+            _gridFS = _database.GridFS;
         }
 
         [Test]
-        public void TestCreateWithRemoteFileNameAndCreateOptions() {
+        public void TestCreateWithRemoteFileNameAndCreateOptions()
+        {
             var aliases = new string[] { "a", "b" };
             var uploadDate = new DateTime(2011, 11, 10, 19, 57, 0, DateTimeKind.Utc);
             var metadata = new BsonDocument("x", 1);
-            var createOptions = new MongoGridFSCreateOptions() {
+            var createOptions = new MongoGridFSCreateOptions()
+            {
                 Aliases = aliases,
                 ChunkSize = 123,
                 ContentType = "content",
@@ -50,11 +55,11 @@ namespace MongoDB.DriverUnitTests.GridFS {
                 Metadata = metadata,
                 UploadDate = uploadDate
             };
-            var info = new MongoGridFSFileInfo(gridFS, "filename", createOptions);
+            var info = new MongoGridFSFileInfo(_gridFS, "filename", createOptions);
             Assert.IsTrue(aliases.SequenceEqual(info.Aliases));
             Assert.AreEqual(123, info.ChunkSize);
             Assert.AreEqual("content", info.ContentType);
-            Assert.AreEqual(gridFS, info.GridFS);
+            Assert.AreEqual(_gridFS, info.GridFS);
             Assert.AreEqual(1, info.Id.AsInt32);
             Assert.AreEqual(0, info.Length);
             Assert.AreEqual(null, info.MD5);
@@ -64,12 +69,13 @@ namespace MongoDB.DriverUnitTests.GridFS {
         }
 
         [Test]
-        public void TestEquals() {
+        public void TestEquals()
+        {
             var createOptions = new MongoGridFSCreateOptions { ChunkSize = 123 };
-            var a = new MongoGridFSFileInfo(gridFS, "f", createOptions);
-            var b = new MongoGridFSFileInfo(gridFS, "f", createOptions);
-            var c = new MongoGridFSFileInfo(gridFS, "g", createOptions);
-            var n = (MongoCredentials) null;
+            var a = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var b = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var c = new MongoGridFSFileInfo(_gridFS, "g", createOptions);
+            var n = (MongoCredentials)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,64 +20,61 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// The settings used to access a collection (an abstract class, see MongoCollectionSettings{TDefaultDocument}).
     /// </summary>
-    public abstract class MongoCollectionSettings {
-        #region protected fields
+    public abstract class MongoCollectionSettings
+    {
+        // protected fields
         /// <summary>
         /// The name of the collection.
         /// </summary>
-        protected string collectionName;
+        protected string _collectionName;
         /// <summary>
         /// Whether to automatically assign a value to an empty document Id on insert.
         /// </summary>
-        protected bool assignIdOnInsert;
+        protected bool _assignIdOnInsert;
         /// <summary>
         /// The default document type of the collection.
         /// </summary>
-        protected Type defaultDocumentType;
+        protected Type _defaultDocumentType;
         /// <summary>
         /// The GUID representation.
         /// </summary>
-        protected GuidRepresentation guidRepresentation;
+        protected GuidRepresentation _guidRepresentation;
         /// <summary>
         /// The SafeMode.
         /// </summary>
-        protected SafeMode safeMode;
+        protected SafeMode _safeMode;
         /// <summary>
         /// Whether to route reads to secondaries.
         /// </summary>
-        protected bool slaveOk;
-        #endregion
+        protected bool _slaveOk;
 
-        #region private fields
+        // private fields
         // the following fields are set when Freeze is called
-        private bool isFrozen;
-        private int frozenHashCode;
-        private string frozenStringRepresentation;
-        #endregion
+        private bool _isFrozen;
+        private int _frozenHashCode;
+        private string _frozenStringRepresentation;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the MongoCollectionSettings class.
         /// </summary>
         /// <param name="database">The database that contains the collection (some collection settings will be inherited from the database settings).</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
-        protected MongoCollectionSettings(
-            MongoDatabase database,
-            string collectionName,
-            Type defaultDocumentType
-        ) {
+        protected MongoCollectionSettings(MongoDatabase database, string collectionName, Type defaultDocumentType)
+        {
             var databaseSettings = database.Settings;
-            this.collectionName = collectionName;
-            this.assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
-            this.defaultDocumentType = defaultDocumentType;
-            this.guidRepresentation = databaseSettings.GuidRepresentation;
-            this.safeMode = databaseSettings.SafeMode;
-            this.slaveOk = databaseSettings.SlaveOk;
+            _collectionName = collectionName;
+            _assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
+            _defaultDocumentType = defaultDocumentType;
+            _guidRepresentation = databaseSettings.GuidRepresentation;
+            _safeMode = databaseSettings.SafeMode;
+            _slaveOk = databaseSettings.SlaveOk;
         }
 
         /// <summary>
@@ -95,85 +92,94 @@ namespace MongoDB.Driver {
             Type defaultDocumentType,
             GuidRepresentation guidRepresentation,
             SafeMode safeMode,
-            bool slaveOk
-        ) {
-            this.collectionName = collectionName;
-            this.assignIdOnInsert = assignIdOnInsert;
-            this.defaultDocumentType = defaultDocumentType;
-            this.guidRepresentation = guidRepresentation;
-            this.safeMode = safeMode;
-            this.slaveOk = slaveOk;
+            bool slaveOk)
+        {
+            _collectionName = collectionName;
+            _assignIdOnInsert = assignIdOnInsert;
+            _defaultDocumentType = defaultDocumentType;
+            _guidRepresentation = guidRepresentation;
+            _safeMode = safeMode;
+            _slaveOk = slaveOk;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether the driver should assign Id values when missing.
         /// </summary>
-        public bool AssignIdOnInsert {
-            get { return assignIdOnInsert; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                assignIdOnInsert = value;
+        public bool AssignIdOnInsert
+        {
+            get { return _assignIdOnInsert; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _assignIdOnInsert = value;
             }
         }
 
         /// <summary>
         /// Gets the name of the collection.
         /// </summary>
-        public string CollectionName {
-            get { return collectionName; }
+        public string CollectionName
+        {
+            get { return _collectionName; }
         }
 
         /// <summary>
         /// Gets the default document type of the collection.
         /// </summary>
-        public Type DefaultDocumentType {
-            get { return defaultDocumentType; }
+        public Type DefaultDocumentType
+        {
+            get { return _defaultDocumentType; }
         }
 
         /// <summary>
         /// Gets or sets the representation used for Guids.
         /// </summary>
-        public GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                guidRepresentation = value;
+        public GuidRepresentation GuidRepresentation
+        {
+            get { return _guidRepresentation; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _guidRepresentation = value;
             }
         }
 
         /// <summary>
         /// Gets whether the settings have been frozen to prevent further changes.
         /// </summary>
-        public bool IsFrozen {
-            get { return isFrozen; }
+        public bool IsFrozen
+        {
+            get { return _isFrozen; }
         }
 
         /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
-        public SafeMode SafeMode {
-            get { return safeMode; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                safeMode = value;
+        public SafeMode SafeMode
+        {
+            get { return _safeMode; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _safeMode = value;
             }
         }
 
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
-        public bool SlaveOk {
-            get { return slaveOk; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                slaveOk = value;
+        public bool SlaveOk
+        {
+            get { return _slaveOk; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _slaveOk = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
@@ -185,21 +191,28 @@ namespace MongoDB.Driver {
         /// </summary>
         /// <param name="obj">The other instance.</param>
         /// <returns>True if the two instances are equal.</returns>
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var rhs = obj as MongoCollectionSettings;
-            if (rhs == null) {
+            if (rhs == null)
+            {
                 return false;
-            } else {
-                if (this.isFrozen && rhs.isFrozen) {
-                    return this.frozenStringRepresentation == rhs.frozenStringRepresentation;
-                } else {
+            }
+            else
+            {
+                if (_isFrozen && rhs._isFrozen)
+                {
+                    return _frozenStringRepresentation == rhs._frozenStringRepresentation;
+                }
+                else
+                {
                     return
-                        this.collectionName == rhs.collectionName &&
-                        this.assignIdOnInsert == rhs.assignIdOnInsert &&
-                        this.defaultDocumentType == rhs.defaultDocumentType &&
-                        this.guidRepresentation == rhs.guidRepresentation &&
-                        this.safeMode == rhs.safeMode &&
-                        this.slaveOk == rhs.slaveOk;
+                        _collectionName == rhs._collectionName &&
+                        _assignIdOnInsert == rhs._assignIdOnInsert &&
+                        _defaultDocumentType == rhs._defaultDocumentType &&
+                        _guidRepresentation == rhs._guidRepresentation &&
+                        _safeMode == rhs._safeMode &&
+                        _slaveOk == rhs._slaveOk;
                 }
             }
         }
@@ -208,12 +221,14 @@ namespace MongoDB.Driver {
         /// Freezes the settings.
         /// </summary>
         /// <returns>The frozen settings.</returns>
-        public MongoCollectionSettings Freeze() {
-            if (!isFrozen) {
-                safeMode = safeMode.FrozenCopy();
-                frozenHashCode = GetHashCodeHelper();
-                frozenStringRepresentation = ToStringHelper();
-                isFrozen = true;
+        public MongoCollectionSettings Freeze()
+        {
+            if (!_isFrozen)
+            {
+                _safeMode = _safeMode.FrozenCopy();
+                _frozenHashCode = GetHashCodeHelper();
+                _frozenStringRepresentation = ToStringHelper();
+                _isFrozen = true;
             }
             return this;
         }
@@ -222,10 +237,14 @@ namespace MongoDB.Driver {
         /// Returns a frozen copy of the settings.
         /// </summary>
         /// <returns>A frozen copy of the settings.</returns>
-        public MongoCollectionSettings FrozenCopy() {
-            if (isFrozen) {
+        public MongoCollectionSettings FrozenCopy()
+        {
+            if (_isFrozen)
+            {
                 return this;
-            } else {
+            }
+            else
+            {
                 return Clone().Freeze();
             }
         }
@@ -234,10 +253,14 @@ namespace MongoDB.Driver {
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
-        public override int GetHashCode() {
-            if (isFrozen) {
-                return frozenHashCode;
-            } else {
+        public override int GetHashCode()
+        {
+            if (_isFrozen)
+            {
+                return _frozenHashCode;
+            }
+            else
+            {
                 return GetHashCodeHelper();
             }
         }
@@ -246,58 +269,55 @@ namespace MongoDB.Driver {
         /// Returns a string representation of the settings.
         /// </summary>
         /// <returns>A string representation of the settings.</returns>
-        public override string ToString() {
-            if (isFrozen) {
-                return frozenStringRepresentation;
-            } else {
+        public override string ToString()
+        {
+            if (_isFrozen)
+            {
+                return _frozenStringRepresentation;
+            }
+            else
+            {
                 return ToStringHelper();
             }
         }
-        #endregion
 
-        #region private methods
-        private int GetHashCodeHelper() {
+        // private methods
+        private int GetHashCodeHelper()
+        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((collectionName == null) ? 0 : collectionName.GetHashCode());
-            hash = 37 * hash + assignIdOnInsert.GetHashCode();
-            hash = 37 * hash + ((defaultDocumentType == null) ? 0 : defaultDocumentType.GetHashCode());
-            hash = 37 * hash + guidRepresentation.GetHashCode();
-            hash = 37 * hash + ((safeMode == null) ? 0 : safeMode.GetHashCode());
-            hash = 37 * hash + slaveOk.GetHashCode();
+            hash = 37 * hash + ((_collectionName == null) ? 0 : _collectionName.GetHashCode());
+            hash = 37 * hash + _assignIdOnInsert.GetHashCode();
+            hash = 37 * hash + ((_defaultDocumentType == null) ? 0 : _defaultDocumentType.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _slaveOk.GetHashCode();
             return hash;
         }
 
-        private string ToStringHelper() {
+        private string ToStringHelper()
+        {
             return string.Format(
                 "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};SafeMode={4};SlaveOk={5}",
-                collectionName,
-                assignIdOnInsert,
-                defaultDocumentType,
-                guidRepresentation,
-                safeMode,
-                slaveOk
-            );
+                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _safeMode, _slaveOk);
         }
-        #endregion
     }
 
     /// <summary>
     /// Settings used to access a collection.
     /// </summary>
     /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
-    public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings {
-        #region constructors
+    public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings
+    {
+        // constructors
         /// <summary>
         /// Creates a new instance of MongoCollectionSettings.
         /// </summary>
         /// <param name="database">The database to inherit settings from.</param>
         /// <param name="collectionName">The name of the collection.</param>
-        public MongoCollectionSettings(
-            MongoDatabase database,
-            string collectionName
-        )
-            : base(database, collectionName, typeof(TDefaultDocument)) {
+        public MongoCollectionSettings(MongoDatabase database, string collectionName)
+            : base(database, collectionName, typeof(TDefaultDocument))
+        {
         }
 
         /// <summary>
@@ -313,26 +333,19 @@ namespace MongoDB.Driver {
             bool assignIdOnInsert,
             GuidRepresentation guidRepresentation,
             SafeMode safeMode,
-            bool slaveOk
-        )
-            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, safeMode, slaveOk) {
+            bool slaveOk)
+            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, safeMode, slaveOk)
+        {
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public override MongoCollectionSettings Clone() {
-            return new MongoCollectionSettings<TDefaultDocument>(
-                collectionName,
-                assignIdOnInsert,
-                guidRepresentation,
-                safeMode,
-                slaveOk
-            );
+        public override MongoCollectionSettings Clone()
+        {
+            return new MongoCollectionSettings<TDefaultDocument>(_collectionName, _assignIdOnInsert, _guidRepresentation, _safeMode, _slaveOk);
         }
-        #endregion
     }
 }

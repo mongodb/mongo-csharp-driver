@@ -40,11 +40,11 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Internal" isDocumented="True">The MongoDB.Driver.Internal namespace contains internal classes used by the driver such as ConnectionPool.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
     </NamespaceSummaries>
-    <CopyrightText>Copyright 2010-2011 10gen Inc.</CopyrightText>
+    <CopyrightText>Copyright 2010-2012 10gen Inc.</CopyrightText>
     <FeedbackEMailAddress>robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>C# driver API doc</FeedbackEMailLinkText>
     <FrameworkVersion>.NET 3.5</FrameworkVersion>
-    <HelpFileVersion>1.3.0.4309</HelpFileVersion>
+    <HelpFileVersion>1.3.1.4349</HelpFileVersion>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

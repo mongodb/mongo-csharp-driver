@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,40 +18,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public class BsonBinaryReaderBookmark : BsonReaderBookmark {
-        #region private fields
-        private BsonBinaryReaderContext context;
-        private int position;
-        #endregion
+    public class BsonBinaryReaderBookmark : BsonReaderBookmark
+    {
+        // private fields
+        private BsonBinaryReaderContext _context;
+        private int _position;
 
-        #region constructors
+        // constructors
         internal BsonBinaryReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
             string currentName,
             BsonBinaryReaderContext context,
-            int position
-        )
-            : base(state, currentBsonType, currentName) {
-            this.context = context.Clone();
-            this.position = position;
+            int position)
+            : base(state, currentBsonType, currentName)
+        {
+            _context = context.Clone();
+            _position = position;
         }
-        #endregion
 
-        #region internal properties
-        internal int Position {
-            get { return position; }
+        // internal properties
+        internal int Position
+        {
+            get { return _position; }
         }
-        #endregion
 
-        #region internal methods
-        internal BsonBinaryReaderContext CloneContext() {
-            return context.Clone();
+        // internal methods
+        internal BsonBinaryReaderContext CloneContext()
+        {
+            return _context.Clone();
         }
-        #endregion
     }
 }

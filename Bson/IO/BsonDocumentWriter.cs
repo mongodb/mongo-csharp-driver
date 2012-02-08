@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,61 +19,62 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a BSON writer to a BsonDocument.
     /// </summary>
-    public class BsonDocumentWriter : BsonWriter {
-        #region private fields
-        private BsonDocument topLevelDocument;
-        private new BsonDocumentWriterSettings settings; // same value as in base class just declared as derived class
-        private BsonDocumentWriterContext context;
-        #endregion
+    public class BsonDocumentWriter : BsonWriter
+    {
+        // private fields
+        private BsonDocument _topLevelDocument;
+        private BsonDocumentWriterSettings _documentWriterSettings; // same value as in base class just declared as derived class
+        private BsonDocumentWriterContext _context;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriter class.
         /// </summary>
         /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
         /// <param name="settings">The settings.</param>
-        public BsonDocumentWriter(
-            BsonDocument topLevelDocument,
-            BsonDocumentWriterSettings settings
-        )
-            : base(settings) {
-            this.topLevelDocument = topLevelDocument;
-            this.settings = settings; // already frozen by base class
-            context = null;
-            state = BsonWriterState.Initial;
+        public BsonDocumentWriter(BsonDocument topLevelDocument, BsonDocumentWriterSettings settings)
+            : base(settings)
+        {
+            _topLevelDocument = topLevelDocument;
+            _documentWriterSettings = settings; // already frozen by base class
+            _context = null;
+            _state = BsonWriterState.Initial;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the top level BsonDocument.
         /// </summary>
-        public BsonDocument TopLevelDocument {
-            get { return topLevelDocument; }
+        public BsonDocument TopLevelDocument
+        {
+            get { return _topLevelDocument; }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Closes the writer.
         /// </summary>
-        public override void Close() {
+        public override void Close()
+        {
             // Close can be called on Disposed objects
-            if (state != BsonWriterState.Closed) {
-                context = null;
-                state = BsonWriterState.Closed;
+            if (_state != BsonWriterState.Closed)
+            {
+                _context = null;
+                _state = BsonWriterState.Closed;
             }
         }
 
         /// <summary>
         /// Flushes any pending data to the output destination.
         /// </summary>
-        public override void Flush() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+        public override void Flush()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
         }
 
         /// <summary>
@@ -85,113 +86,127 @@ namespace MongoDB.Bson.IO {
         public override void WriteBinaryData(
             byte[] bytes,
             BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+            GuidRepresentation guidRepresentation)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteBinaryData", BsonWriterState.Value);
             }
 
             WriteValue(new BsonBinaryData(bytes, subType, guidRepresentation));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON Boolean to the writer.
         /// </summary>
         /// <param name="value">The Boolean value.</param>
-        public override void WriteBoolean(
-            bool value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteBoolean(bool value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteBoolean", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
-        public override void WriteDateTime(
-            long value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteDateTime(long value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteDateTime", BsonWriterState.Value);
             }
 
             WriteValue(new BsonDateTime(value));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON Double to the writer.
         /// </summary>
         /// <param name="value">The Double value.</param>
-        public override void WriteDouble(
-            double value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteDouble(double value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteDouble", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes the end of a BSON array to the writer.
         /// </summary>
-        public override void WriteEndArray() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteEndArray()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteEndArray", BsonWriterState.Value);
             }
-            if (context.ContextType != ContextType.Array) {
-                ThrowInvalidContextType("WriteEndArray", context.ContextType, ContextType.Array);
+            if (_context.ContextType != ContextType.Array)
+            {
+                ThrowInvalidContextType("WriteEndArray", _context.ContextType, ContextType.Array);
             }
 
-            var array = context.Array;
-            context = context.ParentContext;
+            var array = _context.Array;
+            _context = _context.ParentContext;
             WriteValue(array);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes the end of a BSON document to the writer.
         /// </summary>
-        public override void WriteEndDocument() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Name) {
+        public override void WriteEndDocument()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Name)
+            {
                 ThrowInvalidState("WriteEndDocument", BsonWriterState.Name);
             }
-            if (context.ContextType != ContextType.Document && context.ContextType != ContextType.ScopeDocument) {
-                ThrowInvalidContextType("WriteEndDocument", context.ContextType, ContextType.Document, ContextType.ScopeDocument);
+            if (_context.ContextType != ContextType.Document && _context.ContextType != ContextType.ScopeDocument)
+            {
+                ThrowInvalidContextType("WriteEndDocument", _context.ContextType, ContextType.Document, ContextType.ScopeDocument);
             }
 
-            if (context.ContextType == ContextType.ScopeDocument) {
-                var scope = context.Document;
-                context = context.ParentContext;
-                var code = context.Code;
-                context = context.ParentContext;
+            if (_context.ContextType == ContextType.ScopeDocument)
+            {
+                var scope = _context.Document;
+                _context = _context.ParentContext;
+                var code = _context.Code;
+                _context = _context.ParentContext;
                 WriteValue(new BsonJavaScriptWithScope(code, scope));
-            } else {
-                var document = context.Document;
-                context = context.ParentContext;
-                if (context != null) {
+            }
+            else
+            {
+                var document = _context.Document;
+                _context = _context.ParentContext;
+                if (_context != null)
+                {
                     WriteValue(document);
                 }
             }
 
-            if (context == null) {
-                state = BsonWriterState.Done;
-            } else {
-                state = GetNextState();
+            if (_context == null)
+            {
+                _state = BsonWriterState.Done;
+            }
+            else
+            {
+                _state = GetNextState();
             }
         }
 
@@ -199,114 +214,119 @@ namespace MongoDB.Bson.IO {
         /// Writes a BSON Int32 to the writer.
         /// </summary>
         /// <param name="value">The Int32 value.</param>
-        public override void WriteInt32(
-            int value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteInt32(int value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteInt32", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON Int64 to the writer.
         /// </summary>
         /// <param name="value">The Int64 value.</param>
-        public override void WriteInt64(
-            long value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteInt64(long value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteInt64", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON JavaScript to the writer.
         /// </summary>
         /// <param name="code">The JavaScript code.</param>
-        public override void WriteJavaScript(
-            string code
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteJavaScript(string code)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteJavaScript", BsonWriterState.Value);
             }
 
             WriteValue(new BsonJavaScript(code));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON JavaScript to the writer (call WriteStartDocument to start writing the scope).
         /// </summary>
         /// <param name="code">The JavaScript code.</param>
-        public override void WriteJavaScriptWithScope(
-            string code
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteJavaScriptWithScope(string code)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteJavaScriptWithScope", BsonWriterState.Value);
             }
 
-            context = new BsonDocumentWriterContext(context, ContextType.JavaScriptWithScope, code);
-            state = BsonWriterState.ScopeDocument;
+            _context = new BsonDocumentWriterContext(_context, ContextType.JavaScriptWithScope, code);
+            _state = BsonWriterState.ScopeDocument;
         }
 
         /// <summary>
         /// Writes a BSON MaxKey to the writer.
         /// </summary>
-        public override void WriteMaxKey() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteMaxKey()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteMaxKey", BsonWriterState.Value);
             }
 
             WriteValue(BsonMaxKey.Value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON MinKey to the writer.
         /// </summary>
-        public override void WriteMinKey() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteMinKey()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteMinKey", BsonWriterState.Value);
             }
 
             WriteValue(BsonMinKey.Value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes the name of an element to the writer.
         /// </summary>
         /// <param name="name">The name of the element.</param>
-        public override void WriteName(
-            string name
-        ) {
+        public override void WriteName(string name)
+        {
             base.WriteName(name);
-            context.Name = name;
+            _context.Name = name;
         }
 
         /// <summary>
         /// Writes a BSON null to the writer.
         /// </summary>
-        public override void WriteNull() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteNull()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteNull", BsonWriterState.Value);
             }
 
             WriteValue(BsonNull.Value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
@@ -316,19 +336,16 @@ namespace MongoDB.Bson.IO {
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
-        public override void WriteObjectId(
-            int timestamp,
-            int machine,
-            short pid,
-            int increment
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteObjectId(int timestamp, int machine, short pid, int increment)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteObjectId", BsonWriterState.Value);
             }
 
             WriteValue(new ObjectId(timestamp, machine, pid, increment));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
@@ -336,153 +353,162 @@ namespace MongoDB.Bson.IO {
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
-        public override void WriteRegularExpression(
-            string pattern,
-            string options
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteRegularExpression(string pattern, string options)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteRegularExpression", BsonWriterState.Value);
             }
 
             WriteValue(new BsonRegularExpression(pattern, options));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes the start of a BSON array to the writer.
         /// </summary>
-        public override void WriteStartArray() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteStartArray()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteStartArray", BsonWriterState.Value);
             }
 
-            context = new BsonDocumentWriterContext(context, ContextType.Array, new BsonArray());
-            state = BsonWriterState.Value;
+            _context = new BsonDocumentWriterContext(_context, ContextType.Array, new BsonArray());
+            _state = BsonWriterState.Value;
         }
 
         /// <summary>
         /// Writes the start of a BSON document to the writer.
         /// </summary>
-        public override void WriteStartDocument() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Initial && state != BsonWriterState.Value && state != BsonWriterState.ScopeDocument && state != BsonWriterState.Done) {
+        public override void WriteStartDocument()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Initial && _state != BsonWriterState.Value && _state != BsonWriterState.ScopeDocument && _state != BsonWriterState.Done)
+            {
                 ThrowInvalidState("WriteStartDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
             }
 
-            switch (state) {
+            switch (_state)
+            {
                 case BsonWriterState.Initial:
                 case BsonWriterState.Done:
-                    context = new BsonDocumentWriterContext(null, ContextType.Document, topLevelDocument);
+                    _context = new BsonDocumentWriterContext(null, ContextType.Document, _topLevelDocument);
                     break;
                 case BsonWriterState.Value:
-                    context = new BsonDocumentWriterContext(context, ContextType.Document, new BsonDocument());
+                    _context = new BsonDocumentWriterContext(_context, ContextType.Document, new BsonDocument());
                     break;
                 case BsonWriterState.ScopeDocument:
-                    context = new BsonDocumentWriterContext(context, ContextType.ScopeDocument, new BsonDocument());
+                    _context = new BsonDocumentWriterContext(_context, ContextType.ScopeDocument, new BsonDocument());
                     break;
                 default:
                     throw new BsonInternalException("Unexpected state.");
             }
 
-            state = BsonWriterState.Name;
+            _state = BsonWriterState.Name;
         }
 
         /// <summary>
         /// Writes a BSON String to the writer.
         /// </summary>
         /// <param name="value">The String value.</param>
-        public override void WriteString(
-            string value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteString(string value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteString", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON Symbol to the writer.
         /// </summary>
         /// <param name="value">The symbol.</param>
-        public override void WriteSymbol(
-            string value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteSymbol(string value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteSymbol", BsonWriterState.Value);
             }
 
             WriteValue(BsonSymbol.Create(value));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON timestamp to the writer.
         /// </summary>
         /// <param name="value">The combined timestamp/increment value.</param>
-        public override void WriteTimestamp(
-            long value
-        ) {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteTimestamp(long value)
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteTimestamp", BsonWriterState.Value);
             }
 
             WriteValue(new BsonTimestamp(value));
-            state = GetNextState();
+            _state = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON undefined to the writer.
         /// </summary>
-        public override void WriteUndefined() {
-            if (disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (state != BsonWriterState.Value) {
+        public override void WriteUndefined()
+        {
+            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (_state != BsonWriterState.Value)
+            {
                 ThrowInvalidState("WriteUndefined", BsonWriterState.Value);
             }
 
             WriteValue(BsonUndefined.Value);
-            state = GetNextState();
+            _state = GetNextState();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Disposes of any resources used by the writer.
         /// </summary>
         /// <param name="disposing">True if called from Dispose.</param>
-        protected override void Dispose(
-            bool disposing
-        ) {
-            if (disposing) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 Close();
             }
         }
-        #endregion
 
-        #region private methods
-        private BsonWriterState GetNextState() {
-            if (context.ContextType == ContextType.Array) {
+        // private methods
+        private BsonWriterState GetNextState()
+        {
+            if (_context.ContextType == ContextType.Array)
+            {
                 return BsonWriterState.Value;
-            } else {
+            }
+            else
+            {
                 return BsonWriterState.Name;
             }
         }
 
-        private void WriteValue(
-            BsonValue value
-        ) {
-            if (context.ContextType == ContextType.Array) {
-                context.Array.Add(value);
-            } else {
-                context.Document.Add(context.Name, value);
+        private void WriteValue(BsonValue value)
+        {
+            if (_context.ContextType == ContextType.Array)
+            {
+                _context.Array.Add(value);
+            }
+            else
+            {
+                _context.Document.Add(_context.Name, value);
             }
         }
-        #endregion
     }
 }

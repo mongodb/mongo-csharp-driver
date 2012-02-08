@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,41 +18,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
-    /// A static class containing BSON defaults.
+    /// A static helper class containing BSON defaults.
     /// </summary>
-    public static class BsonDefaults {
-        #region private static fields
-        private static GuidRepresentation guidRepresentation = GuidRepresentation.CSharpLegacy;
-        private static int initialBsonBufferSize = 4 * 1024; // 4KiB
-        private static int maxDocumentSize = 4 * 1024 * 1024; // 4MiB
-        #endregion
+    public static class BsonDefaults
+    {
+        // private static fields
+        private static GuidRepresentation __guidRepresentation = GuidRepresentation.CSharpLegacy;
+        private static int __maxDocumentSize = 4 * 1024 * 1024; // 4MiB
 
-        #region public static properties
+        // public static properties
         /// <summary>
-        /// Gets or sets the default Guid representation.
+        /// Gets or sets the default representation to be used in serialization of 
+        /// Guids to the database. 
+        /// <seealso cref="MongoDB.Bson.GuidRepresentation"/> 
         /// </summary>
-        public static GuidRepresentation GuidRepresentation {
-            get { return guidRepresentation; }
-            set { guidRepresentation = value; }
+        public static GuidRepresentation GuidRepresentation
+        {
+            get { return __guidRepresentation; }
+            set { __guidRepresentation = value; }
         }
 
         /// <summary>
-        /// Gets or sets the default initial BSON buffer size.
+        /// Gets or sets the default max document size. The default is 4MiB.
         /// </summary>
-        public static int InitialBsonBufferSize {
-            get { return initialBsonBufferSize; }
-            set { initialBsonBufferSize = value; }
+        public static int MaxDocumentSize
+        {
+            get { return __maxDocumentSize; }
+            set { __maxDocumentSize = value; }
         }
-
-        /// <summary>
-        /// Gets or sets the default max document size.
-        /// </summary>
-        public static int MaxDocumentSize {
-            get { return maxDocumentSize; }
-            set { maxDocumentSize = value; }
-        }
-        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,18 +21,20 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the results of an operation performed with a safe mode.
     /// </summary>
     [Serializable]
-    public class SafeModeResult : GetLastErrorResult {
-        #region constructors
+    public class SafeModeResult : GetLastErrorResult
+    {
+        // constructors
         /// <summary>
         /// Initializes a new instance of the SafeModeResult class.
         /// </summary>
-        public SafeModeResult() {
+        public SafeModeResult()
+        {
         }
-        #endregion
     }
 }

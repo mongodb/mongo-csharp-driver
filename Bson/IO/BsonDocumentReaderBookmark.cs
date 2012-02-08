@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,40 +18,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents a bookmark that can be used to return a reader to the current position and state.
     /// </summary>
-    public class BsonDocumentReaderBookmark : BsonReaderBookmark {
-        #region private fields
-        private BsonDocumentReaderContext context;
-        private BsonValue currentValue;
-        #endregion
+    public class BsonDocumentReaderBookmark : BsonReaderBookmark
+    {
+        // private fields
+        private BsonDocumentReaderContext _context;
+        private BsonValue _currentValue;
 
-        #region constructors
+        // constructors
         internal BsonDocumentReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
             string currentName,
             BsonDocumentReaderContext context,
-            BsonValue currentValue
-        )
-            : base(state, currentBsonType, currentName) {
-            this.context = context.Clone();
-            this.currentValue = currentValue;
+            BsonValue currentValue)
+            : base(state, currentBsonType, currentName)
+        {
+            _context = context.Clone();
+            _currentValue = currentValue;
         }
-        #endregion
 
-        #region internal properties
-        internal BsonValue CurrentValue {
-            get { return currentValue; }
+        // internal properties
+        internal BsonValue CurrentValue
+        {
+            get { return _currentValue; }
         }
-        #endregion
 
-        #region internal methods
-        internal BsonDocumentReaderContext CloneContext() {
-            return context.Clone();
+        // internal methods
+        internal BsonDocumentReaderContext CloneContext()
+        {
+            return _context.Clone();
         }
-        #endregion
     }
 }

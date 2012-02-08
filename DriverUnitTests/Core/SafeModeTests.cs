@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,11 +23,14 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests {
+namespace MongoDB.DriverUnitTests
+{
     [TestFixture]
-    public class MongoSafeModeTests {
+    public class MongoSafeModeTests
+    {
         [Test]
-        public void TestCreateWithEnabled() {
+        public void TestCreateWithEnabled()
+        {
             var safeMode = new SafeMode(true);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
@@ -38,7 +41,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithEnabledAndFSync() {
+        public void TestCreateWithEnabledAndFSync()
+        {
             var safeMode = new SafeMode(true, true);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
@@ -49,7 +53,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithEnabledAndFSyncAndW() {
+        public void TestCreateWithEnabledAndFSyncAndW()
+        {
             var safeMode = new SafeMode(true, true, 2);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
@@ -60,7 +65,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithEnabledAndFSyncAndWAndWTimeout() {
+        public void TestCreateWithEnabledAndFSyncAndWAndWTimeout()
+        {
             var safeMode = new SafeMode(true, true, 2, TimeSpan.FromSeconds(30));
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
@@ -71,7 +77,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithW() {
+        public void TestCreateWithW()
+        {
             var safeMode = new SafeMode(2);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
@@ -82,7 +89,8 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithWAndTimeout() {
+        public void TestCreateWithWAndTimeout()
+        {
             var safeMode = new SafeMode(2, TimeSpan.FromSeconds(30));
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
@@ -93,13 +101,15 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestCreateWithOther() {
+        public void TestCreateWithOther()
+        {
             var safeMode = new SafeMode(SafeMode.W2);
             Assert.AreEqual(SafeMode.W2, safeMode);
         }
 
         [Test]
-        public void TestCreateWithWMode() {
+        public void TestCreateWithWMode()
+        {
             var safeMode = new SafeMode(true) { WMode = "majority" };
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
@@ -110,11 +120,12 @@ namespace MongoDB.DriverUnitTests {
         }
 
         [Test]
-        public void TestEquals() {
+        public void TestEquals()
+        {
             var a = new SafeMode(false);
             var b = new SafeMode(false);
             var c = new SafeMode(true);
-            var n = (SafeMode) null;
+            var n = (SafeMode)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -135,5 +146,60 @@ namespace MongoDB.DriverUnitTests {
             Assert.IsFalse(n != null);
             Assert.IsFalse(null != n);
         }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeFalseIsFrozen()
+        {
+            var s = SafeMode.False;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeFSyncTrueIsFrozen()
+        {
+            var s = SafeMode.FSyncTrue;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeTrueIsFrozen()
+        {
+            var s = SafeMode.True;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW2IsFrozen()
+        {
+            var s = SafeMode.W2;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW3IsFrozen()
+        {
+            var s = SafeMode.W3;
+            s.Enabled = true;
+        }
+
+        // CSHARP-386
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SafeMode has been frozen and no further changes are allowed.")]
+        public void TestSafeModeW4IsFrozen()
+        {
+            var s = SafeMode.W4;
+            s.Enabled = true;
+        }
+
     }
 }

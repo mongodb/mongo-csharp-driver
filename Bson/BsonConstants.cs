@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,45 +18,47 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson {
+namespace MongoDB.Bson
+{
     /// <summary>
     /// A static class containing BSON constants.
     /// </summary>
-    public static class BsonConstants {
-        #region private static fields
-        private static readonly long dateTimeMaxValueMillisecondsSinceEpoch;
-        private static readonly long dateTimeMinValueMillisecondsSinceEpoch;
-        private static readonly DateTime unixEpoch;
-        #endregion
+    public static class BsonConstants
+    {
+        // private static fields
+        private static readonly long __dateTimeMaxValueMillisecondsSinceEpoch;
+        private static readonly long __dateTimeMinValueMillisecondsSinceEpoch;
+        private static readonly DateTime __unixEpoch;
 
-        #region static constructor
-        static BsonConstants() {
+        // static constructor
+        static BsonConstants()
+        {
             // unixEpoch has to be initialized first
-            unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            dateTimeMaxValueMillisecondsSinceEpoch = (DateTime.MaxValue - unixEpoch).Ticks / 10000;
-            dateTimeMinValueMillisecondsSinceEpoch = (DateTime.MinValue - unixEpoch).Ticks / 10000;
+            __unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            __dateTimeMaxValueMillisecondsSinceEpoch = (DateTime.MaxValue - __unixEpoch).Ticks / 10000;
+            __dateTimeMinValueMillisecondsSinceEpoch = (DateTime.MinValue - __unixEpoch).Ticks / 10000;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets the number of milliseconds since the Unix epoch for DateTime.MaxValue.
         /// </summary>
-        public static long DateTimeMaxValueMillisecondsSinceEpoch {
-            get { return dateTimeMaxValueMillisecondsSinceEpoch; }
+        public static long DateTimeMaxValueMillisecondsSinceEpoch
+        {
+            get { return __dateTimeMaxValueMillisecondsSinceEpoch; }
         }
 
         /// <summary>
         /// Gets the number of milliseconds since the Unix epoch for DateTime.MinValue.
         /// </summary>
-        public static long DateTimeMinValueMillisecondsSinceEpoch {
-            get { return dateTimeMinValueMillisecondsSinceEpoch; }
+        public static long DateTimeMinValueMillisecondsSinceEpoch
+        {
+            get { return __dateTimeMinValueMillisecondsSinceEpoch; }
         }
 
         /// <summary>
         /// Gets the Unix Epoch for BSON DateTimes (1970-01-01).
         /// </summary>
-        public static DateTime UnixEpoch { get { return unixEpoch; } }
-        #endregion
+        public static DateTime UnixEpoch { get { return __unixEpoch; } }
     }
 }

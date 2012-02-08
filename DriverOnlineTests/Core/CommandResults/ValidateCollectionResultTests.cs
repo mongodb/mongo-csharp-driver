@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -23,29 +23,33 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverOnlineTests.CommandResults {
+namespace MongoDB.DriverOnlineTests.CommandResults
+{
     [TestFixture]
-    public class ValidateCollectionResultTests {
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+    public class ValidateCollectionResultTests
+    {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void Setup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["driveronlinetests"];
-            collection = database["test"];
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]
-        public void Test() {
+        public void Test()
+        {
             // make sure collection exists and has exactly one document
-            collection.RemoveAll();
-            collection.Insert(new BsonDocument());
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument());
 
-            var result = collection.Validate();
+            var result = _collection.Validate();
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual("driveronlinetests.test", result.Namespace);
+            Assert.AreEqual(_collection.FullName, result.Namespace);
         }
     }
 }

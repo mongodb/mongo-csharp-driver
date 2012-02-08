@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,200 +21,211 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver {
+namespace MongoDB.Driver
+{
     /// <summary>
     /// Represents the results of the collection stats command.
     /// </summary>
     [Serializable]
-    public class CollectionStatsResult : CommandResult {
-        #region private fields
-        private IndexSizesResult indexSizes;
-        #endregion
+    public class CollectionStatsResult : CommandResult
+    {
+        // private fields
+        private IndexSizesResult _indexSizes;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the CollectionStatsResult class.
         /// </summary>
-        public CollectionStatsResult() {
+        public CollectionStatsResult()
+        {
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the average object size.
         /// </summary>
-        public double AverageObjectSize {
-            get { return response["avgObjSize"].ToDouble(); }
+        public double AverageObjectSize
+        {
+            get { return _response["avgObjSize"].ToDouble(); }
         }
 
         /// <summary>
         /// Gets the data size.
         /// </summary>
-        public long DataSize {
-            get { return response["size"].ToInt64(); }
+        public long DataSize
+        {
+            get { return _response["size"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the extent count.
         /// </summary>
-        public int ExtentCount {
-            get { return response["numExtents"].AsInt32; }
+        public int ExtentCount
+        {
+            get { return _response["numExtents"].AsInt32; }
         }
 
         /// <summary>
         /// Gets the flags.
         /// </summary>
-        public int Flags {
-            get { return response["flags"].AsInt32; }
+        public int Flags
+        {
+            get { return _response["flags"].AsInt32; }
         }
 
         /// <summary>
         /// Gets the index count.
         /// </summary>
-        public int IndexCount {
-            get { return response["nindexes"].AsInt32; }
+        public int IndexCount
+        {
+            get { return _response["nindexes"].AsInt32; }
         }
 
         /// <summary>
         /// Gets the index sizes.
         /// </summary>
-        public IndexSizesResult IndexSizes {
-            get {
-                if (indexSizes == null) {
+        public IndexSizesResult IndexSizes
+        {
+            get
+            {
+                if (_indexSizes == null)
+                {
                     // can't initialize indexSizes in the constructor because at that time the document is still empty
-                    indexSizes = new IndexSizesResult(response["indexSizes"].AsBsonDocument);
+                    _indexSizes = new IndexSizesResult(_response["indexSizes"].AsBsonDocument);
                 }
-                return indexSizes;
+                return _indexSizes;
             }
         }
 
         /// <summary>
         /// Gets whether the collection is capped.
         /// </summary>
-        public bool IsCapped {
-            get { return response["capped", false].ToBoolean(); }
+        public bool IsCapped
+        {
+            get { return _response["capped", false].ToBoolean(); }
         }
 
         /// <summary>
         /// Gets the last extent size.
         /// </summary>
-        public long LastExtentSize {
-            get { return response["lastExtentSize"].ToInt64(); }
+        public long LastExtentSize
+        {
+            get { return _response["lastExtentSize"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the index count.
         /// </summary>
-        public long MaxDocuments {
-            get { return response["max", 0].AsInt32; }
+        public long MaxDocuments
+        {
+            get { return _response["max", 0].AsInt32; }
         }
 
         /// <summary>
         /// Gets the namespace.
         /// </summary>
-        public string Namespace {
-            get { return response["ns"].AsString; }
+        public string Namespace
+        {
+            get { return _response["ns"].AsString; }
         }
 
         /// <summary>
         /// Gets the object count.
         /// </summary>
-        public long ObjectCount {
-            get { return response["count"].ToInt64(); }
+        public long ObjectCount
+        {
+            get { return _response["count"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the padding factor.
         /// </summary>
-        public double PaddingFactor {
-            get { return response["paddingFactor"].ToDouble(); }
+        public double PaddingFactor
+        {
+            get { return _response["paddingFactor"].ToDouble(); }
         }
 
         /// <summary>
         /// Gets the storage size.
         /// </summary>
-        public long StorageSize {
-            get { return response["storageSize"].ToInt64(); }
+        public long StorageSize
+        {
+            get { return _response["storageSize"].ToInt64(); }
         }
 
         /// <summary>
         /// Gets the total index size.
         /// </summary>
-        public long TotalIndexSize {
-            get { return response["totalIndexSize"].ToInt64(); }
+        public long TotalIndexSize
+        {
+            get { return _response["totalIndexSize"].ToInt64(); }
         }
-        #endregion
 
-        #region nested classes
+        // nested classes
         /// <summary>
         /// Represents a collection of index sizes.
         /// </summary>
-        public class IndexSizesResult {
-            #region private fields
-            private BsonDocument indexSizes;
-            #endregion
+        public class IndexSizesResult
+        {
+            // private fields
+            private BsonDocument _indexSizes;
 
-            #region constructors
+            // constructors
             /// <summary>
             /// Initializes a new instance of the IndexSizesResult class.
             /// </summary>
             /// <param name="indexSizes">The index sizes document.</param>
-            public IndexSizesResult(
-                BsonDocument indexSizes
-            ) {
-                this.indexSizes = indexSizes;
+            public IndexSizesResult(BsonDocument indexSizes)
+            {
+                _indexSizes = indexSizes;
             }
-            #endregion
 
-            #region indexers
+            // indexers
             /// <summary>
             /// Gets the size of an index.
             /// </summary>
             /// <param name="indexName">The name of the index.</param>
             /// <returns>The size of the index.</returns>
-            public long this[
-                string indexName
-            ] {
-                get { return indexSizes[indexName].ToInt64(); }
+            public long this[string indexName]
+            {
+                get { return _indexSizes[indexName].ToInt64(); }
             }
-            #endregion
 
-            #region public properties
+            // public properties
             /// <summary>
             /// Gets the count of indexes.
             /// </summary>
-            public int Count {
-                get { return indexSizes.ElementCount; }
+            public int Count
+            {
+                get { return _indexSizes.ElementCount; }
             }
 
             /// <summary>
             /// Gets the names of the indexes.
             /// </summary>
-            public IEnumerable<string> Keys {
-                get { return indexSizes.Names; }
+            public IEnumerable<string> Keys
+            {
+                get { return _indexSizes.Names; }
             }
 
             /// <summary>
             /// Gets the sizes of the indexes.
             /// </summary>
-            public IEnumerable<long> Values {
-                get { return indexSizes.Values.Select(v => v.ToInt64()); }
+            public IEnumerable<long> Values
+            {
+                get { return _indexSizes.Values.Select(v => v.ToInt64()); }
             }
-            #endregion
 
-            #region public methods
+            // public methods
             /// <summary>
             /// Tests whether the results contain the size of an index.
             /// </summary>
             /// <param name="indexName">The name of the index.</param>
             /// <returns>True if the results contain the size of the index.</returns>
-            public bool ContainsKey(
-                string indexName
-            ) {
-                return indexSizes.Contains(indexName);
+            public bool ContainsKey(string indexName)
+            {
+                return _indexSizes.Contains(indexName);
             }
-            #endregion
         }
-        #endregion
     }
 }

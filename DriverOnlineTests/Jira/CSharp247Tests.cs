@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,40 +26,46 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp247 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp247
+{
     [TestFixture]
-    public class CSharp247Tests {
-        public interface I {
+    public class CSharp247Tests
+    {
+        public interface I
+        {
             int X { get; set; }
         }
 
-        public class C : I {
+        public class C : I
+        {
             public ObjectId Id { get; set; }
             public int X { get; set; }
-        } 
+        }
 
-        private MongoServer server;
-        private MongoDatabase database;
-        private MongoCollection<BsonDocument> collection;
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
-        public void TestFixtureSetup() {
-            server = MongoServer.Create("mongodb://localhost/?safe=true");
-            database = server["onlinetests"];
-            collection = database.GetCollection("testcollection");
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
         }
 
         [Test]
-        public void TestDeserializeInterface() {
-            collection.RemoveAll();
+        public void TestDeserializeInterface()
+        {
+            _collection.RemoveAll();
 
             var c = new C { X = 1 };
-            collection.Insert<I>(c);
+            _collection.Insert<I>(c);
             var id = c.Id;
 
-            var i = collection.FindOneAs<I>();
+            var i = _collection.FindOneAs<I>();
             Assert.IsInstanceOf<C>(i);
-            var r = (C) i;
+            var r = (C)i;
             Assert.AreEqual(id, r.Id);
             Assert.AreEqual(1, r.X);
         }

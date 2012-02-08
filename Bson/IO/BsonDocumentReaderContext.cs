@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,35 +19,36 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonDocumentReaderContext {
-        #region private fields
-        private BsonDocumentReaderContext parentContext;
-        private ContextType contextType;
-        private BsonDocument document;
-        private BsonArray array;
-        private int index;
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class BsonDocumentReaderContext
+    {
+        // private fields
+        private BsonDocumentReaderContext _parentContext;
+        private ContextType _contextType;
+        private BsonDocument _document;
+        private BsonArray _array;
+        private int _index;
 
-        #region constructors
+        // constructors
         internal BsonDocumentReaderContext(
             BsonDocumentReaderContext parentContext,
             ContextType contextType,
-            BsonArray array
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.array = array;
+            BsonArray array)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _array = array;
         }
 
         internal BsonDocumentReaderContext(
             BsonDocumentReaderContext parentContext,
             ContextType contextType,
-            BsonDocument document
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
+            BsonDocument document)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
         }
 
         // used by Clone
@@ -56,69 +57,74 @@ namespace MongoDB.Bson.IO {
             ContextType contextType,
             BsonDocument document,
             BsonArray array,
-            int index
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.document = document;
-            this.array = array;
-            this.index = index;
-        }
-        #endregion
-
-        #region internal properties
-        internal BsonArray Array {
-            get { return array; }
+            int index)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _document = document;
+            _array = array;
+            _index = index;
         }
 
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal BsonArray Array
+        {
+            get { return _array; }
         }
 
-        internal BsonDocument Document {
-            get { return document; }
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
 
-        internal int Index {
-            get { return index; }
-            set { index = value; }
+        internal BsonDocument Document
+        {
+            get { return _document; }
         }
-        #endregion
 
-        #region public methods
+        internal int Index
+        {
+            get { return _index; }
+            set { _index = value; }
+        }
+
+        // public methods
         /// <summary>
         /// Creates a clone of the context.
         /// </summary>
         /// <returns>A clone of the context.</returns>
-        public BsonDocumentReaderContext Clone() {
-            return new BsonDocumentReaderContext(
-                parentContext,
-                contextType,
-                document,
-                array,
-                index
-            );
+        public BsonDocumentReaderContext Clone()
+        {
+            return new BsonDocumentReaderContext(_parentContext, _contextType, _document, _array, _index);
         }
 
-        public BsonElement GetNextElement() {
-            if (index < document.ElementCount) {
-                return document.GetElement(index++);
-            } else {
+        public BsonElement GetNextElement()
+        {
+            if (_index < _document.ElementCount)
+            {
+                return _document.GetElement(_index++);
+            }
+            else
+            {
                 return null;
             }
         }
 
-        public BsonValue GetNextValue() {
-            if (index < array.Count) {
-                return array[index++];
-            } else {
+        public BsonValue GetNextValue()
+        {
+            if (_index < _array.Count)
+            {
+                return _array[_index++];
+            }
+            else
+            {
                 return null;
             }
         }
 
-        public BsonDocumentReaderContext PopContext() {
-            return parentContext;
+        public BsonDocumentReaderContext PopContext()
+        {
+            return _parentContext;
         }
-        #endregion
     }
 }

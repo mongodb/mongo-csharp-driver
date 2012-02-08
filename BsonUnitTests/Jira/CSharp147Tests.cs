@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,20 +26,25 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp147 {
+namespace MongoDB.BsonUnitTests.Jira.CSharp147
+{
     [TestFixture]
-    public class CSharp146Tests {
-        public class Parent {
+    public class CSharp146Tests
+    {
+        public class Parent
+        {
             public Child Child { get; set; }
         }
 
-        public class Child {
+        public class Child
+        {
             public Guid Id { get; set; }
             public int A { get; set; }
         }
 
         [Test]
-        public void Test() {
+        public void Test()
+        {
             var p = new Parent { Child = new Child() };
             p.Child.A = 1;
             var json = p.ToJson();

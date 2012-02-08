@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,18 +24,19 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal {
-    internal class MongoQueryMessage : MongoRequestMessage {
-        #region private fields
-        private string collectionFullName;
-        private QueryFlags flags;
-        private int numberToSkip;
-        private int numberToReturn;
-        private IMongoQuery query;
-        private IMongoFields fields;
-        #endregion
+namespace MongoDB.Driver.Internal
+{
+    internal class MongoQueryMessage : MongoRequestMessage
+    {
+        // private fields
+        private string _collectionFullName;
+        private QueryFlags _flags;
+        private int _numberToSkip;
+        private int _numberToReturn;
+        private IMongoQuery _query;
+        private IMongoFields _fields;
 
-        #region constructors
+        // constructors
         internal MongoQueryMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
@@ -43,9 +44,9 @@ namespace MongoDB.Driver.Internal {
             int numberToSkip,
             int numberToReturn,
             IMongoQuery query,
-            IMongoFields fields
-        ) :
-            this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields) {
+            IMongoFields fields)
+            : this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields)
+        {
         }
 
         internal MongoQueryMessage(
@@ -56,37 +57,41 @@ namespace MongoDB.Driver.Internal {
             int numberToSkip,
             int numberToReturn,
             IMongoQuery query,
-            IMongoFields fields
-        ) :
-            base(MessageOpcode.Query, buffer, writerSettings) {
-            this.collectionFullName = collectionFullName;
-            this.flags = flags;
-            this.numberToSkip = numberToSkip;
-            this.numberToReturn = numberToReturn;
-            this.query = query;
-            this.fields = fields;
+            IMongoFields fields)
+            : base(MessageOpcode.Query, buffer, writerSettings)
+        {
+            _collectionFullName = collectionFullName;
+            _flags = flags;
+            _numberToSkip = numberToSkip;
+            _numberToReturn = numberToReturn;
+            _query = query;
+            _fields = fields;
         }
-        #endregion
 
-        #region protected methods
-        protected override void WriteBody() {
-            buffer.WriteInt32((int) flags);
-            buffer.WriteCString(collectionFullName);
-            buffer.WriteInt32(numberToSkip);
-            buffer.WriteInt32(numberToReturn);
+        // protected methods
+        protected override void WriteBody()
+        {
+            _buffer.WriteInt32((int)_flags);
+            _buffer.WriteCString(_collectionFullName);
+            _buffer.WriteInt32(_numberToSkip);
+            _buffer.WriteInt32(_numberToReturn);
 
-            using (var bsonWriter = BsonWriter.Create(buffer, writerSettings)) {
-                if (query == null) {
+            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
+            {
+                if (_query == null)
+                {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteEndDocument();
-                } else {
-                    BsonSerializer.Serialize(bsonWriter, query.GetType(), query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
-                if (fields != null) {
-                    BsonSerializer.Serialize(bsonWriter, fields);
+                else
+                {
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                }
+                if (_fields != null)
+                {
+                    BsonSerializer.Serialize(bsonWriter, _fields);
                 }
             }
         }
-        #endregion
     }
 }

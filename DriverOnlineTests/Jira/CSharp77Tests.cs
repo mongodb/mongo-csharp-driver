@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,28 +25,34 @@ using MongoDB.Driver;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 
-namespace MongoDB.DriverOnlineTests.Jira.CSharp77 {
+namespace MongoDB.DriverOnlineTests.Jira.CSharp77
+{
     [TestFixture]
-    public class CSharp77Tests {
-        private class Foo {
+    public class CSharp77Tests
+    {
+        private class Foo
+        {
             public ObjectId _id { get; set; }
             public string Name { get; set; }
             public string Summary { get; set; }
         }
 
         [Test]
-        public void TestSave() {
-            var server = MongoServer.Create("mongodb://localhost/?safe=true");
-            var database = server["onlinetests"];
-            var collection = database.GetCollection<Foo>("csharp77");
+        public void TestSave()
+        {
+            var server = Configuration.TestServer;
+            var database = Configuration.TestDatabase;
+            var collection = Configuration.GetTestCollection<Foo>();
 
             var conventions = new ConventionProfile()
                 .SetIdMemberConvention(new NamedIdMemberConvention("_id"));
             BsonClassMap.RegisterConventions(conventions, t => t == typeof(Foo));
 
             collection.RemoveAll();
-            for (int i = 0; i < 10; i++) {
-                var foo = new Foo {
+            for (int i = 0; i < 10; i++)
+            {
+                var foo = new Foo
+                {
                     _id = ObjectId.Empty,
                     Name = string.Format("Foo-{0}", i),
                     Summary = string.Format("Summary for Foo-{0}", i)

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,44 +19,47 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
-    internal class BsonBinaryWriterContext {
-        #region private fields
-        private BsonBinaryWriterContext parentContext;
-        private ContextType contextType;
-        private int startPosition;
-        private int index; // used when contextType is Array
-        #endregion
+namespace MongoDB.Bson.IO
+{
+    internal class BsonBinaryWriterContext
+    {
+        // private fields
+        private BsonBinaryWriterContext _parentContext;
+        private ContextType _contextType;
+        private int _startPosition;
+        private int _index; // used when contextType is Array
 
-        #region constructors
+        // constructors
         internal BsonBinaryWriterContext(
             BsonBinaryWriterContext parentContext,
             ContextType contextType,
-            int startPosition
-        ) {
-            this.parentContext = parentContext;
-            this.contextType = contextType;
-            this.startPosition = startPosition;
-        }
-        #endregion
-
-        #region internal properties
-        internal BsonBinaryWriterContext ParentContext {
-            get { return parentContext; }
+            int startPosition)
+        {
+            _parentContext = parentContext;
+            _contextType = contextType;
+            _startPosition = startPosition;
         }
 
-        internal ContextType ContextType {
-            get { return contextType; }
+        // internal properties
+        internal BsonBinaryWriterContext ParentContext
+        {
+            get { return _parentContext; }
         }
 
-        internal int StartPosition {
-            get { return startPosition; }
+        internal ContextType ContextType
+        {
+            get { return _contextType; }
         }
 
-        internal int Index {
-            get { return index; }
-            set { index = value; }
+        internal int StartPosition
+        {
+            get { return _startPosition; }
         }
-        #endregion
+
+        internal int Index
+        {
+            get { return _index; }
+            set { _index = value; }
+        }
     }
 }

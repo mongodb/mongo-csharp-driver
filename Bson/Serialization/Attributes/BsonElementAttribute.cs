@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,44 +18,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes {
+namespace MongoDB.Bson.Serialization.Attributes
+{
     /// <summary>
     /// Specifies the element name and related options for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonElementAttribute : Attribute {
-        #region private fields
-        private string elementName;
-        private int order = int.MaxValue;
-        #endregion
+    public class BsonElementAttribute : Attribute
+    {
+        // private fields
+        private string _elementName;
+        private int _order = int.MaxValue;
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the BsonElementAttribute class.
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
-        public BsonElementAttribute(
-            string elementName
-        ) {
-            this.elementName = elementName;
+        public BsonElementAttribute(string elementName)
+        {
+            _elementName = elementName;
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets the element name.
         /// </summary>
-        public string ElementName {
-            get { return elementName; }
+        public string ElementName
+        {
+            get { return _elementName; }
         }
 
         /// <summary>
         /// Gets the element serialization order.
         /// </summary>
-        public int Order {
-            get { return order; }
-            set { order = value; }
+        public int Order
+        {
+            get { return _order; }
+            set { _order = value; }
         }
-        #endregion
     }
 }

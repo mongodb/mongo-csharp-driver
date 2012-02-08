@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,33 +18,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.IO {
+namespace MongoDB.Bson.IO
+{
     /// <summary>
     /// Represents settings for a JsonWriter.
     /// </summary>
     [Serializable]
-    public class JsonWriterSettings : BsonWriterSettings {
-        #region private static fields
-        private static JsonWriterSettings defaults = null; // delay creation to pick up the latest default values
-        #endregion
+    public class JsonWriterSettings : BsonWriterSettings
+    {
+        // private static fields
+        private static JsonWriterSettings __defaults = null; // delay creation to pick up the latest default values
 
-        #region private fields
-        private bool closeOutput = false;
-        private Encoding encoding = Encoding.UTF8;
-        private bool indent = false;
-        private string indentChars = "  ";
-        private string newLineChars = "\r\n";
-        private JsonOutputMode outputMode = JsonOutputMode.Shell;
-        private Version shellVersion = new Version(2, 0, 0);
-        #endregion
+        // private fields
+        private bool _closeOutput = false;
+        private Encoding _encoding = Encoding.UTF8;
+        private bool _indent = false;
+        private string _indentChars = "  ";
+        private string _newLineChars = "\r\n";
+        private JsonOutputMode _outputMode = JsonOutputMode.Shell;
+        private Version _shellVersion = new Version(2, 0, 0);
 
-        #region constructors
+        // constructors
         /// <summary>
         /// Initializes a new instance of the JsonWriterSettings class.
         /// </summary>
-        public JsonWriterSettings() {
+        public JsonWriterSettings()
+        {
         }
-   
+
         /// <summary>
         /// Initializes a new instance of the JsonWriterSettings class.
         /// </summary>
@@ -64,140 +65,145 @@ namespace MongoDB.Bson.IO {
             string indentChars,
             string newLineChars,
             JsonOutputMode outputMode,
-            Version shellVersion
-        ) 
-            : base(guidRepresentation) {
-            this.closeOutput = closeOutput;
-            this.encoding = encoding;
-            this.indent = indent;
-            this.indentChars = indentChars;
-            this.newLineChars = newLineChars;
-            this.outputMode = outputMode;
-            this.shellVersion = shellVersion;
+            Version shellVersion)
+            : base(guidRepresentation)
+        {
+            _closeOutput = closeOutput;
+            _encoding = encoding;
+            _indent = indent;
+            _indentChars = indentChars;
+            _newLineChars = newLineChars;
+            _outputMode = outputMode;
+            _shellVersion = shellVersion;
         }
-        #endregion
 
-        #region public static properties
+        // public static properties
         /// <summary>
         /// Gets or sets the default JsonWriterSettings.
         /// </summary>
-        public static JsonWriterSettings Defaults {
-            get {
-                if (defaults == null) {
-                    defaults = new JsonWriterSettings();
+        public static JsonWriterSettings Defaults
+        {
+            get
+            {
+                if (__defaults == null)
+                {
+                    __defaults = new JsonWriterSettings();
                 }
-                return defaults;
+                return __defaults;
             }
-            set { defaults = value; }
+            set { __defaults = value; }
         }
-        #endregion
 
-        #region public properties
+        // public properties
         /// <summary>
         /// Gets or sets whether to close the output when the writer is closed.
         /// </summary>
-        public bool CloseOutput {
-            get { return closeOutput; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                closeOutput = value;
+        public bool CloseOutput
+        {
+            get { return _closeOutput; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _closeOutput = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the output Encoding.
         /// </summary>
-        public Encoding Encoding {
-            get { return encoding; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                encoding = value;
+        public Encoding Encoding
+        {
+            get { return _encoding; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _encoding = value;
             }
         }
 
         /// <summary>
         /// Gets or sets whether to indent the output.
         /// </summary>
-        public bool Indent {
-            get { return indent; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                indent = value;
+        public bool Indent
+        {
+            get { return _indent; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _indent = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the indent characters.
         /// </summary>
-        public string IndentChars {
-            get { return indentChars; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                indentChars = value;
+        public string IndentChars
+        {
+            get { return _indentChars; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _indentChars = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the new line characters.
         /// </summary>
-        public string NewLineChars {
-            get { return newLineChars; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                newLineChars = value;
+        public string NewLineChars
+        {
+            get { return _newLineChars; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _newLineChars = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the output mode.
         /// </summary>
-        public JsonOutputMode OutputMode {
-            get { return outputMode; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                outputMode = value;
+        public JsonOutputMode OutputMode
+        {
+            get { return _outputMode; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _outputMode = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the shell version (used with OutputMode Shell).
         /// </summary>
-        public Version ShellVersion {
-            get { return shellVersion; }
-            set {
-                if (isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                shellVersion = value;
+        public Version ShellVersion
+        {
+            get { return _shellVersion; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                _shellVersion = value;
             }
         }
-        #endregion
 
-        #region public methods
+        // public methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public new JsonWriterSettings Clone() {
-            return (JsonWriterSettings) CloneImplementation();
+        public new JsonWriterSettings Clone()
+        {
+            return (JsonWriterSettings)CloneImplementation();
         }
-        #endregion
 
-        #region protected methods
+        // protected methods
         /// <summary>
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        protected override BsonWriterSettings CloneImplementation() {
-            return new JsonWriterSettings(
-                closeOutput,
-                encoding,
-                guidRepresentation,
-                indent,
-                indentChars,
-                newLineChars,
-                outputMode,
-                shellVersion
-            );
+        protected override BsonWriterSettings CloneImplementation()
+        {
+            return new JsonWriterSettings(_closeOutput, _encoding, _guidRepresentation, _indent, _indentChars, _newLineChars, _outputMode, _shellVersion);
         }
-        #endregion
     }
 }

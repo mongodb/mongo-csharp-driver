@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,16 +26,20 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp121 {
-    public class C {
+namespace MongoDB.BsonUnitTests.Jira.CSharp121
+{
+    public class C
+    {
         [BsonRepresentation(BsonType.String)]
         public Guid PhotoId { get; set; }
     }
 
     [TestFixture]
-    public class CSharp121Tests {
+    public class CSharp121Tests
+    {
         [Test]
-        public void TestGuidStringRepresentation() {
+        public void TestGuidStringRepresentation()
+        {
             var c = new C { PhotoId = Guid.Empty };
             var json = c.ToJson();
             var expected = "{ 'PhotoId' : #S }";
