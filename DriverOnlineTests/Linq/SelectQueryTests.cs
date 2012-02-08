@@ -1277,7 +1277,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => (c.X == 1)", selectQuery.Where.ToString());
+            Assert.AreEqual("c => (c.X = 1)", selectQuery.Where.ToString());
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1300,7 +1300,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => ((c.X == 1) AndAlso (c.Y == 11))", selectQuery.Where.ToString());
+            Assert.AreEqual("c => ((c.X = 1) && (c.Y = 11))", selectQuery.Where.ToString());
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1323,7 +1323,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("c => ((c.X == 1) OrElse (c.Y == 33))", selectQuery.Where.ToString());
+            Assert.AreEqual("c => ((c.X = 1) || (c.Y = 33))", selectQuery.Where.ToString());
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
