@@ -33,8 +33,18 @@ namespace MongoDB.DriverOnlineTests.Linq
         private class C
         {
             public ObjectId Id { get; set; }
+            [BsonElement("x")]
             public int X { get; set; }
+            [BsonElement("y")]
             public int Y { get; set; }
+            [BsonElement("d")]
+            public D D { get; set; }
+        }
+
+        private class D
+        {
+            [BsonElement("z")]
+            public int Z; // use field instead of property to test fields also
         }
 
         // used to test some query operators that have an IEqualityComparer parameter
@@ -79,11 +89,11 @@ namespace MongoDB.DriverOnlineTests.Linq
             _collection.Drop();
 
             // documents inserted deliberately out of order to test sorting
-            _collection.Insert(new C { X = 2, Y = 11 });
-            _collection.Insert(new C { X = 1, Y = 11 });
-            _collection.Insert(new C { X = 3, Y = 33 });
-            _collection.Insert(new C { X = 5, Y = 44 });
-            _collection.Insert(new C { X = 4, Y = 44 });
+            _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 } });
+            _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 } });
+            _collection.Insert(new C { X = 3, Y = 33, D = new D { Z = 33 } });
+            _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 } });
+            _collection.Insert(new C { X = 4, Y = 44, D = new D { Z = 44 } });
         }
 
         [Test]
@@ -1283,7 +1293,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"X\" : 1 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : 1 }", selectQuery.CreateMongoQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1306,7 +1316,30 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"X\" : 1, \"Y\" : 11 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXEquals1AndYEquals11AndZEquals11()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.X == 1 && c.Y == 11 && c.D.Z == 11
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (((c.X == 1) && (c.Y == 11)) && (c.D.Z == 11))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }", selectQuery.CreateMongoQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1329,7 +1362,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"$or\" : [{ \"X\" : 1 }, { \"Y\" : 33 }] }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }", selectQuery.CreateMongoQuery().ToJson());
             Assert.AreEqual(2, Consume(query));
         }
 

@@ -19,10 +19,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.Linq
@@ -125,7 +127,7 @@ namespace MongoDB.Driver.Linq
                 foreach (var clause in _orderBy)
                 {
                     var memberExpression = (MemberExpression)clause.Key.Body;
-                    var keyName = memberExpression.Member.Name;
+                    var keyName = GetDottedElementName(memberExpression);
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
                     sortBy.Add(keyName, direction);
                 }
@@ -252,7 +254,7 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                     binaryExpression = (BinaryExpression)expression;
-                    var elementName = ((MemberExpression)binaryExpression.Left).Member.Name;
+                    var elementName = GetDottedElementName((MemberExpression)binaryExpression.Left);
                     var value = BsonValue.Create(((ConstantExpression)binaryExpression.Right).Value);
                     switch (expression.NodeType)
                     {
@@ -263,7 +265,7 @@ namespace MongoDB.Driver.Linq
                         case ExpressionType.LessThanOrEqual: return Query.EQ(elementName, value);
                         case ExpressionType.NotEqual: return Query.EQ(elementName, value);
                     }
-                    throw new MongoInternalException("Should not havereached here.");
+                    throw new MongoInternalException("Should not have reached here.");
                 case ExpressionType.AndAlso:
                     binaryExpression = (BinaryExpression)expression;
                     return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
@@ -272,6 +274,25 @@ namespace MongoDB.Driver.Linq
                     return Query.Or(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
                 default:
                     throw new ArgumentException("Unsupported where clause");
+            }
+        }
+
+        private string GetDottedElementName(MemberExpression member)
+        {
+            var memberInfo = member.Member;
+            var classType = memberInfo.DeclaringType;
+            var classMap = BsonClassMap.LookupClassMap(classType);
+            var memberMap = classMap.GetMemberMap(memberInfo.Name);
+            var elementName = memberMap.ElementName;
+
+            var nestedMember = member.Expression as MemberExpression;
+            if (nestedMember == null)
+            {
+                return elementName;
+            }
+            else
+            {
+                return GetDottedElementName(nestedMember) + "." + elementName;
             }
         }
 
