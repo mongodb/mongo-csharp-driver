@@ -77,6 +77,11 @@ namespace MongoDB.Driver.Linq
             {
                 case ExpressionType.AndAlso: _sb.Append(" && "); break;
                 case ExpressionType.Equal: _sb.Append(" == "); break;
+                case ExpressionType.GreaterThan: _sb.Append(" > "); break;
+                case ExpressionType.GreaterThanOrEqual: _sb.Append(" >= "); break;
+                case ExpressionType.LessThan: _sb.Append(" < "); break;
+                case ExpressionType.LessThanOrEqual: _sb.Append(" <= "); break;
+                case ExpressionType.NotEqual: _sb.Append(" != "); break;
                 case ExpressionType.OrElse: _sb.Append(" || "); break;
                 default: throw new InvalidOperationException("Unexpected NodeType.");
             }

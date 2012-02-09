@@ -264,9 +264,9 @@ namespace MongoDB.Driver.Linq
                         case ExpressionType.Equal: return Query.EQ(elementName, value);
                         case ExpressionType.GreaterThan: return Query.GT(elementName, value);
                         case ExpressionType.GreaterThanOrEqual: return Query.GTE(elementName, value);
-                        case ExpressionType.LessThan: return Query.EQ(elementName, value);
-                        case ExpressionType.LessThanOrEqual: return Query.EQ(elementName, value);
-                        case ExpressionType.NotEqual: return Query.EQ(elementName, value);
+                        case ExpressionType.LessThan: return Query.LT(elementName, value);
+                        case ExpressionType.LessThanOrEqual: return Query.LTE(elementName, value);
+                        case ExpressionType.NotEqual: return Query.NE(elementName, value);
                     }
                     throw new MongoInternalException("Should not have reached here.");
                 case ExpressionType.AndAlso:
