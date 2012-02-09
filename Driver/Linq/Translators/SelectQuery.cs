@@ -197,6 +197,9 @@ namespace MongoDB.Driver.Linq
             var methodName = methodCallExpression.Method.Name;
             switch (methodName)
             {
+                case "Any":
+                    TranslateAny(methodCallExpression);
+                    break;
                 case "Count":
                 case "LongCount":
                     TranslateCount(methodCallExpression);
@@ -319,6 +322,29 @@ namespace MongoDB.Driver.Linq
             }
 
             return (int) constantExpression.Value;
+        }
+
+        private void TranslateAny(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                throw new InvalidOperationException("The Any with predicate query operator is not supported.");
+            }
+            if (methodCallExpression.Arguments.Count != 1)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            if (_elementSelector != null)
+            {
+                throw new InvalidOperationException("Any cannot be combined with any other element selector.");
+            }
+
+            // ignore any projection since we only are interested in the count
+            _projection = null;
+
+            // note: recall that cursor method Size respects Skip and Limit while Count does not
+            _elementSelector = (IEnumerable source) => ((int)((MongoCursor)source).Size()) > 0;
         }
 
         private void TranslateCount(MethodCallExpression methodCallExpression)

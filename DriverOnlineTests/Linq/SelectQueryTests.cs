@@ -101,7 +101,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAggregate()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Aggregate((a, b) => null);
+                          select c).Aggregate((a, b) => null);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAggregateWithAccumulator()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Aggregate<C, int>(0, (a, c) => 0);
+                          select c).Aggregate<C, int>(0, (a, c) => 0);
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAggregateWithAccumulatorAndSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Aggregate<C, int, int>(0, (a, c) => 0, a => a);
+                          select c).Aggregate<C, int, int>(0, (a, c) => 0, a => a);
         }
 
         [Test]
@@ -125,23 +125,41 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAll()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).All(c => true);
+                          select c).All(c => true);
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Any query operator is not supported.")]
         public void TestAny()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Any();
+                          select c).Any();
+            Assert.IsTrue(result);
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Any query operator is not supported.")]
+        public void TestAnyXEquals1()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          where c.X == 1
+                          select c).Any();
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void TestAnyXEquals9()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          where c.X == 9
+                          select c).Any();
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Any with predicate query operator is not supported.")]
         public void TestAnyWithPredicate()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Any(c => true);
+                          select c).Any(c => true);
         }
 
         [Test]
@@ -149,7 +167,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAverage()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select 1.0).Average();
+                          select 1.0).Average();
         }
 
         [Test]
@@ -157,7 +175,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAverageNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select (double?)1.0).Average();
+                          select (double?)1.0).Average();
         }
 
         [Test]
@@ -165,7 +183,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAverageWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Average(c => 1.0);
+                          select c).Average(c => 1.0);
         }
 
         [Test]
@@ -173,7 +191,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestAverageWithSelectorNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                             select c).Average(c => (double?)1.0);
+                          select c).Average(c => (double?)1.0);
         }
 
         [Test]
@@ -181,7 +199,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestCast()
         {
             var query = (from c in _collection.AsQueryable<C>()
-                             select c).Cast<C>();
+                         select c).Cast<C>();
             query.ToList(); // execute query
         }
 
@@ -191,7 +209,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             var source2 = new C[0];
             var query = (from c in _collection.AsQueryable<C>()
-                          select c).Concat(source2);
+                         select c).Concat(source2);
             query.ToList(); // execute query
         }
 
@@ -217,8 +235,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestCount2()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).Count();
+                          where c.Y == 11
+                          select c).Count();
 
             Assert.AreEqual(2, result);
         }
@@ -227,7 +245,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestCount5()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).Count();
+                          select c).Count();
 
             Assert.AreEqual(5, result);
         }
@@ -244,7 +262,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestCountWithSkipAndTake()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).Skip(2).Take(2).Count();
+                          select c).Skip(2).Take(2).Count();
 
             Assert.AreEqual(2, result);
         }
@@ -287,7 +305,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtOrDefaultWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).ElementAtOrDefault(2);
+                          select c).ElementAtOrDefault(2);
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -297,8 +315,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtOrDefaultWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 9
-                         select c).ElementAtOrDefault(0);
+                          where c.X == 9
+                          select c).ElementAtOrDefault(0);
             Assert.IsNull(result);
         }
 
@@ -306,8 +324,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).ElementAtOrDefault(0);
+                          where c.X == 3
+                          select c).ElementAtOrDefault(0);
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -317,8 +335,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtOrDefaultWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).ElementAtOrDefault(1);
+                          where c.Y == 11
+                          select c).ElementAtOrDefault(1);
 
             Assert.AreEqual(1, result.X);
             Assert.AreEqual(11, result.Y);
@@ -328,7 +346,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).ElementAt(2);
+                          select c).ElementAt(2);
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -347,8 +365,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).ElementAt(0);
+                          where c.X == 3
+                          select c).ElementAt(0);
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -358,8 +376,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestElementAtWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).ElementAt(1);
+                          where c.Y == 11
+                          select c).ElementAt(1);
 
             Assert.AreEqual(1, result.X);
             Assert.AreEqual(11, result.Y);
@@ -389,7 +407,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstOrDefaultWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).FirstOrDefault();
+                          select c).FirstOrDefault();
 
             Assert.AreEqual(2, result.X);
             Assert.AreEqual(11, result.Y);
@@ -399,8 +417,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstOrDefaultWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 9
-                         select c).FirstOrDefault();
+                          where c.X == 9
+                          select c).FirstOrDefault();
             Assert.IsNull(result);
         }
 
@@ -408,8 +426,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).FirstOrDefault();
+                          where c.X == 3
+                          select c).FirstOrDefault();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -419,8 +437,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstOrDefaultWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).FirstOrDefault();
+                          where c.Y == 11
+                          select c).FirstOrDefault();
 
             Assert.AreEqual(2, result.X);
             Assert.AreEqual(11, result.Y);
@@ -430,7 +448,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).First();
+                          select c).First();
 
             Assert.AreEqual(2, result.X);
             Assert.AreEqual(11, result.Y);
@@ -449,8 +467,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).First();
+                          where c.X == 3
+                          select c).First();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -460,8 +478,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestFirstWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).First();
+                          where c.Y == 11
+                          select c).First();
 
             Assert.AreEqual(2, result.X);
             Assert.AreEqual(11, result.Y);
@@ -597,7 +615,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastOrDefaultWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).LastOrDefault();
+                          select c).LastOrDefault();
 
             Assert.AreEqual(4, result.X);
             Assert.AreEqual(44, result.Y);
@@ -607,8 +625,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastOrDefaultWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 9
-                         select c).LastOrDefault();
+                          where c.X == 9
+                          select c).LastOrDefault();
             Assert.IsNull(result);
         }
 
@@ -616,8 +634,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).LastOrDefault();
+                          where c.X == 3
+                          select c).LastOrDefault();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -627,8 +645,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastOrDefaultWithOrderBy()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                        orderby c.X
-                        select c).LastOrDefault();
+                          orderby c.X
+                          select c).LastOrDefault();
 
             Assert.AreEqual(5, result.X);
             Assert.AreEqual(44, result.Y);
@@ -638,8 +656,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastOrDefaultWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).LastOrDefault();
+                          where c.Y == 11
+                          select c).LastOrDefault();
 
             Assert.AreEqual(1, result.X);
             Assert.AreEqual(11, result.Y);
@@ -649,7 +667,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastWithManyMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).Last();
+                          select c).Last();
 
             Assert.AreEqual(4, result.X);
             Assert.AreEqual(44, result.Y);
@@ -668,8 +686,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).Last();
+                          where c.X == 3
+                          select c).Last();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -679,8 +697,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastWithOrderBy()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                        orderby c.X
-                        select c).Last();
+                          orderby c.X
+                          select c).Last();
 
             Assert.AreEqual(5, result.X);
             Assert.AreEqual(44, result.Y);
@@ -690,8 +708,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLastWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).Last();
+                          where c.Y == 11
+                          select c).Last();
 
             Assert.AreEqual(1, result.X);
             Assert.AreEqual(11, result.Y);
@@ -701,7 +719,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLongCountAll()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).LongCount();
+                          select c).LongCount();
 
             Assert.AreEqual(5L, result);
         }
@@ -710,8 +728,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLongCountTwo()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.Y == 11
-                         select c).LongCount();
+                          where c.Y == 11
+                          select c).LongCount();
 
             Assert.AreEqual(2L, result);
         }
@@ -720,7 +738,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestLongCountWithSkipAndTake()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).Skip(2).Take(2).LongCount();
+                          select c).Skip(2).Take(2).LongCount();
 
             Assert.AreEqual(2L, result);
         }
@@ -730,7 +748,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestMax()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Max();
+                          select c).Max();
         }
 
         [Test]
@@ -738,7 +756,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestMaxWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Max(c => 1.0);
+                          select c).Max(c => 1.0);
         }
 
         [Test]
@@ -746,7 +764,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestMin()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Min();
+                          select c).Min();
         }
 
         [Test]
@@ -754,7 +772,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestMinWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Min(c => 1.0);
+                          select c).Min(c => 1.0);
         }
 
         [Test]
@@ -1057,7 +1075,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             var source2 = new C[0];
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).SequenceEqual(source2);
+                          select c).SequenceEqual(source2);
         }
 
         [Test]
@@ -1066,7 +1084,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             var source2 = new C[0];
             var result = (from c in _collection.AsQueryable<C>()
-                         select c).SequenceEqual(source2, new CEqualityComparer());
+                          select c).SequenceEqual(source2, new CEqualityComparer());
         }
 
         [Test]
@@ -1081,8 +1099,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSingleOrDefaultWithNoMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 9
-                         select c).SingleOrDefault();
+                          where c.X == 9
+                          select c).SingleOrDefault();
             Assert.IsNull(result);
         }
 
@@ -1090,8 +1108,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSingleOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).SingleOrDefault();
+                          where c.X == 3
+                          select c).SingleOrDefault();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -1127,8 +1145,8 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSingleWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                         where c.X == 3
-                         select c).Single();
+                          where c.X == 3
+                          select c).Single();
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
@@ -1178,7 +1196,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSum()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select 1.0).Sum();
+                          select 1.0).Sum();
         }
 
         [Test]
@@ -1186,7 +1204,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSumNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select (double?)1.0).Sum();
+                          select (double?)1.0).Sum();
         }
 
         [Test]
@@ -1194,7 +1212,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSumWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Sum(c => 1.0);
+                          select c).Sum(c => 1.0);
         }
 
         [Test]
@@ -1202,7 +1220,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestSumeWithSelectorNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                           select c).Sum(c => (double?)1.0);
+                          select c).Sum(c => (double?)1.0);
         }
 
         [Test]
