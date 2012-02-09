@@ -245,9 +245,60 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
+        private IMongoQuery CreateComparisonQuery(BinaryExpression binaryExpression)
+        {
+            var memberExpression = binaryExpression.Left as MemberExpression;
+            var valueExpression = binaryExpression.Right as ConstantExpression;
+            if (memberExpression != null && valueExpression != null)
+            {
+                var elementName = GetDottedElementName(memberExpression);
+                var value = BsonValue.Create(valueExpression.Value);
+                switch (binaryExpression.NodeType)
+                {
+                    case ExpressionType.Equal: return Query.EQ(elementName, value);
+                    case ExpressionType.GreaterThan: return Query.GT(elementName, value);
+                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(elementName, value);
+                    case ExpressionType.LessThan: return Query.LT(elementName, value);
+                    case ExpressionType.LessThanOrEqual: return Query.LTE(elementName, value);
+                    case ExpressionType.NotEqual: return Query.NE(elementName, value);
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery CreateModQuery(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            {
+                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+                if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
+                {
+                    var memberExpression = leftBinaryExpression.Left as MemberExpression;
+                    var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
+                    var equalsExpression = binaryExpression.Right as ConstantExpression;
+                    if (memberExpression != null && modulusExpression != null && equalsExpression != null)
+                    {
+                        var elementName = GetDottedElementName(memberExpression);
+                        var modulus = Convert.ToInt32(modulusExpression.Value);
+                        var equals = Convert.ToInt32(equalsExpression.Value);
+                        if (binaryExpression.NodeType == ExpressionType.Equal)
+                        {
+                            return Query.Mod(elementName, modulus, equals);
+                        }
+                        else
+                        {
+                            return Query.Not(elementName).Mod(modulus, equals);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         private IMongoQuery CreateMongoQuery(Expression expression)
         {
             BinaryExpression binaryExpression;
+            IMongoQuery query;
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:
@@ -257,18 +308,17 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                     binaryExpression = (BinaryExpression)expression;
-                    var elementName = GetDottedElementName((MemberExpression)binaryExpression.Left);
-                    var value = BsonValue.Create(((ConstantExpression)binaryExpression.Right).Value);
-                    switch (expression.NodeType)
+                    query = CreateModQuery(binaryExpression);
+                    if (query != null)
                     {
-                        case ExpressionType.Equal: return Query.EQ(elementName, value);
-                        case ExpressionType.GreaterThan: return Query.GT(elementName, value);
-                        case ExpressionType.GreaterThanOrEqual: return Query.GTE(elementName, value);
-                        case ExpressionType.LessThan: return Query.LT(elementName, value);
-                        case ExpressionType.LessThanOrEqual: return Query.LTE(elementName, value);
-                        case ExpressionType.NotEqual: return Query.NE(elementName, value);
+                        return query;
                     }
-                    throw new MongoInternalException("Should not have reached here.");
+                    query = CreateComparisonQuery(binaryExpression);
+                    if (query != null)
+                    {
+                        return query;
+                    }
+                    goto default;
                 case ExpressionType.AndAlso:
                     binaryExpression = (BinaryExpression)expression;
                     return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
