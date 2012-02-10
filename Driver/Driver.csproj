@@ -181,6 +181,7 @@
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
     <Compile Include="Linq\Expressions\ExpressionFormatter.cs" />
+    <Compile Include="Linq\LinqToMongo.cs" />
     <Compile Include="Linq\Translators\Nominator.cs" />
     <Compile Include="Linq\Translators\OrderByDirection.cs" />
     <Compile Include="Linq\Translators\OrderByClause.cs" />

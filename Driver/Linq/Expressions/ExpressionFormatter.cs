@@ -128,6 +128,12 @@ namespace MongoDB.Driver.Linq
                 return node;
             }
 
+            if (value.GetType() == typeof(bool))
+            {
+                _sb.Append(((bool)value) ? "true" : "false");
+                return node;
+            }
+
             var e = value as Enum;
             if (e != null)
             {

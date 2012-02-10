@@ -41,8 +41,10 @@ namespace MongoDB.DriverOnlineTests.Linq
             [BsonElement("d")]
             public D D { get; set; }
             [BsonElement("s")]
+            [BsonIgnoreIfNull]
             public string S { get; set; }
             [BsonElement("a")]
+            [BsonIgnoreIfNull]
             public int[] A { get; set; }
         }
 
@@ -810,7 +812,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(1, results.First().X);
@@ -840,7 +842,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(1, results.First().X);
@@ -870,7 +872,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(2, results.First().X);
@@ -898,7 +900,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(5, results.First().X);
@@ -928,7 +930,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(4, results.First().X);
@@ -958,7 +960,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(5, results.First().X);
@@ -995,7 +997,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
 
             var result = query.ToList();
             Assert.AreEqual(5, result.Count);
@@ -1030,7 +1032,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             Assert.AreEqual(5, Consume(query));
         }
 
@@ -1184,7 +1186,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Skip));
             Assert.IsNull(selectQuery.Take);
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             Assert.AreEqual(3, Consume(query));
         }
 
@@ -1246,7 +1248,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Take));
 
-            Assert.IsNull(selectQuery.CreateMongoQuery());
+            Assert.IsNull(selectQuery.BuildQuery());
             Assert.AreEqual(2, Consume(query));
         }
 
@@ -1316,7 +1318,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /x/ }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1339,7 +1341,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /1$/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /1$/ }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1363,7 +1365,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1386,7 +1388,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1409,7 +1411,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^x/i }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^x/i }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1433,7 +1435,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$not\" : /^x/ } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^x/ } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -1456,7 +1458,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1479,7 +1481,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"a\" : 2 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"a\" : 2 }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1487,7 +1489,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereAContains2And3()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.A.ContainsAll(new [] { 2, 3 })
+                        where LinqToMongo.All(c.A, new [] { 2, 3 })
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1496,13 +1498,82 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqExtensionMethods.ContainsAll(c.A, new Int32[] { 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.All(c.A, new Int32[] { 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"a\" : { \"$all\" : [2, 3] } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"a\" : { \"$all\" : [2, 3] } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereAExistsFalse()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.Exists(c.A, false)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.Exists(c.A, false)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereAExistsTrue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.Exists(c.A, true)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.Exists(c.A, true)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereAIn1Or2()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.In(c.A, new[] { 1, 2 })
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.In(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : { \"$in\" : [1, 2] } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1525,7 +1596,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : 1 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : 1 }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1548,7 +1619,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11 }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1571,7 +1642,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1594,7 +1665,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(2, Consume(query));
         }
 
@@ -1617,7 +1688,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$gt\" : 1 } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$gt\" : 1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -1640,8 +1711,31 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$gte\" : 1 } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$gte\" : 1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXIn1Or9()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.In(c.X, new [] { 1, 9 })
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.In(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : { \"$in\" : [1, 9] } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
         }
 
         [Test]
@@ -1663,7 +1757,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$lt\" : 1 } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$lt\" : 1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(0, Consume(query));
         }
 
@@ -1686,7 +1780,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$lte\" : 1 } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$lte\" : 1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -1709,7 +1803,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$mod\" : [2, 1] } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$mod\" : [2, 1] } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(3, Consume(query));
         }
 
@@ -1732,7 +1826,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$mod\" : [2, 1] } } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$mod\" : [2, 1] } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(2, Consume(query));
         }
 
@@ -1755,7 +1849,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$ne\" : 1 } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$ne\" : 1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 

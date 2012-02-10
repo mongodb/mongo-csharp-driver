@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq
         /// Creates an IMongoQuery from the where clause (returns null if no where clause was specified).
         /// </summary>
         /// <returns></returns>
-        public IMongoQuery CreateMongoQuery()
+        public IMongoQuery BuildQuery()
         {
             if (_where == null)
             {
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Linq
             // TODO: check lambda for proper type
 
             var body = _where.Body;
-            return CreateMongoQuery(body);
+            return BuildQuery(body);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The result of executing the translated Find query.</returns>
         public override object Execute()
         {
-            var query = CreateMongoQuery();
+            var query = BuildQuery();
             var cursor = _collection.FindAs(_documentType, query);
 
             if (_orderBy != null)
@@ -246,53 +246,43 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
-        private IMongoQuery CreateArrayContainsQuery(MethodCallExpression methodCallExpression)
+        private IMongoQuery BuildAllQuery(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.Name == "Contains")
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
             {
-                if (methodCallExpression.Method.DeclaringType == typeof(Enumerable) && methodCallExpression.Object == null)
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
                 {
-                    var arguments = methodCallExpression.Arguments.ToArray();
-                    if (arguments.Length == 2)
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var valuesExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && valuesExpression != null)
                     {
-                        var memberExpression = arguments[0] as MemberExpression;
-                        var valueExpression = arguments[1] as ConstantExpression;
-                        if (memberExpression != null && valueExpression != null)
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var values = new BsonArray();
+                        foreach (var value in (IEnumerable)valuesExpression.Value)
                         {
-                            var dottedElementName = GetDottedElementName(memberExpression);
-                            var value = BsonValue.Create(valueExpression.Value);
-                            return Query.EQ(dottedElementName, value);
+                            values.Add(BsonValue.Create(value));
                         }
-                    }
-                }
-            }
-            if (methodCallExpression.Method.Name == "ContainsAll")
-            {
-                if (methodCallExpression.Method.DeclaringType == typeof(LinqExtensionMethods) && methodCallExpression.Object == null)
-                {
-                    var arguments = methodCallExpression.Arguments.ToArray();
-                    if (arguments.Length == 2)
-                    {
-                        var memberExpression = arguments[0] as MemberExpression;
-                        var valuesExpression = arguments[1] as ConstantExpression;
-                        if (memberExpression != null && valuesExpression != null)
-                        {
-                            var dottedElementName = GetDottedElementName(memberExpression);
-                            var values = new BsonArray();
-                            foreach (var value in (IEnumerable) valuesExpression.Value)
-                            {
-                                values.Add(BsonValue.Create(value));
-                            }
-                            return Query.All(dottedElementName, values);
-                        }
+                        return Query.All(dottedElementName, values);
                     }
                 }
             }
             return null;
         }
 
-        private IMongoQuery CreateComparisonQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
         {
+            return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+        }
+
+        private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
+        {
+            var query = BuildModQuery(binaryExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             var memberExpression = binaryExpression.Left as MemberExpression;
             var valueExpression = binaryExpression.Right as ConstantExpression;
             if (memberExpression != null && valueExpression != null)
@@ -309,106 +299,85 @@ namespace MongoDB.Driver.Linq
                     case ExpressionType.NotEqual: return Query.NE(elementName, value);
                 }
             }
+
             return null;
         }
 
-        private IMongoQuery CreateModQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            if (methodCallExpression.Method.DeclaringType == typeof(string))
             {
-                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
-                if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
+                return BuildStringQuery(methodCallExpression);
+            }
+
+            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
                 {
-                    var memberExpression = leftBinaryExpression.Left as MemberExpression;
-                    var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
-                    var equalsExpression = binaryExpression.Right as ConstantExpression;
-                    if (memberExpression != null && modulusExpression != null && equalsExpression != null)
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var valueExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && valueExpression != null)
                     {
-                        var elementName = GetDottedElementName(memberExpression);
-                        var modulus = Convert.ToInt32(modulusExpression.Value);
-                        var equals = Convert.ToInt32(equalsExpression.Value);
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return Query.Mod(elementName, modulus, equals);
-                        }
-                        else
-                        {
-                            return Query.Not(elementName).Mod(modulus, equals);
-                        }
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var value = BsonValue.Create(valueExpression.Value);
+                        return Query.EQ(dottedElementName, value);
                     }
                 }
             }
             return null;
         }
 
-        private IMongoQuery CreateMongoQuery(Expression expression)
+        private IMongoQuery BuildExistsQuery(MethodCallExpression methodCallExpression)
         {
-            BinaryExpression binaryExpression;
-            IMongoQuery query;
-            switch (expression.NodeType)
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
             {
-                case ExpressionType.AndAlso:
-                    binaryExpression = (BinaryExpression)expression;
-                    return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
-                case ExpressionType.Call:
-                    var methodCallExpression = (MethodCallExpression)expression;
-                    query = CreateArrayContainsQuery(methodCallExpression);
-                    if (query != null)
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
+                {
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var existsExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && existsExpression != null)
                     {
-                        return query;
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var exists = (bool)existsExpression.Value;
+                        return Query.Exists(dottedElementName, exists);
                     }
-                    query = CreateRegexQuery(methodCallExpression);
-                    if (query != null)
-                    {
-                        return query;
-                    }
-                    query = CreateStringQuery(methodCallExpression);
-                    if (query != null)
-                    {
-                        return query;
-                    }
-                    goto default;
-                case ExpressionType.Equal:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                case ExpressionType.NotEqual:
-                    binaryExpression = (BinaryExpression)expression;
-                    query = CreateModQuery(binaryExpression);
-                    if (query != null)
-                    {
-                        return query;
-                    }
-                    query = CreateComparisonQuery(binaryExpression);
-                    if (query != null)
-                    {
-                        return query;
-                    }
-                    goto default;
-                case ExpressionType.Not:
-                    var notExpression = (UnaryExpression)expression;
-                    var queryDocument = CreateMongoQuery(notExpression.Operand).ToBsonDocument();
-                    if (queryDocument.ElementCount == 1)
-                    {
-                        return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$not", queryDocument[0]));
-                    }
-                    goto default;
-                case ExpressionType.OrElse:
-                    binaryExpression = (BinaryExpression)expression;
-                    return Query.Or(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
-                default:
-                    var message = string.Format("Unsupported where clause: {0}.", ExpressionFormatter.ToString(expression));
-                    throw new ArgumentException(message);
+                }
             }
+            return null;
         }
 
-        private IMongoQuery CreateRegexQuery(MethodCallExpression methodCallExpression)
+        private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.Name == "IsMatch")
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
             {
-                var obj = methodCallExpression.Object;
                 var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
+                {
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var valuesExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && valuesExpression != null)
+                    {
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var values = new BsonArray();
+                        foreach (var value in (IEnumerable)valuesExpression.Value)
+                        {
+                            values.Add(BsonValue.Create(value));
+                        }
+                        return Query.In(dottedElementName, values);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildIsMatchQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(Regex))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                var obj = methodCallExpression.Object;
                 if (obj == null)
                 {
                     if (arguments.Length == 2 || arguments.Length == 3)
@@ -455,34 +424,133 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
-        private IMongoQuery CreateStringQuery(MethodCallExpression methodCallExpression)
+        private IMongoQuery BuildMethodCallQuery(MethodCallExpression methodCallExpression)
         {
             switch (methodCallExpression.Method.Name)
             {
-                case "Contains":
-                case "EndsWith":
-                case "StartsWith":
-                    var arguments = methodCallExpression.Arguments.ToArray();
-                    if (arguments.Length == 1)
+                case "All": return BuildAllQuery(methodCallExpression);
+                case "Contains": return BuildContainsQuery(methodCallExpression);
+                case "EndsWith": return BuildStringQuery(methodCallExpression);
+                case "Exists": return BuildExistsQuery(methodCallExpression);
+                case "In": return BuildInQuery(methodCallExpression);
+                case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
+                case "StartsWith": return BuildStringQuery(methodCallExpression);
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildModQuery(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            {
+                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+                if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
+                {
+                    var memberExpression = leftBinaryExpression.Left as MemberExpression;
+                    var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
+                    var equalsExpression = binaryExpression.Right as ConstantExpression;
+                    if (memberExpression != null && modulusExpression != null && equalsExpression != null)
                     {
-                        var memberExpression = methodCallExpression.Object as MemberExpression;
-                        var valueExpression = arguments[0] as ConstantExpression;
-                        if (memberExpression != null && valueExpression != null)
+                        var elementName = GetDottedElementName(memberExpression);
+                        var modulus = Convert.ToInt32(modulusExpression.Value);
+                        var equals = Convert.ToInt32(equalsExpression.Value);
+                        if (binaryExpression.NodeType == ExpressionType.Equal)
                         {
-                            var dottedElementName = GetDottedElementName(memberExpression);
-                            var s = (string)valueExpression.Value;
-                            BsonRegularExpression regex;
-                            switch (methodCallExpression.Method.Name)
-                            {
-                                case "Contains": regex = new BsonRegularExpression(s); break;
-                                case "EndsWith": regex = new BsonRegularExpression(s + "$"); break;
-                                case "StartsWith": regex = new BsonRegularExpression("^" + s); break;
-                                default: throw new InvalidOperationException("Unreachable code");
-                            }
-                            return Query.Matches(dottedElementName, regex);
+                            return Query.Mod(elementName, modulus, equals);
+                        }
+                        else
+                        {
+                            return Query.Not(elementName).Mod(modulus, equals);
                         }
                     }
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
+        {
+            var queryDocument = BuildQuery(unaryExpression.Operand).ToBsonDocument();
+            if (queryDocument.ElementCount == 1)
+            {
+                return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$not", queryDocument[0]));
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
+        {
+            return Query.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+        }
+
+        private IMongoQuery BuildQuery(Expression expression)
+        {
+            IMongoQuery query = null;
+
+            switch (expression.NodeType)
+            {
+                case ExpressionType.AndAlso:
+                    query = BuildAndAlsoQuery((BinaryExpression)expression);
                     break;
+                case ExpressionType.Call:
+                    query = BuildMethodCallQuery((MethodCallExpression)expression);
+                    break;
+                case ExpressionType.Equal:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.NotEqual:
+                    query = BuildComparisonQuery((BinaryExpression)expression);
+                    break;
+                case ExpressionType.Not:
+                    query = BuildNotQuery((UnaryExpression)expression);
+                    break;
+                case ExpressionType.OrElse:
+                    query = BuildOrElseQuery((BinaryExpression)expression);
+                    break;
+            }
+
+            if (query == null)
+            {
+                var message = string.Format("Unsupported where clause: {0}.", ExpressionFormatter.ToString(expression));
+                throw new ArgumentException(message);
+            }
+
+            return query;
+        }
+
+        private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(string))
+            {
+                switch (methodCallExpression.Method.Name)
+                {
+                    case "Contains":
+                    case "EndsWith":
+                    case "StartsWith":
+                        var arguments = methodCallExpression.Arguments.ToArray();
+                        if (arguments.Length == 1)
+                        {
+                            var memberExpression = methodCallExpression.Object as MemberExpression;
+                            var valueExpression = arguments[0] as ConstantExpression;
+                            if (memberExpression != null && valueExpression != null)
+                            {
+                                var dottedElementName = GetDottedElementName(memberExpression);
+                                var s = (string)valueExpression.Value;
+                                BsonRegularExpression regex;
+                                switch (methodCallExpression.Method.Name)
+                                {
+                                    case "Contains": regex = new BsonRegularExpression(s); break;
+                                    case "EndsWith": regex = new BsonRegularExpression(s + "$"); break;
+                                    case "StartsWith": regex = new BsonRegularExpression("^" + s); break;
+                                    default: throw new InvalidOperationException("Unreachable code");
+                                }
+                                return Query.Matches(dottedElementName, regex);
+                            }
+                        }
+                        break;
+                }
             }
             return null;
         }

@@ -39,17 +39,5 @@ namespace MongoDB.Driver.Linq
             var provider = new MongoQueryProvider(collection);
             return new MongoQueryable<T>(provider);
         }
-
-        public static bool ContainsAll<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> values)
-        {
-            foreach (var value in values)
-            {
-                if (!source.Contains(value))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
     }
 }
