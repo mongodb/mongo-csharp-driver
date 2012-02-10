@@ -48,7 +48,7 @@ namespace MongoDB.DriverOnlineTests.Jira
             _collection.RemoveAll();
             _collection.Insert(document);
 
-            var query = Query.EQ("_id", document["_id"]);
+            var query = Query.EQ(BsonDocument.ID_FIELD, document[BsonDocument.ID_FIELD]);
             var update = Update.PopFirst("x");
             _collection.Update(query, update);
 
@@ -66,7 +66,7 @@ namespace MongoDB.DriverOnlineTests.Jira
             _collection.RemoveAll();
             _collection.Insert(document);
 
-            var query = Query.EQ("_id", document["_id"]);
+            var query = Query.EQ(BsonDocument.ID_FIELD, document[BsonDocument.ID_FIELD]);
             var update = Update.PopLast("x");
             _collection.Update(query, update);
 

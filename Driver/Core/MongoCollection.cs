@@ -542,7 +542,7 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneByIdAs<TDocument>(BsonValue id)
         {
-            return FindOneAs<TDocument>(Query.EQ("_id", id));
+            return FindOneAs<TDocument>(Query.EQ(BsonDocument.ID_FIELD, id));
         }
 
         /// <summary>
@@ -553,7 +553,7 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual object FindOneByIdAs(Type documentType, BsonValue id)
         {
-            return FindOneAs(documentType, Query.EQ("_id", id));
+            return FindOneAs(documentType, Query.EQ(BsonDocument.ID_FIELD, id));
         }
 
         /// <summary>
@@ -1370,7 +1370,7 @@ namespace MongoDB.Driver
                             idBsonValue = ObjectId.Parse(idBsonValue.AsString);
                         }
                     }
-                    var query = Query.EQ("_id", idBsonValue);
+                    var query = Query.EQ(BsonDocument.ID_FIELD, idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
                     var updateOptions = new MongoUpdateOptions
                     {

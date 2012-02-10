@@ -40,13 +40,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp365
             var collection = Configuration.TestCollection;
             collection.Drop();
 
-            collection.EnsureIndex("A", "_id");
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "A", 1 } });
-            collection.Insert(new BsonDocument { { "_id", 2 }, { "A", 2 } });
-            collection.Insert(new BsonDocument { { "_id", 3 }, { "A", 3 } });
+            collection.EnsureIndex("A", BsonDocument.ID_FIELD);
+            collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 1 }, { "A", 1 } });
+            collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 2 }, { "A", 2 } });
+            collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 3 }, { "A", 3 } });
 
             var query = Query.EQ("A", 1);
-            var fields = Fields.Include("_id");
+            var fields = Fields.Include(BsonDocument.ID_FIELD);
             var cursor = collection.Find(query).SetFields(fields);
             var explain = cursor.Explain();
             Assert.IsTrue(explain["indexOnly"].ToBoolean());

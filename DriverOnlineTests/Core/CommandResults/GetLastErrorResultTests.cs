@@ -62,12 +62,12 @@ namespace MongoDB.DriverOnlineTests.CommandResults
                 var id = ObjectId.GenerateNewId();
                 var document = new BsonDocument
                 {
-                    { "_id", id },
+                    { BsonDocument.ID_FIELD, id },
                     { "x", 1 }
                 };
                 _collection.Insert(document);
 
-                var query = Query.EQ("_id", id);
+                var query = Query.EQ(BsonDocument.ID_FIELD, id);
                 var update = Update.Inc("x", 1);
                 _collection.Update(query, update);
                 var result = _server.GetLastError();

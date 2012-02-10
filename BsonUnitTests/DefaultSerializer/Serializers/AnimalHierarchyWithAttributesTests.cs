@@ -62,7 +62,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var document = new BsonDocument
             {
-                { "_id", ObjectId.Empty },
+                { BsonDocument.ID_FIELD, ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Bear" } },
                 { "Age", 123 },
                 { "Name", "Panda Bear" }
@@ -83,7 +83,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var document = new BsonDocument
             {
-                { "_id", ObjectId.Empty },
+                { BsonDocument.ID_FIELD, ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Cat", "Tiger" } },
                 { "Age", 234 },
                 { "Name", "Striped Tiger" }
@@ -104,7 +104,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var document = new BsonDocument
             {
-                { "_id", ObjectId.Empty },
+                { BsonDocument.ID_FIELD, ObjectId.Empty },
                 { "_t", new BsonArray { "Animal", "Cat", "Lion" } },
                 { "Age", 234 },
                 { "Name", "King Lion" }

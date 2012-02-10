@@ -100,7 +100,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(c.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(c.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(c.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }
@@ -115,7 +115,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(c.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(c.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(c.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }
@@ -130,7 +130,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(s.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(s.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(s.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(s.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }
@@ -153,7 +153,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(c.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(c.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(c.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }
@@ -168,7 +168,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(c.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(c.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(c.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(c.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }
@@ -183,7 +183,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp218
             var r = _collection.FindOne();
             Assert.AreEqual(2, r.ElementCount);
             Assert.AreEqual(2, r["P"].AsBsonDocument.ElementCount);
-            Assert.AreEqual(s.Id, r["_id"].AsObjectId);
+            Assert.AreEqual(s.Id, r[BsonDocument.ID_FIELD].AsObjectId);
             Assert.AreEqual(s.P.X, r["P"].AsBsonDocument["X"].AsInt32);
             Assert.AreEqual(s.P.Y, r["P"].AsBsonDocument["Y"].AsInt32);
         }

@@ -56,7 +56,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111
             collection.Insert(c);
             var id = c.Id;
 
-            var query = Query.EQ("_id", id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, id);
             var update = Update.AddToSet("InnerObjects", 1);
             collection.Update(query, update);
             var d1 = new D { X = 1 };

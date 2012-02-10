@@ -41,9 +41,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
                 var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
+                collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 1 }, { "a", 2 } });
 
-                var query = Query.EQ("_id", 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, 1);
                 var update = Update.Rename("a", "x");
                 collection.Update(query, update);
                 var document = collection.FindOne();
@@ -66,9 +66,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
                 var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
+                collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 1 }, { "a", 2 }, { "b", 3 } });
 
-                var query = Query.EQ("_id", 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, 1);
                 var update = Update.Rename("a", "x").Rename("b", "y");
                 collection.Update(query, update);
                 var document = collection.FindOne();
@@ -91,9 +91,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp199
                 var collection = Configuration.TestCollection;
 
                 collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
+                collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 1 }, { "a", 2 }, { "b", 3 } });
 
-                var query = Query.EQ("_id", 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, 1);
                 var update = Update.Rename("a", "x").Set("b", 4);
                 collection.Update(query, update);
                 var document = collection.FindOne();

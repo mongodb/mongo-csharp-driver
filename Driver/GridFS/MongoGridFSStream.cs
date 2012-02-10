@@ -469,7 +469,7 @@ namespace MongoDB.Driver.GridFS
                     }
                     var missingChunk = new BsonDocument
                     {
-                        { "_id", ObjectId.GenerateNewId() },
+                        { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                         { "files_id", _fileInfo.Id },
                         { "n", n },
                         { "data", zeros }
@@ -512,7 +512,7 @@ namespace MongoDB.Driver.GridFS
                     Buffer.BlockCopy(bytes, 0, _chunk, 0, bytes.Length);
                     Array.Clear(_chunk, bytes.Length, _chunk.Length - bytes.Length);
                 }
-                _chunkId = document["_id"];
+                _chunkId = document[BsonDocument.ID_FIELD];
             }
             _chunkIndex = chunkIndex;
         }
@@ -530,7 +530,7 @@ namespace MongoDB.Driver.GridFS
             }
 
             var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
-            var fields = Fields.Include("_id");
+            var fields = Fields.Include(BsonDocument.ID_FIELD);
             var document = _gridFS.Chunks.Find(query).SetFields(fields).SetLimit(1).FirstOrDefault();
             if (document == null)
             {
@@ -538,7 +538,7 @@ namespace MongoDB.Driver.GridFS
             }
             else
             {
-                _chunkId = document["_id"];
+                _chunkId = document[BsonDocument.ID_FIELD];
             }
             _chunkIndex = chunkIndex;
         }
@@ -558,7 +558,7 @@ namespace MongoDB.Driver.GridFS
 
             var file = new BsonDocument
             {
-                { "_id", _fileInfo.Id },
+                { BsonDocument.ID_FIELD, _fileInfo.Id },
                 { "filename", _fileInfo.Name },
                 { "length", 0 },
                 { "chunkSize", _fileInfo.ChunkSize },
@@ -613,10 +613,10 @@ namespace MongoDB.Driver.GridFS
                 data = new BsonBinaryData(lastChunk);
             }
 
-            var query = Query.EQ("_id", _chunkId);
+            var query = Query.EQ(BsonDocument.ID_FIELD, _chunkId);
             var update = new UpdateDocument
             {
-                { "_id", _chunkId },
+                { BsonDocument.ID_FIELD, _chunkId },
                 { "files_id", _fileInfo.Id },
                 { "n", _chunkIndex },
                 { "data", data }
@@ -639,7 +639,7 @@ namespace MongoDB.Driver.GridFS
                 md5 = md5Result.Response["md5"].AsString;
             }
 
-            var query = Query.EQ("_id", _fileInfo.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, _fileInfo.Id);
             var update = Update
                 .Set("length", _length)
                 .Set("md5", md5);

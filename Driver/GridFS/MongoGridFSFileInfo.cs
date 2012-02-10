@@ -327,7 +327,7 @@ namespace MongoDB.Driver.GridFS
                 using (_gridFS.Database.RequestStart(false)) // not slaveOk
                 {
                     _gridFS.EnsureIndexes();
-                    _gridFS.Files.Remove(Query.EQ("_id", _id), _gridFS.Settings.SafeMode);
+                    _gridFS.Files.Remove(Query.EQ(BsonDocument.ID_FIELD, _id), _gridFS.Settings.SafeMode);
                     _gridFS.Chunks.Remove(Query.EQ("files_id", _id), _gridFS.Settings.SafeMode);
                 }
             }
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="destFileName">The destination file name.</param>
         public void MoveTo(string destFileName)
         {
-            var query = Query.EQ("_id", _id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, _id);
             var update = Update.Set("filename", destFileName);
             _gridFS.Files.Update(query, update, _gridFS.Settings.SafeMode);
         }
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.GridFS
             MongoCursor<BsonDocument> cursor;
             if (_id != null)
             {
-                cursor = _gridFS.Files.Find(Query.EQ("_id", _id));
+                cursor = _gridFS.Files.Find(Query.EQ(BsonDocument.ID_FIELD, _id));
             }
             else
             {
@@ -513,7 +513,7 @@ namespace MongoDB.Driver.GridFS
                     _contentType = null;
                 }
                 _exists = true;
-                _id = fileInfo["_id"];
+                _id = fileInfo[BsonDocument.ID_FIELD];
                 _length = fileInfo["length"].ToInt64();
                 var md5Value = fileInfo["md5", null];
                 if (md5Value != null && !md5Value.IsBsonNull)

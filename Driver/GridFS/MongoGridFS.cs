@@ -216,7 +216,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="id">The GridFS file Id.</param>
         public void DeleteById(BsonValue id)
         {
-            Delete(Query.EQ("_id", id));
+            Delete(Query.EQ(BsonDocument.ID_FIELD, id));
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>True if the GridFS file exists.</returns>
         public bool ExistsById(BsonValue id)
         {
-            return Exists(Query.EQ("_id", id));
+            return Exists(Query.EQ(BsonDocument.ID_FIELD, id));
         }
 
         /// <summary>
@@ -594,7 +594,7 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The GridFS file.</returns>
         public MongoGridFSFileInfo FindOneById(BsonValue id)
         {
-            return FindOne(Query.EQ("_id", id));
+            return FindOne(Query.EQ(BsonDocument.ID_FIELD, id));
         }
 
         /// <summary>
@@ -708,7 +708,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="aliases">The aliases.</param>
         public void SetAliases(MongoGridFSFileInfo fileInfo, string[] aliases)
         {
-            var query = Query.EQ("_id", fileInfo.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, fileInfo.Id);
             var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
             _files.Update(query, update);
         }
@@ -720,7 +720,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="contentType">The content type.</param>
         public void SetContentType(MongoGridFSFileInfo fileInfo, string contentType)
         {
-            var query = Query.EQ("_id", fileInfo.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, fileInfo.Id);
             var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
             _files.Update(query, update);
         }
@@ -732,7 +732,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="metadata">The metadata.</param>
         public void SetMetadata(MongoGridFSFileInfo fileInfo, BsonValue metadata)
         {
-            var query = Query.EQ("_id", fileInfo.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, fileInfo.Id);
             var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
             _files.Update(query, update);
         }
@@ -808,7 +808,7 @@ namespace MongoDB.Driver.GridFS
 
                         var chunk = new BsonDocument
                         {
-                            { "_id", BsonObjectId.GenerateNewId() },
+                            { BsonDocument.ID_FIELD, BsonObjectId.GenerateNewId() },
                             { "files_id", files_id },
                             { "n", n },
                             { "data", new BsonBinaryData(data) }
@@ -843,7 +843,7 @@ namespace MongoDB.Driver.GridFS
                 var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;
                 BsonDocument fileInfo = new BsonDocument
                 {
-                    { "_id", files_id },
+                    { BsonDocument.ID_FIELD, files_id },
                     { "filename", remoteFileName },
                     { "length", length },
                     { "chunkSize", chunkSize },

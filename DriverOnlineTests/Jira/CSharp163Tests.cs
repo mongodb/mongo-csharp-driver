@@ -56,7 +56,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp163
             Assert.IsNull(fileInfo.Metadata);
             Assert.IsNull(fileInfo.Name);
 
-            var query = Query.EQ("_id", fileInfo.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, fileInfo.Id);
             var files = _database.GridFS.Files.FindOne(query);
             Assert.IsFalse(files.Contains("aliases"));
             Assert.IsFalse(files.Contains("contentType"));
