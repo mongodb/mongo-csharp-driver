@@ -27,6 +27,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Linq
 {
@@ -365,7 +366,14 @@ namespace MongoDB.Driver.Linq
                         {
                             values.Add(BsonValue.Create(value));
                         }
-                        return Query.In(dottedElementName, values);
+                        if (methodCallExpression.Method.Name == "In")
+                        {
+                            return Query.In(dottedElementName, values);
+                        }
+                        else
+                        {
+                            return Query.NotIn(dottedElementName, values);
+                        }
                     }
                 }
             }
@@ -434,6 +442,7 @@ namespace MongoDB.Driver.Linq
                 case "Exists": return BuildExistsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
+                case "NotIn": return BuildInQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
             }
             return null;
@@ -473,6 +482,13 @@ namespace MongoDB.Driver.Linq
             var queryDocument = BuildQuery(unaryExpression.Operand).ToBsonDocument();
             if (queryDocument.ElementCount == 1)
             {
+                // special case to convert $in to $nin
+                if (queryDocument[0].IsBsonDocument && queryDocument[0].AsBsonDocument.GetElement(0).Name == "$in")
+                {
+                    var values = queryDocument[0].AsBsonDocument["$in"];
+                    return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$nin", values));
+                }
+
                 return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$not", queryDocument[0]));
             }
             return null;

@@ -75,5 +75,29 @@ namespace MongoDB.Driver.Linq
         {
             throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
         }
+
+        /// <summary>
+        /// Test whether an array in the document does not contain any of the provided set of values.
+        /// </summary>
+        /// <typeparam name="TItem">The type of the array items.</typeparam>
+        /// <param name="field">The field or property.</param>
+        /// <param name="values">The set of values.</param>
+        /// <returns></returns>
+        public static bool NotIn<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
+        {
+            throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
+        }
+
+        /// <summary>
+        /// Test whether a field in the document is not equal to any of the provided set of values.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field or property.</typeparam>
+        /// <param name="field">The field or property.</param>
+        /// <param name="values">The set of values.</param>
+        /// <returns></returns>
+        public static bool NotIn<TField>(TField field, IEnumerable<TField> values)
+        {
+            throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
+        }
     }
 }
