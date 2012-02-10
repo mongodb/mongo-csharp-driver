@@ -56,7 +56,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258
             _collection.Insert(
                 new BsonDocument
                 {
-                    { "_id", ObjectId.GenerateNewId() },
+                    { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                     { "DateTime", new BsonDateTime(253402300799999) }
                 });
 
@@ -71,7 +71,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258
             _collection.Insert(
                 new BsonDocument
                 {
-                    { "_id", ObjectId.GenerateNewId() },
+                    { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                     { "DateTime", new BsonDateTime(253402300800000) }
                 });
 
@@ -86,7 +86,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258
             _collection.Insert(
                 new BsonDocument
                 {
-                    { "_id", ObjectId.GenerateNewId() },
+                    { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                     { "DateTime", new BsonDateTime(253402300799999) }
                 });
 
@@ -102,7 +102,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp258
             _collection.Insert(
                 new BsonDocument
                 {
-                    { "_id", ObjectId.GenerateNewId() },
+                    { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                     { "DateTime", new BsonDateTime(253402300800000) }
                 });
 

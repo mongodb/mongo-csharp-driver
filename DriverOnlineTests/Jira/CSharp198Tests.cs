@@ -71,7 +71,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp198
             };
             _collection.Save(foo1);
 
-            var foo1Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo1.Id)));
+            var foo1Rehydrated = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, BsonDocumentWrapper.Create(foo1.Id)));
             Assert.IsInstanceOf<Foo>(foo1Rehydrated);
             Assert.IsInstanceOf<Id>(foo1Rehydrated.Id);
             Assert.AreEqual(1, foo1Rehydrated.Id.AccountId);
@@ -85,7 +85,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp198
             };
             _collection.Save(foo2);
 
-            var foo2Rehydrated = _collection.FindOne(Query.EQ("_id", BsonDocumentWrapper.Create(foo2.Id)));
+            var foo2Rehydrated = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, BsonDocumentWrapper.Create(foo2.Id)));
             Assert.IsInstanceOf<Foo>(foo2Rehydrated);
             Assert.IsInstanceOf<IdWithExtraField>(foo2Rehydrated.Id);
             Assert.AreEqual(3, foo2Rehydrated.Id.AccountId);

@@ -86,7 +86,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -94,7 +94,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 var document = _collection.FindOneAs<D>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToDouble(), document.N);
             }
@@ -112,7 +112,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -120,7 +120,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 try
                 {
                     _collection.FindOneAs<D>(query);
@@ -158,7 +158,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -166,7 +166,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 var document = _collection.FindOneAs<I>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToInt32(), document.N);
             }
@@ -186,7 +186,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -194,7 +194,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 try
                 {
                     _collection.FindOneAs<I>(query);
@@ -220,7 +220,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -228,7 +228,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 try
                 {
                     _collection.FindOneAs<I>(query);
@@ -271,7 +271,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -279,7 +279,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 var document = _collection.FindOneAs<L>(query);
                 Assert.AreEqual(BsonValue.Create(values[i]).ToInt64(), document.N);
             }
@@ -295,7 +295,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -303,7 +303,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 try
                 {
                     _collection.FindOneAs<L>(query);
@@ -329,7 +329,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
             {
                 var document = new BsonDocument
                 {
-                    { "_id", i + 1 },
+                    { BsonDocument.ID_FIELD, i + 1 },
                     { "N", BsonValue.Create(values[i]) }
                 };
                 _collection.Insert(document);
@@ -337,7 +337,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp112
 
             for (int i = 0; i < values.Length; i++)
             {
-                var query = Query.EQ("_id", i + 1);
+                var query = Query.EQ(BsonDocument.ID_FIELD, i + 1);
                 try
                 {
                     _collection.FindOneAs<L>(query);

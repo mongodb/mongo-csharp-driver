@@ -35,6 +35,11 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
+		/// <summary>
+		/// Constant Field name that Mongo uses to store Ids.
+		/// </summary>
+		public const string ID_FIELD = "_id";
+
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
         // if duplicate names are present only the first one will be in the dictionary (the others can only be accessed by index)
@@ -763,7 +768,7 @@ namespace MongoDB.Bson
         public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             BsonElement idElement;
-            if (TryGetElement("_id", out idElement))
+            if (TryGetElement(ID_FIELD, out idElement))
             {
                 id = idElement.Value.RawValue;
                 if (id == null)
@@ -1005,7 +1010,7 @@ namespace MongoDB.Bson
 
             var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
             int idIndex;
-            if (documentOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
+            if (documentOptions.SerializeIdFirst && _indexes.TryGetValue(ID_FIELD, out idIndex))
             {
                 _elements[idIndex].WriteTo(bsonWriter);
             }
@@ -1069,13 +1074,13 @@ namespace MongoDB.Bson
         public void SetDocumentId(object id)
         {
             BsonElement idElement;
-            if (TryGetElement("_id", out idElement))
+            if (TryGetElement(ID_FIELD, out idElement))
             {
                 idElement.Value = BsonValue.Create(id);
             }
             else
             {
-                idElement = new BsonElement("_id", BsonValue.Create(id));
+                idElement = new BsonElement(ID_FIELD, BsonValue.Create(id));
                 InsertAt(0, idElement);
             }
         }

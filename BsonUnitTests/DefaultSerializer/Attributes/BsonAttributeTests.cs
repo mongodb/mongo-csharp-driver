@@ -113,7 +113,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
 
             var isId = classMap.GetMemberMap("IsId");
-            Assert.AreEqual("_id", isId.ElementName);
+            Assert.AreEqual(BsonDocument.ID_FIELD, isId.ElementName);
             Assert.AreSame(classMap.IdMemberMap, isId);
 
             var isNotId = classMap.GetMemberMap("IsNotId");

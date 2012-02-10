@@ -52,7 +52,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         [Test]
         public void TestNamedIdMemberConvention()
         {
-            var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var convention = new NamedIdMemberConvention("Id", "id", BsonDocument.ID_FIELD);
 
             var idMemberName = convention.FindIdMember(typeof(TestClassA));
             Assert.IsNotNull(idMemberName);
@@ -67,7 +67,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
 
             idMemberName = convention.FindIdMember(typeof(TestClassD));
             Assert.IsNotNull(idMemberName);
-            Assert.AreEqual("_id", idMemberName);
+            Assert.AreEqual(BsonDocument.ID_FIELD, idMemberName);
         }
     }
 }

@@ -456,7 +456,7 @@ namespace MongoDB.Driver
             }
 
             var collection = GetCollection(dbRef.CollectionName);
-            var query = Query.EQ("_id", BsonValue.Create(dbRef.Id));
+            var query = Query.EQ(BsonDocument.ID_FIELD, BsonValue.Create(dbRef.Id));
             return collection.FindOneAs(documentType, query);
         }
 

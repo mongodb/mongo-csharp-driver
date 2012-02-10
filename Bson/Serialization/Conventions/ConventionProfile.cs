@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
-                .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", "_id"))
+                .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", BsonDocument.ID_FIELD))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfDefaultConvention(new NeverIgnoreIfDefaultConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())

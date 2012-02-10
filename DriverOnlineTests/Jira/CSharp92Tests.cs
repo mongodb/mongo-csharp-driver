@@ -44,13 +44,13 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp92
             var database = Configuration.TestDatabase;
             var collection = Configuration.TestCollection;
 
-            var document = new BsonDocument { { "_id", -1 }, { "P", "x" } };
+            var document = new BsonDocument { { BsonDocument.ID_FIELD, -1 }, { "P", "x" } };
             collection.RemoveAll();
             collection.Insert(document);
 
             var fetched = collection.FindOne();
             Assert.IsInstanceOf<BsonDocument>(fetched);
-            Assert.AreEqual(-1, fetched["_id"].AsInt32);
+            Assert.AreEqual(-1, fetched[BsonDocument.ID_FIELD].AsInt32);
             Assert.AreEqual("x", fetched["P"].AsString);
         }
 

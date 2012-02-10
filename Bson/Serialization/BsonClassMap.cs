@@ -855,7 +855,7 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonInternalException("Invalid memberMap.");
             }
 
-            memberMap.SetElementName("_id");
+            memberMap.SetElementName(BsonDocument.ID_FIELD);
             _idMemberMap = memberMap;
         }
 
@@ -1073,7 +1073,7 @@ namespace MongoDB.Bson.Serialization
                 var idAttribute = attribute as BsonIdAttribute;
                 if (idAttribute != null)
                 {
-                    memberMap.SetElementName("_id");
+                    memberMap.SetElementName(BsonDocument.ID_FIELD);
                     memberMap.SetOrder(idAttribute.Order);
                     var idGeneratorType = idAttribute.IdGenerator;
                     if (idGeneratorType != null)

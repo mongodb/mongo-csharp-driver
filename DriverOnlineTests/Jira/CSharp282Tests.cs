@@ -47,7 +47,7 @@ namespace MongoDB.DriverOnlineTests.Jira
             var document = new BsonDocument("x", 1);
             _collection.Insert(document);
 
-            var query = Query.EQ("_id", document["_id"]);
+            var query = Query.EQ(BsonDocument.ID_FIELD, document[BsonDocument.ID_FIELD]);
             var update = new UpdateBuilder();
             Assert.Throws<ArgumentException>(() => _collection.Update(query, update));
         }

@@ -76,7 +76,7 @@ namespace MongoDB.BsonUnitTests
             var document = c.ToBsonDocument();
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual("N", document.GetElement(0).Name);
-            Assert.AreEqual("_id", document.GetElement(1).Name);
+            Assert.AreEqual(BsonDocument.ID_FIELD, document.GetElement(1).Name);
             Assert.IsInstanceOf<BsonInt32>(document[0]);
             Assert.IsInstanceOf<BsonObjectId>(document[1]);
             Assert.AreEqual(1, document[0].AsInt32);
@@ -89,7 +89,7 @@ namespace MongoDB.BsonUnitTests
             var c = new C { N = 1, Id = ObjectId.Empty };
             var document = c.ToBsonDocument(DocumentSerializationOptions.SerializeIdFirstInstance);
             Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual("_id", document.GetElement(0).Name);
+            Assert.AreEqual(BsonDocument.ID_FIELD, document.GetElement(0).Name);
             Assert.AreEqual("N", document.GetElement(1).Name);
             Assert.IsInstanceOf<BsonObjectId>(document[0]);
             Assert.IsInstanceOf<BsonInt32>(document[1]);

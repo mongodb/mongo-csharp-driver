@@ -95,7 +95,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["$a"]);
@@ -111,7 +111,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["a.b"]);
@@ -149,7 +149,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["abc"]);
@@ -165,7 +165,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["$a"]);
@@ -181,7 +181,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["a.b"]);
@@ -197,7 +197,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["$a"]);
@@ -213,7 +213,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["a.b"]);
@@ -251,7 +251,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["abc"]);
@@ -267,7 +267,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["$a"]);
@@ -283,7 +283,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp265
 
             _collection.RemoveAll();
             _collection.Insert(d);
-            var r = _collection.FindOne(Query.EQ("_id", d.Id));
+            var r = _collection.FindOne(Query.EQ(BsonDocument.ID_FIELD, d.Id));
             Assert.AreEqual(d.Id, r.Id);
             Assert.AreEqual(1, r.Data.Count);
             Assert.AreEqual(1, r.Data["a.b"]);

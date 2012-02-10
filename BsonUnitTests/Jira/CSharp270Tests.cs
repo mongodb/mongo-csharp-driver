@@ -59,7 +59,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270
         {
             var document = new BsonDocument
             {
-                { "_id", ObjectId.GenerateNewId() },
+                { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                 { "property", 0 }
             };
             var message = "Required element 'field' for field 'Field' of class MongoDB.BsonUnitTests.Jira.CSharp270.C is missing.";
@@ -72,7 +72,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270
         {
             var document = new BsonDocument
             {
-                { "_id", ObjectId.GenerateNewId() },
+                { BsonDocument.ID_FIELD, ObjectId.GenerateNewId() },
                 { "field", 0 }
             };
             var message = "Required element 'property' for property 'Property' of class MongoDB.BsonUnitTests.Jira.CSharp270.C is missing.";

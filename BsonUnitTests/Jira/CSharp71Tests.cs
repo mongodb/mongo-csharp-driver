@@ -36,7 +36,7 @@ namespace MongoDB.BsonUnitTests.Jira
             // document initializer
             var document = new BsonDocument
             {
-                { "_id", "5d37e102e4a297f4156e0000" },
+                { BsonDocument.ID_FIELD, "5d37e102e4a297f4156e0000" },
                 { "Name", "IMG_2962.JPG" },
                 { "AccountId", "94bb3e04e4a297080c000000" },
                 { "Properties", new BsonArray

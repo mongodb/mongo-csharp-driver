@@ -40,7 +40,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp361
             var collection = Configuration.TestCollection;
             collection.Drop();
 
-            collection.Insert(new BsonDocument("_id", 1));
+            collection.Insert(new BsonDocument(BsonDocument.ID_FIELD, 1));
             Assert.Throws<ArgumentException>(() => { database.RenameCollection("test", ""); });
         }
     }

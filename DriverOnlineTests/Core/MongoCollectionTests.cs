@@ -134,7 +134,7 @@ namespace MongoDB.DriverOnlineTests
             Assert.AreEqual(false, indexes[0].IsBackground);
             Assert.AreEqual(false, indexes[0].IsSparse);
             Assert.AreEqual(false, indexes[0].IsUnique);
-            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual(new BsonDocument(BsonDocument.ID_FIELD, 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
@@ -148,7 +148,7 @@ namespace MongoDB.DriverOnlineTests
             Assert.AreEqual(false, indexes[0].IsBackground);
             Assert.AreEqual(false, indexes[0].IsSparse);
             Assert.AreEqual(false, indexes[0].IsUnique);
-            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual(new BsonDocument(BsonDocument.ID_FIELD, 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
@@ -170,7 +170,7 @@ namespace MongoDB.DriverOnlineTests
             Assert.AreEqual(false, indexes[0].IsBackground);
             Assert.AreEqual(false, indexes[0].IsSparse);
             Assert.AreEqual(false, indexes[0].IsUnique);
-            Assert.AreEqual(new BsonDocument("_id", 1), indexes[0].Key);
+            Assert.AreEqual(new BsonDocument(BsonDocument.ID_FIELD, 1), indexes[0].Key);
             Assert.AreEqual("_id_", indexes[0].Name);
             Assert.AreEqual(_collection.FullName, indexes[0].Namespace);
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
@@ -266,8 +266,8 @@ namespace MongoDB.DriverOnlineTests
         public void TestFindAndModify()
         {
             _collection.RemoveAll();
-            _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
-            _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
+            _collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
+            _collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
 
             var query = Query.EQ("inprogress", false);
             var sortBy = SortBy.Descending("priority");
@@ -276,7 +276,7 @@ namespace MongoDB.DriverOnlineTests
             var update = Update.Set("inprogress", true).Set("started", started);
             var result = _collection.FindAndModify(query, sortBy, update, false); // return old
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual(2, result.ModifiedDocument["_id"].AsInt32);
+            Assert.AreEqual(2, result.ModifiedDocument[BsonDocument.ID_FIELD].AsInt32);
             Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
             Assert.AreEqual(false, result.ModifiedDocument["inprogress"].AsBoolean);
             Assert.AreEqual("def", result.ModifiedDocument["name"].AsString);
@@ -287,7 +287,7 @@ namespace MongoDB.DriverOnlineTests
             update = Update.Set("inprogress", true).Set("started", started);
             result = _collection.FindAndModify(query, sortBy, update, true); // return new
             Assert.IsTrue(result.Ok);
-            Assert.AreEqual(1, result.ModifiedDocument["_id"].AsInt32);
+            Assert.AreEqual(1, result.ModifiedDocument[BsonDocument.ID_FIELD].AsInt32);
             Assert.AreEqual(1, result.ModifiedDocument["priority"].AsInt32);
             Assert.AreEqual(true, result.ModifiedDocument["inprogress"].AsBoolean);
             Assert.AreEqual("abc", result.ModifiedDocument["name"].AsString);
@@ -337,7 +337,7 @@ namespace MongoDB.DriverOnlineTests
             var obj = new FindAndModifyClass { Id = ObjectId.GenerateNewId(), Value = 1 };
             _collection.Insert(obj);
 
-            var query = Query.EQ("_id", obj.Id);
+            var query = Query.EQ(BsonDocument.ID_FIELD, obj.Id);
             var sortBy = SortBy.Null;
             var update = Update.Inc("Value", 1);
             var result = _collection.FindAndModify(query, sortBy, update, true); // returnNew
@@ -490,7 +490,7 @@ namespace MongoDB.DriverOnlineTests
         {
             _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            _collection.Insert(new BsonDocument { { "_id", id }, { "x", 1 }, { "y", 2 } });
+            _collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, id }, { "x", 1 }, { "y", 2 } });
             var result = _collection.FindOneById(id);
             Assert.AreEqual(1, result["x"].AsInt32);
             Assert.AreEqual(2, result["y"].AsInt32);
@@ -501,7 +501,7 @@ namespace MongoDB.DriverOnlineTests
         {
             _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            _collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, id }, { "X", 1 } });
             var result = (TestClass)_collection.FindOneByIdAs(typeof(TestClass), id);
             Assert.AreEqual(id, result.Id);
             Assert.AreEqual(1, result.X);
@@ -512,7 +512,7 @@ namespace MongoDB.DriverOnlineTests
         {
             _collection.RemoveAll();
             var id = ObjectId.GenerateNewId();
-            _collection.Insert(new BsonDocument { { "_id", id }, { "X", 1 } });
+            _collection.Insert(new BsonDocument { { BsonDocument.ID_FIELD, id }, { "X", 1 } });
             var result = _collection.FindOneByIdAs<TestClass>(id);
             Assert.AreEqual(id, result.Id);
             Assert.AreEqual(1, result.X);
@@ -992,13 +992,13 @@ namespace MongoDB.DriverOnlineTests
                 { "B", 3 },
                 { "C", 1 },
                 { "X", 1 },
-                { "_id", 3 }
+                { BsonDocument.ID_FIELD, 3 }
             };
 
             // read output collection ourselves
             foreach (var document in _database[result.CollectionName].FindAll())
             {
-                var key = document["_id"].AsString;
+                var key = document[BsonDocument.ID_FIELD].AsString;
                 var count = document["value"].AsBsonDocument["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
@@ -1006,7 +1006,7 @@ namespace MongoDB.DriverOnlineTests
             // test GetResults
             foreach (var document in result.GetResults())
             {
-                var key = document["_id"].AsString;
+                var key = document[BsonDocument.ID_FIELD].AsString;
                 var count = document["value"].AsBsonDocument["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
@@ -1061,13 +1061,13 @@ namespace MongoDB.DriverOnlineTests
                     { "B", 3 },
                     { "C", 1 },
                     { "X", 1 },
-                    { "_id", 3 }
+                    { BsonDocument.ID_FIELD, 3 }
                 };
 
                 // test InlineResults as BsonDocuments
                 foreach (var document in result.InlineResults)
                 {
-                    var key = document["_id"].AsString;
+                    var key = document[BsonDocument.ID_FIELD].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
@@ -1083,7 +1083,7 @@ namespace MongoDB.DriverOnlineTests
                 // test GetResults
                 foreach (var document in result.GetResults())
                 {
-                    var key = document["_id"].AsString;
+                    var key = document[BsonDocument.ID_FIELD].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
@@ -1141,13 +1141,13 @@ namespace MongoDB.DriverOnlineTests
                     { "B", 3 },
                     { "C", 1 },
                     { "X", 1 },
-                    { "_id", 3 }
+                    { BsonDocument.ID_FIELD, 3 }
                 };
 
                 // test InlineResults as BsonDocuments
                 foreach (var document in result.InlineResults)
                 {
-                    var key = document["_id"].AsString;
+                    var key = document[BsonDocument.ID_FIELD].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
@@ -1163,7 +1163,7 @@ namespace MongoDB.DriverOnlineTests
                 // test GetResults
                 foreach (var document in result.GetResults())
                 {
-                    var key = document["_id"].AsString;
+                    var key = document[BsonDocument.ID_FIELD].AsString;
                     var count = document["value"].AsBsonDocument["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
@@ -1204,7 +1204,7 @@ namespace MongoDB.DriverOnlineTests
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
             var result = _collection.FindAll().SetFields("x").FirstOrDefault();
             Assert.AreEqual(2, result.ElementCount);
-            Assert.AreEqual("_id", result.GetElement(0).Name);
+            Assert.AreEqual(BsonDocument.ID_FIELD, result.GetElement(0).Name);
             Assert.AreEqual("x", result.GetElement(1).Name);
         }
 
