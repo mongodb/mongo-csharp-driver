@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Static class that contains the Mongo Linq extension methods.
     /// </summary>
-    public static class ExtensionMethods
+    public static class LinqExtensionMethods
     {
         /// <summary>
         /// Returns an instance of IQueryable{{T}} for a MongoCollection.
@@ -38,6 +38,18 @@ namespace MongoDB.Driver.Linq
         {
             var provider = new MongoQueryProvider(collection);
             return new MongoQueryable<T>(provider);
+        }
+
+        public static bool ContainsAll<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> values)
+        {
+            foreach (var value in values)
+            {
+                if (!source.Contains(value))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

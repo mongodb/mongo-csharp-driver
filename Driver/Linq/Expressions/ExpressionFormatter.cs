@@ -22,6 +22,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
@@ -109,6 +111,22 @@ namespace MongoDB.Driver.Linq
         protected override Expression VisitConstant(ConstantExpression node)
         {
             var value = node.Value;
+
+            var a = value as Array;
+            if (a != null && a.Rank == 1)
+            {
+                var elementType = a.GetType().GetElementType();
+                _sb.AppendFormat("new {0}[] {{ ", elementType.Name);
+                var separator = "";
+                foreach (var item in a)
+                {
+                    _sb.Append(separator);
+                    _sb.Append(item.ToJson());
+                    separator = ", ";
+                }
+                _sb.Append(" }");
+                return node;
+            }
 
             var e = value as Enum;
             if (e != null)

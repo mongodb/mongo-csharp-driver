@@ -189,7 +189,7 @@
     <Compile Include="Linq\Expressions\ExpressionVisitor.cs" />
     <Compile Include="Linq\Translators\Projector.cs" />
     <Compile Include="Linq\Translators\SelectQuery.cs" />
-    <Compile Include="Linq\ExtensionMethods.cs" />
+    <Compile Include="Linq\LinqExtensionMethods.cs" />
     <Compile Include="Linq\MongoQueryable.cs" />
     <Compile Include="Linq\MongoQueryProvider.cs" />
     <Compile Include="Linq\Translators\MongoQueryTranslator.cs" />

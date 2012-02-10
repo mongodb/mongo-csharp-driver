@@ -246,6 +246,51 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
+        private IMongoQuery CreateArrayContainsQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.Name == "Contains")
+            {
+                if (methodCallExpression.Method.DeclaringType == typeof(Enumerable) && methodCallExpression.Object == null)
+                {
+                    var arguments = methodCallExpression.Arguments.ToArray();
+                    if (arguments.Length == 2)
+                    {
+                        var memberExpression = arguments[0] as MemberExpression;
+                        var valueExpression = arguments[1] as ConstantExpression;
+                        if (memberExpression != null && valueExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(memberExpression);
+                            var value = BsonValue.Create(valueExpression.Value);
+                            return Query.EQ(dottedElementName, value);
+                        }
+                    }
+                }
+            }
+            if (methodCallExpression.Method.Name == "ContainsAll")
+            {
+                if (methodCallExpression.Method.DeclaringType == typeof(LinqExtensionMethods) && methodCallExpression.Object == null)
+                {
+                    var arguments = methodCallExpression.Arguments.ToArray();
+                    if (arguments.Length == 2)
+                    {
+                        var memberExpression = arguments[0] as MemberExpression;
+                        var valuesExpression = arguments[1] as ConstantExpression;
+                        if (memberExpression != null && valuesExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(memberExpression);
+                            var values = new BsonArray();
+                            foreach (var value in (IEnumerable) valuesExpression.Value)
+                            {
+                                values.Add(BsonValue.Create(value));
+                            }
+                            return Query.All(dottedElementName, values);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         private IMongoQuery CreateComparisonQuery(BinaryExpression binaryExpression)
         {
             var memberExpression = binaryExpression.Left as MemberExpression;
@@ -306,12 +351,18 @@ namespace MongoDB.Driver.Linq
                     binaryExpression = (BinaryExpression)expression;
                     return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
                 case ExpressionType.Call:
-                    query = CreateRegexQuery((MethodCallExpression)expression);
+                    var methodCallExpression = (MethodCallExpression)expression;
+                    query = CreateArrayContainsQuery(methodCallExpression);
                     if (query != null)
                     {
                         return query;
                     }
-                    query = CreateStringQuery((MethodCallExpression)expression);
+                    query = CreateRegexQuery(methodCallExpression);
+                    if (query != null)
+                    {
+                        return query;
+                    }
+                    query = CreateStringQuery(methodCallExpression);
                     if (query != null)
                     {
                         return query;

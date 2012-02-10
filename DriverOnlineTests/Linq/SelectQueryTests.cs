@@ -42,6 +42,8 @@ namespace MongoDB.DriverOnlineTests.Linq
             public D D { get; set; }
             [BsonElement("s")]
             public string S { get; set; }
+            [BsonElement("a")]
+            public int[] A { get; set; }
         }
 
         private class D
@@ -92,7 +94,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             _collection.Drop();
 
             // documents inserted deliberately out of order to test sorting
-            _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 } });
+            _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 } });
             _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1" });
             _collection.Insert(new C { X = 3, Y = 33, D = new D { Z = 33 } });
             _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 } });
@@ -1455,6 +1457,52 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Take);
 
             Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereAContains2()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.A.Contains(2)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => Enumerable.Contains(c.A, 2)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : 2 }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereAContains2And3()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.A.ContainsAll(new [] { 2, 3 })
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqExtensionMethods.ContainsAll(c.A, new Int32[] { 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : { \"$all\" : [2, 3] } }", selectQuery.CreateMongoQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
