@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -39,6 +40,8 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int Y { get; set; }
             [BsonElement("d")]
             public D D { get; set; }
+            [BsonElement("s")]
+            public string S { get; set; }
         }
 
         private class D
@@ -90,7 +93,7 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             // documents inserted deliberately out of order to test sorting
             _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 } });
-            _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 } });
+            _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1" });
             _collection.Insert(new C { X = 3, Y = 33, D = new D { Z = 33 } });
             _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 } });
             _collection.Insert(new C { X = 4, Y = 44, D = new D { Z = 44 } });
@@ -791,7 +794,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.X
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -819,7 +822,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.Y, c.X
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -849,7 +852,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.Y, c.X descending
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -879,7 +882,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.X descending
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -907,7 +910,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.Y descending, c.X
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -937,7 +940,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.Y descending, c.X descending
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -969,7 +972,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         orderby c.Y
                         select c;
 
-            MongoQueryTranslator.Translate(_collection, query.Expression);
+            MongoQueryTranslator.Translate(query);
         }
 
         [Test]
@@ -978,7 +981,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var query = from c in _collection.AsQueryable<C>()
                         select c.X;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1013,7 +1016,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var query = from c in _collection.AsQueryable<C>()
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1167,7 +1170,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var query = (from c in _collection.AsQueryable<C>()
                          select c).Skip(2);
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1229,7 +1232,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var query = (from c in _collection.AsQueryable<C>()
                          select c).Take(2);
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1261,7 +1264,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             var query = ((IOrderedQueryable<C>)_collection.AsQueryable<C>())
                 .ThenBy(c => c.X);
 
-            MongoQueryTranslator.Translate(_collection, query.Expression);
+            MongoQueryTranslator.Translate(query);
         }
 
         [Test]
@@ -1293,13 +1296,107 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereSIsMatch()
+        {
+            var regex = new Regex("^x");
+            var query = from c in _collection.AsQueryable<C>()
+                        where regex.IsMatch(c.S)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => new Regex(\"^x\").IsMatch(c.S)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIsMatchStatic()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where Regex.IsMatch(c.S, "^x")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => Regex.IsMatch(c.S, \"^x\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^x/ }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIsMatchStaticWithOptions()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where Regex.IsMatch(c.S, "^x", RegexOptions.IgnoreCase)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => Regex.IsMatch(c.S, \"^x\", RegexOptions.IgnoreCase)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^x/i }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIsNotMatch()
+        {
+            var regex = new Regex("^x");
+            var query = from c in _collection.AsQueryable<C>()
+                        where !regex.IsMatch(c.S)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !new Regex(\"^x\").IsMatch(c.S)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^x/ } }", selectQuery.CreateMongoQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
         public void TestWhereXEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.X == 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1322,7 +1419,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X == 1 && c.Y == 11
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1345,7 +1442,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X == 1 && c.Y == 11 && c.D.Z == 11
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1368,7 +1465,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X == 1 || c.Y == 33
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1391,7 +1488,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X > 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1414,7 +1511,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X >= 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1437,7 +1534,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X < 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1460,7 +1557,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X <= 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1483,7 +1580,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X % 2 == 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1506,7 +1603,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X % 2 != 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
@@ -1529,7 +1626,7 @@ namespace MongoDB.DriverOnlineTests.Linq
                         where c.X != 1
                         select c;
 
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, query.Expression);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(translatedQuery);
             Assert.AreSame(_collection, translatedQuery.Collection);
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);

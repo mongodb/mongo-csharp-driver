@@ -108,7 +108,43 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ConstantExpression.</returns>
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            _sb.Append(node.Value.ToString());
+            var value = node.Value;
+
+            var e = value as Enum;
+            if (e != null)
+            {
+                _sb.Append(e.GetType().Name + "." + e.ToString());
+                return node;
+            }
+
+            var regex = value as Regex;
+            if (regex != null)
+            {
+                var pattern = regex.ToString();
+                var options = regex.Options;
+                _sb.Append("new Regex(\"");
+                _sb.Append(pattern);
+                _sb.Append("\"");
+                if (options != RegexOptions.None)
+                {
+                    _sb.Append(", RegexOptions.");
+                    _sb.Append(options.ToString());
+                }
+                _sb.Append(")");
+                return node;
+            }
+
+            var s = value as string;
+            if (s != null)
+            {
+                s = Regex.Replace(s, @"([""\\])", @"\\$1");
+                _sb.Append("\"");
+                _sb.Append(s);
+                _sb.Append("\"");
+                return node;
+            }
+
+            _sb.Append(value.ToString());
             return node;
         }
 
@@ -247,6 +283,15 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MethodCallExpression.</returns>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node.Method.IsStatic)
+            {
+                _sb.Append(node.Method.DeclaringType.Name);
+            }
+            else
+            {
+                Visit(node.Object);
+            }
+            _sb.Append(".");
             _sb.Append(node.Method.Name);
             _sb.Append("(");
             var separator = "";
@@ -322,6 +367,7 @@ namespace MongoDB.Driver.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.Negate: _sb.Append("-"); break;
+                case ExpressionType.Not: _sb.Append("!"); break;
                 default: throw new InvalidOperationException("Unexpected NodeType.");
             }
             Visit(node.Operand);

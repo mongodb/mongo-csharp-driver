@@ -47,6 +47,15 @@ namespace MongoDB.Driver.Linq
             _collection = collection;
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the Collection.
+        /// </summary>
+        public MongoCollection Collection
+        {
+            get { return _collection; }
+        }
+
         // public methods
         /// <summary>
         /// Creates a new instance of MongoQueryable{{T}} for this provider.
@@ -122,13 +131,12 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentNullException("expression");
             }
 
-            expression = PartialEvaluator.Evaluate(expression, CanBeEvaluatedLocally);
-            var translatedQuery = MongoQueryTranslator.Translate(_collection, expression);
+            var translatedQuery = MongoQueryTranslator.Translate(this, expression);
             return translatedQuery.Execute();
         }
 
         // private methods
-        private bool CanBeEvaluatedLocally(Expression expression)
+        internal bool CanBeEvaluatedLocally(Expression expression)
         {
             // any operation on a query can't be done locally
             var constantExpression = expression as ConstantExpression;

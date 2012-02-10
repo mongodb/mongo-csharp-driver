@@ -29,16 +29,27 @@ namespace MongoDB.Driver.Linq
     {
         // public static methods
         /// <summary>
-        /// A translator from LINQ queries to MongoDB queries.
+        /// Translate a MongoDB LINQ query.
         /// </summary>
-        /// <param name="collection">The collection being queried.</param>
-        /// <param name="expression">The LINQ query.</param>
-        /// <returns>An instance of MongoLinqQuery.</returns>
-        public static TranslatedQuery Translate(MongoCollection collection, Expression expression)
+        /// <param name="query">The MongoDB LINQ query.</param>
+        /// <returns>A TranslatedQuery.</returns>
+        public static TranslatedQuery Translate(IQueryable query)
         {
+            return Translate((MongoQueryProvider)query.Provider, query.Expression);
+        }
+
+        /// <summary>
+        /// Translate a MongoDB LINQ query.
+        /// </summary>
+        /// <param name="provider">The MongoDB query provider.</param>
+        /// <param name="expression">The LINQ query expression.</param>
+        /// <returns>A TranslatedQuery.</returns>
+        public static TranslatedQuery Translate(MongoQueryProvider provider, Expression expression)
+        {
+            expression = PartialEvaluator.Evaluate(expression, provider.CanBeEvaluatedLocally);
             // assume for now it's a SelectQuery
             var documentType = GetDocumentType(expression);
-            var selectQuery = new SelectQuery(collection, documentType);
+            var selectQuery = new SelectQuery(provider.Collection, documentType);
             selectQuery.Translate(expression);
             return selectQuery;
         }

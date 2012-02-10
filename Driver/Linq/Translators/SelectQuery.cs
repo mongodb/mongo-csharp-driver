@@ -21,6 +21,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 using MongoDB.Bson;
@@ -301,6 +302,16 @@ namespace MongoDB.Driver.Linq
             IMongoQuery query;
             switch (expression.NodeType)
             {
+                case ExpressionType.AndAlso:
+                    binaryExpression = (BinaryExpression)expression;
+                    return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
+                case ExpressionType.Call:
+                    query = CreateRegexQuery((MethodCallExpression)expression);
+                    if (query != null)
+                    {
+                        return query;
+                    }
+                    goto default;
                 case ExpressionType.Equal:
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
@@ -319,15 +330,72 @@ namespace MongoDB.Driver.Linq
                         return query;
                     }
                     goto default;
-                case ExpressionType.AndAlso:
-                    binaryExpression = (BinaryExpression)expression;
-                    return Query.And(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
+                case ExpressionType.Not:
+                    var notExpression = (UnaryExpression)expression;
+                    var queryDocument = CreateMongoQuery(notExpression.Operand).ToBsonDocument();
+                    if (queryDocument.ElementCount == 1)
+                    {
+                        return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$not", queryDocument[0]));
+                    }
+                    goto default;
                 case ExpressionType.OrElse:
                     binaryExpression = (BinaryExpression)expression;
                     return Query.Or(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
                 default:
                     throw new ArgumentException("Unsupported where clause");
             }
+        }
+
+        private IMongoQuery CreateRegexQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.Name == "IsMatch")
+            {
+                var obj = methodCallExpression.Object;
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (obj == null)
+                {
+                    if (arguments.Length == 2 || arguments.Length == 3)
+                    {
+                        var inputExpression = arguments[0] as MemberExpression;
+                        var patternExpression = arguments[1] as ConstantExpression;
+                        if (inputExpression != null && patternExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(inputExpression);
+                            var pattern = patternExpression.Value as string;
+                            if (pattern != null)
+                            {
+                                var options = RegexOptions.None;
+                                if (arguments.Length == 3)
+                                {
+                                    var optionsExpression = arguments[2] as ConstantExpression;
+                                    if (optionsExpression == null || optionsExpression.Type != typeof(RegexOptions))
+                                    {
+                                        return null;
+                                    }
+                                    options = (RegexOptions)optionsExpression.Value;
+                                }
+                                var regex = new Regex(pattern, options);
+                                return Query.Matches(dottedElementName, regex);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var regexExpression = obj as ConstantExpression;
+                    if (regexExpression != null && arguments.Length == 1)
+                    {
+                        var regex = regexExpression.Value as Regex;
+                        var inputExpression = arguments[0] as MemberExpression;
+                        if (regex != null && inputExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(inputExpression);
+                            return Query.Matches(dottedElementName, regex);
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         private string GetDottedElementName(MemberExpression member)
