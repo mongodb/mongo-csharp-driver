@@ -311,6 +311,11 @@ namespace MongoDB.Driver.Linq
                     {
                         return query;
                     }
+                    query = CreateStringQuery((MethodCallExpression)expression);
+                    if (query != null)
+                    {
+                        return query;
+                    }
                     goto default;
                 case ExpressionType.Equal:
                 case ExpressionType.GreaterThan:
@@ -342,7 +347,8 @@ namespace MongoDB.Driver.Linq
                     binaryExpression = (BinaryExpression)expression;
                     return Query.Or(CreateMongoQuery(binaryExpression.Left), CreateMongoQuery(binaryExpression.Right));
                 default:
-                    throw new ArgumentException("Unsupported where clause");
+                    var message = string.Format("Unsupported where clause: {0}.", ExpressionFormatter.ToString(expression));
+                    throw new ArgumentException(message);
             }
         }
 
@@ -394,6 +400,38 @@ namespace MongoDB.Driver.Linq
                         }
                     }
                 }
+            }
+            return null;
+        }
+
+        private IMongoQuery CreateStringQuery(MethodCallExpression methodCallExpression)
+        {
+            switch (methodCallExpression.Method.Name)
+            {
+                case "Contains":
+                case "EndsWith":
+                case "StartsWith":
+                    var arguments = methodCallExpression.Arguments.ToArray();
+                    if (arguments.Length == 1)
+                    {
+                        var memberExpression = methodCallExpression.Object as MemberExpression;
+                        var valueExpression = arguments[0] as ConstantExpression;
+                        if (memberExpression != null && valueExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(memberExpression);
+                            var s = (string)valueExpression.Value;
+                            BsonRegularExpression regex;
+                            switch (methodCallExpression.Method.Name)
+                            {
+                                case "Contains": regex = new BsonRegularExpression(s); break;
+                                case "EndsWith": regex = new BsonRegularExpression(s + "$"); break;
+                                case "StartsWith": regex = new BsonRegularExpression("^" + s); break;
+                                default: throw new InvalidOperationException("Unreachable code");
+                            }
+                            return Query.Matches(dottedElementName, regex);
+                        }
+                    }
+                    break;
             }
             return null;
         }
