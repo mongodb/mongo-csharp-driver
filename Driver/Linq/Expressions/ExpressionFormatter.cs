@@ -317,6 +317,10 @@ namespace MongoDB.Driver.Linq
             }
             _sb.Append(".");
             _sb.Append(node.Method.Name);
+            if (node.Method.IsGenericMethod)
+            {
+                _sb.AppendFormat("<{0}>", string.Join(", ", node.Method.GetGenericArguments().Select(t => FriendlyClassName(t)).ToArray()));
+            }
             _sb.Append("(");
             var separator = "";
             foreach (var arg in node.Arguments)
@@ -357,7 +361,17 @@ namespace MongoDB.Driver.Linq
         /// <returns>The NewArrayExpression.</returns>
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
-            throw new NotImplementedException();
+            var elementType = node.Type.GetElementType();
+            _sb.AppendFormat("new {0}[] {{ ", PublicClassName(elementType));
+            var separator = "";
+            foreach (var item in node.Expressions)
+            {
+                _sb.Append(separator);
+                Visit(item);
+                separator = ", ";
+            }
+            _sb.Append(" }");
+            return node;
         }
 
         /// <summary>
@@ -392,6 +406,7 @@ namespace MongoDB.Driver.Linq
             {
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
+                case ExpressionType.Quote: break;
                 default: throw new InvalidOperationException("Unexpected NodeType.");
             }
             Visit(node.Operand);

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="values">The set of values.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool All<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
         {
             throw new InvalidOperationException("The LinqToMongo.All method is only intended to be used in LINQ Where clauses.");
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="exists">Whether to test for the presence or absence of the field.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool Exists<TField>(TField field, bool exists)
         {
             throw new InvalidOperationException("The LinqToMongo.Exists method is only intended to be used in LINQ Where clauses.");
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="values">The set of values.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool In<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
         {
             throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
@@ -70,10 +70,21 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="values">The set of values.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool In<TField>(TField field, IEnumerable<TField> values)
         {
             throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
+        }
+
+        /// <summary>
+        /// Test that none of the predicates is true.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <param name="predicates">The predicates.</param>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
+        public static bool Nor<TDocument>(params Expression<Func<TDocument, bool>>[] predicates)
+        {
+            throw new InvalidOperationException("The LinqToMongo.Nor method is only intended to be used in LINQ Where clauses.");
         }
 
         /// <summary>
@@ -82,7 +93,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TItem">The type of the array items.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="values">The set of values.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool NotIn<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
         {
             throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
@@ -94,7 +105,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="values">The set of values.</param>
-        /// <returns></returns>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
         public static bool NotIn<TField>(TField field, IEnumerable<TField> values)
         {
             throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");

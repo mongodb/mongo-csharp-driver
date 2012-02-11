@@ -31,7 +31,7 @@ namespace MongoDB.DriverOnlineTests.Linq
     [TestFixture]
     public class SelectQueryTests
     {
-        private class C
+        public class C
         {
             public ObjectId Id { get; set; }
             [BsonElement("x")]
@@ -48,7 +48,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             public int[] A { get; set; }
         }
 
-        private class D
+        public class D
         {
             [BsonElement("z")]
             public int Z; // use field instead of property to test fields also
@@ -1475,7 +1475,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => Enumerable.Contains(c.A, 2)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => Enumerable.Contains<Int32>(c.A, 2)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1498,7 +1498,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.All(c.A, new Int32[] { 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.All<Int32>(c.A, new Int32[] { 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1521,7 +1521,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.Exists(c.A, false)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A, false)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1544,7 +1544,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.Exists(c.A, true)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A, true)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1567,7 +1567,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.In(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.In<Int32>(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1590,7 +1590,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => !LinqToMongo.In(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => !LinqToMongo.In<Int32>(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1613,7 +1613,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.NotIn(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.NotIn<Int32>(c.A, new Int32[] { 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1690,6 +1690,29 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual("{ \"x\" : 1, \"y\" : 11, \"d.z\" : 11 }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXEquals1NorYEquals33()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.Nor<C>(d => d.X == 1, d => d.Y == 33)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.Nor<C>(new Expression<Func<C, Boolean>>[] { (C d) => (d.X == 1), (C d) => (d.Y == 33) })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$nor\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
         }
 
         [Test]
@@ -1774,7 +1797,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.In(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.In<Int32>(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1912,7 +1935,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => !LinqToMongo.In(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => !LinqToMongo.In<Int32>(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1935,7 +1958,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.NotIn(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.NotIn<Int32>(c.X, new Int32[] { 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
