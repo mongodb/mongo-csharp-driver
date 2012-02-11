@@ -124,5 +124,15 @@ namespace MongoDB.Driver.Linq
         {
             throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
         }
+
+        /// <summary>
+        /// Test whether a JavaScript expression (evaluated at the server) is true.
+        /// </summary>
+        /// <param name="javaScript">The JavaScript expression.</param>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
+        public static bool Where(BsonJavaScript javaScript)
+        {
+            throw new InvalidOperationException("The LinqToMongo.Where method is only intended to be used in LINQ Where clauses.");
+        }
     }
 }

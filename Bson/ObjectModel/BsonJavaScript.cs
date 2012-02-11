@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
 {
@@ -199,7 +200,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return _code;
+            return string.Format("new BsonJavaScript(\"{0}\")", _code);
         }
     }
 }

@@ -157,6 +157,10 @@ namespace MongoDB.Driver.Linq
                 {
                     return false;
                 }
+                if (declaringType == typeof(LinqToMongo))
+                {
+                    return false;
+                }
             }
 
             if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))

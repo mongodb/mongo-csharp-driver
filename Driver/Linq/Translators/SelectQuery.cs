@@ -455,6 +455,7 @@ namespace MongoDB.Driver.Linq
                 case "Nor": return BuildNorQuery(methodCallExpression);
                 case "NotIn": return BuildInQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
+                case "Where": return BuildWhereQuery(methodCallExpression);
             }
             return null;
         }
@@ -634,6 +635,24 @@ namespace MongoDB.Driver.Linq
                         var dottedElementName = GetDottedElementName(memberExpression);
                         var type = (BsonType)typeExpression.Value;
                         return Query.Type(dottedElementName, type);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildWhereQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 1)
+                {
+                    var javaScriptExpression = arguments[0] as ConstantExpression;
+                    if (javaScriptExpression != null)
+                    {
+                        var javaScript = (BsonJavaScript)javaScriptExpression.Value;
+                        return Query.Where(javaScript);
                     }
                 }
             }
