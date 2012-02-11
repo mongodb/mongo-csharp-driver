@@ -278,10 +278,19 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
-            var query = BuildModQuery(binaryExpression);
-            if (query != null)
+            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                return query;
+                var query = BuildSizeQuery(binaryExpression);
+                if (query != null)
+                {
+                    return query;
+                }
+
+                query = BuildModQuery(binaryExpression);
+                if (query != null)
+                {
+                    return query;
+                }
             }
 
             var memberExpression = binaryExpression.Left as MemberExpression;
@@ -451,27 +460,24 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildModQuery(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
+            if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
             {
-                var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
-                if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
+                var memberExpression = leftBinaryExpression.Left as MemberExpression;
+                var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
+                var equalsExpression = binaryExpression.Right as ConstantExpression;
+                if (memberExpression != null && modulusExpression != null && equalsExpression != null)
                 {
-                    var memberExpression = leftBinaryExpression.Left as MemberExpression;
-                    var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
-                    var equalsExpression = binaryExpression.Right as ConstantExpression;
-                    if (memberExpression != null && modulusExpression != null && equalsExpression != null)
+                    var elementName = GetDottedElementName(memberExpression);
+                    var modulus = Convert.ToInt32(modulusExpression.Value);
+                    var equals = Convert.ToInt32(equalsExpression.Value);
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        var elementName = GetDottedElementName(memberExpression);
-                        var modulus = Convert.ToInt32(modulusExpression.Value);
-                        var equals = Convert.ToInt32(equalsExpression.Value);
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return Query.Mod(elementName, modulus, equals);
-                        }
-                        else
-                        {
-                            return Query.Not(elementName).Mod(modulus, equals);
-                        }
+                        return Query.Mod(elementName, modulus, equals);
+                    }
+                    else
+                    {
+                        return Query.Not(elementName).Mod(modulus, equals);
                     }
                 }
             }
@@ -552,6 +558,30 @@ namespace MongoDB.Driver.Linq
             }
 
             return query;
+        }
+
+        private IMongoQuery BuildSizeQuery(BinaryExpression binaryExpression)
+        {
+            var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
+            if (leftUnaryExpression != null && leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
+            {
+                var memberExpression = leftUnaryExpression.Operand as MemberExpression;
+                var valueExpression = binaryExpression.Right as ConstantExpression;
+                if (memberExpression != null && valueExpression != null)
+                {
+                    var dottedElementName = GetDottedElementName(memberExpression);
+                    var value = (int)valueExpression.Value;
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
+                    {
+                        return Query.Size(dottedElementName, value);
+                    }
+                    else
+                    {
+                        return Query.Not(dottedElementName).Size(value);
+                    }
+                }
+            }
+            return null;
         }
 
         private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)

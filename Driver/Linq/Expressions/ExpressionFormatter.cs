@@ -404,12 +404,17 @@ namespace MongoDB.Driver.Linq
         {
             switch (node.NodeType)
             {
+                case ExpressionType.ArrayLength: break;
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
                 case ExpressionType.Quote: break;
                 default: throw new InvalidOperationException("Unexpected NodeType.");
             }
             Visit(node.Operand);
+            switch (node.NodeType)
+            {
+                case ExpressionType.ArrayLength: _sb.Append(".Length"); break;
+            }
             return node;
         }
 
