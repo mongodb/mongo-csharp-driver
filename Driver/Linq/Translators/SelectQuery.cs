@@ -451,6 +451,7 @@ namespace MongoDB.Driver.Linq
                 case "Exists": return BuildExistsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
+                case "IsOfBsonType": return BuildTypeQuery(methodCallExpression);
                 case "Nor": return BuildNorQuery(methodCallExpression);
                 case "NotIn": return BuildInQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
@@ -614,6 +615,26 @@ namespace MongoDB.Driver.Linq
                             }
                         }
                         break;
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildTypeQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
+                {
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var typeExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && typeExpression != null)
+                    {
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var type = (BsonType)typeExpression.Value;
+                        return Query.Type(dottedElementName, type);
+                    }
                 }
             }
             return null;

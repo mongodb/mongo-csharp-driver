@@ -1854,6 +1854,52 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereXIsNotOfTypeInt32()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !LinqToMongo.IsOfBsonType(c.X, BsonType.Int32)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !LinqToMongo.IsOfBsonType<Int32>(c.X, BsonType.Int32)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$type\" : 16 } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXIsOfBsonTypeInt32()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where LinqToMongo.IsOfBsonType(c.X, BsonType.Int32)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => LinqToMongo.IsOfBsonType<Int32>(c.X, BsonType.Int32)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : { \"$type\" : 16 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
         public void TestWhereXLessThan1()
         {
             var query = from c in _collection.AsQueryable<C>()

@@ -21,6 +21,8 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
@@ -74,6 +76,18 @@ namespace MongoDB.Driver.Linq
         public static bool In<TField>(TField field, IEnumerable<TField> values)
         {
             throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
+        }
+
+        /// <summary>
+        /// Test whether a field in the document is of a particular BSON type.
+        /// </summary>
+        /// <typeparam name="TField">The type of the field or property.</typeparam>
+        /// <param name="field">The field or property.</param>
+        /// <param name="type">The BSON type.</param>
+        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
+        public static bool IsOfBsonType<TField>(TField field, BsonType type)
+        {
+            throw new InvalidOperationException("The LinqToMongo.IsOfBsonType method is only intended to be used in LINQ Where clauses.");
         }
 
         /// <summary>
