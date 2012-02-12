@@ -677,6 +677,19 @@ namespace MongoDB.Driver
             return new MongoGridFS(this, gridFSSettings);
         }
 
+        /// <summary>
+        /// Gets the last error (if any) that occurred on this connection. You MUST be within a RequestStart to call this method.
+        /// </summary>
+        /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
+        public virtual GetLastErrorResult GetLastError()
+        {
+            if (Server.RequestNestingLevel == 0)
+            {
+                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first.");
+            }
+            return RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+        }
+
         // TODO: mongo shell has GetPrevError at the database level?
         // TODO: mongo shell has GetProfilingLevel at the database level?
         // TODO: mongo shell has GetReplicationInfo at the database level?

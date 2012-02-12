@@ -897,12 +897,8 @@ namespace MongoDB.Driver
         /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
         public virtual GetLastErrorResult GetLastError()
         {
-            if (RequestNestingLevel == 0)
-            {
-                throw new InvalidOperationException("GetLastError can only be called if RequestStart has been called first.");
-            }
-            var adminDatabase = GetAdminDatabase((MongoCredentials)null); // no credentials needed for getlasterror
-            return adminDatabase.RunCommandAs<GetLastErrorResult>("getlasterror"); // use all lowercase for backward compatibility
+            var adminDatabase = GetAdminDatabase((MongoCredentials)null); // if credentials are needed call MongoDatabase.GetLastError instead
+            return adminDatabase.GetLastError();
         }
 
         /// <summary>
