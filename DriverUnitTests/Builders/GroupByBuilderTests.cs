@@ -56,7 +56,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestFunction()
         {
             var groupBy = GroupBy.Function("this.age >= 21");
-            string expected = "this.age >= 21";
+            string expected = "new BsonJavaScript(\"this.age >= 21\")";
             Assert.AreEqual(expected, groupBy.ToString());
         }
     }
