@@ -375,14 +375,24 @@ namespace MongoDB.Driver.Linq
                         {
                             values.Add(BsonValue.Create(value));
                         }
-                        if (methodCallExpression.Method.Name == "In")
-                        {
-                            return Query.In(dottedElementName, values);
-                        }
-                        else
-                        {
-                            return Query.NotIn(dottedElementName, values);
-                        }
+                        return Query.In(dottedElementName, values);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildInjectQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 1)
+                {
+                    var queryExpression = arguments[0] as ConstantExpression;
+                    if (queryExpression != null)
+                    {
+                        return (IMongoQuery)queryExpression.Value;
                     }
                 }
             }
@@ -445,17 +455,16 @@ namespace MongoDB.Driver.Linq
         {
             switch (methodCallExpression.Method.Name)
             {
-                case "All": return BuildAllQuery(methodCallExpression);
                 case "Contains": return BuildContainsQuery(methodCallExpression);
+                case "ContainsAll": return BuildAllQuery(methodCallExpression);
+                case "ContainsAny": return BuildInQuery(methodCallExpression);
                 case "EndsWith": return BuildStringQuery(methodCallExpression);
                 case "Exists": return BuildExistsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
+                case "Inject": return BuildInjectQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
                 case "IsOfBsonType": return BuildTypeQuery(methodCallExpression);
-                case "Nor": return BuildNorQuery(methodCallExpression);
-                case "NotIn": return BuildInQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
-                case "Where": return BuildWhereQuery(methodCallExpression);
             }
             return null;
         }
@@ -486,38 +495,44 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
-        private IMongoQuery BuildNorQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var predicates = (NewArrayExpression)methodCallExpression.Arguments[0];
-                var clauses = new BsonArray();
-                foreach (var quotedPredicate in predicates.Expressions)
-                {
-                    var predicate = (LambdaExpression)StripQuote(quotedPredicate);
-                    var clause = BuildQuery(predicate.Body).ToBsonDocument();
-                    clauses.Add(clause);
-                }
-                return new QueryDocument("$nor", clauses);
-            }
-            return null;
-        }
-
         private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
         {
             var queryDocument = BuildQuery(unaryExpression.Operand).ToBsonDocument();
             if (queryDocument.ElementCount == 1)
             {
-                // special case to convert $in to $nin
-                if (queryDocument[0].IsBsonDocument && queryDocument[0].AsBsonDocument.GetElement(0).Name == "$in")
+                var elementName = queryDocument.GetElement(0).Name;
+                if (elementName == "$or")
                 {
-                    var values = queryDocument[0].AsBsonDocument["$in"];
-                    return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$nin", values));
+                    var clauses = queryDocument[0].AsBsonArray;
+                    return new QueryDocument("$nor", clauses);
                 }
 
-                return new QueryDocument(queryDocument.GetElement(0).Name, new BsonDocument("$not", queryDocument[0]));
+                var operatorDocument = queryDocument[0] as BsonDocument;
+                if (operatorDocument != null && operatorDocument.ElementCount == 1)
+                {
+                    var operatorName = operatorDocument.GetElement(0).Name;
+                    if (operatorName == "$in")
+                    {
+                        var values = operatorDocument[0].AsBsonArray;
+                        return new QueryDocument(elementName, new BsonDocument("$nin", values));
+                    }
+
+                    // use $not as a meta operator
+                    if (operatorName[0] == '$')
+                    {
+                        return new QueryDocument(elementName, new BsonDocument("$not", operatorDocument));
+                    }
+                }
+
+                var regexValue = queryDocument[0] as BsonRegularExpression;
+                if (regexValue != null)
+                {
+                    return new QueryDocument(elementName, new BsonDocument("$not", regexValue));
+                }
             }
-            return null;
+
+            // $not only works as a meta operator so simulate $not using $nor
+            return new QueryDocument("$nor", new BsonArray { queryDocument });
         }
 
         private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
@@ -635,24 +650,6 @@ namespace MongoDB.Driver.Linq
                         var dottedElementName = GetDottedElementName(memberExpression);
                         var type = (BsonType)typeExpression.Value;
                         return Query.Type(dottedElementName, type);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildWhereQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var javaScriptExpression = arguments[0] as ConstantExpression;
-                    if (javaScriptExpression != null)
-                    {
-                        var javaScript = (BsonJavaScript)javaScriptExpression.Value;
-                        return Query.Where(javaScript);
                     }
                 }
             }

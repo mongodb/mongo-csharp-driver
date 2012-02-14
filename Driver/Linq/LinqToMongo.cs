@@ -31,108 +31,73 @@ namespace MongoDB.Driver.Linq
     public static class LinqToMongo
     {
         /// <summary>
-        /// Test whether an array in the document contains all of the supplied values (see $all).
+        /// Determines whether a sequence contains all of the specified values.
         /// </summary>
-        /// <typeparam name="TItem">The type of the array items.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="values">The set of values.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool All<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="source">A sequence in which to locate the values.</param>
+        /// <param name="values">The values to locate in the sequence.</param>
+        /// <returns>True if the sequence contains all of the specified values.</returns>
+        public static bool ContainsAll<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> values)
         {
-            throw new InvalidOperationException("The LinqToMongo.All method is only intended to be used in LINQ Where clauses.");
+            return values.All(v => source.Contains(v));
         }
 
         /// <summary>
-        /// Test whether a field exists in the document.
+        /// Determines whether a sequence contains any of the specified values.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="source">A sequence in which to locate the values.</param>
+        /// <param name="values">The values to locate in the sequence.</param>
+        /// <returns>True if the sequence contains any of the specified values.</returns>
+        public static bool ContainsAny<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> values)
+        {
+            return source.Any(s => values.Contains(s));
+        }
+
+        /// <summary>
+        /// Determines whether a field exists (or does not exist) in a document. Can only be used in LINQ queries.
         /// </summary>
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="exists">Whether to test for the presence or absence of the field.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool Exists<TField>(TField field, bool exists)
+        /// <returns>Throws an InvalidOperationException if called.</returns>
+        public static bool Exists<TField>(this TField field, bool exists)
         {
             throw new InvalidOperationException("The LinqToMongo.Exists method is only intended to be used in LINQ Where clauses.");
         }
 
         /// <summary>
-        /// Test whether an array in the document contains at least one of the provided set of values.
+        /// Determines whether a specified value is contained in a sequence.
         /// </summary>
-        /// <typeparam name="TItem">The type of the array items.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="values">The set of values.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool In<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="value">The value to locate in the sequence.</param>
+        /// <param name="source">A sequence in which to locate the values.</param>
+        /// <returns>True if the value is contained in the sequence.</returns>
+        public static bool In<TSource>(this TSource value, IEnumerable<TSource> source)
         {
-            throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
+            return source.Contains(value);
         }
 
         /// <summary>
-        /// Test whether a field in the document is equal to one of the provided set of values.
+        /// Injects a low level IMongoQuery into a LINQ where clause. Can only be used in LINQ queries.
         /// </summary>
-        /// <typeparam name="TField">The type of the field or property.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="values">The set of values.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool In<TField>(TField field, IEnumerable<TField> values)
+        /// <param name="query">The low level query.</param>
+        /// <returns>Throws an InvalidOperationException if called.</returns>
+        public static bool Inject(this IMongoQuery query)
         {
-            throw new InvalidOperationException("The LinqToMongo.In method is only intended to be used in LINQ Where clauses.");
+            throw new InvalidOperationException("The LinqToMongo.Inject method is only intended to be used in LINQ Where clauses.");
         }
 
         /// <summary>
-        /// Test whether a field in the document is of a particular BSON type.
+        /// Determines whether a field in a document is of a particular BSON type. Can only be used in LINQ queries.
         /// </summary>
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
         /// <param name="type">The BSON type.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool IsOfBsonType<TField>(TField field, BsonType type)
+        /// <returns>Throws an InvalidOperationException if called.</returns>
+        public static bool IsOfBsonType<TField>(this TField field, BsonType type)
         {
             throw new InvalidOperationException("The LinqToMongo.IsOfBsonType method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
-        /// Test that none of the predicates is true.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the documents.</typeparam>
-        /// <param name="predicates">The predicates.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool Nor<TDocument>(params Expression<Func<TDocument, bool>>[] predicates)
-        {
-            throw new InvalidOperationException("The LinqToMongo.Nor method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
-        /// Test whether an array in the document does not contain any of the provided set of values.
-        /// </summary>
-        /// <typeparam name="TItem">The type of the array items.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="values">The set of values.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool NotIn<TItem>(IEnumerable<TItem> field, IEnumerable<TItem> values)
-        {
-            throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
-        /// Test whether a field in the document is not equal to any of the provided set of values.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field or property.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="values">The set of values.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool NotIn<TField>(TField field, IEnumerable<TField> values)
-        {
-            throw new InvalidOperationException("The LinqToMongo.NotIn method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
-        /// Test whether a JavaScript expression (evaluated at the server) is true.
-        /// </summary>
-        /// <param name="javaScript">The JavaScript expression.</param>
-        /// <returns>Throws an InvalidOperationException if called. Only used in LINQ queries.</returns>
-        public static bool Where(BsonJavaScript javaScript)
-        {
-            throw new InvalidOperationException("The LinqToMongo.Where method is only intended to be used in LINQ Where clauses.");
         }
     }
 }
