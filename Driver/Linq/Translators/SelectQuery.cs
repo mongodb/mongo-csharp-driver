@@ -489,15 +489,41 @@ namespace MongoDB.Driver.Linq
                 if (operatorDocument != null && operatorDocument.ElementCount == 1)
                 {
                     var operatorName = operatorDocument.GetElement(0).Name;
-                    if (operatorName == "$in")
+                    switch (operatorName)
                     {
-                        var values = operatorDocument[0].AsBsonArray;
-                        return new QueryDocument(elementName, new BsonDocument("$nin", values));
-                    }
-                    if (operatorName == "$exists")
-                    {
-                        var value = operatorDocument[0].AsBoolean;
-                        return new QueryDocument(elementName, new BsonDocument("$exists", !value));
+                        case "$exists":
+                            var boolValue = operatorDocument[0].AsBoolean;
+                            return new QueryDocument(elementName, new BsonDocument("$exists", !boolValue));
+                        case "$in":
+                            var values = operatorDocument[0].AsBsonArray;
+                            return new QueryDocument(elementName, new BsonDocument("$nin", values));
+                        case "$not":
+                            var predicate = operatorDocument[0];
+                            return new QueryDocument(elementName, predicate);
+                        case "$lt":
+                        case "$lte":
+                        case "$ne":
+                        case "$gt":
+                        case "$gte":
+                            string oppositeOperator;
+                            switch (operatorName)
+                            {
+                                case "$lt": oppositeOperator = "$gte"; break;
+                                case "$lte": oppositeOperator = "$gt"; break;
+                                case "$ne": oppositeOperator = "$eq"; break;
+                                case "$gt": oppositeOperator = "$lte"; break;
+                                case "$gte": oppositeOperator = "$lt"; break;
+                                default: throw new InvalidOperationException("Unreachable code.");
+                            }
+                            var comparisonValue = operatorDocument[0];
+                            if (oppositeOperator == "$eq")
+                            {
+                                return new QueryDocument(elementName, comparisonValue);
+                            }
+                            else
+                            {
+                                return new QueryDocument(elementName, new BsonDocument(oppositeOperator, comparisonValue));
+                            }
                     }
 
                     // use $not as a meta operator
@@ -507,11 +533,14 @@ namespace MongoDB.Driver.Linq
                     }
                 }
 
-                var regexValue = queryDocument[0] as BsonRegularExpression;
-                if (regexValue != null)
+                var operatorValue = queryDocument[0];
+                if (operatorValue.IsBsonRegularExpression)
                 {
-                    return new QueryDocument(elementName, new BsonDocument("$not", regexValue));
+                    return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
                 }
+
+                // turn implied equality comparison into $ne
+                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
             }
 
             // $not only works as a meta operator so simulate $not using $nor
