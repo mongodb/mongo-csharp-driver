@@ -1535,7 +1535,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereAExistsFalse()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where !c.A.Exists()
+                        where Query.Exists("a", false).Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1544,7 +1544,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => !LinqToMongo.Exists<Int32[]>(c.A)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Inject({ \"a\" : { \"$exists\" : false } })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1558,7 +1558,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereAExistsTrue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.A.Exists()
+                        where Query.Exists("a", true).Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1567,7 +1567,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Inject({ \"a\" : { \"$exists\" : true } })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1904,7 +1904,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereXIsNotOfTypeInt32()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where !c.X.IsOfBsonType(BsonType.Int32)
+                        where !Query.Type("x", BsonType.Int32).Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1913,7 +1913,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => !LinqToMongo.IsOfBsonType<Int32>(c.X, BsonType.Int32)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => !LinqToMongo.Inject({ \"x\" : { \"$type\" : 16 } })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1927,7 +1927,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereXIsOfBsonTypeInt32()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.X.IsOfBsonType(BsonType.Int32)
+                        where Query.Type("x", BsonType.Int32).Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1936,7 +1936,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.IsOfBsonType<Int32>(c.X, BsonType.Int32)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Inject({ \"x\" : { \"$type\" : 16 } })", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);

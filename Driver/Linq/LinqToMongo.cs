@@ -54,16 +54,6 @@ namespace MongoDB.Driver.Linq
             return source.Any(s => values.Contains(s));
         }
 
-        /// <summary>
-        /// Determines whether a field exists (or does not exist) in a document. Can only be used in LINQ queries.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field or property.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <returns>Throws an InvalidOperationException if called.</returns>
-        public static bool Exists<TField>(this TField field)
-        {
-            throw new InvalidOperationException("The LinqToMongo.Exists method is only intended to be used in LINQ Where clauses.");
-        }
 
         /// <summary>
         /// Determines whether a specified value is contained in a sequence.
@@ -85,18 +75,6 @@ namespace MongoDB.Driver.Linq
         public static bool Inject(this IMongoQuery query)
         {
             throw new InvalidOperationException("The LinqToMongo.Inject method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
-        /// Determines whether a field in a document is of a particular BSON type. Can only be used in LINQ queries.
-        /// </summary>
-        /// <typeparam name="TField">The type of the field or property.</typeparam>
-        /// <param name="field">The field or property.</param>
-        /// <param name="type">The BSON type.</param>
-        /// <returns>Throws an InvalidOperationException if called.</returns>
-        public static bool IsOfBsonType<TField>(this TField field, BsonType type)
-        {
-            throw new InvalidOperationException("The LinqToMongo.IsOfBsonType method is only intended to be used in LINQ Where clauses.");
         }
     }
 }

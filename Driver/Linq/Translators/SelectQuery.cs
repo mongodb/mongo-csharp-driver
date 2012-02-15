@@ -338,24 +338,6 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
-        private IMongoQuery BuildExistsQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var memberExpression = arguments[0] as MemberExpression;
-                    if (memberExpression != null)
-                    {
-                        var dottedElementName = GetDottedElementName(memberExpression);
-                        return Query.Exists(dottedElementName, true);
-                    }
-                }
-            }
-            return null;
-        }
-
         private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
@@ -457,11 +439,9 @@ namespace MongoDB.Driver.Linq
                 case "ContainsAll": return BuildAllQuery(methodCallExpression);
                 case "ContainsAny": return BuildInQuery(methodCallExpression);
                 case "EndsWith": return BuildStringQuery(methodCallExpression);
-                case "Exists": return BuildExistsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
                 case "Inject": return BuildInjectQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
-                case "IsOfBsonType": return BuildTypeQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
             }
             return null;
@@ -634,26 +614,6 @@ namespace MongoDB.Driver.Linq
                             }
                         }
                         break;
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildTypeQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
-                {
-                    var memberExpression = arguments[0] as MemberExpression;
-                    var typeExpression = arguments[1] as ConstantExpression;
-                    if (memberExpression != null && typeExpression != null)
-                    {
-                        var dottedElementName = GetDottedElementName(memberExpression);
-                        var type = (BsonType)typeExpression.Value;
-                        return Query.Type(dottedElementName, type);
-                    }
                 }
             }
             return null;
