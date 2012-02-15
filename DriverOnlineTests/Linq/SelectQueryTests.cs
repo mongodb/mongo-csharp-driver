@@ -144,7 +144,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestAnyXEquals1()
+        public void TestAnyWhereXEquals1()
         {
             var result = (from c in _collection.AsQueryable<C>()
                           where c.X == 1
@@ -153,7 +153,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestAnyXEquals9()
+        public void TestAnyWhereXEquals9()
         {
             var result = (from c in _collection.AsQueryable<C>()
                           where c.X == 9
@@ -239,7 +239,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestCount2()
+        public void TestCountEquals2()
         {
             var result = (from c in _collection.AsQueryable<C>()
                           where c.Y == 11
@@ -249,7 +249,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestCount5()
+        public void TestCountEquals5()
         {
             var result = (from c in _collection.AsQueryable<C>()
                           select c).Count();
@@ -969,7 +969,7 @@ namespace MongoDB.DriverOnlineTests.Linq
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")]
-        public void TestOrderByDuplicateNotAllowed()
+        public void TestDuplicateOrderBy()
         {
             var query = from c in _collection.AsQueryable<C>()
                         orderby c.X
@@ -1416,7 +1416,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereSIsNotMatch()
+        public void TestWhereSIsMatchNot()
         {
             var regex = new Regex("^x");
             var query = from c in _collection.AsQueryable<C>()
@@ -1486,7 +1486,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereAContains2And3()
+        public void TestWhereAContainsAll()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.A.ContainsAll(new [] { 2, 3 })
@@ -1509,7 +1509,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereAContains2Or3()
+        public void TestWhereAContainsAny()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.A.ContainsAny(new [] { 2, 3 })
@@ -1624,7 +1624,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereANotIn1Or2UsingNot()
+        public void TestWhereAContainsAnyNot()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where !c.A.ContainsAny(new[] { 1, 2 })
@@ -1901,7 +1901,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereXIsNotOfTypeInt32()
+        public void TestWhereXIsTypeInt32Not()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where !Query.Type("x", BsonType.Int32).Inject()
@@ -1924,7 +1924,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereXIsOfBsonTypeInt32()
+        public void TestWhereXIsTypeInt32()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where Query.Type("x", BsonType.Int32).Inject()
@@ -1993,7 +1993,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereXModEquals1()
+        public void TestWhereXModTwoEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.X % 2 == 1
@@ -2016,7 +2016,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereXModNotEquals1()
+        public void TestWhereXModTwoNotEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.X % 2 != 1
@@ -2062,7 +2062,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        public void TestWhereXNotIn1Or9UsingNot()
+        public void TestWhereXIn1Or9Not()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where !c.X.In(new[] { 1, 9 })
