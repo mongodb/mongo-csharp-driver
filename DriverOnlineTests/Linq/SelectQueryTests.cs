@@ -430,6 +430,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The FirstOrDefault with predicate query operator is not supported.")]
+        public void TestFirstOrDefaultWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).FirstOrDefault(c => true);
+        }
+
+        [Test]
         public void TestFirstOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -479,6 +487,14 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The First with predicate query operator is not supported.")]
+        public void TestFirstWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).First(c => true);
         }
 
         [Test]
@@ -660,6 +676,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The LastOrDefault with predicate query operator is not supported.")]
+        public void TestLastOrDefaultWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).LastOrDefault(c => true);
+        }
+
+        [Test]
         public void TestLastOrDefaultWithTwoMatches()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -698,6 +722,14 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Last with predicate query operator is not supported.")]
+        public void TestLastWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Last(c => true);
         }
 
         [Test]
@@ -1123,6 +1155,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SingleOrDefault with predicate query operator is not supported.")]
+        public void TestSingleOrDefaultWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).SingleOrDefault(c => true);
+        }
+
+        [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleOrDefaultWithTwoMatches()
         {
@@ -1157,6 +1197,14 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Single with predicate query operator is not supported.")]
+        public void TestSingleWithPredicate()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Single(c => true);
         }
 
         [Test]

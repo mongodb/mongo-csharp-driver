@@ -778,6 +778,11 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateFirstOrSingle(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                var message = string.Format("The {0} with predicate query operator is not supported.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
             if (methodCallExpression.Arguments.Count != 1)
             {
                 throw new ArgumentOutOfRangeException("methodCallExpression");
@@ -812,6 +817,11 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateLast(MethodCallExpression methodCallExpression)
         {
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                var message = string.Format("The {0} with predicate query operator is not supported.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
             if (methodCallExpression.Arguments.Count != 1)
             {
                 throw new ArgumentOutOfRangeException("methodCallExpression");
