@@ -431,6 +431,16 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildMemberQuery(MemberExpression memberExpression)
+        {
+            if (memberExpression.Type == typeof(bool))
+            {
+                var dottedElementName = GetDottedElementName(memberExpression);
+                return new QueryDocument(dottedElementName, true);
+            }
+            return null;
+        }
+
         private IMongoQuery BuildMethodCallQuery(MethodCallExpression methodCallExpression)
         {
             switch (methodCallExpression.Method.Name)
@@ -539,8 +549,17 @@ namespace MongoDB.Driver.Linq
                     return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
                 }
 
-                // turn implied equality comparison into $ne
-                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
+                if (operatorValue.IsBoolean)
+                {
+                    // turn implied boolean test into test against opposite boolean value
+                    var oppositeValue = !operatorValue.AsBoolean;
+                    return new QueryDocument(elementName, oppositeValue);
+                }
+                else
+                {
+                    // turn implied equality comparison into $ne
+                    return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
+                }
             }
 
             // $not only works as a meta operator so simulate $not using $nor
@@ -571,6 +590,9 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                     query = BuildComparisonQuery((BinaryExpression)expression);
+                    break;
+                case ExpressionType.MemberAccess:
+                    query = BuildMemberQuery((MemberExpression)expression);
                     break;
                 case ExpressionType.Not:
                     query = BuildNotQuery((UnaryExpression)expression);
