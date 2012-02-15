@@ -343,15 +343,13 @@ namespace MongoDB.Driver.Linq
             if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
             {
                 var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
+                if (arguments.Length == 1)
                 {
                     var memberExpression = arguments[0] as MemberExpression;
-                    var existsExpression = arguments[1] as ConstantExpression;
-                    if (memberExpression != null && existsExpression != null)
+                    if (memberExpression != null)
                     {
                         var dottedElementName = GetDottedElementName(memberExpression);
-                        var exists = (bool)existsExpression.Value;
-                        return Query.Exists(dottedElementName, exists);
+                        return Query.Exists(dottedElementName, true);
                     }
                 }
             }
@@ -515,6 +513,11 @@ namespace MongoDB.Driver.Linq
                     {
                         var values = operatorDocument[0].AsBsonArray;
                         return new QueryDocument(elementName, new BsonDocument("$nin", values));
+                    }
+                    if (operatorName == "$exists")
+                    {
+                        var value = operatorDocument[0].AsBoolean;
+                        return new QueryDocument(elementName, new BsonDocument("$exists", !value));
                     }
 
                     // use $not as a meta operator

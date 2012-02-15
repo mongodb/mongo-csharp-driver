@@ -59,9 +59,8 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <typeparam name="TField">The type of the field or property.</typeparam>
         /// <param name="field">The field or property.</param>
-        /// <param name="exists">Whether to test for the presence or absence of the field.</param>
         /// <returns>Throws an InvalidOperationException if called.</returns>
-        public static bool Exists<TField>(this TField field, bool exists)
+        public static bool Exists<TField>(this TField field)
         {
             throw new InvalidOperationException("The LinqToMongo.Exists method is only intended to be used in LINQ Where clauses.");
         }

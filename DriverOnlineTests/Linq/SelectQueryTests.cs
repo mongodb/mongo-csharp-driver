@@ -1535,7 +1535,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereAExistsFalse()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.A.Exists(false)
+                        where !c.A.Exists()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1544,7 +1544,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A, false)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => !LinqToMongo.Exists<Int32[]>(c.A)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -1558,7 +1558,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         public void TestWhereAExistsTrue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.A.Exists(true)
+                        where c.A.Exists()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -1567,7 +1567,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A, true)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => LinqToMongo.Exists<Int32[]>(c.A)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
