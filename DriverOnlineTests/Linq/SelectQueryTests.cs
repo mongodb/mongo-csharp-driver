@@ -260,11 +260,26 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Count with predicate query operator is not supported.")]
         public void TestCountWithPredicate()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Count(c => true);
+            var result = _collection.AsQueryable<C>().Count(c => c.Y == 11);
+
+            Assert.AreEqual(2, result);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Count with predicate after a projection is not supported.")]
+        public void TestCountWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).Count(y => y == 11);
+        }
+
+        [Test]
+        public void TestCountWithPredicateAfterWhere()
+        {
+            var result = _collection.AsQueryable<C>().Where(c => c.X == 1).Count(c => c.Y == 11);
+
+            Assert.AreEqual(1, result);
         }
 
         [Test]
@@ -2125,6 +2140,28 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => ((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : 1, \"y\" : 11 }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXEquals1AndYEquals11UsingTwoWhereClauses()
+        {
+            // note: using different variable names in the two where clauses to test parameter replacement when combining predicates
+            var query = _collection.AsQueryable<C>().Where(c => c.X == 1).Where(d => d.Y == 11);
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => ((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where)); // note parameter replacement from c to d in second clause
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);

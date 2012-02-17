@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Linq
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the ExpressionPrettyPrinter class.
+        /// Initializes a new instance of the ExpressionFormatter class.
         /// </summary>
         public ExpressionFormatter()
         {
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq
 
         // public methods
         /// <summary>
-        /// Pretty prints an Expression.
+        /// Formats an Expression as a string.
         /// </summary>
         /// <param name="node">The Expression to pretty print.</param>
         /// <returns>A string containing the pretty printed Expression.</returns>

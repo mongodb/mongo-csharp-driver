@@ -670,6 +670,29 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private void CombinePredicateWithWhereClause(MethodCallExpression methodCallExpression, LambdaExpression predicate)
+        {
+            if (predicate != null)
+            {
+                if (_projection != null)
+                {
+                    var message = string.Format("{0} with predicate after a projection is not supported.", methodCallExpression.Method.Name);
+                    throw new InvalidOperationException(message);
+                }
+
+                if (_where == null)
+                {
+                    _where = predicate;
+                    return;
+                }
+
+                var whereBody = _where.Body;
+                var predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicate.Body, predicate.Parameters[0], _where.Parameters[0]);
+                var combinedBody = Expression.AndAlso(whereBody, predicateBody);
+                _where = Expression.Lambda(combinedBody, _where.Parameters.ToArray());
+            }
+        }
+
         private string GetDottedElementName(MemberExpression member)
         {
             var memberInfo = member.Member;
@@ -687,6 +710,16 @@ namespace MongoDB.Driver.Linq
             {
                 return GetDottedElementName(nestedMember) + "." + elementName;
             }
+        }
+
+        private void SetElementSelector(MethodCallExpression methodCallExpression, Func<IEnumerable, object> elementSelector)
+        {
+            if (_elementSelector != null)
+            {
+                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
+                throw new InvalidOperationException(message);
+            }
+            _elementSelector = elementSelector;
         }
 
         private Expression StripQuote(Expression expression)
@@ -725,34 +758,27 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            if (_elementSelector != null)
-            {
-                throw new InvalidOperationException("Any cannot be combined with any other element selector.");
-            }
-
             // ignore any projection since we only are interested in the count
             _projection = null;
 
             // note: recall that cursor method Size respects Skip and Limit while Count does not
-            _elementSelector = (IEnumerable source) => ((int)((MongoCursor)source).Size()) > 0;
+            SetElementSelector(methodCallExpression, source => ((int)((MongoCursor)source).Size()) > 0);
         }
 
         private void TranslateCount(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Arguments.Count == 2)
+            LambdaExpression predicate = null;
+            switch (methodCallExpression.Arguments.Count)
             {
-                throw new InvalidOperationException("The Count with predicate query operator is not supported.");
+                case 1:
+                    break;
+                case 2:
+                    predicate = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("methodCallExpression");
             }
-            if (methodCallExpression.Arguments.Count != 1)
-            {
-                throw new ArgumentOutOfRangeException("methodCallExpression");
-            }
-
-            if (_elementSelector != null)
-            {
-                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
-            }
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
 
             // ignore any projection since we only are interested in the count
             _projection = null;
@@ -761,10 +787,10 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "Count":
-                    _elementSelector = (IEnumerable source) => (int) ((MongoCursor)source).Size();
+                    SetElementSelector(methodCallExpression, source => (int)((MongoCursor)source).Size());
                     break;
                 case "LongCount":
-                    _elementSelector = (IEnumerable source) => ((MongoCursor)source).Size();
+                    SetElementSelector(methodCallExpression, source => ((MongoCursor)source).Size());
                     break;
             }
         }
@@ -776,12 +802,6 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            if (_elementSelector != null)
-            {
-                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
-            }
-
             // ElementAt can be implemented more efficiently in terms of Skip, Limit and First
             var index = ToInt32(methodCallExpression.Arguments[1]);
             _skip = Expression.Constant(index);
@@ -790,10 +810,10 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "ElementAt":
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
                     break;
                 case "ElementAtOrDefault":
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().FirstOrDefault());
                     break;
             }
         }
@@ -810,29 +830,23 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            if (_elementSelector != null)
-            {
-                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
-            }
-
             switch (methodCallExpression.Method.Name)
             {
                 case "First":
                     _take = Expression.Constant(1);
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
                     break;
                 case "FirstOrDefault":
                     _take = Expression.Constant(1);
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().FirstOrDefault());
                     break;
                 case "Single":
                     _take = Expression.Constant(2);
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().Single();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().Single());
                     break;
                 case "SingleOrDefault":
                     _take = Expression.Constant(2);
-                    _elementSelector = (IEnumerable source) => source.Cast<object>().SingleOrDefault();
+                    SetElementSelector(methodCallExpression, source => source.Cast<object>().SingleOrDefault());
                     break;
             }
         }
@@ -849,12 +863,6 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            if (_elementSelector != null)
-            {
-                var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
-            }
-
             // when using OrderBy without Take Last can be much faster by reversing the sort order and using First instead of Last
             if (_orderBy != null && _take == null)
             {
@@ -869,10 +877,10 @@ namespace MongoDB.Driver.Linq
                 switch (methodCallExpression.Method.Name)
                 {
                     case "Last":
-                        _elementSelector = (IEnumerable source) => source.Cast<object>().First();
+                        SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
                         break;
                     case "LastOrDefault":
-                        _elementSelector = (IEnumerable source) => source.Cast<object>().FirstOrDefault();
+                        SetElementSelector(methodCallExpression, source => source.Cast<object>().FirstOrDefault());
                         break;
                 }
             }
@@ -881,10 +889,10 @@ namespace MongoDB.Driver.Linq
                 switch (methodCallExpression.Method.Name)
                 {
                     case "Last":
-                        _elementSelector = (IEnumerable source) => source.Cast<object>().Last();
+                        SetElementSelector(methodCallExpression, source => source.Cast<object>().Last());
                         break;
                     case "LastOrDefault":
-                        _elementSelector = (IEnumerable source) => source.Cast<object>().LastOrDefault();
+                        SetElementSelector(methodCallExpression, source => source.Cast<object>().LastOrDefault());
                         break;
                 }
             }
@@ -988,15 +996,7 @@ namespace MongoDB.Driver.Linq
                 throw new InvalidOperationException(message);
             }
 
-            if (_where == null)
-            {
-                _where = predicate;
-            }
-            else
-            {
-                // TODO: combine multiple where query operators
-                throw new InvalidOperationException("Multiple Where query operators are not yet supported.");
-            }
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
         }
     }
 }
