@@ -1152,6 +1152,12 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetShouldSerializeMethod(shouldSerializeMethod);
             }
 
+            var serializationOptions = _conventions.BsonSerializationOptionsConvention.GetSerializationOptions(memberInfo);
+            if (serializationOptions != null)
+            {
+                memberMap.SetSerializationOptions(serializationOptions);
+            }
+
             foreach (var attribute in memberInfo.GetCustomAttributes(false))
             {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;

@@ -27,6 +27,11 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // public properties
         /// <summary>
+        /// Gets the bson serialization options convention.
+        /// </summary>
+        public ISerializationOptionsConvention BsonSerializationOptionsConvention { get; private set; }
+
+        /// <summary>
         /// Gets the Id generator convention.
         /// </summary>
         public IIdGeneratorConvention IdGeneratorConvention { get; private set; }
@@ -85,6 +90,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         public static ConventionProfile GetDefault()
         {
             return new ConventionProfile() // The default profile always matches...
+                .SetSerializationOptionsConvention(new NullSerializationOptionsConvention())
                 .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
@@ -103,6 +109,10 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="other">The other convention profile.</param>
         public void Merge(ConventionProfile other)
         {
+            if (BsonSerializationOptionsConvention == null)
+            {
+                BsonSerializationOptionsConvention = other.BsonSerializationOptionsConvention;
+            }
             if (IdGeneratorConvention == null)
             {
                 IdGeneratorConvention = other.IdGeneratorConvention;
@@ -252,6 +262,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         public ConventionProfile SetMemberFinderConvention(IMemberFinderConvention convention)
         {
             MemberFinderConvention = convention;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the serialization options convention.
+        /// </summary>
+        /// <param name="convention">A serialization options convention.</param>
+        /// <returns>The convention profile.</returns>
+        public ConventionProfile SetSerializationOptionsConvention(ISerializationOptionsConvention convention)
+        {
+            BsonSerializationOptionsConvention = convention;
             return this;
         }
 

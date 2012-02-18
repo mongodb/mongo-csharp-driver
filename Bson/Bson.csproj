@@ -98,6 +98,7 @@
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
+    <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />

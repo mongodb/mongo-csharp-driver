@@ -82,6 +82,7 @@
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttributeTests.cs" />
+    <Compile Include="DefaultSerializer\BsonClassMapAutoMappingTests.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ExtraElementsConventionsTests.cs" />
