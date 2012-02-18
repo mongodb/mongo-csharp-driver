@@ -58,37 +58,37 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "Query.And cannot be called with zero queries.\r\nParameter name: queries")]
         public void TestAndNoArgs()
         {
-            var query = Query.And();
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(); });
+			Assert.IsTrue(ex.Message.StartsWith("Query.And cannot be called with zero queries."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNull()
         {
-            var query = Query.And(Query.Null);
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(Query.Null); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNullFirst()
         {
-            var query = Query.And(
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(
                 Query.Null,
                 Query.EQ("x", 1)
-            );
+            ); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestAndNullSecond()
         {
-            var query = Query.And(
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(
                 Query.EQ("x", 1),
                 Query.Null
-            );
+            ); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -342,37 +342,37 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "Query.Or cannot be called with zero queries.\r\nParameter name: queries")]
         public void TestOrNoArgs()
         {
-            var query = Query.Or();
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(); });
+			Assert.IsTrue(ex.Message.StartsWith("Query.Or cannot be called with zero queries."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNull()
         {
-            var query = Query.Or(Query.Null);
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(Query.Null); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNullFirst()
         {
-            var query = Query.Or(
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(
                 Query.Null,
                 Query.EQ("x", 1)
-            );
+            ); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException), ExpectedMessage = "One of the queries is null.\r\nParameter name: queries")]
         public void TestOrNullSecond()
         {
-            var query = Query.Or(
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(
                 Query.EQ("x", 1),
                 Query.Null
-            );
+            ); });
+			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
