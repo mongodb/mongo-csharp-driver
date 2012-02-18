@@ -74,20 +74,26 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAndNullFirst()
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(
-                Query.Null,
-                Query.EQ("x", 1)
-            ); });
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                Query.And(
+                    Query.Null,
+                    Query.EQ("x", 1)
+                    );
+            });
             Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
         public void TestAndNullSecond()
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(
-                Query.EQ("x", 1),
-                Query.Null
-            ); });
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                Query.And(
+                    Query.EQ("x", 1),
+                    Query.Null
+                    );
+            });
             Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
@@ -358,20 +364,26 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestOrNullFirst()
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(
-                Query.Null,
-                Query.EQ("x", 1)
-            ); });
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                Query.Or(
+                    Query.Null,
+                    Query.EQ("x", 1)
+                    );
+            });
             Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
         public void TestOrNullSecond()
         {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(
-                Query.EQ("x", 1),
-                Query.Null
-            ); });
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                Query.Or(
+                    Query.EQ("x", 1),
+                    Query.Null
+                    );
+            });
             Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
