@@ -61,14 +61,14 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestAndNoArgs()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(); });
-			Assert.IsTrue(ex.Message.StartsWith("Query.And cannot be called with zero queries."));
+            Assert.IsTrue(ex.Message.StartsWith("Query.And cannot be called with zero queries."));
         }
 
         [Test]
         public void TestAndNull()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(Query.Null); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 Query.Null,
                 Query.EQ("x", 1)
             ); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 Query.EQ("x", 1),
                 Query.Null
             ); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -345,14 +345,14 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestOrNoArgs()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(); });
-			Assert.IsTrue(ex.Message.StartsWith("Query.Or cannot be called with zero queries."));
+            Assert.IsTrue(ex.Message.StartsWith("Query.Or cannot be called with zero queries."));
         }
 
         [Test]
         public void TestOrNull()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(Query.Null); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -362,7 +362,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 Query.Null,
                 Query.EQ("x", 1)
             ); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
@@ -372,7 +372,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 Query.EQ("x", 1),
                 Query.Null
             ); });
-			Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+            Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
         }
 
         [Test]
