@@ -13,81 +13,85 @@
 * limitations under the License.
 */
 
-using System.Reflection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents a bson serialization options convention.
+    /// Represents a BSON serialization options convention.
     /// </summary>
     public interface ISerializationOptionsConvention
     {
         /// <summary>
-        /// Gets the bson serialization options for a member.
+        /// Gets the BSON serialization options for a member.
         /// </summary>
-        /// <param name="member">The member.</param>
-        /// <returns>The bson serialization options for the member; or null to use defaults.</returns>
-        IBsonSerializationOptions GetSerializationOptions(MemberInfo member);
+        /// <param name="memberInfo">The member.</param>
+        /// <returns>The BSON serialization options for the member; or null to use defaults.</returns>
+        IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo);
     }
 
     /// <summary>
-    /// Represents bson serialiation options that use default values.
+    /// Represents BSON serialiation options that use default values.
     /// </summary>
     public class NullSerializationOptionsConvention : ISerializationOptionsConvention
     {
         /// <summary>
-        /// Gets the bson serialization options for a member.
+        /// Gets the BSON serialization options for a member.
         /// </summary>
-        /// <param name="member">The member.</param>
+        /// <param name="memberInfo">The member.</param>
         /// <returns>
-        /// The bson serialization options for the member; or null to use defaults.
+        /// The BSON serialization options for the member; or null to use defaults.
         /// </returns>
-        public IBsonSerializationOptions GetSerializationOptions(MemberInfo member)
+        public IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo)
         {
             return null;   
         }
     }
 
     /// <summary>
-    /// Sets serialiation options for a member of a given type.
+    /// Sets serialization options for a member of a given type.
     /// </summary>
     public class TypeRepresentationSerializationOptionsConvention : ISerializationOptionsConvention
     {
-        private readonly Type memberType;
-        private readonly BsonType bsonType;
+        private readonly Type _type;
+        private readonly BsonType _representation;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeRepresentationSerializationOptionsConvention"/> class.
         /// </summary>
-        /// <param name="memberType">Type of the member.</param>
-        /// <param name="bsonType">Type of the bson.</param>
-        public TypeRepresentationSerializationOptionsConvention(Type memberType, BsonType bsonType)
+        /// <param name="type">The type of the member.</param>
+        /// <param name="representation">The BSON representation to use for this type.</param>
+        public TypeRepresentationSerializationOptionsConvention(Type type, BsonType representation)
         {
-            this.memberType = memberType;
-            this.bsonType = bsonType;
+            _type = type;
+            _representation = representation;
         }
 
         /// <summary>
-        /// Gets the bson serialization options for a member.
+        /// Gets the BSON serialization options for a member.
         /// </summary>
-        /// <param name="member">The member.</param>
+        /// <param name="memberInfo">The member.</param>
         /// <returns>
-        /// The bson serialization options for the member; or null to use defaults.
+        /// The BSON serialization options for the member; or null to use defaults.
         /// </returns>
-        public IBsonSerializationOptions GetSerializationOptions(MemberInfo member)
+        public IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo)
         {
-            var propertyInfo = member as PropertyInfo;
-            if (propertyInfo != null && propertyInfo.PropertyType == this.memberType)
+            var propertyInfo = memberInfo as PropertyInfo;
+            if (propertyInfo != null && propertyInfo.PropertyType == _type)
             {
-                return new RepresentationSerializationOptions(this.bsonType);
+                return new RepresentationSerializationOptions(_representation);
             }
 
-            var fieldInfo = member as FieldInfo;
-            if (fieldInfo != null && fieldInfo.FieldType == this.memberType)
+            var fieldInfo = memberInfo as FieldInfo;
+            if (fieldInfo != null && fieldInfo.FieldType == _type)
             {
-                return new RepresentationSerializationOptions(this.bsonType);
+                return new RepresentationSerializationOptions(_representation);
             }
 
             return null;

@@ -18,11 +18,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
+
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer
 {
@@ -32,7 +33,6 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer
         private class A
         {
             public ObjectId Match { get; set; }
-
             public string NoMatch { get; set; }
         }
 
@@ -85,7 +85,5 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer
             Assert.IsInstanceOf<RepresentationSerializationOptions>(options);
             Assert.AreEqual(BsonType.ObjectId, ((RepresentationSerializationOptions)options).Representation);
         }
-
-
     }
 }

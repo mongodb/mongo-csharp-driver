@@ -1152,7 +1152,7 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetShouldSerializeMethod(shouldSerializeMethod);
             }
 
-            var serializationOptions = _conventions.BsonSerializationOptionsConvention.GetSerializationOptions(memberInfo);
+            var serializationOptions = _conventions.SerializationOptionsConvention.GetSerializationOptions(memberInfo);
             if (serializationOptions != null)
             {
                 memberMap.SetSerializationOptions(serializationOptions);
