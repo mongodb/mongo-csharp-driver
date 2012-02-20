@@ -876,15 +876,18 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateLast(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Arguments.Count == 2)
+            LambdaExpression predicate = null;
+            switch (methodCallExpression.Arguments.Count)
             {
-                var message = string.Format("The {0} with predicate query operator is not supported.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
+                case 1:
+                    break;
+                case 2:
+                    predicate = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("methodCallExpression");
             }
-            if (methodCallExpression.Arguments.Count != 1)
-            {
-                throw new ArgumentOutOfRangeException("methodCallExpression");
-            }
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
 
             // when using OrderBy without Take Last can be much faster by reversing the sort order and using First instead of Last
             if (_orderBy != null && _take == null)

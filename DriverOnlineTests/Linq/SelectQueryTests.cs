@@ -783,11 +783,46 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The LastOrDefault with predicate query operator is not supported.")]
-        public void TestLastOrDefaultWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "LastOrDefault with predicate after a projection is not supported.")]
+        public void TestLastOrDefaultWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).LastOrDefault(y => y == 11);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithPredicateAfterWhere()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).LastOrDefault(c => true);
+                          where c.X == 1
+                          select c).LastOrDefault(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).LastOrDefault(c => c.X == 9);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).LastOrDefault(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        public void TestLastOrDefaultWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).LastOrDefault(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
         }
 
         [Test]
@@ -832,11 +867,46 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Last with predicate query operator is not supported.")]
-        public void TestLastWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Last with predicate after a projection is not supported.")]
+        public void TestLastWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).Last(y => y == 11);
+        }
+
+        [Test]
+        public void TestLastWithPredicateAfterWhere()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Last(c => true);
+                          where c.X == 1
+                          select c).Last(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        public void TestLastWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Last(c => c.X == 9);
+        }
+
+        [Test]
+        public void TestLastWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Last(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        public void TestLastWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Last(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
         }
 
         [Test]
