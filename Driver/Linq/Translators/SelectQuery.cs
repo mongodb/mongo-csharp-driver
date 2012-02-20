@@ -313,6 +313,19 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildConstantQuery(ConstantExpression constantExpression)
+        {
+            var value = constantExpression.Value;
+            if (value != null && value.GetType() == typeof(bool))
+            {
+                // simulate true or false with a tautology or a reverse tautology
+                // the particular reverse tautology chosen has the nice property that it uses the index to return no results quickly
+                return new QueryDocument("_id", new BsonDocument("$exists", (bool)value));
+            }
+
+            return null;
+        }
+
         private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(string))
@@ -583,6 +596,9 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.Call:
                     query = BuildMethodCallQuery((MethodCallExpression)expression);
                     break;
+                case ExpressionType.Constant:
+                    query = BuildConstantQuery((ConstantExpression)expression);
+                    break;
                 case ExpressionType.Equal:
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
@@ -749,14 +765,18 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateAny(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Arguments.Count == 2)
+            LambdaExpression predicate = null;
+            switch (methodCallExpression.Arguments.Count)
             {
-                throw new InvalidOperationException("The Any with predicate query operator is not supported.");
+                case 1:
+                    break;
+                case 2:
+                    predicate = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("methodCallExpression");
             }
-            if (methodCallExpression.Arguments.Count != 1)
-            {
-                throw new ArgumentOutOfRangeException("methodCallExpression");
-            }
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
 
             // ignore any projection since we only are interested in the count
             _projection = null;
@@ -820,15 +840,18 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateFirstOrSingle(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Arguments.Count == 2)
+            LambdaExpression predicate = null;
+            switch (methodCallExpression.Arguments.Count)
             {
-                var message = string.Format("The {0} with predicate query operator is not supported.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
+                case 1:
+                    break;
+                case 2:
+                    predicate = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("methodCallExpression");
             }
-            if (methodCallExpression.Arguments.Count != 1)
-            {
-                throw new ArgumentOutOfRangeException("methodCallExpression");
-            }
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
 
             switch (methodCallExpression.Method.Name)
             {

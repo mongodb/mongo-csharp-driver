@@ -164,11 +164,31 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Any with predicate query operator is not supported.")]
-        public void TestAnyWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Any with predicate after a projection is not supported.")]
+        public void TestAnyWithPredicateAfterProjection()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Any(c => true);
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).Any(y => y == 11);
+        }
+
+        [Test]
+        public void TestAnyWithPredicateAfterWhere()
+        {
+            var result = _collection.AsQueryable<C>().Where(c => c.X == 1).Any(c => c.Y == 11);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void TestAnyWithPredicateFalse()
+        {
+            var result = _collection.AsQueryable<C>().Any(c => c.X == 9);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void TestAnyWithPredicateTrue()
+        {
+            var result = _collection.AsQueryable<C>().Any(c => c.X == 1);
+            Assert.IsTrue(result);
         }
 
         [Test]
@@ -447,14 +467,6 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The FirstOrDefault with predicate query operator is not supported.")]
-        public void TestFirstOrDefaultWithPredicate()
-        {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).FirstOrDefault(c => true);
-        }
-
-        [Test]
         public void TestFirstOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -463,6 +475,49 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual(3, result.X);
             Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "FirstOrDefault with predicate after a projection is not supported.")]
+        public void TestFirstOrDefaultWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).FirstOrDefault(y => y == 11);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithPredicateAfterWhere()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          where c.X == 1
+                          select c).FirstOrDefault(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).FirstOrDefault(c => c.X == 9);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).FirstOrDefault(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        public void TestFirstOrDefaultWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).FirstOrDefault(c => c.Y == 11);
+            Assert.AreEqual(2, result.X);
+            Assert.AreEqual(11, result.Y);
         }
 
         [Test]
@@ -507,11 +562,46 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The First with predicate query operator is not supported.")]
-        public void TestFirstWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "First with predicate after a projection is not supported.")]
+        public void TestFirstWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).First(y => y == 11);
+        }
+
+        [Test]
+        public void TestFirstWithPredicateAfterWhere()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).First(c => true);
+                          where c.X == 1
+                          select c).First(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        public void TestFirstWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).First(c => c.X == 9);
+        }
+
+        [Test]
+        public void TestFirstWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).First(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        public void TestFirstWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).First(c => c.Y == 11);
+            Assert.AreEqual(2, result.X);
+            Assert.AreEqual(11, result.Y);
         }
 
         [Test]
@@ -1172,11 +1262,45 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SingleOrDefault with predicate query operator is not supported.")]
-        public void TestSingleOrDefaultWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SingleOrDefault with predicate after a projection is not supported.")]
+        public void TestSingleOrDefaultWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).SingleOrDefault(y => y == 11);
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithPredicateAfterWhere()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).SingleOrDefault(c => true);
+                          where c.X == 1
+                          select c).SingleOrDefault(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).SingleOrDefault(c => c.X == 9);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void TestSingleOrDefaultWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).SingleOrDefault(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        [Test]
+        public void TestSingleOrDefaultWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).SingleOrDefault(c => c.Y == 11);
         }
 
         [Test]
@@ -1217,11 +1341,46 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Single with predicate query operator is not supported.")]
-        public void TestSingleWithPredicate()
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Single with predicate after a projection is not supported.")]
+        public void TestSingleWithPredicateAfterProjection()
+        {
+            var result = _collection.AsQueryable<C>().Select(c => c.Y).Single(y => y == 11);
+        }
+
+        [Test]
+        public void TestSingleWithPredicateAfterWhere()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Single(c => true);
+                          where c.X == 1
+                          select c).Single(c => c.Y == 11);
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
+        public void TestSingleWithPredicateNoMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Single(c => c.X == 9);
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void TestSingleWithPredicateOneMatch()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Single(c => c.X == 3);
+            Assert.AreEqual(3, result.X);
+            Assert.AreEqual(33, result.Y);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
+        public void TestSingleWithPredicateTwoMatches()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Single(c => c.Y == 11);
         }
 
         [Test]
