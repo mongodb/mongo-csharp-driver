@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     throw new InvalidOperationException("An anonymous class cannot be deserialized.");
                 }
-                var obj = classMap.CreateInstance();
+                var obj = CreateInstance(classMap);
 
                 if (bsonReader.CurrentBsonType != BsonType.Document)
                 {
@@ -198,6 +198,11 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        protected virtual object CreateInstance(BsonClassMap classMap)
+        {
+            return classMap.CreateInstance();
+        }
+
         /// <summary>
         /// Gets the document Id.
         /// </summary>
@@ -258,7 +263,7 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 VerifyNominalType(nominalType);
-                var actualType = (value == null) ? nominalType : value.GetType();
+                var actualType = GetActualType(nominalType, value);
                 var classMap = BsonClassMap.LookupClassMap(actualType);
 
                 bsonWriter.WriteStartDocument();
@@ -305,6 +310,11 @@ namespace MongoDB.Bson.Serialization
                 }
                 bsonWriter.WriteEndDocument();
             }
+        }
+
+        protected virtual Type GetActualType(Type nominalType, object value)
+        {
+            return (value == null) ? nominalType : value.GetType();
         }
 
         /// <summary>
@@ -368,7 +378,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 var serializer = memberMap.GetSerializer(actualType);
                 var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
-                memberMap.Setter(obj, value);
+                SetPropertyValue(memberMap, obj, value);
             }
             catch (Exception ex)
             {
@@ -377,6 +387,11 @@ namespace MongoDB.Bson.Serialization
                     memberMap.MemberName, (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property", obj.GetType().FullName, ex.Message);
                 throw new FileFormatException(message, ex);
             }
+        }
+
+        protected virtual void SetPropertyValue(BsonMemberMap memberMap, object obj, object value)
+        {
+            memberMap.Setter(obj, value);
         }
 
         private void SerializeExtraElements(BsonWriter bsonWriter, object obj, BsonMemberMap extraElementsMemberMap)
@@ -403,8 +418,14 @@ namespace MongoDB.Bson.Serialization
             bsonWriter.WriteName(memberMap.ElementName);
             var nominalType = memberMap.MemberType;
             var actualType = (value == null) ? nominalType : value.GetType();
+            OnBeforeSerializeMember(memberMap);
             var serializer = memberMap.GetSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, memberMap.SerializationOptions);
+        }
+
+        protected virtual void OnBeforeSerializeMember(BsonMemberMap memberMap)
+        {
+            
         }
 
         private void VerifyNominalType(Type nominalType)
