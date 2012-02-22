@@ -77,16 +77,28 @@ namespace MongoDB.Driver.Linq
             Visit(node.Left);
             switch (node.NodeType)
             {
+                case ExpressionType.Add: _sb.Append(" + "); break;
+                case ExpressionType.And: _sb.Append(" & "); break;
                 case ExpressionType.AndAlso: _sb.Append(" && "); break;
+                case ExpressionType.Coalesce: _sb.Append(" ?? "); break;
+                case ExpressionType.Divide: _sb.Append(" / "); break;
                 case ExpressionType.Equal: _sb.Append(" == "); break;
+                case ExpressionType.ExclusiveOr: _sb.Append(" ^ "); break;
                 case ExpressionType.GreaterThan: _sb.Append(" > "); break;
                 case ExpressionType.GreaterThanOrEqual: _sb.Append(" >= "); break;
+                case ExpressionType.LeftShift: _sb.Append(" << "); break;
                 case ExpressionType.LessThan: _sb.Append(" < "); break;
                 case ExpressionType.LessThanOrEqual: _sb.Append(" <= "); break;
                 case ExpressionType.Modulo: _sb.Append(" % "); break;
+                case ExpressionType.Multiply: _sb.Append(" * "); break;
                 case ExpressionType.NotEqual: _sb.Append(" != "); break;
+                case ExpressionType.Or: _sb.Append(" | "); break;
                 case ExpressionType.OrElse: _sb.Append(" || "); break;
-                default: throw new InvalidOperationException("Unexpected NodeType.");
+                case ExpressionType.RightShift: _sb.Append(" >> "); break;
+                case ExpressionType.Subtract: _sb.Append(" - "); break;
+                case ExpressionType.TypeAs: _sb.Append(" as "); break;
+                case ExpressionType.TypeIs: _sb.Append(" is "); break;
+                default: _sb.AppendFormat(" <{0}> ", node.NodeType); break;
             }
             Visit(node.Right);
             _sb.Append(")");
@@ -100,7 +112,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ConditionalExpression.</returns>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<ConditionalExpression>");
+            return node;
         }
 
         /// <summary>
@@ -179,7 +192,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ElementInit node.</returns>
         protected override ElementInit VisitElementInit(ElementInit node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<ElementInit>");
+            return node;
         }
 
         /// <summary>
@@ -187,10 +201,10 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="nodes">The ElementInit list.</param>
         /// <returns>The ElementInit list.</returns>
-        protected override IEnumerable<ElementInit> VisitElementInitList(
-            ReadOnlyCollection<ElementInit> nodes)
+        protected override IEnumerable<ElementInit> VisitElementInitList(ReadOnlyCollection<ElementInit> nodes)
         {
-            throw new NotImplementedException();
+            _sb.Append("<ReadOnlyCollection<ElementInit>");
+            return nodes;
         }
 
         /// <summary>
@@ -200,7 +214,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The InvocationExpression.</returns>
         protected override Expression VisitInvocation(InvocationExpression node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<InvocationExpression>");
+            return node;
         }
 
         /// <summary>
@@ -224,7 +239,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ListInitExpression.</returns>
         protected override Expression VisitListInit(ListInitExpression node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<ListInitExpression>");
+            return node;
         }
 
         /// <summary>
@@ -247,7 +263,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberAssignment.</returns>
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<MemberAssignment>");
+            return node;
         }
 
         /// <summary>
@@ -257,7 +274,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberBinding (possibly modified).</returns>
         protected override MemberBinding VisitMemberBinding(MemberBinding node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<MemberBinding>");
+            return node;
         }
 
         /// <summary>
@@ -267,7 +285,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberBinding list.</returns>
         protected override IEnumerable<MemberBinding> VisitMemberBindingList(ReadOnlyCollection<MemberBinding> nodes)
         {
-            throw new NotImplementedException();
+            _sb.Append("<ReadOnlyCollection<MemberBinding>>");
+            return nodes;
         }
 
         /// <summary>
@@ -277,7 +296,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberInitExpression.</returns>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<MemberInitExpression>");
+            return node;
         }
 
         /// <summary>
@@ -287,7 +307,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberListBinding.</returns>
         protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<MemberListBinding>");
+            return node;
         }
 
         /// <summary>
@@ -297,7 +318,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The MemberMemberBinding.</returns>
         protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<MemberMemberBinding>");
+            return node;
         }
 
         /// <summary>
@@ -392,7 +414,8 @@ namespace MongoDB.Driver.Linq
         /// <returns>The TypeBinaryExpression.</returns>
         protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
-            throw new NotImplementedException();
+            _sb.Append("<TypeBinaryExpression>");
+            return node;
         }
 
         /// <summary>
@@ -405,10 +428,12 @@ namespace MongoDB.Driver.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.ArrayLength: break;
+                case ExpressionType.Convert: _sb.AppendFormat("({0})", node.Type.Name); break;
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
                 case ExpressionType.Quote: break;
-                default: throw new InvalidOperationException("Unexpected NodeType.");
+                case ExpressionType.UnaryPlus: _sb.Append("+"); break;
+                default: _sb.AppendFormat("<{0}>", node.NodeType); break;
             }
             Visit(node.Operand);
             switch (node.NodeType)
