@@ -548,10 +548,32 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
         /// </summary>
+        /// <typeparam name="TDocument">The nominal type of the document.</typeparam>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual TDocument FindOneByIdAs<TDocument>(object id)
+        {
+            return FindOneAs<TDocument>(Query.EQ("_id", id));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
+        /// </summary>
         /// <param name="documentType">The nominal type of the document.</param>
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual object FindOneByIdAs(Type documentType, BsonValue id)
+        {
+            return FindOneAs(documentType, Query.EQ("_id", id));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the document.</param>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneByIdAs(Type documentType, object id)
         {
             return FindOneAs(documentType, Query.EQ("_id", id));
         }
@@ -1678,6 +1700,16 @@ namespace MongoDB.Driver
         /// <param name="id">The id of the document.</param>
         /// <returns>A TDefaultDocument (or null if not found).</returns>
         public virtual TDefaultDocument FindOneById(BsonValue id)
+        {
+            return FindOneByIdAs<TDefaultDocument>(id);
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find one document in this collection by its _id value as a TDefaultDocument.
+        /// </summary>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A TDefaultDocument (or null if not found).</returns>
+        public virtual TDefaultDocument FindOneById(object id)
         {
             return FindOneByIdAs<TDefaultDocument>(id);
         }

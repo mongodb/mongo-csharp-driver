@@ -66,6 +66,16 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonArray class.
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
+        public BsonArray(params BsonValue[] values)
+            : this(0) // AddRange optimizes Capacity after parameter checking
+        {
+            AddRange(values);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonArray class.
+        /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
         public BsonArray(IEnumerable<DateTime> values)
             : this(0)
         {
@@ -130,6 +140,18 @@ namespace MongoDB.Bson
             : this(0)
         {
             AddRange(values);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonArray class.
+        /// </summary>
+        /// <param name="value1">The first value to add to the array.</param>
+        /// <param name="value2">The second value to add to the array.</param>
+        /// <param name="values">A list of additional values to add to the array.</param>
+        public BsonArray(object value1, object value2, params object[] values)
+            : this(0) // AddRange optimizes Capacity after parameter checking
+        {
+            AddRange(value1, value2, values);
         }
 
         /// <summary>
@@ -244,6 +266,23 @@ namespace MongoDB.Bson
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<BsonValue> values)
+        {
+            if (values != null)
+            {
+                return new BsonArray(values);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new BsonArray.
+        /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
+        /// <returns>A BsonArray or null.</returns>
+        public static BsonArray Create(params BsonValue[] values)
         {
             if (values != null)
             {
@@ -377,6 +416,28 @@ namespace MongoDB.Bson
         /// <summary>
         /// Creates a new BsonArray.
         /// </summary>
+        /// <param name="value1">The first value to add to the array.</param>
+        /// <param name="value2">The second value to add to the array.</param>
+        /// <param name="values">A list of additional values to add to the array.</param>
+        /// <returns>A BsonArray or null.</returns>
+        public static BsonArray Create(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            if (values != null)
+            {
+                return new BsonArray(value1, value2, values);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new BsonArray.
+        /// </summary>
         /// <param name="value">A value to be mapped to a BsonArray.</param>
         /// <returns>A BsonArray or null.</returns>
         public new static BsonArray Create(object value)
@@ -417,10 +478,12 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray Add(BsonValue value)
         {
-            if (value != null)
+            if (value == null)
             {
-                _values.Add(value);
+                throw new ArgumentNullException("value");
             }
+
+            _values.Add(value);
             return this;
         }
 
@@ -431,12 +494,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<bool> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonBoolean.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonBoolean.Create(value));
             }
             return this;
         }
@@ -448,9 +513,47 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<BsonValue> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                _values.AddRange(values);
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("One of the values is null.", "values");
+                }
+
+                _values.Add(value);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds multiple elements to the array.
+        /// </summary>
+        /// <param name="values">A list of values to add to the array.</param>
+        /// <returns>The array (so method calls can be chained).</returns>
+        public BsonArray AddRange(params BsonValue[] values)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            _values.Capacity += values.Length;
+
+            for (int i = 0; i < values.Length; ++i)
+            {
+                var value = values[i];
+
+                if (value == null)
+                {
+                    throw new ArgumentException("One of the values is null", "values");
+                }
+
+                _values.Add(value);
             }
             return this;
         }
@@ -462,12 +565,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<DateTime> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonDateTime.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonDateTime.Create(value));
             }
             return this;
         }
@@ -479,12 +584,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<double> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonDouble.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonDouble.Create(value));
             }
             return this;
         }
@@ -496,12 +603,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<int> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonInt32.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonInt32.Create(value));
             }
             return this;
         }
@@ -513,12 +622,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<long> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonInt64.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonInt64.Create(value));
             }
             return this;
         }
@@ -530,12 +641,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<ObjectId> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonObjectId.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            
+            foreach (var value in values)
+            {
+                _values.Add(BsonObjectId.Create(value));
             }
             return this;
         }
@@ -547,12 +660,14 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<string> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonString.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                _values.Add(BsonString.Create(value));
             }
             return this;
         }
@@ -564,12 +679,63 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
+                throw new ArgumentNullException("values");
+            }
+
+            foreach (var value in values)
+            {
+                if (value == null)
                 {
-                    _values.Add(BsonValue.Create(value));
+                    throw new ArgumentException("One of the values is null.", "values");
                 }
+
+                _values.Add(BsonValue.Create(value));
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds multiple elements to the array.
+        /// </summary>
+        /// <param name="value1">The first value to add to the array.</param>
+        /// <param name="value2">The second value to add to the array.</param>
+        /// <param name="values">A list of additional values to add to the array.</param>
+        /// <returns>The array (so method calls can be chained).</returns>
+        public BsonArray AddRange(object value1, object value2, params object[] values)
+        {
+            if (value1 == null)
+            {
+                throw new ArgumentNullException("value1");
+            }
+
+            if (value2 == null)
+            {
+                throw new ArgumentNullException("value2");
+            }
+
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            _values.Capacity += 2 + values.Length;
+
+            _values.Add(BsonValue.Create(value1));
+
+            _values.Add(BsonValue.Create(value2));
+
+            for (int i = 0; i < values.Length; ++i)
+            {
+                var value = values[i];
+
+                if (value == null)
+                {
+                    throw new ArgumentException("One of the values is null.", "values");
+                }
+
+                _values.Add(BsonValue.Create(value));
             }
             return this;
         }

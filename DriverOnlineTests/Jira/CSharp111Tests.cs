@@ -60,12 +60,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp111
             var update = Update.AddToSet("InnerObjects", 1);
             collection.Update(query, update);
             var d1 = new D { X = 1 };
+#pragma warning disable 618 // AddToSetWrapped is obsolete
             update = Update.AddToSetWrapped("InnerObjects", d1);
+#pragma warning restore 618
             collection.Update(query, update);
 
             var d2 = new D { X = 2 };
             var d3 = new D { X = 3 };
+#pragma warning disable 618 // AddToSetEachWrapped is obsolete
             update = Update.AddToSetEachWrapped("InnerObjects", d1, d2, d3);
+#pragma warning restore 618
             collection.Update(query, update);
 
             var document = collection.FindOneAs<BsonDocument>();

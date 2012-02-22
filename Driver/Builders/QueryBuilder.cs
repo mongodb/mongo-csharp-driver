@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -66,19 +67,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).All(values);
+            return All(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -89,19 +78,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList All(string name, params BsonValue[] values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).All(values);
+            return All(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList All(string name, IEnumerable values)
+        {
+            return All(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList All(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return All(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -115,12 +120,14 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("queries");
             }
+
             if (queries.Length == 0)
             {
                 throw new ArgumentOutOfRangeException("queries", "Query.And cannot be called with zero queries.");
             }
 
             var queryDocument = new BsonDocument();
+
             foreach (var query in queries)
             {
                 if (query == null)
@@ -172,6 +179,17 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
             return new QueryComplete(new BsonDocument(name, value));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to some value.
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>A query.</returns>
+        public static QueryComplete EQ(string name, object value)
+        {
+            return EQ(name, BsonValue.Create(value));
         }
 
         /// <summary>
@@ -254,19 +272,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).In(values);
+            return In(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -277,19 +283,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList In(string name, params BsonValue[] values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).In(values);
+            return In(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList In(string name, IEnumerable values)
+        {
+            return In(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList In(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return In(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -382,6 +404,17 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("value");
             }
             return new QueryConditionList(name).NE(value);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to some value (see $ne).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NE(string name, object value)
+        {
+            return NE(name, BsonValue.Create(value));
         }
 
         /// <summary>
@@ -500,19 +533,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).NotIn(values);
+            return NotIn(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -523,19 +544,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public static QueryConditionList NotIn(string name, params BsonValue[] values)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryConditionList(name).NotIn(values);
+            return NotIn(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NotIn(string name, IEnumerable values)
+        {
+            return NotIn(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static QueryConditionList NotIn(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return NotIn(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -890,16 +927,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$all", new BsonArray(values));
-            return this;
+            return All(new BsonArray(values));
         }
 
         /// <summary>
@@ -909,16 +937,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList All(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$all", new BsonArray(values));
-            return this;
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList All(IEnumerable values)
+        {
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList All(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return All(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -999,16 +1043,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$in", new BsonArray(values));
-            return this;
+            return In(new BsonArray(values));
         }
 
         /// <summary>
@@ -1018,16 +1053,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList In(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$in", new BsonArray(values));
-            return this;
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList In(IEnumerable values)
+        {
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList In(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return In(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1085,6 +1136,16 @@ namespace MongoDB.Driver.Builders
             }
             _conditions.Add("$ne", value);
             return this;
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to some value (see $ne).
+        /// </summary>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList NE(object value)
+        {
+            return NE(BsonValue.Create(value));
         }
 
         /// <summary>
@@ -1151,16 +1212,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$nin", new BsonArray(values));
-            return this;
+            return NotIn(new BsonArray(values));
         }
 
         /// <summary>
@@ -1170,16 +1222,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList NotIn(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$nin", new BsonArray(values));
-            return this;
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList NotIn(IEnumerable values)
+        {
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryConditionList NotIn(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return NotIn(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1320,15 +1388,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).All(values);
+            return All(new BsonArray(values));
         }
 
         /// <summary>
@@ -1338,15 +1398,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).All(values);
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(IEnumerable values)
+        {
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return All(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1422,15 +1499,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).In(values);
+            return In(new BsonArray(values));
         }
 
         /// <summary>
@@ -1440,15 +1509,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).In(values);
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(IEnumerable values)
+        {
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return In(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1505,6 +1591,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element is not equal to some value (see $ne).
+        /// </summary>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NE(object value)
+        {
+            return NE(BsonValue.Create(value));
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
         /// <param name="values">The values to compare to.</param>
@@ -1525,15 +1621,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).NotIn(values);
+            return NotIn(new BsonArray(values));
         }
 
         /// <summary>
@@ -1543,15 +1631,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            return new QueryNotConditionList(_name).NotIn(values);
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(IEnumerable values)
+        {
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return NotIn(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1632,16 +1737,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$all", new BsonArray(values));
-            return this;
+            return All(new BsonArray(values));
         }
 
         /// <summary>
@@ -1651,16 +1747,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList All(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$all", new BsonArray(values));
-            return this;
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(IEnumerable values)
+        {
+            return All(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the named array element contains all of the values (see $all).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList All(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return All(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1741,16 +1853,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$in", new BsonArray(values));
-            return this;
+            return In(new BsonArray(values));
         }
 
         /// <summary>
@@ -1760,16 +1863,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList In(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$in", new BsonArray(values));
-            return this;
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(IEnumerable values)
+        {
+            return In(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList In(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return In(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1830,6 +1949,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element is not equal to some value (see $ne).
+        /// </summary>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NE(object value)
+        {
+            return NE(BsonValue.Create(value));
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
         /// </summary>
         /// <param name="values">The values to compare to.</param>
@@ -1851,16 +1980,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(IEnumerable<BsonValue> values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$nin", new BsonArray(values));
-            return this;
+            return NotIn(new BsonArray(values));
         }
 
         /// <summary>
@@ -1870,16 +1990,32 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList NotIn(params BsonValue[] values)
         {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
-            _conditions.Add("$nin", new BsonArray(values));
-            return this;
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(IEnumerable values)
+        {
+            return NotIn(new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is not equal to any of a list of values (see $nin).
+        /// </summary>
+        /// <param name="value1">The first value to compare to.</param>
+        /// <param name="value2">The second value to compare to.</param>
+        /// <param name="values">The additional values to compare to.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public QueryNotConditionList NotIn(
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return NotIn(new BsonArray(value1, value2, values));
         }
 
         /// <summary>
