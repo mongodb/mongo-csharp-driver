@@ -86,6 +86,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the serializer for the individual items of an enumerable type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the items.</param>
+        /// <param name="serializationOptions">The serialization options for the items.</param>
+        /// <returns>The serializer for the items.</returns>
+        public override IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        {
+            nominalType = typeof(T);
+            serializationOptions = null;
+            return BsonSerializer.LookupSerializer(typeof(T));
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>

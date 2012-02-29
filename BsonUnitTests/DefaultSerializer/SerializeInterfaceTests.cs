@@ -36,19 +36,11 @@ namespace MongoDB.BsonUnitTests.Serialization
 
         private class A : IX
         {
-            static A()
-            {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
-            }
             public string FX { get; set; }
         }
 
         private class B : IX
         {
-            static B()
-            {
-                BsonSerializer.RegisterSerializer(typeof(IX), BsonClassMapSerializer.Instance);
-            }
             public string FX { get; set; }
         }
 
@@ -75,6 +67,7 @@ namespace MongoDB.BsonUnitTests.Serialization
 
             var bson = a.ToBson();
             var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            Assert.IsInstanceOf<A>(rehydrated);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -101,6 +94,7 @@ namespace MongoDB.BsonUnitTests.Serialization
 
             var bson = b.ToBson();
             var rehydrated = BsonSerializer.Deserialize<IX>(bson);
+            Assert.IsInstanceOf<B>(rehydrated);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

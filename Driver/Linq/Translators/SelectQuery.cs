@@ -25,6 +25,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
@@ -129,9 +130,9 @@ namespace MongoDB.Driver.Linq
                 foreach (var clause in _orderBy)
                 {
                     var memberExpression = (MemberExpression)clause.Key.Body;
-                    var keyName = GetDottedElementName(memberExpression);
+                    var dottedElementName = GetDottedElementName(memberExpression);
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
-                    sortBy.Add(keyName, direction);
+                    sortBy.Add(dottedElementName, direction);
                 }
                 cursor.SetSortOrder(sortBy);
             }
@@ -247,40 +248,40 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
-        private IMongoQuery BuildAllQuery(MethodCallExpression methodCallExpression)
+        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+        }
+
+        private IMongoQuery BuildArrayLengthQuery(BinaryExpression binaryExpression)
+        {
+            var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
+            if (leftUnaryExpression != null && leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
             {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
+                var memberExpression = leftUnaryExpression.Operand as MemberExpression;
+                var valueExpression = binaryExpression.Right as ConstantExpression;
+                if (memberExpression != null && valueExpression != null)
                 {
-                    var memberExpression = arguments[0] as MemberExpression;
-                    var valuesExpression = arguments[1] as ConstantExpression;
-                    if (memberExpression != null && valuesExpression != null)
+                    var dottedElementName = GetDottedElementName(memberExpression);
+                    var value = (int)valueExpression.Value;
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        var dottedElementName = GetDottedElementName(memberExpression);
-                        var values = new BsonArray();
-                        foreach (var value in (IEnumerable)valuesExpression.Value)
-                        {
-                            values.Add(BsonValue.Create(value));
-                        }
-                        return Query.All(dottedElementName, values);
+                        return Query.Size(dottedElementName, value);
+                    }
+                    else
+                    {
+                        return Query.Not(dottedElementName).Size(value);
                     }
                 }
             }
             return null;
         }
 
-        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
-        {
-            return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
-        }
-
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
             if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var query = BuildSizeQuery(binaryExpression);
+                var query = BuildArrayLengthQuery(binaryExpression);
                 if (query != null)
                 {
                     return query;
@@ -297,16 +298,16 @@ namespace MongoDB.Driver.Linq
             var valueExpression = binaryExpression.Right as ConstantExpression;
             if (memberExpression != null && valueExpression != null)
             {
-                var elementName = GetDottedElementName(memberExpression);
-                var value = BsonValue.Create(valueExpression.Value);
+                BsonValue serializedValue;
+                var dottedElementName = GetDottedElementNameAndSerializedValue(memberExpression, valueExpression.Value, out serializedValue);
                 switch (binaryExpression.NodeType)
                 {
-                    case ExpressionType.Equal: return Query.EQ(elementName, value);
-                    case ExpressionType.GreaterThan: return Query.GT(elementName, value);
-                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(elementName, value);
-                    case ExpressionType.LessThan: return Query.LT(elementName, value);
-                    case ExpressionType.LessThanOrEqual: return Query.LTE(elementName, value);
-                    case ExpressionType.NotEqual: return Query.NE(elementName, value);
+                    case ExpressionType.Equal: return Query.EQ(dottedElementName, serializedValue);
+                    case ExpressionType.GreaterThan: return Query.GT(dottedElementName, serializedValue);
+                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(dottedElementName, serializedValue);
+                    case ExpressionType.LessThan: return Query.LT(dottedElementName, serializedValue);
+                    case ExpressionType.LessThanOrEqual: return Query.LTE(dottedElementName, serializedValue);
+                    case ExpressionType.NotEqual: return Query.NE(dottedElementName, serializedValue);
                 }
             }
 
@@ -326,6 +327,48 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildContainsAllQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
+                {
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var valuesExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && valuesExpression != null)
+                    {
+                        var values = (IEnumerable)valuesExpression.Value;
+                        BsonArray serializedValues;
+                        var dottedElementName = GetDottedElementNameAndSerializedItems(memberExpression, values, out serializedValues);
+                        return Query.All(dottedElementName, serializedValues);
+                    }
+                }
+            }
+            return null;
+        }
+
+        private IMongoQuery BuildContainsAnyQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 2)
+                {
+                    var memberExpression = arguments[0] as MemberExpression;
+                    var valuesExpression = arguments[1] as ConstantExpression;
+                    if (memberExpression != null && valuesExpression != null)
+                    {
+                        var values = (IEnumerable)valuesExpression.Value;
+                        BsonArray serializedValues;
+                        var dottedElementName = GetDottedElementNameAndSerializedItems(memberExpression, values, out serializedValues);
+                        return Query.In(dottedElementName, serializedValues);
+                    }
+                }
+            }
+            return null;
+        }
+
         private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(string))
@@ -342,9 +385,9 @@ namespace MongoDB.Driver.Linq
                     var valueExpression = arguments[1] as ConstantExpression;
                     if (memberExpression != null && valueExpression != null)
                     {
-                        var dottedElementName = GetDottedElementName(memberExpression);
-                        var value = BsonValue.Create(valueExpression.Value);
-                        return Query.EQ(dottedElementName, value);
+                        BsonValue serializedValue;
+                        var dottedElementName = GetDottedElementNameAndSerializedItem(memberExpression, valueExpression.Value, out serializedValue);
+                        return Query.EQ(dottedElementName, serializedValue);
                     }
                 }
             }
@@ -362,13 +405,9 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (memberExpression != null && valuesExpression != null)
                     {
-                        var dottedElementName = GetDottedElementName(memberExpression);
-                        var values = new BsonArray();
-                        foreach (var value in (IEnumerable)valuesExpression.Value)
-                        {
-                            values.Add(BsonValue.Create(value));
-                        }
-                        return Query.In(dottedElementName, values);
+                        BsonArray serializedValues;
+                        var dottedElementName = GetDottedElementNameAndSerializedValues(memberExpression, (IEnumerable)valuesExpression.Value, out serializedValues);
+                        return Query.In(dottedElementName, serializedValues);
                     }
                 }
             }
@@ -459,8 +498,8 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "Contains": return BuildContainsQuery(methodCallExpression);
-                case "ContainsAll": return BuildAllQuery(methodCallExpression);
-                case "ContainsAny": return BuildInQuery(methodCallExpression);
+                case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
+                case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);
                 case "EndsWith": return BuildStringQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
                 case "Inject": return BuildInjectQuery(methodCallExpression);
@@ -480,16 +519,16 @@ namespace MongoDB.Driver.Linq
                 var equalsExpression = binaryExpression.Right as ConstantExpression;
                 if (memberExpression != null && modulusExpression != null && equalsExpression != null)
                 {
-                    var elementName = GetDottedElementName(memberExpression);
+                    var dottedElementName = GetDottedElementName(memberExpression);
                     var modulus = Convert.ToInt32(modulusExpression.Value);
                     var equals = Convert.ToInt32(equalsExpression.Value);
                     if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        return Query.Mod(elementName, modulus, equals);
+                        return Query.Mod(dottedElementName, modulus, equals);
                     }
                     else
                     {
-                        return Query.Not(elementName).Mod(modulus, equals);
+                        return Query.Not(dottedElementName).Mod(modulus, equals);
                     }
                 }
             }
@@ -627,30 +666,6 @@ namespace MongoDB.Driver.Linq
             return query;
         }
 
-        private IMongoQuery BuildSizeQuery(BinaryExpression binaryExpression)
-        {
-            var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
-            if (leftUnaryExpression != null && leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
-            {
-                var memberExpression = leftUnaryExpression.Operand as MemberExpression;
-                var valueExpression = binaryExpression.Right as ConstantExpression;
-                if (memberExpression != null && valueExpression != null)
-                {
-                    var dottedElementName = GetDottedElementName(memberExpression);
-                    var value = (int)valueExpression.Value;
-                    if (binaryExpression.NodeType == ExpressionType.Equal)
-                    {
-                        return Query.Size(dottedElementName, value);
-                    }
-                    else
-                    {
-                        return Query.Not(dottedElementName).Size(value);
-                    }
-                }
-            }
-            return null;
-        }
-
         private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(string))
@@ -726,6 +741,123 @@ namespace MongoDB.Driver.Linq
             {
                 return GetDottedElementName(nestedMember) + "." + elementName;
             }
+        }
+
+        private string GetDottedElementNameAndSerializedItem(MemberExpression memberExpression, object value, out BsonValue serializedValue)
+        {
+            IBsonSerializer memberSerializer;
+            Type memberNominalType;
+            IBsonSerializationOptions memberSerializationOptions;
+            var dottedElementName = GetDottedElementNameAndSerializer(memberExpression, out memberSerializer, out memberNominalType, out memberSerializationOptions);
+
+            Type itemNominalType;
+            IBsonSerializationOptions itemSerializationOptions;
+            var itemSerializer = memberSerializer.GetItemSerializer(out itemNominalType, out itemSerializationOptions);
+
+            serializedValue = SerializeValue(itemSerializer, itemNominalType, value, itemSerializationOptions);
+            return dottedElementName;
+        }
+
+        private string GetDottedElementNameAndSerializedItems(MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
+        {
+            IBsonSerializer memberSerializer;
+            Type memberNominalType;
+            IBsonSerializationOptions memberSerializationOptions;
+            var dottedElementName = GetDottedElementNameAndSerializer(memberExpression, out memberSerializer, out memberNominalType, out memberSerializationOptions);
+
+            Type itemNominalType;
+            IBsonSerializationOptions itemSerializationOptions;
+            var itemSerializer = memberSerializer.GetItemSerializer(out itemNominalType, out itemSerializationOptions);
+
+            serializedValues = SerializeValues(itemSerializer, itemNominalType, values, itemSerializationOptions);
+            return dottedElementName;
+        }
+
+        private string GetDottedElementNameAndSerializedValue(IBsonSerializer serializer, MemberExpression memberExpression, object value, out BsonValue serializedValue)
+        {
+            IBsonSerializer memberSerializer;
+            Type nominalType;
+            IBsonSerializationOptions serializationOptions;
+            var dottedElementName = GetDottedElementNameAndSerializer(serializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
+
+            serializedValue = SerializeValue(memberSerializer, nominalType, value, serializationOptions);
+            return dottedElementName;
+        }
+
+        private string GetDottedElementNameAndSerializedValue(MemberExpression memberExpression, object value, out BsonValue serializedValue)
+        {
+            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
+            return GetDottedElementNameAndSerializedValue(documentSerializer, memberExpression, value, out serializedValue);
+        }
+
+        private string GetDottedElementNameAndSerializedValues(IBsonSerializer serializer, MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
+        {
+            IBsonSerializer memberSerializer;
+            Type nominalType;
+            IBsonSerializationOptions serializationOptions;
+            var dottedElementName = GetDottedElementNameAndSerializer(serializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
+
+            serializedValues = SerializeValues(memberSerializer, nominalType, values, serializationOptions);
+            return dottedElementName;
+        }
+
+        private string GetDottedElementNameAndSerializedValues(MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
+        {
+            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
+            return GetDottedElementNameAndSerializedValues(documentSerializer, memberExpression, values, out serializedValues);
+        }
+
+        private string GetDottedElementNameAndSerializer(IBsonSerializer serializer, MemberExpression memberExpression, out IBsonSerializer memberSerializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        {
+            var memberName = memberExpression.Member.Name;
+
+            var nestedMemberExpression = memberExpression.Expression as MemberExpression;
+            if (nestedMemberExpression == null)
+            {
+                return serializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+            }
+            else
+            {
+                IBsonSerializer nestedMemberSerializer;
+                Type nestedNominalType;
+                IBsonSerializationOptions nestedSerializationOptions;
+                var nestedElementName = GetDottedElementNameAndSerializer(serializer, nestedMemberExpression, out nestedMemberSerializer, out nestedNominalType, out nestedSerializationOptions);
+                var elementName = nestedMemberSerializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+                return nestedElementName + "." + elementName;
+            }
+        }
+
+        private string GetDottedElementNameAndSerializer(MemberExpression memberExpression, out IBsonSerializer memberSerializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        {
+            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
+            return GetDottedElementNameAndSerializer(documentSerializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
+        }
+
+        private BsonValue SerializeValue(IBsonSerializer serializer, Type nominalType, object value, IBsonSerializationOptions serializationOptions)
+        {
+            var bsonDocument = new BsonDocument();
+            var bsonWriter = BsonWriter.Create(bsonDocument);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName("value");
+            serializer.Serialize(bsonWriter, nominalType, value, serializationOptions);
+            bsonWriter.WriteEndDocument();
+            return bsonDocument[0];
+        }
+        
+        private BsonArray SerializeValues(IBsonSerializer serializer, Type nominalType, IEnumerable values, IBsonSerializationOptions serializationOptions)
+        {
+            var bsonDocument = new BsonDocument();
+            var bsonWriter = BsonWriter.Create(bsonDocument);
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName("values");
+            bsonWriter.WriteStartArray();
+            foreach (var value in values)
+            {
+                serializer.Serialize(bsonWriter, nominalType, value, serializationOptions);
+            }
+            bsonWriter.WriteEndArray();
+            bsonWriter.WriteEndDocument();
+            return bsonDocument[0].AsBsonArray;
         }
 
         private void SetElementSelector(MethodCallExpression methodCallExpression, Func<IEnumerable, object> elementSelector)

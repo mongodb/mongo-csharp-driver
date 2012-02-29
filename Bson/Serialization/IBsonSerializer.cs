@@ -59,6 +59,22 @@ namespace MongoDB.Bson.Serialization
         /// <param name="options">The serialization options.</param>
         void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options);
         /// <summary>
+        /// Gets the element name and serializer for a given member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The element name.</returns>
+        string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions);
+        /// <summary>
+        /// Gets the serializer for the individual items of an enumerable type.
+        /// </summary>
+        /// <param name="nominalType">The nominal type of the items.</param>
+        /// <param name="serializationOptions">The serialization options for the items.</param>
+        /// <returns>The serializer for the items.</returns>
+        IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions);
+        /// <summary>
         /// Sets the document Id.
         /// </summary>
         /// <param name="document">The document.</param>

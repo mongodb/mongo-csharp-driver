@@ -76,6 +76,16 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp378
                 throw new NotSupportedException();
             }
 
+            public string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+            {
+                throw new NotSupportedException();
+            }
+
+            public IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
+            {
+                throw new NotSupportedException();
+            }
+
             public void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
             {
                 var objectId = ObjectId.Parse((string)value);
