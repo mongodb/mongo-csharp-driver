@@ -873,12 +873,21 @@ namespace MongoDB.Driver.Linq
 
         private string GetDottedElementNameAndSerializer(IBsonSerializer serializer, MemberExpression memberExpression, out IBsonSerializer memberSerializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
+            var declaringType = memberExpression.Expression.Type;
             var memberName = memberExpression.Member.Name;
 
             var nestedMemberExpression = memberExpression.Expression as MemberExpression;
             if (nestedMemberExpression == null)
             {
-                return serializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+                try
+                {
+                    return serializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+                }
+                catch (NotSupportedException)
+                {
+                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetElementNameAndSerializer method.", declaringType.Name);
+                    throw new NotSupportedException(message);
+                }
             }
             else
             {
@@ -886,8 +895,16 @@ namespace MongoDB.Driver.Linq
                 Type nestedNominalType;
                 IBsonSerializationOptions nestedSerializationOptions;
                 var nestedElementName = GetDottedElementNameAndSerializer(serializer, nestedMemberExpression, out nestedMemberSerializer, out nestedNominalType, out nestedSerializationOptions);
-                var elementName = nestedMemberSerializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
-                return nestedElementName + "." + elementName;
+                try
+                {
+                    var elementName = nestedMemberSerializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+                    return nestedElementName + "." + elementName;
+                }
+                catch (NotSupportedException)
+                {
+                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetElementNameAndSerializer method.", declaringType.Name);
+                    throw new NotSupportedException(message);
+                }
             }
         }
 

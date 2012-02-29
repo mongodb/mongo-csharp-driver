@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver
@@ -29,12 +30,18 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a DBRef (a convenient way to refer to a document).
     /// </summary>
-    public class MongoDBRef : IBsonSerializable
+    public class MongoDBRef
     {
         // private fields
         private string _databaseName;
         private string _collectionName;
         private BsonValue _id;
+
+        // static constructor
+        static MongoDBRef()
+        {
+            BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
+        }
 
         // constructors
         // default constructor is private and only used for deserialization
@@ -90,10 +97,30 @@ namespace MongoDB.Driver
         {
             get { return _id; }
         }
+    }
 
-        // explicit interface implementations
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+    /// <summary>
+    /// Represents a serializer for MongoDBRefs.
+    /// </summary>
+    public class MongoDBRefSerializer : BsonBaseSerializer
+    {
+        // public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
+            VerifyTypes(nominalType, actualType, typeof(MongoDBRef));
+
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -101,8 +128,11 @@ namespace MongoDB.Driver
             }
             else
             {
+                string databaseName = null;
+                string collectionName = null;
+                BsonValue id = null;
+
                 bsonReader.ReadStartDocument();
-                string message;
                 BsonType bsonType;
                 while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
                 {
@@ -110,45 +140,87 @@ namespace MongoDB.Driver
                     switch (name)
                     {
                         case "$ref":
-                            _collectionName = bsonReader.ReadString();
+                            collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            _id = BsonValue.ReadFrom(bsonReader); ;
+                            id = BsonValue.ReadFrom(bsonReader); ;
                             break;
                         case "$db":
-                            _databaseName = bsonReader.ReadString();
+                            databaseName = bsonReader.ReadString();
                             break;
                         default:
-                            message = string.Format("Element '{0}' is not valid for DBRef.", name);
+                            var message = string.Format("Element '{0}' is not valid for MongoDBRef.", name);
                             throw new FileFormatException(message);
                     }
                 }
                 bsonReader.ReadEndDocument();
-                return this;
+
+                return new MongoDBRef(databaseName, collectionName, id);
             }
         }
 
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        /// <summary>
+        /// Gets the element name and serializer for a given member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The element name.</returns>
+        public override string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
-            throw new NotSupportedException();
-        }
-
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteString("$ref", _collectionName);
-            bsonWriter.WriteName("$id");
-            _id.WriteTo(bsonWriter);
-            if (_databaseName != null)
+            serializationOptions = null;
+            switch (memberName)
             {
-                bsonWriter.WriteString("$db", _databaseName);
+                case "DatabaseName":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "$db";
+                case "CollectionName":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "$ref";
+                case "Id":
+                    serializer = BsonValueSerializer.Instance;
+                    nominalType = typeof(BsonValue);
+                    return "$id";
+                default:
+                    var message = string.Format("{0} is not a member of MongoDBRef.", memberName);
+                    throw new ArgumentOutOfRangeException("memberName", message);
             }
-            bsonWriter.WriteEndDocument();
         }
 
-        void IBsonSerializable.SetDocumentId(object id)
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
-            throw new NotSupportedException();
+            if (value == null)
+            {
+                bsonWriter.WriteNull();
+            }
+            else
+            {
+                var dbRef = (MongoDBRef)value;
+
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("$ref", dbRef.CollectionName);
+                bsonWriter.WriteName("$id");
+                dbRef.Id.WriteTo(bsonWriter);
+                if (dbRef.DatabaseName != null)
+                {
+                    bsonWriter.WriteString("$db", dbRef.DatabaseName);
+                }
+                bsonWriter.WriteEndDocument();
+            }
         }
     }
 }

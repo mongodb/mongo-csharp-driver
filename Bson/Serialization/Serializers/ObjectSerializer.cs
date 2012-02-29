@@ -173,7 +173,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The element name.</returns>
         public string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("ObjectSerializer does not implement the GetElementNameAndSerializer method.");
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The serializer for the items.</returns>
         public IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("ObjectSerializer does not implement the GetItemSerializer method.");
         }
 
         /// <summary>

@@ -247,7 +247,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serializer for the items.</returns>
         public IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("BsonClassMapSerializer does not implement the GetItemSerializer method.");
         }
 
         /// <summary>

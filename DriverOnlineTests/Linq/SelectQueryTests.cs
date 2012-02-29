@@ -51,6 +51,9 @@ namespace MongoDB.DriverOnlineTests.Linq
             [BsonElement("l")]
             [BsonIgnoreIfNull]
             public List<int> L { get; set; }
+            [BsonElement("dbref")]
+            [BsonIgnoreIfNull]
+            public MongoDBRef DBRef { get; set; }
         }
 
         public class D
@@ -104,7 +107,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
             _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1" });
             _collection.Insert(new C { X = 3, Y = 33, D = new D { Z = 33 }, B = true });
-            _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 } });
+            _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
             _collection.Insert(new C { X = 4, Y = 44, D = new D { Z = 44 } });
         }
 
@@ -1931,6 +1934,75 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.AreEqual("{ \"b\" : false }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDBRefCollectionNameEqualsC()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DBRef.CollectionName == "c"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.DBRef.CollectionName == \"c\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref.$ref\" : \"c\" }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDBRefDatabaseNameEqualsDb()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DBRef.DatabaseName == "db"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.DBRef.DatabaseName == \"db\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref.$db\" : \"db\" }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDBRefIdEquals1()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DBRef.Id == 1
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.DBRef.Id == 1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref.$id\" : 1 }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
         }
 
         [Test]
