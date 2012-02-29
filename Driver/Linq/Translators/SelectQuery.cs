@@ -256,24 +256,78 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildArrayLengthQuery(BinaryExpression binaryExpression)
         {
             var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
-            if (leftUnaryExpression != null && leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
+            if (leftUnaryExpression != null)
             {
-                var memberExpression = leftUnaryExpression.Operand as MemberExpression;
-                var valueExpression = binaryExpression.Right as ConstantExpression;
-                if (memberExpression != null && valueExpression != null)
+                if (leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
                 {
-                    var dottedElementName = GetDottedElementName(memberExpression);
-                    var value = (int)valueExpression.Value;
-                    if (binaryExpression.NodeType == ExpressionType.Equal)
+                    var memberExpression = leftUnaryExpression.Operand as MemberExpression;
+                    var valueExpression = binaryExpression.Right as ConstantExpression;
+                    if (memberExpression != null && valueExpression != null)
                     {
-                        return Query.Size(dottedElementName, value);
-                    }
-                    else
-                    {
-                        return Query.Not(dottedElementName).Size(value);
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var value = (int)valueExpression.Value;
+                        if (binaryExpression.NodeType == ExpressionType.Equal)
+                        {
+                            return Query.Size(dottedElementName, value);
+                        }
+                        else
+                        {
+                            return Query.Not(dottedElementName).Size(value);
+                        }
                     }
                 }
             }
+
+            var leftMemberExpression = binaryExpression.Left as MemberExpression;
+            if (leftMemberExpression != null)
+            {
+                if (leftMemberExpression.Member.Name == "Count")
+                {
+                    var memberExpression = leftMemberExpression.Expression as MemberExpression;
+                    var valueExpression = binaryExpression.Right as ConstantExpression;
+                    if (memberExpression != null && valueExpression != null)
+                    {
+                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var value = (int)valueExpression.Value;
+                        if (binaryExpression.NodeType == ExpressionType.Equal)
+                        {
+                            return Query.Size(dottedElementName, value);
+                        }
+                        else
+                        {
+                            return Query.Not(dottedElementName).Size(value);
+                        }
+                    }
+                }
+            }
+
+            var leftMethodCallExpression = binaryExpression.Left as MethodCallExpression;
+            if (leftMethodCallExpression != null)
+            {
+                if (leftMethodCallExpression.Method.Name == "Count")
+                {
+                    var arguments = leftMethodCallExpression.Arguments.ToArray();
+                    if (arguments.Length == 1)
+                    {
+                        var memberExpression = leftMethodCallExpression.Arguments[0] as MemberExpression;
+                        var valueExpression = binaryExpression.Right as ConstantExpression;
+                        if (memberExpression != null && valueExpression != null)
+                        {
+                            var dottedElementName = GetDottedElementName(memberExpression);
+                            var value = (int)valueExpression.Value;
+                            if (binaryExpression.NodeType == ExpressionType.Equal)
+                            {
+                                return Query.Size(dottedElementName, value);
+                            }
+                            else
+                            {
+                                return Query.Not(dottedElementName).Size(value);
+                            }
+                        }
+                    }
+                }
+            }
+
             return null;
         }
 
@@ -376,20 +430,30 @@ namespace MongoDB.Driver.Linq
                 return BuildStringQuery(methodCallExpression);
             }
 
-            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+            MemberExpression memberExpression = null;
+            ConstantExpression valueExpression = null;
+            var arguments = methodCallExpression.Arguments.ToArray();
+            if (arguments.Length == 1)
             {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
+                if (typeof(IEnumerable).IsAssignableFrom(methodCallExpression.Method.DeclaringType))
                 {
-                    var memberExpression = arguments[0] as MemberExpression;
-                    var valueExpression = arguments[1] as ConstantExpression;
-                    if (memberExpression != null && valueExpression != null)
-                    {
-                        BsonValue serializedValue;
-                        var dottedElementName = GetDottedElementNameAndSerializedItem(memberExpression, valueExpression.Value, out serializedValue);
-                        return Query.EQ(dottedElementName, serializedValue);
-                    }
+                    memberExpression = methodCallExpression.Object as MemberExpression;
+                    valueExpression = arguments[0] as ConstantExpression;
                 }
+            }
+            else if (arguments.Length == 2)
+            {
+                if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+                {
+                    memberExpression = arguments[0] as MemberExpression;
+                    valueExpression = arguments[1] as ConstantExpression;
+                }
+            }
+            if (memberExpression != null && valueExpression != null)
+            {
+                BsonValue serializedValue;
+                var dottedElementName = GetDottedElementNameAndSerializedItem(memberExpression, valueExpression.Value, out serializedValue);
+                return Query.EQ(dottedElementName, serializedValue);
             }
             return null;
         }
