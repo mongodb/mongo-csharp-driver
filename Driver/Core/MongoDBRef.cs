@@ -37,12 +37,6 @@ namespace MongoDB.Driver
         private string _collectionName;
         private BsonValue _id;
 
-        // static constructor
-        static MongoDBRef()
-        {
-            BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
-        }
-
         // constructors
         // default constructor is private and only used for deserialization
         private MongoDBRef()

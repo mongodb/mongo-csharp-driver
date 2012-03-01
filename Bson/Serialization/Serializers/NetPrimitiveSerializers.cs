@@ -1498,18 +1498,60 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(TimeSpan));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType)
+            var timeSpanOptions = options as TimeSpanSerializationOptions;
+            if (timeSpanOptions == null)
             {
-                case BsonType.Int32:
-                    return new TimeSpan((long)bsonReader.ReadInt32());
-                case BsonType.Int64:
-                    return new TimeSpan(bsonReader.ReadInt64());
-                case BsonType.String:
-                    return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
-                default:
-                    var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                var representationOptions = options as RepresentationSerializationOptions;
+                if (representationOptions != null)
+                {
+                    timeSpanOptions = new TimeSpanSerializationOptions(representationOptions.Representation);
+                }
+            }
+
+            BsonType bsonType = bsonReader.CurrentBsonType;
+            if (bsonType == BsonType.String)
+            {
+                return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
+            }
+            else if (timeSpanOptions.Units == TimeSpanUnits.Ticks)
+            {
+                long ticks;
+                switch (bsonType)
+                {
+                    case BsonType.Double: ticks = (long)bsonReader.ReadDouble(); break;
+                    case BsonType.Int32: ticks = (long)bsonReader.ReadInt32(); break;
+                    case BsonType.Int64: ticks = bsonReader.ReadInt64(); break;
+                    default:
+                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
+                        throw new FileFormatException(message);
+                }
+                return new TimeSpan(ticks);
+            }
+            else
+            {
+                double interval;
+                switch (bsonType)
+                {
+                    case BsonType.Double: interval = bsonReader.ReadDouble(); break;
+                    case BsonType.Int32: interval = bsonReader.ReadInt32(); break;
+                    case BsonType.Int64: interval = bsonReader.ReadInt64(); break;
+                    default:
+                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
+                        throw new FileFormatException(message);
+                }
+
+                switch (timeSpanOptions.Units)
+                {
+                    case TimeSpanUnits.Days: return TimeSpan.FromDays(interval);
+                    case TimeSpanUnits.Hours: return TimeSpan.FromHours(interval);
+                    case TimeSpanUnits.Minutes: return TimeSpan.FromMinutes(interval);
+                    case TimeSpanUnits.Seconds: return TimeSpan.FromSeconds(interval);
+                    case TimeSpanUnits.Milliseconds: return TimeSpan.FromMilliseconds(interval);
+                    case TimeSpanUnits.Nanoseconds: return TimeSpan.FromMilliseconds(interval / 1000.0);
+                    default:
+                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanOptions.Units);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
 
@@ -1527,18 +1569,59 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var timeSpan = (TimeSpan)value;
-            var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
-            switch (representation)
+
+            var timeSpanOptions = options as TimeSpanSerializationOptions;
+            if (timeSpanOptions == null)
             {
-                case BsonType.Int64:
-                    bsonWriter.WriteInt64(timeSpan.Ticks);
-                    break;
-                case BsonType.String:
-                    bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
-                    break;
-                default:
-                    var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", representation);
-                    throw new BsonSerializationException(message);
+                var representationOptions = options as RepresentationSerializationOptions;
+                if (representationOptions != null)
+                {
+                    timeSpanOptions = new TimeSpanSerializationOptions(representationOptions.Representation);
+                }
+            }
+
+            if (timeSpanOptions.Representation == BsonType.String)
+            {
+                bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
+            }
+            else if (timeSpanOptions.Units == TimeSpanUnits.Ticks)
+            {
+                var ticks = timeSpan.Ticks;
+                switch (timeSpanOptions.Representation)
+                {
+                    case BsonType.Double: bsonWriter.WriteDouble((double)ticks); break;
+                    case BsonType.Int32: bsonWriter.WriteInt32((int)ticks); break;
+                    case BsonType.Int64: bsonWriter.WriteInt64(ticks); break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", timeSpanOptions.Representation);
+                        throw new BsonSerializationException(message);
+                }
+            }
+            else
+            {
+                double interval;
+                switch (timeSpanOptions.Units)
+                {
+                    case TimeSpanUnits.Days: interval = timeSpan.TotalDays; break;
+                    case TimeSpanUnits.Hours: interval = timeSpan.TotalHours; break;
+                    case TimeSpanUnits.Minutes: interval = timeSpan.TotalMinutes; break;
+                    case TimeSpanUnits.Seconds: interval = timeSpan.TotalSeconds; break;
+                    case TimeSpanUnits.Milliseconds: interval = timeSpan.TotalMilliseconds; break;
+                    case TimeSpanUnits.Nanoseconds: interval = timeSpan.TotalMilliseconds * 1000.0; break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanOptions.Units);
+                        throw new BsonSerializationException(message);
+                }
+
+                switch (timeSpanOptions.Representation)
+                {
+                    case BsonType.Double: bsonWriter.WriteDouble(interval); break;
+                    case BsonType.Int32: bsonWriter.WriteInt32((int)interval); break;
+                    case BsonType.Int64: bsonWriter.WriteInt64((long)interval); break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", timeSpanOptions.Representation);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
     }

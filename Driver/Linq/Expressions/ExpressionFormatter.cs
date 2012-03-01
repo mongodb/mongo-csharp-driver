@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Linq
             if (a != null && a.Rank == 1)
             {
                 var elementType = a.GetType().GetElementType();
-                _sb.AppendFormat("new {0}[] {{ ", elementType.Name);
+                _sb.AppendFormat("{0}[]:{{ ", elementType.Name);
                 var separator = "";
                 foreach (var item in a)
                 {
@@ -147,6 +147,25 @@ namespace MongoDB.Driver.Linq
                 return node;
             }
 
+            if (value.GetType() == typeof(DateTime))
+            {
+                var dt = (DateTime)value;
+
+                var formatted = dt.ToString("o");
+                formatted = Regex.Replace(formatted, @"\.0000000", "");
+                formatted = Regex.Replace(formatted, @"0000[Z+-]", "");
+
+                if (dt.Kind == DateTimeKind.Utc)
+                {
+                    _sb.AppendFormat("DateTime:({0})", formatted);
+                }
+                else
+                {
+                    _sb.AppendFormat("DateTime:({0}, {1})", formatted, dt.Kind);
+                }
+                return node;
+            }
+
             var e = value as Enum;
             if (e != null)
             {
@@ -159,13 +178,12 @@ namespace MongoDB.Driver.Linq
             {
                 var pattern = regex.ToString();
                 var options = regex.Options;
-                _sb.Append("new Regex(\"");
+                _sb.Append("Regex:(@\"");
                 _sb.Append(pattern);
                 _sb.Append("\"");
                 if (options != RegexOptions.None)
                 {
-                    _sb.Append(", RegexOptions.");
-                    _sb.Append(options.ToString());
+                    _sb.AppendFormat(", {0}", options.ToString());
                 }
                 _sb.Append(")");
                 return node;
@@ -178,6 +196,13 @@ namespace MongoDB.Driver.Linq
                 _sb.Append("\"");
                 _sb.Append(s);
                 _sb.Append("\"");
+                return node;
+            }
+
+            if (value.GetType() == typeof(TimeSpan))
+            {
+                var ts = (TimeSpan)value;
+                _sb.AppendFormat("TimeSpan:({0})", ts.ToString());
                 return node;
             }
 

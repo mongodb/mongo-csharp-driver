@@ -21,6 +21,8 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver
@@ -29,7 +31,7 @@ namespace MongoDB.Driver
     /// Represents a document from the system.profile collection.
     /// </summary>
     [Serializable]
-    public class SystemProfileInfo : IBsonSerializable
+    public class SystemProfileInfo
     {
         // private fields
         private string _abbreviated;
@@ -321,10 +323,30 @@ namespace MongoDB.Driver
             get { return _user; }
             set { _user = value; }
         }
+    }
 
-        // explicit interface implementation
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+    /// <summary>
+    /// Represents a serializer for SystemProfileInfo.
+    /// </summary>
+    public class SystemProfileInfoSerializer : BsonBaseSerializer
+    {
+        // public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>An object.</returns>
+        public override object Deserialize(
+            BsonReader bsonReader,
+            Type nominalType,
+            Type actualType,
+            IBsonSerializationOptions options)
         {
+            VerifyTypes(nominalType, actualType, typeof(SystemProfileInfo));
+
             if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -332,6 +354,8 @@ namespace MongoDB.Driver
             }
             else
             {
+                var profileInfo = new SystemProfileInfo();
+
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
                 while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
@@ -340,221 +364,364 @@ namespace MongoDB.Driver
                     switch (name)
                     {
                         case "abbreviated":
-                            _abbreviated = bsonReader.ReadString();
+                            profileInfo.Abbreviated = bsonReader.ReadString();
                             break;
                         case "client":
-                            _client = bsonReader.ReadString();
+                            profileInfo.Client = bsonReader.ReadString();
                             break;
                         case "command":
-                            _command = BsonDocument.ReadFrom(bsonReader);
+                            profileInfo.Command = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "cursorid":
-                            _cursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
+                            profileInfo.CursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
                             break;
                         case "err":
-                            _error = bsonReader.ReadString();
+                            profileInfo.Error = bsonReader.ReadString();
                             break;
                         case "exception":
-                            _exception = bsonReader.ReadString();
+                            profileInfo.Exception = bsonReader.ReadString();
                             break;
                         case "exceptionCode":
-                            _exceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.ExceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "exhaust":
-                            _exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.Exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmod":
-                            _fastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.FastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "fastmodinsert":
-                            _fastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.FastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "idhack":
-                            _idHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.IdHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "info":
-                            _info = bsonReader.ReadString();
+                            profileInfo.Info = bsonReader.ReadString();
                             break;
                         case "keyUpdates":
-                            _keyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.KeyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "millis":
-                            _duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
+                            profileInfo.Duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
                             break;
                         case "moved":
-                            _moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.Moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "nreturned":
-                            _numberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.NumberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ns":
-                            _namespace = bsonReader.ReadString();
+                            profileInfo.Namespace = bsonReader.ReadString();
                             break;
                         case "nscanned":
-                            _numberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.NumberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoreturn":
-                            _numberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.NumberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "ntoskip":
-                            _numberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.NumberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "op":
-                            _op = bsonReader.ReadString();
+                            profileInfo.Op = bsonReader.ReadString();
                             break;
                         case "query":
-                            _query = BsonDocument.ReadFrom(bsonReader);
+                            profileInfo.Query = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "responseLength":
-                            _responseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            profileInfo.ResponseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "scanAndOrder":
-                            _scanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.ScanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "ts":
-                            _timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
+                            profileInfo.Timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
                             break;
                         case "updateobj":
-                            _updateObject = BsonDocument.ReadFrom(bsonReader);
+                            profileInfo.UpdateObject = BsonDocument.ReadFrom(bsonReader);
                             break;
                         case "upsert":
-                            _upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
+                            profileInfo.Upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
                             break;
                         case "user":
-                            _user = bsonReader.ReadString();
+                            profileInfo.User = bsonReader.ReadString();
                             break;
                         default:
                             break; // ignore unknown elements
                     }
                 }
                 bsonReader.ReadEndDocument();
-                return this;
+
+                return profileInfo;
             }
         }
 
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        /// <summary>
+        /// Gets the element name and serializer for a given member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The element name.</returns>
+        public override string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
         {
-            throw new NotSupportedException();
+            serializationOptions = null;
+            switch (memberName)
+            {
+                case "Abbreviated":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "abbreviated";
+                case "Client":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "client";
+                case "Command":
+                    serializer = BsonDocumentSerializer.Instance;
+                    nominalType = typeof(BsonDocument);
+                    return "command";
+                case "CursorId":
+                    serializer = Int64Serializer.Instance;
+                    nominalType = typeof(long);
+                    return "cursorid";
+                case "Duration":
+                    serializer = TimeSpanSerializer.Instance;
+                    nominalType = typeof(TimeSpan);
+                    serializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
+                    return "millis";
+                case "Error":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "err";
+                case "Exception":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "exception";
+                case "ExceptionCode":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "exceptionCode";
+                case "Exhaust":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "exhaust";
+                case "FastMod":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "fastmod";
+                case "FastModInsert":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "fastmodinsert";
+                case "IdHack":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "idhack";
+                case "Info":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "info";
+                case "KeyUpdates":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "keyUpdates";
+                case "Moved":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "moved";
+                case "Namespace":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "ns";
+                case "NumberReturned":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "nreturned";
+                case "NumberScanned":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "nscanned";
+                case "NumberToReturn":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "ntoreturn";
+                case "NumberToSkip":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "ntoskip";
+                case "Op":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "op";
+                case "Query":
+                    serializer = BsonDocumentSerializer.Instance;
+                    nominalType = typeof(BsonDocument);
+                    return "query";
+                case "ResponseLength":
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    return "responseLength";
+                case "ScanAndOrder":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "scanAndOrder";
+                case "Timestamp":
+                    serializer = DateTimeSerializer.Instance;
+                    nominalType = typeof(DateTime);
+                    return "ts";
+                case "UpdateObject":
+                    serializer = BsonDocumentSerializer.Instance;
+                    nominalType = typeof(BsonDocument);
+                    return "updateobj";
+                case "Upsert":
+                    serializer = BooleanSerializer.Instance;
+                    nominalType = typeof(bool);
+                    return "upsert";
+                case "User":
+                    serializer = StringSerializer.Instance;
+                    nominalType = typeof(string);
+                    return "user";
+                default:
+                    var message = string.Format("{0} is not a member of SystemProfileInfo.", memberName);
+                    throw new ArgumentOutOfRangeException("memberName", message);
+            }
         }
 
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
+        public override void Serialize(
+            BsonWriter bsonWriter,
+            Type nominalType,
+            object value,
+            IBsonSerializationOptions options)
         {
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(_timestamp));
-            if (_info != null)
+            if (value == null)
             {
-                bsonWriter.WriteString("info", _info);
+                bsonWriter.WriteNull();
             }
-            if (_op != null)
+            else
             {
-                bsonWriter.WriteString("op", _op);
-            }
-            if (_namespace != null)
-            {
-                bsonWriter.WriteString("ns", _namespace);
-            }
-            if (_command != null)
-            {
-                bsonWriter.WriteName("command");
-                _command.WriteTo(bsonWriter);
-            }
-            if (_query != null)
-            {
-                bsonWriter.WriteName("query");
-                _query.WriteTo(bsonWriter);
-            }
-            if (_updateObject != null)
-            {
-                bsonWriter.WriteName("updateobj");
-                _updateObject.WriteTo(bsonWriter);
-            }
-            if (_cursorId != 0)
-            {
-                bsonWriter.WriteInt64("cursorid", _cursorId);
-            }
-            if (_numberToReturn != 0)
-            {
-                bsonWriter.WriteInt32("ntoreturn", _numberToReturn);
-            }
-            if (_numberToSkip != 0)
-            {
-                bsonWriter.WriteInt32("ntoskip", _numberToSkip);
-            }
-            if (_exhaust)
-            {
-                bsonWriter.WriteBoolean("exhaust", _exhaust);
-            }
-            if (_numberScanned != 0)
-            {
-                bsonWriter.WriteInt32("nscanned", _numberScanned);
-            }
-            if (_idHack)
-            {
-                bsonWriter.WriteBoolean("idhack", _idHack);
-            }
-            if (_scanAndOrder)
-            {
-                bsonWriter.WriteBoolean("scanAndOrder", _scanAndOrder);
-            }
-            if (_moved)
-            {
-                bsonWriter.WriteBoolean("moved", _moved);
-            }
-            if (_fastMod)
-            {
-                bsonWriter.WriteBoolean("fastmod", _fastMod);
-            }
-            if (_fastModInsert)
-            {
-                bsonWriter.WriteBoolean("fastmodinsert", _fastModInsert);
-            }
-            if (_upsert)
-            {
-                bsonWriter.WriteBoolean("upsert", _upsert);
-            }
-            if (_keyUpdates != 0)
-            {
-                bsonWriter.WriteInt32("keyUpdates", _keyUpdates);
-            }
-            if (_exception != null)
-            {
-                bsonWriter.WriteString("exception", _exception);
-            }
-            if (_exceptionCode != 0)
-            {
-                bsonWriter.WriteInt32("exceptionCode", _exceptionCode);
-            }
-            if (_numberReturned != 0)
-            {
-                bsonWriter.WriteInt32("nreturned", _numberReturned);
-            }
-            if (_responseLength != 0)
-            {
-                bsonWriter.WriteInt32("responseLength", _responseLength);
-            }
-            bsonWriter.WriteDouble("millis", _duration.TotalMilliseconds);
-            if (_client != null)
-            {
-                bsonWriter.WriteString("client", _client);
-            }
-            if (_user != null)
-            {
-                bsonWriter.WriteString("user", _user);
-            }
-            if (_error != null)
-            {
-                bsonWriter.WriteString("err", _error);
-            }
-            if (_abbreviated != null)
-            {
-                bsonWriter.WriteString("abbreviated", _abbreviated);
-            }
-            bsonWriter.WriteEndDocument();
-        }
+                var profileInfo = (SystemProfileInfo)value;
 
-        void IBsonSerializable.SetDocumentId(object id)
-        {
-            throw new NotSupportedException();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(profileInfo.Timestamp));
+                if (profileInfo.Info != null)
+                {
+                    bsonWriter.WriteString("info", profileInfo.Info);
+                }
+                if (profileInfo.Op != null)
+                {
+                    bsonWriter.WriteString("op", profileInfo.Op);
+                }
+                if (profileInfo.Namespace != null)
+                {
+                    bsonWriter.WriteString("ns", profileInfo.Namespace);
+                }
+                if (profileInfo.Command != null)
+                {
+                    bsonWriter.WriteName("command");
+                    profileInfo.Command.WriteTo(bsonWriter);
+                }
+                if (profileInfo.Query != null)
+                {
+                    bsonWriter.WriteName("query");
+                    profileInfo.Query.WriteTo(bsonWriter);
+                }
+                if (profileInfo.UpdateObject != null)
+                {
+                    bsonWriter.WriteName("updateobj");
+                    profileInfo.UpdateObject.WriteTo(bsonWriter);
+                }
+                if (profileInfo.CursorId != 0)
+                {
+                    bsonWriter.WriteInt64("cursorid", profileInfo.CursorId);
+                }
+                if (profileInfo.NumberToReturn != 0)
+                {
+                    bsonWriter.WriteInt32("ntoreturn", profileInfo.NumberToReturn);
+                }
+                if (profileInfo.NumberToSkip != 0)
+                {
+                    bsonWriter.WriteInt32("ntoskip", profileInfo.NumberToSkip);
+                }
+                if (profileInfo.Exhaust)
+                {
+                    bsonWriter.WriteBoolean("exhaust", profileInfo.Exhaust);
+                }
+                if (profileInfo.NumberScanned != 0)
+                {
+                    bsonWriter.WriteInt32("nscanned", profileInfo.NumberScanned);
+                }
+                if (profileInfo.IdHack)
+                {
+                    bsonWriter.WriteBoolean("idhack", profileInfo.IdHack);
+                }
+                if (profileInfo.ScanAndOrder)
+                {
+                    bsonWriter.WriteBoolean("scanAndOrder", profileInfo.ScanAndOrder);
+                }
+                if (profileInfo.Moved)
+                {
+                    bsonWriter.WriteBoolean("moved", profileInfo.Moved);
+                }
+                if (profileInfo.FastMod)
+                {
+                    bsonWriter.WriteBoolean("fastmod", profileInfo.FastMod);
+                }
+                if (profileInfo.FastModInsert)
+                {
+                    bsonWriter.WriteBoolean("fastmodinsert", profileInfo.FastModInsert);
+                }
+                if (profileInfo.Upsert)
+                {
+                    bsonWriter.WriteBoolean("upsert", profileInfo.Upsert);
+                }
+                if (profileInfo.KeyUpdates != 0)
+                {
+                    bsonWriter.WriteInt32("keyUpdates", profileInfo.KeyUpdates);
+                }
+                if (profileInfo.Exception != null)
+                {
+                    bsonWriter.WriteString("exception", profileInfo.Exception);
+                }
+                if (profileInfo.ExceptionCode != 0)
+                {
+                    bsonWriter.WriteInt32("exceptionCode", profileInfo.ExceptionCode);
+                }
+                if (profileInfo.NumberReturned != 0)
+                {
+                    bsonWriter.WriteInt32("nreturned", profileInfo.NumberReturned);
+                }
+                if (profileInfo.ResponseLength != 0)
+                {
+                    bsonWriter.WriteInt32("responseLength", profileInfo.ResponseLength);
+                }
+                bsonWriter.WriteDouble("millis", profileInfo.Duration.TotalMilliseconds);
+                if (profileInfo.Client != null)
+                {
+                    bsonWriter.WriteString("client", profileInfo.Client);
+                }
+                if (profileInfo.User != null)
+                {
+                    bsonWriter.WriteString("user", profileInfo.User);
+                }
+                if (profileInfo.Error != null)
+                {
+                    bsonWriter.WriteString("err", profileInfo.Error);
+                }
+                if (profileInfo.Abbreviated != null)
+                {
+                    bsonWriter.WriteString("abbreviated", profileInfo.Abbreviated);
+                }
+                bsonWriter.WriteEndDocument();
+            }
         }
     }
 }

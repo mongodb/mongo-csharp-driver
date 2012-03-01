@@ -53,6 +53,13 @@ namespace MongoDB.Driver
         private Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache _indexCache = new IndexCache();
 
+        // static constructor
+        static MongoServer()
+        {
+            BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
+            BsonSerializer.RegisterSerializer(typeof(SystemProfileInfo), new SystemProfileInfoSerializer());
+        }
+
         // constructors
         /// <summary>
         /// Creates a new instance of MongoServer. Normally you will use one of the Create methods instead
