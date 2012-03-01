@@ -365,6 +365,35 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
+            var unaryExpression = binaryExpression.Left as UnaryExpression;
+            if (unaryExpression != null && valueExpression != null)
+            {
+                if (unaryExpression.NodeType == ExpressionType.Convert)
+                {
+                    var enumMemberExpression = unaryExpression.Operand as MemberExpression;
+                    if (enumMemberExpression != null && enumMemberExpression.Type.IsEnum)
+                    {
+                        var enumType = enumMemberExpression.Type;
+                        if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
+                        {
+                            var numericValue = valueExpression.Value;
+                            var enumValue = Enum.ToObject(enumType, numericValue);
+                            BsonValue serializedValue;
+                            var dottedElementName = GetDottedElementNameAndSerializedValue(enumMemberExpression, enumValue, out serializedValue);
+                            switch (binaryExpression.NodeType)
+                            {
+                                case ExpressionType.Equal: return Query.EQ(dottedElementName, serializedValue);
+                                case ExpressionType.GreaterThan: return Query.GT(dottedElementName, serializedValue);
+                                case ExpressionType.GreaterThanOrEqual: return Query.GTE(dottedElementName, serializedValue);
+                                case ExpressionType.LessThan: return Query.LT(dottedElementName, serializedValue);
+                                case ExpressionType.LessThanOrEqual: return Query.LTE(dottedElementName, serializedValue);
+                                case ExpressionType.NotEqual: return Query.NE(dottedElementName, serializedValue);
+                            }
+                        }
+                    }
+                }
+            }
+
             return null;
         }
 

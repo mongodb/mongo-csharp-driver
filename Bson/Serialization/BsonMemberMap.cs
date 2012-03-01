@@ -458,6 +458,11 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private static object GetDefaultValue(Type type)
         {
+            if (type.IsEnum)
+            {
+                return Enum.ToObject(type, 0);
+            }
+
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Empty:
