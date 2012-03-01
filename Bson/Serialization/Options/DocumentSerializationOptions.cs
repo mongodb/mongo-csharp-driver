@@ -25,13 +25,22 @@ namespace MongoDB.Bson.Serialization.Options
     public class DocumentSerializationOptions : IBsonSerializationOptions
     {
         // private static fields
-        private static DocumentSerializationOptions __defaults = new DocumentSerializationOptions(false);
-        private static DocumentSerializationOptions __serializeIdFirstInstance = new DocumentSerializationOptions(true);
+        private static DocumentSerializationOptions __allowDuplicateNamesInstance = new DocumentSerializationOptions { AllowDuplicateNames = true };
+        private static DocumentSerializationOptions __defaults = new DocumentSerializationOptions();
+        private static DocumentSerializationOptions __serializeIdFirstInstance = new DocumentSerializationOptions { SerializeIdFirst = true };
 
         // private fields
+        private bool _allowDuplicateNames;
         private bool _serializeIdFirst;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the DocumentSerializationOptions class.
+        /// </summary>
+        public DocumentSerializationOptions()
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the DocumentSerializationOptions class.
         /// </summary>
@@ -42,6 +51,14 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         // public static properties
+        /// <summary>
+        /// Gets an instance of DocumentSerializationOptions that specifies that duplicate names are allowed.
+        /// </summary>
+        public static DocumentSerializationOptions AllowDuplicateNamesInstance
+        {
+            get { return __allowDuplicateNamesInstance; }
+        }
+
         /// <summary>
         /// Gets or sets the default document serialization options.
         /// </summary>
@@ -61,11 +78,21 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public properties
         /// <summary>
+        /// Gets whether to allow duplicate names.
+        /// </summary>
+        public bool AllowDuplicateNames
+        {
+            get { return _allowDuplicateNames; }
+            set { _allowDuplicateNames = value; }
+        }
+
+        /// <summary>
         /// Gets whether to serialize the Id as the first element.
         /// </summary>
         public bool SerializeIdFirst
         {
             get { return _serializeIdFirst; }
+            set { _serializeIdFirst = value; }
         }
     }
 }

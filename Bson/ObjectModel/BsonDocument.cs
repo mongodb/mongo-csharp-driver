@@ -741,6 +741,12 @@ namespace MongoDB.Bson
             }
             else
             {
+                var documentSerializationOptions = options as DocumentSerializationOptions;
+                if (documentSerializationOptions != null)
+                {
+                    _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
+                }
+                
                 bsonReader.ReadStartDocument();
                 Clear();
                 BsonElement element;
