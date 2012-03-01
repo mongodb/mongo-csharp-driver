@@ -55,7 +55,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAddToSetEachWrapped()
         {
+#pragma warning disable 618 // AddToSetEachWrapped is obsolete
             var update = Update.AddToSetEachWrapped("name", _a, _b);
+#pragma warning restore 618
             var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -63,7 +65,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAddToSetWrapped()
         {
+#pragma warning disable 618 // AddToSetWrapped is obsolete
             var update = Update.AddToSetWrapped("name", _a);
+#pragma warning restore 618
             var expected = "{ \"$addToSet\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -229,7 +233,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullAllWrapped()
         {
+#pragma warning disable 618 // PullAllWrapped is obsolete
             var update = Update.PullAllWrapped("name", _a, _b);
+#pragma warning restore 618
             var expected = "{ \"$pullAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -237,7 +243,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullWrapped()
         {
+#pragma warning disable 618 // PullWrapped is obsolete
             var update = Update.PullWrapped("name", _a);
+#pragma warning restore 618
             var expected = "{ \"$pull\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -261,7 +269,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPushWrapped()
         {
+#pragma warning disable 618 // PushWrapped is obsolete
             var update = Update.PushWrapped("name", _a);
+#pragma warning restore 618
             var expected = "{ \"$push\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -277,7 +287,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPushAllWrapped()
         {
+#pragma warning disable 618 // PushAllWrapped is obsolete
             var update = Update.PushAllWrapped("name", _a, _b);
+#pragma warning restore 618
             var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
@@ -293,7 +305,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSetWrapped()
         {
+#pragma warning disable 618 // SetWrapped is obsolete
             var update = Update.SetWrapped("name", _a);
+#pragma warning restore 618
             var expected = "{ \"$set\" : { \"name\" : { \"X\" : 1 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }

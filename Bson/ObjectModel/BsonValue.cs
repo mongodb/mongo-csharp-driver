@@ -1015,7 +1015,12 @@ namespace MongoDB.Bson
             }
             else
             {
-                return BsonTypeMapper.MapToBsonValue(value);
+                BsonValue bsonValue;
+                if (!BsonTypeMapper.TryMapToBsonValue(value, out bsonValue))
+                {
+                    bsonValue = BsonDocumentWrapper.Create(value.GetType(), value, false);
+                }
+                return bsonValue;
             }
         }
 

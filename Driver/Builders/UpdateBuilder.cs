@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +40,17 @@ namespace MongoDB.Driver.Builders
         /// <param name="value">The value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static UpdateBuilder AddToSet(string name, BsonValue value)
+        {
+            return new UpdateBuilder().AddToSet(name, value);
+        }
+
+        /// <summary>
+        /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value">The value to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder AddToSet(string name, object value)
         {
             return new UpdateBuilder().AddToSet(name, value);
         }
@@ -77,12 +89,41 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder AddToSetEach(string name, IEnumerable values)
+        {
+            return new UpdateBuilder().AddToSetEach(name, values);
+        }
+
+        /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to add to the set.</param>
+        /// <param name="value2">The second value to add to the set.</param>
+        /// <param name="values">The additional values to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder AddToSetEach(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return new UpdateBuilder().AddToSetEach(name, value1, value2, values);
+        }
+
+        /// <summary>
         /// Adds a list of wrapped values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
         /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetEachWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSetEach instead.")]
         public static UpdateBuilder AddToSetEachWrapped<T>(string name, IEnumerable<T> values)
         {
             return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
@@ -95,6 +136,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetEachWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSetEach instead.")]
         public static UpdateBuilder AddToSetEachWrapped<T>(string name, params T[] values)
         {
             return new UpdateBuilder().AddToSetEachWrapped<T>(name, values);
@@ -107,6 +149,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSet instead.")]
         public static UpdateBuilder AddToSetWrapped<T>(string name, T value)
         {
             return new UpdateBuilder().AddToSetWrapped<T>(name, value);
@@ -247,14 +290,14 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Removes all values from the named array element that match some query (see $pull).
+        /// Removes all values from the named array element that are equal to some value (see $pull).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
-        /// <param name="query">A query that specifies which elements to remove.</param>
+        /// <param name="value">The value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder Pull(string name, IMongoQuery query)
+        public static UpdateBuilder Pull(string name, object value)
         {
-            return new UpdateBuilder().Pull(name, query);
+            return new UpdateBuilder().Pull(name, value);
         }
 
         /// <summary>
@@ -291,12 +334,41 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PullAll(string name, IEnumerable values)
+        {
+            return new UpdateBuilder().PullAll(name, values);
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to remove.</param>
+        /// <param name="value2">The second value to remove.</param>
+        /// <param name="values">The additional values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PullAll(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return new UpdateBuilder().PullAll(name, value1, value2, values);
+        }
+
+        /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of wrapped values (see $pullAll).
         /// </summary>
         /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PullAll instead.")]
         public static UpdateBuilder PullAllWrapped<T>(string name, IEnumerable<T> values)
         {
             return new UpdateBuilder().PullAllWrapped<T>(name, values);
@@ -309,6 +381,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PullAll instead.")]
         public static UpdateBuilder PullAllWrapped<T>(string name, params T[] values)
         {
             return new UpdateBuilder().PullAllWrapped<T>(name, values);
@@ -321,6 +394,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullWrapped is obsolete and will be removed in a future version of the C# driver. Please use Pull instead.")]
         public static UpdateBuilder PullWrapped<T>(string name, T value)
         {
             return new UpdateBuilder().PullWrapped<T>(name, value);
@@ -333,6 +407,17 @@ namespace MongoDB.Driver.Builders
         /// <param name="value">The value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static UpdateBuilder Push(string name, BsonValue value)
+        {
+            return new UpdateBuilder().Push(name, value);
+        }
+
+        /// <summary>
+        /// Adds a value to the end of the named array element (see $push).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value">The value to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Push(string name, object value)
         {
             return new UpdateBuilder().Push(name, value);
         }
@@ -371,12 +456,41 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PushAll(string name, IEnumerable values)
+        {
+            return new UpdateBuilder().PushAll(name, values);
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to add to the end of the array.</param>
+        /// <param name="value2">The second value to add to the end of the array.</param>
+        /// <param name="values">The additional values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder PushAll(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return new UpdateBuilder().PushAll(name, value1, value2, values);
+        }
+
+        /// <summary>
         /// Adds a list of wrapped values to the end of the named array element (see $pushAll).
         /// </summary>
         /// <typeparam name="T">The type of wrapped values.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PushAll instead.")]
         public static UpdateBuilder PushAllWrapped<T>(string name, IEnumerable<T> values)
         {
             return new UpdateBuilder().PushAllWrapped<T>(name, values);
@@ -389,6 +503,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PushAll instead.")]
         public static UpdateBuilder PushAllWrapped<T>(string name, params T[] values)
         {
             return new UpdateBuilder().PushAllWrapped<T>(name, values);
@@ -401,6 +516,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushWrapped is obsolete and will be removed in a future version of the C# driver. Please use Push instead.")]
         public static UpdateBuilder PushWrapped<T>(string name, T value)
         {
             return new UpdateBuilder().PushWrapped<T>(name, value);
@@ -454,12 +570,24 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the value of the named element to a new value (see $set).
+        /// </summary>
+        /// <param name="name">The name of the element to be set.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Set(string name, object value)
+        {
+            return new UpdateBuilder().Set(name, value);
+        }
+
+        /// <summary>
         /// Sets the value of the named element to a new wrapped value (see $set).
         /// </summary>
         /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the element to be set.</param>
         /// <param name="value">The new wrapped value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("SetWrapped is obsolete and will be removed in a future version of the C# driver. Please use Set instead.")]
         public static UpdateBuilder SetWrapped<T>(string name, T value)
         {
             return new UpdateBuilder().SetWrapped<T>(name, value);
@@ -524,6 +652,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value">The value to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder AddToSet(string name, object value)
+        {
+            return AddToSet(name, BsonValue.Create(value));
+        }
+
+        /// <summary>
         /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
@@ -554,8 +693,6 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEach(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
             return AddToSetEach(name, new BsonArray(values));
         }
 
@@ -567,9 +704,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEach(string name, params BsonValue[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return AddToSetEach(name, (IEnumerable<BsonValue>)values);
+            return AddToSetEach(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder AddToSetEach(string name, IEnumerable values)
+        {
+            return AddToSetEach(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to add to the set.</param>
+        /// <param name="value2">The second value to add to the set.</param>
+        /// <param name="values">The additional values to add to the set.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder AddToSetEach(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return AddToSetEach(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -579,12 +742,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetEachWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSetEach instead.")]
         public UpdateBuilder AddToSetEachWrapped<T>(string name, IEnumerable<T> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>(); // the cast to BsonValue is required
-            return AddToSetEach(name, wrappedValues);
+            return AddToSetEach(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -594,11 +755,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetEachWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSetEach instead.")]
         public UpdateBuilder AddToSetEachWrapped<T>(string name, params T[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return AddToSetEachWrapped(name, (IEnumerable<T>)values);
+            return AddToSetEach(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -608,9 +768,9 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the set.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("AddToSetWrapped is obsolete and will be removed in a future version of the C# driver. Please use AddToSet instead.")]
         public UpdateBuilder AddToSetWrapped<T>(string name, T value)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
             if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = (BsonValue)BsonDocumentWrapper.Create(value); // the cast to BsonValue is required
             return AddToSet(name, wrappedValue);
@@ -795,26 +955,14 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Removes all values from the named array element that match some query (see $pull).
+        /// Removes all values from the named array element that are equal to some value (see $pull).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
-        /// <param name="query">A query that specifies which elements to remove.</param>
+        /// <param name="value">The value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public UpdateBuilder Pull(string name, IMongoQuery query)
+        public UpdateBuilder Pull(string name, object value)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (query == null) { throw new ArgumentNullException("query"); }
-            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
-            BsonElement element;
-            if (_document.TryGetElement("$pull", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedQuery);
-            }
-            else
-            {
-                _document.Add("$pull", new BsonDocument(name, wrappedQuery));
-            }
-            return this;
+            return Pull(name, BsonValue.Create(value));
         }
 
         /// <summary>
@@ -847,8 +995,6 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAll(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
             return PullAll(name, new BsonArray(values));
         }
 
@@ -860,9 +1006,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAll(string name, params BsonValue[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return PullAll(name, (IEnumerable<BsonValue>)values);
+            return PullAll(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder PullAll(string name, IEnumerable values)
+        {
+            return PullAll(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to remove.</param>
+        /// <param name="value2">The second value to remove.</param>
+        /// <param name="values">The additional values to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder PullAll(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return PullAll(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -872,21 +1044,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PullAll instead.")]
         public UpdateBuilder PullAllWrapped<T>(string name, IEnumerable<T> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
-            BsonElement element;
-            if (_document.TryGetElement("$pullAll", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedValues);
-            }
-            else
-            {
-                _document.Add("$pullAll", new BsonDocument(name, wrappedValues));
-            }
-            return this;
+            return PullAll(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -896,11 +1057,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PullAll instead.")]
         public UpdateBuilder PullAllWrapped<T>(string name, params T[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return PullAllWrapped<T>(name, (IEnumerable<T>)values);
+            return PullAll(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -910,21 +1070,12 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to remove.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PullWrapped is obsolete and will be removed in a future version of the C# driver. Please use Pull instead.")]
         public UpdateBuilder PullWrapped<T>(string name, T value)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
             if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create(value);
-            BsonElement element;
-            if (_document.TryGetElement("$pull", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedValue);
-            }
-            else
-            {
-                _document.Add("$pull", new BsonDocument(name, wrappedValue));
-            }
-            return this;
+            return Pull(name, wrappedValue);
         }
 
         /// <summary>
@@ -947,6 +1098,17 @@ namespace MongoDB.Driver.Builders
                 _document.Add("$push", new BsonDocument(name, value));
             }
             return this;
+        }
+
+        /// <summary>
+        /// Adds a value to the end of the named array element (see $push).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value">The value to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Push(string name, object value)
+        {
+            return Push(name, BsonValue.Create(value));
         }
 
         /// <summary>
@@ -979,8 +1141,6 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAll(string name, IEnumerable<BsonValue> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
             return PushAll(name, new BsonArray(values));
         }
 
@@ -992,9 +1152,35 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAll(string name, params BsonValue[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return PushAll(name, (IEnumerable<BsonValue>)values);
+            return PushAll(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder PushAll(string name, IEnumerable values)
+        {
+            return PushAll(name, new BsonArray(values));
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <param name="name">The name of the array element.</param>
+        /// <param name="value1">The first value to add to the end of the array.</param>
+        /// <param name="value2">The second value to add to the end of the array.</param>
+        /// <param name="values">The additional values to add to the end of the array.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder PushAll(
+            string name,
+            object value1,
+            object value2,
+            params object[] values)
+        {
+            return PushAll(name, new BsonArray(value1, value2, values));
         }
 
         /// <summary>
@@ -1004,21 +1190,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PushAll instead.")]
         public UpdateBuilder PushAllWrapped<T>(string name, IEnumerable<T> values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
-            BsonElement element;
-            if (_document.TryGetElement("$pushAll", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedValues);
-            }
-            else
-            {
-                _document.Add("$pushAll", new BsonDocument(name, wrappedValues));
-            }
-            return this;
+            return PushAll(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -1028,11 +1203,10 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The wrapped values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushAllWrapped is obsolete and will be removed in a future version of the C# driver. Please use PushAll instead.")]
         public UpdateBuilder PushAllWrapped<T>(string name, params T[] values)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
-            if (values == null) { throw new ArgumentNullException("values"); }
-            return PushAllWrapped(name, (IEnumerable<T>)values);
+            return PushAll(name, new BsonArray(values));
         }
 
         /// <summary>
@@ -1042,21 +1216,12 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the array element.</param>
         /// <param name="value">The wrapped value to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("PushWrapped is obsolete and will be removed in a future version of the C# driver. Please use Push instead.")]
         public UpdateBuilder PushWrapped<T>(string name, T value)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
             if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
-            BsonElement element;
-            if (_document.TryGetElement("$push", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedValue);
-            }
-            else
-            {
-                _document.Add("$push", new BsonDocument(name, wrappedValue));
-            }
-            return this;
+            return Push(name, wrappedValue);
         }
 
         /// <summary>
@@ -1104,27 +1269,29 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the value of the named element to a new value (see $set).
+        /// </summary>
+        /// <param name="name">The name of the element to be set.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Set(string name, object value)
+        {
+            return Set(name, BsonValue.Create(value));
+        }
+
+        /// <summary>
         /// Sets the value of the named element to a new wrapped value (see $set).
         /// </summary>
         /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the element to be set.</param>
         /// <param name="value">The new wrapped value.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        [Obsolete("SetWrapped is obsolete and will be removed in a future version of the C# driver. Please use Set instead.")]
         public UpdateBuilder SetWrapped<T>(string name, T value)
         {
-            if (name == null) { throw new ArgumentNullException("name"); }
             if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
-            BsonElement element;
-            if (_document.TryGetElement("$set", out element))
-            {
-                element.Value.AsBsonDocument.Add(name, wrappedValue);
-            }
-            else
-            {
-                _document.Add("$set", new BsonDocument(name, wrappedValue));
-            }
-            return this;
+            return Set(name, value);
         }
 
         /// <summary>
