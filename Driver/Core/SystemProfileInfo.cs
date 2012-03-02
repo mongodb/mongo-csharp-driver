@@ -458,135 +458,166 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the element name and serializer for a given member.
+        /// Gets the serialization info for a member.
         /// </summary>
         /// <param name="memberName">The member name.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        /// <returns>The element name.</returns>
-        public override string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        /// <returns>The serialization info for the member.</returns>
+        public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            serializationOptions = null;
+            string elementName;
+            IBsonSerializer serializer;
+            Type nominalType;
+            IBsonSerializationOptions serializationOptions = null;
+
             switch (memberName)
             {
                 case "Abbreviated":
+                    elementName = "abbreviated";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "abbreviated";
+                    break;
                 case "Client":
+                    elementName = "client";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "client";
+                    break;
                 case "Command":
+                    elementName = "command";
                     serializer = BsonDocumentSerializer.Instance;
                     nominalType = typeof(BsonDocument);
-                    return "command";
+                    break;
                 case "CursorId":
+                    elementName = "cursorid";
                     serializer = Int64Serializer.Instance;
                     nominalType = typeof(long);
-                    return "cursorid";
+                    break;
                 case "Duration":
+                    elementName = "millis";
                     serializer = TimeSpanSerializer.Instance;
                     nominalType = typeof(TimeSpan);
                     serializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
-                    return "millis";
+                    break;
                 case "Error":
+                    elementName = "err";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "err";
+                    break;
                 case "Exception":
+                    elementName = "exception";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "exception";
+                    break;
                 case "ExceptionCode":
+                    elementName = "exceptionCode";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "exceptionCode";
+                    break;
                 case "Exhaust":
+                    elementName = "exhaust";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "exhaust";
+                    break;
                 case "FastMod":
+                    elementName = "fastmod";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "fastmod";
+                    break;
                 case "FastModInsert":
+                    elementName = "fastmodinsert";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "fastmodinsert";
+                    break;
                 case "IdHack":
+                    elementName = "idhack";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "idhack";
+                    break;
                 case "Info":
+                    elementName = "info";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "info";
+                    break;
                 case "KeyUpdates":
+                    elementName = "keyUpdates";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "keyUpdates";
+                    break;
                 case "Moved":
+                    elementName = "moved";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "moved";
+                    break;
                 case "Namespace":
+                    elementName = "ns";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "ns";
+                    break;
                 case "NumberReturned":
+                    elementName = "nreturned";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "nreturned";
+                    break;
                 case "NumberScanned":
+                    elementName = "nscanned";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "nscanned";
+                    break;
                 case "NumberToReturn":
+                    elementName = "ntoreturn";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "ntoreturn";
+                    break;
                 case "NumberToSkip":
+                    elementName = "ntoskip";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "ntoskip";
+                    break;
                 case "Op":
+                    elementName = "op";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "op";
+                    break;
                 case "Query":
+                    elementName = "query";
                     serializer = BsonDocumentSerializer.Instance;
                     nominalType = typeof(BsonDocument);
-                    return "query";
+                    break;
                 case "ResponseLength":
+                    elementName = "responseLength";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
-                    return "responseLength";
+                    break;
                 case "ScanAndOrder":
+                    elementName = "scanAndOrder";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "scanAndOrder";
+                    break;
                 case "Timestamp":
+                    elementName = "ts";
                     serializer = DateTimeSerializer.Instance;
                     nominalType = typeof(DateTime);
-                    return "ts";
+                    break;
                 case "UpdateObject":
+                    elementName = "updateobj";
                     serializer = BsonDocumentSerializer.Instance;
                     nominalType = typeof(BsonDocument);
-                    return "updateobj";
+                    break;
                 case "Upsert":
+                    elementName = "upsert";
                     serializer = BooleanSerializer.Instance;
                     nominalType = typeof(bool);
-                    return "upsert";
+                    break;
                 case "User":
+                    elementName = "user";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "user";
+                    break;
                 default:
                     var message = string.Format("{0} is not a member of SystemProfileInfo.", memberName);
                     throw new ArgumentOutOfRangeException("memberName", message);
             }
+
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>

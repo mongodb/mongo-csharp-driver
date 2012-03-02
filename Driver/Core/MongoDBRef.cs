@@ -154,34 +154,40 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the element name and serializer for a given member.
+        /// Gets the serialization info for a member.
         /// </summary>
         /// <param name="memberName">The member name.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        /// <returns>The element name.</returns>
-        public override string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        /// <returns>The serialization info for the member.</returns>
+        public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            serializationOptions = null;
+            string elementName;
+            IBsonSerializer serializer;
+            Type nominalType;
+            IBsonSerializationOptions serializationOptions = null;
+
             switch (memberName)
             {
                 case "DatabaseName":
+                    elementName = "$db";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "$db";
+                    break;
                 case "CollectionName":
+                    elementName = "$ref";
                     serializer = StringSerializer.Instance;
                     nominalType = typeof(string);
-                    return "$ref";
+                    break;
                 case "Id":
+                    elementName = "$id";
                     serializer = BsonValueSerializer.Instance;
                     nominalType = typeof(BsonValue);
-                    return "$id";
+                    break;
                 default:
                     var message = string.Format("{0} is not a member of MongoDBRef.", memberName);
                     throw new ArgumentOutOfRangeException("memberName", message);
             }
+
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>

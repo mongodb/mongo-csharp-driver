@@ -132,6 +132,7 @@
     <Compile Include="Serialization\Conventions\IgnoreExtraElementsConventions.cs" />
     <Compile Include="Serialization\Options\TimeSpanSerializationOptions.cs" />
     <Compile Include="Serialization\Options\TimeSpanUnits.cs" />
+    <Compile Include="Serialization\BsonSerializationInfo.cs" />
     <Compile Include="Serialization\Serializers\CollectionGenericSerializers.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />

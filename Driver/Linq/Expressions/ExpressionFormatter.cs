@@ -73,6 +73,15 @@ namespace MongoDB.Driver.Linq
         /// <returns>The BinaryExpression.</returns>
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            if (node.NodeType == ExpressionType.ArrayIndex)
+            {
+                Visit(node.Left);
+                _sb.Append("[");
+                Visit(node.Right);
+                _sb.Append("]");
+                return node;
+            }
+
             _sb.Append("(");
             Visit(node.Left);
             switch (node.NodeType)

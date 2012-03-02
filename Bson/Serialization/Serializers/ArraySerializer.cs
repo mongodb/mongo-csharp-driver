@@ -86,16 +86,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serializer for the individual items of an enumerable type.
+        /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
-        /// <param name="nominalType">The nominal type of the items.</param>
-        /// <param name="serializationOptions">The serialization options for the items.</param>
-        /// <returns>The serializer for the items.</returns>
-        public override IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
         {
-            nominalType = typeof(T);
-            serializationOptions = null;
-            return BsonSerializer.LookupSerializer(typeof(T));
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var nominalType = typeof(T);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>

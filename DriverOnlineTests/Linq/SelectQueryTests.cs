@@ -1903,6 +1903,98 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereASub1Equals3()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.A[1] == 3
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.A[1] == 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            //Assert.AreEqual("{ \"a.1\" : 3 }", selectQuery.BuildQuery().ToJson());
+            //Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereASub1Equals3Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.A[1] == 3)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.A[1] == 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            //Assert.AreEqual("{ \"a.1\" : { \"$ne\" : 3 } }", selectQuery.BuildQuery().ToJson());
+            //Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereASub1NotEquals3()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.A[1] != 3
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.A[1] != 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            //Assert.AreEqual("{ \"a.1\" : { \"$ne\" : 3 } }", selectQuery.BuildQuery().ToJson());
+            //Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereASub1NotEquals3Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.A[1] != 3)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.A[1] != 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            //Assert.AreEqual("{ \"a.1\" : 3 }", selectQuery.BuildQuery().ToJson());
+            //Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereB()
         {
             var query = from c in _collection.AsQueryable<C>()

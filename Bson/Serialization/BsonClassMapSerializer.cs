@@ -223,31 +223,27 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the element name and serializer for a given member.
+        /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        /// <returns>The element name.</returns>
-        public string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        /// <returns>The serialization info for the items.</returns>
+        public BsonSerializationInfo GetItemSerializationInfo()
         {
-            var memberMap = _classMap.GetMemberMap(memberName);
-            serializer = memberMap.GetSerializer(memberMap.MemberType);
-            nominalType = memberMap.MemberType;
-            serializationOptions = memberMap.SerializationOptions;
-            return memberMap.ElementName;
+            throw new NotSupportedException("BsonClassMapSerializer does not implement the GetItemSerializationInfo method.");
         }
 
         /// <summary>
-        /// Gets the serializer for the individual items of an enumerable type.
+        /// Gets the serialization info for a member.
         /// </summary>
-        /// <param name="nominalType">The nominal type of the items.</param>
-        /// <param name="serializationOptions">The serialization options for the items.</param>
-        /// <returns>The serializer for the items.</returns>
-        public IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        /// <param name="memberName">The member name.</param>
+        /// <returns>The serialization info for the member.</returns>
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            throw new NotSupportedException("BsonClassMapSerializer does not implement the GetItemSerializer method.");
+            var memberMap = _classMap.GetMemberMap(memberName);
+            var elementName = memberMap.ElementName;
+            var serializer = memberMap.GetSerializer(memberMap.MemberType);
+            var nominalType = memberMap.MemberType;
+            var serializationOptions = memberMap.SerializationOptions;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>

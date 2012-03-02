@@ -352,16 +352,16 @@ namespace MongoDB.Driver.Linq
             var valueExpression = binaryExpression.Right as ConstantExpression;
             if (memberExpression != null && valueExpression != null)
             {
-                BsonValue serializedValue;
-                var dottedElementName = GetDottedElementNameAndSerializedValue(memberExpression, valueExpression.Value, out serializedValue);
+                var serializationInfo = GetSerializationInfo(memberExpression);
+                var serializedValue = SerializeValue(serializationInfo, valueExpression.Value);
                 switch (binaryExpression.NodeType)
                 {
-                    case ExpressionType.Equal: return Query.EQ(dottedElementName, serializedValue);
-                    case ExpressionType.GreaterThan: return Query.GT(dottedElementName, serializedValue);
-                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(dottedElementName, serializedValue);
-                    case ExpressionType.LessThan: return Query.LT(dottedElementName, serializedValue);
-                    case ExpressionType.LessThanOrEqual: return Query.LTE(dottedElementName, serializedValue);
-                    case ExpressionType.NotEqual: return Query.NE(dottedElementName, serializedValue);
+                    case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThan: return Query.LT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThanOrEqual: return Query.LTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.NotEqual: return Query.NE(serializationInfo.ElementName, serializedValue);
                 }
             }
 
@@ -378,16 +378,16 @@ namespace MongoDB.Driver.Linq
                         {
                             var numericValue = valueExpression.Value;
                             var enumValue = Enum.ToObject(enumType, numericValue);
-                            BsonValue serializedValue;
-                            var dottedElementName = GetDottedElementNameAndSerializedValue(enumMemberExpression, enumValue, out serializedValue);
+                            var serializationInfo = GetSerializationInfo(enumMemberExpression);
+                            var serializedValue = SerializeValue(serializationInfo, enumValue);
                             switch (binaryExpression.NodeType)
                             {
-                                case ExpressionType.Equal: return Query.EQ(dottedElementName, serializedValue);
-                                case ExpressionType.GreaterThan: return Query.GT(dottedElementName, serializedValue);
-                                case ExpressionType.GreaterThanOrEqual: return Query.GTE(dottedElementName, serializedValue);
-                                case ExpressionType.LessThan: return Query.LT(dottedElementName, serializedValue);
-                                case ExpressionType.LessThanOrEqual: return Query.LTE(dottedElementName, serializedValue);
-                                case ExpressionType.NotEqual: return Query.NE(dottedElementName, serializedValue);
+                                case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
+                                case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
+                                case ExpressionType.GreaterThanOrEqual: return Query.GTE(serializationInfo.ElementName, serializedValue);
+                                case ExpressionType.LessThan: return Query.LT(serializationInfo.ElementName, serializedValue);
+                                case ExpressionType.LessThanOrEqual: return Query.LTE(serializationInfo.ElementName, serializedValue);
+                                case ExpressionType.NotEqual: return Query.NE(serializationInfo.ElementName, serializedValue);
                             }
                         }
                     }
@@ -421,10 +421,10 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (memberExpression != null && valuesExpression != null)
                     {
-                        var values = (IEnumerable)valuesExpression.Value;
-                        BsonArray serializedValues;
-                        var dottedElementName = GetDottedElementNameAndSerializedItems(memberExpression, values, out serializedValues);
-                        return Query.All(dottedElementName, serializedValues);
+                        var serializationInfo = GetSerializationInfo(memberExpression);
+                        var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
+                        var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
+                        return Query.All(serializationInfo.ElementName, serializedValues);
                     }
                 }
             }
@@ -442,10 +442,10 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (memberExpression != null && valuesExpression != null)
                     {
-                        var values = (IEnumerable)valuesExpression.Value;
-                        BsonArray serializedValues;
-                        var dottedElementName = GetDottedElementNameAndSerializedItems(memberExpression, values, out serializedValues);
-                        return Query.In(dottedElementName, serializedValues);
+                        var serializationInfo = GetSerializationInfo(memberExpression);
+                        var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
+                        var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
+                        return Query.In(serializationInfo.ElementName, serializedValues);
                     }
                 }
             }
@@ -478,12 +478,15 @@ namespace MongoDB.Driver.Linq
                     valueExpression = arguments[1] as ConstantExpression;
                 }
             }
+
             if (memberExpression != null && valueExpression != null)
             {
-                BsonValue serializedValue;
-                var dottedElementName = GetDottedElementNameAndSerializedItem(memberExpression, valueExpression.Value, out serializedValue);
-                return Query.EQ(dottedElementName, serializedValue);
+                var serializationInfo = GetSerializationInfo(memberExpression);
+                var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
+                var serializedValue = SerializeValue(itemSerializationInfo, valueExpression.Value);
+                return Query.EQ(serializationInfo.ElementName, serializedValue);
             }
+
             return null;
         }
 
@@ -498,9 +501,9 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (memberExpression != null && valuesExpression != null)
                     {
-                        BsonArray serializedValues;
-                        var dottedElementName = GetDottedElementNameAndSerializedValues(memberExpression, (IEnumerable)valuesExpression.Value, out serializedValues);
-                        return Query.In(dottedElementName, serializedValues);
+                        var serializationInfo = GetSerializationInfo(memberExpression);
+                        var serializedValues = SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
+                        return Query.In(serializationInfo.ElementName, serializedValues);
                     }
                 }
             }
@@ -817,100 +820,23 @@ namespace MongoDB.Driver.Linq
             }
         }
 
-        private string GetDottedElementName(MemberExpression member)
+        private string GetDottedElementName(MemberExpression memberExpression)
         {
-            var memberInfo = member.Member;
-            var classType = memberInfo.DeclaringType;
-            var classMap = BsonClassMap.LookupClassMap(classType);
-            var memberMap = classMap.GetMemberMap(memberInfo.Name);
-            var elementName = memberMap.ElementName;
-
-            var nestedMember = member.Expression as MemberExpression;
-            if (nestedMember == null)
-            {
-                return elementName;
-            }
-            else
-            {
-                return GetDottedElementName(nestedMember) + "." + elementName;
-            }
+            var serializationInfo = GetSerializationInfo(memberExpression);
+            return serializationInfo.ElementName;
         }
 
-        private string GetDottedElementNameAndSerializedItem(MemberExpression memberExpression, object value, out BsonValue serializedValue)
-        {
-            IBsonSerializer memberSerializer;
-            Type memberNominalType;
-            IBsonSerializationOptions memberSerializationOptions;
-            var dottedElementName = GetDottedElementNameAndSerializer(memberExpression, out memberSerializer, out memberNominalType, out memberSerializationOptions);
-
-            Type itemNominalType;
-            IBsonSerializationOptions itemSerializationOptions;
-            var itemSerializer = memberSerializer.GetItemSerializer(out itemNominalType, out itemSerializationOptions);
-
-            serializedValue = SerializeValue(itemSerializer, itemNominalType, value, itemSerializationOptions);
-            return dottedElementName;
-        }
-
-        private string GetDottedElementNameAndSerializedItems(MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
-        {
-            IBsonSerializer memberSerializer;
-            Type memberNominalType;
-            IBsonSerializationOptions memberSerializationOptions;
-            var dottedElementName = GetDottedElementNameAndSerializer(memberExpression, out memberSerializer, out memberNominalType, out memberSerializationOptions);
-
-            Type itemNominalType;
-            IBsonSerializationOptions itemSerializationOptions;
-            var itemSerializer = memberSerializer.GetItemSerializer(out itemNominalType, out itemSerializationOptions);
-
-            serializedValues = SerializeValues(itemSerializer, itemNominalType, values, itemSerializationOptions);
-            return dottedElementName;
-        }
-
-        private string GetDottedElementNameAndSerializedValue(IBsonSerializer serializer, MemberExpression memberExpression, object value, out BsonValue serializedValue)
-        {
-            IBsonSerializer memberSerializer;
-            Type nominalType;
-            IBsonSerializationOptions serializationOptions;
-            var dottedElementName = GetDottedElementNameAndSerializer(serializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
-
-            serializedValue = SerializeValue(memberSerializer, nominalType, value, serializationOptions);
-            return dottedElementName;
-        }
-
-        private string GetDottedElementNameAndSerializedValue(MemberExpression memberExpression, object value, out BsonValue serializedValue)
-        {
-            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
-            return GetDottedElementNameAndSerializedValue(documentSerializer, memberExpression, value, out serializedValue);
-        }
-
-        private string GetDottedElementNameAndSerializedValues(IBsonSerializer serializer, MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
-        {
-            IBsonSerializer memberSerializer;
-            Type nominalType;
-            IBsonSerializationOptions serializationOptions;
-            var dottedElementName = GetDottedElementNameAndSerializer(serializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
-
-            serializedValues = SerializeValues(memberSerializer, nominalType, values, serializationOptions);
-            return dottedElementName;
-        }
-
-        private string GetDottedElementNameAndSerializedValues(MemberExpression memberExpression, IEnumerable values, out BsonArray serializedValues)
-        {
-            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
-            return GetDottedElementNameAndSerializedValues(documentSerializer, memberExpression, values, out serializedValues);
-        }
-
-        private string GetDottedElementNameAndSerializer(IBsonSerializer serializer, MemberExpression memberExpression, out IBsonSerializer memberSerializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, MemberExpression memberExpression)
         {
             var declaringType = memberExpression.Expression.Type;
             var memberName = memberExpression.Member.Name;
 
-            var nestedMemberExpression = memberExpression.Expression as MemberExpression;
-            if (nestedMemberExpression == null)
+            var containingMemberExpression = memberExpression.Expression as MemberExpression;
+            if (containingMemberExpression == null)
             {
                 try
                 {
-                    return serializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
+                    return serializer.GetMemberSerializationInfo(memberName);
                 }
                 catch (NotSupportedException)
                 {
@@ -920,14 +846,15 @@ namespace MongoDB.Driver.Linq
             }
             else
             {
-                IBsonSerializer nestedMemberSerializer;
-                Type nestedNominalType;
-                IBsonSerializationOptions nestedSerializationOptions;
-                var nestedElementName = GetDottedElementNameAndSerializer(serializer, nestedMemberExpression, out nestedMemberSerializer, out nestedNominalType, out nestedSerializationOptions);
+                var containingMemberSerializationInfo = GetSerializationInfo(serializer, containingMemberExpression);
                 try
                 {
-                    var elementName = nestedMemberSerializer.GetElementNameAndSerializer(memberName, out memberSerializer, out nominalType, out serializationOptions);
-                    return nestedElementName + "." + elementName;
+                    var memberSerializationInfo = containingMemberSerializationInfo.Serializer.GetMemberSerializationInfo(memberName);
+                    return new BsonSerializationInfo(
+                        containingMemberSerializationInfo.ElementName + "." + memberSerializationInfo.ElementName,
+                        memberSerializationInfo.Serializer,
+                        memberSerializationInfo.NominalType,
+                        memberSerializationInfo.SerializationOptions);
                 }
                 catch (NotSupportedException)
                 {
@@ -937,24 +864,24 @@ namespace MongoDB.Driver.Linq
             }
         }
 
-        private string GetDottedElementNameAndSerializer(MemberExpression memberExpression, out IBsonSerializer memberSerializer, out Type nominalType, out IBsonSerializationOptions serializationOptions)
+        private BsonSerializationInfo GetSerializationInfo(MemberExpression memberExpression)
         {
             var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
-            return GetDottedElementNameAndSerializer(documentSerializer, memberExpression, out memberSerializer, out nominalType, out serializationOptions);
+            return GetSerializationInfo(documentSerializer, memberExpression);
         }
 
-        private BsonValue SerializeValue(IBsonSerializer serializer, Type nominalType, object value, IBsonSerializationOptions serializationOptions)
+        private BsonValue SerializeValue(BsonSerializationInfo serializationInfo, object value)
         {
             var bsonDocument = new BsonDocument();
             var bsonWriter = BsonWriter.Create(bsonDocument);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            serializer.Serialize(bsonWriter, nominalType, value, serializationOptions);
+            serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
             bsonWriter.WriteEndDocument();
             return bsonDocument[0];
         }
-        
-        private BsonArray SerializeValues(IBsonSerializer serializer, Type nominalType, IEnumerable values, IBsonSerializationOptions serializationOptions)
+
+        private BsonArray SerializeValues(BsonSerializationInfo serializationInfo, IEnumerable values)
         {
             var bsonDocument = new BsonDocument();
             var bsonWriter = BsonWriter.Create(bsonDocument);
@@ -963,7 +890,7 @@ namespace MongoDB.Driver.Linq
             bsonWriter.WriteStartArray();
             foreach (var value in values)
             {
-                serializer.Serialize(bsonWriter, nominalType, value, serializationOptions);
+                serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
             }
             bsonWriter.WriteEndArray();
             bsonWriter.WriteEndDocument();

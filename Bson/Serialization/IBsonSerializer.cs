@@ -51,6 +51,17 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if the document has an Id.</returns>
         bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator);
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        BsonSerializationInfo GetItemSerializationInfo();
+        /// <summary>
+        /// Gets the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>The serialization info for the member.</returns>
+        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -58,22 +69,6 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
         void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options);
-        /// <summary>
-        /// Gets the element name and serializer for a given member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        /// <returns>The element name.</returns>
-        string GetElementNameAndSerializer(string memberName, out IBsonSerializer serializer, out Type nominalType, out IBsonSerializationOptions serializationOptions);
-        /// <summary>
-        /// Gets the serializer for the individual items of an enumerable type.
-        /// </summary>
-        /// <param name="nominalType">The nominal type of the items.</param>
-        /// <param name="serializationOptions">The serialization options for the items.</param>
-        /// <returns>The serializer for the items.</returns>
-        IBsonSerializer GetItemSerializer(out Type nominalType, out IBsonSerializationOptions serializationOptions);
         /// <summary>
         /// Sets the document Id.
         /// </summary>
