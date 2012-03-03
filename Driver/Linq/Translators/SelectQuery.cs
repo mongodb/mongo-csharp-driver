@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Linq
         public override object Execute()
         {
             var query = BuildQuery();
-            var cursor = _collection.FindAs(_documentType, query);
+            var cursor = Collection.FindAs(DocumentType, query);
 
             if (_orderBy != null)
             {
@@ -866,7 +866,7 @@ namespace MongoDB.Driver.Linq
 
         private BsonSerializationInfo GetSerializationInfo(MemberExpression memberExpression)
         {
-            var documentSerializer = BsonSerializer.LookupSerializer(_documentType);
+            var documentSerializer = BsonSerializer.LookupSerializer(DocumentType);
             return GetSerializationInfo(documentSerializer, memberExpression);
         }
 

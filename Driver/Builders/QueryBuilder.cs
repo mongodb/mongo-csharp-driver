@@ -795,7 +795,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// A BSON document containing the query being built.
         /// </summary>
-        protected BsonDocument _document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -805,6 +805,15 @@ namespace MongoDB.Driver.Builders
         protected QueryBuilder(BsonDocument document)
         {
             _document = document;
+        }
+
+        // protected properties
+        /// <summary>
+        /// Gets the document containing the query being built.
+        /// </summary>
+        protected BsonDocument Document
+        {
+            get { return _document; }
         }
 
         // public methods
@@ -864,7 +873,7 @@ namespace MongoDB.Driver.Builders
         public QueryConditionList(string name)
             : base(new BsonDocument(name, new BsonDocument()))
         {
-            _conditions = _document[0].AsBsonDocument;
+            _conditions = Document[0].AsBsonDocument;
         }
 
         // public methods
@@ -1606,7 +1615,7 @@ namespace MongoDB.Driver.Builders
         public QueryNotConditionList(string name)
             : base(new BsonDocument(name, new BsonDocument("$not", new BsonDocument())))
         {
-            _conditions = _document[0].AsBsonDocument[0].AsBsonDocument;
+            _conditions = Document[0].AsBsonDocument[0].AsBsonDocument;
         }
 
         // public methods

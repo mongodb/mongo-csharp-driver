@@ -54,11 +54,8 @@ namespace MongoDB.Bson
             { BsonType.MaxKey, 15 }
         };
 
-        // protected fields
-        /// <summary>
-        /// The BsonType of this BsonValue.
-        /// </summary>
-        protected BsonType _bsonType;
+        // private fields
+        private BsonType _bsonType;
 
         // constructors
         /// <summary>
@@ -1026,7 +1023,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static BsonValue ReadFrom(BsonReader bsonReader)
         {
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Array:

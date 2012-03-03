@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BitArray));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             BitArray bitArray;
             byte[] bytes;
             BsonBinarySubType subType;
@@ -244,7 +244,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(byte[]));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             byte[] bytes;
             string message;
             switch (bsonType)
@@ -368,7 +368,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             byte value;
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             var lostData = false;
             switch (bsonType)
             {
@@ -491,7 +491,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(char));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Int32:
@@ -576,7 +576,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(CultureInfo));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -674,7 +674,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(DateTimeOffset));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             long ticks;
             TimeSpan offset;
             switch (bsonType)
@@ -785,7 +785,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(decimal));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Array:
@@ -898,7 +898,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(System.Drawing.Size));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Document:
@@ -978,7 +978,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(short));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1073,7 +1073,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(IPAddress));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {
@@ -1171,7 +1171,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(IPEndPoint));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {
@@ -1277,7 +1277,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(sbyte));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             var lostData = false;
             sbyte value;
             switch (bsonType)
@@ -1403,7 +1403,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(float));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1508,7 +1508,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
             }
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.String)
             {
                 return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
@@ -1670,7 +1670,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(ushort));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1767,7 +1767,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(uint));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1864,7 +1864,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(ulong));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1959,7 +1959,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(Uri));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -2039,7 +2039,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(Version));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {

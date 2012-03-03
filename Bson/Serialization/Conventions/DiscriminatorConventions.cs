@@ -108,7 +108,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         public Type GetActualType(BsonReader bsonReader, Type nominalType)
         {
             // the BsonReader is sitting at the value whose actual type needs to be found
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonReader.State == BsonReaderState.Value)
             {
                 Type primitiveType = null;

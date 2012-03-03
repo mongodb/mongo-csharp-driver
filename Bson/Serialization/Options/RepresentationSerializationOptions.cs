@@ -230,6 +230,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt32.</param>
         /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
         public double ToDouble(uint value)
         {
             return value;
@@ -240,6 +241,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt64.</param>
         /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
         public double ToDouble(ulong value)
         {
             var doubleValue = (double)value;
@@ -255,6 +257,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt16.</param>
         /// <returns>A Double.</returns>
+        [CLSCompliant(false)]
         public double ToDouble(ushort value)
         {
             return value;
@@ -412,6 +415,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt32.</param>
         /// <returns>An Int32.</returns>
+        [CLSCompliant(false)]
         public int ToInt32(uint value)
         {
             if (value > (uint)int.MaxValue)
@@ -426,6 +430,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt64.</param>
         /// <returns>An Int32.</returns>
+        [CLSCompliant(false)]
         public int ToInt32(ulong value)
         {
             if (value > (ulong)int.MaxValue)
@@ -440,6 +445,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt16.</param>
         /// <returns>An Int32.</returns>
+        [CLSCompliant(false)]
         public int ToInt32(ushort value)
         {
             return value;
@@ -546,6 +552,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt32.</param>
         /// <returns>An Int64.</returns>
+        [CLSCompliant(false)]
         public long ToInt64(uint value)
         {
             return (long)value;
@@ -556,6 +563,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt64.</param>
         /// <returns>An Int64.</returns>
+        [CLSCompliant(false)]
         public long ToInt64(ulong value)
         {
             if (value > (ulong)long.MaxValue)
@@ -570,6 +578,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A UInt16.</param>
         /// <returns>An Int64.</returns>
+        [CLSCompliant(false)]
         public long ToInt64(ushort value)
         {
             return value;
@@ -650,6 +659,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A Double.</param>
         /// <returns>A UInt16.</returns>
+        [CLSCompliant(false)]
         public ushort ToUInt16(double value)
         {
             var uint16Value = (ushort)value;
@@ -669,6 +679,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int32.</param>
         /// <returns>A UInt16.</returns>
+        [CLSCompliant(false)]
         public ushort ToUInt16(int value)
         {
             if (value < ushort.MinValue || value > ushort.MaxValue)
@@ -683,6 +694,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int64.</param>
         /// <returns>A UInt16.</returns>
+        [CLSCompliant(false)]
         public ushort ToUInt16(long value)
         {
             if (value < ushort.MinValue || value > ushort.MaxValue)
@@ -697,6 +709,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A Double.</param>
         /// <returns>A UInt32.</returns>
+        [CLSCompliant(false)]
         public uint ToUInt32(double value)
         {
             var uint32Value = (uint)value;
@@ -716,6 +729,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int32.</param>
         /// <returns>A UInt32.</returns>
+        [CLSCompliant(false)]
         public uint ToUInt32(int value)
         {
             if (value < uint.MinValue)
@@ -730,6 +744,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int64.</param>
         /// <returns>A UInt32.</returns>
+        [CLSCompliant(false)]
         public uint ToUInt32(long value)
         {
             if (value < uint.MinValue || value > uint.MaxValue)
@@ -744,6 +759,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">A Double.</param>
         /// <returns>A UInt64.</returns>
+        [CLSCompliant(false)]
         public ulong ToUInt64(double value)
         {
             var uint64Value = (ulong)value;
@@ -763,6 +779,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int32.</param>
         /// <returns>A UInt64.</returns>
+        [CLSCompliant(false)]
         public ulong ToUInt64(int value)
         {
             if (value < (int)ulong.MinValue)
@@ -777,6 +794,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         /// <param name="value">An Int64.</param>
         /// <returns>A UInt64.</returns>
+        [CLSCompliant(false)]
         public ulong ToUInt64(long value)
         {
             if (value < (int)ulong.MinValue)

@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Internal
 {
     internal abstract class MongoMessage
     {
-        // protected fields
-        protected int _messageLength;
-        protected int _requestId;
-        protected int _responseTo;
-        protected MessageOpcode _opcode;
+        // private fields
+        private int _messageLength;
+        private int _requestId;
+        private int _responseTo;
+        private MessageOpcode _opcode;
 
         // constructors
         protected MongoMessage(MessageOpcode opcode)
@@ -42,11 +42,13 @@ namespace MongoDB.Driver.Internal
         internal int MessageLength
         {
             get { return _messageLength; }
+            set { _messageLength = value; }
         }
 
         internal int RequestId
         {
             get { return _requestId; }
+            set { _requestId = value; }
         }
 
         internal int ResponseTo

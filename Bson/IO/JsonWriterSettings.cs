@@ -103,7 +103,7 @@ namespace MongoDB.Bson.IO
             get { return _closeOutput; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _closeOutput = value;
             }
         }
@@ -116,7 +116,7 @@ namespace MongoDB.Bson.IO
             get { return _encoding; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _encoding = value;
             }
         }
@@ -129,7 +129,7 @@ namespace MongoDB.Bson.IO
             get { return _indent; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _indent = value;
             }
         }
@@ -142,7 +142,7 @@ namespace MongoDB.Bson.IO
             get { return _indentChars; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _indentChars = value;
             }
         }
@@ -155,7 +155,7 @@ namespace MongoDB.Bson.IO
             get { return _newLineChars; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _newLineChars = value;
             }
         }
@@ -168,7 +168,7 @@ namespace MongoDB.Bson.IO
             get { return _outputMode; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _outputMode = value;
             }
         }
@@ -181,7 +181,7 @@ namespace MongoDB.Bson.IO
             get { return _shellVersion; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _shellVersion = value;
             }
         }
@@ -203,7 +203,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonWriterSettings CloneImplementation()
         {
-            return new JsonWriterSettings(_closeOutput, _encoding, _guidRepresentation, _indent, _indentChars, _newLineChars, _outputMode, _shellVersion);
+            return new JsonWriterSettings(_closeOutput, _encoding, GuidRepresentation, _indent, _indentChars, _newLineChars, _outputMode, _shellVersion);
         }
     }
 }

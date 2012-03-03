@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return _response["ns"].AsString; }
+            get { return Response["ns"].AsString; }
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
             {
                 if (_stats == null)
                 {
-                    _stats = new GeoNearStats(_response["stats"].AsBsonDocument);
+                    _stats = new GeoNearStats(Response["stats"].AsBsonDocument);
                 }
                 return _stats;
             }
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
             {
                 if (_hits == null)
                 {
-                    _hits = new GeoNearHits(_response["results"].AsBsonArray);
+                    _hits = new GeoNearHits(Response["results"].AsBsonArray);
                 }
                 return _hits;
             }

@@ -55,7 +55,7 @@ namespace MongoDB.Bson.Serialization
         public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             VerifyNominalType(nominalType);
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return null;
@@ -93,7 +93,8 @@ namespace MongoDB.Bson.Serialization
             IBsonSerializationOptions options)
         {
             VerifyNominalType(nominalType);
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            var bsonType = bsonReader.GetCurrentBsonType();
+            if (bsonType == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return null;
@@ -113,11 +114,11 @@ namespace MongoDB.Bson.Serialization
                 }
                 var obj = classMap.CreateInstance();
 
-                if (bsonReader.CurrentBsonType != BsonType.Document)
+                if (bsonType != BsonType.Document)
                 {
                     var message = string.Format(
                         "Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.",
-                        actualType.FullName, bsonReader.CurrentBsonType);
+                        actualType.FullName, bsonType);
                     throw new FileFormatException(message);
                 }
 
@@ -373,7 +374,7 @@ namespace MongoDB.Bson.Serialization
             {
                 var nominalType = memberMap.MemberType;
                 Type actualType;
-                if (bsonReader.CurrentBsonType == BsonType.Null)
+                if (bsonReader.GetCurrentBsonType() == BsonType.Null)
                 {
                     actualType = nominalType;
                 }

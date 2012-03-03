@@ -87,7 +87,7 @@ namespace MongoDB.Bson.IO
             get { return _closeOutput; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _closeOutput = value;
             }
         }
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.IO
             get { return _fixOldBinarySubTypeOnOutput; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _fixOldBinarySubTypeOnOutput = value;
             }
         }
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.IO
             get { return _maxDocumentSize; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _maxDocumentSize = value;
             }
         }
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonWriterSettings CloneImplementation()
         {
-            return new BsonBinaryWriterSettings(_closeOutput, _fixOldBinarySubTypeOnOutput, _guidRepresentation, _maxDocumentSize);
+            return new BsonBinaryWriterSettings(_closeOutput, _fixOldBinarySubTypeOnOutput, GuidRepresentation, _maxDocumentSize);
         }
     }
 }

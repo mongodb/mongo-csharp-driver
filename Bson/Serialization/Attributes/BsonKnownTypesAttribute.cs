@@ -39,6 +39,15 @@ namespace MongoDB.Bson.Serialization.Attributes
             _knownTypes = knownTypes;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonKnownTypesAttribute class.
+        /// </summary>
+        /// <param name="knownType">A known types.</param>
+        public BsonKnownTypesAttribute(Type knownType)
+        {
+            _knownTypes = new Type[] { knownType };
+        }
+
         // public properties
         /// <summary>
         /// Gets a list of the known types.

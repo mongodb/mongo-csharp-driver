@@ -226,7 +226,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + BsonType.GetHashCode();
             hash = 37 * hash + _millisecondsSinceEpoch.GetHashCode();
             return hash;
         }

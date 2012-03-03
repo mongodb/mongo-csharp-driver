@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         {
             VerifyTypes(nominalType, actualType, typeof(MongoDBRef));
 
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return null;

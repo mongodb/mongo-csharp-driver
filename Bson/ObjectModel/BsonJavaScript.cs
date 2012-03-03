@@ -27,11 +27,8 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonJavaScript : BsonValue, IComparable<BsonJavaScript>, IEquatable<BsonJavaScript>
     {
-        // protected fields
-        /// <summary>
-        /// The JavaScript code.
-        /// </summary>
-        protected string _code;
+        // private fields
+        private string _code;
 
         // constructors
         /// <summary>
@@ -189,7 +186,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + BsonType.GetHashCode();
             hash = 37 * hash + _code.GetHashCode();
             return hash;
         }

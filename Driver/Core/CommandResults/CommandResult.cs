@@ -29,15 +29,9 @@ namespace MongoDB.Driver
     [Serializable]
     public class CommandResult
     {
-        // protected fields
-        /// <summary>
-        /// The command.
-        /// </summary>
-        protected IMongoCommand _command;
-        /// <summary>
-        /// The response.
-        /// </summary>
-        protected BsonDocument _response;
+        // private fields
+        private IMongoCommand _command;
+        private BsonDocument _response;
 
         // constructors
         /// <summary>

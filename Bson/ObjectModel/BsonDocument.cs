@@ -734,7 +734,7 @@ namespace MongoDB.Bson
         /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
         public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
-            if (bsonReader.CurrentBsonType == Bson.BsonType.Null)
+            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return null;
@@ -860,7 +860,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * _bsonType.GetHashCode();
+            hash = 37 * BsonType.GetHashCode();
             foreach (BsonElement element in _elements)
             {
                 hash = 37 * hash + element.GetHashCode();

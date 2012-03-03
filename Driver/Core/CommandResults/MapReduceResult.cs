@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = _response["result", null];
+                var result = Response["result", null];
                 if (result != null)
                 {
                     if (result.IsString)
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = _response["result", null];
+                var result = Response["result", null];
                 if (result != null && result.IsBsonDocument)
                 {
                     return (string)result.AsBsonDocument["db", null];
@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Duration
         {
-            get { return TimeSpan.FromMilliseconds(_response["timeMillis"].ToInt32()); }
+            get { return TimeSpan.FromMilliseconds(Response["timeMillis"].ToInt32()); }
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long EmitCount
         {
-            get { return _response["counts"].AsBsonDocument["emit"].ToInt64(); }
+            get { return Response["counts"].AsBsonDocument["emit"].ToInt64(); }
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long OutputCount
         {
-            get { return _response["counts"].AsBsonDocument["output"].ToInt64(); }
+            get { return Response["counts"].AsBsonDocument["output"].ToInt64(); }
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<BsonDocument> InlineResults
         {
-            get { return _response["results"].AsBsonArray.Cast<BsonDocument>(); }
+            get { return Response["results"].AsBsonArray.Cast<BsonDocument>(); }
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long InputCount
         {
-            get { return _response["counts"].AsBsonDocument["input"].ToInt64(); }
+            get { return Response["counts"].AsBsonDocument["input"].ToInt64(); }
         }
 
         // public methods
@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// <returns>The documents.</returns>
         public IEnumerable<BsonDocument> GetResults()
         {
-            if (_response.Contains("results"))
+            if (Response.Contains("results"))
             {
                 return InlineResults;
             }
@@ -183,7 +183,7 @@ namespace MongoDB.Driver
         /// <returns>The documents.</returns>
         public IEnumerable<object> GetResultsAs(Type documentType)
         {
-            if (_response.Contains("results"))
+            if (Response.Contains("results"))
             {
                 return GetInlineResultsAs(documentType);
             }

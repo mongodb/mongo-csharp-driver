@@ -77,7 +77,7 @@ namespace MongoDB.Bson.IO
             get { return _closeInput; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
+                if (IsFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
                 _closeInput = value;
             }
         }
@@ -99,7 +99,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new JsonReaderSettings(_closeInput, _guidRepresentation);
+            return new JsonReaderSettings(_closeInput, GuidRepresentation);
         }
     }
 }

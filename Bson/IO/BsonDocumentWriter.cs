@@ -43,7 +43,7 @@ namespace MongoDB.Bson.IO
             _topLevelDocument = topLevelDocument;
             _documentWriterSettings = settings; // already frozen by base class
             _context = null;
-            _state = BsonWriterState.Initial;
+            State = BsonWriterState.Initial;
         }
 
         // public properties
@@ -62,10 +62,10 @@ namespace MongoDB.Bson.IO
         public override void Close()
         {
             // Close can be called on Disposed objects
-            if (_state != BsonWriterState.Closed)
+            if (State != BsonWriterState.Closed)
             {
                 _context = null;
-                _state = BsonWriterState.Closed;
+                State = BsonWriterState.Closed;
             }
         }
 
@@ -74,7 +74,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void Flush()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
         }
 
         /// <summary>
@@ -88,14 +88,14 @@ namespace MongoDB.Bson.IO
             BsonBinarySubType subType,
             GuidRepresentation guidRepresentation)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteBinaryData", BsonWriterState.Value);
             }
 
             WriteValue(new BsonBinaryData(bytes, subType, guidRepresentation));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -104,14 +104,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Boolean value.</param>
         public override void WriteBoolean(bool value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteBoolean", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -120,14 +120,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The number of milliseconds since the Unix epoch.</param>
         public override void WriteDateTime(long value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteDateTime", BsonWriterState.Value);
             }
 
             WriteValue(new BsonDateTime(value));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -136,14 +136,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Double value.</param>
         public override void WriteDouble(double value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteDouble", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -151,8 +151,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteEndArray()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteEndArray", BsonWriterState.Value);
             }
@@ -164,7 +164,7 @@ namespace MongoDB.Bson.IO
             var array = _context.Array;
             _context = _context.ParentContext;
             WriteValue(array);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -172,8 +172,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteEndDocument()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Name)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Name)
             {
                 ThrowInvalidState("WriteEndDocument", BsonWriterState.Name);
             }
@@ -202,11 +202,11 @@ namespace MongoDB.Bson.IO
 
             if (_context == null)
             {
-                _state = BsonWriterState.Done;
+                State = BsonWriterState.Done;
             }
             else
             {
-                _state = GetNextState();
+                State = GetNextState();
             }
         }
 
@@ -216,14 +216,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Int32 value.</param>
         public override void WriteInt32(int value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteInt32", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -232,14 +232,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The Int64 value.</param>
         public override void WriteInt64(long value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteInt64", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -248,14 +248,14 @@ namespace MongoDB.Bson.IO
         /// <param name="code">The JavaScript code.</param>
         public override void WriteJavaScript(string code)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteJavaScript", BsonWriterState.Value);
             }
 
             WriteValue(new BsonJavaScript(code));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -264,14 +264,14 @@ namespace MongoDB.Bson.IO
         /// <param name="code">The JavaScript code.</param>
         public override void WriteJavaScriptWithScope(string code)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteJavaScriptWithScope", BsonWriterState.Value);
             }
 
             _context = new BsonDocumentWriterContext(_context, ContextType.JavaScriptWithScope, code);
-            _state = BsonWriterState.ScopeDocument;
+            State = BsonWriterState.ScopeDocument;
         }
 
         /// <summary>
@@ -279,14 +279,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteMaxKey()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteMaxKey", BsonWriterState.Value);
             }
 
             WriteValue(BsonMaxKey.Value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -294,14 +294,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteMinKey()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteMinKey", BsonWriterState.Value);
             }
 
             WriteValue(BsonMinKey.Value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -319,14 +319,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteNull()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteNull", BsonWriterState.Value);
             }
 
             WriteValue(BsonNull.Value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -338,14 +338,14 @@ namespace MongoDB.Bson.IO
         /// <param name="increment">The increment.</param>
         public override void WriteObjectId(int timestamp, int machine, short pid, int increment)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteObjectId", BsonWriterState.Value);
             }
 
             WriteValue(new ObjectId(timestamp, machine, pid, increment));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -355,14 +355,14 @@ namespace MongoDB.Bson.IO
         /// <param name="options">A regular expression options.</param>
         public override void WriteRegularExpression(string pattern, string options)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteRegularExpression", BsonWriterState.Value);
             }
 
             WriteValue(new BsonRegularExpression(pattern, options));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -370,14 +370,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteStartArray()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteStartArray", BsonWriterState.Value);
             }
 
             _context = new BsonDocumentWriterContext(_context, ContextType.Array, new BsonArray());
-            _state = BsonWriterState.Value;
+            State = BsonWriterState.Value;
         }
 
         /// <summary>
@@ -385,13 +385,13 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteStartDocument()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Initial && _state != BsonWriterState.Value && _state != BsonWriterState.ScopeDocument && _state != BsonWriterState.Done)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Initial && State != BsonWriterState.Value && State != BsonWriterState.ScopeDocument && State != BsonWriterState.Done)
             {
                 ThrowInvalidState("WriteStartDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
             }
 
-            switch (_state)
+            switch (State)
             {
                 case BsonWriterState.Initial:
                 case BsonWriterState.Done:
@@ -407,7 +407,7 @@ namespace MongoDB.Bson.IO
                     throw new BsonInternalException("Unexpected state.");
             }
 
-            _state = BsonWriterState.Name;
+            State = BsonWriterState.Name;
         }
 
         /// <summary>
@@ -416,14 +416,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The String value.</param>
         public override void WriteString(string value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteString", BsonWriterState.Value);
             }
 
             WriteValue(value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -432,14 +432,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The symbol.</param>
         public override void WriteSymbol(string value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteSymbol", BsonWriterState.Value);
             }
 
             WriteValue(BsonSymbol.Create(value));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -448,14 +448,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The combined timestamp/increment value.</param>
         public override void WriteTimestamp(long value)
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteTimestamp", BsonWriterState.Value);
             }
 
             WriteValue(new BsonTimestamp(value));
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -463,14 +463,14 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void WriteUndefined()
         {
-            if (_disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
-            if (_state != BsonWriterState.Value)
+            if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
+            if (State != BsonWriterState.Value)
             {
                 ThrowInvalidState("WriteUndefined", BsonWriterState.Value);
             }
 
             WriteValue(BsonUndefined.Value);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         // protected methods

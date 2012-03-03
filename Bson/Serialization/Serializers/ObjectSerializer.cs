@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new InvalidOperationException(message);
             }
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "actualType");
             }
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();

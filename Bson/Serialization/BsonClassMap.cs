@@ -42,79 +42,25 @@ namespace MongoDB.Bson.Serialization
         private static int __freezeNestingLevel = 0;
         private static Queue<Type> __knownTypesQueue = new Queue<Type>();
 
-        // protected fields
-        /// <summary>
-        /// Whether the class map has been frozen.
-        /// </summary>
-        protected bool _frozen; // once a class map has been frozen no further changes are allowed
-        /// <summary>
-        /// The class map for the base class.
-        /// </summary>
-        protected BsonClassMap _baseClassMap; // null for class object and interfaces
-        /// <summary>
-        /// The class that this class map is for.
-        /// </summary>
-        protected Type _classType;
-        /// <summary>
-        /// A function that creates a new instance of the class.
-        /// </summary>
+        // private fields
+        private bool _frozen; // once a class map has been frozen no further changes are allowed
+        private BsonClassMap _baseClassMap; // null for class object and interfaces
+        private Type _classType;
         private Func<object> _creator;
-        /// <summary>
-        /// The convention profile used by this class map.
-        /// </summary>
-        protected ConventionProfile _conventions;
-        /// <summary>
-        /// The discriminator value.
-        /// </summary>
-        protected string _discriminator;
-        /// <summary>
-        /// Whether a discriminator is required.
-        /// </summary>
-        protected bool _discriminatorIsRequired;
-        /// <summary>
-        /// Whether this class is descended from a root class.
-        /// </summary>
-        protected bool _hasRootClass;
-        /// <summary>
-        /// Whether this class is a root class.
-        /// </summary>
-        protected bool _isRootClass;
-        /// <summary>
-        /// Whether this class is an anonymous class.
-        /// </summary>
-        protected bool _isAnonymous;
-        /// <summary>
-        /// The member map for the id property or field.
-        /// </summary>
-        protected BsonMemberMap _idMemberMap;
-        /// <summary>
-        /// A list of all the member maps for this class map (including member maps for inherited properties and fields).
-        /// </summary>
-        protected List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
-        /// <summary>
-        /// A list of member maps for properties or fields declared in this class.
-        /// </summary>
-        protected List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
-        /// <summary>
-        /// A dictionary mapping element names to the corresponding member map.
-        /// </summary>
-        protected Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
-        /// <summary>
-        /// Whether to ignore extra elements during deserialization.
-        /// </summary>
-        protected bool _ignoreExtraElements = true;
-        /// <summary>
-        /// Whether the ignoreExtraElements value should be inherited by derived classes.
-        /// </summary>
-        protected bool _ignoreExtraElementsIsInherited = false;
-        /// <summary>
-        /// The member map for the property or field (if any) used to hold any extra elements found during deserialization.
-        /// </summary>
-        protected BsonMemberMap _extraElementsMemberMap;
-        /// <summary>
-        /// A list of known types derived from this class.
-        /// </summary>
-        protected List<Type> _knownTypes = new List<Type>();
+        private ConventionProfile _conventions;
+        private string _discriminator;
+        private bool _discriminatorIsRequired;
+        private bool _hasRootClass;
+        private bool _isRootClass;
+        private bool _isAnonymous;
+        private BsonMemberMap _idMemberMap;
+        private List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        private List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
+        private Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
+        private bool _ignoreExtraElements = true;
+        private bool _ignoreExtraElementsIsInherited = false;
+        private BsonMemberMap _extraElementsMemberMap;
+        private List<Type> _knownTypes = new List<Type>();
 
         // constructors
         /// <summary>

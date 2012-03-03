@@ -27,15 +27,9 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public abstract class TranslatedQuery
     {
-        // protected fields
-        /// <summary>
-        /// The collection being queried.
-        /// </summary>
-        protected MongoCollection _collection;
-        /// <summary>
-        /// The document type being queried.
-        /// </summary>
-        protected Type _documentType;
+        // private fields
+        private MongoCollection _collection;
+        private Type _documentType;
 
         // constructors
         /// <summary>

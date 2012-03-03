@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Internal
                 }
 
                 _documents = new List<TDocument>(_numberReturned);
-                while (buffer.Position - messageStartPosition < _messageLength)
+                while (buffer.Position - messageStartPosition < MessageLength)
                 {
                     var document = (TDocument)BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
                     _documents.Add(document);
