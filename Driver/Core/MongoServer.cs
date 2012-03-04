@@ -1114,6 +1114,7 @@ namespace MongoDB.Driver
         // internal methods
         internal MongoConnection AcquireConnection(MongoDatabase database, bool slaveOk)
         {
+            MongoConnection requestConnection = null;
             lock (_serverLock)
             {
                 // if a thread has called RequestStart it wants all operations to take place on the same connection
@@ -1125,17 +1126,24 @@ namespace MongoDB.Driver
                     {
                         throw new InvalidOperationException("A call to AcquireConnection with slaveOk false is not allowed when the current RequestStart was made with slaveOk true.");
                     }
-                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
-                    return request.Connection;
+                    requestConnection = request.Connection;
                 }
-
-                var serverInstance = ChooseServerInstance(slaveOk);
-                return serverInstance.AcquireConnection(database);
             }
+
+            // check authentication outside of lock
+            if (requestConnection != null)
+            {
+                requestConnection.CheckAuthentication(database); // will throw exception if authentication fails
+                return requestConnection;
+            }
+
+            var serverInstance = ChooseServerInstance(slaveOk);
+            return serverInstance.AcquireConnection(database);
         }
 
         internal MongoConnection AcquireConnection(MongoDatabase database, MongoServerInstance serverInstance)
         {
+            MongoConnection requestConnection = null;
             lock (_serverLock)
             {
                 // if a thread has called RequestStart it wants all operations to take place on the same connection
@@ -1150,12 +1158,18 @@ namespace MongoDB.Driver
                             serverInstance.Address, request.Connection.ServerInstance.Address);
                         throw new MongoConnectionException(message);
                     }
-                    request.Connection.CheckAuthentication(database); // will throw exception if authentication fails
-                    return request.Connection;
+                    requestConnection = request.Connection;
                 }
-
-                return serverInstance.AcquireConnection(database);
             }
+
+            // check authentication outside of lock
+            if (requestConnection != null)
+            {
+                requestConnection.CheckAuthentication(database); // will throw exception if authentication fails
+                return requestConnection;
+            }
+
+            return serverInstance.AcquireConnection(database);
         }
 
         internal void AddInstance(MongoServerInstance instance)
@@ -1252,9 +1266,9 @@ namespace MongoDB.Driver
                     }
                     return; // hold on to the connection until RequestDone is called
                 }
-
-                connection.ServerInstance.ReleaseConnection(connection);
             }
+
+            connection.ServerInstance.ReleaseConnection(connection);
         }
 
         internal void RemoveInstance(MongoServerInstance instance)
