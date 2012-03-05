@@ -130,9 +130,9 @@ namespace MongoDB.Driver.Linq
                 foreach (var clause in _orderBy)
                 {
                     var memberExpression = (MemberExpression)clause.Key.Body;
-                    var dottedElementName = GetDottedElementName(memberExpression);
+                    var serializationInfo = GetSerializationInfo(memberExpression);
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
-                    sortBy.Add(dottedElementName, direction);
+                    sortBy.Add(serializationInfo.ElementName, direction);
                 }
                 cursor.SetSortOrder(sortBy);
             }
@@ -264,15 +264,15 @@ namespace MongoDB.Driver.Linq
                     var valueExpression = binaryExpression.Right as ConstantExpression;
                     if (memberExpression != null && valueExpression != null)
                     {
-                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var serializationInfo = GetSerializationInfo(memberExpression);
                         var value = (int)valueExpression.Value;
                         if (binaryExpression.NodeType == ExpressionType.Equal)
                         {
-                            return Query.Size(dottedElementName, value);
+                            return Query.Size(serializationInfo.ElementName, value);
                         }
                         else
                         {
-                            return Query.Not(dottedElementName).Size(value);
+                            return Query.Not(serializationInfo.ElementName).Size(value);
                         }
                     }
                 }
@@ -287,15 +287,15 @@ namespace MongoDB.Driver.Linq
                     var valueExpression = binaryExpression.Right as ConstantExpression;
                     if (memberExpression != null && valueExpression != null)
                     {
-                        var dottedElementName = GetDottedElementName(memberExpression);
+                        var serializationInfo = GetSerializationInfo(memberExpression);
                         var value = (int)valueExpression.Value;
                         if (binaryExpression.NodeType == ExpressionType.Equal)
                         {
-                            return Query.Size(dottedElementName, value);
+                            return Query.Size(serializationInfo.ElementName, value);
                         }
                         else
                         {
-                            return Query.Not(dottedElementName).Size(value);
+                            return Query.Not(serializationInfo.ElementName).Size(value);
                         }
                     }
                 }
@@ -313,21 +313,34 @@ namespace MongoDB.Driver.Linq
                         var valueExpression = binaryExpression.Right as ConstantExpression;
                         if (memberExpression != null && valueExpression != null)
                         {
-                            var dottedElementName = GetDottedElementName(memberExpression);
+                            var serializationInfo = GetSerializationInfo(memberExpression);
                             var value = (int)valueExpression.Value;
                             if (binaryExpression.NodeType == ExpressionType.Equal)
                             {
-                                return Query.Size(dottedElementName, value);
+                                return Query.Size(serializationInfo.ElementName, value);
                             }
                             else
                             {
-                                return Query.Not(dottedElementName).Size(value);
+                                return Query.Not(serializationInfo.ElementName).Size(value);
                             }
                         }
                     }
                 }
             }
 
+            return null;
+        }
+
+        private IMongoQuery BuildBooleanQuery(Expression expression)
+        {
+            if (expression.Type == typeof(bool))
+            {
+                var serializationInfo = GetSerializationInfo(expression);
+                if (serializationInfo != null)
+                {
+                    return new QueryDocument(serializationInfo.ElementName, true);
+                }
+            }
             return null;
         }
 
@@ -533,11 +546,10 @@ namespace MongoDB.Driver.Linq
                 {
                     if (arguments.Length == 2 || arguments.Length == 3)
                     {
-                        var inputExpression = arguments[0] as MemberExpression;
+                        var serializationInfo = GetSerializationInfo(arguments[0]);
                         var patternExpression = arguments[1] as ConstantExpression;
-                        if (inputExpression != null && patternExpression != null)
+                        if (serializationInfo != null && patternExpression != null)
                         {
-                            var dottedElementName = GetDottedElementName(inputExpression);
                             var pattern = patternExpression.Value as string;
                             if (pattern != null)
                             {
@@ -552,7 +564,7 @@ namespace MongoDB.Driver.Linq
                                     options = (RegexOptions)optionsExpression.Value;
                                 }
                                 var regex = new Regex(pattern, options);
-                                return Query.Matches(dottedElementName, regex);
+                                return Query.Matches(serializationInfo.ElementName, regex);
                             }
                         }
                     }
@@ -562,25 +574,14 @@ namespace MongoDB.Driver.Linq
                     var regexExpression = obj as ConstantExpression;
                     if (regexExpression != null && arguments.Length == 1)
                     {
+                        var serializationInfo = GetSerializationInfo(arguments[0]);
                         var regex = regexExpression.Value as Regex;
-                        var inputExpression = arguments[0] as MemberExpression;
-                        if (regex != null && inputExpression != null)
+                        if (serializationInfo != null && regex != null)
                         {
-                            var dottedElementName = GetDottedElementName(inputExpression);
-                            return Query.Matches(dottedElementName, regex);
+                            return Query.Matches(serializationInfo.ElementName, regex);
                         }
                     }
                 }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildMemberQuery(MemberExpression memberExpression)
-        {
-            if (memberExpression.Type == typeof(bool))
-            {
-                var dottedElementName = GetDottedElementName(memberExpression);
-                return new QueryDocument(dottedElementName, true);
             }
             return null;
         }
@@ -606,21 +607,20 @@ namespace MongoDB.Driver.Linq
             var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
             if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
             {
-                var memberExpression = leftBinaryExpression.Left as MemberExpression;
+                var serializationInfo = GetSerializationInfo(leftBinaryExpression.Left);
                 var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
                 var equalsExpression = binaryExpression.Right as ConstantExpression;
-                if (memberExpression != null && modulusExpression != null && equalsExpression != null)
+                if (serializationInfo != null && modulusExpression != null && equalsExpression != null)
                 {
-                    var dottedElementName = GetDottedElementName(memberExpression);
                     var modulus = Convert.ToInt32(modulusExpression.Value);
                     var equals = Convert.ToInt32(equalsExpression.Value);
                     if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        return Query.Mod(dottedElementName, modulus, equals);
+                        return Query.Mod(serializationInfo.ElementName, modulus, equals);
                     }
                     else
                     {
-                        return Query.Not(dottedElementName).Mod(modulus, equals);
+                        return Query.Not(serializationInfo.ElementName).Mod(modulus, equals);
                     }
                 }
             }
@@ -724,6 +724,9 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.AndAlso:
                     query = BuildAndAlsoQuery((BinaryExpression)expression);
                     break;
+                case ExpressionType.ArrayIndex:
+                    query = BuildBooleanQuery(expression);
+                    break;
                 case ExpressionType.Call:
                     query = BuildMethodCallQuery((MethodCallExpression)expression);
                     break;
@@ -739,7 +742,7 @@ namespace MongoDB.Driver.Linq
                     query = BuildComparisonQuery((BinaryExpression)expression);
                     break;
                 case ExpressionType.MemberAccess:
-                    query = BuildMemberQuery((MemberExpression)expression);
+                    query = BuildBooleanQuery(expression);
                     break;
                 case ExpressionType.Not:
                     query = BuildNotQuery((UnaryExpression)expression);
@@ -770,11 +773,10 @@ namespace MongoDB.Driver.Linq
                         var arguments = methodCallExpression.Arguments.ToArray();
                         if (arguments.Length == 1)
                         {
-                            var memberExpression = methodCallExpression.Object as MemberExpression;
+                            var serializationInfo = GetSerializationInfo(methodCallExpression.Object);
                             var valueExpression = arguments[0] as ConstantExpression;
-                            if (memberExpression != null && valueExpression != null)
+                            if (serializationInfo != null && valueExpression != null)
                             {
-                                var dottedElementName = GetDottedElementName(memberExpression);
                                 var s = (string)valueExpression.Value;
                                 BsonRegularExpression regex;
                                 switch (methodCallExpression.Method.Name)
@@ -784,7 +786,7 @@ namespace MongoDB.Driver.Linq
                                     case "StartsWith": regex = new BsonRegularExpression("^" + s); break;
                                     default: throw new InvalidOperationException("Unreachable code");
                                 }
-                                return Query.Matches(dottedElementName, regex);
+                                return Query.Matches(serializationInfo.ElementName, regex);
                             }
                         }
                         break;
@@ -814,12 +816,6 @@ namespace MongoDB.Driver.Linq
                 var combinedBody = Expression.AndAlso(whereBody, predicateBody);
                 _where = Expression.Lambda(combinedBody, _where.Parameters.ToArray());
             }
-        }
-
-        private string GetDottedElementName(MemberExpression memberExpression)
-        {
-            var serializationInfo = GetSerializationInfo(memberExpression);
-            return serializationInfo.ElementName;
         }
 
         private BsonSerializationInfo GetSerializationInfo(Expression expression)
