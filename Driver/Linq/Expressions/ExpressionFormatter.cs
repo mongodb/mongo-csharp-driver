@@ -132,90 +132,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ConstantExpression.</returns>
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            var value = node.Value;
-
-            var a = value as Array;
-            if (a != null && a.Rank == 1)
-            {
-                var elementType = a.GetType().GetElementType();
-                _sb.AppendFormat("{0}[]:{{ ", elementType.Name);
-                var separator = "";
-                foreach (var item in a)
-                {
-                    _sb.Append(separator);
-                    _sb.Append(item.ToJson());
-                    separator = ", ";
-                }
-                _sb.Append(" }");
-                return node;
-            }
-
-            if (value.GetType() == typeof(bool))
-            {
-                _sb.Append(((bool)value) ? "true" : "false");
-                return node;
-            }
-
-            if (value.GetType() == typeof(DateTime))
-            {
-                var dt = (DateTime)value;
-
-                var formatted = dt.ToString("o");
-                formatted = Regex.Replace(formatted, @"\.0000000", "");
-                formatted = Regex.Replace(formatted, @"0000[Z+-]", "");
-
-                if (dt.Kind == DateTimeKind.Utc)
-                {
-                    _sb.AppendFormat("DateTime:({0})", formatted);
-                }
-                else
-                {
-                    _sb.AppendFormat("DateTime:({0}, {1})", formatted, dt.Kind);
-                }
-                return node;
-            }
-
-            var e = value as Enum;
-            if (e != null)
-            {
-                _sb.Append(e.GetType().Name + "." + e.ToString());
-                return node;
-            }
-
-            var regex = value as Regex;
-            if (regex != null)
-            {
-                var pattern = regex.ToString();
-                var options = regex.Options;
-                _sb.Append("Regex:(@\"");
-                _sb.Append(pattern);
-                _sb.Append("\"");
-                if (options != RegexOptions.None)
-                {
-                    _sb.AppendFormat(", {0}", options.ToString());
-                }
-                _sb.Append(")");
-                return node;
-            }
-
-            var s = value as string;
-            if (s != null)
-            {
-                s = Regex.Replace(s, @"([""\\])", @"\\$1");
-                _sb.Append("\"");
-                _sb.Append(s);
-                _sb.Append("\"");
-                return node;
-            }
-
-            if (value.GetType() == typeof(TimeSpan))
-            {
-                var ts = (TimeSpan)value;
-                _sb.AppendFormat("TimeSpan:({0})", ts.ToString());
-                return node;
-            }
-
-            _sb.Append(value.ToString());
+            VisitValue(node.Value);
             return node;
         }
 
@@ -503,6 +420,92 @@ namespace MongoDB.Driver.Linq
                 type = type.BaseType;
             }
             return FriendlyClassName(type);
+        }
+
+        private void VisitValue(object value)
+        {
+            var a = value as Array;
+            if (a != null && a.Rank == 1)
+            {
+                var elementType = a.GetType().GetElementType();
+                _sb.AppendFormat("{0}[]:{{ ", elementType.Name);
+                var separator = "";
+                foreach (var item in a)
+                {
+                    _sb.Append(separator);
+                    VisitValue(item);
+                    separator = ", ";
+                }
+                _sb.Append(" }");
+                return;
+            }
+
+            if (value.GetType() == typeof(bool))
+            {
+                _sb.Append(((bool)value) ? "true" : "false");
+                return;
+            }
+
+            if (value.GetType() == typeof(DateTime))
+            {
+                var dt = (DateTime)value;
+
+                var formatted = dt.ToString("o");
+                formatted = Regex.Replace(formatted, @"\.0000000", "");
+                formatted = Regex.Replace(formatted, @"0000[Z+-]", "");
+
+                if (dt.Kind == DateTimeKind.Utc)
+                {
+                    _sb.AppendFormat("DateTime:({0})", formatted);
+                }
+                else
+                {
+                    _sb.AppendFormat("DateTime:({0}, {1})", formatted, dt.Kind);
+                }
+                return;
+            }
+
+            var e = value as Enum;
+            if (e != null)
+            {
+                _sb.Append(e.GetType().Name + "." + e.ToString());
+                return;
+            }
+
+            var regex = value as Regex;
+            if (regex != null)
+            {
+                var pattern = regex.ToString();
+                var options = regex.Options;
+                _sb.Append("Regex:(@\"");
+                _sb.Append(pattern);
+                _sb.Append("\"");
+                if (options != RegexOptions.None)
+                {
+                    _sb.AppendFormat(", {0}", options.ToString());
+                }
+                _sb.Append(")");
+                return;
+            }
+
+            var s = value as string;
+            if (s != null)
+            {
+                s = Regex.Replace(s, @"([""\\])", @"\\$1");
+                _sb.Append("\"");
+                _sb.Append(s);
+                _sb.Append("\"");
+                return;
+            }
+
+            if (value.GetType() == typeof(TimeSpan))
+            {
+                var ts = (TimeSpan)value;
+                _sb.AppendFormat("TimeSpan:({0})", ts.ToString());
+                return;
+            }
+
+            _sb.Append(value.ToString());
         }
     }
 }
