@@ -54,6 +54,7 @@ namespace MongoDB.Driver
         private Dictionary<int, Request> requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache indexCache = new IndexCache();
         private PingBuckets pingBuckets = new PingBuckets();
+        private Timer pingBucketUpdater;
 
         // constructors
         /// <summary>
@@ -75,6 +76,9 @@ namespace MongoDB.Driver
                     var serverInstance = new MongoServerInstance(this, address);
                     AddInstance(serverInstance);
                 }
+                pingBucketUpdater = new Timer(new TimerCallback(UpdatePingBuckets));
+                pingBucketUpdater.Change(new TimeSpan(0, 0, 5), new TimeSpan(0, 0, 30));
+
             }
             else
             {
@@ -896,13 +900,28 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Update ping time in ping buckets.
+        /// </summary>
+        public virtual void UpdatePingBuckets(object state)
+        {
+            foreach (var instance in instances.Where(i=>i.State == MongoServerState.Connected).ToArray())
+            {
+                try
+                {
+                    pingBuckets.Add(instance, instance.Ping());
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
         /// Checks whether the server is alive (throws an exception if not). If server is a replica set, pings all members one at a time.
         /// </summary>
         public virtual void Ping()
         {
             foreach (var instance in instances.ToArray())
             {
-                pingBuckets.Add(instance, instance.Ping());
+                instance.Ping();
             }
         }
 
@@ -1156,6 +1175,7 @@ namespace MongoDB.Driver
                 instances.Add(instance);
                 instance.StateChanged += InstanceStateChanged;
                 InstanceStateChanged(instance, null); // adding an instance can change server state
+                PingBuckets.Add(instance, new TimeSpan(0, 1, 0));
             }
         }
 
@@ -1185,7 +1205,7 @@ namespace MongoDB.Driver
                                         if (PingBuckets.GetBucket(i).Count > 0) // bucket not empty
                                         {
                                             var instance = PingBuckets.GetBucket(i)[loadBalancingInstanceIndex];
-                                            if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive))
+                                            if (instance.State == MongoServerState.Connected  && (instance.IsSecondary || instance.IsPassive))
                                             {
                                                 return instance;
                                             }

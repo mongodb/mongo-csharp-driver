@@ -35,8 +35,10 @@ namespace MongoDB.Driver.Core
 
             // remove the instance previous ping
             Remove(instance);
-
-            buckets[bucket].Add(instance);
+            lock (readLock)
+            {
+                buckets[bucket].Add(instance);
+            }
         }
 
         private void Extends(int finalLength)
