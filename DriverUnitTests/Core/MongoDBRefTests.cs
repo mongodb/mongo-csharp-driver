@@ -87,6 +87,48 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestEqualsWithDatabase()
+        {
+            var dbRef1a = new MongoDBRef("database", "collection", 1);
+            var dbRef1b = new MongoDBRef("database", "collection", 1);
+            var dbRef2 = new MongoDBRef("database", "collection", 2);
+            MongoDBRef nullDbRef = null;
+
+            Assert.IsFalse(object.ReferenceEquals(dbRef1a, dbRef1b));
+            Assert.IsTrue(dbRef1a == dbRef1b);
+            Assert.IsFalse(dbRef1a == dbRef2);
+            Assert.IsFalse(dbRef1a == null);
+            Assert.IsFalse(null == dbRef1b);
+            Assert.IsFalse(dbRef1a == nullDbRef);
+            Assert.IsFalse(nullDbRef == dbRef1b);
+            Assert.IsTrue(nullDbRef == null);
+            Assert.IsTrue(null == nullDbRef);
+
+            Assert.AreEqual(dbRef1a.GetHashCode(), dbRef1b.GetHashCode());
+        }
+
+        [Test]
+        public void TestEqualsWithoutDatabase()
+        {
+            var dbRef1a = new MongoDBRef("collection", 1);
+            var dbRef1b = new MongoDBRef("collection", 1);
+            var dbRef2 = new MongoDBRef("collection", 2);
+            MongoDBRef nullDbRef = null;
+
+            Assert.IsFalse(object.ReferenceEquals(dbRef1a, dbRef1b));
+            Assert.IsTrue(dbRef1a == dbRef1b);
+            Assert.IsFalse(dbRef1a == dbRef2);
+            Assert.IsFalse(dbRef1a == null);
+            Assert.IsFalse(null == dbRef1b);
+            Assert.IsFalse(dbRef1a == nullDbRef);
+            Assert.IsFalse(nullDbRef == dbRef1b);
+            Assert.IsTrue(nullDbRef == null);
+            Assert.IsTrue(null == nullDbRef);
+
+            Assert.AreEqual(dbRef1a.GetHashCode(), dbRef1b.GetHashCode());
+        }
+
+        [Test]
         public void TestGuidRefId()
         {
             var id = ObjectId.GenerateNewId();
