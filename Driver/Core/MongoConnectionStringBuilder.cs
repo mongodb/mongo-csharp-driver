@@ -560,7 +560,7 @@ namespace MongoDB.Driver
         public MongoServerSettings ToServerSettings()
         {
             var defaultCredentials = MongoCredentials.Create(_username, _password);
-            return new MongoServerSettings(_connectionMode, _connectTimeout, defaultCredentials, _guidRepresentation, _ipv6,
+            return new MongoServerSettings(_connectionMode, _connectTimeout, null, defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, _replicaSetName,
                 _safeMode ?? MongoDefaults.SafeMode, _servers, _slaveOk, _socketTimeout, ComputedWaitQueueSize,_waitQueueTimeout);
         }

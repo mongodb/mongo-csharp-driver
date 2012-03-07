@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///Creates a new instance of the SafeMode class.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="w">The number of write replications that should be completed before server returns.</param>
         /// <param name="wtimeout">The timeout for each operation.</param>
@@ -123,7 +123,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        ///Creates a new instance of the SafeMode class.
+        /// Creates a new instance of the SafeMode class.
         /// </summary>
         /// <param name="other">Another SafeMode to initialize this one from.</param>
         public SafeMode(SafeMode other)

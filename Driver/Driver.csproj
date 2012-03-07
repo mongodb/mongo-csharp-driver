@@ -118,6 +118,7 @@
     <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
     <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
     <Compile Include="Core\MongoCollectionSettings.cs" />
+    <Compile Include="Core\MongoCredentialsStore.cs" />
     <Compile Include="Core\MongoDatabaseSettings.cs" />
     <Compile Include="Core\MongoDBRef.cs" />
     <Compile Include="Core\MongoInsertOptions.cs" />

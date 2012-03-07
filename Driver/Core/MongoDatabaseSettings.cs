@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         {
             var serverSettings = server.Settings;
             _databaseName = databaseName;
-            _credentials = serverSettings.DefaultCredentials;
+            _credentials = serverSettings.GetCredentials(databaseName);
             _guidRepresentation = serverSettings.GuidRepresentation;
             _safeMode = serverSettings.SafeMode;
             _slaveOk = serverSettings.SlaveOk;
@@ -69,6 +69,10 @@ namespace MongoDB.Driver
             SafeMode safeMode,
             bool slaveOk)
         {
+            if (databaseName == "admin" && credentials != null && !credentials.Admin)
+            {
+                throw new ArgumentOutOfRangeException("Credentials for the admin database must have the admin flag set to true.");
+            }
             _databaseName = databaseName;
             _credentials = credentials;
             _guidRepresentation = guidRepresentation;

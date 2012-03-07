@@ -364,7 +364,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name);
+            _server.DropDatabase(_name, _settings.Credentials);
         }
 
         /// <summary>
@@ -786,7 +786,8 @@ namespace MongoDB.Driver
                 { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            return _server.RunAdminCommand(command);
+            var adminDatabase = _server.GetDatabase("admin");
+            return adminDatabase.RunCommand(command); // TODO: can we run this command against this database?
         }
 
         /// <summary>

@@ -217,14 +217,6 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets the admin database for this server.
-        /// </summary>
-        public virtual MongoDatabase AdminDatabase
-        {
-            get { return GetDatabase("admin"); }
-        }
-
-        /// <summary>
         /// Gets the arbiter instances.
         /// </summary>
         public MongoServerInstance[] Arbiters
@@ -680,7 +672,20 @@ namespace MongoDB.Driver
         /// <returns>True if the database exists.</returns>
         public virtual bool DatabaseExists(string databaseName)
         {
-            return GetDatabaseNames().Contains(databaseName);
+            var adminCredentials = _settings.GetCredentials("admin");
+            return DatabaseExists(databaseName, adminCredentials);
+        }
+
+        /// <summary>
+        /// Tests whether a database exists.
+        /// </summary>
+        /// <param name="databaseName">The name of the database.</param>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        /// <returns>True if the database exists.</returns>
+        public virtual bool DatabaseExists(string databaseName, MongoCredentials adminCredentials)
+        {
+            var databaseNames = GetDatabaseNames(adminCredentials);
+            return databaseNames.Contains(databaseName);
         }
 
         /// <summary>
@@ -717,7 +722,19 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName)
         {
-            MongoDatabase database = GetDatabase(databaseName);
+            var credentials = _settings.GetCredentials(databaseName);
+            return DropDatabase(databaseName, credentials);
+        }
+
+        /// <summary>
+        /// Drops a database.
+        /// </summary>
+        /// <param name="databaseName">The name of the database to be dropped.</param>
+        /// <param name="credentials">Credentials for the database to be dropped (or admin credentials).</param>
+        /// <returns>A <see cref="CommandResult"/>.</returns>
+        public virtual CommandResult DropDatabase(string databaseName, MongoCredentials credentials)
+        {
+            MongoDatabase database = GetDatabase(databaseName, credentials);
             var command = new CommandDocument("dropDatabase", 1);
             var result = database.RunCommand(command);
             _indexCache.Reset(databaseName);
@@ -760,40 +777,6 @@ namespace MongoDB.Driver
 
             var database = GetDatabase(dbRef.DatabaseName);
             return database.FetchDBRefAs(documentType, dbRef);
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing the admin database on this server. Only one instance
-        /// is created for each combination of database settings.
-        /// </summary>
-        /// <param name="credentials">The credentials to use with the admin database.</param>
-        /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetAdminDatabase(MongoCredentials credentials)
-        {
-            return GetDatabase("admin", credentials);
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing the admin database on this server. Only one instance
-        /// is created for each combination of database settings.
-        /// </summary>
-        /// <param name="credentials">The credentials to use with the admin database.</param>
-        /// <param name="safeMode">The safe mode to use with the admin database.</param>
-        /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetAdminDatabase(MongoCredentials credentials, SafeMode safeMode)
-        {
-            return GetDatabase("admin", credentials, safeMode);
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing the admin database on this server. Only one instance
-        /// is created for each combination of database settings.
-        /// </summary>
-        /// <param name="safeMode">The safe mode to use with the admin database.</param>
-        /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetAdminDatabase(SafeMode safeMode)
-        {
-            return GetDatabase("admin", safeMode);
         }
 
         /// <summary>
@@ -887,7 +870,19 @@ namespace MongoDB.Driver
         /// <returns>A list of database names.</returns>
         public virtual IEnumerable<string> GetDatabaseNames()
         {
-            var result = AdminDatabase.RunCommand("listDatabases");
+            var adminCredentials = _settings.GetCredentials("admin");
+            return GetDatabaseNames(adminCredentials);
+        }
+
+        /// <summary>
+        /// Gets the names of the databases on this server.
+        /// </summary>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        /// <returns>A list of database names.</returns>
+        public virtual IEnumerable<string> GetDatabaseNames(MongoCredentials adminCredentials)
+        {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            var result = adminDatabase.RunCommand("listDatabases");
             var databaseNames = new List<string>();
             foreach (BsonDocument database in result.Response["databases"].AsBsonArray.Values)
             {
@@ -904,7 +899,18 @@ namespace MongoDB.Driver
         /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
         public virtual GetLastErrorResult GetLastError()
         {
-            var adminDatabase = GetAdminDatabase((MongoCredentials)null); // if credentials are needed call MongoDatabase.GetLastError instead
+            var adminCredentials = _settings.GetCredentials("admin");
+            return GetLastError(adminCredentials);
+        }
+
+        /// <summary>
+        /// Gets the last error (if any) that occurred on this connection. You MUST be within a RequestStart to call this method.
+        /// </summary>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        /// <returns>The last error (<see cref=" GetLastErrorResult"/>)</returns>
+        public virtual GetLastErrorResult GetLastError(MongoCredentials adminCredentials)
+        {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
             return adminDatabase.GetLastError();
         }
 
@@ -1014,81 +1020,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Runs a command on the admin database.
+        /// Shuts down the server.
         /// </summary>
-        /// <param name="command">The command to run.</param>
-        /// <returns>The result of the command (see <see cref="CommandResult"/>).</returns>
-        public virtual CommandResult RunAdminCommand(IMongoCommand command)
+        public virtual void Shutdown()
         {
-            return RunAdminCommandAs<CommandResult>(command);
-        }
-
-        /// <summary>
-        /// Runs a command on the admin database.
-        /// </summary>
-        /// <param name="commandName">The name of the command to run.</param>
-        /// <returns>The result of the command (as a <see cref="CommandResult"/>).</returns>
-        public virtual CommandResult RunAdminCommand(string commandName)
-        {
-            return RunAdminCommandAs<CommandResult>(commandName);
-        }
-
-        /// <summary>
-        /// Runs a command on the admin database.
-        /// </summary>
-        /// <typeparam name="TCommandResult">The type to use for the command result.</typeparam>
-        /// <param name="command">The command to run.</param>
-        /// <returns>The result of the command (as a <typeparamref name="TCommandResult"/>).</returns>
-        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(IMongoCommand command)
-            where TCommandResult : CommandResult, new()
-        {
-            return (TCommandResult)RunAdminCommandAs(typeof(TCommandResult), command);
-        }
-
-        /// <summary>
-        /// Runs a command on the admin database.
-        /// </summary>
-        /// <typeparam name="TCommandResult">The type to use for the command result.</typeparam>
-        /// <param name="commandName">The name of the command to run.</param>
-        /// <returns>The result of the command (as a <typeparamref name="TCommandResult"/>).</returns>
-        public virtual TCommandResult RunAdminCommandAs<TCommandResult>(string commandName)
-            where TCommandResult : CommandResult, new()
-        {
-            return (TCommandResult)RunAdminCommandAs(typeof(TCommandResult), commandName);
-        }
-
-        /// <summary>
-        /// Runs a command on the admin database.
-        /// </summary>
-        /// <param name="commandResultType">The type to use for the command result.</param>
-        /// <param name="command">The command to run.</param>
-        /// <returns>The result of the command.</returns>
-        public virtual object RunAdminCommandAs(Type commandResultType, IMongoCommand command)
-        {
-            return AdminDatabase.RunCommandAs(commandResultType, command);
-        }
-
-        /// <summary>
-        /// Runs a command on the admin database.
-        /// </summary>
-        /// <param name="commandResultType">The type to use for the command result.</param>
-        /// <param name="commandName">The name of the command to run.</param>
-        /// <returns>The result of the command.</returns>
-        public virtual object RunAdminCommandAs(Type commandResultType, string commandName)
-        {
-            return AdminDatabase.RunCommandAs(commandResultType, commandName);
+            var adminCredentials = _settings.GetCredentials("admin");
+            Shutdown(adminCredentials);
         }
 
         /// <summary>
         /// Shuts down the server.
         /// </summary>
-        public virtual void Shutdown()
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        public virtual void Shutdown(MongoCredentials adminCredentials)
         {
             lock (_serverLock)
             {
                 try
                 {
-                    RunAdminCommand("shutdown");
+                    var adminDatabase = GetDatabase("admin", adminCredentials);
+                    adminDatabase.RunCommand("shutdown");
                 }
                 catch (EndOfStreamException)
                 {
