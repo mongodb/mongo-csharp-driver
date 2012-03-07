@@ -561,7 +561,19 @@ namespace MongoDB.Driver.Builders
                 {
                     throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
                 }
-                queryArray.Add(query.ToBsonDocument());
+                // flatten out nested $or
+                var queryDocument = query.ToBsonDocument();
+                if (queryDocument.ElementCount == 1 && queryDocument.GetElement(0).Name == "$or")
+                {
+                    foreach (var nestedQuery in queryDocument[0].AsBsonArray)
+                    {
+                        queryArray.Add(nestedQuery);
+                    }
+                }
+                else
+                {
+                    queryArray.Add(queryDocument);
+                }
             }
 
             switch (queryArray.Count)
@@ -703,6 +715,19 @@ namespace MongoDB.Driver.Builders
         // try to keey the query in simple form and only promote to $and form if necessary
         private static void AddAndClause(BsonDocument query, BsonElement clause)
         {
+            // flatten out nested $and
+            if (clause.Name == "$and")
+            {
+                foreach (var item in clause.Value.AsBsonArray)
+                {
+                    foreach (var element in item.AsBsonDocument.Elements)
+                    {
+                        AddAndClause(query, element);
+                    }
+                }
+                return;
+            }
+
             if (query.ElementCount == 1 && query.GetElement(0).Name == "$and")
             {
                 query[0].AsBsonArray.Add(new BsonDocument(clause));
@@ -770,7 +795,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// A BSON document containing the query being built.
         /// </summary>
-        protected BsonDocument _document;
+        private BsonDocument _document;
 
         // constructors
         /// <summary>
@@ -780,6 +805,15 @@ namespace MongoDB.Driver.Builders
         protected QueryBuilder(BsonDocument document)
         {
             _document = document;
+        }
+
+        // protected properties
+        /// <summary>
+        /// Gets the document containing the query being built.
+        /// </summary>
+        protected BsonDocument Document
+        {
+            get { return _document; }
         }
 
         // public methods
@@ -839,7 +873,7 @@ namespace MongoDB.Driver.Builders
         public QueryConditionList(string name)
             : base(new BsonDocument(name, new BsonDocument()))
         {
-            _conditions = _document[0].AsBsonDocument;
+            _conditions = Document[0].AsBsonDocument;
         }
 
         // public methods
@@ -1581,7 +1615,7 @@ namespace MongoDB.Driver.Builders
         public QueryNotConditionList(string name)
             : base(new BsonDocument(name, new BsonDocument("$not", new BsonDocument())))
         {
-            _conditions = _document[0].AsBsonDocument[0].AsBsonDocument;
+            _conditions = Document[0].AsBsonDocument[0].AsBsonDocument;
         }
 
         // public methods

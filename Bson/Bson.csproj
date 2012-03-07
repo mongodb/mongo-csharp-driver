@@ -98,6 +98,7 @@
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
+    <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
@@ -129,6 +130,9 @@
     <Compile Include="Serialization\Conventions\ElementNameConventions.cs" />
     <Compile Include="Serialization\Conventions\IdMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreExtraElementsConventions.cs" />
+    <Compile Include="Serialization\Options\TimeSpanSerializationOptions.cs" />
+    <Compile Include="Serialization\Options\TimeSpanUnits.cs" />
+    <Compile Include="Serialization\BsonSerializationInfo.cs" />
     <Compile Include="Serialization\Serializers\CollectionGenericSerializers.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />

@@ -26,27 +26,12 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public abstract class BsonReader : IDisposable
     {
-        // protected fields
-        /// <summary>
-        /// Whether the reader has been disposed.
-        /// </summary>
-        protected bool _disposed = false;
-        /// <summary>
-        /// The settings of the reader.
-        /// </summary>
-        protected BsonReaderSettings _settings;
-        /// <summary>
-        /// The current state of the reader.
-        /// </summary>  
-        protected BsonReaderState _state;
-        /// <summary>
-        /// The current BSON type.
-        /// </summary>
-        protected BsonType _currentBsonType;
-        /// <summary>
-        /// The name of the current element.
-        /// </summary>
-        protected string _currentName;
+        // private fields
+        private bool _disposed = false;
+        private BsonReaderSettings _settings;
+        private BsonReaderState _state;
+        private BsonType _currentBsonType;
+        private string _currentName;
 
         // constructors
         /// <summary>
@@ -65,18 +50,8 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonType CurrentBsonType
         {
-            get
-            {
-                if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
-                {
-                    ReadBsonType();
-                }
-                if (_state != BsonReaderState.Value)
-                {
-                    ThrowInvalidState("CurrentBsonType", BsonReaderState.Value);
-                }
-                return _currentBsonType;
-            }
+            get { return _currentBsonType; }
+            protected set { _currentBsonType = value; }
         }
 
         /// <summary>
@@ -93,6 +68,25 @@ namespace MongoDB.Bson.IO
         public BsonReaderState State
         {
             get { return _state; }
+            protected set { _state = value; }
+        }
+
+        // protected properties
+        /// <summary>
+        /// Gets the current name.
+        /// </summary>
+        protected string CurrentName
+        {
+            get { return _currentName; }
+            set { _currentName = value; }
+        }
+
+        /// <summary>
+        /// Gets whether the BsonReader has been disposed.
+        /// </summary>
+        protected bool Disposed
+        {
+            get { return _disposed; }
         }
 
         // public static methods
@@ -284,6 +278,22 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <returns>A bookmark.</returns>
         public abstract BsonReaderBookmark GetBookmark();
+
+        /// <summary>
+        /// Gets the current BsonType (calls ReadBsonType if necessary).
+        /// </summary>
+        public BsonType GetCurrentBsonType()
+        {
+            if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument || _state == BsonReaderState.Type)
+            {
+                ReadBsonType();
+            }
+            if (_state != BsonReaderState.Value)
+            {
+                ThrowInvalidState("GetCurrentBsonType", BsonReaderState.Value);
+            }
+            return _currentBsonType;
+        }
 
         /// <summary>
         /// Reads BSON binary data from the reader.
@@ -742,7 +752,7 @@ namespace MongoDB.Bson.IO
             if (_state == BsonReaderState.Name)
             {
                 // ignore name
-                _state = BsonReaderState.Value;
+                SkipName();
             }
             if (_state != BsonReaderState.Value)
             {

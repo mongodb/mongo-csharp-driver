@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Internal
         // internal methods
         internal void AddDocument(Type nominalType, object document)
         {
-            _lastDocumentStartPosition = _buffer.Position;
-            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
+            _lastDocumentStartPosition = Buffer.Position;
+            using (var bsonWriter = BsonWriter.Create(Buffer, WriterSettings))
             {
                 bsonWriter.CheckElementNames = _checkElementNames;
                 BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Internal
 
         internal byte[] RemoveLastDocument()
         {
-            var lastDocumentLength = (int)(_buffer.Position - _lastDocumentStartPosition);
+            var lastDocumentLength = (int)(Buffer.Position - _lastDocumentStartPosition);
             var lastDocument = new byte[lastDocumentLength];
-            _buffer.CopyTo(_lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
-            _buffer.Position = _lastDocumentStartPosition;
+            Buffer.CopyTo(_lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
+            Buffer.Position = _lastDocumentStartPosition;
             BackpatchMessageLength();
 
             return lastDocument;
@@ -73,17 +73,17 @@ namespace MongoDB.Driver.Internal
 
         internal void ResetBatch(byte[] lastDocument)
         {
-            _buffer.Position = _firstDocumentStartPosition;
-            _buffer.WriteBytes(lastDocument);
+            Buffer.Position = _firstDocumentStartPosition;
+            Buffer.WriteBytes(lastDocument);
             BackpatchMessageLength();
         }
 
         // protected methods
         protected override void WriteBody()
         {
-            _buffer.WriteInt32((int)_flags);
-            _buffer.WriteCString(_collectionFullName);
-            _firstDocumentStartPosition = _buffer.Position;
+            Buffer.WriteInt32((int)_flags);
+            Buffer.WriteCString(_collectionFullName);
+            _firstDocumentStartPosition = Buffer.Position;
             // documents to be added later by calling AddDocument
         }
     }

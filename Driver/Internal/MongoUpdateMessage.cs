@@ -55,11 +55,11 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected override void WriteBody()
         {
-            _buffer.WriteInt32(0); // reserved
-            _buffer.WriteCString(_collectionFullName);
-            _buffer.WriteInt32((int)_flags);
+            Buffer.WriteInt32(0); // reserved
+            Buffer.WriteCString(_collectionFullName);
+            Buffer.WriteInt32((int)_flags);
 
-            using (var bsonWriter = BsonWriter.Create(_buffer, _writerSettings))
+            using (var bsonWriter = BsonWriter.Create(Buffer, WriterSettings))
             {
                 if (_query == null)
                 {

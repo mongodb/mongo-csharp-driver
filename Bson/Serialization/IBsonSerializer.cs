@@ -51,6 +51,17 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if the document has an Id.</returns>
         bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator);
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        BsonSerializationInfo GetItemSerializationInfo();
+        /// <summary>
+        /// Gets the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>The serialization info for the member.</returns>
+        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>

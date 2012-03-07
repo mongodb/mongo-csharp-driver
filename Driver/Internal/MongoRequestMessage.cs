@@ -30,12 +30,12 @@ namespace MongoDB.Driver.Internal
         // private static fields
         private static int __lastRequestId = 0;
 
-        // protected fields
-        protected bool _disposed = false;
-        protected BsonBuffer _buffer;
-        protected BsonBinaryWriterSettings _writerSettings;
-        protected bool _disposeBuffer;
-        protected int _messageStartPosition = -1; // start position in buffer for backpatching messageLength
+        // private fields
+        private bool _disposed = false;
+        private BsonBuffer _buffer;
+        private BsonBinaryWriterSettings _writerSettings;
+        private bool _disposeBuffer;
+        private int _messageStartPosition = -1; // start position in buffer for backpatching messageLength
 
         // constructors
         protected MongoRequestMessage(
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Internal
                 _disposeBuffer = false;
             }
             _writerSettings = writerSettings;
-            _requestId = Interlocked.Increment(ref __lastRequestId);
+            RequestId = Interlocked.Increment(ref __lastRequestId);
         }
 
         // public properties
@@ -102,8 +102,8 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected void BackpatchMessageLength()
         {
-            _messageLength = _buffer.Position - _messageStartPosition;
-            _buffer.Backpatch(_messageStartPosition, _messageLength);
+            MessageLength = _buffer.Position - _messageStartPosition;
+            _buffer.Backpatch(_messageStartPosition, MessageLength);
         }
 
         protected abstract void WriteBody();

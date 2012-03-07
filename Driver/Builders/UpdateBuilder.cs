@@ -163,6 +163,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>A combined UpdateBuilder.</returns>
         public static UpdateBuilder Combine(IEnumerable<UpdateBuilder> updates)
         {
+            if (updates == null) { throw new ArgumentNullException("updates"); }
             var combined = new UpdateBuilder();
             foreach (var update in updates)
             {
@@ -435,6 +436,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An UpdateWrapper.</returns>
         public static IMongoUpdate Replace<TNominalType>(TNominalType document)
         {
+            if (document == null) { throw new ArgumentNullException("document"); }
             return UpdateWrapper.Create<TNominalType>(document);
         }
 
@@ -446,6 +448,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>An UpdateWrapper.</returns>
         public static IMongoUpdate Replace(Type nominalType, object document)
         {
+            if (nominalType == null) { throw new ArgumentNullException("nominalType"); }
+            if (document == null) { throw new ArgumentNullException("document"); }
             return UpdateWrapper.Create(nominalType, document);
         }
 
@@ -516,6 +520,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSet(string name, BsonValue value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             BsonElement element;
             if (_document.TryGetElement("$addToSet", out element))
             {
@@ -536,6 +542,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEach(string name, BsonArray values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             var arg = new BsonDocument("$each", values);
             BsonElement element;
             if (_document.TryGetElement("$addToSet", out element))
@@ -557,6 +565,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEach(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return AddToSetEach(name, new BsonArray(values));
         }
 
@@ -568,6 +578,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEach(string name, params BsonValue[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return AddToSetEach(name, (IEnumerable<BsonValue>)values);
         }
 
@@ -580,6 +592,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEachWrapped<T>(string name, IEnumerable<T> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             var wrappedValues = BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>(); // the cast to BsonValue is required
             return AddToSetEach(name, wrappedValues);
         }
@@ -593,6 +607,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetEachWrapped<T>(string name, params T[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return AddToSetEachWrapped(name, (IEnumerable<T>)values);
         }
 
@@ -605,6 +621,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder AddToSetWrapped<T>(string name, T value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = (BsonValue)BsonDocumentWrapper.Create(value); // the cast to BsonValue is required
             return AddToSet(name, wrappedValue);
         }
@@ -617,6 +635,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder BitwiseAnd(string name, int value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BitwiseOperation(name, "and", value);
             return this;
         }
@@ -629,6 +648,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder BitwiseAnd(string name, long value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BitwiseOperation(name, "and", value);
             return this;
         }
@@ -641,6 +661,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder BitwiseOr(string name, int value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BitwiseOperation(name, "or", value);
             return this;
         }
@@ -653,6 +674,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder BitwiseOr(string name, long value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BitwiseOperation(name, "or", value);
             return this;
         }
@@ -660,11 +682,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Combines another UpdateBuilder into this one.
         /// </summary>
-        /// <param name="otherUpdate">The UpdateBuilder to combine into this one.</param>
+        /// <param name="otherUpdateBuilder">The UpdateBuilder to combine into this one.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public UpdateBuilder Combine(UpdateBuilder otherUpdate)
+        public UpdateBuilder Combine(UpdateBuilder otherUpdateBuilder)
         {
-            foreach (var otherOperation in otherUpdate.Document)
+            if (otherUpdateBuilder == null) { throw new ArgumentNullException("otherUpdateBuilder"); }
+            foreach (var otherOperation in otherUpdateBuilder.Document)
             {
                 var otherOperationName = otherOperation.Name;
                 var otherTargets = otherOperation.Value.AsBsonDocument;
@@ -689,6 +712,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Inc(string name, double value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             Inc(name, BsonValue.Create(value));
             return this;
         }
@@ -701,6 +725,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Inc(string name, int value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             Inc(name, BsonValue.Create(value));
             return this;
         }
@@ -713,6 +738,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Inc(string name, long value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             Inc(name, BsonValue.Create(value));
             return this;
         }
@@ -724,6 +750,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PopFirst(string name)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BsonElement element;
             if (_document.TryGetElement("$pop", out element))
             {
@@ -743,6 +770,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PopLast(string name)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BsonElement element;
             if (_document.TryGetElement("$pop", out element))
             {
@@ -763,6 +791,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Pull(string name, BsonValue value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
             {
@@ -783,6 +813,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Pull(string name, IMongoQuery query)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (query == null) { throw new ArgumentNullException("query"); }
             BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
@@ -822,6 +854,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAll(string name, BsonArray values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             BsonElement element;
             if (_document.TryGetElement("$pullAll", out element))
             {
@@ -842,6 +876,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAll(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PullAll(name, new BsonArray(values));
         }
 
@@ -853,6 +889,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAll(string name, params BsonValue[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PullAll(name, (IEnumerable<BsonValue>)values);
         }
 
@@ -865,6 +903,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAllWrapped<T>(string name, IEnumerable<T> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
             if (_document.TryGetElement("$pullAll", out element))
@@ -887,6 +927,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullAllWrapped<T>(string name, params T[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PullAllWrapped<T>(name, (IEnumerable<T>)values);
         }
 
@@ -899,6 +941,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PullWrapped<T>(string name, T value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create(value);
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
@@ -920,6 +964,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Push(string name, BsonValue value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             BsonElement element;
             if (_document.TryGetElement("$push", out element))
             {
@@ -940,6 +986,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAll(string name, BsonArray values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             BsonElement element;
             if (_document.TryGetElement("$pushAll", out element))
             {
@@ -960,6 +1008,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAll(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PushAll(name, new BsonArray(values));
         }
 
@@ -971,6 +1021,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAll(string name, params BsonValue[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PushAll(name, (IEnumerable<BsonValue>)values);
         }
 
@@ -983,6 +1035,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAllWrapped<T>(string name, IEnumerable<T> values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             var wrappedValues = new BsonArray(BsonDocumentWrapper.CreateMultiple(values).Cast<BsonValue>()); // the cast to BsonValue is required
             BsonElement element;
             if (_document.TryGetElement("$pushAll", out element))
@@ -1005,6 +1059,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushAllWrapped<T>(string name, params T[] values)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (values == null) { throw new ArgumentNullException("values"); }
             return PushAllWrapped(name, (IEnumerable<T>)values);
         }
 
@@ -1017,6 +1073,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder PushWrapped<T>(string name, T value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (_document.TryGetElement("$push", out element))
@@ -1038,6 +1096,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Rename(string oldElementName, string newElementName)
         {
+            if (oldElementName == null) { throw new ArgumentNullException("oldElementName"); }
+            if (newElementName == null) { throw new ArgumentNullException("newElementName"); }
             BsonElement element;
             if (_document.TryGetElement("$rename", out element))
             {
@@ -1058,6 +1118,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Set(string name, BsonValue value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             BsonElement element;
             if (_document.TryGetElement("$set", out element))
             {
@@ -1079,6 +1141,8 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder SetWrapped<T>(string name, T value)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (_document.TryGetElement("$set", out element))
@@ -1108,6 +1172,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder Unset(string name)
         {
+            if (name == null) { throw new ArgumentNullException("name"); }
             BsonElement element;
             if (_document.TryGetElement("$unset", out element))
             {

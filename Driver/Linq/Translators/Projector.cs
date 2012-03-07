@@ -22,6 +22,11 @@ using System.Text;
 
 namespace MongoDB.Driver.Linq
 {
+    /// <summary>
+    /// Represents a projection.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source objects.</typeparam>
+    /// <typeparam name="TResult">The type of the result objects.</typeparam>
     public class Projector<TSource, TResult> : IEnumerable<TResult>
     {
         // private fields
@@ -29,6 +34,11 @@ namespace MongoDB.Driver.Linq
         private Func<TSource, TResult> _projection;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the Projector class.
+        /// </summary>
+        /// <param name="cursor">The cursor that supplies the source objects.</param>
+        /// <param name="projection">The projection.</param>
         public Projector(MongoCursor<TSource> cursor, Func<TSource, TResult> projection)
         {
             _cursor = cursor;
@@ -36,6 +46,10 @@ namespace MongoDB.Driver.Linq
         }
 
         // public methods
+        /// <summary>
+        /// Gets an enumerator for the result objects.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<TResult> GetEnumerator()
         {
             foreach (var document in _cursor)

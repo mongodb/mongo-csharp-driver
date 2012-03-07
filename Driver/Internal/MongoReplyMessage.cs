@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Driver.Internal
 {
@@ -71,6 +72,11 @@ namespace MongoDB.Driver.Internal
         // internal methods
         internal void ReadFrom(BsonBuffer buffer, IBsonSerializationOptions serializationOptions)
         {
+            if (serializationOptions == null && typeof(TDocument) == typeof(BsonDocument))
+            {
+                serializationOptions = DocumentSerializationOptions.AllowDuplicateNamesInstance;
+            }
+
             var messageStartPosition = buffer.Position;
 
             ReadMessageHeaderFrom(buffer);
@@ -94,7 +100,7 @@ namespace MongoDB.Driver.Internal
                 }
 
                 _documents = new List<TDocument>(_numberReturned);
-                while (buffer.Position - messageStartPosition < _messageLength)
+                while (buffer.Position - messageStartPosition < MessageLength)
                 {
                     var document = (TDocument)BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
                     _documents.Add(document);

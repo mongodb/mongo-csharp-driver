@@ -56,7 +56,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(T[]));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -83,6 +83,19 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
                     throw new FileFormatException(message);
             }
+        }
+
+        /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var nominalType = typeof(T);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>
@@ -160,7 +173,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(T[,]));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {
@@ -297,7 +310,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(T[, ,]));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {

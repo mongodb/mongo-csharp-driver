@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
             var query = Query.And(
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
-            var expected = "{ '$and' : [{ '$and' : [{ 'x' : 1 }, { 'y' : 2 }] }] }".Replace("'", "\"");
+            var expected = "{ 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
             Assert.AreEqual(expected, json);
         }
@@ -80,7 +80,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)
             );
-            var expected = "{ '$and' : [{ '$and' : [{ 'x' : 1 }, { 'y' : 2 }] }, { 'z' : 3 }] }".Replace("'", "\"");
+            var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
             var json = query.ToJson();
             Assert.AreEqual(expected, json);
         }
@@ -92,7 +92,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
                 new QueryDocument("$and", new BsonArray { new BsonDocument("a", 1), new BsonDocument("b", 2) }),
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
-            var expected = "{ '$and' : [{ '$and' : [{ 'a' : 1 }, { 'b' : 2 }] }, { '$and' : [{ 'x' : 1 }, { 'y' : 2 }] }] }".Replace("'", "\"");
+            var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
             Assert.AreEqual(expected, json);
         }
@@ -105,7 +105,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
                 Query.EQ("b", 2),
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) })
             );
-            var expected = "{ '$and' : [{ 'a' : 1 }, { 'b' : 2 }, { '$and' : [{ 'x' : 1 }, { 'y' : 2 }] }] }".Replace("'", "\"");
+            var expected = "{ 'a' : 1, 'b' : 2, 'x' : 1, 'y' : 2 }".Replace("'", "\"");
             var json = query.ToJson();
             Assert.AreEqual(expected, json);
         }
@@ -168,7 +168,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp321
                 new QueryDocument("$and", new BsonArray { new BsonDocument("x", 1), new BsonDocument("y", 2) }),
                 Query.EQ("z", 3)
             );
-            var expected = "{ '$and' : [{ '$and' : [{ 'x' : 1 }, { 'y' : 2 }] }, { 'z' : 3 }] }".Replace("'", "\"");
+            var expected = "{ 'x' : 1, 'y' : 2, 'z' : 3 }".Replace("'", "\"");
             var json = query.ToJson();
             Assert.AreEqual(expected, json);
         }

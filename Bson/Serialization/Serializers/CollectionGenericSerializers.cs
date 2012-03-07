@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -80,6 +80,19 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
+        }
+
+        /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var nominalType = typeof(T);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>
@@ -140,7 +153,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -226,7 +239,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();

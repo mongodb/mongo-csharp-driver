@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BitArray));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             BitArray bitArray;
             byte[] bytes;
             BsonBinarySubType subType;
@@ -244,7 +244,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(byte[]));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             byte[] bytes;
             string message;
             switch (bsonType)
@@ -368,7 +368,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             byte value;
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             var lostData = false;
             switch (bsonType)
             {
@@ -491,7 +491,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(char));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Int32:
@@ -576,7 +576,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(CultureInfo));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -674,7 +674,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(DateTimeOffset));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             long ticks;
             TimeSpan offset;
             switch (bsonType)
@@ -785,7 +785,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(decimal));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Array:
@@ -898,7 +898,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(System.Drawing.Size));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Document:
@@ -978,7 +978,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(short));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1073,7 +1073,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(IPAddress));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {
@@ -1171,7 +1171,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(IPEndPoint));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {
@@ -1277,7 +1277,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(sbyte));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             var lostData = false;
             sbyte value;
             switch (bsonType)
@@ -1403,7 +1403,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(float));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1498,18 +1498,60 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(TimeSpan));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
-            switch (bsonType)
+            var timeSpanOptions = options as TimeSpanSerializationOptions;
+            if (timeSpanOptions == null)
             {
-                case BsonType.Int32:
-                    return new TimeSpan((long)bsonReader.ReadInt32());
-                case BsonType.Int64:
-                    return new TimeSpan(bsonReader.ReadInt64());
-                case BsonType.String:
-                    return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
-                default:
-                    var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                var representationOptions = options as RepresentationSerializationOptions;
+                if (representationOptions != null)
+                {
+                    timeSpanOptions = new TimeSpanSerializationOptions(representationOptions.Representation);
+                }
+            }
+
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
+            if (bsonType == BsonType.String)
+            {
+                return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
+            }
+            else if (timeSpanOptions.Units == TimeSpanUnits.Ticks)
+            {
+                long ticks;
+                switch (bsonType)
+                {
+                    case BsonType.Double: ticks = (long)bsonReader.ReadDouble(); break;
+                    case BsonType.Int32: ticks = (long)bsonReader.ReadInt32(); break;
+                    case BsonType.Int64: ticks = bsonReader.ReadInt64(); break;
+                    default:
+                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
+                        throw new FileFormatException(message);
+                }
+                return new TimeSpan(ticks);
+            }
+            else
+            {
+                double interval;
+                switch (bsonType)
+                {
+                    case BsonType.Double: interval = bsonReader.ReadDouble(); break;
+                    case BsonType.Int32: interval = bsonReader.ReadInt32(); break;
+                    case BsonType.Int64: interval = bsonReader.ReadInt64(); break;
+                    default:
+                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
+                        throw new FileFormatException(message);
+                }
+
+                switch (timeSpanOptions.Units)
+                {
+                    case TimeSpanUnits.Days: return TimeSpan.FromDays(interval);
+                    case TimeSpanUnits.Hours: return TimeSpan.FromHours(interval);
+                    case TimeSpanUnits.Minutes: return TimeSpan.FromMinutes(interval);
+                    case TimeSpanUnits.Seconds: return TimeSpan.FromSeconds(interval);
+                    case TimeSpanUnits.Milliseconds: return TimeSpan.FromMilliseconds(interval);
+                    case TimeSpanUnits.Nanoseconds: return TimeSpan.FromMilliseconds(interval / 1000.0);
+                    default:
+                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanOptions.Units);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
 
@@ -1527,18 +1569,59 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var timeSpan = (TimeSpan)value;
-            var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
-            switch (representation)
+
+            var timeSpanOptions = options as TimeSpanSerializationOptions;
+            if (timeSpanOptions == null)
             {
-                case BsonType.Int64:
-                    bsonWriter.WriteInt64(timeSpan.Ticks);
-                    break;
-                case BsonType.String:
-                    bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
-                    break;
-                default:
-                    var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", representation);
-                    throw new BsonSerializationException(message);
+                var representationOptions = options as RepresentationSerializationOptions;
+                if (representationOptions != null)
+                {
+                    timeSpanOptions = new TimeSpanSerializationOptions(representationOptions.Representation);
+                }
+            }
+
+            if (timeSpanOptions.Representation == BsonType.String)
+            {
+                bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
+            }
+            else if (timeSpanOptions.Units == TimeSpanUnits.Ticks)
+            {
+                var ticks = timeSpan.Ticks;
+                switch (timeSpanOptions.Representation)
+                {
+                    case BsonType.Double: bsonWriter.WriteDouble((double)ticks); break;
+                    case BsonType.Int32: bsonWriter.WriteInt32((int)ticks); break;
+                    case BsonType.Int64: bsonWriter.WriteInt64(ticks); break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", timeSpanOptions.Representation);
+                        throw new BsonSerializationException(message);
+                }
+            }
+            else
+            {
+                double interval;
+                switch (timeSpanOptions.Units)
+                {
+                    case TimeSpanUnits.Days: interval = timeSpan.TotalDays; break;
+                    case TimeSpanUnits.Hours: interval = timeSpan.TotalHours; break;
+                    case TimeSpanUnits.Minutes: interval = timeSpan.TotalMinutes; break;
+                    case TimeSpanUnits.Seconds: interval = timeSpan.TotalSeconds; break;
+                    case TimeSpanUnits.Milliseconds: interval = timeSpan.TotalMilliseconds; break;
+                    case TimeSpanUnits.Nanoseconds: interval = timeSpan.TotalMilliseconds * 1000.0; break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanOptions.Units);
+                        throw new BsonSerializationException(message);
+                }
+
+                switch (timeSpanOptions.Representation)
+                {
+                    case BsonType.Double: bsonWriter.WriteDouble(interval); break;
+                    case BsonType.Int32: bsonWriter.WriteInt32((int)interval); break;
+                    case BsonType.Int64: bsonWriter.WriteInt64((long)interval); break;
+                    default:
+                        var message = string.Format("'{0}' is not a valid representation for type TimeSpan.", timeSpanOptions.Representation);
+                        throw new BsonSerializationException(message);
+                }
             }
         }
     }
@@ -1587,7 +1670,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(ushort));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1684,7 +1767,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(uint));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1781,7 +1864,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(ulong));
 
             var representationOptions = (RepresentationSerializationOptions)options ?? __defaultRepresentationOptions;
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
@@ -1876,7 +1959,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(Uri));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -1956,7 +2039,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(Version));
 
-            BsonType bsonType = bsonReader.CurrentBsonType;
+            BsonType bsonType = bsonReader.GetCurrentBsonType();
             string message;
             switch (bsonType)
             {

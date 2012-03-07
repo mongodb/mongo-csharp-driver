@@ -360,7 +360,7 @@ namespace MongoDB.Bson
             // see Effective Java by Joshua Bloch
             // note: guidRepresentation is not considered when computing the hash code
             int hash = 17;
-            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + BsonType.GetHashCode();
             foreach (byte b in _bytes)
             {
                 hash = 37 * hash + b;

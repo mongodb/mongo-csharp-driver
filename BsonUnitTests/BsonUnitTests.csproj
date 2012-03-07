@@ -82,6 +82,7 @@
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
     <Compile Include="DefaultSerializer\Attributes\BsonRepresentationAttributeTests.cs" />
+    <Compile Include="DefaultSerializer\BsonClassMapAutoMappingTests.cs" />
     <Compile Include="DefaultSerializer\BsonClassMapTests.cs" />
     <Compile Include="DefaultSerializer\BsonMemberMapTests.cs" />
     <Compile Include="DefaultSerializer\Conventions\ExtraElementsConventionsTests.cs" />
@@ -141,6 +142,7 @@
     <Compile Include="Jira\CSharp351Tests.cs" />
     <Compile Include="Jira\CSharp357Tests.cs" />
     <Compile Include="Jira\CSharp369Tests.cs" />
+    <Compile Include="Jira\CSharp400Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />

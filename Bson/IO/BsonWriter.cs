@@ -28,31 +28,13 @@ namespace MongoDB.Bson.IO
     /// </summary>
     public abstract class BsonWriter : IDisposable
     {
-        // protected fields
-        /// <summary>
-        /// Whether the object has been disposed.
-        /// </summary>
-        protected bool _disposed = false;
-        /// <summary>
-        /// The settings of the writer.
-        /// </summary>
-        protected BsonWriterSettings _settings;
-        /// <summary>
-        /// The current state of the writer.
-        /// </summary>
-        protected BsonWriterState _state;
-        /// <summary>
-        /// The name of the current element.
-        /// </summary>
-        protected string _name;
-        /// <summary>
-        /// Whether to check element names (no periods or leading $).
-        /// </summary>
-        protected bool _checkElementNames;
-        /// <summary>
-        /// Whether to check an update document (turns CheckElementNames on if first element name does *not* start with $).
-        /// </summary>
-        protected bool _checkUpdateDocument;
+        // private fields
+        private bool _disposed = false;
+        private BsonWriterSettings _settings;
+        private BsonWriterState _state;
+        private string _name;
+        private bool _checkElementNames;
+        private bool _checkUpdateDocument;
 
         // constructors
         /// <summary>
@@ -98,6 +80,25 @@ namespace MongoDB.Bson.IO
         public BsonWriterState State
         {
             get { return _state; }
+            protected set { _state = value; }
+        }
+
+        // protected properties
+        /// <summary>
+        /// Gets whether the BsonWriter has been disposed.
+        /// </summary>
+        public bool Disposed
+        {
+            get { return _disposed; }
+        }
+
+        // protected properties
+        /// <summary>
+        /// Gets the name of the element being written.
+        /// </summary>
+        protected string Name
+        {
+            get { return _name; }
         }
 
         // public static methods

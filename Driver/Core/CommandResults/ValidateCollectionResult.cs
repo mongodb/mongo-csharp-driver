@@ -51,14 +51,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("datasize"))
+                if (Response.Contains("result") && !Response.Contains("datasize"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"datasize\?\:(?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"datasize\?\:(?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["datasize"].ToInt64();
+                    return Response["datasize"].ToInt64();
                 }
             }
         }
@@ -70,14 +70,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("deletedCount"))
+                if (Response.Contains("result") && !Response.Contains("deletedCount"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"deleted\: n\: (?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"deleted\: n\: (?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["deletedCount"].ToInt64();
+                    return Response["deletedCount"].ToInt64();
                 }
             }
         }
@@ -89,14 +89,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("deletedSize"))
+                if (Response.Contains("result") && !Response.Contains("deletedSize"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"deleted\: n\: \d+ size\: (?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"deleted\: n\: \d+ size\: (?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["deletedSize"].ToInt64();
+                    return Response["deletedSize"].ToInt64();
                 }
             }
         }
@@ -110,9 +110,9 @@ namespace MongoDB.Driver
             {
                 if (_errors == null)
                 {
-                    if (_response.Contains("errors"))
+                    if (Response.Contains("errors"))
                     {
-                        _errors = _response["errors"].AsBsonArray.Select(e => e.ToString()).ToArray();
+                        _errors = Response["errors"].AsBsonArray.Select(e => e.ToString()).ToArray();
                     }
                     else
                     {
@@ -130,14 +130,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("extentCount"))
+                if (Response.Contains("result") && !Response.Contains("extentCount"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"# extents\:(?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"# extents\:(?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["extentCount"].ToInt64();
+                    return Response["extentCount"].ToInt64();
                 }
             }
         }
@@ -149,14 +149,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("firstExtent"))
+                if (Response.Contains("result") && !Response.Contains("firstExtent"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"firstExtent\:(?<value>.+)");
+                    var match = Regex.Match(Response["result"].AsString, @"firstExtent\:(?<value>.+)");
                     return match.Groups["value"].Value;
                 }
                 else
                 {
-                    return _response["firstExtent"].AsString;
+                    return Response["firstExtent"].AsString;
                 }
             }
         }
@@ -170,15 +170,15 @@ namespace MongoDB.Driver
             {
                 if (_firstExtentDetails == null)
                 {
-                    if (_response.Contains("result") && !_response.Contains("firstExtentDetails"))
+                    if (Response.Contains("result") && !Response.Contains("firstExtentDetails"))
                     {
-                        var match = Regex.Match(_response["result"].AsString, @"first extent:\n(?<details>(    .+\n)+)");
+                        var match = Regex.Match(Response["result"].AsString, @"first extent:\n(?<details>(    .+\n)+)");
                         var detailsString = match.Groups["details"].Value;
                         _firstExtentDetails = new ExtentDetails(null, detailsString);
                     }
                     else
                     {
-                        var detailsDocument = _response["firstExtentDetails"].AsBsonDocument;
+                        var detailsDocument = Response["firstExtentDetails"].AsBsonDocument;
                         _firstExtentDetails = new ExtentDetails(detailsDocument, null);
                     }
                 }
@@ -193,14 +193,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("nIndexes"))
+                if (Response.Contains("result") && !Response.Contains("nIndexes"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"nIndexes\:(?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"nIndexes\:(?<value>\d+)");
                     return XmlConvert.ToInt32(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["nIndexes"].ToInt32();
+                    return Response["nIndexes"].ToInt32();
                 }
             }
         }
@@ -212,19 +212,19 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("errors") && !_response.Contains("valid"))
+                if (Response.Contains("result") && !Response.Contains("errors") && !Response.Contains("valid"))
                 {
                     // this somewhat odd method of determining whether the collection is valid or not was copied from the mongo shell
-                    var json = _response.ToJson();
+                    var json = Response.ToJson();
                     return !(json.Contains("exception") || json.Contains("corrupt"));
                 }
-                else if (_response.Contains("errors") && !_response.Contains("valid"))
+                else if (Response.Contains("errors") && !Response.Contains("valid"))
                 {
-                    return _response["errors"].AsBsonArray.Count == 0;
+                    return Response["errors"].AsBsonArray.Count == 0;
                 }
                 else
                 {
-                    return _response["valid"].ToBoolean();
+                    return Response["valid"].ToBoolean();
                 }
             }
         }
@@ -240,9 +240,9 @@ namespace MongoDB.Driver
                 {
                     var dictionary = new Dictionary<string, long>();
                     var prefixLength = Namespace.Length + 1; // allow for "."
-                    if (_response.Contains("result") && !_response.Contains("keysPerIndex"))
+                    if (Response.Contains("result") && !Response.Contains("keysPerIndex"))
                     {
-                        var match = Regex.Match(_response["result"].AsString, @"nIndexes\:\d+\n(?<value>(    .+\n)+)");
+                        var match = Regex.Match(Response["result"].AsString, @"nIndexes\:\d+\n(?<value>(    .+\n)+)");
                         var indexStrings = match.Groups["value"].Value.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (var indexString in indexStrings)
                         {
@@ -255,7 +255,7 @@ namespace MongoDB.Driver
                     }
                     else
                     {
-                        foreach (var element in _response["keysPerIndex"].AsBsonDocument)
+                        foreach (var element in Response["keysPerIndex"].AsBsonDocument)
                         {
                             var indexName = element.Name.Substring(prefixLength);
                             var keys = element.Value.ToInt64();
@@ -275,14 +275,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("lastExtent"))
+                if (Response.Contains("result") && !Response.Contains("lastExtent"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"lastExtent\:(?<value>.+)");
+                    var match = Regex.Match(Response["result"].AsString, @"lastExtent\:(?<value>.+)");
                     return match.Groups["value"].Value;
                 }
                 else
                 {
-                    return _response["lastExtent"].AsString;
+                    return Response["lastExtent"].AsString;
                 }
             }
         }
@@ -294,14 +294,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("lastExtentSize"))
+                if (Response.Contains("result") && !Response.Contains("lastExtentSize"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"lastExtentSize\:(?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"lastExtentSize\:(?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["lastExtentSize"].ToInt64();
+                    return Response["lastExtentSize"].ToInt64();
                 }
             }
         }
@@ -311,7 +311,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return _response["ns"].AsString; }
+            get { return Response["ns"].AsString; }
         }
 
         /// <summary>
@@ -321,14 +321,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("padding"))
+                if (Response.Contains("result") && !Response.Contains("padding"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"padding\:(?<value>.+)");
+                    var match = Regex.Match(Response["result"].AsString, @"padding\:(?<value>.+)");
                     return XmlConvert.ToDouble(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["padding"].ToDouble();
+                    return Response["padding"].ToDouble();
                 }
             }
         }
@@ -340,14 +340,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("result") && !_response.Contains("nrecords"))
+                if (Response.Contains("result") && !Response.Contains("nrecords"))
                 {
-                    var match = Regex.Match(_response["result"].AsString, @"nrecords\?\:(?<value>\d+)");
+                    var match = Regex.Match(Response["result"].AsString, @"nrecords\?\:(?<value>\d+)");
                     return XmlConvert.ToInt64(match.Groups["value"].Value);
                 }
                 else
                 {
-                    return _response["nrecords"].ToInt64();
+                    return Response["nrecords"].ToInt64();
                 }
             }
         }
@@ -357,7 +357,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string ResultString
         {
-            get { return _response["result"].AsString; }
+            get { return Response["result"].AsString; }
         }
 
         /// <summary>
@@ -367,9 +367,9 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_response.Contains("warning"))
+                if (Response.Contains("warning"))
                 {
-                    return _response["warning"].AsString;
+                    return Response["warning"].AsString;
                 }
                 else
                 {

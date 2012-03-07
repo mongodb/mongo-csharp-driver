@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -105,7 +105,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    if (bsonReader.CurrentBsonType == BsonType.Array)
+                    var keyValuePairBsonType = bsonReader.GetCurrentBsonType();
+                    if (keyValuePairBsonType == BsonType.Array)
                     {
                         bsonReader.ReadStartArray();
                         bsonReader.ReadBsonType();
@@ -119,7 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonReader.ReadEndArray();
                         dictionary.Add(key, value);
                     }
-                    else if (bsonReader.CurrentBsonType == BsonType.Document)
+                    else if (keyValuePairBsonType == BsonType.Document)
                     {
                         bsonReader.ReadStartDocument();
                         object key = null;
@@ -160,7 +161,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     else
                     {
-                        var message = string.Format("Expected document or array for Dictionary item, not {0}.", bsonReader.CurrentBsonType);
+                        var message = string.Format("Expected document or array for Dictionary item, not {0}.", keyValuePairBsonType);
                         throw new FileFormatException(message);
                     }
                 }

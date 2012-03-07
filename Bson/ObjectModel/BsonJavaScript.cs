@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
 {
@@ -26,11 +27,8 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonJavaScript : BsonValue, IComparable<BsonJavaScript>, IEquatable<BsonJavaScript>
     {
-        // protected fields
-        /// <summary>
-        /// The JavaScript code.
-        /// </summary>
-        protected string _code;
+        // private fields
+        private string _code;
 
         // constructors
         /// <summary>
@@ -188,7 +186,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _bsonType.GetHashCode();
+            hash = 37 * hash + BsonType.GetHashCode();
             hash = 37 * hash + _code.GetHashCode();
             return hash;
         }
@@ -199,7 +197,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return _code;
+            return string.Format("new BsonJavaScript(\"{0}\")", _code);
         }
     }
 }

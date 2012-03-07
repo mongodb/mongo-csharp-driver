@@ -109,14 +109,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "actualType");
             }
 
-            if (bsonReader.CurrentBsonType == BsonType.Null)
+            var bsonType = bsonReader.GetCurrentBsonType();
+            if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return null;
             }
             else
             {
-                var message = string.Format("BsonType must be Null, not {0}.", bsonReader.CurrentBsonType);
+                var message = string.Format("BsonType must be Null, not {0}.", bsonType);
                 throw new FileFormatException(message);
             }
         }
@@ -210,7 +211,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "actualType");
             }
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             byte[] bytes;
             BsonBinarySubType subType;
             switch (bsonType)

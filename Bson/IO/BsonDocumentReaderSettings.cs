@@ -80,7 +80,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new BsonDocumentReaderSettings(_guidRepresentation);
+            return new BsonDocumentReaderSettings(GuidRepresentation);
         }
     }
 }

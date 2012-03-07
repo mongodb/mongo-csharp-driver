@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// Static class that contains the Mongo Linq extension methods.
     /// </summary>
-    public static class ExtensionMethods
+    public static class LinqExtensionMethods
     {
         /// <summary>
         /// Returns an instance of IQueryable{{T}} for a MongoCollection.

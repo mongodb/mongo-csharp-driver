@@ -261,7 +261,7 @@ namespace MongoDB.Driver
                 }
                 finally
                 {
-                    ReleaseConnection(connection);
+                    _connectionPool.ReleaseConnection(connection);
                 }
             }
         }
@@ -277,8 +277,8 @@ namespace MongoDB.Driver
                     var message = string.Format("Server instance {0} is no longer connected.", _address);
                     throw new InvalidOperationException(message);
                 }
-                connection = _connectionPool.AcquireConnection(database);
             }
+            connection = _connectionPool.AcquireConnection(database);
 
             // check authentication outside the lock because it might involve a round trip to the server
             try
@@ -288,7 +288,7 @@ namespace MongoDB.Driver
             catch (MongoAuthenticationException)
             {
                 // don't let the connection go to waste just because authentication failed
-                ReleaseConnection(connection); // ReleaseConnection will reacquire the lock
+                _connectionPool.ReleaseConnection(connection);
                 throw;
             }
 
@@ -368,10 +368,7 @@ namespace MongoDB.Driver
 
         internal void ReleaseConnection(MongoConnection connection)
         {
-            lock (_serverInstanceLock)
-            {
-                _connectionPool.ReleaseConnection(connection);
-            }
+            _connectionPool.ReleaseConnection(connection);
         }
 
         internal void SetState(MongoServerState state)

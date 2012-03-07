@@ -42,79 +42,25 @@ namespace MongoDB.Bson.Serialization
         private static int __freezeNestingLevel = 0;
         private static Queue<Type> __knownTypesQueue = new Queue<Type>();
 
-        // protected fields
-        /// <summary>
-        /// Whether the class map has been frozen.
-        /// </summary>
-        protected bool _frozen; // once a class map has been frozen no further changes are allowed
-        /// <summary>
-        /// The class map for the base class.
-        /// </summary>
-        protected BsonClassMap _baseClassMap; // null for class object and interfaces
-        /// <summary>
-        /// The class that this class map is for.
-        /// </summary>
-        protected Type _classType;
-        /// <summary>
-        /// A function that creates a new instance of the class.
-        /// </summary>
+        // private fields
+        private bool _frozen; // once a class map has been frozen no further changes are allowed
+        private BsonClassMap _baseClassMap; // null for class object and interfaces
+        private Type _classType;
         private Func<object> _creator;
-        /// <summary>
-        /// The convention profile used by this class map.
-        /// </summary>
-        protected ConventionProfile _conventions;
-        /// <summary>
-        /// The discriminator value.
-        /// </summary>
-        protected string _discriminator;
-        /// <summary>
-        /// Whether a discriminator is required.
-        /// </summary>
-        protected bool _discriminatorIsRequired;
-        /// <summary>
-        /// Whether this class is descended from a root class.
-        /// </summary>
-        protected bool _hasRootClass;
-        /// <summary>
-        /// Whether this class is a root class.
-        /// </summary>
-        protected bool _isRootClass;
-        /// <summary>
-        /// Whether this class is an anonymous class.
-        /// </summary>
-        protected bool _isAnonymous;
-        /// <summary>
-        /// The member map for the id property or field.
-        /// </summary>
-        protected BsonMemberMap _idMemberMap;
-        /// <summary>
-        /// A list of all the member maps for this class map (including member maps for inherited properties and fields).
-        /// </summary>
-        protected List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
-        /// <summary>
-        /// A list of member maps for properties or fields declared in this class.
-        /// </summary>
-        protected List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
-        /// <summary>
-        /// A dictionary mapping element names to the corresponding member map.
-        /// </summary>
-        protected Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
-        /// <summary>
-        /// Whether to ignore extra elements during deserialization.
-        /// </summary>
-        protected bool _ignoreExtraElements = true;
-        /// <summary>
-        /// Whether the ignoreExtraElements value should be inherited by derived classes.
-        /// </summary>
-        protected bool _ignoreExtraElementsIsInherited = false;
-        /// <summary>
-        /// The member map for the property or field (if any) used to hold any extra elements found during deserialization.
-        /// </summary>
-        protected BsonMemberMap _extraElementsMemberMap;
-        /// <summary>
-        /// A list of known types derived from this class.
-        /// </summary>
-        protected List<Type> _knownTypes = new List<Type>();
+        private ConventionProfile _conventions;
+        private string _discriminator;
+        private bool _discriminatorIsRequired;
+        private bool _hasRootClass;
+        private bool _isRootClass;
+        private bool _isAnonymous;
+        private BsonMemberMap _idMemberMap;
+        private List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        private List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
+        private Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
+        private bool _ignoreExtraElements = true;
+        private bool _ignoreExtraElementsIsInherited = false;
+        private BsonMemberMap _extraElementsMemberMap;
+        private List<Type> _knownTypes = new List<Type>();
 
         // constructors
         /// <summary>
@@ -144,6 +90,14 @@ namespace MongoDB.Bson.Serialization
         public Type ClassType
         {
             get { return _classType; }
+        }
+
+        /// <summary>
+        /// Gets the conventions used with this class.
+        /// </summary>
+        public ConventionProfile Conventions
+        {
+            get { return _conventions; }
         }
 
         /// <summary>
@@ -250,6 +204,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The type of the member.</returns>
         public static Type GetMemberInfoType(MemberInfo memberInfo)
         {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
             if (memberInfo.MemberType == MemberTypes.Field)
             {
                 return ((FieldInfo)memberInfo).FieldType;
@@ -269,6 +228,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The type name.</returns>
         public static string GetTypeNameDiscriminator(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
             string typeName;
             if (type.IsGenericType)
             {
@@ -326,6 +290,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>True if there is a class map registered for the type.</returns>
         public static bool IsClassMapRegistered(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
             BsonSerializer.ConfigLock.EnterReadLock();
             try
             {
@@ -344,6 +313,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The class map.</returns>
         public static BsonClassMap LookupClassMap(Type classType)
         {
+            if (classType == null)
+            {
+                throw new ArgumentNullException("classType");
+            }
+
             BsonSerializer.ConfigLock.EnterReadLock();
             try
             {
@@ -389,6 +363,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The conventions profile for that type.</returns>
         public static ConventionProfile LookupConventions(Type type)
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+
             for (int i = 0; i < __profiles.Count; i++)
             {
                 if (__profiles[i].Filter(type))
@@ -429,6 +408,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="classMap">The class map.</param>
         public static void RegisterClassMap(BsonClassMap classMap)
         {
+            if (classMap == null)
+            {
+                throw new ArgumentNullException("classMap");
+            }
+
             BsonSerializer.ConfigLock.EnterWriteLock();
             try
             {
@@ -449,6 +433,15 @@ namespace MongoDB.Bson.Serialization
         /// <param name="filter">The filter function that determines which types this profile applies to.</param>
         public static void RegisterConventions(ConventionProfile conventions, Func<Type, bool> filter)
         {
+            if (conventions == null)
+            {
+                throw new ArgumentNullException("conventions");
+            }
+            if (filter == null)
+            {
+                throw new ArgumentNullException("filter");
+            }
+
             conventions.Merge(__defaultProfile); // make sure all conventions exists
             var filtered = new FilteredConventionProfile
             {
@@ -639,6 +632,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMap(string memberName)
         {
+            if (memberName == null)
+            {
+                throw new ArgumentNullException("memberName");
+            }
+
             // can be called whether frozen or not
             return _declaredMemberMaps.Find(m => m.MemberName == memberName);
         }
@@ -650,6 +648,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap GetMemberMapForElement(string elementName)
         {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException("elementName");
+            }
+
             if (!_frozen) { ThrowNotFrozenException(); }
             BsonMemberMap memberMap;
             _elementDictionary.TryGetValue(elementName, out memberMap);
@@ -663,6 +666,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsField(string fieldName)
         {
+            if (fieldName == null)
+            {
+                throw new ArgumentNullException("fieldName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var fieldMap = MapField(fieldName);
             SetExtraElementsMember(fieldMap);
@@ -676,6 +684,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsMember(MemberInfo memberInfo)
         {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetExtraElementsMember(memberMap);
@@ -689,6 +702,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsProperty(string propertyName)
         {
+            if (propertyName == null)
+            {
+                throw new ArgumentNullException("propertyName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var propertyMap = MapProperty(propertyName);
             SetExtraElementsMember(propertyMap);
@@ -702,6 +720,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapField(string fieldName)
         {
+            if (fieldName == null)
+            {
+                throw new ArgumentNullException("fieldName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
@@ -719,6 +742,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdField(string fieldName)
         {
+            if (fieldName == null)
+            {
+                throw new ArgumentNullException("fieldName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var fieldMap = MapField(fieldName);
             SetIdMember(fieldMap);
@@ -732,6 +760,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdMember(MemberInfo memberInfo)
         {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetIdMember(memberMap);
@@ -745,6 +778,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdProperty(string propertyName)
         {
+            if (propertyName == null)
+            {
+                throw new ArgumentNullException("propertyName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var propertyMap = MapProperty(propertyName);
             SetIdMember(propertyMap);
@@ -758,19 +796,17 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapMember(MemberInfo memberInfo)
         {
-            if (_frozen) { ThrowFrozenException(); }
             if (memberInfo == null)
             {
                 throw new ArgumentNullException("memberInfo");
             }
-            if (memberInfo.DeclaringType != _classType)
-            {
-                throw new ArgumentException("MemberInfo is not for this class.");
-            }
+            EnsureMemberInfoIsForThisClass(memberInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
             var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
             if (memberMap == null)
             {
-                memberMap = new BsonMemberMap(memberInfo, _conventions);
+                memberMap = new BsonMemberMap(this, memberInfo);
                 _declaredMemberMaps.Add(memberMap);
             }
             return memberMap;
@@ -783,6 +819,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapProperty(string propertyName)
         {
+            if (propertyName == null)
+            {
+                throw new ArgumentNullException("propertyName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
@@ -799,6 +840,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="discriminator">The discriminator.</param>
         public void SetDiscriminator(string discriminator)
         {
+            if (discriminator == null)
+            {
+                throw new ArgumentNullException("discriminator");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             _discriminator = discriminator;
         }
@@ -819,15 +865,17 @@ namespace MongoDB.Bson.Serialization
         /// <param name="memberMap">The extra elements member map.</param>
         public void SetExtraElementsMember(BsonMemberMap memberMap)
         {
+            if (memberMap == null)
+            {
+                throw new ArgumentNullException("memberMap");
+            }
+            EnsureMemberMapIsForThisClass(memberMap);
+
             if (_frozen) { ThrowFrozenException(); }
             if (_extraElementsMemberMap != null)
             {
                 var message = string.Format("Class {0} already has an extra elements member.", _classType.FullName);
                 throw new InvalidOperationException(message);
-            }
-            if (!_declaredMemberMaps.Contains(memberMap))
-            {
-                throw new BsonInternalException("Invalid memberMap.");
             }
             if (memberMap.MemberType != typeof(BsonDocument))
             {
@@ -844,15 +892,17 @@ namespace MongoDB.Bson.Serialization
         /// <param name="memberMap">The Id member.</param>
         public void SetIdMember(BsonMemberMap memberMap)
         {
+            if (memberMap == null)
+            {
+                throw new ArgumentNullException("memberMap");
+            }
+            EnsureMemberMapIsForThisClass(memberMap);
+
             if (_frozen) { ThrowFrozenException(); }
             if (_idMemberMap != null)
             {
                 var message = string.Format("Class {0} already has an Id.", _classType.FullName);
                 throw new InvalidOperationException(message);
-            }
-            if (!_declaredMemberMaps.Contains(memberMap))
-            {
-                throw new BsonInternalException("Invalid memberMap.");
             }
 
             memberMap.SetElementName("_id");
@@ -895,6 +945,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="fieldName">The name of the field.</param>
         public void UnmapField(string fieldName)
         {
+            if (fieldName == null)
+            {
+                throw new ArgumentNullException("fieldName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (fieldInfo == null)
@@ -911,15 +966,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="memberInfo">The member info.</param>
         public void UnmapMember(MemberInfo memberInfo)
         {
-            if (_frozen) { ThrowFrozenException(); }
             if (memberInfo == null)
             {
                 throw new ArgumentNullException("memberInfo");
             }
-            if (memberInfo.DeclaringType != _classType)
-            {
-                throw new ArgumentException("MemberInfo is not for this class.");
-            }
+            EnsureMemberInfoIsForThisClass(memberInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
             var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
             if (memberMap != null)
             {
@@ -941,6 +994,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="propertyName">The name of the property.</param>
         public void UnmapProperty(string propertyName)
         {
+            if (propertyName == null)
+            {
+                throw new ArgumentNullException("propertyName");
+            }
+
             if (_frozen) { ThrowFrozenException(); }
             var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             if (propertyInfo == null)
@@ -1040,6 +1098,12 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetShouldSerializeMethod(shouldSerializeMethod);
             }
 
+            var serializationOptions = _conventions.SerializationOptionsConvention.GetSerializationOptions(memberInfo);
+            if (serializationOptions != null)
+            {
+                memberMap.SetSerializationOptions(serializationOptions);
+            }
+
             foreach (var attribute in memberInfo.GetCustomAttributes(false))
             {
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
@@ -1114,6 +1178,30 @@ namespace MongoDB.Bson.Serialization
             }
 
             return memberMap;
+        }
+
+        private void EnsureMemberInfoIsForThisClass(MemberInfo memberInfo)
+        {
+            if (memberInfo.DeclaringType != _classType)
+            {
+                var message = string.Format(
+                    "The memberInfo argument must be for class {0}, but was for class {1}.",
+                    _classType.Name,
+                    memberInfo.DeclaringType.Name);
+                throw new ArgumentOutOfRangeException("memberInfo", message);
+            }
+        }
+
+        private void EnsureMemberMapIsForThisClass(BsonMemberMap memberMap)
+        {
+            if (memberMap.ClassMap != this)
+            {
+                var message = string.Format(
+                    "The memberMap argument must be for class {0}, but was for class {1}.",
+                    _classType.Name,
+                    memberMap.ClassMap.ClassType.Name);
+                throw new ArgumentOutOfRangeException("memberMap", message);
+            }
         }
 
         private IEnumerable<MemberInfo> FindMembers()

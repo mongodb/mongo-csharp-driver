@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// </summary>
         public double AverageObjectSize
         {
-            get { return _response["avgObjSize"].ToDouble(); }
+            get { return Response["avgObjSize"].ToDouble(); }
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long DataSize
         {
-            get { return _response["size"].ToInt64(); }
+            get { return Response["size"].ToInt64(); }
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExtentCount
         {
-            get { return _response["numExtents"].AsInt32; }
+            get { return Response["numExtents"].AsInt32; }
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int Flags
         {
-            get { return _response["flags"].AsInt32; }
+            get { return Response["flags"].AsInt32; }
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int IndexCount
         {
-            get { return _response["nindexes"].AsInt32; }
+            get { return Response["nindexes"].AsInt32; }
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace MongoDB.Driver
                 if (_indexSizes == null)
                 {
                     // can't initialize indexSizes in the constructor because at that time the document is still empty
-                    _indexSizes = new IndexSizesResult(_response["indexSizes"].AsBsonDocument);
+                    _indexSizes = new IndexSizesResult(Response["indexSizes"].AsBsonDocument);
                 }
                 return _indexSizes;
             }
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsCapped
         {
-            get { return _response["capped", false].ToBoolean(); }
+            get { return Response["capped", false].ToBoolean(); }
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long LastExtentSize
         {
-            get { return _response["lastExtentSize"].ToInt64(); }
+            get { return Response["lastExtentSize"].ToInt64(); }
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long MaxDocuments
         {
-            get { return _response["max", 0].AsInt32; }
+            get { return Response["max", 0].AsInt32; }
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return _response["ns"].AsString; }
+            get { return Response["ns"].AsString; }
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long ObjectCount
         {
-            get { return _response["count"].ToInt64(); }
+            get { return Response["count"].ToInt64(); }
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace MongoDB.Driver
         /// </summary>
         public double PaddingFactor
         {
-            get { return _response["paddingFactor"].ToDouble(); }
+            get { return Response["paddingFactor"].ToDouble(); }
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long StorageSize
         {
-            get { return _response["storageSize"].ToInt64(); }
+            get { return Response["storageSize"].ToInt64(); }
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long TotalIndexSize
         {
-            get { return _response["totalIndexSize"].ToInt64(); }
+            get { return Response["totalIndexSize"].ToInt64(); }
         }
 
         // nested classes

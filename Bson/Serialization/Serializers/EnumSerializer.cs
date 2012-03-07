@@ -64,7 +64,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyDeserializeType(nominalType);
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Int32: return Enum.ToObject(nominalType, bsonReader.ReadInt32());

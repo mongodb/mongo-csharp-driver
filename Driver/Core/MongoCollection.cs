@@ -1357,19 +1357,31 @@ namespace MongoDB.Driver
                 else
                 {
                     BsonValue idBsonValue;
-                    if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue))
+                    var documentType = document.GetType();
+                    if (BsonClassMap.IsClassMapRegistered(documentType))
                     {
-                        idBsonValue = BsonDocumentWrapper.Create(idNominalType, id);
-                    }
-                    if (idBsonValue.IsString && BsonClassMap.IsClassMapRegistered(document.GetType()))
-                    {
-                        var classMap = BsonClassMap.LookupClassMap(document.GetType());
-                        var serializationOptions = (RepresentationSerializationOptions)classMap.IdMemberMap.SerializationOptions;
-                        if (serializationOptions != null && serializationOptions.Representation == BsonType.ObjectId)
+                        var classMap = BsonClassMap.LookupClassMap(documentType);
+                        var idMemberMap = classMap.IdMemberMap;
+                        var idSerializer = idMemberMap.GetSerializer(id.GetType());
+                        // we only care about the serialized _id value but we need a dummy document to serialize it into
+                        var bsonDocument = new BsonDocument();
+                        var bsonDocumentWriterSettings = new BsonDocumentWriterSettings
                         {
-                            idBsonValue = ObjectId.Parse(idBsonValue.AsString);
+                            GuidRepresentation = _settings.GuidRepresentation
+                        };
+                        var bsonWriter = BsonWriter.Create(bsonDocument, bsonDocumentWriterSettings);
+                        bsonWriter.WriteStartDocument();
+                        bsonWriter.WriteName("_id");
+                        idSerializer.Serialize(bsonWriter, id.GetType(), id, idMemberMap.SerializationOptions);
+                        bsonWriter.WriteEndDocument();
+                        idBsonValue = bsonDocument[0]; // extract the _id value from the dummy document
+                    } else {
+                        if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue))
+                        {
+                            idBsonValue = BsonDocumentWrapper.Create(idNominalType, id);
                         }
                     }
+
                     var query = Query.EQ("_id", idBsonValue);
                     var update = Builders.Update.Replace(nominalType, document);
                     var updateOptions = new MongoUpdateOptions

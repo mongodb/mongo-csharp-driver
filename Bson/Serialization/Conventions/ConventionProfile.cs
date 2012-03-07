@@ -27,11 +27,6 @@ namespace MongoDB.Bson.Serialization.Conventions
     {
         // public properties
         /// <summary>
-        /// Gets the Id generator convention.
-        /// </summary>
-        public IIdGeneratorConvention IdGeneratorConvention { get; private set; }
-
-        /// <summary>
         /// Gets the default value convention.
         /// </summary>
         public IDefaultValueConvention DefaultValueConvention { get; private set; }
@@ -45,6 +40,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Gets the extra elements member convention.
         /// </summary>
         public IExtraElementsMemberConvention ExtraElementsMemberConvention { get; private set; }
+
+        /// <summary>
+        /// Gets the Id generator convention.
+        /// </summary>
+        public IIdGeneratorConvention IdGeneratorConvention { get; private set; }
 
         /// <summary>
         /// Gets the Id member convention.
@@ -72,6 +72,11 @@ namespace MongoDB.Bson.Serialization.Conventions
         public IMemberFinderConvention MemberFinderConvention { get; private set; }
 
         /// <summary>
+        /// Gets the BSON serialization options convention.
+        /// </summary>
+        public ISerializationOptionsConvention SerializationOptionsConvention { get; private set; }
+
+        /// <summary>
         /// Gets the default value convention.
         /// </summary>
         [Obsolete("SerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use IgnoreIfDefaultConvention instead.")]
@@ -85,15 +90,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         public static ConventionProfile GetDefault()
         {
             return new ConventionProfile() // The default profile always matches...
-                .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetDefaultValueConvention(new NullDefaultValueConvention())
                 .SetElementNameConvention(new MemberNameElementNameConvention())
                 .SetExtraElementsMemberConvention(new NamedExtraElementsMemberConvention("ExtraElements"))
+                .SetIdGeneratorConvention(new LookupIdGeneratorConvention())
                 .SetIdMemberConvention(new NamedIdMemberConvention("Id", "id", "_id"))
                 .SetIgnoreExtraElementsConvention(new NeverIgnoreExtraElementsConvention())
                 .SetIgnoreIfDefaultConvention(new NeverIgnoreIfDefaultConvention())
                 .SetIgnoreIfNullConvention(new NeverIgnoreIfNullConvention())
-                .SetMemberFinderConvention(new PublicMemberFinderConvention());
+                .SetMemberFinderConvention(new PublicMemberFinderConvention())
+                .SetSerializationOptionsConvention(new NullSerializationOptionsConvention());
         }
 
         // public methods
@@ -103,10 +109,6 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="other">The other convention profile.</param>
         public void Merge(ConventionProfile other)
         {
-            if (IdGeneratorConvention == null)
-            {
-                IdGeneratorConvention = other.IdGeneratorConvention;
-            }
             if (DefaultValueConvention == null)
             {
                 DefaultValueConvention = other.DefaultValueConvention;
@@ -118,6 +120,10 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (ExtraElementsMemberConvention == null)
             {
                 ExtraElementsMemberConvention = other.ExtraElementsMemberConvention;
+            }
+            if (IdGeneratorConvention == null)
+            {
+                IdGeneratorConvention = other.IdGeneratorConvention;
             }
             if (IdMemberConvention == null)
             {
@@ -148,17 +154,10 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 MemberFinderConvention = other.MemberFinderConvention;
             }
-        }
-
-        /// <summary>
-        /// Sets the Id generator convention.
-        /// </summary>
-        /// <param name="convention">An Id generator convention.</param>
-        /// <returns>The convention profile.</returns>
-        public ConventionProfile SetIdGeneratorConvention(IIdGeneratorConvention convention)
-        {
-            IdGeneratorConvention = convention;
-            return this;
+            if (SerializationOptionsConvention == null)
+            {
+                SerializationOptionsConvention = other.SerializationOptionsConvention;
+            }
         }
 
         /// <summary>
@@ -191,6 +190,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         public ConventionProfile SetExtraElementsMemberConvention(IExtraElementsMemberConvention convention)
         {
             ExtraElementsMemberConvention = convention;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the Id generator convention.
+        /// </summary>
+        /// <param name="convention">An Id generator convention.</param>
+        /// <returns>The convention profile.</returns>
+        public ConventionProfile SetIdGeneratorConvention(IIdGeneratorConvention convention)
+        {
+            IdGeneratorConvention = convention;
             return this;
         }
 
@@ -256,6 +266,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         /// <summary>
+        /// Sets the serialization options convention.
+        /// </summary>
+        /// <param name="convention">A serialization options convention.</param>
+        /// <returns>The convention profile.</returns>
+        public ConventionProfile SetSerializationOptionsConvention(ISerializationOptionsConvention convention)
+        {
+            SerializationOptionsConvention = convention;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the serialize default value convention.
         /// </summary>
         /// <param name="convention">A serialize default value convention.</param>
@@ -267,7 +288,9 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 throw new InvalidOperationException("SerializeDefaultValueConvention cannot be set because IgnoreIfDefaultConvention is set.");
             }
+#pragma warning disable 618 // SerializeDefaultValueConvention is obsolete
             SerializeDefaultValueConvention = convention;
+#pragma warning restore 618
             return this;
         }
     }

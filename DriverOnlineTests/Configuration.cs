@@ -48,7 +48,7 @@ namespace MongoDB.DriverOnlineTests
             }
 
             __testServer = MongoServer.Create(serverSettings);
-            __testDatabase = __testServer["csharpdriverunitests"];
+            __testDatabase = __testServer["csharpdriverunittests"];
             __testCollection = __testDatabase["testcollection"];
         }
 

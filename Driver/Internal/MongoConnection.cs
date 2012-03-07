@@ -418,7 +418,11 @@ namespace MongoDB.Driver.Internal
                     using (var buffer = new BsonBuffer())
                     {
                         var networkStream = GetNetworkStream();
-                        networkStream.ReadTimeout = (int)_serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                        var readTimeout = (int)_serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                        if (readTimeout != 0)
+                        {
+                            networkStream.ReadTimeout = readTimeout;
+                        }
                         buffer.LoadFrom(networkStream);
                         var reply = new MongoReplyMessage<TDocument>(readerSettings);
                         reply.ReadFrom(buffer, serializationOptions);
@@ -463,7 +467,11 @@ namespace MongoDB.Driver.Internal
                 try
                 {
                     var networkStream = GetNetworkStream();
-                    networkStream.WriteTimeout = (int)_serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                    var writeTimeout = (int)_serverInstance.Server.Settings.SocketTimeout.TotalMilliseconds;
+                    if (writeTimeout != 0)
+                    {
+                        networkStream.WriteTimeout = writeTimeout;
+                    }
                     message.Buffer.WriteTo(networkStream);
                     _messageCounter++;
                 }

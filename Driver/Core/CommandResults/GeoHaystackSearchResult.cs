@@ -60,7 +60,7 @@ namespace MongoDB.Driver
             {
                 if (_stats == null)
                 {
-                    _stats = new GeoHaystackSearchStats(_response["stats"].AsBsonDocument);
+                    _stats = new GeoHaystackSearchStats(Response["stats"].AsBsonDocument);
                 }
                 return _stats;
             }
@@ -252,7 +252,7 @@ namespace MongoDB.Driver
             {
                 if (_hits == null)
                 {
-                    _hits = new GeoHaystackSearchHits(_response["results"].AsBsonArray);
+                    _hits = new GeoHaystackSearchHits(Response["results"].AsBsonArray);
                 }
                 return _hits;
             }

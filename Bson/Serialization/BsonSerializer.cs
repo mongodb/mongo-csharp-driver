@@ -200,7 +200,8 @@ namespace MongoDB.Bson.Serialization
         {
             if (nominalType == typeof(BsonDocument))
             {
-                return BsonDocument.ReadFrom(bsonReader);
+                var bsonDocument = new BsonDocument();
+                return bsonDocument.Deserialize(bsonReader, nominalType, options);
             }
 
             // if nominalType is an interface find out the actualType and use it instead

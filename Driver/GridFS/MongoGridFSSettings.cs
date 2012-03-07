@@ -30,12 +30,13 @@ namespace MongoDB.Driver.GridFS
         private static MongoGridFSSettings __defaults = new MongoGridFSSettings();
 
         // private fields
-        private bool _isFrozen;
         private string _chunksCollectionName = "fs.chunks";
         private int _chunkSize = 256 * 1024; // 256KiB
         private string _filesCollectionName = "fs.files";
         private string _root = "fs";
         private SafeMode _safeMode = SafeMode.False;
+        private bool _isFrozen;
+        private int _frozenHashCode;
 
         // constructors
         /// <summary>
@@ -211,6 +212,7 @@ namespace MongoDB.Driver.GridFS
             if (!_isFrozen)
             {
                 _safeMode = _safeMode.FrozenCopy();
+                _frozenHashCode = GetHashCode();
                 _isFrozen = true;
             }
             return this;
@@ -238,6 +240,11 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
+            if (_isFrozen)
+            {
+                return _frozenHashCode;
+            }
+
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _chunkSize.GetHashCode();

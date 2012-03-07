@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -162,7 +162,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -259,7 +259,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();

@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return _bsonType.GetHashCode();
+            return BsonType.GetHashCode();
         }
 
         /// <summary>

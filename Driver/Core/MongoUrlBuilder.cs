@@ -599,7 +599,7 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings()
         {
-            return new MongoServerSettings(_connectionMode, _connectTimeout, _defaultCredentials, _guidRepresentation, _ipv6,
+            return new MongoServerSettings(_connectionMode, _connectTimeout, null, _defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, _replicaSetName,
                 _safeMode ?? MongoDefaults.SafeMode, _servers, _slaveOk, _socketTimeout, ComputedWaitQueueSize, _waitQueueTimeout);
         }

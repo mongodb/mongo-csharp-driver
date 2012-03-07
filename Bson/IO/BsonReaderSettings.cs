@@ -26,15 +26,9 @@ namespace MongoDB.Bson.IO
     [Serializable]
     public abstract class BsonReaderSettings
     {
-        // protected fields
-        /// <summary>
-        /// The representation for Guids.
-        /// </summary>
-        protected GuidRepresentation _guidRepresentation = BsonDefaults.GuidRepresentation;
-        /// <summary>
-        /// Whether the settings are frozen.
-        /// </summary>
-        protected bool _isFrozen;
+        // private fields
+        private GuidRepresentation _guidRepresentation = BsonDefaults.GuidRepresentation;
+        private bool _isFrozen;
 
         // constructors
         /// <summary>

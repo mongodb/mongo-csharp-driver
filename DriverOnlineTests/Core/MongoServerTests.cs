@@ -82,20 +82,6 @@ namespace MongoDB.DriverOnlineTests
         }
 
         [Test]
-        public void TestRunAdminCommandAs()
-        {
-            var result = (CommandResult)_server.RunAdminCommandAs(typeof(CommandResult), "ping");
-            Assert.AreEqual(true, result.Ok);
-        }
-
-        [Test]
-        public void TestRunAdminCommandAsGeneric()
-        {
-            var result = _server.RunAdminCommandAs<CommandResult>("ping");
-            Assert.AreEqual(true, result.Ok);
-        }
-
-        [Test]
         public void TestVersion()
         {
             var versionZero = new Version(0, 0, 0, 0);

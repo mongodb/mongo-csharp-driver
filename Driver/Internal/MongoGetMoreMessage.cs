@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected override void WriteBody()
         {
-            _buffer.WriteInt32(0); // reserved
-            _buffer.WriteCString(_collectionFullName);
-            _buffer.WriteInt32(_numberToReturn);
-            _buffer.WriteInt64(_cursorId);
+            Buffer.WriteInt32(0); // reserved
+            Buffer.WriteCString(_collectionFullName);
+            Buffer.WriteInt32(_numberToReturn);
+            Buffer.WriteInt64(_cursorId);
         }
     }
 }

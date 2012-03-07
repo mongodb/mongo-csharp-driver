@@ -58,9 +58,9 @@ namespace MongoDB.Bson.IO
         public override void Close()
         {
             // Close can be called on Disposed objects
-            if (_state != BsonReaderState.Closed)
+            if (State != BsonReaderState.Closed)
             {
-                _state = BsonReaderState.Closed;
+                State = BsonReaderState.Closed;
             }
         }
 
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A bookmark.</returns>
         public override BsonReaderBookmark GetBookmark()
         {
-            return new JsonReaderBookmark(_state, _currentBsonType, _currentName, _context, _currentToken, _currentValue, _pushedToken, _buffer.Position);
+            return new JsonReaderBookmark(State, CurrentBsonType, CurrentName, _context, _currentToken, _currentValue, _pushedToken, _buffer.Position);
         }
 
         /// <summary>
@@ -84,9 +84,9 @@ namespace MongoDB.Bson.IO
             out BsonBinarySubType subType,
             out GuidRepresentation guidRepresentation)
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
-            _state = GetNextState();
+            State = GetNextState();
             var binaryData = _currentValue.AsBsonBinaryData;
             bytes = binaryData.Bytes;
             subType = binaryData.SubType;
@@ -99,9 +99,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A Boolean.</returns>
         public override bool ReadBoolean()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBoolean", BsonType.Boolean);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsBoolean;
         }
 
@@ -111,13 +111,13 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonType.</returns>
         public override BsonType ReadBsonType()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
-            if (_state == BsonReaderState.Initial || _state == BsonReaderState.Done || _state == BsonReaderState.ScopeDocument)
+            if (Disposed) { ThrowObjectDisposedException(); }
+            if (State == BsonReaderState.Initial || State == BsonReaderState.Done || State == BsonReaderState.ScopeDocument)
             {
                 // in JSON the top level value can be of any type so fall through
-                _state = BsonReaderState.Type;
+                State = BsonReaderState.Type;
             }
-            if (_state != BsonReaderState.Type)
+            if (State != BsonReaderState.Type)
             {
                 ThrowInvalidState("ReadBsonType", BsonReaderState.Type);
             }
@@ -129,10 +129,10 @@ namespace MongoDB.Bson.IO
                 {
                     case JsonTokenType.String:
                     case JsonTokenType.UnquotedString:
-                        _currentName = nameToken.StringValue;
+                        CurrentName = nameToken.StringValue;
                         break;
                     case JsonTokenType.EndObject:
-                        _state = BsonReaderState.EndOfDocument;
+                        State = BsonReaderState.EndOfDocument;
                         return BsonType.EndOfDocument;
                     default:
                         var message = string.Format("JSON reader was expecting a name but found '{0}'.", nameToken.Lexeme);
@@ -150,98 +150,98 @@ namespace MongoDB.Bson.IO
             var valueToken = PopToken();
             if (_context.ContextType == ContextType.Array && valueToken.Type == JsonTokenType.EndArray)
             {
-                _state = BsonReaderState.EndOfArray;
+                State = BsonReaderState.EndOfArray;
                 return BsonType.EndOfDocument;
             }
 
+            var noValueFound = false;
             switch (valueToken.Type)
             {
                 case JsonTokenType.BeginArray:
-                    _currentBsonType = BsonType.Array;
+                    CurrentBsonType = BsonType.Array;
                     break;
                 case JsonTokenType.BeginObject:
-                    _currentBsonType = ParseExtendedJson();
+                    CurrentBsonType = ParseExtendedJson();
                     break;
                 case JsonTokenType.DateTime:
-                    _currentBsonType = BsonType.DateTime;
+                    CurrentBsonType = BsonType.DateTime;
                     _currentValue = valueToken.DateTimeValue;
                     break;
                 case JsonTokenType.Double:
-                    _currentBsonType = BsonType.Double;
+                    CurrentBsonType = BsonType.Double;
                     _currentValue = valueToken.DoubleValue;
                     break;
                 case JsonTokenType.EndOfFile:
-                    _currentBsonType = BsonType.EndOfDocument;
+                    CurrentBsonType = BsonType.EndOfDocument;
                     break;
                 case JsonTokenType.Int32:
-                    _currentBsonType = BsonType.Int32;
+                    CurrentBsonType = BsonType.Int32;
                     _currentValue = valueToken.Int32Value;
                     break;
                 case JsonTokenType.Int64:
-                    _currentBsonType = BsonType.Int64;
+                    CurrentBsonType = BsonType.Int64;
                     _currentValue = valueToken.Int64Value;
                     break;
                 case JsonTokenType.ObjectId:
-                    _currentBsonType = BsonType.ObjectId;
+                    CurrentBsonType = BsonType.ObjectId;
                     _currentValue = valueToken.ObjectIdValue;
                     break;
                 case JsonTokenType.RegularExpression:
-                    _currentBsonType = BsonType.RegularExpression;
+                    CurrentBsonType = BsonType.RegularExpression;
                     _currentValue = valueToken.RegularExpressionValue;
                     break;
                 case JsonTokenType.String:
-                    _currentBsonType = BsonType.String;
+                    CurrentBsonType = BsonType.String;
                     _currentValue = valueToken.StringValue;
                     break;
                 case JsonTokenType.UnquotedString:
-                    var isConstant = true;
                     switch (valueToken.Lexeme)
                     {
                         case "false":
                         case "true":
-                            _currentBsonType = BsonType.Boolean;
+                            CurrentBsonType = BsonType.Boolean;
                             _currentValue = XmlConvert.ToBoolean(valueToken.Lexeme);
                             break;
                         case "Infinity":
-                            _currentBsonType = BsonType.Double;
+                            CurrentBsonType = BsonType.Double;
                             _currentValue = double.PositiveInfinity;
                             break;
                         case "NaN":
-                            _currentBsonType = BsonType.Double;
+                            CurrentBsonType = BsonType.Double;
                             _currentValue = double.NaN;
                             break;
                         case "null":
-                            _currentBsonType = BsonType.Null;
+                            CurrentBsonType = BsonType.Null;
                             break;
                         case "undefined":
-                            _currentBsonType = BsonType.Undefined;
+                            CurrentBsonType = BsonType.Undefined;
                             break;
                         case "BinData":
-                            _currentBsonType = BsonType.Binary;
+                            CurrentBsonType = BsonType.Binary;
                             _currentValue = ParseBinDataConstructor();
                             break;
                         case "Date":
-                            _currentBsonType = BsonType.String;
+                            CurrentBsonType = BsonType.String;
                             _currentValue = ParseDateTimeConstructor(false); // withNew = false
                             break;
                         case "HexData":
-                            _currentBsonType = BsonType.Binary;
+                            CurrentBsonType = BsonType.Binary;
                             _currentValue = ParseHexDataConstructor();
                             break;
                         case "ISODate":
-                            _currentBsonType = BsonType.DateTime;
+                            CurrentBsonType = BsonType.DateTime;
                             _currentValue = ParseISODateTimeConstructor();
                             break;
                         case "NumberLong":
-                            _currentBsonType = BsonType.Int64;
+                            CurrentBsonType = BsonType.Int64;
                             _currentValue = ParseNumberLongConstructor();
                             break;
                         case "ObjectId":
-                            _currentBsonType = BsonType.ObjectId;
+                            CurrentBsonType = BsonType.ObjectId;
                             _currentValue = ParseObjectIdConstructor();
                             break;
                         case "RegExp":
-                            _currentBsonType = BsonType.RegularExpression;
+                            CurrentBsonType = BsonType.RegularExpression;
                             _currentValue = ParseRegularExpressionConstructor();
                             break;
                         case "UUID":
@@ -252,27 +252,25 @@ namespace MongoDB.Bson.IO
                         case "JGUID":
                         case "PYUUID":
                         case "PYGUID":
-                            _currentBsonType = BsonType.Binary;
+                            CurrentBsonType = BsonType.Binary;
                             _currentValue = ParseUUIDConstructor(valueToken.Lexeme);
                             break;
                         case "new":
-                            _currentBsonType = ParseNew(out _currentValue);
+                            CurrentBsonType = ParseNew(out _currentValue);
                             break;
                         default:
-                            isConstant = false;
+                            noValueFound = true;
                             break;
                     }
-                    if (isConstant)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        goto default;
-                    }
+                    break;
                 default:
-                    var message = string.Format("JSON reader was expecting a value but found '{0}'.", valueToken.Lexeme);
-                    throw new FileFormatException(message);
+                    noValueFound = true;
+                    break;
+            }
+            if (noValueFound)
+            {
+                var message = string.Format("JSON reader was expecting a value but found '{0}'.", valueToken.Lexeme);
+                throw new FileFormatException(message);
             }
             _currentToken = valueToken;
 
@@ -285,8 +283,20 @@ namespace MongoDB.Bson.IO
                 }
             }
 
-            _state = (_context.ContextType == ContextType.Document) ? BsonReaderState.Name : BsonReaderState.Value;
-            return _currentBsonType;
+            switch (_context.ContextType)
+            {
+                case ContextType.Document:
+                case ContextType.ScopeDocument:
+                default:
+                    State = BsonReaderState.Name;
+                    break;
+                case ContextType.Array:
+                case ContextType.JavaScriptWithScope:
+                case ContextType.TopLevel:
+                    State = BsonReaderState.Value;
+                    break;
+            }
+            return CurrentBsonType;
         }
 
         /// <summary>
@@ -295,9 +305,9 @@ namespace MongoDB.Bson.IO
         /// <returns>The number of milliseconds since the Unix epoch.</returns>
         public override long ReadDateTime()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDateTime", BsonType.DateTime);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsBsonDateTime.MillisecondsSinceEpoch;
         }
 
@@ -307,9 +317,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A Double.</returns>
         public override double ReadDouble()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadDouble", BsonType.Double);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsDouble;
         }
 
@@ -318,16 +328,16 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadEndArray()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             if (_context.ContextType != ContextType.Array)
             {
                 ThrowInvalidContextType("ReadEndArray", _context.ContextType, ContextType.Array);
             }
-            if (_state == BsonReaderState.Type)
+            if (State == BsonReaderState.Type)
             {
                 ReadBsonType(); // will set state to EndOfArray if at end of array
             }
-            if (_state != BsonReaderState.EndOfArray)
+            if (State != BsonReaderState.EndOfArray)
             {
                 ThrowInvalidState("ReadEndArray", BsonReaderState.EndOfArray);
             }
@@ -335,9 +345,9 @@ namespace MongoDB.Bson.IO
             _context = _context.PopContext();
             switch (_context.ContextType)
             {
-                case ContextType.Array: _state = BsonReaderState.Type; break;
-                case ContextType.Document: _state = BsonReaderState.Type; break;
-                case ContextType.TopLevel: _state = BsonReaderState.Done; break;
+                case ContextType.Array: State = BsonReaderState.Type; break;
+                case ContextType.Document: State = BsonReaderState.Type; break;
+                case ContextType.TopLevel: State = BsonReaderState.Done; break;
                 default: throw new BsonInternalException("Unexpected ContextType.");
             }
 
@@ -356,16 +366,16 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadEndDocument()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             if (_context.ContextType != ContextType.Document && _context.ContextType != ContextType.ScopeDocument)
             {
                 ThrowInvalidContextType("ReadEndDocument", _context.ContextType, ContextType.Document, ContextType.ScopeDocument);
             }
-            if (_state == BsonReaderState.Type)
+            if (State == BsonReaderState.Type)
             {
                 ReadBsonType(); // will set state to EndOfDocument if at end of document
             }
-            if (_state != BsonReaderState.EndOfDocument)
+            if (State != BsonReaderState.EndOfDocument)
             {
                 ThrowInvalidState("ReadEndDocument", BsonReaderState.EndOfDocument);
             }
@@ -378,9 +388,9 @@ namespace MongoDB.Bson.IO
             }
             switch (_context.ContextType)
             {
-                case ContextType.Array: _state = BsonReaderState.Type; break;
-                case ContextType.Document: _state = BsonReaderState.Type; break;
-                case ContextType.TopLevel: _state = BsonReaderState.Done; break;
+                case ContextType.Array: State = BsonReaderState.Type; break;
+                case ContextType.Document: State = BsonReaderState.Type; break;
+                case ContextType.TopLevel: State = BsonReaderState.Done; break;
                 default: throw new BsonInternalException("Unexpected ContextType");
             }
 
@@ -400,9 +410,9 @@ namespace MongoDB.Bson.IO
         /// <returns>An Int32.</returns>
         public override int ReadInt32()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt32", BsonType.Int32);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsInt32;
         }
 
@@ -412,9 +422,9 @@ namespace MongoDB.Bson.IO
         /// <returns>An Int64.</returns>
         public override long ReadInt64()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadInt64", BsonType.Int64);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsInt64;
         }
 
@@ -424,9 +434,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A string.</returns>
         public override string ReadJavaScript()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsString;
         }
 
@@ -436,10 +446,10 @@ namespace MongoDB.Bson.IO
         /// <returns>A string.</returns>
         public override string ReadJavaScriptWithScope()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScriptWithScope", BsonType.JavaScriptWithScope);
             _context = new JsonReaderContext(_context, ContextType.JavaScriptWithScope);
-            _state = BsonReaderState.ScopeDocument;
+            State = BsonReaderState.ScopeDocument;
             return _currentValue.AsString;
         }
 
@@ -448,9 +458,9 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadMaxKey()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMaxKey", BsonType.MaxKey);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -458,9 +468,9 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadMinKey()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadMinKey", BsonType.MinKey);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -468,9 +478,9 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadNull()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadNull", BsonType.Null);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -482,14 +492,14 @@ namespace MongoDB.Bson.IO
         /// <param name="increment">The increment.</param>
         public override void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
             var objectId = _currentValue.AsObjectId;
             timestamp = objectId.Timestamp;
             machine = objectId.Machine;
             pid = objectId.Pid;
             increment = objectId.Increment;
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -499,9 +509,9 @@ namespace MongoDB.Bson.IO
         /// <param name="options">A regular expression options.</param>
         public override void ReadRegularExpression(out string pattern, out string options)
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            _state = GetNextState();
+            State = GetNextState();
             var regex = _currentValue.AsBsonRegularExpression;
             pattern = regex.Pattern;
             options = regex.Options;
@@ -512,11 +522,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadStartArray()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartArray", BsonType.Array);
 
             _context = new JsonReaderContext(_context, ContextType.Array);
-            _state = BsonReaderState.Type;
+            State = BsonReaderState.Type;
         }
 
         /// <summary>
@@ -524,11 +534,11 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadStartDocument()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadStartDocument", BsonType.Document);
 
             _context = new JsonReaderContext(_context, ContextType.Document);
-            _state = BsonReaderState.Type;
+            State = BsonReaderState.Type;
         }
 
         /// <summary>
@@ -537,9 +547,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A String.</returns>
         public override string ReadString()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsString;
         }
 
@@ -549,9 +559,9 @@ namespace MongoDB.Bson.IO
         /// <returns>A string.</returns>
         public override string ReadSymbol()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
-            _state = GetNextState();
+            State = GetNextState();
             return _currentValue.AsString;
         }
 
@@ -561,9 +571,9 @@ namespace MongoDB.Bson.IO
         /// <returns>The combined timestamp/increment.</returns>
         public override long ReadTimestamp()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadTimestamp", BsonType.Timestamp);
-            _state = GetNextState();
+            State = GetNextState();
             var timestamp = _currentValue.AsBsonTimestamp;
             return timestamp.Value;
         }
@@ -573,9 +583,9 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void ReadUndefined()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadUndefined", BsonType.Undefined);
-            _state = GetNextState();
+            State = GetNextState();
         }
 
         /// <summary>
@@ -584,11 +594,11 @@ namespace MongoDB.Bson.IO
         /// <param name="bookmark">The bookmark.</param>
         public override void ReturnToBookmark(BsonReaderBookmark bookmark)
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
+            if (Disposed) { ThrowObjectDisposedException(); }
             var jsonReaderBookmark = (JsonReaderBookmark)bookmark;
-            _state = jsonReaderBookmark.State;
-            _currentBsonType = jsonReaderBookmark.CurrentBsonType;
-            _currentName = jsonReaderBookmark.CurrentName;
+            State = jsonReaderBookmark.State;
+            CurrentBsonType = jsonReaderBookmark.CurrentBsonType;
+            CurrentName = jsonReaderBookmark.CurrentName;
             _context = jsonReaderBookmark.CloneContext();
             _currentToken = jsonReaderBookmark.CurrentToken;
             _currentValue = jsonReaderBookmark.CurrentValue;
@@ -601,13 +611,13 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void SkipName()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
-            if (_state != BsonReaderState.Name)
+            if (Disposed) { ThrowObjectDisposedException(); }
+            if (State != BsonReaderState.Name)
             {
                 ThrowInvalidState("SkipName", BsonReaderState.Name);
             }
 
-            _state = BsonReaderState.Value;
+            State = BsonReaderState.Value;
         }
 
         /// <summary>
@@ -615,13 +625,13 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public override void SkipValue()
         {
-            if (_disposed) { ThrowObjectDisposedException(); }
-            if (_state != BsonReaderState.Value)
+            if (Disposed) { ThrowObjectDisposedException(); }
+            if (State != BsonReaderState.Value)
             {
                 ThrowInvalidState("SkipValue", BsonReaderState.Value);
             }
 
-            switch (_currentBsonType)
+            switch (CurrentBsonType)
             {
                 case BsonType.Array:
                     ReadStartArray();
@@ -869,7 +879,7 @@ namespace MongoDB.Bson.IO
                 case JsonTokenType.Comma:
                     VerifyString("$scope");
                     VerifyToken(":");
-                    _state = BsonReaderState.Value;
+                    State = BsonReaderState.Value;
                     value = codeToken.StringValue;
                     return BsonType.JavaScriptWithScope;
                 case JsonTokenType.EndObject:

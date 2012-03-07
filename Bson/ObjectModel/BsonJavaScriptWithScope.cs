@@ -117,7 +117,7 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue Clone()
         {
-            return new BsonJavaScriptWithScope(_code, (BsonDocument)_scope.Clone());
+            return new BsonJavaScriptWithScope(Code, (BsonDocument)_scope.Clone());
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace MongoDB.Bson
         /// <returns>A deep clone of the BsonJavaScriptWithScope.</returns>
         public override BsonValue DeepClone()
         {
-            BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(_code, new BsonDocument());
+            BsonJavaScriptWithScope clone = new BsonJavaScriptWithScope(Code, new BsonDocument());
             foreach (BsonElement element in _scope)
             {
                 clone._scope.Add(element.DeepClone());
@@ -142,7 +142,7 @@ namespace MongoDB.Bson
         public int CompareTo(BsonJavaScriptWithScope other)
         {
             if (other == null) { return 1; }
-            int r = _code.CompareTo(other._code);
+            int r = Code.CompareTo(other.Code);
             if (r != 0) { return r; }
             return _scope.CompareTo(other._scope);
         }
@@ -171,7 +171,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonJavaScriptWithScope rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _code == rhs._code && _scope == rhs._scope;
+            return Code == rhs.Code && _scope == rhs._scope;
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-            return string.Format("{0}, scope : {1}", _code, _scope.ToJson());
+            return string.Format("new BsonJavaScript(\"{0}\", {1})", Code, _scope.ToJson());
         }
     }
 }

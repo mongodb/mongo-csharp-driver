@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization
     public class BsonMemberMap
     {
         // private fields
-        private ConventionProfile _conventions;
+        private BsonClassMap _classMap;
         private string _elementName;
         private int _order = int.MaxValue;
         private MemberInfo _memberInfo;
@@ -55,17 +55,25 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Initializes a new instance of the BsonMemberMap class.
         /// </summary>
+        /// <param name="classMap">The class map this member map belongs to.</param>
         /// <param name="memberInfo">The member info.</param>
-        /// <param name="conventions">The conventions to use with this member.</param>
-        public BsonMemberMap(MemberInfo memberInfo, ConventionProfile conventions)
+        public BsonMemberMap(BsonClassMap classMap, MemberInfo memberInfo)
         {
+            _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _defaultValue = GetDefaultValue(_memberType);
-            _conventions = conventions;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the class map that this member map belongs to.
+        /// </summary>
+        public BsonClassMap ClassMap
+        {
+            get { return _classMap; }
+        }
+
         /// <summary>
         /// Gets the name of the member.
         /// </summary>
@@ -91,7 +99,7 @@ namespace MongoDB.Bson.Serialization
             {
                 if (_elementName == null)
                 {
-                    _elementName = _conventions.ElementNameConvention.GetElementName(_memberInfo);
+                    _elementName = _classMap.Conventions.ElementNameConvention.GetElementName(_memberInfo);
                 }
                 return _elementName;
             }
@@ -176,7 +184,7 @@ namespace MongoDB.Bson.Serialization
                     }
                     else
                     {
-                        _idGenerator = _conventions.IdGeneratorConvention.GetIdGenerator(_memberInfo);
+                        _idGenerator = _classMap.Conventions.IdGeneratorConvention.GetIdGenerator(_memberInfo);
                     }
                 }
                 return _idGenerator;
@@ -450,6 +458,11 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private static object GetDefaultValue(Type type)
         {
+            if (type.IsEnum)
+            {
+                return Enum.ToObject(type, 0);
+            }
+
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Empty:

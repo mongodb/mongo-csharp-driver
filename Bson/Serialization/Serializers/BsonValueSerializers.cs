@@ -69,7 +69,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonArray));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonBinaryData));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -257,7 +257,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonBoolean));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -336,7 +336,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDateTime));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -744,7 +744,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDouble));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -823,7 +823,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonInt32));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -902,7 +902,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonInt64));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -981,7 +981,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonJavaScript));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1061,7 +1061,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonJavaScriptWithScope));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1143,7 +1143,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonMaxKey));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1222,7 +1222,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonMinKey));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1301,7 +1301,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonNull));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -1386,7 +1386,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonObjectId));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1465,7 +1465,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonRegularExpression));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1546,7 +1546,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonString));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1625,7 +1625,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonSymbol));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -1720,7 +1720,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonTimestamp));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1799,7 +1799,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonUndefined));
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -1873,7 +1873,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, // ignored
             IBsonSerializationOptions options)
         {
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();

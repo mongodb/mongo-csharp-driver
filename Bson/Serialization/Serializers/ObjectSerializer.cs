@@ -66,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new InvalidOperationException(message);
             }
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "actualType");
             }
 
-            var bsonType = bsonReader.CurrentBsonType;
+            var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -161,6 +161,25 @@ namespace MongoDB.Bson.Serialization.Serializers
            out IIdGenerator idGenerator)
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public BsonSerializationInfo GetItemSerializationInfo()
+        {
+            throw new NotSupportedException("ObjectSerializer does not implement the GetItemSerializationInfo method.");
+        }
+
+        /// <summary>
+        /// Gets the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>The serialization info for the member.</returns>
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        {
+            throw new NotSupportedException("ObjectSerializer does not implement the GetMemberSerializationInfo method.");
         }
 
         /// <summary>
