@@ -427,7 +427,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _frozenHashCode = GetHashCodeHelper();
+                _frozenHashCode = GetHashCode();
                 _isFrozen = true;
             }
             return this;
@@ -459,10 +459,16 @@ namespace MongoDB.Driver
             {
                 return _frozenHashCode;
             }
-            else
-            {
-                return GetHashCodeHelper();
-            }
+
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + _enabled.GetHashCode();
+            hash = 37 * hash + _fsync.GetHashCode();
+            hash = 37 * hash + _j.GetHashCode();
+            hash = 37 * hash + _w.GetHashCode();
+            hash = 37 * hash + ((_wmode == null) ? 0 : _wmode.GetHashCode());
+            hash = 37 * hash + _wtimeout.GetHashCode();
+            return hash;
         }
 
         /// <summary>
@@ -506,19 +512,6 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private int GetHashCodeHelper()
-        {
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + _enabled.GetHashCode();
-            hash = 37 * hash + _fsync.GetHashCode();
-            hash = 37 * hash + _j.GetHashCode();
-            hash = 37 * hash + _w.GetHashCode();
-            hash = 37 * hash + ((_wmode == null) ? 0 : _wmode.GetHashCode());
-            hash = 37 * hash + _wtimeout.GetHashCode();
-            return hash;
-        }
-
         private void ThrowFrozenException()
         {
             throw new InvalidOperationException("SafeMode has been frozen and no further changes are allowed.");

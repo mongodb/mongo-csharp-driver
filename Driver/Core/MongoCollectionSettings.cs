@@ -208,8 +208,8 @@ namespace MongoDB.Driver
             if (!_isFrozen)
             {
                 _safeMode = _safeMode.FrozenCopy();
-                _frozenHashCode = GetHashCodeHelper();
-                _frozenStringRepresentation = ToStringHelper();
+                _frozenHashCode = GetHashCode();
+                _frozenStringRepresentation = ToString();
                 _isFrozen = true;
             }
             return this;
@@ -241,10 +241,16 @@ namespace MongoDB.Driver
             {
                 return _frozenHashCode;
             }
-            else
-            {
-                return GetHashCodeHelper();
-            }
+
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + ((_collectionName == null) ? 0 : _collectionName.GetHashCode());
+            hash = 37 * hash + _assignIdOnInsert.GetHashCode();
+            hash = 37 * hash + ((_defaultDocumentType == null) ? 0 : _defaultDocumentType.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _slaveOk.GetHashCode();
+            return hash;
         }
 
         /// <summary>
@@ -257,28 +263,7 @@ namespace MongoDB.Driver
             {
                 return _frozenStringRepresentation;
             }
-            else
-            {
-                return ToStringHelper();
-            }
-        }
 
-        // private methods
-        private int GetHashCodeHelper()
-        {
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + ((_collectionName == null) ? 0 : _collectionName.GetHashCode());
-            hash = 37 * hash + _assignIdOnInsert.GetHashCode();
-            hash = 37 * hash + ((_defaultDocumentType == null) ? 0 : _defaultDocumentType.GetHashCode());
-            hash = 37 * hash + _guidRepresentation.GetHashCode();
-            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
-            hash = 37 * hash + _slaveOk.GetHashCode();
-            return hash;
-        }
-
-        private string ToStringHelper()
-        {
             return string.Format(
                 "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};SafeMode={4};SlaveOk={5}",
                 _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _safeMode, _slaveOk);

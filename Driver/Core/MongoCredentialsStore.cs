@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         // private fields
         private Dictionary<string, MongoCredentials> _credentialsStore = new Dictionary<string,MongoCredentials>();
         private int _frozenHashCode;
+        private string _frozenStringRepresentation;
         private bool _isFrozen;
 
         // constructors
@@ -126,6 +127,7 @@ namespace MongoDB.Driver
             if (!_isFrozen)
             {
                 _frozenHashCode = GetHashCode();
+                _frozenStringRepresentation = ToString();
                 _isFrozen = true;
             }
             return this;
@@ -160,6 +162,11 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the credentials store.</returns>
         public override string ToString()
         {
+            if (_isFrozen)
+            {
+                return _frozenStringRepresentation;
+            }
+
             var sb = new StringBuilder();
             sb.Append("{");
             var separator = "";

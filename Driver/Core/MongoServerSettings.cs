@@ -451,8 +451,8 @@ namespace MongoDB.Driver
             {
                 _credentialsStore.Freeze();
                 _safeMode = _safeMode.FrozenCopy();
-                _frozenHashCode = GetHashCodeHelper();
-                _frozenStringRepresentation = ToStringHelper();
+                _frozenHashCode = GetHashCode();
+                _frozenStringRepresentation = ToString();
                 _isFrozen = true;
             }
             return this;
@@ -514,31 +514,7 @@ namespace MongoDB.Driver
             {
                 return _frozenHashCode;
             }
-            else
-            {
-                return GetHashCodeHelper();
-            }
-        }
 
-        /// <summary>
-        /// Returns a string representation of the settings.
-        /// </summary>
-        /// <returns>A string representation of the settings.</returns>
-        public override string ToString()
-        {
-            if (_isFrozen)
-            {
-                return _frozenStringRepresentation;
-            }
-            else
-            {
-                return ToStringHelper();
-            }
-        }
-
-        // private methods
-        private int GetHashCodeHelper()
-        {
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _connectionMode.GetHashCode();
@@ -567,8 +543,17 @@ namespace MongoDB.Driver
             return hash;
         }
 
-        private string ToStringHelper()
+        /// <summary>
+        /// Returns a string representation of the settings.
+        /// </summary>
+        /// <returns>A string representation of the settings.</returns>
+        public override string ToString()
         {
+            if (_isFrozen)
+            {
+                return _frozenStringRepresentation;
+            }
+
             var sb = new StringBuilder();
             string serversString = null;
             if (_servers != null)

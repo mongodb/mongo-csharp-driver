@@ -198,8 +198,8 @@ namespace MongoDB.Driver
             if (!_isFrozen)
             {
                 _safeMode = _safeMode.FrozenCopy();
-                _frozenHashCode = GetHashCodeHelper();
-                _frozenStringRepresentation = ToStringHelper();
+                _frozenHashCode = GetHashCode();
+                _frozenStringRepresentation = ToString();
                 _isFrozen = true;
             }
             return this;
@@ -231,10 +231,15 @@ namespace MongoDB.Driver
             {
                 return _frozenHashCode;
             }
-            else
-            {
-                return GetHashCodeHelper();
-            }
+
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
+            hash = 37 * hash + ((_credentials == null) ? 0 : _credentials.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _slaveOk.GetHashCode();
+            return hash;
         }
 
         /// <summary>
@@ -247,27 +252,7 @@ namespace MongoDB.Driver
             {
                 return _frozenStringRepresentation;
             }
-            else
-            {
-                return ToStringHelper();
-            }
-        }
 
-        // private methods
-        private int GetHashCodeHelper()
-        {
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
-            hash = 37 * hash + ((_credentials == null) ? 0 : _credentials.GetHashCode());
-            hash = 37 * hash + _guidRepresentation.GetHashCode();
-            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
-            hash = 37 * hash + _slaveOk.GetHashCode();
-            return hash;
-        }
-
-        private string ToStringHelper()
-        {
             return string.Format(
                 "DatabaseName={0};Credentials={1};GuidRepresentation={2};SafeMode={3};SlaveOk={4}",
                 _databaseName, _credentials, _guidRepresentation, _safeMode, _slaveOk);
