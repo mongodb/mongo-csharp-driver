@@ -774,10 +774,25 @@ namespace MongoDB.Driver
         /// <param name="newCollectionName">The new name for the collection.</param>
         /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
         /// <returns>A CommandResult.</returns>
+        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
+        {
+            var adminCredentials = _server.Settings.GetCredentials("admin");
+            return RenameCollection(oldCollectionName, newCollectionName, dropTarget, adminCredentials);
+        }
+
+        /// <summary>
+        /// Renames a collection on this database.
+        /// </summary>
+        /// <param name="oldCollectionName">The old name for the collection.</param>
+        /// <param name="newCollectionName">The new name for the collection.</param>
+        /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        /// <returns>A CommandResult.</returns>
         public virtual CommandResult RenameCollection(
             string oldCollectionName,
             string newCollectionName,
-            bool dropTarget)
+            bool dropTarget,
+            MongoCredentials adminCredentials)
         {
             MongoCollection.ValidateCollectionName(newCollectionName);
             var command = new CommandDocument
@@ -786,8 +801,20 @@ namespace MongoDB.Driver
                 { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            var adminDatabase = _server.GetDatabase("admin");
-            return adminDatabase.RunCommand(command); // TODO: can we run this command against this database?
+            var adminDatabase = _server.GetDatabase("admin", adminCredentials);
+            return adminDatabase.RunCommand(command);
+        }
+
+        /// <summary>
+        /// Renames a collection on this database.
+        /// </summary>
+        /// <param name="oldCollectionName">The old name for the collection.</param>
+        /// <param name="newCollectionName">The new name for the collection.</param>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        /// <returns>A CommandResult.</returns>
+        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, MongoCredentials adminCredentials)
+        {
+            return RenameCollection(oldCollectionName, newCollectionName, false, adminCredentials); // dropTarget = false
         }
 
         /// <summary>
