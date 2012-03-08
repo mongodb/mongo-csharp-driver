@@ -199,7 +199,14 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                _enabled = value;
+                if (value)
+                {
+                    _enabled = true;
+                }
+                else
+                {
+                    ResetValues();
+                }
             }
         }
 
@@ -276,25 +283,25 @@ namespace MongoDB.Driver
 
         // public operators
         /// <summary>
-        /// Compares two SafeMode values.
+        /// Determines whether two specified SafeMode objects have different values.
         /// </summary>
-        /// <param name="lhs">The first SafeMode value.</param>
-        /// <param name="rhs">The other SafeMode value.</param>
-        /// <returns>True if the values are equal (or both null).</returns>
-        public static bool operator ==(SafeMode lhs, SafeMode rhs)
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
+        public static bool operator !=(SafeMode lhs, SafeMode rhs)
         {
-            return object.Equals(lhs, rhs);
+            return !SafeMode.Equals(lhs, rhs);
         }
 
         /// <summary>
-        /// Compares two SafeMode values.
+        /// Determines whether two specified SafeMode objects have the same value.
         /// </summary>
-        /// <param name="lhs">The first SafeMode value.</param>
-        /// <param name="rhs">The other SafeMode value.</param>
-        /// <returns>True if the values are not equal (or one is null and the other is not).</returns>
-        public static bool operator !=(SafeMode lhs, SafeMode rhs)
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool operator ==(SafeMode lhs, SafeMode rhs)
         {
-            return !(lhs == rhs);
+            return SafeMode.Equals(lhs, rhs);
         }
 
         // public static methods
@@ -382,6 +389,18 @@ namespace MongoDB.Driver
             return Create(true, false, w, wtimeout);
         }
 
+        /// <summary>
+        /// Determines whether two specified SafeMode objects have the same value.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool Equals(SafeMode lhs, SafeMode rhs)
+        {
+            if ((object)lhs == null) { return (object)rhs == null; }
+            return lhs.Equals(rhs);
+        }
+
         // public methods
         /// <summary>
         /// Creates a clone of the SafeMode.
@@ -393,23 +412,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Compares two SafeMode values.
+        /// Determines whether this instance and a specified object, which must also be a SafeMode object, have the same value.
         /// </summary>
-        /// <param name="obj">The other SafeMode value.</param>
-        /// <returns>True if the values are equal.</returns>
+        /// <param name="obj">The SafeMode object to compare to this instance.</param>
+        /// <returns>True if obj is a SafeMode object and its value is the same as this instance; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as SafeMode); // works even if obj is null or of a different type
         }
 
         /// <summary>
-        /// Compares two SafeMode values.
+        /// Determines whether this instance and another specified SafeMode object have the same value.
         /// </summary>
-        /// <param name="rhs">The other SafeMode value.</param>
-        /// <returns>True if the values are equal.</returns>
+        /// <param name="rhs">The SafeMode object to compare to this instance.</param>
+        /// <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
         public bool Equals(SafeMode rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
+            if ((object)this == (object)rhs) { return true; }
             return
                 _enabled == rhs._enabled &&
                 _fsync == rhs._fsync &&
@@ -477,41 +497,45 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the SafeMode.</returns>
         public override string ToString()
         {
-            if (_enabled)
+            var sb = new StringBuilder();
+            sb.AppendFormat("safe={0}", _enabled ? "true" : "false");
+            if (_fsync)
             {
-                var sb = new StringBuilder("safe=true");
-                if (_fsync)
-                {
-                    sb.Append(",fsync=true");
-                }
-                if (_j)
-                {
-                    sb.Append(",j=true");
-                }
-                if (_w != 0 || _wmode != null)
-                {
-                    if (_w != 0)
-                    {
-                        sb.AppendFormat(",w={0}", _w);
-                    }
-                    if (_wmode != null)
-                    {
-                        sb.AppendFormat(",wmode=\"{0}\"", _wmode);
-                    }
-                    if (_wtimeout != TimeSpan.Zero)
-                    {
-                        sb.AppendFormat(",wtimeout={0}", _wtimeout);
-                    }
-                }
-                return sb.ToString();
+                sb.Append(",fsync=true");
             }
-            else
+            if (_j)
             {
-                return "safe=false";
+                sb.Append(",j=true");
             }
+            if (_w != 0 || _wmode != null)
+            {
+                if (_w != 0)
+                {
+                    sb.AppendFormat(",w={0}", _w);
+                }
+                if (_wmode != null)
+                {
+                    sb.AppendFormat(",wmode=\"{0}\"", _wmode);
+                }
+            }
+            if (_wtimeout != TimeSpan.Zero)
+            {
+                sb.AppendFormat(",wtimeout={0}", _wtimeout);
+            }
+            return sb.ToString();
         }
 
         // private methods
+        private void ResetValues()
+        {
+            _enabled = false;
+            _fsync = false;
+            _j = false;
+            _w = 0;
+            _wmode = null;
+            _wtimeout = TimeSpan.Zero;
+        }
+
         private void ThrowFrozenException()
         {
             throw new InvalidOperationException("SafeMode has been frozen and no further changes are allowed.");
