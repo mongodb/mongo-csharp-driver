@@ -91,6 +91,7 @@
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Core\MongoUrlBuilderTests.cs" />
     <Compile Include="Core\MongoUrlTests.cs" />
+    <Compile Include="Core\MongoUserTests.cs" />
     <Compile Include="Core\SafeModeTests.cs" />
     <Compile Include="Core\SystemProfileIntoTests.cs" />
     <Compile Include="GridFS\MongoGridFSFileInfoTests.cs" />

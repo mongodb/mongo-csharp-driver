@@ -89,43 +89,76 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEqualsWithDatabase()
         {
-            var dbRef1a = new MongoDBRef("database", "collection", 1);
-            var dbRef1b = new MongoDBRef("database", "collection", 1);
-            var dbRef2 = new MongoDBRef("database", "collection", 2);
-            MongoDBRef nullDbRef = null;
+            var a1 = new MongoDBRef("d", "c", 1);
+            var a2 = new MongoDBRef("d", "c", 1);
+            var a3 = a2;
+            var b = new MongoDBRef("x", "c", 1);
+            var c = new MongoDBRef("d", "x", 1);
+            var d = new MongoDBRef("d", "c", 2);
+            var null1 = (MongoDBRef)null;
+            var null2 = (MongoDBRef)null;
 
-            Assert.IsFalse(object.ReferenceEquals(dbRef1a, dbRef1b));
-            Assert.IsTrue(dbRef1a == dbRef1b);
-            Assert.IsFalse(dbRef1a == dbRef2);
-            Assert.IsFalse(dbRef1a == null);
-            Assert.IsFalse(null == dbRef1b);
-            Assert.IsFalse(dbRef1a == nullDbRef);
-            Assert.IsFalse(nullDbRef == dbRef1b);
-            Assert.IsTrue(nullDbRef == null);
-            Assert.IsTrue(null == nullDbRef);
+            Assert.AreNotSame(a1, a2);
+            Assert.AreSame(a2, a3);
+            Assert.IsTrue(a1.Equals((object)a2));
+            Assert.IsFalse(a1.Equals((object)null));
+            Assert.IsFalse(a1.Equals((object)"x"));
 
-            Assert.AreEqual(dbRef1a.GetHashCode(), dbRef1b.GetHashCode());
+            Assert.IsTrue(a1 == a2);
+            Assert.IsTrue(a2 == a3);
+            Assert.IsFalse(a1 == b);
+            Assert.IsFalse(a1 == c);
+            Assert.IsFalse(a1 == d);
+            Assert.IsFalse(a1 == null1);
+            Assert.IsFalse(null1 == a1);
+            Assert.IsTrue(null1 == null2);
+
+            Assert.IsFalse(a1 != a2);
+            Assert.IsFalse(a2 != a3);
+            Assert.IsTrue(a1 != b);
+            Assert.IsTrue(a1 != c);
+            Assert.IsTrue(a1 != d);
+            Assert.IsTrue(a1 != null1);
+            Assert.IsTrue(null1 != a1);
+            Assert.IsFalse(null1 != null2);
+
+            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
         }
 
         [Test]
         public void TestEqualsWithoutDatabase()
         {
-            var dbRef1a = new MongoDBRef("collection", 1);
-            var dbRef1b = new MongoDBRef("collection", 1);
-            var dbRef2 = new MongoDBRef("collection", 2);
-            MongoDBRef nullDbRef = null;
+            var a1 = new MongoDBRef("c", 1);
+            var a2 = new MongoDBRef("c", 1);
+            var a3 = a2;
+            var b = new MongoDBRef("x", 1);
+            var c = new MongoDBRef("c", 2);
+            var null1 = (MongoDBRef)null;
+            var null2 = (MongoDBRef)null;
 
-            Assert.IsFalse(object.ReferenceEquals(dbRef1a, dbRef1b));
-            Assert.IsTrue(dbRef1a == dbRef1b);
-            Assert.IsFalse(dbRef1a == dbRef2);
-            Assert.IsFalse(dbRef1a == null);
-            Assert.IsFalse(null == dbRef1b);
-            Assert.IsFalse(dbRef1a == nullDbRef);
-            Assert.IsFalse(nullDbRef == dbRef1b);
-            Assert.IsTrue(nullDbRef == null);
-            Assert.IsTrue(null == nullDbRef);
+            Assert.AreNotSame(a1, a2);
+            Assert.AreSame(a2, a3);
+            Assert.IsTrue(a1.Equals((object)a2));
+            Assert.IsFalse(a1.Equals((object)null));
+            Assert.IsFalse(a1.Equals((object)"x"));
 
-            Assert.AreEqual(dbRef1a.GetHashCode(), dbRef1b.GetHashCode());
+            Assert.IsTrue(a1 == a2);
+            Assert.IsTrue(a2 == a3);
+            Assert.IsFalse(a1 == b);
+            Assert.IsFalse(a1 == c);
+            Assert.IsFalse(a1 == null1);
+            Assert.IsFalse(null1 == a1);
+            Assert.IsTrue(null1 == null2);
+
+            Assert.IsFalse(a1 != a2);
+            Assert.IsFalse(a2 != a3);
+            Assert.IsTrue(a1 != b);
+            Assert.IsTrue(a1 != c);
+            Assert.IsTrue(a1 != null1);
+            Assert.IsTrue(null1 != a1);
+            Assert.IsFalse(null1 != null2);
+
+            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
         }
 
         [Test]

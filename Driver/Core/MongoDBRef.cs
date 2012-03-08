@@ -49,9 +49,8 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection that contains the document.</param>
         /// <param name="id">The Id of the document.</param>
         public MongoDBRef(string collectionName, BsonValue id)
+            : this(null, collectionName, id)
         {
-            _collectionName = collectionName;
-            _id = id;
         }
 
         /// <summary>
@@ -62,6 +61,14 @@ namespace MongoDB.Driver
         /// <param name="id">The Id of the document.</param>
         public MongoDBRef(string databaseName, string collectionName, BsonValue id)
         {
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+            if (id == null)
+            {
+                throw new ArgumentNullException("id");
+            }
             _databaseName = databaseName;
             _collectionName = collectionName;
             _id = id;
@@ -94,57 +101,68 @@ namespace MongoDB.Driver
 
         // public operators
         /// <summary>
-        /// Compares two MongoDBRefs.
+        /// Determines whether two specified MongoDBRef objects have different values.
         /// </summary>
-        /// <param name="lhs">The first MongoDBRef.</param>
-        /// <param name="rhs">The other MongoDBRef.</param>
-        /// <returns>True if the two MongoDBRefs are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
         public static bool operator !=(MongoDBRef lhs, MongoDBRef rhs)
         {
-            return !(lhs == rhs);
+            return !MongoDBRef.Equals(lhs, rhs);
         }
 
         /// <summary>
-        /// Compares two MongoDBRefs.
+        /// Determines whether two specified MongoDBRef objects have the same value.
         /// </summary>
-        /// <param name="lhs">The first MongoDBRef.</param>
-        /// <param name="rhs">The other MongoDBRef.</param>
-        /// <returns>True if the two MongoDBRefs are equal (or both null).</returns>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
         public static bool operator ==(MongoDBRef lhs, MongoDBRef rhs)
         {
-            return object.Equals(lhs, rhs);
+            return MongoDBRef.Equals(lhs, rhs);
+        }
+
+        // public static methods
+        /// <summary>
+        /// Determines whether two specified MongoDBRef objects have the same value.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool Equals(MongoDBRef lhs, MongoDBRef rhs)
+        {
+            if ((object)lhs == null) { return (object)rhs == null; }
+            return lhs.Equals(rhs);
         }
 
         // public methods
         /// <summary>
-        /// Compares this MongoDBRef to another one.
+        /// Determines whether this instance and another specified MongoDBRef object have the same value.
         /// </summary>
-        /// <param name="rhs">The other MongoDBRef.</param>
-        /// <returns>True if the two MongoDBRefs are equal.</returns>
+        /// <param name="rhs">The MongoDBRef object to compare to this instance.</param>
+        /// <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
         public bool Equals(MongoDBRef rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType())
-            {
-                return false;
-            }
+            if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
+            if ((object)this == (object)rhs) { return true; }
             // note: _databaseName can be null
-            return object.Equals(_databaseName, rhs._databaseName) && _collectionName.Equals(rhs._collectionName) && _id.Equals(rhs._id);
+            return string.Equals(_databaseName, rhs._databaseName) && _collectionName.Equals(rhs._collectionName) && _id.Equals(rhs._id);
         }
 
         /// <summary>
-        /// Compares this MongoDBRef to another object.
+        /// Determines whether this instance and a specified object, which must also be a MongoDBRef object, have the same value.
         /// </summary>
-        /// <param name="obj">The other object.</param>
-        /// <returns>True if the other objects is a MongoDBRef and is equal to this one.</returns>
+        /// <param name="obj">The MongoDBRef object to compare to this instance.</param>
+        /// <returns>True if obj is a MongoDBRef object and its value is the same as this instance; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as MongoDBRef); // works even if obj is null or of a different type
         }
 
         /// <summary>
-        /// Gets the hash code.
+        /// Returns the hash code for this MongoDBRef object.
         /// </summary>
-        /// <returns>The hash code.</returns>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
             // see Effective Java by Joshua Bloch
