@@ -136,8 +136,13 @@ namespace MongoDB.Driver.Linq
                 var sortBy = new SortByDocument();
                 foreach (var clause in _orderBy)
                 {
-                    var memberExpression = (MemberExpression)clause.Key.Body;
-                    var serializationInfo = GetSerializationInfo(memberExpression);
+                    var keyExpression = clause.Key.Body;
+                    var serializationInfo = GetSerializationInfo(keyExpression);
+                    if (serializationInfo == null)
+                    {
+                        var message = string.Format("Invalid OrderBy expression: {0}.", ExpressionFormatter.ToString(keyExpression));
+                        throw new NotSupportedException(message);
+                    }
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
                     sortBy.Add(serializationInfo.ElementName, direction);
                 }
@@ -230,6 +235,10 @@ namespace MongoDB.Driver.Linq
                 case "Last":
                 case "LastOrDefault":
                     TranslateLast(methodCallExpression);
+                    break;
+                case "Max":
+                case "Min":
+                    TranslateMaxMin(methodCallExpression);
                     break;
                 case "OrderBy":
                 case "OrderByDescending":
@@ -1204,6 +1213,67 @@ namespace MongoDB.Driver.Linq
                         break;
                 }
             }
+        }
+
+        private void TranslateMaxMin(MethodCallExpression methodCallExpression)
+        {
+            var methodName = methodCallExpression.Method.Name;
+
+            if (_orderBy != null)
+            {
+                var message = string.Format("{0} cannot be used with OrderBy.", methodName);
+                throw new NotSupportedException(message);
+            }
+            if (_skip != null || _take != null)
+            {
+                var message = string.Format("{0} cannot be used with Skip or Take.", methodName);
+                throw new NotSupportedException(message);
+            }
+
+            switch (methodCallExpression.Arguments.Count)
+            {
+                case 1:
+                    break;
+                case 2:
+                    if (_projection != null)
+                    {
+                        var message = string.Format("{0} must be used with either Select or a selector argument, but not both.", methodName);
+                        throw new NotSupportedException(message);
+                    }
+                    _projection = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+            if (_projection == null)
+            {
+                var message = string.Format("{0} must be used with either Select or a selector argument.", methodName);
+                throw new NotSupportedException(message);
+            }
+
+            // implement Max/Min by sorting on the relevant field(s) and taking the first result
+            _orderBy = new List<OrderByClause>();
+            if (_projection.Body.NodeType == ExpressionType.New)
+            {
+                // take the individual constructor arguments and make new lambdas out of them for the OrderByClauses
+                var newExpression = (NewExpression)_projection.Body;
+                foreach (var keyExpression in newExpression.Arguments)
+                {
+                    var delegateTypeGenericDefinition = typeof(Func<,>);
+                    var delegateType = delegateTypeGenericDefinition.MakeGenericType(_projection.Parameters[0].Type, keyExpression.Type);
+                    var keyLambda = Expression.Lambda(delegateType, keyExpression, _projection.Parameters);
+                    var clause = new OrderByClause(keyLambda, (methodName == "Min") ? OrderByDirection.Ascending : OrderByDirection.Descending);
+                    _orderBy.Add(clause);
+                }
+            }
+            else
+            {
+                var clause = new OrderByClause(_projection, (methodName == "Min") ? OrderByDirection.Ascending : OrderByDirection.Descending);
+                _orderBy.Add(clause);
+            }
+
+            _take = Expression.Constant(1);
+            SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
         }
 
         private void TranslateOrderBy(MethodCallExpression methodCallExpression)

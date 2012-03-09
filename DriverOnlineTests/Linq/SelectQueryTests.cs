@@ -126,11 +126,12 @@ namespace MongoDB.DriverOnlineTests.Linq
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
         private MongoCollection<SystemProfileInfo> _systemProfileCollection;
-        private ObjectId id1 = ObjectId.GenerateNewId();
-        private ObjectId id2 = ObjectId.GenerateNewId();
-        private ObjectId id3 = ObjectId.GenerateNewId();
-        private ObjectId id4 = ObjectId.GenerateNewId();
-        private ObjectId id5 = ObjectId.GenerateNewId();
+
+        private ObjectId _id1 = ObjectId.GenerateNewId();
+        private ObjectId _id2 = ObjectId.GenerateNewId();
+        private ObjectId _id3 = ObjectId.GenerateNewId();
+        private ObjectId _id4 = ObjectId.GenerateNewId();
+        private ObjectId _id5 = ObjectId.GenerateNewId();
 
         [TestFixtureSetUp]
         public void Setup()
@@ -143,11 +144,11 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             // documents inserted deliberately out of order to test sorting
             _collection.Drop();
-            _collection.Insert(new C { Id = id2, X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
-            _collection.Insert(new C { Id = id1, X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1", SA = new string[] { "Tom", "Dick", "Harry" } });
-            _collection.Insert(new C { Id = id3, X = 3, Y = 33, D = new D { Z = 33 }, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } });
-            _collection.Insert(new C { Id = id5, X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
-            _collection.Insert(new C { Id = id4, X = 4, Y = 44, D = new D { Z = 44 } });
+            _collection.Insert(new C { Id = _id2, X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
+            _collection.Insert(new C { Id = _id1, X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1", SA = new string[] { "Tom", "Dick", "Harry" } });
+            _collection.Insert(new C { Id = _id3, X = 3, Y = 33, D = new D { Z = 33 }, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } });
+            _collection.Insert(new C { Id = _id5, X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
+            _collection.Insert(new C { Id = _id4, X = 4, Y = 44, D = new D { Z = 44 } });
         }
 
         [Test]
@@ -480,11 +481,11 @@ namespace MongoDB.DriverOnlineTests.Linq
                          select c.Id).Distinct();
             var results = query.ToList();
             Assert.AreEqual(5, results.Count);
-            Assert.IsTrue(results.Contains(id1));
-            Assert.IsTrue(results.Contains(id2));
-            Assert.IsTrue(results.Contains(id3));
-            Assert.IsTrue(results.Contains(id4));
-            Assert.IsTrue(results.Contains(id5));
+            Assert.IsTrue(results.Contains(_id1));
+            Assert.IsTrue(results.Contains(_id2));
+            Assert.IsTrue(results.Contains(_id3));
+            Assert.IsTrue(results.Contains(_id4));
+            Assert.IsTrue(results.Contains(_id5));
         }
 
         [Test]
@@ -1178,35 +1179,119 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Max query operator is not supported.")]
-        public void TestMax()
+        public void TestMaxDZWithProjection()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Max();
+                          select c.D.Z).Max();
+            Assert.AreEqual(55, result);
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Max query operator is not supported.")]
-        public void TestMaxWithSelector()
+        public void TestMaxDZWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Max(c => 1.0);
+                          select c).Max(c => c.D.Z);
+            Assert.AreEqual(55, result);
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Min query operator is not supported.")]
-        public void TestMin()
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Max must be used with either Select or a selector argument, but not both.")]
+        public void TestMaxWithProjectionAndSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Min();
+                          select c.D).Max(d => d.Z);
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Min query operator is not supported.")]
-        public void TestMinWithSelector()
+        public void TestMaxXWithProjection()
         {
             var result = (from c in _collection.AsQueryable<C>()
-                          select c).Min(c => 1.0);
+                          select c.X).Max();
+            Assert.AreEqual(5, result);
+        }
+
+        [Test]
+        public void TestMaxXWithSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Max(c => c.X);
+            Assert.AreEqual(5, result);
+        }
+
+        [Test]
+        public void TestMaxXYWithProjection()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select new { c.X, c.Y }).Max();
+            Assert.AreEqual(5, result.X);
+            Assert.AreEqual(44, result.Y);
+        }
+
+        [Test]
+        public void TestMaxXYWithSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Max(c => new { c.X, c.Y });
+            Assert.AreEqual(5, result.X);
+            Assert.AreEqual(44, result.Y);
+        }
+
+        [Test]
+        public void TestMinDZWithProjection()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c.D.Z).Min();
+            Assert.AreEqual(11, result);
+        }
+
+        [Test]
+        public void TestMinDZWithSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Min(c => c.D.Z);
+            Assert.AreEqual(11, result);
+        }
+
+        [Test]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Min must be used with either Select or a selector argument, but not both.")]
+        public void TestMinWithProjectionAndSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c.D).Min(d => d.Z);
+        }
+
+        [Test]
+        public void TestMinXWithProjection()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c.X).Min();
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void TestMinXWithSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Min(c => c.X);
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void TestMinXYWithProjection()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select new { c.X, c.Y }).Min();
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        public void TestMinXYWithSelector()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          select c).Min(c => new { c.X, c.Y });
+            Assert.AreEqual(1, result.X);
+            Assert.AreEqual(11, result.Y);
         }
 
         [Test]
