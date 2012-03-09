@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Linq
                     break;
                 default:
                     var message = string.Format("The {0} query operator is not supported.", methodName);
-                    throw new InvalidOperationException(message);
+                    throw new NotSupportedException(message);
             }
         }
 
@@ -821,7 +821,7 @@ namespace MongoDB.Driver.Linq
                 if (_projection != null)
                 {
                     var message = string.Format("{0} with predicate after a projection is not supported.", methodCallExpression.Method.Name);
-                    throw new InvalidOperationException(message);
+                    throw new NotSupportedException(message);
                 }
 
                 if (_where == null)
@@ -1012,7 +1012,7 @@ namespace MongoDB.Driver.Linq
             if (_elementSelector != null)
             {
                 var message = string.Format("{0} cannot be combined with any other element selector.", methodCallExpression.Method.Name);
-                throw new InvalidOperationException(message);
+                throw new NotSupportedException(message);
             }
             _elementSelector = elementSelector;
         }
@@ -1100,7 +1100,7 @@ namespace MongoDB.Driver.Linq
             if (arguments.Length != 1)
             {
                 var message = "The version of the Distinct query operator with an equality comparer is not supported.";
-                throw new InvalidOperationException(message);
+                throw new NotSupportedException(message);
             }
 
             _distinct = true;
@@ -1285,7 +1285,7 @@ namespace MongoDB.Driver.Linq
 
             if (_orderBy != null)
             {
-                throw new InvalidOperationException("Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).");
+                throw new NotSupportedException("Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).");
             }
 
             var key = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
@@ -1307,7 +1307,7 @@ namespace MongoDB.Driver.Linq
             if (lambdaExpression.Parameters.Count == 2)
             {
                 var message = "The indexed version of the Select query operator is not supported.";
-                throw new InvalidOperationException(message);
+                throw new NotSupportedException(message);
             }
             if (lambdaExpression.Parameters.Count != 1)
             {
@@ -1350,7 +1350,7 @@ namespace MongoDB.Driver.Linq
 
             if (_orderBy == null)
             {
-                throw new InvalidOperationException("ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.");
+                throw new NotSupportedException("ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.");
             }
 
             var key = (LambdaExpression)StripQuote(methodCallExpression.Arguments[1]);
@@ -1371,7 +1371,7 @@ namespace MongoDB.Driver.Linq
             if (predicate.Parameters.Count == 2)
             {
                 var message = "The indexed version of the Where query operator is not supported.";
-                throw new InvalidOperationException(message);
+                throw new NotSupportedException(message);
             }
 
             CombinePredicateWithWhereClause(methodCallExpression, predicate);

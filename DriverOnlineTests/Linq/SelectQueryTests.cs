@@ -152,7 +152,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Aggregate query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregate()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -160,7 +160,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Aggregate query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregateWithAccumulator()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -168,7 +168,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Aggregate query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregateWithAccumulatorAndSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -176,7 +176,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The All query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The All query operator is not supported.")]
         public void TestAll()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -210,7 +210,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Any with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Any with predicate after a projection is not supported.")]
         public void TestAnyWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).Any(y => y == 11);
@@ -238,7 +238,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Average query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverage()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -246,7 +246,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Average query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -254,7 +254,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Average query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -262,7 +262,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Average query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageWithSelectorNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -270,7 +270,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Cast query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Cast query operator is not supported.")]
         public void TestCast()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -279,7 +279,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Concat query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Concat query operator is not supported.")]
         public void TestConcat()
         {
             var source2 = new C[0];
@@ -289,7 +289,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Contains query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Contains query operator is not supported.")]
         public void TestContains()
         {
             var item = new C();
@@ -298,7 +298,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Contains query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Contains query operator is not supported.")]
         public void TestContainsWithEqualityComparer()
         {
             var item = new C();
@@ -334,7 +334,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Count with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Count with predicate after a projection is not supported.")]
         public void TestCountWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).Count(y => y == 11);
@@ -358,7 +358,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The DefaultIfEmpty query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The DefaultIfEmpty query operator is not supported.")]
         public void TestDefaultIfEmpty()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -367,7 +367,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The DefaultIfEmpty query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The DefaultIfEmpty query operator is not supported.")]
         public void TestDefaultIfEmptyWithDefaultValue()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -557,7 +557,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The version of the Distinct query operator with an equality comparer is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The version of the Distinct query operator with an equality comparer is not supported.")]
         public void TestDistinctWithEqualityComparer()
         {
             var query = _collection.AsQueryable<C>().Distinct(new CEqualityComparer());
@@ -647,7 +647,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Except query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Except query operator is not supported.")]
         public void TestExcept()
         {
             var source2 = new C[0];
@@ -657,7 +657,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Except query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Except query operator is not supported.")]
         public void TestExceptWithEqualityComparer()
         {
             var source2 = new C[0];
@@ -697,7 +697,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "FirstOrDefault with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "FirstOrDefault with predicate after a projection is not supported.")]
         public void TestFirstOrDefaultWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).FirstOrDefault(y => y == 11);
@@ -781,7 +781,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "First with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "First with predicate after a projection is not supported.")]
         public void TestFirstWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).First(y => y == 11);
@@ -835,7 +835,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelector()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -844,7 +844,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndElementSelector()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -853,7 +853,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndElementSelectorAndEqualityComparer()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -862,7 +862,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndElementSelectorAndResultSelector()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -871,7 +871,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndElementSelectorAndResultSelectorAndEqualityComparer()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -880,7 +880,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndEqualityComparer()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -889,7 +889,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndResultSelector()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -898,7 +898,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupBy query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupBy query operator is not supported.")]
         public void TestGroupByWithKeySelectorAndResultSelectorAndEqualityComparer()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -907,7 +907,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupJoin query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupJoin query operator is not supported.")]
         public void TestGroupJoin()
         {
             var inner = new C[0];
@@ -916,7 +916,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The GroupJoin query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The GroupJoin query operator is not supported.")]
         public void TestGroupJoinWithEqualityComparer()
         {
             var inner = new C[0];
@@ -925,7 +925,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Intersect query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Intersect query operator is not supported.")]
         public void TestIntersect()
         {
             var source2 = new C[0];
@@ -935,7 +935,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Intersect query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Intersect query operator is not supported.")]
         public void TestIntersectWithEqualityComparer()
         {
             var source2 = new C[0];
@@ -945,7 +945,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Join query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Join query operator is not supported.")]
         public void TestJoin()
         {
             var query = _collection.AsQueryable<C>().Join(_collection.AsQueryable<C>(), c => c.X, c => c.X, (x, y) => x);
@@ -953,7 +953,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Join query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Join query operator is not supported.")]
         public void TestJoinWithEqualityComparer()
         {
             var query = _collection.AsQueryable<C>().Join(_collection.AsQueryable<C>(), c => c.X, c => c.X, (x, y) => x, new Int32EqualityComparer());
@@ -1002,7 +1002,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "LastOrDefault with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "LastOrDefault with predicate after a projection is not supported.")]
         public void TestLastOrDefaultWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).LastOrDefault(y => y == 11);
@@ -1086,7 +1086,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Last with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Last with predicate after a projection is not supported.")]
         public void TestLastWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).Last(y => y == 11);
@@ -1295,7 +1295,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The OfType query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The OfType query operator is not supported.")]
         public void TestOfType()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -1480,7 +1480,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Only one OrderBy or OrderByDescending clause is allowed (use ThenBy or ThenByDescending for multiple order by clauses).")]
         public void TestOrderByDuplicate()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -1518,7 +1518,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Reverse query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Reverse query operator is not supported.")]
         public void TestReverse()
         {
             var query = (from c in _collection.AsQueryable<C>()
@@ -1549,7 +1549,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SelectMany query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SelectMany query operator is not supported.")]
         public void TestSelectMany()
         {
             var query = _collection.AsQueryable<C>().SelectMany(c => new C[] { c });
@@ -1557,7 +1557,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SelectMany query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SelectMany query operator is not supported.")]
         public void TestSelectManyWithIndex()
         {
             var query = _collection.AsQueryable<C>().SelectMany((c, index) => new C[] { c });
@@ -1565,7 +1565,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SelectMany query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SelectMany query operator is not supported.")]
         public void TestSelectManyWithIntermediateResults()
         {
             var query = _collection.AsQueryable<C>().SelectMany(c => new C[] { c }, (c, i) => i);
@@ -1573,7 +1573,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SelectMany query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SelectMany query operator is not supported.")]
         public void TestSelectManyWithIndexAndIntermediateResults()
         {
             var query = _collection.AsQueryable<C>().SelectMany((c, index) => new C[] { c }, (c, i) => i);
@@ -1581,7 +1581,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The indexed version of the Select query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The indexed version of the Select query operator is not supported.")]
         public void TestSelectWithIndex()
         {
             var query = _collection.AsQueryable<C>().Select((c, index) => c);
@@ -1589,7 +1589,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SequenceEqual query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SequenceEqual query operator is not supported.")]
         public void TestSequenceEqual()
         {
             var source2 = new C[0];
@@ -1598,7 +1598,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SequenceEqual query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SequenceEqual query operator is not supported.")]
         public void TestSequenceEqualtWithEqualityComparer()
         {
             var source2 = new C[0];
@@ -1635,7 +1635,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "SingleOrDefault with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "SingleOrDefault with predicate after a projection is not supported.")]
         public void TestSingleOrDefaultWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).SingleOrDefault(y => y == 11);
@@ -1714,7 +1714,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Single with predicate after a projection is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Single with predicate after a projection is not supported.")]
         public void TestSingleWithPredicateAfterProjection()
         {
             var result = _collection.AsQueryable<C>().Select(c => c.Y).Single(y => y == 11);
@@ -1788,7 +1788,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The SkipWhile query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The SkipWhile query operator is not supported.")]
         public void TestSkipWhile()
         {
             var query = _collection.AsQueryable<C>().SkipWhile(c => true);
@@ -1796,7 +1796,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Sum query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSum()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1804,7 +1804,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Sum query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1812,7 +1812,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Sum query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumWithSelector()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1820,7 +1820,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Sum query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumWithSelectorNullable()
         {
             var result = (from c in _collection.AsQueryable<C>()
@@ -1850,7 +1850,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The TakeWhile query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The TakeWhile query operator is not supported.")]
         public void TestTakeWhile()
         {
             var query = _collection.AsQueryable<C>().TakeWhile(c => true);
@@ -1858,7 +1858,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "ThenBy or ThenByDescending can only be used after OrderBy or OrderByDescending.")]
         public void TestThenByWithMissingOrderBy()
         {
             // not sure this could ever happen in real life without deliberate sabotaging like with this cast
@@ -1869,7 +1869,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Union query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Union query operator is not supported.")]
         public void TestUnion()
         {
             var source2 = new C[0];
@@ -1879,7 +1879,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Union query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Union query operator is not supported.")]
         public void TestUnionWithEqualityComparer()
         {
             var source2 = new C[0];
@@ -4213,7 +4213,7 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The indexed version of the Where query operator is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The indexed version of the Where query operator is not supported.")]
         public void TestWhereWithIndex()
         {
             var query = _collection.AsQueryable<C>().Where((c, i) => true);
