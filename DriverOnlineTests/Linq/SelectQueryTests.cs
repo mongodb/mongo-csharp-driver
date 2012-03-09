@@ -81,6 +81,17 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             [BsonElement("z")]
             public int Z; // use field instead of property to test fields also
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || GetType() != obj.GetType()) { return false; }
+                return Z == ((D)obj).Z;
+            }
+
+            public override int GetHashCode()
+            {
+                return Z.GetHashCode();
+            }
         }
 
         // used to test some query operators that have an IEqualityComparer parameter
@@ -115,6 +126,11 @@ namespace MongoDB.DriverOnlineTests.Linq
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
         private MongoCollection<SystemProfileInfo> _systemProfileCollection;
+        private ObjectId id1 = ObjectId.GenerateNewId();
+        private ObjectId id2 = ObjectId.GenerateNewId();
+        private ObjectId id3 = ObjectId.GenerateNewId();
+        private ObjectId id4 = ObjectId.GenerateNewId();
+        private ObjectId id5 = ObjectId.GenerateNewId();
 
         [TestFixtureSetUp]
         public void Setup()
@@ -127,11 +143,11 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             // documents inserted deliberately out of order to test sorting
             _collection.Drop();
-            _collection.Insert(new C { X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
-            _collection.Insert(new C { X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1", SA = new string[] { "Tom", "Dick", "Harry" } });
-            _collection.Insert(new C { X = 3, Y = 33, D = new D { Z = 33 }, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } });
-            _collection.Insert(new C { X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
-            _collection.Insert(new C { X = 4, Y = 44, D = new D { Z = 44 } });
+            _collection.Insert(new C { Id = id2, X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
+            _collection.Insert(new C { Id = id1, X = 1, Y = 11, D = new D { Z = 11 }, S = "x is 1", SA = new string[] { "Tom", "Dick", "Harry" } });
+            _collection.Insert(new C { Id = id3, X = 3, Y = 33, D = new D { Z = 33 }, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } });
+            _collection.Insert(new C { Id = id5, X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
+            _collection.Insert(new C { Id = id4, X = 4, Y = 44, D = new D { Z = 44 } });
         }
 
         [Test]
@@ -359,15 +375,116 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Distinct query operator is not supported.")]
-        public void TestDistinct()
+        public void TestDistinctB()
         {
-            var query = _collection.AsQueryable<C>().Distinct();
-            query.ToList(); // execute query
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.B).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(2, results.Count);
+            Assert.IsTrue(results.Contains(false));
+            Assert.IsTrue(results.Contains(true));
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The Distinct query operator is not supported.")]
+        public void TestDistinctD()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.D).Distinct();
+            var results = query.ToList(); // execute query
+            Assert.AreEqual(5, results.Count);
+            Assert.IsTrue(results.Contains(new D { Z = 11 }));
+            Assert.IsTrue(results.Contains(new D { Z = 22 }));
+            Assert.IsTrue(results.Contains(new D { Z = 33 }));
+            Assert.IsTrue(results.Contains(new D { Z = 44 }));
+            Assert.IsTrue(results.Contains(new D { Z = 55 }));
+        }
+
+        [Test]
+        public void TestDistinctDBRef()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.DBRef).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.IsTrue(results.Contains(new MongoDBRef("db", "c", 1)));
+        }
+
+        [Test]
+        public void TestDistinctDZ()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.D.Z).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.IsTrue(results.Contains(11));
+            Assert.IsTrue(results.Contains(22));
+            Assert.IsTrue(results.Contains(33));
+            Assert.IsTrue(results.Contains(44));
+            Assert.IsTrue(results.Contains(55));
+        }
+
+        [Test]
+        public void TestDistinctE()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.E).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.IsTrue(results.Contains(E.A));
+        }
+
+        [Test]
+        public void TestDistinctId()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.Id).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.IsTrue(results.Contains(id1));
+            Assert.IsTrue(results.Contains(id2));
+            Assert.IsTrue(results.Contains(id3));
+            Assert.IsTrue(results.Contains(id4));
+            Assert.IsTrue(results.Contains(id5));
+        }
+
+        [Test]
+        public void TestDistinctS()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.S).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.IsTrue(results.Contains("x is 1"));
+        }
+
+        [Test]
+        public void TestDistinctX()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.X).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.IsTrue(results.Contains(1));
+            Assert.IsTrue(results.Contains(2));
+            Assert.IsTrue(results.Contains(3));
+            Assert.IsTrue(results.Contains(4));
+            Assert.IsTrue(results.Contains(5));
+        }
+
+        [Test]
+        public void TestDistinctY()
+        {
+            var query = (from c in _collection.AsQueryable<C>()
+                         select c.Y).Distinct();
+            var results = query.ToList();
+            Assert.AreEqual(3, results.Count);
+            Assert.IsTrue(results.Contains(11));
+            Assert.IsTrue(results.Contains(33));
+            Assert.IsTrue(results.Contains(44));
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "The version of the Distinct query operator with an equality comparer is not supported.")]
         public void TestDistinctWithEqualityComparer()
         {
             var query = _collection.AsQueryable<C>().Distinct(new CEqualityComparer());
@@ -1237,10 +1354,10 @@ namespace MongoDB.DriverOnlineTests.Linq
 
             Assert.IsNull(selectQuery.BuildQuery());
 
-            var result = query.ToList();
-            Assert.AreEqual(5, result.Count);
-            Assert.AreEqual(2, result.First());
-            Assert.AreEqual(4, result.Last());
+            var results = query.ToList();
+            Assert.AreEqual(5, results.Count);
+            Assert.AreEqual(2, results.First());
+            Assert.AreEqual(4, results.Last());
         }
 
         [Test]

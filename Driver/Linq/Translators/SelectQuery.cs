@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Linq
         private Expression _skip;
         private Expression _take;
         private Func<IEnumerable, object> _elementSelector; // used for First, Last, etc...
+        private bool _distinct;
 
         // constructors
         /// <summary>
@@ -122,6 +123,12 @@ namespace MongoDB.Driver.Linq
         public override object Execute()
         {
             var query = BuildQuery();
+
+            if (_distinct)
+            {
+                return ExecuteDistinct(query);
+            }
+
             var cursor = Collection.FindAs(DocumentType, query);
 
             if (_orderBy != null)
@@ -206,6 +213,9 @@ namespace MongoDB.Driver.Linq
                 case "Count":
                 case "LongCount":
                     TranslateCount(methodCallExpression);
+                    break;
+                case "Distinct":
+                    TranslateDistinct(methodCallExpression);
                     break;
                 case "ElementAt":
                 case "ElementAtOrDefault":
@@ -818,6 +828,36 @@ namespace MongoDB.Driver.Linq
             }
         }
 
+        private object ExecuteDistinct(IMongoQuery query)
+        {
+            if (_orderBy != null)
+            {
+                throw new NotSupportedException("Distinct cannot be used with OrderBy.");
+            }
+            if (_skip != null || _take != null)
+            {
+                throw new NotSupportedException("Distinct cannot be used with Skip or Take.");
+            }
+            if (_projection == null)
+            {
+                throw new NotSupportedException("Distinct must be used with Select to identify the field whose distinct values are to be found.");
+            }
+
+            var keyExpression = _projection.Body;
+            var serializationInfo = GetSerializationInfo(keyExpression);
+            if (serializationInfo == null)
+            {
+                var message = string.Format("Select used with Distinct is not valid: {0}.", ExpressionFormatter.ToString(keyExpression));
+                throw new NotSupportedException(message);
+            }
+            var dottedElementName = serializationInfo.ElementName;
+            var source = Collection.Distinct(dottedElementName, query);
+
+            var deserializationProjectorGenericDefinition = typeof(DeserializationProjector<>);
+            var deserializationProjectorType = deserializationProjectorGenericDefinition.MakeGenericType(keyExpression.Type);
+            return Activator.CreateInstance(deserializationProjectorType, source, serializationInfo);
+        }
+
         private BsonSerializationInfo GetSerializationInfo(Expression expression)
         {
             var documentSerializer = BsonSerializer.LookupSerializer(DocumentType);
@@ -1012,6 +1052,19 @@ namespace MongoDB.Driver.Linq
                     SetElementSelector(methodCallExpression, source => ((MongoCursor)source).Size());
                     break;
             }
+        }
+
+        private void TranslateDistinct(MethodCallExpression methodCallExpression)
+        {
+            var arguments = methodCallExpression.Arguments.ToArray();
+            if (arguments.Length != 1)
+            {
+                var message = "The version of the Distinct query operator with an equality comparer is not supported.";
+                throw new InvalidOperationException(message);
+            }
+
+            Translate(arguments[0]);
+            _distinct = true;
         }
 
         private void TranslateElementAt(MethodCallExpression methodCallExpression)
