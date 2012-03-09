@@ -878,6 +878,12 @@ namespace MongoDB.Driver.Linq
                 return GetSerializationInfoArrayIndex(serializer, binaryExpression);
             }
 
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null && methodCallExpression.Method.Name == "get_Item")
+            {
+                return GetSerializationInfoGetItem(serializer, methodCallExpression);
+            }
+
             return null;
         }
 
@@ -896,6 +902,31 @@ namespace MongoDB.Driver.Linq
                         itemSerializationInfo.Serializer,
                         itemSerializationInfo.NominalType,
                         itemSerializationInfo.SerializationOptions);
+                }
+            }
+
+            return null;
+        }
+
+        private BsonSerializationInfo GetSerializationInfoGetItem(IBsonSerializer serializer, MethodCallExpression methodCallExpression)
+        {
+            var arguments = methodCallExpression.Arguments.ToArray();
+            if (arguments.Length == 1)
+            {
+                var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Object);
+                if (arraySerializationInfo != null)
+                {
+                    var itemSerializationInfo = arraySerializationInfo.Serializer.GetItemSerializationInfo();
+                    var indexEpression = arguments[0] as ConstantExpression;
+                    if (indexEpression != null)
+                    {
+                        var index = Convert.ToInt32(indexEpression.Value);
+                        return new BsonSerializationInfo(
+                            arraySerializationInfo.ElementName + "." + index.ToString(),
+                            itemSerializationInfo.Serializer,
+                            itemSerializationInfo.NominalType,
+                            itemSerializationInfo.SerializationOptions);
+                    }
                 }
             }
 
@@ -1063,7 +1094,6 @@ namespace MongoDB.Driver.Linq
                 throw new InvalidOperationException(message);
             }
 
-            Translate(arguments[0]);
             _distinct = true;
         }
 

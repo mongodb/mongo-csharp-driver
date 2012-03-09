@@ -260,6 +260,15 @@ namespace MongoDB.Driver.Linq
             using (new Indentation(this))
             {
                 WriteLine("Method={0}", node.Method.Name);
+                if (node.Object == null)
+                {
+                    WriteLine("Object=null");
+                }
+                else
+                {
+                    WriteLine("Object:");
+                    VisitIndented(node.Object);
+                }
                 WriteLine("Arguments:");
                 using (new Indentation(this))
                 {
