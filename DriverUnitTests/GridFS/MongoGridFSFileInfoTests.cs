@@ -72,29 +72,34 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestEquals()
         {
             var createOptions = new MongoGridFSCreateOptions { ChunkSize = 123 };
-            var a = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
-            var b = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
-            var c = new MongoGridFSFileInfo(_gridFS, "g", createOptions);
-            var n = (MongoCredentials)null;
+            var a1 = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var a2 = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var a3 = a2;
+            var b = new MongoGridFSFileInfo(_gridFS, "g", createOptions);
+            var null1 = (MongoGridFSFileInfo)null;
+            var null2 = (MongoGridFSFileInfo)null;
 
-            Assert.IsTrue(object.Equals(a, b));
-            Assert.IsFalse(object.Equals(a, c));
-            Assert.IsFalse(a.Equals(n));
-            Assert.IsFalse(a.Equals(null));
+            Assert.AreNotSame(a1, a2);
+            Assert.AreSame(a2, a3);
+            Assert.IsTrue(a1.Equals((object)a2));
+            Assert.IsFalse(a1.Equals((object)null));
+            Assert.IsFalse(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a == b);
-            Assert.IsFalse(a == c);
-            Assert.IsFalse(a == null);
-            Assert.IsFalse(null == a);
-            Assert.IsTrue(n == null);
-            Assert.IsTrue(null == n);
+            Assert.IsTrue(a1 == a2);
+            Assert.IsTrue(a2 == a3);
+            Assert.IsFalse(a1 == b);
+            Assert.IsFalse(a1 == null1);
+            Assert.IsFalse(null1 == a1);
+            Assert.IsTrue(null1 == null2);
 
-            Assert.IsFalse(a != b);
-            Assert.IsTrue(a != c);
-            Assert.IsTrue(a != null);
-            Assert.IsTrue(null != a);
-            Assert.IsFalse(n != null);
-            Assert.IsFalse(null != n);
+            Assert.IsFalse(a1 != a2);
+            Assert.IsFalse(a2 != a3);
+            Assert.IsTrue(a1 != b);
+            Assert.IsTrue(a1 != null1);
+            Assert.IsTrue(null1 != a1);
+            Assert.IsFalse(null1 != null2);
+
+            Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
         }
     }
 }
