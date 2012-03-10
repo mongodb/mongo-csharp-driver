@@ -798,11 +798,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
         public void TestFirstWithPredicateNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).First(c => c.X == 9);
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                var result = (from c in _collection.AsQueryable<C>()
+                              select c).First(c => c.X == 9);
+            });
+            Assert.AreEqual(ExpectedErrorMessage.FirstEmptySequence, ex.Message);
         }
 
         [Test]
@@ -1103,11 +1106,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
         public void TestLastWithPredicateNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Last(c => c.X == 9);
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                var result = (from c in _collection.AsQueryable<C>()
+                              select c).Last(c => c.X == 9);
+            });
+            Assert.AreEqual(ExpectedErrorMessage.LastEmptySequence, ex.Message);
         }
 
         [Test]
@@ -1668,12 +1674,15 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreEqual(33, result.Y);
         }
 
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
         [Test]
         public void TestSingleOrDefaultWithPredicateTwoMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).SingleOrDefault(c => c.Y == 11);
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                var result = (from c in _collection.AsQueryable<C>()
+                              select c).SingleOrDefault(c => c.Y == 11);
+            });
+            Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message);
         }
 
         [Test]
@@ -1731,12 +1740,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains no elements")]
         public void TestSingleWithPredicateNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Single(c => c.X == 9);
-            Assert.IsNull(result);
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                var result = (from c in _collection.AsQueryable<C>()
+                              select c).Single(c => c.X == 9);
+            });
+            Assert.AreEqual(ExpectedErrorMessage.SingleEmptySequence, ex.Message);
         }
 
         [Test]
@@ -1749,11 +1760,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Sequence contains more than one element")]
         public void TestSingleWithPredicateTwoMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Single(c => c.Y == 11);
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+            {
+                var result = (from c in _collection.AsQueryable<C>()
+                              select c).Single(c => c.Y == 11);
+            });
+            Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message);
         }
 
         [Test]

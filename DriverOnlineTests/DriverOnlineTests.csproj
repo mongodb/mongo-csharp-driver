@@ -88,6 +88,7 @@
     <Compile Include="Core\MongoDatabaseTests.cs" />
     <Compile Include="Core\MongoServerTests.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ExpectedErrorMessage.cs" />
     <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
     <Compile Include="GridFS\MongoGridFSTests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />
