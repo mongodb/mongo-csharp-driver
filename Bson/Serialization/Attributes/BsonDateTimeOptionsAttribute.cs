@@ -77,14 +77,16 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
+            IBsonSerializationOptions serializationOptions;
             if (_dateOnly)
             {
-                return new DateTimeSerializationOptions(_dateOnly, _representation);
+                serializationOptions = new DateTimeSerializationOptions(_dateOnly, _representation);
             }
             else
             {
-                return new DateTimeSerializationOptions(_kind, _representation);
+                serializationOptions = new DateTimeSerializationOptions(_kind, _representation);
             }
+            return CheckIfIsItemsOptions(serializationOptions);
         }
     }
 }

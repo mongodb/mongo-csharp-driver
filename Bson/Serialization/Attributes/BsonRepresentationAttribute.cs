@@ -78,7 +78,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
-            return new RepresentationSerializationOptions(_representation, _allowOverflow, _allowTruncation);
+            var serializationOptions = new RepresentationSerializationOptions(_representation, _allowOverflow, _allowTruncation);
+            return CheckIfIsItemsOptions(serializationOptions);
         }
     }
 }

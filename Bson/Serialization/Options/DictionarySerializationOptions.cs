@@ -56,6 +56,7 @@ namespace MongoDB.Bson.Serialization.Options
 
         // private fields
         private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
+        private IBsonSerializationOptions _itemSerializationOptions;
 
         // constructors
         /// <summary>
@@ -124,6 +125,15 @@ namespace MongoDB.Bson.Serialization.Options
         public DictionaryRepresentation Representation
         {
             get { return _representation; }
+        }
+
+        /// <summary>
+        /// Gets or sets the serialization options for the items in the dictionary.
+        /// </summary>
+        public IBsonSerializationOptions ItemSerializationOptions
+        {
+            get { return _itemSerializationOptions; }
+            set { _itemSerializationOptions = value; }
         }
     }
 }

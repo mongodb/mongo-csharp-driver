@@ -194,8 +194,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var dictionary = (IDictionary)value;
-
                 if (nominalType == typeof(object))
                 {
                     var actualType = value.GetType();
@@ -207,34 +205,42 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return;
                 }
 
-                var dictionaryOptions = options as DictionarySerializationOptions;
-                if (dictionaryOptions == null)
-                {
-                    // support RepresentationSerializationOptions for backward compatibility
-                    var representationOptions = options as RepresentationSerializationOptions;
-                    if (representationOptions != null)
-                    {
-                        switch (representationOptions.Representation)
-                        {
-                            case BsonType.Array:
-                                dictionaryOptions = DictionarySerializationOptions.ArrayOfArrays;
-                                break;
-                            case BsonType.Document:
-                                dictionaryOptions = DictionarySerializationOptions.Document;
-                                break;
-                            default:
-                                var message = string.Format("BsonType {0} is not a valid representation for a Dictionary.", representationOptions.Representation);
-                                throw new BsonSerializationException(message);
-                        }
-                    }
+                var representation = DictionarySerializationOptions.Defaults.Representation;
+                var itemSerializationOptions = DictionarySerializationOptions.Defaults.ItemSerializationOptions;
 
-                    if (dictionaryOptions == null)
+                var dictionarySerializationOptions = options as DictionarySerializationOptions;
+                if (dictionarySerializationOptions != null)
+                {
+                    representation = dictionarySerializationOptions.Representation;
+                    itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
+                }
+
+                var itemSerializationOptionsWrapper = options as ItemSerializationOptionsWrapper;
+                if (itemSerializationOptionsWrapper != null)
+                {
+                    itemSerializationOptions = itemSerializationOptionsWrapper.SerializationOptions;
+                }
+
+                // support RepresentationSerializationOptions for backward compatibility
+                var representationSerializationOptions = options as RepresentationSerializationOptions;
+                if (representationSerializationOptions != null)
+                {
+                    switch (representationSerializationOptions.Representation)
                     {
-                        dictionaryOptions = DictionarySerializationOptions.Defaults;
+                        case BsonType.Array:
+                            representation = DictionaryRepresentation.ArrayOfArrays;
+                            break;
+                        case BsonType.Document:
+                            representation = DictionaryRepresentation.Document;
+                            break;
+                        default:
+                            var message = string.Format("BsonType {0} is not a valid representation for a Dictionary.", representationSerializationOptions.Representation);
+                            throw new BsonSerializationException(message);
                     }
                 }
 
-                var representation = dictionaryOptions.Representation;
+                var dictionary = (IDictionary)value;
+
                 if (representation == DictionaryRepresentation.Dynamic)
                 {
                     representation = DictionaryRepresentation.Document;
@@ -256,7 +262,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         foreach (DictionaryEntry entry in dictionary)
                         {
                             bsonWriter.WriteName((string)entry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
                         }
                         bsonWriter.WriteEndDocument();
                         break;
@@ -266,7 +272,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             bsonWriter.WriteStartArray();
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
                             bsonWriter.WriteEndArray();
                         }
                         bsonWriter.WriteEndArray();
@@ -279,7 +285,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                             bsonWriter.WriteName("k");
                             BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key);
                             bsonWriter.WriteName("v");
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
                             bsonWriter.WriteEndDocument();
                         }
                         bsonWriter.WriteEndArray();

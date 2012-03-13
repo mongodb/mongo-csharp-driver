@@ -66,7 +66,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <returns>The serialization options.</returns>
         public override IBsonSerializationOptions GetOptions()
         {
-            return new DictionarySerializationOptions(_representation);
+            var serializationOptions = new DictionarySerializationOptions(_representation);
+            return CheckIfIsItemsOptions(serializationOptions);
         }
     }
 }
