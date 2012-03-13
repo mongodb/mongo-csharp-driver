@@ -28,6 +28,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.UnitTests;
 
 namespace MongoDB.DriverOnlineTests.Jira.CSharp355
 {
@@ -57,6 +58,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
         [Test]
         public void TestBitmap()
         {
+            if (TestEnvironment.MonoRuntime)
+            {
+                // this test does not work in Mono. Skipping for the time being
+                // CSHARP-389
+                return;
+            }
             var bitmap = new Bitmap(1, 2);
             var c = new C { I = bitmap, B = bitmap };
             _collection.RemoveAll();

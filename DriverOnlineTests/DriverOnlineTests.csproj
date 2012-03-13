@@ -79,6 +79,9 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\TestEnvironment.cs">
+      <Link>TestEnvironment.cs</Link>
+    </Compile>
     <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />
