@@ -21,7 +21,6 @@
     <file src="Driver\bin\Debug\MongoDB.Driver.dll" target="lib\net35" />
     <file src="Driver\bin\Debug\MongoDB.Driver.pdb" target="lib\net35" />
     <file src="Driver\bin\Debug\MongoDB.Driver.XML" target="lib\net35" />
-    <file src="Help\CSharpDriverDocs.chm" target="" />
     <file src="Release Notes v1.3.1.txt" target="" />
     <file src="License.rtf" target ="" />
   </files>
