@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Initializes a new instance of the BsonBaseSerializer class.
         /// </summary>
+        /// <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
         protected BsonBaseSerializer(IBsonSerializationOptions defaultSerializationOptions)
         {
             if (defaultSerializationOptions != null)
@@ -168,12 +169,12 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // protected methods
         /// <summary>
-        /// Casts the provided serialization options (or the defaults if null) to the required type.
+        /// Ensures that the serializer has serialization options of the right type (replacing null with the default serialization options if necessary).
         /// </summary>
         /// <typeparam name="TSerializationOptions">The required serialization options type.</typeparam>
         /// <param name="options">The serialization options.</param>
         /// <returns>The serialization options (or the defaults if null) cast to the required type.</returns>
-        protected TSerializationOptions CastSerializationOptions<TSerializationOptions>(IBsonSerializationOptions options) where TSerializationOptions : class, IBsonSerializationOptions
+        protected TSerializationOptions EnsureSerializationOptions<TSerializationOptions>(IBsonSerializationOptions options) where TSerializationOptions : class, IBsonSerializationOptions
         {
             if (options == null)
             {

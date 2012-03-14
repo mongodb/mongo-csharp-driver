@@ -39,6 +39,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Initializes a new instance of the BsonClassMapSerializer class.
         /// </summary>
+        /// <param name="classMap">The class map.</param>
         public BsonClassMapSerializer(BsonClassMap classMap)
         {
             _classMap = classMap;
@@ -291,7 +292,7 @@ namespace MongoDB.Bson.Serialization
                 if (documentSerializationOptions == null)
                 {
                     var message = string.Format(
-                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                        "Serializer BsonClassMapSerializer expected serialization options of type {0}, not {1}.",
                         BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
                         BsonUtils.GetFriendlyTypeName(options.GetType()));
                     throw new BsonSerializationException(message);

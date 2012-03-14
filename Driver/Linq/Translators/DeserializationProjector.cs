@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets an enumerator for the result objects.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An enumerator for the result objects.</returns>
         public IEnumerator<TResult> GetEnumerator()
         {
             foreach (var value in _source)

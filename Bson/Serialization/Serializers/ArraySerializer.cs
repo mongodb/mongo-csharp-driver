@@ -133,7 +133,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var array = (T[])value;
-                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
                 bsonWriter.WriteStartArray();
@@ -266,7 +266,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var array = (T[,])value;
-                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
                 bsonWriter.WriteStartArray();
@@ -423,7 +423,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var array = (T[, ,])value;
-                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
                 bsonWriter.WriteStartArray();

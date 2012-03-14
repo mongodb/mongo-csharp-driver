@@ -107,7 +107,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var boolValue = (bool)value;
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             switch (representationSerializationOptions.Representation)
             {
@@ -175,7 +175,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(DateTime));
-            var dateTimeSerializationOptions = CastSerializationOptions<DateTimeSerializationOptions>(options);
+            var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             DateTime value;
@@ -250,7 +250,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var dateTime = (DateTime)value;
-            var dateTimeSerializationOptions = CastSerializationOptions<DateTimeSerializationOptions>(options);
+            var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
             DateTime utcDateTime;
             if (dateTimeSerializationOptions.DateOnly)
@@ -351,7 +351,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(double));
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -384,7 +384,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var doubleValue = (double)value;
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             switch (representationSerializationOptions.Representation)
             {
@@ -496,7 +496,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var guid = (Guid)value;
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             switch (representationSerializationOptions.Representation)
             {
@@ -562,7 +562,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(int));
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -595,7 +595,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var int32Value = (int)value;
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             switch (representationSerializationOptions.Representation)
             {
@@ -660,7 +660,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(long));
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -693,7 +693,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var int64Value = (long)value;
-            var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             switch (representationSerializationOptions.Representation)
             {

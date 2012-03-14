@@ -45,10 +45,10 @@ namespace MongoDB.Driver.Linq
 
         // public methods
         /// <summary>
-        /// Formats an Expression as a string.
+        /// Returns a string that represents the Expression.
         /// </summary>
-        /// <param name="node">The Expression to pretty print.</param>
-        /// <returns>A string containing the pretty printed Expression.</returns>
+        /// <param name="node">The Expression to format.</param>
+        /// <returns>A string that represents the Expression.</returns>
         public static string ToString(Expression node)
         {
             var formatter = new ExpressionFormatter();
@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Returns the pretty printed string representation of the Expression.
+        /// Returns a string that represents the Expression.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A string that represents the Expression.</returns>
         public override string ToString()
         {
             return _sb.ToString();

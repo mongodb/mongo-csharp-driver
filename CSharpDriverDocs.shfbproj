@@ -39,6 +39,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.GridFS" isDocumented="True">The classes used to interact with MongoDB GridFS are part of the MongoDB.Driver.GridFS namespace.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Internal" isDocumented="True">The MongoDB.Driver.Internal namespace contains internal classes used by the driver such as ConnectionPool.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <CopyrightText>Copyright 2010-2012 10gen Inc.</CopyrightText>
     <FeedbackEMailAddress>robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>

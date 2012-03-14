@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Returns the pretty printed string representation of the Expression.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The pretty printed string representation of the Expression.</returns>
         public override string ToString()
         {
             return _sb.ToString();

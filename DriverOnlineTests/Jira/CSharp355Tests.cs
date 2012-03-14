@@ -58,7 +58,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp355
         [Test]
         public void TestBitmap()
         {
-            if (TestEnvironment.MonoRuntime)
+            if (TestEnvironment.IsMono)
             {
                 // this test does not work in Mono. Skipping for the time being
                 // CSHARP-389

@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Creates an IMongoQuery from the where clause (returns null if no where clause was specified).
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An IMongoQuery.</returns>
         public IMongoQuery BuildQuery()
         {
             if (_where == null)

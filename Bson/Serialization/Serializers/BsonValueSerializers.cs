@@ -348,7 +348,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var dateTimeSerializationOptions = CastSerializationOptions<DateTimeSerializationOptions>(options);
+                var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
                 long? millisecondsSinceEpoch = null;
                 long? ticks = null;
@@ -459,7 +459,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var bsonDateTime = (BsonDateTime)value;
-                var dateTimeSerializationOptions = CastSerializationOptions<DateTimeSerializationOptions>(options);
+                var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
                 DateTime utcDateTime = DateTime.MinValue;
                 long millisecondsSinceEpoch;
@@ -1673,7 +1673,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var symbol = (BsonSymbol)value;
-                var representationSerializationOptions = CastSerializationOptions<RepresentationSerializationOptions>(options);
+                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
                 switch (representationSerializationOptions.Representation)
                 {

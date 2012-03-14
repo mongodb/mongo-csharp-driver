@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2011 10gen Inc.
+﻿/* Copyright 2010-2012 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,30 +14,34 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace MongoDB.UnitTests
 {
-    internal class TestEnvironment
+    internal static class TestEnvironment
     {
-        private static bool _monoRuntime = false;
+        // private static fields
+        private static bool __isMono = false;
 
+        // static constructor
         static TestEnvironment()
         {
             var type = Type.GetType("Mono.Runtime");
             if (type != null)
             {
-                _monoRuntime = true;
+                __isMono = true;
             }
         }
 
+        // public static properties
         /// <summary>
-        /// Check to see if the code is being executed on the Mono runtime as opposed to the normal
-        /// Microsoft .Net runtime
-        /// @returns true if running in Mono
+        /// Gets whether the code is being executed on the Mono runtime (as opposed to Microsoft .NET).
         /// </summary>
-        internal static bool MonoRuntime
+        internal static bool IsMono
         {
-            get { return _monoRuntime; }
+            get { return __isMono; }
         }
     }
 }

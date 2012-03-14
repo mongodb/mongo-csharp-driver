@@ -36,6 +36,8 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Initializes a new instance of the ExpressionParameterReplacer class.
         /// </summary>
+        /// <param name="fromParameter">The parameter to be replaced.</param>
+        /// <param name="toParameter">The new parameter.</param>
         public ExpressionParameterReplacer(ParameterExpression fromParameter, ParameterExpression toParameter)
         {
             _fromParameter = fromParameter;

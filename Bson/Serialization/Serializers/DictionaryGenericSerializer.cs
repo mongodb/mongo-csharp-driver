@@ -228,7 +228,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var dictionary = (IDictionary<TKey, TValue>)value;
-                var dictionarySerializationOptions = CastSerializationOptions<DictionarySerializationOptions>(options);
+                var dictionarySerializationOptions = EnsureSerializationOptions<DictionarySerializationOptions>(options);
                 var representation = dictionarySerializationOptions.Representation;
                 var itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
 

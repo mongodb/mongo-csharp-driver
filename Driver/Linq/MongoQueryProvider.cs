@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Initializes a new instance of the MongoQueryProvider class.
         /// </summary>
+        /// <param name="collection">The collection being queried.</param>
         public MongoQueryProvider(MongoCollection collection)
         {
             if (collection == null)
