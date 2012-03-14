@@ -741,11 +741,16 @@ namespace MongoDB.Bson
             }
             else
             {
-                var documentSerializationOptions = options as DocumentSerializationOptions;
-                if (documentSerializationOptions != null)
+                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                if (documentSerializationOptions == null)
                 {
-                    _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
+                    var message = string.Format(
+                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                        BsonUtils.GetFriendlyTypeName(options.GetType()));
+                    throw new BsonSerializationException(message);
                 }
+                _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
                 
                 bsonReader.ReadStartDocument();
                 Clear();

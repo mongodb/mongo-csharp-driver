@@ -65,6 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyDeserializeType(nominalType);
+
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {

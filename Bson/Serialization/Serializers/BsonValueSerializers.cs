@@ -191,6 +191,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var bytes = binaryData.Bytes;
                 var subType = binaryData.SubType;
                 var guidRepresentation = binaryData.GuidRepresentation;
+
                 if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                 {
                     var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
@@ -212,6 +213,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                     }
                 }
+
                 bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
             }
         }
@@ -339,6 +341,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDateTime));
+            var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -348,8 +351,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
-
                 long? millisecondsSinceEpoch = null;
                 long? ticks = null;
                 switch (bsonType)
@@ -532,7 +533,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type DateTime.", dateTimeSerializationOptions.Representation);
+                        var message = string.Format("'{0}' is not a valid DateTime representation.", dateTimeSerializationOptions.Representation);
                         throw new BsonSerializationException(message);
                 }
             }

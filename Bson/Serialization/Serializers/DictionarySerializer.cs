@@ -292,7 +292,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonWriter.WriteEndArray();
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type IDictionary.", representation);
+                        var message = string.Format("'{0}' is not a valid IDictionary representation.", representation);
                         throw new BsonSerializationException(message);
                 }
             }

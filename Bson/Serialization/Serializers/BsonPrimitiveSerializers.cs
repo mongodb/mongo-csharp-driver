@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteString(XmlConvert.ToString(boolValue));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type Boolean.", representationSerializationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid Boolean representation.", representationSerializationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -303,7 +303,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type DateTime.", dateTimeSerializationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid DateTime representation.", dateTimeSerializationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -401,7 +401,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteString(doubleValue.ToString("R", NumberFormatInfo.InvariantInfo));
                     break;
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type Double.", representationSerializationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid Double representation.", representationSerializationOptions.Representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -791,9 +791,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var objectId = (ObjectId)value;
-            var representation = (options == null) ? BsonType.ObjectId : ((RepresentationSerializationOptions)options).Representation;
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
-            switch (representation)
+            switch (representationSerializationOptions.Representation)
             {
                 case BsonType.ObjectId:
                     bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
@@ -802,7 +802,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteString(objectId.ToString());
                     break;
                 default:
-                    throw new BsonInternalException("Unexpected representation.");
+                    var message = string.Format("'{0}' is not a valid ObjectId representation.", representationSerializationOptions.Representation);
+                    throw new BsonSerializationException(message);
             }
         }
     }
@@ -849,6 +850,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(string));
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -858,15 +860,21 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
-                switch (representation)
+                switch (bsonType)
                 {
                     case BsonType.ObjectId:
-                        int timestamp, machine, increment;
-                        short pid;
-                        bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                        var objectId = new ObjectId(timestamp, machine, pid, increment);
-                        return objectId.ToString();
+                        if (representationSerializationOptions.Representation == BsonType.ObjectId)
+                        {
+                            int timestamp, machine, increment;
+                            short pid;
+                            bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                            var objectId = new ObjectId(timestamp, machine, pid, increment);
+                            return objectId.ToString();
+                        }
+                        else
+                        {
+                            goto default;
+                        }
                     case BsonType.String:
                         return bsonReader.ReadString();
                     case BsonType.Symbol:
@@ -898,9 +906,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var stringValue = (string)value;
-                var representation = (options == null) ? BsonType.String : ((RepresentationSerializationOptions)options).Representation;
+                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
 
-                switch (representation)
+                switch (representationSerializationOptions.Representation)
                 {
                     case BsonType.ObjectId:
                         var id = ObjectId.Parse(stringValue);
@@ -913,7 +921,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonWriter.WriteSymbol(stringValue);
                         break;
                     default:
-                        throw new BsonInternalException("Unexpected representation.");
+                        var message = string.Format("'{0}' is not a valid String representation.", representationSerializationOptions.Representation);
+                        throw new BsonSerializationException(message);
                 }
             }
         }

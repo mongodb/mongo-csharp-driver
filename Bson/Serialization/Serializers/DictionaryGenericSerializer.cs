@@ -290,8 +290,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                         break;
                     default:
                         var message = string.Format(
-                            "'{0}' is not a valid representation for type IDictionary<{1}, {2}>.",
-                            representation, typeof(TKey).Name, typeof(TValue).Name);
+                            "'{0}' is not a valid {1} representation.",
+                            representation,
+                            BsonUtils.GetFriendlyTypeName(typeof(IDictionary<TKey, TValue>)));
                         throw new BsonSerializationException(message);
                 }
             }
