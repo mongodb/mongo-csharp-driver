@@ -64,11 +64,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(BsonType.Int64, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
-
-            var options = (RepresentationSerializationOptions)attribute.GetOptions();
-            Assert.AreEqual(BsonType.Int64, options.Representation);
-            Assert.AreEqual(false, options.AllowOverflow);
-            Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
@@ -81,11 +76,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
-
-            var options = (RepresentationSerializationOptions)attribute.GetOptions();
-            Assert.AreEqual(BsonType.Int32, options.Representation);
-            Assert.AreEqual(false, options.AllowOverflow);
-            Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
@@ -98,11 +88,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(true, attribute.AllowOverflow);
             Assert.AreEqual(false, attribute.AllowTruncation);
-
-            var options = (RepresentationSerializationOptions)attribute.GetOptions();
-            Assert.AreEqual(BsonType.Int32, options.Representation);
-            Assert.AreEqual(true, options.AllowOverflow);
-            Assert.AreEqual(false, options.AllowTruncation);
         }
 
         [Test]
@@ -115,11 +100,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(false, attribute.AllowOverflow);
             Assert.AreEqual(true, attribute.AllowTruncation);
-
-            var options = (RepresentationSerializationOptions)attribute.GetOptions();
-            Assert.AreEqual(BsonType.Int32, options.Representation);
-            Assert.AreEqual(false, options.AllowOverflow);
-            Assert.AreEqual(true, options.AllowTruncation);
         }
 
         [Test]
@@ -132,11 +112,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             Assert.AreEqual(BsonType.Int32, attribute.Representation);
             Assert.AreEqual(true, attribute.AllowOverflow);
             Assert.AreEqual(true, attribute.AllowTruncation);
-
-            var options = (RepresentationSerializationOptions)attribute.GetOptions();
-            Assert.AreEqual(BsonType.Int32, options.Representation);
-            Assert.AreEqual(true, options.AllowOverflow);
-            Assert.AreEqual(true, options.AllowTruncation);
         }
     }
 }

@@ -42,6 +42,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An object.</returns>
         object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options);
         /// <summary>
+        /// Gets the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        IBsonSerializationOptions GetDefaultSerializationOptions();
+        /// <summary>
         /// Gets the document Id.
         /// </summary>
         /// <param name="document">The document.</param>

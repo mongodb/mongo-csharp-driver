@@ -691,7 +691,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
 
         private class C
         {
-            [BsonRepresentation(BsonType.String, IsItemOptions = true)]
+            [BsonRepresentation(BsonType.String)]
             public Hashtable Hashtable;
         }
 

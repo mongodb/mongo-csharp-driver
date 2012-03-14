@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the discriminator and related options for a class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonDiscriminatorAttribute : Attribute
+    public class BsonDiscriminatorAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
         private string _discriminator;

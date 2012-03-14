@@ -16,6 +16,8 @@
 using System;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Options
 {
@@ -45,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Options
     /// <summary>
     /// Represents serialization options for a Dictionary value.
     /// </summary>
-    public class DictionarySerializationOptions : IBsonSerializationOptions
+    public class DictionarySerializationOptions : BsonBaseSerializationOptions
     {
         // private static fields
         private static DictionarySerializationOptions __defaults = new DictionarySerializationOptions();
@@ -75,6 +77,16 @@ namespace MongoDB.Bson.Serialization.Options
             _representation = representation;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the DictionarySerializationOptions class.
+        /// </summary>
+        /// <param name="representation">The representation to use for a Dictionary.</param>
+        /// <param name="itemSerializationOptions">The serialization options for the items in the dictionary.</param>
+        public DictionarySerializationOptions(DictionaryRepresentation representation, IBsonSerializationOptions itemSerializationOptions)
+        {
+            _representation = representation;
+            _itemSerializationOptions = itemSerializationOptions;
+        }
 
         // public static properties
         /// <summary>
@@ -125,6 +137,11 @@ namespace MongoDB.Bson.Serialization.Options
         public DictionaryRepresentation Representation
         {
             get { return _representation; }
+            set
+            {
+                EnsureNotFrozen();
+                _representation = value;
+            }
         }
 
         /// <summary>
@@ -133,7 +150,95 @@ namespace MongoDB.Bson.Serialization.Options
         public IBsonSerializationOptions ItemSerializationOptions
         {
             get { return _itemSerializationOptions; }
-            set { _itemSerializationOptions = value; }
+            set
+            {
+                EnsureNotFrozen();
+                _itemSerializationOptions = value;
+            }
+        }
+
+        // public methods
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
+        {
+            EnsureNotFrozen();
+            var dictionaryOptionsAttribute = attribute as BsonDictionaryOptionsAttribute;
+            if (dictionaryOptionsAttribute != null)
+            {
+                _representation = dictionaryOptionsAttribute.Representation;
+                return;
+            }
+
+            // for backward compatibility reasons representations Array and Document apply to the Dictionary and not the items
+            var representationAttribute = attribute as BsonRepresentationAttribute;
+            if (representationAttribute != null)
+            {
+                switch (representationAttribute.Representation)
+                {
+                    case BsonType.Array:
+                        _representation = DictionaryRepresentation.ArrayOfArrays;
+                        return;
+                    case BsonType.Document:
+                        _representation = DictionaryRepresentation.Document;
+                        return;
+                }
+            }
+
+            var itemSerializer = serializer.GetItemSerializationInfo().Serializer;
+            if (_itemSerializationOptions == null)
+            {
+                var itemDefaultSerializationOptions = itemSerializer.GetDefaultSerializationOptions();
+
+                // special case for legacy dictionaries: allow BsonRepresentation on object
+                if (itemDefaultSerializationOptions == null && 
+                    serializer.GetType() == typeof(DictionarySerializer) && 
+                    attribute.GetType() == typeof(BsonRepresentationAttribute))
+                {
+                    itemDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
+                }
+
+                if (itemDefaultSerializationOptions == null)
+                {
+                    var message = string.Format(
+                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1} and the item serializer is of type {2}.",
+                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
+                        BsonUtils.GetFriendlyTypeName(serializer.GetType()),
+                        BsonUtils.GetFriendlyTypeName(itemSerializer.GetType()));
+                    throw new NotSupportedException(message);
+                }
+                _itemSerializationOptions = itemDefaultSerializationOptions.Clone();
+            }
+
+            _itemSerializationOptions.ApplyAttribute(itemSerializer, attribute);
+        }
+
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        public override IBsonSerializationOptions Clone()
+        {
+            return new DictionarySerializationOptions(_representation, _itemSerializationOptions);
+        }
+
+        /// <summary>
+        /// Freezes the serialization options.
+        /// </summary>
+        /// <returns>The frozen serialization options.</returns>
+        public override IBsonSerializationOptions Freeze()
+        {
+            if (!IsFrozen)
+            {
+                if (_itemSerializationOptions != null)
+                {
+                    _itemSerializationOptions.Freeze();
+                }
+            }
+            return base.Freeze();
         }
     }
 }

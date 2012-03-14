@@ -83,6 +83,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        public IBsonSerializationOptions GetDefaultSerializationOptions()
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Gets the document Id.
         /// </summary>
         /// <param name="document">The document.</param>

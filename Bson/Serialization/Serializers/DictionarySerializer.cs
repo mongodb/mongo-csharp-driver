@@ -39,6 +39,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the DictionarySerializer class.
         /// </summary>
         public DictionarySerializer()
+            : base(DictionarySerializationOptions.Defaults)
         {
         }
 
@@ -176,6 +177,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(object));
+            var nominalType = typeof(object);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -205,22 +219,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return;
                 }
 
-                var representation = DictionarySerializationOptions.Defaults.Representation;
-                var itemSerializationOptions = DictionarySerializationOptions.Defaults.ItemSerializationOptions;
-
-                var dictionarySerializationOptions = options as DictionarySerializationOptions;
-                if (dictionarySerializationOptions != null)
-                {
-                    representation = dictionarySerializationOptions.Representation;
-                    itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
-                }
-
-                var itemSerializationOptionsWrapper = options as ItemSerializationOptionsWrapper;
-                if (itemSerializationOptionsWrapper != null)
-                {
-                    itemSerializationOptions = itemSerializationOptionsWrapper.SerializationOptions;
-                }
-
                 // support RepresentationSerializationOptions for backward compatibility
                 var representationSerializationOptions = options as RepresentationSerializationOptions;
                 if (representationSerializationOptions != null)
@@ -228,10 +226,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     switch (representationSerializationOptions.Representation)
                     {
                         case BsonType.Array:
-                            representation = DictionaryRepresentation.ArrayOfArrays;
+                            options = DictionarySerializationOptions.ArrayOfArrays;
                             break;
                         case BsonType.Document:
-                            representation = DictionaryRepresentation.Document;
+                            options = DictionarySerializationOptions.Document;
                             break;
                         default:
                             var message = string.Format("BsonType {0} is not a valid representation for a Dictionary.", representationSerializationOptions.Representation);
@@ -240,6 +238,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
 
                 var dictionary = (IDictionary)value;
+                var dictionarySerializationOptions = CastSerializationOptions<DictionarySerializationOptions>(options);
+                var representation = dictionarySerializationOptions.Representation;
+                var itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
 
                 if (representation == DictionaryRepresentation.Dynamic)
                 {

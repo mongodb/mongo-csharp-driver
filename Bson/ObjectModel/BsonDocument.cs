@@ -1007,11 +1007,19 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options (can be null).</param>
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            bsonWriter.WriteStartDocument();
+            var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+            if (documentSerializationOptions == null)
+            {
+                var message = string.Format(
+                    "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                    BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                    BsonUtils.GetFriendlyTypeName(options.GetType()));
+                throw new BsonSerializationException(message);
+            }
 
-            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
+            bsonWriter.WriteStartDocument();
             int idIndex;
-            if (documentOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
+            if (documentSerializationOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
             {
                 _elements[idIndex].WriteTo(bsonWriter);
             }

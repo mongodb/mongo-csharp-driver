@@ -591,7 +591,7 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers
 
         private class C
         {
-            [BsonRepresentation(BsonType.String, IsItemOptions = true)]
+            [BsonRepresentation(BsonType.String)]
             public Dictionary<string, E> Dictionary;
         }
 

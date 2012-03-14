@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Indicates that extra elements should be ignored when this class is deserialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonExtraElementsAttribute : Attribute
+    public class BsonExtraElementsAttribute : BsonSerializationOptionsAttribute
     {
     }
 }

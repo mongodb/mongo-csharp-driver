@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>
     /// Represents serialization options for a TimeSpan value.
     /// </summary>
-    public class TimeSpanSerializationOptions : IBsonSerializationOptions
+    public class TimeSpanSerializationOptions : BsonBaseSerializationOptions
     {
         // private fields
         private BsonType _representation;
@@ -57,6 +59,11 @@ namespace MongoDB.Bson.Serialization.Options
         public BsonType Representation
         {
             get { return _representation; }
+            set
+            {
+                EnsureNotFrozen();
+                _representation = value;
+            }
         }
 
         /// <summary>
@@ -65,6 +72,41 @@ namespace MongoDB.Bson.Serialization.Options
         public TimeSpanUnits Units
         {
             get { return _units; }
+            set
+            {
+                EnsureNotFrozen();
+                _units = value;
+            }
+        }
+
+        // public methods
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
+        {
+            EnsureNotFrozen();
+            var representationAttribute = attribute as BsonRepresentationAttribute;
+            if (representationAttribute != null)
+            {
+                _representation = representationAttribute.Representation;
+                return;
+            }
+
+            var message = string.Format("A serialization options attribute of type {0} cannot be applied to serialization options of type {1}.",
+                BsonUtils.GetFriendlyTypeName(attribute.GetType()), BsonUtils.GetFriendlyTypeName(GetType()));
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        public override IBsonSerializationOptions Clone()
+        {
+            return new TimeSpanSerializationOptions(_representation, _units);
         }
     }
 }

@@ -192,6 +192,15 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Get the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        public IBsonSerializationOptions GetDefaultSerializationOptions()
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Gets the document Id.
         /// </summary>
         /// <param name="document">The document.</param>
@@ -278,10 +287,19 @@ namespace MongoDB.Bson.Serialization
                 var actualType = (value == null) ? nominalType : value.GetType();
                 var classMap = BsonClassMap.LookupClassMap(actualType);
 
+                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                if (documentSerializationOptions == null)
+                {
+                    var message = string.Format(
+                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                        BsonUtils.GetFriendlyTypeName(options.GetType()));
+                    throw new BsonSerializationException(message);
+                }
+
                 bsonWriter.WriteStartDocument();
-                var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
                 BsonMemberMap idMemberMap = null;
-                if (documentOptions.SerializeIdFirst)
+                if (documentSerializationOptions.SerializeIdFirst)
                 {
                     idMemberMap = classMap.IdMemberMap;
                     if (idMemberMap != null)

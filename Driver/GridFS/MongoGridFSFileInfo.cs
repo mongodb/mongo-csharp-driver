@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS
@@ -585,7 +586,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         // nested classes
-        internal class SerializationOptions : IBsonSerializationOptions
+        internal class SerializationOptions : BsonBaseSerializationOptions
         {
             internal MongoGridFS GridFS;
         }

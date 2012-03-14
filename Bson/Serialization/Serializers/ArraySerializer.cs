@@ -37,6 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the ArraySerializer class.
         /// </summary>
         public ArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -131,14 +132,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return;
                 }
 
-                IBsonSerializationOptions itemSerializationOptions = null;
-                var itemSerializationOptionsWrapper = options as ItemSerializationOptionsWrapper;
-                if (itemSerializationOptionsWrapper != null)
-                {
-                    itemSerializationOptions = itemSerializationOptionsWrapper.SerializationOptions;
-                }
-
                 var array = (T[])value;
+                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
                 bsonWriter.WriteStartArray();
                 for (int index = 0; index < array.Length; index++)
@@ -161,6 +157,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the TwoDimensionalArraySerializer class.
         /// </summary>
         public TwoDimensionalArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -268,18 +265,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return;
                 }
 
-                IBsonSerializationOptions itemSerializationOptions = null;
-                var itemSerializationOptionsWrapper = options as ItemSerializationOptionsWrapper;
-                if (itemSerializationOptionsWrapper != null)
-                {
-                    itemSerializationOptions = itemSerializationOptionsWrapper.SerializationOptions;
-                }
-
                 var array = (T[,])value;
-                var length1 = array.GetLength(0);
-                var length2 = array.GetLength(1);
+                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
                 bsonWriter.WriteStartArray();
+                var length1 = array.GetLength(0);
+                var length2 = array.GetLength(1);
                 for (int i = 0; i < length1; i++)
                 {
                     bsonWriter.WriteStartArray();
@@ -305,6 +297,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the ThreeDimensionalArraySerializer class.
         /// </summary>
         public ThreeDimensionalArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -429,19 +422,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return;
                 }
 
-                IBsonSerializationOptions itemSerializationOptions = null;
-                var itemSerializationOptionsWrapper = options as ItemSerializationOptionsWrapper;
-                if (itemSerializationOptionsWrapper != null)
-                {
-                    itemSerializationOptions = itemSerializationOptionsWrapper.SerializationOptions;
-                }
-
                 var array = (T[, ,])value;
+                var arraySerializationOptions = CastSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
+                bsonWriter.WriteStartArray();
                 var length1 = array.GetLength(0);
                 var length2 = array.GetLength(1);
                 var length3 = array.GetLength(2);
-
-                bsonWriter.WriteStartArray();
                 for (int i = 0; i < length1; i++)
                 {
                     bsonWriter.WriteStartArray();

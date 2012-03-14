@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -1104,8 +1105,14 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetSerializationOptions(serializationOptions);
             }
 
-            foreach (var attribute in memberInfo.GetCustomAttributes(false))
+            foreach (Attribute attribute in memberInfo.GetCustomAttributes(false))
             {
+                if (!(attribute is BsonSerializationOptionsAttribute))
+                {
+                    // ignore all attributes that aren't BSON serialization related
+                    continue;
+                }
+
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
                 if (defaultValueAttribute != null)
                 {
@@ -1117,6 +1124,7 @@ namespace MongoDB.Bson.Serialization
                         memberMap.SetIgnoreIfDefault(!defaultValueAttribute.SerializeDefaultValue);
                     }
 #pragma warning restore 618
+                    continue;
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
@@ -1154,6 +1162,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     memberMap.SetIgnoreIfNull(false);
                     memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
+                    continue;
                 }
 
                 var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
@@ -1161,20 +1170,34 @@ namespace MongoDB.Bson.Serialization
                 {
                     memberMap.SetIgnoreIfDefault(false);
                     memberMap.SetIgnoreIfNull(ignoreIfNullAttribute.Value);
+                    continue;
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;
                 if (requiredAttribute != null)
                 {
                     memberMap.SetIsRequired(true);
+                    continue;
                 }
 
-                // note: this handles subclasses of BsonSerializationOptionsAttribute also
-                var serializationOptionsAttribute = attribute as BsonSerializationOptionsAttribute;
-                if (serializationOptionsAttribute != null)
+                // if none of the above apply then apply the attribute to the serialization options
+                var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);
+                var memberSerializationOptions = memberMap.SerializationOptions;
+                if (memberSerializationOptions == null)
                 {
-                    memberMap.SetSerializationOptions(serializationOptionsAttribute.GetOptions());
+                    var memberDefaultSerializationOptions = memberSerializer.GetDefaultSerializationOptions();
+                    if (memberDefaultSerializationOptions == null)
+                    {
+                        var message = string.Format(
+                            "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
+                            BsonUtils.GetFriendlyTypeName(attribute.GetType()),
+                            BsonUtils.GetFriendlyTypeName(memberSerializer.GetType()));
+                        throw new NotSupportedException(message);
+                    }
+                    memberSerializationOptions = memberDefaultSerializationOptions.Clone();
+                    memberMap.SetSerializationOptions(memberSerializationOptions);
                 }
+                memberSerializationOptions.ApplyAttribute(memberSerializer, attribute);
             }
 
             return memberMap;

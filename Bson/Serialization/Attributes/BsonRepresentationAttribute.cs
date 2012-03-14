@@ -70,16 +70,5 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _allowTruncation; }
             set { _allowTruncation = value; }
         }
-
-        // public methods
-        /// <summary>
-        /// Gets the serialization options specified by this attribute.
-        /// </summary>
-        /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions()
-        {
-            var serializationOptions = new RepresentationSerializationOptions(_representation, _allowOverflow, _allowTruncation);
-            return CheckIfIsItemsOptions(serializationOptions);
-        }
     }
 }

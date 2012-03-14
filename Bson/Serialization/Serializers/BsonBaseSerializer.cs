@@ -22,6 +22,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -30,12 +31,35 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public abstract class BsonBaseSerializer : IBsonSerializer
     {
+        // private fields
+        private IBsonSerializationOptions _defaultSerializationOptions;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the BsonBaseSerializer class.
         /// </summary>
         protected BsonBaseSerializer()
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBaseSerializer class.
+        /// </summary>
+        protected BsonBaseSerializer(IBsonSerializationOptions defaultSerializationOptions)
+        {
+            if (defaultSerializationOptions != null)
+            {
+                _defaultSerializationOptions = defaultSerializationOptions.Clone().Freeze();
+            }
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the default serialization options.
+        /// </summary>
+        public IBsonSerializationOptions DefaultSerializationOptions
+        {
+            get { return _defaultSerializationOptions; }
         }
 
         // public methods
@@ -67,6 +91,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             throw new NotSupportedException("Subclass must implement Deserialize.");
+        }
+
+        /// <summary>
+        /// Gets the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        public virtual IBsonSerializationOptions GetDefaultSerializationOptions()
+        {
+            return _defaultSerializationOptions;
         }
 
         /// <summary>
@@ -134,6 +167,41 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // protected methods
+        /// <summary>
+        /// Casts the provided serialization options (or the defaults if null) to the required type.
+        /// </summary>
+        /// <typeparam name="TSerializationOptions">The required serialization options type.</typeparam>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>The serialization options (or the defaults if null) cast to the required type.</returns>
+        protected TSerializationOptions CastSerializationOptions<TSerializationOptions>(IBsonSerializationOptions options) where TSerializationOptions : class, IBsonSerializationOptions
+        {
+            if (options == null)
+            {
+                options = _defaultSerializationOptions;
+            }
+            if (options == null)
+            {
+                var message = string.Format(
+                    "Serializer {0} expected serialization options of type {1}, but none were provided.",
+                    BsonUtils.GetFriendlyTypeName(this.GetType()),
+                    BsonUtils.GetFriendlyTypeName(typeof(TSerializationOptions)));
+                throw new BsonSerializationException(message);
+            }
+
+            var typedOptions = options as TSerializationOptions;
+            if (typedOptions == null)
+            {
+                var message = string.Format(
+                    "Serializer {0} expected serialization options of type {1}, not {2}.",
+                    BsonUtils.GetFriendlyTypeName(this.GetType()),
+                    BsonUtils.GetFriendlyTypeName(typeof(TSerializationOptions)),
+                    BsonUtils.GetFriendlyTypeName(options.GetType()));
+                throw new BsonSerializationException(message);
+            }
+
+            return typedOptions;
+        }
+
         /// <summary>
         /// Verifies the nominal and actual types against the expected type.
         /// </summary>

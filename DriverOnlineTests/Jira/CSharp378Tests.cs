@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -55,15 +56,9 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp378
             public int X;
         }
 
-        public class MyIdSerializer : IBsonSerializer
+        public class MyIdSerializer : BsonBaseSerializer
         {
-            public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-            {
-                var actualType = nominalType;
-                return Deserialize(bsonReader, nominalType, actualType, options);
-            }
-
-            public object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+            public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
             {
                 int timestamp, machine, increment;
                 short pid;
@@ -71,33 +66,12 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp378
                 return new ObjectId(timestamp, machine, pid, increment).ToString();
             }
 
-            public bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator)
-            {
-                throw new NotSupportedException();
-            }
-
-            public BsonSerializationInfo GetItemSerializationInfo()
-            {
-                throw new NotSupportedException();
-            }
-
-            public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-            {
-                throw new NotSupportedException();
-            }
-
-            public void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+            public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
             {
                 var objectId = ObjectId.Parse((string)value);
                 bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
             }
-
-            public void SetDocumentId(object document, object id)
-            {
-                throw new NotSupportedException();
-            }
         }
-
 
         private MongoServer _server;
         private MongoDatabase _database;

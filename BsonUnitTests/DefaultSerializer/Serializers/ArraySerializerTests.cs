@@ -144,7 +144,7 @@ namespace MongoDB.BsonUnitTests.Serialization
 
         private class C
         {
-            [BsonRepresentation(BsonType.String, IsItemOptions = true)]
+            [BsonRepresentation(BsonType.String)]
             public E[] Array;
         }
 

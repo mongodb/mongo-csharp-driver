@@ -16,13 +16,14 @@
 using System;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>
     /// Represents the external representation of a field or property.
     /// </summary>
-    public class RepresentationSerializationOptions : IBsonSerializationOptions
+    public class RepresentationSerializationOptions : BsonBaseSerializationOptions
     {
         // private fields
         private BsonType _representation;
@@ -59,6 +60,11 @@ namespace MongoDB.Bson.Serialization.Options
         public BsonType Representation
         {
             get { return _representation; }
+            set
+            {
+                EnsureNotFrozen();
+                _representation = value;
+            }
         }
 
         /// <summary>
@@ -67,6 +73,11 @@ namespace MongoDB.Bson.Serialization.Options
         public bool AllowOverflow
         {
             get { return _allowOverflow; }
+            set
+            {
+                EnsureNotFrozen();
+                _allowOverflow = value;
+            }
         }
 
         /// <summary>
@@ -75,9 +86,45 @@ namespace MongoDB.Bson.Serialization.Options
         public bool AllowTruncation
         {
             get { return _allowTruncation; }
+            set
+            {
+                EnsureNotFrozen();
+                _allowTruncation = value;
+            }
         }
 
         // public methods
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
+        {
+            EnsureNotFrozen();
+            var representationAttribute = attribute as BsonRepresentationAttribute;
+            if (representationAttribute != null)
+            {
+                _allowOverflow = representationAttribute.AllowOverflow;
+                _allowTruncation = representationAttribute.AllowTruncation;
+                _representation = representationAttribute.Representation;
+                return;
+            }
+
+            var message = string.Format("A serialization options attribute of type {0} cannot be applied to serialization options of type {1}.",
+                BsonUtils.GetFriendlyTypeName(attribute.GetType()), BsonUtils.GetFriendlyTypeName(GetType()));
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        public override IBsonSerializationOptions Clone()
+        {
+            return new RepresentationSerializationOptions(_representation);
+        }
+
         /// <summary>
         /// Converts a Double to a Decimal.
         /// </summary>
