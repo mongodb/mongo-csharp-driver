@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Options
 {
@@ -74,6 +75,15 @@ namespace MongoDB.Bson.Serialization.Options
             if (_itemSerializationOptions == null)
             {
                 var itemDefaultSerializationOptions = itemSerializer.GetDefaultSerializationOptions();
+
+                // special case for legacy collections: allow BsonRepresentation on object
+                if (itemDefaultSerializationOptions == null &&
+                    (serializer.GetType() == typeof(EnumerableSerializer) || serializer.GetType() == typeof(QueueSerializer) || serializer.GetType() == typeof(StackSerializer)) &&
+                    attribute.GetType() == typeof(BsonRepresentationAttribute))
+                {
+                    itemDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
+                }
+
                 if (itemDefaultSerializationOptions == null)
                 {
                     var message = string.Format(
@@ -83,6 +93,7 @@ namespace MongoDB.Bson.Serialization.Options
                         BsonUtils.GetFriendlyTypeName(itemSerializer.GetType()));
                     throw new NotSupportedException(message);
                 }
+
                 _itemSerializationOptions = itemDefaultSerializationOptions.Clone();
             }
             _itemSerializationOptions.ApplyAttribute(itemSerializer, attribute);

@@ -210,6 +210,7 @@ namespace MongoDB.Bson.Serialization.Options
                         BsonUtils.GetFriendlyTypeName(itemSerializer.GetType()));
                     throw new NotSupportedException(message);
                 }
+
                 _itemSerializationOptions = itemDefaultSerializationOptions.Clone();
             }
 

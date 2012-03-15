@@ -22,6 +22,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,6 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the EnumerableSerializer class.
         /// </summary>
         public EnumerableSerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -114,10 +116,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                var items = (IEnumerable<T>)value;
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
                 bsonWriter.WriteStartArray();
-                foreach (var element in (IEnumerable<T>)value)
+                foreach (var item in items)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), element);
+                    BsonSerializer.Serialize(bsonWriter, typeof(T), item, itemSerializationOptions);
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -135,6 +141,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the QueueSerializer class.
         /// </summary>
         public QueueSerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -182,6 +189,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var nominalType = typeof(T);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -200,10 +220,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                var items = (Queue<T>)value;
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
                 bsonWriter.WriteStartArray();
-                foreach (var element in (Queue<T>)value)
+                foreach (var item in items)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), element);
+                    BsonSerializer.Serialize(bsonWriter, typeof(T), item, itemSerializationOptions);
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -221,6 +245,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the StackSerializer class.
         /// </summary>
         public StackSerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -268,6 +293,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var nominalType = typeof(T);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -286,12 +324,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                var items = ((Stack<T>)value).ToArray(); // convert to array to allow efficient access in reverse order
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
+                // serialize first pushed item first (reverse of enumeration order)
                 bsonWriter.WriteStartArray();
-                var outputOrder = new List<T>((Stack<T>)value); // serialize first pushed item first (reverse of enumerator order)
-                outputOrder.Reverse();
-                foreach (var element in outputOrder)
+                for (var i = items.Length - 1; i >= 0; i--)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), element);
+                    BsonSerializer.Serialize(bsonWriter, typeof(T), items[i], itemSerializationOptions);
                 }
                 bsonWriter.WriteEndArray();
             }
