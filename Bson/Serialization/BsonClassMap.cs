@@ -878,9 +878,9 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Class {0} already has an extra elements member.", _classType.FullName);
                 throw new InvalidOperationException(message);
             }
-            if (memberMap.MemberType != typeof(BsonDocument))
+            if (memberMap.MemberType != typeof(BsonDocument) && !typeof(IDictionary<string, object>).IsAssignableFrom(memberMap.MemberType))
             {
-                var message = string.Format("Type of ExtraElements member must be BsonDocument.");
+                var message = string.Format("Type of ExtraElements member must be BsonDocument or implement IDictionary<string, object>.");
                 throw new InvalidOperationException(message);
             }
 

@@ -377,14 +377,35 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
-            if (extraElements == null)
+            if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
-                extraElements = new BsonDocument();
-                extraElementsMemberMap.Setter(obj, extraElements);
+                var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
+                if (extraElements == null)
+                {
+                    extraElements = new BsonDocument();
+                    extraElementsMemberMap.Setter(obj, extraElements);
+                }
+                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                extraElements[elementName] = bsonValue;
             }
-            var value = BsonValue.ReadFrom(bsonReader);
-            extraElements[elementName] = value;
+            else
+            {
+                var extraElements = (IDictionary<string, object>)extraElementsMemberMap.Getter(obj);
+                if (extraElements == null)
+                {
+                    if (extraElementsMemberMap.MemberType == typeof(IDictionary<string, object>))
+                    {
+                        extraElements = new Dictionary<string, object>();
+                    }
+                    else
+                    {
+                        extraElements = (IDictionary<string, object>)Activator.CreateInstance(extraElementsMemberMap.MemberType);
+                    }
+                    extraElementsMemberMap.Setter(obj, extraElements);
+                }
+                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                extraElements[elementName] = MapBsonValueToDotNetValue(bsonValue);
+            }
         }
 
         private void DeserializeMember(BsonReader bsonReader, object obj, BsonMemberMap memberMap)
@@ -415,14 +436,96 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        private object MapBsonValueToDotNetValue(BsonValue value)
+        {
+            switch (value.BsonType)
+            {
+                case BsonType.Array:
+                    var bsonArray = value.AsBsonArray;
+                    var list = new List<object>(bsonArray.Count);
+                    foreach (var item in bsonArray)
+                    {
+                        list.Add(MapBsonValueToDotNetValue(item));
+                    }
+                    return list;
+                case BsonType.Binary:
+                    var binaryData = value.AsBsonBinaryData;
+                    if (binaryData.SubType == BsonBinarySubType.Binary)
+                    {
+                        return binaryData.Bytes;
+                    }
+                    if (binaryData.SubType == BsonBinarySubType.UuidLegacy || binaryData.SubType == BsonBinarySubType.UuidStandard)
+                    {
+                        return binaryData.ToGuid();
+                    }
+                    return binaryData;
+                case BsonType.Boolean:
+                    return value.AsBoolean;
+                case BsonType.DateTime:
+                    var bsonDateTime = value.AsBsonDateTime;
+                    if (bsonDateTime.IsValidDateTime)
+                    {
+                        return bsonDateTime.AsDateTime;
+                    }
+                    else
+                    {
+                        return bsonDateTime;
+                    }
+                case BsonType.Document:
+                    var bsonDocument = value.AsBsonDocument;
+                    var dictionary = new Dictionary<string, object>();
+                    foreach (var element in bsonDocument.Elements)
+                    {
+                        dictionary[element.Name] = MapBsonValueToDotNetValue(element.Value);
+                    }
+                    return dictionary;
+                case BsonType.Double:
+                    return value.AsDouble;
+                case BsonType.Int32:
+                    return value.AsInt32;
+                case BsonType.Int64:
+                    return value.AsInt64;
+                case BsonType.Null:
+                    return null;
+                case BsonType.ObjectId:
+                    return value.AsObjectId;
+                case BsonType.String:
+                    return value.AsString;
+                default:
+                    return value; // just return BsonValue for types that have no .NET equivalent
+            }
+        }
+
         private void SerializeExtraElements(BsonWriter bsonWriter, object obj, BsonMemberMap extraElementsMemberMap)
         {
-            var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
+            var extraElements = extraElementsMemberMap.Getter(obj);
             if (extraElements != null)
             {
-                foreach (var element in extraElements)
+                if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
                 {
-                    element.WriteTo(bsonWriter);
+                    var bsonDocument = (BsonDocument)extraElements;
+                    foreach (var element in bsonDocument)
+                    {
+                        element.WriteTo(bsonWriter);
+                    }
+                }
+                else
+                {
+                    var dictionary = (IDictionary<string, object>)extraElements;
+                    foreach (var key in dictionary.Keys)
+                    {
+                        bsonWriter.WriteName(key);
+                        var value = dictionary[key];
+                        if (value == null)
+                        {
+                            bsonWriter.WriteNull();
+                        }
+                        else
+                        {
+                            var bsonValue = BsonTypeMapper.MapToBsonValue(dictionary[key]);
+                            bsonValue.WriteTo(bsonWriter);
+                        }
+                    }
                 }
             }
         }

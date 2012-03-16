@@ -52,6 +52,7 @@ namespace MongoDB.Bson
             { typeof(BsonString), Conversion.None },
             { typeof(BsonSymbol), Conversion.None },
             { typeof(BsonTimestamp), Conversion.None },
+            { typeof(BsonUndefined), Conversion.None },
             { typeof(BsonValue), Conversion.None },
             { typeof(byte), Conversion.ByteToBsonInt32 },
             { typeof(byte[]), Conversion.ByteArrayToBsonBinary },
@@ -86,7 +87,9 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(BsonJavaScript), BsonType.JavaScript), Conversion.None },
             { Mapping.FromTo(typeof(BsonJavaScript), BsonType.JavaScriptWithScope), Conversion.BsonJavaScriptToBsonJavaScriptWithScope },
             { Mapping.FromTo(typeof(BsonJavaScriptWithScope), BsonType.JavaScriptWithScope), Conversion.None },
+            { Mapping.FromTo(typeof(BsonMaxKey), BsonType.Boolean), Conversion.BsonMaxKeyToBsonBoolean },
             { Mapping.FromTo(typeof(BsonMaxKey), BsonType.MaxKey), Conversion.None },
+            { Mapping.FromTo(typeof(BsonMinKey), BsonType.Boolean), Conversion.BsonMinKeyToBsonBoolean },
             { Mapping.FromTo(typeof(BsonMinKey), BsonType.MinKey), Conversion.None },
             { Mapping.FromTo(typeof(BsonNull), BsonType.Boolean), Conversion.BsonNullToBsonBoolean },
             { Mapping.FromTo(typeof(BsonNull), BsonType.Null), Conversion.None },
@@ -95,6 +98,8 @@ namespace MongoDB.Bson
             { Mapping.FromTo(typeof(BsonString), BsonType.String), Conversion.None },
             { Mapping.FromTo(typeof(BsonSymbol), BsonType.Symbol), Conversion.None },
             { Mapping.FromTo(typeof(BsonTimestamp), BsonType.Timestamp), Conversion.None },
+            { Mapping.FromTo(typeof(BsonUndefined), BsonType.Boolean), Conversion.BsonUndefinedToBsonBoolean },
+            { Mapping.FromTo(typeof(BsonUndefined), BsonType.Undefined), Conversion.None },
             { Mapping.FromTo(typeof(byte), BsonType.Boolean), Conversion.ByteToBsonBoolean },
             { Mapping.FromTo(typeof(byte), BsonType.Double), Conversion.ByteToBsonDouble },
             { Mapping.FromTo(typeof(byte), BsonType.Int32), Conversion.ByteToBsonInt32 },
@@ -320,6 +325,11 @@ namespace MongoDB.Bson
             {
                 // note: I expect this switch statement to be compiled using a jump table and therefore to be very efficient
                 case Conversion.None: return (BsonValue)value;
+                case Conversion.BsonJavaScriptToBsonJavaScriptWithScope: return BsonJavaScriptWithScope.Create(((BsonJavaScript)value).Code, new BsonDocument());
+                case Conversion.BsonMaxKeyToBsonBoolean: return BsonBoolean.True;
+                case Conversion.BsonMinKeyToBsonBoolean: return BsonBoolean.True;
+                case Conversion.BsonNullToBsonBoolean: return BsonBoolean.False;
+                case Conversion.BsonUndefinedToBsonBoolean: return BsonBoolean.False;
                 case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[])value);
                 case Conversion.ByteArrayToBsonObjectId: return BsonObjectId.Create((byte[])value);
                 case Conversion.ByteToBsonBoolean: return BsonBoolean.Create((byte)value != 0);
@@ -344,15 +354,12 @@ namespace MongoDB.Bson
                 case Conversion.Int64ToBsonBoolean: return BsonBoolean.Create((long)value != 0);
                 case Conversion.Int64ToBsonDouble: return new BsonDouble((double)(long)value);
                 case Conversion.Int64ToBsonTimestamp: return new BsonTimestamp((long)value);
-                case Conversion.BsonMaxKeyToBsonBoolean: return BsonBoolean.True;
-                case Conversion.BsonMinKeyToBsonBoolean: return BsonBoolean.True;
                 case Conversion.NewBsonBoolean: return BsonBoolean.Create((bool)value);
                 case Conversion.NewBsonDouble: return new BsonDouble((double)value);
                 case Conversion.NewBsonInt32: return BsonInt32.Create((int)value);
                 case Conversion.NewBsonInt64: return new BsonInt64((long)value);
                 case Conversion.NewBsonObjectId: return new BsonObjectId((ObjectId)value);
                 case Conversion.NewBsonString: return new BsonString((string)value);
-                case Conversion.BsonNullToBsonBoolean: return BsonBoolean.False;
                 case Conversion.RegexToBsonRegularExpression: return new BsonRegularExpression((Regex)value);
                 case Conversion.SByteToBsonBoolean: return BsonBoolean.Create((sbyte)value != 0);
                 case Conversion.SByteToBsonDouble: return new BsonDouble((double)(sbyte)value);
@@ -395,6 +402,11 @@ namespace MongoDB.Bson
         private enum Conversion
         {
             None,
+            BsonJavaScriptToBsonJavaScriptWithScope,
+            BsonMaxKeyToBsonBoolean,
+            BsonMinKeyToBsonBoolean,
+            BsonNullToBsonBoolean,
+            BsonUndefinedToBsonBoolean,
             ByteArrayToBsonBinary,
             ByteArrayToBsonObjectId,
             ByteToBsonBoolean,
@@ -419,16 +431,12 @@ namespace MongoDB.Bson
             Int64ToBsonBoolean,
             Int64ToBsonDouble,
             Int64ToBsonTimestamp,
-            BsonJavaScriptToBsonJavaScriptWithScope,
-            BsonMaxKeyToBsonBoolean,
-            BsonMinKeyToBsonBoolean,
             NewBsonBoolean,
             NewBsonDouble,
             NewBsonInt32,
             NewBsonInt64,
             NewBsonObjectId,
             NewBsonString,
-            BsonNullToBsonBoolean,
             RegexToBsonRegularExpression,
             SByteToBsonBoolean,
             SByteToBsonDouble,
