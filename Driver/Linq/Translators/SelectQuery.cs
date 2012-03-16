@@ -272,6 +272,36 @@ namespace MongoDB.Driver.Linq
             return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
         }
 
+        private IMongoQuery BuildAnyQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 1)
+                {
+                    var serializationInfo = GetSerializationInfo(arguments[0]);
+                    if (serializationInfo != null)
+                    {
+                        return Query.And(
+                            Query.NE(serializationInfo.ElementName, BsonNull.Value),
+                            Query.Not(serializationInfo.ElementName).Size(0));
+                    }
+                }
+                else if (arguments.Length == 2)
+                {
+                    var sourceExpression = arguments[0];
+                    var lambda = (LambdaExpression)arguments[1];
+                    var parameter = lambda.Parameters[0];
+                    var body = lambda.Body;
+                    var arbitraryMethodInfo = typeof(LinqToMongo).GetMethod("Arbitrary").MakeGenericMethod(parameter.Type);
+                    var arbitraryMethodCallExpression = Expression.Call(arbitraryMethodInfo, sourceExpression);
+                    var modifiedBody = ExpressionParameterReplacer.ReplaceParameter(body, parameter, arbitraryMethodCallExpression);
+                    return BuildQuery(modifiedBody);
+                }
+            }
+            return null;
+        }
+
         private IMongoQuery BuildArrayLengthQuery(BinaryExpression binaryExpression)
         {
             var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
@@ -609,6 +639,7 @@ namespace MongoDB.Driver.Linq
         {
             switch (methodCallExpression.Method.Name)
             {
+                case "Any": return BuildAnyQuery(methodCallExpression);
                 case "Contains": return BuildContainsQuery(methodCallExpression);
                 case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
                 case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);
@@ -888,9 +919,25 @@ namespace MongoDB.Driver.Linq
             }
 
             var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "get_Item")
+            if (methodCallExpression != null)
             {
-                return GetSerializationInfoGetItem(serializer, methodCallExpression);
+                switch (methodCallExpression.Method.Name)
+                {
+                    case "Arbitrary":
+                        if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+                        {
+                            var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Arguments[0]);
+                            var itemSerializationInfo = arraySerializationInfo.Serializer.GetItemSerializationInfo();
+                            return new BsonSerializationInfo(
+                                arraySerializationInfo.ElementName,
+                                itemSerializationInfo.Serializer,
+                                itemSerializationInfo.NominalType,
+                                itemSerializationInfo.SerializationOptions);
+                        }
+                        break;
+                    case "get_Item":
+                        return GetSerializationInfoGetItem(serializer, methodCallExpression);
+                }
             }
 
             return null;

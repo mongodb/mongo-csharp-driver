@@ -30,18 +30,18 @@ namespace MongoDB.Driver.Linq
     {
         // private fields
         private ParameterExpression _fromParameter;
-        private ParameterExpression _toParameter;
+        private Expression _toExpression;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the ExpressionParameterReplacer class.
         /// </summary>
         /// <param name="fromParameter">The parameter to be replaced.</param>
-        /// <param name="toParameter">The new parameter.</param>
-        public ExpressionParameterReplacer(ParameterExpression fromParameter, ParameterExpression toParameter)
+        /// <param name="toExpression">The expression that replaces the parameter.</param>
+        public ExpressionParameterReplacer(ParameterExpression fromParameter, Expression toExpression)
         {
             _fromParameter = fromParameter;
-            _toParameter = toParameter;
+            _toExpression = toExpression;
         }
 
         // public methods
@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="node">The expression containing the parameter that should be replaced.</param>
         /// <param name="fromParameter">The from parameter.</param>
-        /// <param name="toParameter">The to parameter.</param>
+        /// <param name="toExpression">The expression that replaces the parameter.</param>
         /// <returns>The expression with all occurrences of the parameter replaced.</returns>
-        public static Expression ReplaceParameter(Expression node, ParameterExpression fromParameter, ParameterExpression toParameter)
+        public static Expression ReplaceParameter(Expression node, ParameterExpression fromParameter, Expression toExpression)
         {
-            var replacer = new ExpressionParameterReplacer(fromParameter, toParameter);
+            var replacer = new ExpressionParameterReplacer(fromParameter, toExpression);
             return replacer.Visit(node);
         }
 
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq
         {
             if (node == _fromParameter)
             {
-                return _toParameter;
+                return _toExpression;
             }
             return node;
         }
