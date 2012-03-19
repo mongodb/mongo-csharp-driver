@@ -289,14 +289,7 @@ namespace MongoDB.Driver.Linq
                 }
                 else if (arguments.Length == 2)
                 {
-                    var sourceExpression = arguments[0];
-                    var lambda = (LambdaExpression)arguments[1];
-                    var parameter = lambda.Parameters[0];
-                    var body = lambda.Body;
-                    var arbitraryMethodInfo = typeof(LinqToMongo).GetMethod("Arbitrary").MakeGenericMethod(parameter.Type);
-                    var arbitraryMethodCallExpression = Expression.Call(arbitraryMethodInfo, sourceExpression);
-                    var modifiedBody = ExpressionParameterReplacer.ReplaceParameter(body, parameter, arbitraryMethodCallExpression);
-                    return BuildQuery(modifiedBody);
+                    throw new NotSupportedException("Enumerable.Any with a predicate is not supported.");
                 }
             }
             return null;
@@ -919,25 +912,9 @@ namespace MongoDB.Driver.Linq
             }
 
             var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null)
+            if (methodCallExpression != null && methodCallExpression.Method.Name == "get_Item")
             {
-                switch (methodCallExpression.Method.Name)
-                {
-                    case "Arbitrary":
-                        if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-                        {
-                            var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Arguments[0]);
-                            var itemSerializationInfo = arraySerializationInfo.Serializer.GetItemSerializationInfo();
-                            return new BsonSerializationInfo(
-                                arraySerializationInfo.ElementName,
-                                itemSerializationInfo.Serializer,
-                                itemSerializationInfo.NominalType,
-                                itemSerializationInfo.SerializationOptions);
-                        }
-                        break;
-                    case "get_Item":
-                        return GetSerializationInfoGetItem(serializer, methodCallExpression);
-                }
+                return GetSerializationInfoGetItem(serializer, methodCallExpression);
             }
 
             return null;

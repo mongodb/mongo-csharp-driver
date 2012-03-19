@@ -31,16 +31,6 @@ namespace MongoDB.Driver.Linq
     public static class LinqToMongo
     {
         /// <summary>
-        /// Represents an arbitrary item in an array value. Can only be used in LINQ queries.
-        /// </summary>
-        /// <param name="source">The array value.</param>
-        /// <returns>Throws an InvalidOperationException if called.</returns>
-        public static TSource Arbitrary<TSource>(this IEnumerable<TSource> source)
-        {
-            throw new InvalidOperationException("The LinqToMongo.Arbitrary method is only intended to be used in LINQ Where clauses.");
-        }
-
-        /// <summary>
         /// Determines whether a sequence contains all of the specified values.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
