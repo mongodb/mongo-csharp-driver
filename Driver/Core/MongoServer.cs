@@ -1233,6 +1233,28 @@ namespace MongoDB.Driver
             }
         }
 
+        internal void VerifyInstances(List<MongoServerAddress> instanceAddresses)
+        {
+            lock (_stateLock)
+            {
+                foreach (var instance in _instances)
+                {
+                    if (!instanceAddresses.Contains(instance.Address))
+                    {
+                        RemoveInstance(instance);
+                    }
+                }
+                foreach (var address in instanceAddresses)
+                {
+                    if (!_instances.Any(instance => instance.Address == address))
+                    {
+                        var instance = new MongoServerInstance(this, address);
+                        AddInstance(instance);
+                    }
+                }
+            }
+        }
+
         // private methods
         private void InstanceStateChanged(object sender, object args)
         {

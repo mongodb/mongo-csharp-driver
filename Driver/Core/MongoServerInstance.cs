@@ -121,7 +121,17 @@ namespace MongoDB.Driver
         /// </summary>
         public IPEndPoint EndPoint
         {
-            get { return _endPoint; }
+            get {
+                // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable
+                // the intermediate variable is important to avoid race conditions
+                var endPoint = _endPoint;
+                if (endPoint == null)
+                {
+                    endPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
+                    _endPoint = endPoint;
+                }
+                return endPoint;
+            }
         }
 
         /// <summary>
@@ -307,8 +317,6 @@ namespace MongoDB.Driver
                 _connectException = null;
                 try
                 {
-                    _endPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
-
                     try
                     {
                         var connection = _connectionPool.AcquireConnection(null);
@@ -454,6 +462,38 @@ namespace MongoDB.Driver
                 _maxMessageLength = maxMessageLength;
                 _buildInfo = buildInfo;
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
+
+                // if this is the primary of a replica set check to see if any instances have been added or removed
+                if (isPrimary && _server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
+                {
+                    var instanceAddresses = new List<MongoServerAddress>();
+                    if (isMasterResult.Response.Contains("hosts"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["hosts"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    if (isMasterResult.Response.Contains("passives"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["passives"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    if (isMasterResult.Response.Contains("arbiters"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["arbiters"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    _server.VerifyInstances(instanceAddresses);
+                }
+
                 ok = true;
             }
             finally
