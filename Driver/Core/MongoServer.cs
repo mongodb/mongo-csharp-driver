@@ -599,7 +599,8 @@ namespace MongoDB.Driver
                                         }
                                         break;
                                     case ConnectWaitFor.AnySlaveOk:
-                                        if (_instances.Any(i => i.State == MongoServerState.Connected && (i.IsPrimary || i.IsSecondary || i.IsPassive)))
+                                        // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
+                                        if (_instances.Any(i => i.State == MongoServerState.Connected && (i.IsPrimary || i.IsSecondary)))
                                         {
                                             return;
                                         }
@@ -1162,7 +1163,8 @@ namespace MongoDB.Driver
                                         _loadBalancingInstanceIndex = 0;
                                     }
                                     var instance = _instances[_loadBalancingInstanceIndex];
-                                    if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive))
+                                    // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
+                                    if (instance.State == MongoServerState.Connected && instance.IsSecondary)
                                     {
                                         return instance;
                                     }

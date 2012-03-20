@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         /// </summary>
         Primary,
         /// <summary>
-        /// Wait for any slaveOk member of the replica set to be connected (includes primary, secondaries and passives).
+        /// Wait for any slaveOk member of the replica set to be connected (primary or any secondary).
         /// </summary>
         AnySlaveOk
     }
