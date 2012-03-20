@@ -217,7 +217,9 @@ namespace MongoDB.BsonUnitTests.Serialization
 
             Assert.AreEqual(23, c.X.Count);
             Assert.IsTrue(new object[] { 1, 2.0 }.SequenceEqual((List<object>)c.X["XArray"]));
+#pragma warning disable 618 // OldBinary is obsolete
             Assert.AreEqual(BsonBinarySubType.OldBinary, ((BsonBinaryData)c.X["XBinary"]).SubType);
+#pragma warning restore 618
             Assert.IsTrue(new byte[] { 0x12, 0x34 }.SequenceEqual(((BsonBinaryData)c.X["XBinary"]).Bytes));
             Assert.AreEqual(true, c.X["XBoolean"]);
             Assert.IsTrue(new byte[] { 0x12, 0x34 }.SequenceEqual((byte[])c.X["XByteArray"]));
