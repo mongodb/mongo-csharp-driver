@@ -59,6 +59,16 @@ namespace MongoDB.Driver.Linq
 
         // public methods
         /// <summary>
+        /// Builds the MongoDB query that will be sent to the server when the LINQ query is executed.
+        /// </summary>
+        /// <returns>The MongoDB query.</returns>
+        public IMongoQuery BuildMongoQuery<T>(MongoQueryable<T> query)
+        {
+            var translatedQuery = MongoQueryTranslator.Translate(this, ((IQueryable)query).Expression);
+            return ((SelectQuery)translatedQuery).BuildQuery();
+        }
+
+        /// <summary>
         /// Creates a new instance of MongoQueryable{{T}} for this provider.
         /// </summary>
         /// <typeparam name="T">The type of the returned elements.</typeparam>

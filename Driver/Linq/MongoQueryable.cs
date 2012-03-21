@@ -82,6 +82,15 @@ namespace MongoDB.Driver.Linq
             return ((IEnumerable<T>)_provider.Execute(_expression)).GetEnumerator();
         }
 
+        /// <summary>
+        /// Gets the MongoDB query that will be sent to the server when this LINQ query is executed.
+        /// </summary>
+        /// <returns>The MongoDB query.</returns>
+        public IMongoQuery GetMongoQuery()
+        {
+            return _provider.BuildMongoQuery(this);
+        }
+
         // explicit implementation of IEnumerable
         IEnumerator IEnumerable.GetEnumerator()
         {
