@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         private MongoServerBuildInfo _buildInfo;
         private Exception _connectException;
         private MongoConnectionPool _connectionPool;
-        private IPEndPoint _endPoint;
+        private IPEndPoint _ipEndPoint;
         private bool _isArbiter;
         private CommandResult _isMasterResult;
         private bool _isPassive;
@@ -114,24 +114,6 @@ namespace MongoDB.Driver
         public MongoConnectionPool ConnectionPool
         {
             get { return _connectionPool; }
-        }
-
-        /// <summary>
-        /// Gets the IP end point of this server instance.
-        /// </summary>
-        public IPEndPoint EndPoint
-        {
-            get {
-                // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable
-                // the intermediate variable is important to avoid race conditions
-                var endPoint = _endPoint;
-                if (endPoint == null)
-                {
-                    endPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
-                    _endPoint = endPoint;
-                }
-                return endPoint;
-            }
         }
 
         /// <summary>
@@ -215,6 +197,22 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Gets the IP end point of this server instance.
+        /// </summary>
+        public IPEndPoint GetIPEndPoint()
+        {
+            // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable
+            // the intermediate variable is important to avoid race conditions
+            var ipEndPoint = _ipEndPoint;
+            if (ipEndPoint == null)
+            {
+                ipEndPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
+                _ipEndPoint = ipEndPoint;
+            }
+            return ipEndPoint;
+        }
+
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
