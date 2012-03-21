@@ -82,6 +82,52 @@ namespace MongoDB.DriverOnlineTests
         }
 
         [Test]
+        public void TestRequestStart()
+        {
+            using (_server.RequestStart(_database))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartPrimary()
+        {
+            using (_server.RequestStart(_database, _server.Primary))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartPrimaryNested()
+        {
+            using (_server.RequestStart(_database, _server.Primary))
+            {
+                using (_server.RequestStart(_database, _server.Primary))
+                {
+                }
+            }
+        }
+
+        [Test]
+        public void TestRequestStartSlaveOk()
+        {
+            using (_server.RequestStart(_database, true))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartSlaveOkNested()
+        {
+            using (_server.RequestStart(_database, false))
+            {
+                using (_server.RequestStart(_database, true))
+                {
+                }
+            }
+        }
+
+        [Test]
         public void TestVersion()
         {
             var versionZero = new Version(0, 0, 0, 0);

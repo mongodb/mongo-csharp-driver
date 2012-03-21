@@ -1001,7 +1001,42 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var connection = AcquireConnection(initialDatabase, slaveOk);
+                    var serverInstance = ChooseServerInstance(slaveOk);
+                    var connection = serverInstance.AcquireConnection(initialDatabase);
+                    request = new Request(connection, slaveOk);
+                    _requests.Add(threadId, request);
+                }
+
+                return new RequestStartResult(this);
+            }
+        }
+
+        /// <summary>
+        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
+        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
+        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
+        /// </summary>
+        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
+        /// <param name="serverInstance">The server instance this request should be tied to.</param>
+        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
+        {
+            lock (_serverLock)
+            {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
+                if (_requests.TryGetValue(threadId, out request))
+                {
+                    if (serverInstance != request.Connection.ServerInstance)
+                    {
+                        throw new InvalidOperationException("The server instance passed to a nested call to RequestStart does not match the server instance of the current Request.");
+                    }
+                    request.NestingLevel++;
+                }
+                else
+                {
+                    var connection = serverInstance.AcquireConnection(initialDatabase);
+                    var slaveOk = serverInstance.IsSecondary;
                     request = new Request(connection, slaveOk);
                     _requests.Add(threadId, request);
                 }
@@ -1355,7 +1390,6 @@ namespace MongoDB.Driver
             public MongoConnection Connection
             {
                 get { return _connection; }
-                set { _connection = value; }
             }
 
             public int NestingLevel
