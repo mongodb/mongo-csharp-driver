@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the arbiter instances.
         /// </summary>
-        public MongoServerInstance[] Arbiters
+        public virtual MongoServerInstance[] Arbiters
         {
             get
             {
@@ -233,7 +233,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the build info of the server.
         /// </summary>
-        public MongoServerBuildInfo BuildInfo
+        public virtual MongoServerBuildInfo BuildInfo
         {
             get
             {
@@ -260,7 +260,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the most recent connection attempt number.
         /// </summary>
-        public int ConnectionAttempt
+        public virtual int ConnectionAttempt
         {
             get { return _connectionAttempt; }
         }
@@ -310,7 +310,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the passive instances.
         /// </summary>
-        public MongoServerInstance[] Passives
+        public virtual MongoServerInstance[] Passives
         {
             get
             {
@@ -324,7 +324,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the primary instance (null if there is no primary).
         /// </summary>
-        public MongoServerInstance Primary
+        public virtual MongoServerInstance Primary
         {
             get
             {
@@ -393,7 +393,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the secondary instances.
         /// </summary>
-        public MongoServerInstance[] Secondaries
+        public virtual MongoServerInstance[] Secondaries
         {
             get
             {
@@ -1052,7 +1052,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Verifies the state of the server (in the case of a replica set all members are contacted one at a time).
         /// </summary>
-        public void VerifyState()
+        public virtual void VerifyState()
         {
             lock (_serverLock)
             {

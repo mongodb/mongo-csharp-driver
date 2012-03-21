@@ -18,10 +18,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson
 {
