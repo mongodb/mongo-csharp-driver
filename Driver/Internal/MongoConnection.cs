@@ -359,7 +359,20 @@ namespace MongoDB.Driver.Internal
             tcpClient.NoDelay = true; // turn off Nagle
             tcpClient.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
-            tcpClient.Connect(endPoint);
+            //tcpClient.Connect(endPoint);
+            var asynResult = tcpClient.BeginConnect(endPoint.Address, endPoint.Port, null, null);
+            var waitHandle = asynResult.AsyncWaitHandle;
+            try {
+                if (!asynResult.AsyncWaitHandle.WaitOne(this.serverInstance.Server.Settings.ConnectTimeout, false)) {
+                    tcpClient.Close();
+                    throw new TimeoutException();
+                }
+                tcpClient.EndConnect(asynResult);
+            }
+            finally
+            {
+                waitHandle.Close();
+            }
 
             _tcpClient = tcpClient;
             _state = MongoConnectionState.Open;
