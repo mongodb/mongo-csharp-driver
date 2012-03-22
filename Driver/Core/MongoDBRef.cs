@@ -172,6 +172,22 @@ namespace MongoDB.Driver
             hash = 37 * hash + _id.GetHashCode();
             return hash;
         }
+
+        /// <summary>
+        /// Returns a string representation of the value.
+        /// </summary>
+        /// <returns>A string representation of the value.</returns>
+        public override string ToString()
+        {
+            if (_databaseName == null)
+            {
+                return string.Format("new MongoDBRef(\"{0}\", {1})", _collectionName, _id);
+            }
+            else
+            {
+                return string.Format("new MongoDBRef(\"{0}\", \"{1}\", {2})", _databaseName, _collectionName, _id);
+            }
+        }
     }
 
     /// <summary>

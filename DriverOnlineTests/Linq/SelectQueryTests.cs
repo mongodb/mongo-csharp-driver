@@ -2741,6 +2741,29 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereDBRefEquals()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DBRef == new MongoDBRef("db", "c", 1)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.DBRef == new MongoDBRef(\"db\", \"c\", 1))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref\" : { \"$ref\" : \"c\", \"$id\" : 1, \"$db\" : \"db\" } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereDBRefIdEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()

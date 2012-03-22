@@ -92,6 +92,7 @@ MongoDBRef.cs
 	better argument checking
 	new implementation of !=, ==, Equals and GetHashCode
 	new MongoDBRefSerializer class makes DBRefs queryable from LINQ queries
+	implemented ToString
 
 MongoInsertOptions.cs
 	constructor no longer takes the collection as an argument
