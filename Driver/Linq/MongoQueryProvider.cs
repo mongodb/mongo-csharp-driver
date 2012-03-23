@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 using System.Reflection;
 
 // for a good blog post on implementing LINQ query providers see Matt Warren's blog posts

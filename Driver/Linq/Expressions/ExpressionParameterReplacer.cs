@@ -19,8 +19,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-using MongoDB.Bson;
-
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
