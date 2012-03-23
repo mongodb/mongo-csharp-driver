@@ -200,6 +200,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the IP end point of this server instance.
         /// </summary>
+        /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
             // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable

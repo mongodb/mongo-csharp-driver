@@ -61,6 +61,8 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Builds the MongoDB query that will be sent to the server when the LINQ query is executed.
         /// </summary>
+        /// <typeparam name="T">The type of the documents being queried.</typeparam>
+        /// <param name="query">The LINQ query.</param>
         /// <returns>The MongoDB query.</returns>
         public IMongoQuery BuildMongoQuery<T>(MongoQueryable<T> query)
         {
