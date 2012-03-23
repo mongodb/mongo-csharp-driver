@@ -92,6 +92,11 @@ namespace MongoDB.DriverOnlineTests.Linq
             {
                 return Z.GetHashCode();
             }
+
+            public override string ToString()
+            {
+                return string.Format("new D {{ Z = {0} }}", Z);
+            }
         }
 
         // used to test some query operators that have an IEqualityComparer parameter
@@ -2506,8 +2511,8 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"ba.0\" : true }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, Consume(query));
+            Assert.AreEqual("{ \"ba.0\" : { \"$ne\" : false } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
         }
 
         [Test]
@@ -2552,8 +2557,8 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"ba.0\" : false }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, Consume(query));
+            Assert.AreEqual("{ \"ba.0\" : { \"$ne\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
         }
 
         [Test]
@@ -2575,8 +2580,8 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"ba.0\" : false }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, Consume(query));
+            Assert.AreEqual("{ \"ba.0\" : { \"$ne\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
         }
 
         [Test]
@@ -2621,7 +2626,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"b\" : true }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"b\" : { \"$ne\" : false } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -2667,7 +2672,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"b\" : false }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"b\" : { \"$ne\" : true } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -2690,7 +2695,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"b\" : false }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"b\" : { \"$ne\" : true } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -2764,6 +2769,75 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereDBRefEqualsNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.DBRef == new MongoDBRef("db", "c", 1))
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.DBRef == new MongoDBRef(\"db\", \"c\", 1))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref\" : { \"$ne\" : { \"$ref\" : \"c\", \"$id\" : 1, \"$db\" : \"db\" } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDBRefNotEquals()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DBRef != new MongoDBRef("db", "c", 1)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.DBRef != new MongoDBRef(\"db\", \"c\", 1))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref\" : { \"$ne\" : { \"$ref\" : \"c\", \"$id\" : 1, \"$db\" : \"db\" } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDBRefNotEqualsNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.DBRef != new MongoDBRef("db", "c", 1))
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.DBRef != new MongoDBRef(\"db\", \"c\", 1))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"dbref\" : { \"$ref\" : \"c\", \"$id\" : 1, \"$db\" : \"db\" } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereDBRefIdEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -2783,6 +2857,98 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Take);
 
             Assert.AreEqual("{ \"dbref.$id\" : 1 }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDEquals11()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.D == new D { Z = 11 }
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.D == new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"d\" : { \"z\" : 11 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDEquals11Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.D == new D { Z = 11 })
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.D == new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"d\" : { \"$ne\" : { \"z\" : 11 } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDNotEquals11()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.D != new D { Z = 11 }
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.D != new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"d\" : { \"$ne\" : { \"z\" : 11 } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDNotEquals11Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.D != new D { Z = 11 })
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.D != new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"d\" : { \"z\" : 11 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4474,6 +4640,29 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereXEquals1OrYEquals33NotNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !!(c.X == 1 || c.Y == 33)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !!((c.X == 1) || (c.Y == 33))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 33 }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
+        }
+
+        [Test]
         public void TestWhereXEquals1UsingJavaScript()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4520,6 +4709,52 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestWhereXGreaterThan1AndLessThan3()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.X > 1 && c.X < 3
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => ((c.X > 1) && (c.X < 3))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXGreaterThan1AndLessThan3Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.X > 1 && c.X < 3)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !((c.X > 1) && (c.X < 3))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$nor\" : [{ \"x\" : { \"$gt\" : 1, \"$lt\" : 3 } }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
         public void TestWhereXGreaterThan1Not()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4538,7 +4773,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$lte\" : 1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$gt\" : 1 } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4584,7 +4819,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$lt\" : 1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$gte\" : 1 } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(0, Consume(query));
         }
 
@@ -4722,7 +4957,7 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$gte\" : 1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$lt\" : 1 } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(5, Consume(query));
         }
 
@@ -4768,8 +5003,77 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"x\" : { \"$gt\" : 1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"x\" : { \"$not\" : { \"$lte\" : 1 } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXModOneEquals0AndXModTwoEquals0()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where (c.X % 1 == 0) && (c.X % 2 == 0)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXModOneEquals0AndXModTwoEquals0Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !((c.X % 1 == 0) && (c.X % 2 == 0))
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$nor\" : [{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereXModOneEquals0AndXModTwoEquals0NotNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !!((c.X % 1 == 0) && (c.X % 2 == 0))
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !!(((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$or\" : [{ \"$and\" : [{ \"x\" : { \"$mod\" : [1, 0] } }, { \"x\" : { \"$mod\" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
         }
 
         [Test]

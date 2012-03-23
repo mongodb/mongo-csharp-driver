@@ -673,57 +673,52 @@ namespace MongoDB.Driver.Linq
             if (queryDocument.ElementCount == 1)
             {
                 var elementName = queryDocument.GetElement(0).Name;
-                if (elementName == "$or")
+                switch (elementName)
                 {
-                    var clauses = queryDocument[0].AsBsonArray;
-                    return new QueryDocument("$nor", clauses);
+                    case "$and":
+                        // there is no $nand and $not only works as a meta operator on a single operator so simulate $not using $nor
+                        return new QueryDocument("$nor", new BsonArray { queryDocument });
+                    case "$or":
+                        return new QueryDocument("$nor", queryDocument[0].AsBsonArray);
+                    case "$nor":
+                        return new QueryDocument("$or", queryDocument[0].AsBsonArray);
                 }
 
                 var operatorDocument = queryDocument[0] as BsonDocument;
-                if (operatorDocument != null && operatorDocument.ElementCount == 1)
+                if (operatorDocument != null && operatorDocument.ElementCount > 0)
                 {
                     var operatorName = operatorDocument.GetElement(0).Name;
-                    switch (operatorName)
+                    if (operatorDocument.ElementCount == 1)
                     {
-                        case "$exists":
-                            var boolValue = operatorDocument[0].AsBoolean;
-                            return new QueryDocument(elementName, new BsonDocument("$exists", !boolValue));
-                        case "$in":
-                            var values = operatorDocument[0].AsBsonArray;
-                            return new QueryDocument(elementName, new BsonDocument("$nin", values));
-                        case "$not":
-                            var predicate = operatorDocument[0];
-                            return new QueryDocument(elementName, predicate);
-                        case "$lt":
-                        case "$lte":
-                        case "$ne":
-                        case "$gt":
-                        case "$gte":
-                            string oppositeOperator;
-                            switch (operatorName)
-                            {
-                                case "$lt": oppositeOperator = "$gte"; break;
-                                case "$lte": oppositeOperator = "$gt"; break;
-                                case "$ne": oppositeOperator = "$eq"; break;
-                                case "$gt": oppositeOperator = "$lte"; break;
-                                case "$gte": oppositeOperator = "$lt"; break;
-                                default: throw new InvalidOperationException("Unreachable code.");
-                            }
-                            var comparisonValue = operatorDocument[0];
-                            if (oppositeOperator == "$eq")
-                            {
+                        switch (operatorName)
+                        {
+                            case "$exists":
+                                var boolValue = operatorDocument[0].AsBoolean;
+                                return new QueryDocument(elementName, new BsonDocument("$exists", !boolValue));
+                            case "$in":
+                                var values = operatorDocument[0].AsBsonArray;
+                                return new QueryDocument(elementName, new BsonDocument("$nin", values));
+                            case "$not":
+                                var predicate = operatorDocument[0];
+                                return new QueryDocument(elementName, predicate);
+                            case "$ne":
+                                var comparisonValue = operatorDocument[0];
                                 return new QueryDocument(elementName, comparisonValue);
-                            }
-                            else
-                            {
-                                return new QueryDocument(elementName, new BsonDocument(oppositeOperator, comparisonValue));
-                            }
+                        }
+                        if (operatorName[0] == '$')
+                        {
+                            // use $not as a meta operator on a single operator
+                            return new QueryDocument(elementName, new BsonDocument("$not", operatorDocument));
+                        }
                     }
-
-                    // use $not as a meta operator
-                    if (operatorName[0] == '$')
+                    else
                     {
-                        return new QueryDocument(elementName, new BsonDocument("$not", operatorDocument));
+                        // $ref isn't an operator (it's the first field of a DBRef)
+                        if (operatorName[0] == '$' && operatorName != "$ref")
+                        {
+                            // $not only works as a meta operator on a single operator so simulate $not using $nor
+                            return new QueryDocument("$nor", new BsonArray { queryDocument });
+                        }
                     }
                 }
 
@@ -733,20 +728,11 @@ namespace MongoDB.Driver.Linq
                     return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
                 }
 
-                if (operatorValue.IsBoolean)
-                {
-                    // turn implied boolean test into test against opposite boolean value
-                    var oppositeValue = !operatorValue.AsBoolean;
-                    return new QueryDocument(elementName, oppositeValue);
-                }
-                else
-                {
-                    // turn implied equality comparison into $ne
-                    return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
-                }
+                // turn implied equality comparison into $ne
+                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
             }
 
-            // $not only works as a meta operator so simulate $not using $nor
+            // $not only works as a meta operator on a single operator so simulate $not using $nor
             return new QueryDocument("$nor", new BsonArray { queryDocument });
         }
 
