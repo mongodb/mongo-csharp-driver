@@ -104,7 +104,7 @@ BsonIgnoreIfDefault attribute
 -----------------------------
 
 This new attribute allows you to specify that you want a field to be ignored
-during serialization if it has the default value. This replaces the
+during serialization if it is equal to the default value. This replaces the
 SerializeDefaultValue parameter of the BsonDefaultValue attribute. By making
 this a separate attribute you can specify that you want the default value
 ignored without having to specify the default value as well.
@@ -146,7 +146,7 @@ to be used to store any extra elements encountered during deserialization.
 However, this field *had* to be of type BsonDocument, which meant introducing
 a dependency on the driver into your data model classes (which some developers
 don't want to do). You now have the additional option of declaring your
-ExtraElements field to be of type IDictionary<string, object> instead.
+ExtraElements field to be of type IDictionary\<string, object\> instead.
 
 IBsonSerializationOptions
 -------------------------
@@ -182,7 +182,7 @@ ISupportInitialize
 The ISupportInitialize interface defines two methods: BeginInit and EndInit.
 The BsonClassMapSerializer now checks whether the class being deserialized
 implements this interface, and if so, calls BeginInit just before it starts
-to deserialize a value, and EndInit just after it has finished. You can 
+to deserialize a class, and EndInit just after it has finished. You can 
 use this feature to do any pre- or post-processing.
 
 ObjectId/BsonObjectId creation
@@ -196,7 +196,9 @@ which case you will usually set the machine, pid and increment fields to zero).
 
 There are also two new overloads of GenerateNewId that allow you to provide
 the desired timestamp as either an int or a .NET DateTime. These new overloads
-are useful if you need to create backdated ObjectIds.
+are useful if you need to create backdated ObjectIds. When generating backdated
+ObjectIds there is a slight risk that you might create an ObjectId that is
+not unique (but that risk is very small).
 
 TimeSpanSerializationOptions
 ----------------------------
@@ -214,7 +216,7 @@ Authentication support improved
 -------------------------------
 
 Operations that require admin credentials previously required you to set the
-DefaultCredentials of MongoServerSettting to admin credentials. But that is
+DefaultCredentials of MongoServerSetttings to admin credentials. But that is
 undesirable because it provides the client code full access to all databases, 
 essentially negating the benefit of using authentication in the first place.
 In the 1.4 release all operations that require admin credentials have a new
@@ -229,8 +231,8 @@ The default value of WaitQueueMultiple has been changed from 1.0 to 5.0 and the
 default value of WaitQueueTimeout has been changed from 0.5 seconds to 2
 minutes. These new values are taken from the Java driver, where they have
 reportedly been working well for users running under heavy loads. These new
-values mean that many more threads can be waiting for a lot longer time
-before a timeout occurs and an exception is thrown.
+values mean that many more threads can be waiting for a longer time before a 
+timeout exception is thrown.
 
 Exceptions are no longer caught and rethrown when possible
 ----------------------------------------------------------
@@ -245,14 +247,14 @@ IBsonSerializable semi-deprecated
 ---------------------------------
 
 The LINQ support relies heavily on the new methods added to IBsonSerializer.
-Because of this it is highly encouraged that in the future you always opt to
-write an IBsonSerializer for your class instead of having it implement
-IBsonSerializable (see the notes for MongoDBRef and SystemProfileInfo for
-examples of where the driver itself has switched from IBsonSerializable to
-using a IBsonSerializer). IBsonSerializable still has a modest role to play
-in classes that just need to be serialized quickly and simply and for which we
-won't be writing LINQ queries (for example, the driver's Builders and Wrappers
-still use IBsonSerializable).
+Because of this it is highly encouraged that *if* you have to handle your own
+serialization that you always opt to write an IBsonSerializer for your class 
+instead of having it implement IBsonSerializable (see the notes for MongoDBRef 
+and SystemProfileInfo for examples of where the driver itself has switched 
+from IBsonSerializable to using a IBsonSerializer). IBsonSerializable still 
+has a modest role to play in classes that just need to be serialized quickly 
+and simply and for which we won't be writing LINQ queries (for example, the 
+driver's Builders and Wrappers still use IBsonSerializable).
 
 LINQ query support
 ------------------
@@ -286,9 +288,8 @@ MongoDBRef used to handle its own serialization by virtue of implementing
 IBsonSerializable. But the IBsonSerializable interface is not helpful when we
 try to add support for writing LINQ queries against components of a MongoDBRef.
 Instead, there is now a MongoDBRefSerializer which handles serialization of
-MongoDBRefs, while at the same time implementing GetMemberSerializationInfo
-which enables the LINQ implementation to support LINQ queries against 
-MongoDBRefs.
+MongoDBRefs, as well as implementing GetMemberSerializationInfo which enables 
+the LINQ implementation to support LINQ queries against MongoDBRefs.
 
 MongoInsertOptions/MongoUpdateOptions constructor changed
 ---------------------------------------------------------
@@ -312,7 +313,7 @@ and adding new overloads for providing admin credentials would have resulted
 in even more of these rarely used properties and methods. If you were using
 any of these methods or properties they can easily be replaced with calls to 
 methods of an instance of MongoDatabase (use one of the overloads of 
-GetDatabase with "admin" as the database to get a reference to the admin
+GetDatabase with "admin" as the database name to get a reference to the admin
 database).
 
 RequestStart/RequestDone
@@ -323,7 +324,7 @@ operations should all be done using the same connection (which in the case of a
 replica set also implies using the same member of the connection set). Which
 member of a replica set was chosen depended on the slaveOk parameter: a value 
 of false meant that the primary had to be used, and a value of true meant that
-an arbitrary secondary would be used. A new overload of RequestStart now allows
+an arbitrary secondary could be used. A new overload of RequestStart now allows
 the caller to specify which member should be used, which can be very useful for
 implementing custom query routing algorithms or for querying specific members
 of a replica set. In general though, keep in mind that you should *not* be
@@ -334,10 +335,10 @@ SocketTimeout default changed
 
 The default value for SocketTimeout has been changed from 30 seconds to 0,
 which is a special value meaning to use the operating system default value,
-which in turn is infinity. If you actually wanted a SocketTimeout you now
-have to set it yourself. The SocketTimeout is currently a server setting, but
-most likely in a future release it will be possible to set it at the 
-individual operation level.
+which in turn is infinity. If you actually want a SocketTimeout you now
+have to set it yourself. The SocketTimeout is currently a server level setting, 
+but most likely in a future release it will be possible to set it at other
+levels, including for individual operations.
 
 SystemProfileInfo no longer implements IBsonSerializable
 --------------------------------------------------------
