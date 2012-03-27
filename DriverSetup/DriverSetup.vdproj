@@ -57,7 +57,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DCEF036A5A8349A3BA6A68608085563B"
+        "MsmKey" = "8:_CC66AD69ABF946EDB7B59EE16A43A943"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -262,9 +262,9 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DCEF036A5A8349A3BA6A68608085563B"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC66AD69ABF946EDB7B59EE16A43A943"
             {
-            "SourcePath" = "8:..\\Release Notes\\Release Notes v1.4.txt"
+            "SourcePath" = "8:..\\Release Notes\\Release Notes v1.4.md"
             "TargetName" = "8:Release Notes v1.4.txt"
             "Tag" = "8:"
             "Folder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
@@ -573,7 +573,7 @@
             "Icon" = "8:"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_ACD294164D2749D59048F56CCBBEF2EF"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_D900534309F24DBCAB9B691BC981A289"
             {
             "Name" = "8:Release Notes v1.4.txt"
             "Arguments" = "8:"
@@ -581,7 +581,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_DCEF036A5A8349A3BA6A68608085563B"
+            "Target" = "8:_CC66AD69ABF946EDB7B59EE16A43A943"
             "Folder" = "8:_714AC4AABA3743F280D3824A1345875C"
             "WorkingFolder" = "8:_D4C7539AEF6E411F98A857872FF5F2FC"
             "Icon" = "8:"
