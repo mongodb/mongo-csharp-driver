@@ -4,7 +4,7 @@ driver home: http://github.com/mongodb/mongo-csharp-driver
 
 mongodb home: http://www.mongodb.org/
 
-apidoc: http://api.mongodb.org/csharp/ (coming soon)
+apidoc: http://api.mongodb.org/csharp/
 
 ### Questions and Bug Reports
 
