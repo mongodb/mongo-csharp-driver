@@ -249,12 +249,26 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serialization info for the member.</returns>
         public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            var memberMap = _classMap.GetMemberMap(memberName);
-            var elementName = memberMap.ElementName;
-            var serializer = memberMap.GetSerializer(memberMap.MemberType);
-            var nominalType = memberMap.MemberType;
-            var serializationOptions = memberMap.SerializationOptions;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            var classMap = _classMap;
+            while (classMap != null)
+            {
+                var memberMap = classMap.GetMemberMap(memberName);
+                if (memberMap != null)
+                {
+                    var elementName = memberMap.ElementName;
+                    var serializer = memberMap.GetSerializer(memberMap.MemberType);
+                    var nominalType = memberMap.MemberType;
+                    var serializationOptions = memberMap.SerializationOptions;
+                    return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+                }
+                classMap = classMap.BaseClassMap;
+            }
+
+            var message = string.Format(
+                "Class {0} does not have a member called {1}.",
+                BsonUtils.GetFriendlyTypeName(_classMap.ClassType),
+                memberName);
+            throw new ArgumentOutOfRangeException("memberName", message);
         }
 
         /// <summary>
