@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 bsonReader.ReadStartDocument();
-                var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
+                var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.AllMemberMaps); // make a copy!
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
@@ -249,11 +249,9 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serialization info for the member.</returns>
         public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            var classMap = _classMap;
-            while (classMap != null)
+            foreach (var memberMap in _classMap.AllMemberMaps)
             {
-                var memberMap = classMap.GetMemberMap(memberName);
-                if (memberMap != null)
+                if (memberMap.MemberName == memberName)
                 {
                     var elementName = memberMap.ElementName;
                     var serializer = memberMap.GetSerializer(memberMap.MemberType);
@@ -261,7 +259,6 @@ namespace MongoDB.Bson.Serialization
                     var serializationOptions = memberMap.SerializationOptions;
                     return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
                 }
-                classMap = classMap.BaseClassMap;
             }
 
             var message = string.Format(
@@ -338,7 +335,7 @@ namespace MongoDB.Bson.Serialization
                     }
                 }
 
-                foreach (var memberMap in classMap.MemberMaps)
+                foreach (var memberMap in classMap.AllMemberMaps)
                 {
                     // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
                     if (memberMap != idMemberMap)

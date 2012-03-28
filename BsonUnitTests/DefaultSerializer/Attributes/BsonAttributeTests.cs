@@ -181,7 +181,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Attributes
             var ordered = classMap.GetMemberMap("Ordered");
             Assert.AreEqual("ordered", ordered.ElementName);
             Assert.AreEqual(1, ordered.Order);
-            Assert.AreSame(classMap.MemberMaps.First(), ordered);
+            Assert.AreSame(classMap.AllMemberMaps.First(), ordered);
 
             var noElement = classMap.GetMemberMap("NoElement");
             Assert.AreEqual("NoElement", noElement.ElementName);

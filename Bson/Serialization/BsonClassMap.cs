@@ -78,6 +78,14 @@ namespace MongoDB.Bson.Serialization
 
         // public properties
         /// <summary>
+        /// Gets all the member maps (including maps for inherited members).
+        /// </summary>
+        public IEnumerable<BsonMemberMap> AllMemberMaps
+        {
+            get { return _allMemberMaps; }
+        }
+
+        /// <summary>
         /// Gets the base class map.
         /// </summary>
         public BsonClassMap BaseClassMap
@@ -99,6 +107,14 @@ namespace MongoDB.Bson.Serialization
         public ConventionProfile Conventions
         {
             get { return _conventions; }
+        }
+
+        /// <summary>
+        /// Gets the declared member maps (only for members declared in this class).
+        /// </summary>
+        public IEnumerable<BsonMemberMap> DeclaredMemberMaps
+        {
+            get { return _declaredMemberMaps; }
         }
 
         /// <summary>
@@ -192,6 +208,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the member maps.
         /// </summary>
+        [Obsolete("Use AllMemberMaps or DeclaredMemberMaps instead.")]
         public IEnumerable<BsonMemberMap> MemberMaps
         {
             get { return _allMemberMaps; }
@@ -507,7 +524,7 @@ namespace MongoDB.Bson.Serialization
                             _baseClassMap = LookupClassMap(baseType);
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
-                            _allMemberMaps.AddRange(_baseClassMap.MemberMaps);
+                            _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);
                             if (_baseClassMap.IgnoreExtraElements && _baseClassMap.IgnoreExtraElementsIsInherited)
                             {
                                 _ignoreExtraElements = true;
@@ -627,10 +644,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets a member map.
+        /// Gets a member map (only considers members declared in this class).
         /// </summary>
         /// <param name="memberName">The member name.</param>
-        /// <returns>The member map.</returns>
+        /// <returns>The member map (or null if the member was not found).</returns>
         public BsonMemberMap GetMemberMap(string memberName)
         {
             if (memberName == null)
