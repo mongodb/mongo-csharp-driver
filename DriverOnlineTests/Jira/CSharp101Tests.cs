@@ -199,7 +199,7 @@ namespace MongoDB.DriverOnlineTests.Jira.CSharp101
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual("_id", document.GetElement(0).Name);
             Assert.IsInstanceOf<BsonBinaryData>(document["_id"]);
-            Assert.AreNotEqual(Guid.Empty, document["_id"].AsGuid);
+            Assert.AreNotEqual(BsonBinaryData.Create(Guid.Empty), document["_id"]);
             Assert.AreEqual(1, _collection.Count());
 
             var id = document["_id"].AsGuid;

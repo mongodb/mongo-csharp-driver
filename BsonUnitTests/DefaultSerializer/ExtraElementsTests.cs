@@ -164,7 +164,6 @@ namespace MongoDB.BsonUnitTests.Serialization
                 new string[] { "XBoolean", "true" },
                 new string[] { "XByteArray", "HexData(0, '1234')" },
                 new string[] { "XDateTime", "ISODate('2012-03-16T11:19:00Z')" },
-                new string[] { "XDateTimeOutOfRange", "new Date(299999999999999)" },
                 new string[] { "XDocument", "{ 'a' : 1 }" },
                 new string[] { "XDouble", "1.0" },
                 new string[] { "XGuidLegacy", "HexData(3, '33221100554477668899aabbccddeeff')" },
@@ -196,7 +195,6 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.IsInstanceOf<bool>(c.X["XBoolean"]);
             Assert.IsInstanceOf<byte[]>(c.X["XByteArray"]);
             Assert.IsInstanceOf<DateTime>(c.X["XDateTime"]);
-            Assert.IsInstanceOf<BsonDateTime>(c.X["XDateTimeOutOfRange"]);
             Assert.IsInstanceOf<Dictionary<string, object>>(c.X["XDocument"]);
             Assert.IsInstanceOf<double>(c.X["XDouble"]);
             Assert.IsInstanceOf<Guid>(c.X["XGuidLegacy"]);
@@ -215,7 +213,7 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.IsInstanceOf<BsonTimestamp>(c.X["XTimestamp"]);
             Assert.IsInstanceOf<BsonUndefined>(c.X["XUndefined"]);
 
-            Assert.AreEqual(23, c.X.Count);
+            Assert.AreEqual(22, c.X.Count);
             Assert.IsTrue(new object[] { 1, 2.0 }.SequenceEqual((List<object>)c.X["XArray"]));
 #pragma warning disable 618 // OldBinary is obsolete
             Assert.AreEqual(BsonBinarySubType.OldBinary, ((BsonBinaryData)c.X["XBinary"]).SubType);
@@ -224,7 +222,6 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.AreEqual(true, c.X["XBoolean"]);
             Assert.IsTrue(new byte[] { 0x12, 0x34 }.SequenceEqual((byte[])c.X["XByteArray"]));
             Assert.AreEqual(new DateTime(2012, 3, 16, 11, 19, 0, DateTimeKind.Utc), c.X["XDateTime"]);
-            Assert.AreEqual(299999999999999, ((BsonDateTime)c.X["XDateTimeOutOfRange"]).MillisecondsSinceEpoch);
             Assert.AreEqual(1, ((IDictionary<string, object>)c.X["XDocument"]).Count);
             Assert.AreEqual(1, ((IDictionary<string, object>)c.X["XDocument"])["a"]);
             Assert.AreEqual(1.0, c.X["XDouble"]);

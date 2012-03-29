@@ -39,6 +39,10 @@ namespace MongoDB.Bson
         public BsonRegularExpression(string pattern)
             : base(BsonType.RegularExpression)
         {
+            if (pattern == null)
+            {
+                throw new ArgumentNullException("pattern");
+            }
             if (pattern.Length > 0 && pattern[0] == '/')
             {
                 var index = pattern.LastIndexOf('/');
@@ -62,6 +66,10 @@ namespace MongoDB.Bson
         public BsonRegularExpression(string pattern, string options)
             : base(BsonType.RegularExpression)
         {
+            if (pattern == null)
+            {
+                throw new ArgumentNullException("pattern");
+            }
             _pattern = pattern;
             _options = options ?? "";
         }
@@ -73,6 +81,10 @@ namespace MongoDB.Bson
         public BsonRegularExpression(Regex regex)
             : base(BsonType.RegularExpression)
         {
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
             _pattern = regex.ToString();
             _options = "";
             if ((regex.Options & RegexOptions.IgnoreCase) != 0)

@@ -415,7 +415,7 @@ namespace MongoDB.Bson.Serialization
                     extraElementsMemberMap.Setter(obj, extraElements);
                 }
                 var bsonValue = BsonValue.ReadFrom(bsonReader);
-                extraElements[elementName] = MapBsonValueToDotNetValue(bsonValue);
+                extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
             }
         }
 
@@ -444,66 +444,6 @@ namespace MongoDB.Bson.Serialization
                     "An error occurred while deserializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
                     memberMap.MemberName, (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property", obj.GetType().FullName, ex.Message);
                 throw new FileFormatException(message, ex);
-            }
-        }
-
-        private object MapBsonValueToDotNetValue(BsonValue value)
-        {
-            switch (value.BsonType)
-            {
-                case BsonType.Array:
-                    var bsonArray = value.AsBsonArray;
-                    var list = new List<object>(bsonArray.Count);
-                    foreach (var item in bsonArray)
-                    {
-                        list.Add(MapBsonValueToDotNetValue(item));
-                    }
-                    return list;
-                case BsonType.Binary:
-                    var binaryData = value.AsBsonBinaryData;
-                    if (binaryData.SubType == BsonBinarySubType.Binary)
-                    {
-                        return binaryData.Bytes;
-                    }
-                    if (binaryData.SubType == BsonBinarySubType.UuidLegacy || binaryData.SubType == BsonBinarySubType.UuidStandard)
-                    {
-                        return binaryData.ToGuid();
-                    }
-                    return binaryData;
-                case BsonType.Boolean:
-                    return value.AsBoolean;
-                case BsonType.DateTime:
-                    var bsonDateTime = value.AsBsonDateTime;
-                    if (bsonDateTime.IsValidDateTime)
-                    {
-                        return bsonDateTime.AsDateTime;
-                    }
-                    else
-                    {
-                        return bsonDateTime;
-                    }
-                case BsonType.Document:
-                    var bsonDocument = value.AsBsonDocument;
-                    var dictionary = new Dictionary<string, object>();
-                    foreach (var element in bsonDocument.Elements)
-                    {
-                        dictionary[element.Name] = MapBsonValueToDotNetValue(element.Value);
-                    }
-                    return dictionary;
-                case BsonType.Double:
-                    return value.AsDouble;
-                case BsonType.Int32:
-                    return value.AsInt32;
-                case BsonType.Int64:
-                    return value.AsInt64;
-                case BsonType.Null:
-                    return null;
-                case BsonType.ObjectId:
-                    return value.AsObjectId;
-                case BsonType.String:
-                    return value.AsString;
-                default:
-                    return value; // just return BsonValue for types that have no .NET equivalent
             }
         }
 

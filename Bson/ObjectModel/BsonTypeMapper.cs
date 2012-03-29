@@ -181,12 +181,21 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object.</param>
         /// <param name="bsonType">The BsonType to map to.</param>
-        /// <returns>A BsonValue.</returns>
+        /// <returns>A BsonValue of the desired type (or BsonNull.Value if value is null and bsonType is Null).</returns>
         public static BsonValue MapToBsonValue(object value, BsonType bsonType)
         {
+            string message;
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                if (bsonType == BsonType.Null)
+                {
+                    return BsonNull.Value;
+                }
+                else
+                {
+                    message = string.Format("C# null cannot be mapped to BsonType.{0}.", bsonType);
+                    throw new ArgumentException(message, "value");
+                }
             }
 
             var valueType = value.GetType();
@@ -234,8 +243,180 @@ namespace MongoDB.Bson
                     break;
             }
 
-            string message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
+            message = string.Format(".NET type {0} cannot be mapped to BsonType.{1}.", value.GetType().FullName, bsonType);
             throw new ArgumentException(message, "value");
+        }
+
+        /// <summary>
+        /// Maps a BsonValue to a .NET value using the default BsonTypeMapperOptions.
+        /// </summary>
+        /// <param name="bsonValue">The BsonValue.</param>
+        /// <returns>The mapped .NET value.</returns>
+        public static object MapToDotNetValue(BsonValue bsonValue)
+        {
+            return MapToDotNetValue(bsonValue, BsonTypeMapperOptions.Defaults);
+        }
+
+        /// <summary>
+        /// Maps a BsonValue to a .NET value.
+        /// </summary>
+        /// <param name="bsonValue">The BsonValue.</param>
+        /// <param name="options">The BsonTypeMapperOptions.</param>
+        /// <returns>The mapped .NET value.</returns>
+        public static object MapToDotNetValue(BsonValue bsonValue, BsonTypeMapperOptions options)
+        {
+            switch (bsonValue.BsonType)
+            {
+                case BsonType.Array:
+                    var bsonArray = (BsonArray)bsonValue;
+                    if (options.MapBsonArrayTo == typeof(BsonArray))
+                    {
+                        return bsonArray;
+                    }
+                    else if (options.MapBsonArrayTo == typeof(object[]))
+                    {
+                        var array = new object[bsonArray.Count];
+                        for (int i = 0; i < bsonArray.Count; i++)
+                        {
+                            array[i] = MapToDotNetValue(bsonArray[i], options);
+                        }
+                        return array;
+                    }
+                    else if (typeof(IList<object>).IsAssignableFrom(options.MapBsonArrayTo))
+                    {
+                        var list = (IList<object>)Activator.CreateInstance(options.MapBsonArrayTo);
+                        for (int i = 0; i < bsonArray.Count; i++)
+                        {
+                            list.Add(MapToDotNetValue(bsonArray[i], options));
+                        }
+                        return list;
+                    }
+                    else if (typeof(IList).IsAssignableFrom(options.MapBsonArrayTo))
+                    {
+                        var list = (IList)Activator.CreateInstance(options.MapBsonArrayTo);
+                        for (int i = 0; i < bsonArray.Count; i++)
+                        {
+                            list.Add(MapToDotNetValue(bsonArray[i], options));
+                        }
+                        return list;
+                    }
+                    else
+                    {
+                        var message = string.Format("A BsonArray can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        throw new NotSupportedException(message);
+                    }
+                case BsonType.Binary:
+#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
+                    var bsonBinaryData = (BsonBinaryData)bsonValue;
+                    if (bsonBinaryData.SubType == BsonBinarySubType.Binary ||
+                        bsonBinaryData.SubType == BsonBinarySubType.OldBinary && options.MapOldBinaryToByteArray)
+                    {
+                        return bsonBinaryData.Bytes;
+                    }
+                    else if (bsonBinaryData.SubType == BsonBinarySubType.UuidLegacy || bsonBinaryData.SubType == BsonBinarySubType.UuidStandard)
+                    {
+                        return bsonBinaryData.ToGuid();
+                    }
+                    else
+                    {
+                        return bsonBinaryData; // unmapped
+                    }
+#pragma warning restore 618
+                case BsonType.Boolean:
+                    return bsonValue.AsBoolean;
+                case BsonType.DateTime:
+                    return bsonValue.AsUniversalTime;
+                case BsonType.Document:
+                    var bsonDocument = (BsonDocument)bsonValue;
+                    if (options.MapBsonDocumentTo == typeof(BsonDocument))
+                    {
+                        return bsonDocument;
+                    }
+                    else if (typeof(IDictionary<string, object>).IsAssignableFrom(options.MapBsonDocumentTo))
+                    {
+                        var dictionary = (IDictionary<string, object>)Activator.CreateInstance(options.MapBsonDocumentTo);
+                        foreach (var element in bsonDocument.Elements)
+                        {
+                            var mappedValue = MapToDotNetValue(element.Value, options);
+                            if (dictionary.ContainsKey(element.Name))
+                            {
+                                switch (options.DuplicateNameHandling)
+                                {
+                                    case DuplicateNameHandling.Ignore:
+                                        break;
+                                    case DuplicateNameHandling.Overwrite:
+                                    default:
+                                        dictionary[element.Name] = mappedValue;
+                                        break;
+                                    case DuplicateNameHandling.ThrowException:
+                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                                        throw new ArgumentOutOfRangeException(message);
+                                }
+                            }
+                            else
+                            {
+                                dictionary.Add(element.Name, mappedValue);
+                            }
+                        }
+                        return dictionary;
+                    }
+                    else if (typeof(IDictionary).IsAssignableFrom(options.MapBsonDocumentTo))
+                    {
+                        var dictionary = (IDictionary)Activator.CreateInstance(options.MapBsonDocumentTo);
+                        foreach (var element in bsonDocument.Elements)
+                        {
+                            var mappedValue = MapToDotNetValue(element.Value, options);
+                            if (dictionary.Contains(element.Name))
+                            {
+                                switch (options.DuplicateNameHandling)
+                                {
+                                    case DuplicateNameHandling.Ignore:
+                                        break;
+                                    case DuplicateNameHandling.Overwrite:
+                                    default:
+                                        dictionary[element.Name] = mappedValue;
+                                        break;
+                                    case DuplicateNameHandling.ThrowException:
+                                        var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                                        throw new ArgumentOutOfRangeException(message);
+                                }
+                            }
+                            else
+                            {
+                                dictionary.Add(element.Name, mappedValue);
+                            }
+                        }
+                        return dictionary;
+                    }
+                    else
+                    {
+                        var message = string.Format("A BsonDocument can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        throw new NotSupportedException(message);
+                    }
+                case BsonType.Double:
+                    return bsonValue.AsDouble;
+                case BsonType.Int32:
+                    return bsonValue.AsInt32;
+                case BsonType.Int64:
+                    return bsonValue.AsInt64;
+                case BsonType.Null:
+                    return null; // BsonValue.Null maps to C# null
+                case BsonType.ObjectId:
+                    return bsonValue.AsObjectId;
+                case BsonType.String:
+                    return bsonValue.AsString;
+
+                case BsonType.JavaScript:
+                case BsonType.JavaScriptWithScope:
+                case BsonType.MaxKey:
+                case BsonType.MinKey:
+                case BsonType.RegularExpression:
+                case BsonType.Symbol:
+                case BsonType.Timestamp:
+                case BsonType.Undefined:
+                default:
+                    return bsonValue; // unmapped
+            }
         }
 
         /// <summary>
@@ -258,8 +439,8 @@ namespace MongoDB.Bson
         {
             if (value == null)
             {
-                bsonValue = null;
-                return false;
+                bsonValue = BsonNull.Value;
+                return true;
             }
 
             var valueType = value.GetType();

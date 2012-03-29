@@ -522,7 +522,7 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        public void TestToDictionaryUnsupportedTypes()
+        public void TestToDictionaryOtherTypes()
         {
             var document = new BsonDocument
             {
@@ -538,15 +538,15 @@ namespace MongoDB.BsonUnitTests
             };
             var dictionary = document.ToDictionary();
             Assert.AreEqual(9, dictionary.Count);
-            Assert.IsNull(dictionary["JavaScript"]);
-            Assert.IsNull(dictionary["JavaScriptWithScope"]);
-            Assert.IsNull(dictionary["MaxKey"]);
-            Assert.IsNull(dictionary["MinKey"]);
+            Assert.IsInstanceOf<BsonJavaScript>(dictionary["JavaScript"]);
+            Assert.IsInstanceOf<BsonJavaScriptWithScope>(dictionary["JavaScriptWithScope"]);
+            Assert.AreSame(BsonMaxKey.Value, dictionary["MaxKey"]);
+            Assert.AreSame(BsonMinKey.Value, dictionary["MinKey"]);
             Assert.IsNull(dictionary["Null"]);
-            Assert.IsNull(dictionary["RegularExpression"]);
-            Assert.IsNull(dictionary["Symbol"]);
-            Assert.IsNull(dictionary["Timestamp"]);
-            Assert.IsNull(dictionary["Undefined"]);
+            Assert.IsInstanceOf<BsonRegularExpression>(dictionary["RegularExpression"]);
+            Assert.IsInstanceOf<BsonSymbol>(dictionary["Symbol"]);
+            Assert.IsInstanceOf<BsonTimestamp>(dictionary["Timestamp"]);
+            Assert.AreSame(BsonUndefined.Value, dictionary["Undefined"]);
         }
 
         [Test]
@@ -704,7 +704,7 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        public void TestToHashtableUnsupportedTypes()
+        public void TestToHashtableOtherTypes()
         {
             var document = new BsonDocument
             {
@@ -720,15 +720,15 @@ namespace MongoDB.BsonUnitTests
             };
             var hashtable = document.ToHashtable();
             Assert.AreEqual(9, hashtable.Count);
-            Assert.IsNull(hashtable["JavaScript"]);
-            Assert.IsNull(hashtable["JavaScriptWithScope"]);
-            Assert.IsNull(hashtable["MaxKey"]);
-            Assert.IsNull(hashtable["MinKey"]);
+            Assert.IsInstanceOf<BsonJavaScript>(hashtable["JavaScript"]);
+            Assert.IsInstanceOf<BsonJavaScriptWithScope>(hashtable["JavaScriptWithScope"]);
+            Assert.AreSame(BsonMaxKey.Value, hashtable["MaxKey"]);
+            Assert.AreSame(BsonMinKey.Value, hashtable["MinKey"]);
             Assert.IsNull(hashtable["Null"]);
-            Assert.IsNull(hashtable["RegularExpression"]);
-            Assert.IsNull(hashtable["Symbol"]);
-            Assert.IsNull(hashtable["Timestamp"]);
-            Assert.IsNull(hashtable["Undefined"]);
+            Assert.IsInstanceOf<BsonRegularExpression>(hashtable["RegularExpression"]);
+            Assert.IsInstanceOf<BsonSymbol>(hashtable["Symbol"]);
+            Assert.IsInstanceOf<BsonTimestamp>(hashtable["Timestamp"]);
+            Assert.AreSame(BsonUndefined.Value, hashtable["Undefined"]);
         }
 
         private void AssertAreEqual(string expected, byte[] actual)

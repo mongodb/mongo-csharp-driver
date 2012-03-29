@@ -38,6 +38,10 @@ namespace MongoDB.Bson
         public BsonJavaScript(string code)
             : base(BsonType.JavaScript)
         {
+            if (code == null)
+            {
+                throw new ArgumentNullException("code");
+            }
             _code = code;
         }
 
@@ -49,6 +53,10 @@ namespace MongoDB.Bson
         protected BsonJavaScript(string code, BsonType bsonType)
             : base(bsonType)
         {
+            if (code == null)
+            {
+                throw new ArgumentNullException("code");
+            }
             _code = code;
         }
 

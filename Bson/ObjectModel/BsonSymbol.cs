@@ -34,6 +34,10 @@ namespace MongoDB.Bson
         internal BsonSymbol(string name)
             : base(BsonType.Symbol)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             _name = name;
         }
 

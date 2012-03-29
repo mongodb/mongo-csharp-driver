@@ -37,6 +37,10 @@ namespace MongoDB.Bson
         /// <returns>The symbol.</returns>
         public static BsonSymbol Lookup(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             lock (__staticLock)
             {
                 BsonSymbol symbol;

@@ -40,6 +40,10 @@ namespace MongoDB.Bson
         public BsonString(string value)
             : base(BsonType.String)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _value = value;
         }
 

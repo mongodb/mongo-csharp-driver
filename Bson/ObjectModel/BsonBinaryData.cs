@@ -60,6 +60,10 @@ namespace MongoDB.Bson
         public BsonBinaryData(byte[] bytes, BsonBinarySubType subType, GuidRepresentation guidRepresentation)
             : base(BsonType.Binary)
         {
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
             {
                 if (bytes.Length != 16)
@@ -165,11 +169,11 @@ namespace MongoDB.Bson
         /// <summary>
         /// Converts a byte array to a BsonBinaryData.
         /// </summary>
-        /// <param name="value">A byte array.</param>
+        /// <param name="bytes">A byte array.</param>
         /// <returns>A BsonBinaryData.</returns>
-        public static implicit operator BsonBinaryData(byte[] value)
+        public static implicit operator BsonBinaryData(byte[] bytes)
         {
-            return BsonBinaryData.Create(value);
+            return BsonBinaryData.Create(bytes);
         }
 
         /// <summary>

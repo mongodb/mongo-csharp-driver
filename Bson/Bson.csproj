@@ -91,6 +91,7 @@
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
     <Compile Include="ObjectModel\ICustomBsonTypeMapper.cs" />
+    <Compile Include="ObjectModel\BsonTypeMapperOptions.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDictionaryOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />
