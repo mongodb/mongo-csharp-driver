@@ -1,10 +1,11 @@
 ## MongoDB C# Driver
 
-driver home: http://github.com/mongodb/mongo-csharp-driver
+documentation: http://www.mongodb.org/display/DOCS/CSharp+Language+Center
+apidoc: http://api.mongodb.org/csharp/
+
+source code: http://github.com/mongodb/mongo-csharp-driver
 
 mongodb home: http://www.mongodb.org/
-
-apidoc: http://api.mongodb.org/csharp/
 
 ### Questions and Bug Reports
 
