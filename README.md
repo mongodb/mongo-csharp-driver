@@ -2,6 +2,8 @@
 
 driver home: http://github.com/mongodb/mongo-csharp-driver
 
+tutorial: http://www.mongodb.org/display/DOCS/CSharp+Driver+Tutorial
+
 mongodb home: http://www.mongodb.org/
 
 apidoc: http://api.mongodb.org/csharp/
