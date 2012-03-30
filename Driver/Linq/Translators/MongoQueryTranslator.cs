@@ -49,7 +49,8 @@ namespace MongoDB.Driver.Linq
             // assume for now it's a SelectQuery
             var documentType = GetDocumentType(expression);
             var selectQuery = new SelectQuery(provider.Collection, documentType);
-            selectQuery.Translate(expression);
+            if (!(expression is ConstantExpression))
+                selectQuery.Translate(expression);
             return selectQuery;
         }
 
@@ -64,20 +65,34 @@ namespace MongoDB.Driver.Linq
                 var constantExpression = firstArgument as ConstantExpression;
                 if (constantExpression != null)
                 {
-                    var constantType = constantExpression.Type;
-                    if (constantType.IsGenericType)
-                    {
-                        var genericTypeDefinition = constantType.GetGenericTypeDefinition();
-                        if (genericTypeDefinition == typeof(MongoQueryable<>))
-                        {
-                            return constantType.GetGenericArguments()[0];
-                        }
-                    }
+                    var type = GetTypeFromConstantExpression(constantExpression);
+                    if (type != null)
+                        return type;
                 }
                 return GetDocumentType(firstArgument);
             }
+            if (expression is ConstantExpression)
+            {
+                var constantExpression = expression as ConstantExpression;
+                var type = GetTypeFromConstantExpression(constantExpression);
+                if (type != null)
+                    return type;
+            }
 
             throw new ArgumentOutOfRangeException("Unable to find root IQueryable");
+        }
+
+        private static Type GetTypeFromConstantExpression(ConstantExpression constantExpression)
+        {
+            var constantType = constantExpression.Type;
+            if (constantType.IsGenericType)
+            {
+                var genericTypeDefinition = constantType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(MongoQueryable<>))
+                    return constantType.GetGenericArguments()[0];
+            }
+
+            return null;
         }
     }
 }
