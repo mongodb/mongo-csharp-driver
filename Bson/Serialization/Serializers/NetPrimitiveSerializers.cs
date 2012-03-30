@@ -1980,7 +1980,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.String:
-                    return new Uri(bsonReader.ReadString());
+                    return new Uri(bsonReader.ReadString(), UriKind.RelativeOrAbsolute);
                 default:
                     var message = string.Format("Cannot deserialize Uri from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -2006,7 +2006,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                bsonWriter.WriteString(((Uri)value).AbsoluteUri);
+                bsonWriter.WriteString(((Uri)value).OriginalString);
             }
         }
     }
