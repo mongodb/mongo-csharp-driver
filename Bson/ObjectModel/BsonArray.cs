@@ -595,7 +595,7 @@ namespace MongoDB.Bson
             var clone = new BsonArray(_values.Capacity);
             foreach (var value in _values)
             {
-                clone.Add(value.Clone());
+                clone.Add(value);
             }
             return clone;
         }
