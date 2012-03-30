@@ -189,78 +189,24 @@ namespace MongoDB.Driver.Linq
         /// <param name="expression">The LINQ query expression tree.</param>
         public void Translate(Expression expression)
         {
+            // when we reach the original MongoQueryable<TDocument> we're done
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression != null)
+            {
+                if (constantExpression.Type == typeof(MongoQueryable<>).MakeGenericType(DocumentType))
+                {
+                    return;
+                }
+            }
+
             var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression == null)
+            if (methodCallExpression != null)
             {
-                throw new ArgumentOutOfRangeException("expression");
+                TranslateMethodCall(methodCallExpression);
+                return;
             }
 
-            if (methodCallExpression.Arguments.Count == 0)
-            {
-                throw new ArgumentOutOfRangeException("expression");
-            }
-
-            var source = methodCallExpression.Arguments[0];
-            if (source is MethodCallExpression)
-            {
-                Translate(source);
-            }
-            
-            var methodName = methodCallExpression.Method.Name;
-            switch (methodName)
-            {
-                case "Any":
-                    TranslateAny(methodCallExpression);
-                    break;
-                case "Count":
-                case "LongCount":
-                    TranslateCount(methodCallExpression);
-                    break;
-                case "Distinct":
-                    TranslateDistinct(methodCallExpression);
-                    break;
-                case "ElementAt":
-                case "ElementAtOrDefault":
-                    TranslateElementAt(methodCallExpression);
-                    break;
-                case "First":
-                case "FirstOrDefault":
-                case "Single":
-                case "SingleOrDefault":
-                    TranslateFirstOrSingle(methodCallExpression);
-                    break;
-                case "Last":
-                case "LastOrDefault":
-                    TranslateLast(methodCallExpression);
-                    break;
-                case "Max":
-                case "Min":
-                    TranslateMaxMin(methodCallExpression);
-                    break;
-                case "OrderBy":
-                case "OrderByDescending":
-                    TranslateOrderBy(methodCallExpression);
-                    break;
-                case "Select":
-                    TranslateSelect(methodCallExpression);
-                    break;
-                case "Skip":
-                    TranslateSkip(methodCallExpression);
-                    break;
-                case "Take":
-                    TranslateTake(methodCallExpression);
-                    break;
-                case "ThenBy":
-                case "ThenByDescending":
-                    TranslateThenBy(methodCallExpression);
-                    break;
-                case "Where":
-                    TranslateWhere(methodCallExpression);
-                    break;
-                default:
-                    var message = string.Format("The {0} query operator is not supported.", methodName);
-                    throw new NotSupportedException(message);
-            }
+            var message = string.Format("Don't know how to translate expression: {0}.", ExpressionFormatter.ToString(expression));
         }
 
         // private methods
@@ -1281,6 +1227,74 @@ namespace MongoDB.Driver.Linq
 
             _take = Expression.Constant(1);
             SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
+        }
+
+        private void TranslateMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count == 0)
+            {
+                var message = string.Format("Method call expression has no arguments: {0}.", ExpressionFormatter.ToString(methodCallExpression));
+                throw new ArgumentOutOfRangeException(message);
+            }
+
+            var source = methodCallExpression.Arguments[0];
+            Translate(source);
+
+            var methodName = methodCallExpression.Method.Name;
+            switch (methodName)
+            {
+                case "Any":
+                    TranslateAny(methodCallExpression);
+                    break;
+                case "Count":
+                case "LongCount":
+                    TranslateCount(methodCallExpression);
+                    break;
+                case "Distinct":
+                    TranslateDistinct(methodCallExpression);
+                    break;
+                case "ElementAt":
+                case "ElementAtOrDefault":
+                    TranslateElementAt(methodCallExpression);
+                    break;
+                case "First":
+                case "FirstOrDefault":
+                case "Single":
+                case "SingleOrDefault":
+                    TranslateFirstOrSingle(methodCallExpression);
+                    break;
+                case "Last":
+                case "LastOrDefault":
+                    TranslateLast(methodCallExpression);
+                    break;
+                case "Max":
+                case "Min":
+                    TranslateMaxMin(methodCallExpression);
+                    break;
+                case "OrderBy":
+                case "OrderByDescending":
+                    TranslateOrderBy(methodCallExpression);
+                    break;
+                case "Select":
+                    TranslateSelect(methodCallExpression);
+                    break;
+                case "Skip":
+                    TranslateSkip(methodCallExpression);
+                    break;
+                case "Take":
+                    TranslateTake(methodCallExpression);
+                    break;
+                case "ThenBy":
+                case "ThenByDescending":
+                    TranslateThenBy(methodCallExpression);
+                    break;
+                case "Where":
+                    TranslateWhere(methodCallExpression);
+                    break;
+                default:
+                    var message = string.Format("The {0} query operator is not supported.", methodName);
+                    throw new NotSupportedException(message);
+            }
         }
 
         private void TranslateOrderBy(MethodCallExpression methodCallExpression)

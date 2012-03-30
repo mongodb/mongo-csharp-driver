@@ -243,6 +243,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         }
 
         [Test]
+        public void TestAsQueryableWithNothingElse()
+        {
+            var query = _collection.AsQueryable<C>();
+            var result = query.ToList();
+            Assert.AreEqual(5, result.Count);
+        }
+
+        [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverage()
         {
@@ -1597,6 +1605,14 @@ namespace MongoDB.DriverOnlineTests.Linq
         {
             var query = _collection.AsQueryable<C>().Select((c, index) => c);
             query.ToList(); // execute query
+        }
+
+        [Test]
+        public void TestSelectWithNothingElse()
+        {
+            var query = from c in _collection.AsQueryable<C>() select c;
+            var result = query.ToList();
+            Assert.AreEqual(5, result.Count);
         }
 
         [Test]
