@@ -5214,6 +5214,14 @@ namespace MongoDB.DriverOnlineTests.Linq
             Assert.AreEqual(1, Consume(query));
         }
 
+        [Test]
+        public void TestWhereNoQuerySpecified()
+        {
+            var list = _collection.AsQueryable<C>().ToList();
+
+            Assert.Greater(list.Count, 0);
+        }
+
         private int Consume<T>(IQueryable<T> query)
         {
             var count = 0;
