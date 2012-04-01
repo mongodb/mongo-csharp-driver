@@ -35,6 +35,7 @@ namespace MongoDB.Bson.IO
         private string _name;
         private bool _checkElementNames;
         private bool _checkUpdateDocument;
+        private int _serializationDepth;
 
         // constructors
         /// <summary>
@@ -64,6 +65,14 @@ namespace MongoDB.Bson.IO
         {
             get { return _checkUpdateDocument; }
             set { _checkUpdateDocument = value; }
+        }
+
+        /// <summary>
+        /// Gets the current serialization depth.
+        /// </summary>
+        public int SerializationDepth
+        {
+            get { return _serializationDepth; }
         }
 
         /// <summary>
@@ -324,12 +333,18 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes the end of a BSON array to the writer.
         /// </summary>
-        public abstract void WriteEndArray();
+        public virtual void WriteEndArray()
+        {
+            _serializationDepth--;
+        }
 
         /// <summary>
         /// Writes the end of a BSON document to the writer.
         /// </summary>
-        public abstract void WriteEndDocument();
+        public virtual void WriteEndDocument()
+        {
+            _serializationDepth--;
+        }
 
         /// <summary>
         /// Writes a BSON Int32 to the writer.
@@ -506,7 +521,14 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes the start of a BSON array to the writer.
         /// </summary>
-        public abstract void WriteStartArray();
+        public virtual void WriteStartArray()
+        {
+            _serializationDepth++;
+            if (_serializationDepth > _settings.MaxSerializationDepth)
+            {
+                throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
+            }
+        }
 
         /// <summary>
         /// Writes the start of a BSON array element to the writer.
@@ -521,7 +543,14 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes the start of a BSON document to the writer.
         /// </summary>
-        public abstract void WriteStartDocument();
+        public virtual void WriteStartDocument()
+        {
+            _serializationDepth++;
+            if (_serializationDepth > _settings.MaxSerializationDepth)
+            {
+                throw new BsonSerializationException("Maximum serialization depth exceeded (does the object being serialized have a circular reference?).");
+            }
+        }
 
         /// <summary>
         /// Writes the start of a BSON document element to the writer.

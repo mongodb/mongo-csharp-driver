@@ -271,6 +271,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteEndArray", BsonWriterState.Value);
             }
 
+            base.WriteEndArray();
             _textWriter.Write("]");
 
             _context = _context.ParentContext;
@@ -288,6 +289,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteEndDocument", BsonWriterState.Name);
             }
 
+            base.WriteEndDocument();
             if (_jsonWriterSettings.Indent && _context.HasElements)
             {
                 _textWriter.Write(_jsonWriterSettings.NewLineChars);
@@ -559,6 +561,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartArray", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
+            base.WriteStartArray();
             WriteNameHelper(Name);
             _textWriter.Write("[");
 
@@ -577,6 +580,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartDocument", BsonWriterState.Value, BsonWriterState.Initial, BsonWriterState.ScopeDocument);
             }
 
+            base.WriteStartDocument();
             if (State == BsonWriterState.Value || State == BsonWriterState.ScopeDocument)
             {
                 WriteNameHelper(Name);

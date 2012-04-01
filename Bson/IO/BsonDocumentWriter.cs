@@ -161,6 +161,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidContextType("WriteEndArray", _context.ContextType, ContextType.Array);
             }
 
+            base.WriteEndArray();
             var array = _context.Array;
             _context = _context.ParentContext;
             WriteValue(array);
@@ -182,6 +183,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidContextType("WriteEndDocument", _context.ContextType, ContextType.Document, ContextType.ScopeDocument);
             }
 
+            base.WriteEndDocument();
             if (_context.ContextType == ContextType.ScopeDocument)
             {
                 var scope = _context.Document;
@@ -376,6 +378,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartArray", BsonWriterState.Value);
             }
 
+            base.WriteStartArray();
             _context = new BsonDocumentWriterContext(_context, ContextType.Array, new BsonArray());
             State = BsonWriterState.Value;
         }
@@ -391,6 +394,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
             }
 
+            base.WriteStartDocument();
             switch (State)
             {
                 case BsonWriterState.Initial:
