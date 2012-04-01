@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("MongoDB.DriverUnitTests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d1d7aede-4d9c-407d-959a-118b166fcf3f")]
+[assembly: Guid("1c95faac-3afd-4038-bd5e-5cbd65377453")]
