@@ -41,7 +41,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp361
             collection.Drop();
 
             collection.Insert(new BsonDocument("_id", 1));
-            Assert.Throws<ArgumentException>(() => { database.RenameCollection("test", ""); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { database.RenameCollection("test", ""); });
         }
     }
 }

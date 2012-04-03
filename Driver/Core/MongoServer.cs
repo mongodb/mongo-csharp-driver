@@ -37,6 +37,7 @@ namespace MongoDB.Driver
         private static Dictionary<MongoServerSettings, MongoServer> __servers = new Dictionary<MongoServerSettings, MongoServer>();
         private static int __nextSequentialId;
         private static int __maxServerCount = 100;
+        private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
         private object _serverLock = new object();
@@ -56,6 +57,12 @@ namespace MongoDB.Driver
         // static constructor
         static MongoServer()
         {
+            // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
+            // the C# driver checks that the database name is valid on any of the supported platforms
+            __invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
+            foreach (var c in Path.GetInvalidPathChars()) { __invalidDatabaseNameChars.Add(c); }
+            foreach (var c in Path.GetInvalidFileNameChars()) { __invalidDatabaseNameChars.Add(c); }
+
             BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
             BsonSerializer.RegisterSerializer(typeof(SystemProfileInfo), new SystemProfileInfoSerializer());
         }
@@ -913,6 +920,46 @@ namespace MongoDB.Driver
         {
             var adminDatabase = GetDatabase("admin", adminCredentials);
             return adminDatabase.GetLastError();
+        }
+
+        /// <summary>
+        /// Checks whether a given database name is valid on this server.
+        /// </summary>
+        /// <param name="databaseName">The database name.</param>
+        /// <param name="message">An error message if the database name is not valid.</param>
+        /// <returns>True if the database name is valid; otherwise, false.</returns>
+        public virtual bool IsDatabaseNameValid(string databaseName, out string message)
+        {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+
+            if (databaseName == "")
+            {
+                message = "Database name is empty.";
+                return false;
+            }
+
+            foreach (var c in databaseName)
+            {
+                if (__invalidDatabaseNameChars.Contains(c))
+                {
+                    var bytes = new byte[] { (byte)((int)c >> 8), (byte)((int)c & 255) };
+                    var hex = BsonUtils.ToHexString(bytes);
+                    message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", databaseName, hex, c);
+                    return false;
+                }
+            }
+
+            if (Encoding.UTF8.GetBytes(databaseName).Length > 64)
+            {
+                message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", databaseName);
+                return false;
+            }
+
+            message = null;
+            return true;
         }
 
         /// <summary>

@@ -51,6 +51,15 @@ namespace MongoDB.DriverUnitTests
         // TODO: more tests for MongoCollection
 
         [Test]
+        public void TestConstructorArgumentChecking()
+        {
+            var settings = new MongoCollectionSettings<BsonDocument>(_database, "");
+            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(null, settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, null); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoCollection<BsonDocument>(_database, settings); });
+        }
+
+        [Test]
         public void TestCountZero()
         {
             _collection.RemoveAll();

@@ -49,7 +49,20 @@ namespace MongoDB.Driver
         /// <param name="settings">The settings to use to access this collection.</param>
         protected MongoCollection(MongoDatabase database, MongoCollectionSettings settings)
         {
-            ValidateCollectionName(settings.CollectionName);
+            if (database == null)
+            {
+                throw new ArgumentNullException("database");
+            }
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+            string message;
+            if (!database.IsCollectionNameValid(settings.CollectionName, out message))
+            {
+                throw new ArgumentOutOfRangeException("settings", message);
+            }
+
             _server = database.Server;
             _database = database;
             _settings = settings.FrozenCopy();
@@ -1595,20 +1608,6 @@ namespace MongoDB.Driver
                 sb.Append("_1");
             }
             return sb.ToString();
-        }
-
-        internal static void ValidateCollectionName(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (name == "" ||
-                name.IndexOf('\0') != -1 ||
-                Encoding.UTF8.GetBytes(name).Length > 121)
-            {
-                throw new ArgumentException("Invalid collection name", "name");
-            }
         }
     }
 

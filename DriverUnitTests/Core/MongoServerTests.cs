@@ -101,6 +101,16 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestIsDatabaseNameValid()
+        {
+            string message;
+            Assert.Throws<ArgumentNullException>(() => { _server.IsDatabaseNameValid(null, out message); });
+            Assert.IsFalse(_server.IsDatabaseNameValid("", out message));
+            Assert.IsFalse(_server.IsDatabaseNameValid("/", out message));
+            Assert.IsFalse(_server.IsDatabaseNameValid(new string('x', 128), out message));
+        }
+
+        [Test]
         public void TestReconnect()
         {
             _server.Reconnect();

@@ -53,6 +53,15 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestConstructorArgumentChecking()
+        {
+            var settings = new MongoDatabaseSettings(_server, "");
+            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(null, settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(_server, null); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoDatabase(_server, settings); });
+        }
+
+        [Test]
         public void TestCreateCollection()
         {
             var collectionName = "testcreatecollection";
@@ -175,6 +184,16 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestIsCollectionNameValid()
+        {
+            string message;
+            Assert.Throws<ArgumentNullException>(() => { _database.IsCollectionNameValid(null, out message); });
+            Assert.IsFalse(_database.IsCollectionNameValid("", out message));
+            Assert.IsFalse(_database.IsCollectionNameValid("a\0b", out message));
+            Assert.IsFalse(_database.IsCollectionNameValid(new string('x', 128), out message));
+        }
+
+        [Test]
         public void TestRenameCollection()
         {
             var collectionName1 = "testrenamecollection1";
@@ -189,6 +208,14 @@ namespace MongoDB.DriverUnitTests
             _database.RenameCollection(collectionName1, collectionName2);
             Assert.IsFalse(_database.CollectionExists(collectionName1));
             Assert.IsTrue(_database.CollectionExists(collectionName2));
+        }
+
+        [Test]
+        public void TestRenameCollectionArgumentChecking()
+        {
+            Assert.Throws<ArgumentNullException>(() => { _database.RenameCollection(null, "new"); });
+            Assert.Throws<ArgumentNullException>(() => { _database.RenameCollection("old", null); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { _database.RenameCollection("old", ""); });
         }
 
         [Test]
