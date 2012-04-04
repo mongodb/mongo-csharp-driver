@@ -240,68 +240,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets a loadable type name (like AssemblyQualifiedName but shortened when possible)
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The type name.</returns>
-        public static string GetTypeNameDiscriminator(Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
-            string typeName;
-            if (type.IsGenericType)
-            {
-                var genericTypeNames = "";
-                foreach (var genericType in type.GetGenericArguments())
-                {
-                    var genericTypeName = GetTypeNameDiscriminator(genericType);
-                    if (genericTypeName.IndexOf(',') != -1)
-                    {
-                        genericTypeName = "[" + genericTypeName + "]";
-                    }
-                    if (genericTypeNames != "")
-                    {
-                        genericTypeNames += ",";
-                    }
-                    genericTypeNames += genericTypeName;
-                }
-                typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
-            }
-            else
-            {
-                typeName = type.FullName;
-            }
-
-            string assemblyName = type.Assembly.FullName;
-            Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
-            if (match.Success)
-            {
-                var dll = match.Groups["dll"].Value;
-                var publicKeyToken = match.Groups["token"].Value;
-                if (dll == "mscorlib")
-                {
-                    assemblyName = null;
-                }
-                else if (publicKeyToken == "null")
-                {
-                    assemblyName = dll;
-                }
-            }
-
-            if (assemblyName == null)
-            {
-                return typeName;
-            }
-            else
-            {
-                return typeName + ", " + assemblyName;
-            }
-        }
-
-        /// <summary>
         /// Checks whether a class map is registered for a type.
         /// </summary>
         /// <param name="type">The type to check.</param>

@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (nominalType == typeof(object))
                 {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
@@ -258,7 +258,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (nominalType == typeof(object))
                 {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
@@ -415,7 +415,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 if (nominalType == typeof(object))
                 {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();

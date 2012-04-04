@@ -57,30 +57,34 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else if (bsonType == BsonType.Array)
-            {
-                bsonReader.ReadStartArray();
-                var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>)Activator.CreateInstance(nominalType);
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                    var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
-                    list.Add(element);
-                }
-                bsonReader.ReadEndArray();
-                return list;
-            }
-            else
-            {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
-                throw new FileFormatException(message);
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
+                    bsonReader.ReadStartArray();
+                    var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>)Activator.CreateInstance(nominalType);
+                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
+                        var serializer = BsonSerializer.LookupSerializer(elementType);
+                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
+                        list.Add(element);
+                    }
+                    bsonReader.ReadEndArray();
+                    return list;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -116,6 +120,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                if (nominalType == typeof(object))
+                {
+                    var actualType = value.GetType();
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
+                    return;
+                }
+
                 var items = (IEnumerable<T>)value;
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
@@ -161,30 +176,34 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else if (bsonType == BsonType.Array)
-            {
-                bsonReader.ReadStartArray();
-                var queue = new Queue<T>();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                    var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
-                    queue.Enqueue(element);
-                }
-                bsonReader.ReadEndArray();
-                return queue;
-            }
-            else
-            {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
-                throw new FileFormatException(message);
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
+                    bsonReader.ReadStartArray();
+                    var queue = new Queue<T>();
+                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
+                        var serializer = BsonSerializer.LookupSerializer(elementType);
+                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
+                        queue.Enqueue(element);
+                    }
+                    bsonReader.ReadEndArray();
+                    return queue;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -220,6 +239,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                if (nominalType == typeof(object))
+                {
+                    var actualType = value.GetType();
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
+                    return;
+                }
+
                 var items = (Queue<T>)value;
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
@@ -265,30 +295,34 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else if (bsonType == BsonType.Array)
-            {
-                bsonReader.ReadStartArray();
-                var stack = new Stack<T>();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                    var serializer = BsonSerializer.LookupSerializer(elementType);
-                    var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
-                    stack.Push(element);
-                }
-                bsonReader.ReadEndArray();
-                return stack;
-            }
-            else
-            {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
-                throw new FileFormatException(message);
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
+                    bsonReader.ReadStartArray();
+                    var stack = new Stack<T>();
+                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
+                        var serializer = BsonSerializer.LookupSerializer(elementType);
+                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, null);
+                        stack.Push(element);
+                    }
+                    bsonReader.ReadEndArray();
+                    return stack;
+                case BsonType.Document:
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadString("_t"); // skip over discriminator
+                    bsonReader.ReadName("_v");
+                    var value = Deserialize(bsonReader, actualType, actualType, options);
+                    bsonReader.ReadEndDocument();
+                    return value;
+                default:
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -324,6 +358,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
+                if (nominalType == typeof(object))
+                {
+                    var actualType = value.GetType();
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
+                    return;
+                }
+
                 var items = ((Stack<T>)value).ToArray(); // convert to array to allow efficient access in reverse order
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;

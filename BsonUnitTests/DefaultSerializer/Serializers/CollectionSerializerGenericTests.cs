@@ -243,6 +243,78 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric
     }
 
     [TestFixture]
+    public class EnumerableSerializerNominalTypeObjectTests
+    {
+        public class T
+        {
+            public object L { get; set; }
+            public object Q { get; set; }
+            public object S { get; set; }
+            public object H { get; set; }
+            public object LL { get; set; }
+        }
+
+        [Test]
+        public void TestNull()
+        {
+            var obj = new T { L = null, Q = null, S = null, H = null, LL = null };
+            var json = obj.ToJson();
+			var rep = "null";
+            var expected = "{ 'L' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsNull(rehydrated.L);
+            Assert.IsNull(rehydrated.Q);
+            Assert.IsNull(rehydrated.S);
+            Assert.IsNull(rehydrated.H);
+            Assert.IsNull(rehydrated.LL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestEmpty()
+        {
+            var list = new List<object>();
+            var obj = new T { L = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
+            var json = obj.ToJson();
+			var rep = "[]";
+            var expected = "{ 'L' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Generic.Queue`1[System.Object]', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Generic.Stack`1[System.Object]', '_v' : #R }, 'H' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Object]', '_v' : #R }, 'LL' : { '_t' : 'System.Collections.Generic.LinkedList`1[System.Object]', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<List<object>>(rehydrated.L);
+            Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
+            Assert.IsInstanceOf<HashSet<object>>(rehydrated.H);
+            Assert.IsInstanceOf<LinkedList<object>>(rehydrated.LL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOneInt()
+        {
+            var list = new List<object>(new object[] { 1 });
+            var obj = new T { L = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
+            var json = obj.ToJson();
+            var rep = "[1]";
+            var expected = "{ 'L' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Generic.Queue`1[System.Object]', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Generic.Stack`1[System.Object]', '_v' : #R }, 'H' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Object]', '_v' : #R }, 'LL' : { '_t' : 'System.Collections.Generic.LinkedList`1[System.Object]', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<List<object>>(rehydrated.L);
+            Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
+            Assert.IsInstanceOf<HashSet<object>>(rehydrated.H);
+            Assert.IsInstanceOf<LinkedList<object>>(rehydrated.LL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class EnumerableSerializerWithItemSerializationOptionsTests
     {
         public enum E

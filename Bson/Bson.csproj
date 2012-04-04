@@ -219,6 +219,7 @@
     <Compile Include="Serialization\Serializers\NetPrimitiveSerializers.cs" />
     <Compile Include="Serialization\Serializers\BsonPrimitiveSerializers.cs" />
     <Compile Include="Serialization\IBsonSerializationProvider.cs" />
+    <Compile Include="Serialization\TypeNameDiscriminator.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

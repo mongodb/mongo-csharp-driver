@@ -241,6 +241,69 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializers
     }
 
     [TestFixture]
+    public class CollectionSerializerNominalTypeObjectTests
+    {
+        public class T
+        {
+            public object L { get; set; }
+            public object Q { get; set; }
+            public object S { get; set; }
+        }
+
+        [Test]
+        public void TestNull()
+        {
+            var obj = new T { L = null, Q = null, S = null };
+            var json = obj.ToJson();
+            var rep = "null";
+            var expected = "{ 'L' : #R, 'Q' : #R, 'S' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsNull(rehydrated.L);
+            Assert.IsNull(rehydrated.Q);
+            Assert.IsNull(rehydrated.S);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestEmpty()
+        {
+            var obj = new T { L = new ArrayList(), Q = new Queue(), S = new Stack() };
+            var json = obj.ToJson();
+            var rep = "[]";
+            var expected = "{ 'L' : { '_t' : 'System.Collections.ArrayList', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Queue', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Stack', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.L);
+            Assert.IsInstanceOf<Queue>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack>(rehydrated.S);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOneInt()
+        {
+            var list = new ArrayList(new[] { 1 });
+            var obj = new T { L = list, Q = new Queue(list), S = new Stack(list) };
+            var json = obj.ToJson();
+            var rep = "[1]";
+            var expected = "{ 'L' : { '_t' : 'System.Collections.ArrayList', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Queue', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Stack', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<ArrayList>(rehydrated.L);
+            Assert.IsInstanceOf<Queue>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack>(rehydrated.S);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
     public class CollectionSerializerWithItemSerializationOptionsTests
     {
         public enum E

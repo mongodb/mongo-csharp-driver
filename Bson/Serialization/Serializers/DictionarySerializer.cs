@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     var actualType = value.GetType();
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options); // recursive call replacing nominalType with actualType
                     bsonWriter.WriteEndDocument();
