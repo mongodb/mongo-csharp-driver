@@ -598,26 +598,40 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildModQuery(BinaryExpression binaryExpression)
         {
-            var leftBinaryExpression = binaryExpression.Left as BinaryExpression;
-            if (leftBinaryExpression != null && leftBinaryExpression.NodeType == ExpressionType.Modulo)
+            // the constant could be on either side
+            var variableExpression = binaryExpression.Left;
+            var constantExpression = binaryExpression.Right as ConstantExpression;
+            if (constantExpression == null)
             {
-                var serializationInfo = GetSerializationInfo(leftBinaryExpression.Left);
-                var modulusExpression = leftBinaryExpression.Right as ConstantExpression;
-                var equalsExpression = binaryExpression.Right as ConstantExpression;
-                if (serializationInfo != null && modulusExpression != null && equalsExpression != null)
+                constantExpression = binaryExpression.Left as ConstantExpression;
+                variableExpression = binaryExpression.Right;
+            }
+
+            if (constantExpression == null || constantExpression.Type != typeof(int))
+            {
+                return null;
+            }
+            var value = ToInt32(constantExpression);
+
+            var modBinaryExpression = variableExpression as BinaryExpression;
+            if (modBinaryExpression != null && modBinaryExpression.NodeType == ExpressionType.Modulo)
+            {
+                var serializationInfo = GetSerializationInfo(modBinaryExpression.Left);
+                var modulusExpression = modBinaryExpression.Right as ConstantExpression;
+                if (serializationInfo != null && modulusExpression != null)
                 {
-                    var modulus = Convert.ToInt32(modulusExpression.Value);
-                    var equals = Convert.ToInt32(equalsExpression.Value);
+                    var modulus = ToInt32(modulusExpression);
                     if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        return Query.Mod(serializationInfo.ElementName, modulus, equals);
+                        return Query.Mod(serializationInfo.ElementName, modulus, value);
                     }
                     else
                     {
-                        return Query.Not(serializationInfo.ElementName).Mod(modulus, equals);
+                        return Query.Not(serializationInfo.ElementName).Mod(modulus, value);
                     }
                 }
             }
+
             return null;
         }
 
@@ -1000,7 +1014,7 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("expression", "Expected a ConstantExpression.");
             }
 
-            return (int) constantExpression.Value;
+            return (int)constantExpression.Value;
         }
 
         private void TranslateAny(MethodCallExpression methodCallExpression)
