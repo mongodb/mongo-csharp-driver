@@ -238,18 +238,14 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
-        private IMongoQuery BuildArrayLengthQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
-            // the constant could be on either side (but only == and != are supported and they don't need to be flipped)
-            var variableExpression = binaryExpression.Left;
-            var constantExpression = binaryExpression.Right as ConstantExpression;
-            if (constantExpression == null)
+            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
             {
-                constantExpression = binaryExpression.Left as ConstantExpression;
-                variableExpression = binaryExpression.Right;
+                return null;
             }
-            
-            if (constantExpression == null || constantExpression.Type != typeof(int))
+
+            if (constantExpression.Type != typeof(int))
             {
                 return null;
             }
@@ -302,7 +298,7 @@ namespace MongoDB.Driver.Linq
 
             if (serializationInfo != null)
             {
-                if (binaryExpression.NodeType == ExpressionType.Equal)
+                if (operatorType == ExpressionType.Equal)
                 {
                     return Query.Size(serializationInfo.ElementName, value);
                 }
@@ -330,42 +326,39 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
-            var operatorNodeType = binaryExpression.NodeType;
-            if (operatorNodeType == ExpressionType.Equal || operatorNodeType == ExpressionType.NotEqual)
-            {
-                var query = BuildArrayLengthQuery(binaryExpression);
-                if (query != null)
-                {
-                    return query;
-                }
-
-                query = BuildModQuery(binaryExpression);
-                if (query != null)
-                {
-                    return query;
-                }
-            }
-
             // the constant could be on either side
             var variableExpression = binaryExpression.Left;
             var constantExpression = binaryExpression.Right as ConstantExpression;
+            var operatorType = binaryExpression.NodeType;
             if (constantExpression == null)
             {
                 constantExpression = binaryExpression.Left as ConstantExpression;
                 variableExpression = binaryExpression.Right;
                 // if the constant was on the left some operators need to be flipped
-                switch (operatorNodeType)
+                switch (operatorType)
                 {
-                    case ExpressionType.LessThan: operatorNodeType = ExpressionType.GreaterThan; break;
-                    case ExpressionType.LessThanOrEqual: operatorNodeType = ExpressionType.GreaterThanOrEqual; break;
-                    case ExpressionType.GreaterThan: operatorNodeType = ExpressionType.LessThan; break;
-                    case ExpressionType.GreaterThanOrEqual: operatorNodeType = ExpressionType.LessThanOrEqual; break;
+                    case ExpressionType.LessThan: operatorType = ExpressionType.GreaterThan; break;
+                    case ExpressionType.LessThanOrEqual: operatorType = ExpressionType.GreaterThanOrEqual; break;
+                    case ExpressionType.GreaterThan: operatorType = ExpressionType.LessThan; break;
+                    case ExpressionType.GreaterThanOrEqual: operatorType = ExpressionType.LessThanOrEqual; break;
                 }
             }
 
             if (constantExpression == null)
             {
                 return null;
+            }
+
+            var query = BuildArrayLengthQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
+            query = BuildModQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
             }
 
             BsonSerializationInfo serializationInfo = null;
@@ -389,7 +382,7 @@ namespace MongoDB.Driver.Linq
             if (serializationInfo != null)
             {
                 var serializedValue = SerializeValue(serializationInfo, value);
-                switch (operatorNodeType)
+                switch (operatorType)
                 {
                     case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
                     case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
@@ -596,18 +589,14 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
-        private IMongoQuery BuildModQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
-            // the constant could be on either side
-            var variableExpression = binaryExpression.Left;
-            var constantExpression = binaryExpression.Right as ConstantExpression;
-            if (constantExpression == null)
+            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
             {
-                constantExpression = binaryExpression.Left as ConstantExpression;
-                variableExpression = binaryExpression.Right;
+                return null;
             }
 
-            if (constantExpression == null || constantExpression.Type != typeof(int))
+            if (constantExpression.Type != typeof(int))
             {
                 return null;
             }
@@ -621,7 +610,7 @@ namespace MongoDB.Driver.Linq
                 if (serializationInfo != null && modulusExpression != null)
                 {
                     var modulus = ToInt32(modulusExpression);
-                    if (binaryExpression.NodeType == ExpressionType.Equal)
+                    if (operatorType == ExpressionType.Equal)
                     {
                         return Query.Mod(serializationInfo.ElementName, modulus, value);
                     }
