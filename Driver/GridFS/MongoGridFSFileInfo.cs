@@ -531,7 +531,7 @@ namespace MongoDB.Driver.GridFS
                 _id = fileInfo["_id"];
                 _length = fileInfo["length"].ToInt64();
                 var md5Value = fileInfo["md5", null];
-                if (md5Value != null && !md5Value.IsBsonNull)
+                if (md5Value != null && md5Value.IsString)
                 {
                     _md5 = md5Value.AsString;
                 }
