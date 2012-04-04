@@ -240,76 +240,75 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildArrayLengthQuery(BinaryExpression binaryExpression)
         {
-            var leftUnaryExpression = binaryExpression.Left as UnaryExpression;
-            if (leftUnaryExpression != null)
+            // the constant could be on either side (but only == and != are supported and they don't need to be flipped)
+            var variableExpression = binaryExpression.Left;
+            var constantExpression = binaryExpression.Right as ConstantExpression;
+            if (constantExpression == null)
             {
-                if (leftUnaryExpression.NodeType == ExpressionType.ArrayLength)
+                constantExpression = binaryExpression.Left as ConstantExpression;
+                variableExpression = binaryExpression.Right;
+            }
+            
+            if (constantExpression == null || constantExpression.Type != typeof(int))
+            {
+                return null;
+            }
+
+            BsonSerializationInfo serializationInfo = null;
+            var value = ToInt32(constantExpression);
+
+            var unaryExpression = variableExpression as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                if (unaryExpression.NodeType == ExpressionType.ArrayLength)
                 {
-                    var memberExpression = leftUnaryExpression.Operand as MemberExpression;
-                    var valueExpression = binaryExpression.Right as ConstantExpression;
-                    if (memberExpression != null && valueExpression != null)
+                    var memberExpression = unaryExpression.Operand as MemberExpression;
+                    if (memberExpression != null)
                     {
-                        var serializationInfo = GetSerializationInfo(memberExpression);
-                        var value = (int)valueExpression.Value;
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return Query.Size(serializationInfo.ElementName, value);
-                        }
-                        else
-                        {
-                            return Query.Not(serializationInfo.ElementName).Size(value);
-                        }
+                        serializationInfo = GetSerializationInfo(memberExpression);
                     }
                 }
             }
 
-            var leftMemberExpression = binaryExpression.Left as MemberExpression;
-            if (leftMemberExpression != null)
+            var countPropertyExpression = variableExpression as MemberExpression;
+            if (countPropertyExpression != null)
             {
-                if (leftMemberExpression.Member.Name == "Count")
+                if (countPropertyExpression.Member.Name == "Count")
                 {
-                    var memberExpression = leftMemberExpression.Expression as MemberExpression;
-                    var valueExpression = binaryExpression.Right as ConstantExpression;
-                    if (memberExpression != null && valueExpression != null)
+                    var memberExpression = countPropertyExpression.Expression as MemberExpression;
+                    if (memberExpression != null)
                     {
-                        var serializationInfo = GetSerializationInfo(memberExpression);
-                        var value = (int)valueExpression.Value;
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return Query.Size(serializationInfo.ElementName, value);
-                        }
-                        else
-                        {
-                            return Query.Not(serializationInfo.ElementName).Size(value);
-                        }
+                        serializationInfo = GetSerializationInfo(memberExpression);
                     }
                 }
             }
 
-            var leftMethodCallExpression = binaryExpression.Left as MethodCallExpression;
-            if (leftMethodCallExpression != null)
+            var countMethodCallExpression = variableExpression as MethodCallExpression;
+            if (countMethodCallExpression != null)
             {
-                if (leftMethodCallExpression.Method.Name == "Count")
+                if (countMethodCallExpression.Method.Name == "Count")
                 {
-                    var arguments = leftMethodCallExpression.Arguments.ToArray();
+                    var arguments = countMethodCallExpression.Arguments.ToArray();
                     if (arguments.Length == 1)
                     {
-                        var memberExpression = leftMethodCallExpression.Arguments[0] as MemberExpression;
-                        var valueExpression = binaryExpression.Right as ConstantExpression;
-                        if (memberExpression != null && valueExpression != null)
+                        var memberExpression = countMethodCallExpression.Arguments[0] as MemberExpression;
+                        if (memberExpression != null)
                         {
-                            var serializationInfo = GetSerializationInfo(memberExpression);
-                            var value = (int)valueExpression.Value;
-                            if (binaryExpression.NodeType == ExpressionType.Equal)
-                            {
-                                return Query.Size(serializationInfo.ElementName, value);
-                            }
-                            else
-                            {
-                                return Query.Not(serializationInfo.ElementName).Size(value);
-                            }
+                            serializationInfo = GetSerializationInfo(memberExpression);
                         }
                     }
+                }
+            }
+
+            if (serializationInfo != null)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal)
+                {
+                    return Query.Size(serializationInfo.ElementName, value);
+                }
+                else
+                {
+                    return Query.Not(serializationInfo.ElementName).Size(value);
                 }
             }
 
@@ -331,7 +330,8 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            var operatorNodeType = binaryExpression.NodeType;
+            if (operatorNodeType == ExpressionType.Equal || operatorNodeType == ExpressionType.NotEqual)
             {
                 var query = BuildArrayLengthQuery(binaryExpression);
                 if (query != null)
@@ -346,49 +346,57 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            var valueExpression = binaryExpression.Right as ConstantExpression;
-            if (valueExpression != null)
+            // the constant could be on either side
+            var variableExpression = binaryExpression.Left;
+            var constantExpression = binaryExpression.Right as ConstantExpression;
+            if (constantExpression == null)
             {
-                var unaryExpression = binaryExpression.Left as UnaryExpression;
-                if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
+                constantExpression = binaryExpression.Left as ConstantExpression;
+                variableExpression = binaryExpression.Right;
+                // if the constant was on the left some operators need to be flipped
+                switch (operatorNodeType)
                 {
-                    var enumType = unaryExpression.Operand.Type;
-                    if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
-                    {
-                        var enumSerializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                        if (enumSerializationInfo != null)
-                        {
-                            var numericValue = valueExpression.Value;
-                            var enumValue = Enum.ToObject(enumType, numericValue);
-                            var serializedValue = SerializeValue(enumSerializationInfo, enumValue);
-                            switch (binaryExpression.NodeType)
-                            {
-                                case ExpressionType.Equal: return Query.EQ(enumSerializationInfo.ElementName, serializedValue);
-                                case ExpressionType.GreaterThan: return Query.GT(enumSerializationInfo.ElementName, serializedValue);
-                                case ExpressionType.GreaterThanOrEqual: return Query.GTE(enumSerializationInfo.ElementName, serializedValue);
-                                case ExpressionType.LessThan: return Query.LT(enumSerializationInfo.ElementName, serializedValue);
-                                case ExpressionType.LessThanOrEqual: return Query.LTE(enumSerializationInfo.ElementName, serializedValue);
-                                case ExpressionType.NotEqual: return Query.NE(enumSerializationInfo.ElementName, serializedValue);
-                            }
-                        }
-                    }
+                    case ExpressionType.LessThan: operatorNodeType = ExpressionType.GreaterThan; break;
+                    case ExpressionType.LessThanOrEqual: operatorNodeType = ExpressionType.GreaterThanOrEqual; break;
+                    case ExpressionType.GreaterThan: operatorNodeType = ExpressionType.LessThan; break;
+                    case ExpressionType.GreaterThanOrEqual: operatorNodeType = ExpressionType.LessThanOrEqual; break;
+                }
+            }
 
-                    return null;
-                } 
-                
-                var serializationInfo = GetSerializationInfo(binaryExpression.Left);
-                if (serializationInfo != null)
+            if (constantExpression == null)
+            {
+                return null;
+            }
+
+            BsonSerializationInfo serializationInfo = null;
+            var value = constantExpression.Value;
+
+            var unaryExpression = variableExpression as UnaryExpression;
+            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
+            {
+                var enumType = unaryExpression.Operand.Type;
+                if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
                 {
-                    var serializedValue = SerializeValue(serializationInfo, valueExpression.Value);
-                    switch (binaryExpression.NodeType)
-                    {
-                        case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
-                        case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
-                        case ExpressionType.GreaterThanOrEqual: return Query.GTE(serializationInfo.ElementName, serializedValue);
-                        case ExpressionType.LessThan: return Query.LT(serializationInfo.ElementName, serializedValue);
-                        case ExpressionType.LessThanOrEqual: return Query.LTE(serializationInfo.ElementName, serializedValue);
-                        case ExpressionType.NotEqual: return Query.NE(serializationInfo.ElementName, serializedValue);
-                    }
+                    serializationInfo = GetSerializationInfo(unaryExpression.Operand);
+                    value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
+                }
+            }
+            else
+            {
+                serializationInfo = GetSerializationInfo(variableExpression);
+            }
+
+            if (serializationInfo != null)
+            {
+                var serializedValue = SerializeValue(serializationInfo, value);
+                switch (operatorNodeType)
+                {
+                    case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThan: return Query.LT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThanOrEqual: return Query.LTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.NotEqual: return Query.NE(serializationInfo.ElementName, serializedValue);
                 }
             }
 
