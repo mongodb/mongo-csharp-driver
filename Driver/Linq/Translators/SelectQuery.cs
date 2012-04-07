@@ -361,6 +361,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildStringLengthQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             BsonSerializationInfo serializationInfo = null;
             var value = constantExpression.Value;
 
@@ -742,6 +748,60 @@ namespace MongoDB.Driver.Linq
             }
 
             return query;
+        }
+
+        private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            if (constantExpression.Type != typeof(int))
+            {
+                return null;
+            }
+
+            BsonSerializationInfo serializationInfo = null;
+            var value = ToInt32(constantExpression);
+
+            var lengthPropertyExpression = variableExpression as MemberExpression;
+            if (lengthPropertyExpression != null)
+            {
+                if (lengthPropertyExpression.Member.Name == "Length")
+                {
+                    var memberExpression = lengthPropertyExpression.Expression as MemberExpression;
+                    if (memberExpression != null)
+                    {
+                        serializationInfo = GetSerializationInfo(memberExpression);
+                        if (serializationInfo != null && serializationInfo.NominalType != typeof(string))
+                        {
+                            serializationInfo = null;
+                        }
+                    }
+                }
+            }
+
+            if (serializationInfo != null)
+            {
+                string regex = null;
+                switch (operatorType)
+                {
+                    case ExpressionType.NotEqual: case ExpressionType.Equal: regex = @"/^.{" + value.ToString() + "}$/s"; break;
+                    case ExpressionType.GreaterThan: regex = @"/^.{" + (value + 1).ToString() + ",}$/s"; break;
+                    case ExpressionType.GreaterThanOrEqual: regex = @"/^.{" + value.ToString() + ",}$/s"; break;
+                    case ExpressionType.LessThan: regex = @"/^.{0," + (value - 1).ToString() + "}$/s"; break;
+                    case ExpressionType.LessThanOrEqual: regex = @"/^.{0," + value.ToString() + "}$/s"; break;
+                }
+                if (regex != null)
+                {
+                    if (operatorType == ExpressionType.NotEqual)
+                    {
+                        return Query.Not(serializationInfo.ElementName).Matches(regex);
+                    }
+                    else
+                    {
+                        return Query.Matches(serializationInfo.ElementName, regex);
+                    }
+                }
+            }
+
+            return null;
         }
 
         private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)
