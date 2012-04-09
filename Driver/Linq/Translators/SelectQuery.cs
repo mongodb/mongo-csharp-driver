@@ -824,7 +824,7 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            var pattern = (string)constantExpression.Value; // TODO: escape value
+            var pattern = Regex.Escape((string)constantExpression.Value);
             switch (methodCallExpression.Method.Name)
             {
                 case "Contains": pattern = ".*" + pattern + ".*"; break;
@@ -1103,8 +1103,7 @@ namespace MongoDB.Driver.Linq
                 }
                 else
                 {
-                    // TODO: handle special characters better
-                    sb.Append(c.ToString());
+                    sb.Append(Regex.Escape(c.ToString()));
                 }
             }
             if (sawDash)

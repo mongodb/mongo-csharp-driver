@@ -4260,6 +4260,29 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSContainsDot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.Contains(".")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.Contains(\".\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /\\./s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, Consume(query));
+        }
+
+        [Test]
         public void TestWhereSEndsWithAbc()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4794,7 +4817,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.S.TrimStart(' ', '-', '\t').TrimEnd().ToLower().Contains("xyz")
+                        where c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz")
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -4803,13 +4826,13 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.S.TrimStart(Char[]:{ ' ', '-', '\t' }).TrimEnd(Char[]:{ }).ToLower().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLower().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^[ \t-]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^[\\ \\.\\t-]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
