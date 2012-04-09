@@ -540,7 +540,7 @@ namespace MongoDB.Bson.IO
                 case JsonOutputMode.Shell:
                     WriteNameHelper(Name);
                     _textWriter.Write("/");
-                    var escaped = (pattern == "") ? "(?:)" : pattern.Replace(@"\", @"\\").Replace("/", @"\/");
+                    var escaped = (pattern == "") ? "(?:)" : pattern.Replace("/", @"\/");
                     _textWriter.Write(escaped);
                     _textWriter.Write("/");
                     _textWriter.Write(options);

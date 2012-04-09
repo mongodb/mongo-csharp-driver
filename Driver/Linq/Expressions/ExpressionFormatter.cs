@@ -425,8 +425,8 @@ namespace MongoDB.Driver.Linq
             if (a != null && a.Rank == 1)
             {
                 var elementType = a.GetType().GetElementType();
-                _sb.AppendFormat("{0}[]:{{ ", elementType.Name);
-                var separator = "";
+                _sb.AppendFormat("{0}[]:{{", elementType.Name);
+                var separator = " ";
                 foreach (var item in a)
                 {
                     _sb.Append(separator);
@@ -440,6 +440,13 @@ namespace MongoDB.Driver.Linq
             if (value.GetType() == typeof(bool))
             {
                 _sb.Append(((bool)value) ? "true" : "false");
+                return;
+            }
+
+            if (value.GetType() == typeof(char))
+            {
+                var c = (char)value;
+                _sb.AppendFormat("'{0}'", c.ToString());
                 return;
             }
 

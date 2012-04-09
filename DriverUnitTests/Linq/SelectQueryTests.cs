@@ -3977,7 +3977,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : /o/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : /o/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4000,7 +4000,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /o/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /o/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -4023,7 +4023,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : /m$/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : /m$/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4046,7 +4046,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /m$/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /m$/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -4186,7 +4186,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : /^T/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : /^T/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4209,7 +4209,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /^T/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"sa.0\" : { \"$not\" : /^T/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -4232,7 +4232,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /abc/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /abc/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4255,7 +4255,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$not\" : /abc/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /abc/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -4278,7 +4278,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /abc$/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /abc$/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4301,7 +4301,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$not\" : /abc$/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /abc$/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
         }
 
@@ -4446,6 +4446,29 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSLengthEquals3Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.S.Length == 3)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.S.Length == 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^.{3}$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
         public void TestWhereSLengthGreaterThan3()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4538,6 +4561,52 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSLengthNotEquals3()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.Length != 3
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^.{3}$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSLengthNotEquals3Not()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !(c.S.Length != 3)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !(c.S.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^.{3}$/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereSStartsWithAbc()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4556,7 +4625,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^abc/ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^abc/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -4579,8 +4648,169 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$not\" : /^abc/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^abc/s } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimContainsXyz()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.Trim().Contains("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.Trim().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^\\s*.*xyz.*\\s*$/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimContainsXyzNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !c.S.Trim().Contains("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !c.S.Trim().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^\\s*.*xyz.*\\s*$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimEndsWithXyz()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.Trim().EndsWith("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.Trim().EndsWith(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^\\s*.*xyz\\s*$/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimEndsWithXyzNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !c.S.Trim().EndsWith("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !c.S.Trim().EndsWith(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^\\s*.*xyz\\s*$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimStartsWithXyz()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.Trim().StartsWith("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.Trim().StartsWith(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^\\s*xyz.*\\s*$/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimStartsWithXyzNot()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where !c.S.Trim().StartsWith("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => !c.S.Trim().StartsWith(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^\\s*xyz.*\\s*$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.TrimStart(' ', '-', '\t').TrimEnd().ToLower().Contains("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.TrimStart(Char[]:{ ' ', '-', '\t' }).TrimEnd(Char[]:{ }).ToLower().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^[ \t-]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
         }
 
         [Test]

@@ -806,35 +806,103 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(string))
+            if (methodCallExpression.Method.DeclaringType != typeof(string))
             {
-                switch (methodCallExpression.Method.Name)
-                {
-                    case "Contains":
-                    case "EndsWith":
-                    case "StartsWith":
-                        var arguments = methodCallExpression.Arguments.ToArray();
-                        if (arguments.Length == 1)
-                        {
-                            var serializationInfo = GetSerializationInfo(methodCallExpression.Object);
-                            var valueExpression = arguments[0] as ConstantExpression;
-                            if (serializationInfo != null && valueExpression != null)
-                            {
-                                var s = (string)valueExpression.Value;
-                                BsonRegularExpression regex;
-                                switch (methodCallExpression.Method.Name)
-                                {
-                                    case "Contains": regex = new BsonRegularExpression(s); break;
-                                    case "EndsWith": regex = new BsonRegularExpression(s + "$"); break;
-                                    case "StartsWith": regex = new BsonRegularExpression("^" + s); break;
-                                    default: throw new InvalidOperationException("Unreachable code");
-                                }
-                                return Query.Matches(serializationInfo.ElementName, regex);
-                            }
-                        }
-                        break;
-                }
+                return null;
             }
+
+            var arguments = methodCallExpression.Arguments.ToArray();
+            if (arguments.Length != 1)
+            {
+                return null;
+            }
+
+            var stringExpression = methodCallExpression.Object;
+            var constantExpression = arguments[0] as ConstantExpression;
+            if (constantExpression == null)
+            {
+                return null;
+            }
+
+            var pattern = (string)constantExpression.Value; // TODO: escape value
+            switch (methodCallExpression.Method.Name)
+            {
+                case "Contains": pattern = ".*" + pattern + ".*"; break;
+                case "EndsWith": pattern = ".*" + pattern; break;
+                case "StartsWith": pattern = pattern + ".*"; break;
+                default: return null;
+            }
+
+            var caseInsensitive = false;
+            MethodCallExpression stringMethodCallExpression;
+            while ((stringMethodCallExpression = stringExpression as MethodCallExpression) != null)
+            {
+                var trimStart = false;
+                var trimEnd = false;
+                Expression trimCharsExpression = null;
+                switch (stringMethodCallExpression.Method.Name)
+                {
+                    case "ToLower":
+                        caseInsensitive = true;
+                        break;
+                    case "ToUpper":
+                        caseInsensitive = true;
+                        break;
+                    case "Trim":
+                        trimStart = true;
+                        trimEnd = true;
+                        trimCharsExpression = stringMethodCallExpression.Arguments.FirstOrDefault();
+                        break;
+                    case "TrimEnd":
+                        trimEnd = true;
+                        trimCharsExpression = stringMethodCallExpression.Arguments.First();
+                        break;
+                    case "TrimStart":
+                        trimStart = true;
+                        trimCharsExpression = stringMethodCallExpression.Arguments.First();
+                        break;
+                    default:
+                        return null;
+                }
+
+                if (trimStart || trimEnd)
+                {
+                    var trimCharsPattern = GetTrimCharsPattern(trimCharsExpression);
+                    if (trimCharsPattern == null)
+                    {
+                        return null;
+                    }
+
+                    if (trimStart)
+                    {
+                        pattern = trimCharsPattern + pattern;
+                    }
+                    if (trimEnd)
+                    {
+                        pattern = pattern + trimCharsPattern;
+                    }
+                }
+
+                stringExpression = stringMethodCallExpression.Object;
+            }
+
+            pattern = "^" + pattern + "$";
+            if (pattern.StartsWith("^.*"))
+            {
+                pattern = pattern.Substring(3);
+            }
+            if (pattern.EndsWith(".*$"))
+            {
+                pattern = pattern.Substring(0, pattern.Length - 3);
+            }
+
+            var serializationInfo = GetSerializationInfo(stringExpression);
+            if (serializationInfo != null)
+            {
+                var options = caseInsensitive ? "is" : "s";
+                return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, options));
+            }
+
             return null;
         }
 
@@ -1002,6 +1070,49 @@ namespace MongoDB.Driver.Linq
                     throw new NotSupportedException(message);
                 }
             }
+        }
+
+        private string GetTrimCharsPattern(Expression trimCharsExpression)
+        {
+            if (trimCharsExpression == null)
+            {
+                return "\\s*";
+            }
+
+            var constantExpresion = trimCharsExpression as ConstantExpression;
+            if (constantExpresion == null || constantExpresion.Type != typeof(char[]))
+            {
+                return null;
+            }
+
+            var trimChars = (char[])constantExpresion.Value;
+            if (trimChars.Length == 0)
+            {
+                return "\\s*";
+            }
+
+            // build a pattern that matches the characters to be trimmed
+            var sb = new StringBuilder();
+            sb.Append("[");
+            var sawDash = false; // if dash is one of the characters it must be last in the pattern
+            foreach (var c in trimChars)
+            {
+                if (c == '-')
+                {
+                    sawDash = true;
+                }
+                else
+                {
+                    // TODO: handle special characters better
+                    sb.Append(c.ToString());
+                }
+            }
+            if (sawDash)
+            {
+                sb.Append("-");
+            }
+            sb.Append("]*");
+            return sb.ToString();
         }
 
         private BsonValue SerializeValue(BsonSerializationInfo serializationInfo, object value)

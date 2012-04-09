@@ -424,7 +424,7 @@ namespace MongoDB.BsonUnitTests.IO
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create(""), "/(?:)/"),
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a"), "/a/"),
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a/b"), "/a\\/b/"),
-                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a\\b"), "/a\\\\b/"),
+                new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a\\b"), "/a\\b/"),
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "i"), "/a/i"),
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "m"), "/a/m"),
                 new TestData<BsonRegularExpression>(BsonRegularExpression.Create("a", "x"), "/a/x"),
