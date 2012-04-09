@@ -829,7 +829,7 @@ namespace MongoDB.Driver.Linq
             {
                 case "Contains": pattern = ".*" + pattern + ".*"; break;
                 case "EndsWith": pattern = ".*" + pattern; break;
-                case "StartsWith": pattern = pattern + ".*"; break;
+                case "StartsWith": pattern = pattern + ".*"; break; // query optimizer will use index for rooted regular expressions
                 default: return null;
             }
 
