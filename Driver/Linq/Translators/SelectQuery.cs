@@ -1039,7 +1039,7 @@ namespace MongoDB.Driver.Linq
             var memberName = memberExpression.Member.Name;
 
             var containingExpression = memberExpression.Expression;
-            if (containingExpression.Type == DocumentType)
+            if (containingExpression.NodeType == ExpressionType.Parameter)
             {
                 try
                 {
