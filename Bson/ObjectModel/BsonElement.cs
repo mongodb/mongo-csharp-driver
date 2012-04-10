@@ -210,7 +210,10 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the element.</returns>
         public BsonElement Clone()
         {
-            return new BsonElement(_name, _value.Clone());
+            var clone = new BsonElement();
+            clone._name = _name;
+            clone._value = _value;
+            return clone;
         }
 
         /// <summary>
