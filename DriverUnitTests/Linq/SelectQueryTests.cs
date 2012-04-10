@@ -39,7 +39,12 @@ namespace MongoDB.DriverUnitTests.Linq
             C
         }
 
-        public class C
+        public interface IC
+        {
+            ObjectId Id { get; }
+        }
+
+        public class C : IC
         {
             public ObjectId Id { get; set; }
             [BsonElement("x")]
@@ -1955,6 +1960,21 @@ namespace MongoDB.DriverUnitTests.Linq
                         where c.A.Any(a => a > 3)
                         select c;
             query.ToList(); // execute query
+        }
+
+        [Test]
+        public void TestWhereWithInterfaceInstance()
+        {
+            var comparisonItem = (IC)_collection.AsQueryable<C>().First();
+            var result = WhereInterfaceFilter(_collection.AsQueryable<C>(), comparisonItem.Id);
+            Assert.True(result.Any());
+        }
+
+        private static IQueryable<T> WhereInterfaceFilter<T>(IQueryable<T> source, ObjectId id)
+            where T : IC
+        {
+            source = source.Where(i => i.Id == id);
+            return source;
         }
 
         [Test]
