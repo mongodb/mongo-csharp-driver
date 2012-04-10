@@ -310,14 +310,22 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        public void TestCreate()
+        public void TestCreateFromDictionary()
         {
-            var dictionary = new Dictionary<string, object> { { "x", 1 } };
+            var dictionary = new Dictionary<string, object> { { "x", 1 }, { "n", null }, { "a", new object[] { 1, null } } }; // null will be mapped to BsonNull.Value
             var document = BsonDocument.Create(dictionary);
-            Assert.AreEqual(1, document.ElementCount);
+            Assert.AreEqual(3, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
+            Assert.AreSame(BsonNull.Value, document["n"]);
+            Assert.IsTrue(document["a"].IsBsonArray);
+            Assert.AreEqual(2, document["a"].AsBsonArray.Count);
+            Assert.AreEqual(1, document["a"].AsBsonArray[0].AsInt32);
+            Assert.AreSame(BsonNull.Value, document["a"].AsBsonArray[1]);
             Assert.AreEqual(true, document.Contains("x"));
+            Assert.AreEqual(true, document.Contains("n"));
+            Assert.AreEqual(true, document.Contains("a"));
             Assert.AreEqual(true, document.ContainsValue(1));
+            Assert.AreEqual(true, document.ContainsValue(BsonNull.Value));
         }
 
         [Test]
