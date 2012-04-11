@@ -16,13 +16,14 @@
 using System;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>
     /// Represents serialization options for a document.
     /// </summary>
-    public class DocumentSerializationOptions : IBsonSerializationOptions
+    public class DocumentSerializationOptions : BsonBaseSerializationOptions
     {
         // private static fields
         private static DocumentSerializationOptions __allowDuplicateNamesInstance = new DocumentSerializationOptions { AllowDuplicateNames = true };
@@ -83,7 +84,11 @@ namespace MongoDB.Bson.Serialization.Options
         public bool AllowDuplicateNames
         {
             get { return _allowDuplicateNames; }
-            set { _allowDuplicateNames = value; }
+            set
+            {
+                EnsureNotFrozen();
+                _allowDuplicateNames = value;
+            }
         }
 
         /// <summary>
@@ -92,7 +97,38 @@ namespace MongoDB.Bson.Serialization.Options
         public bool SerializeIdFirst
         {
             get { return _serializeIdFirst; }
-            set { _serializeIdFirst = value; }
+            set
+            {
+                EnsureNotFrozen();
+                _serializeIdFirst = value;
+            }
+        }
+
+        // public methods
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
+        {
+            EnsureNotFrozen();
+            var message = string.Format("A serialization options attribute of type {0} cannot be applied to serialization options of type {1}.",
+                BsonUtils.GetFriendlyTypeName(attribute.GetType()), BsonUtils.GetFriendlyTypeName(GetType()));
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        public override IBsonSerializationOptions Clone()
+        {
+            return new DocumentSerializationOptions
+            {
+                AllowDuplicateNames = _allowDuplicateNames,
+                SerializeIdFirst = _serializeIdFirst
+            };
         }
     }
 }

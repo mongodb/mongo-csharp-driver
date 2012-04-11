@@ -23,6 +23,7 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {
@@ -123,6 +124,75 @@ namespace MongoDB.BsonUnitTests.Serialization
             C c = new C { Array = new B[] { new B { X = 1 }, null } };
             var json = c.ToJson();
             var expected = ("{ 'Array' : [{ 'X' : 1 }, null] }").Replace("'", "\""); // no discriminator
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
+
+    [TestFixture]
+    public class EnumArrayTests
+    {
+        private enum E
+        {
+            None,
+            A,
+            B
+        }
+
+        private class C
+        {
+            [BsonRepresentation(BsonType.String)]
+            public E[] Array;
+        }
+
+        [Test]
+        public void TestSerializeNull()
+        {
+            C c = new C { Array = null };
+            var json = c.ToJson();
+            var expected = ("{ 'Array' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEmpty()
+        {
+            C c = new C { Array = new E[0] };
+            var json = c.ToJson();
+            var expected = ("{ 'Array' : [] }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize1()
+        {
+            C c = new C { Array = new E[] { E.A } };
+            var json = c.ToJson();
+            var expected = ("{ 'Array' : [\"A\"] }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize2()
+        {
+            C c = new C { Array = new E[] { E.A, E.B } };
+            var json = c.ToJson();
+            var expected = ("{ 'Array' : [\"A\", \"B\"] }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

@@ -17,7 +17,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 
 namespace MongoDB.Driver.Linq
@@ -49,7 +48,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets an enumerator for the result objects.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An enumerator for the result objects.</returns>
         public IEnumerator<TResult> GetEnumerator()
         {
             foreach (var document in _cursor)

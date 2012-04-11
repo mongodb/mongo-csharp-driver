@@ -20,9 +20,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-
-using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq
 {
@@ -45,10 +42,10 @@ namespace MongoDB.Driver.Linq
 
         // public methods
         /// <summary>
-        /// Formats an Expression as a string.
+        /// Returns a string that represents the Expression.
         /// </summary>
-        /// <param name="node">The Expression to pretty print.</param>
-        /// <returns>A string containing the pretty printed Expression.</returns>
+        /// <param name="node">The Expression to format.</param>
+        /// <returns>A string that represents the Expression.</returns>
         public static string ToString(Expression node)
         {
             var formatter = new ExpressionFormatter();
@@ -57,9 +54,9 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
-        /// Returns the pretty printed string representation of the Expression.
+        /// Returns a string that represents the Expression.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A string that represents the Expression.</returns>
         public override string ToString()
         {
             return _sb.ToString();
@@ -428,8 +425,8 @@ namespace MongoDB.Driver.Linq
             if (a != null && a.Rank == 1)
             {
                 var elementType = a.GetType().GetElementType();
-                _sb.AppendFormat("{0}[]:{{ ", elementType.Name);
-                var separator = "";
+                _sb.AppendFormat("{0}[]:{{", elementType.Name);
+                var separator = " ";
                 foreach (var item in a)
                 {
                     _sb.Append(separator);
@@ -443,6 +440,13 @@ namespace MongoDB.Driver.Linq
             if (value.GetType() == typeof(bool))
             {
                 _sb.Append(((bool)value) ? "true" : "false");
+                return;
+            }
+
+            if (value.GetType() == typeof(char))
+            {
+                var c = (char)value;
+                _sb.AppendFormat("'{0}'", c.ToString());
                 return;
             }
 

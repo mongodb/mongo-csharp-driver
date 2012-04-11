@@ -56,9 +56,13 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the ObjectId class.
         /// </summary>
-        /// <param name="bytes">The value.</param>
+        /// <param name="bytes">The bytes.</param>
         public ObjectId(byte[] bytes)
         {
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
             Unpack(bytes, out _timestamp, out _machine, out _pid, out _increment);
         }
 
@@ -95,6 +99,10 @@ namespace MongoDB.Bson
         /// <param name="value">The value.</param>
         public ObjectId(string value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             Unpack(BsonUtils.ParseHexString(value), out _timestamp, out _machine, out _pid, out _increment);
         }
 
@@ -279,6 +287,10 @@ namespace MongoDB.Bson
         /// <returns>A ObjectId.</returns>
         public static ObjectId Parse(string s)
         {
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
             ObjectId objectId;
             if (TryParse(s, out objectId))
             {
@@ -299,7 +311,11 @@ namespace MongoDB.Bson
         /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(string s, out ObjectId objectId)
         {
-            if (s != null && s.Length == 24)
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
+            if (s.Length == 24)
             {
                 byte[] bytes;
                 if (BsonUtils.TryParseHexString(s, out bytes))
@@ -323,6 +339,10 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         public static void Unpack(byte[] bytes, out int timestamp, out int machine, out short pid, out int increment)
         {
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
             if (bytes.Length != 12)
             {
                 throw new ArgumentOutOfRangeException("Byte array must be 12 bytes long.");

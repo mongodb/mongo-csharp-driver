@@ -1,0 +1,5 @@
+This file is the last file modified during the release process. Changing the
+version number below provides a changed file that can be used as the basis
+for the BUMP commit.
+
+Current version: 1.4.0.4468

@@ -22,6 +22,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,6 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the ArraySerializer class.
         /// </summary>
         public ArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -120,24 +122,26 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 VerifyTypes(nominalType, actualType, typeof(T[]));
 
-                if (nominalType != typeof(object))
-                {
-                    bsonWriter.WriteStartArray();
-                    var array = (T[])value;
-                    for (int index = 0; index < array.Length; index++)
-                    {
-                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[index]);
-                    }
-                    bsonWriter.WriteEndArray();
-                }
-                else
+                if (nominalType == typeof(object))
                 {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
+                    return;
                 }
+
+                var array = (T[])value;
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
+                bsonWriter.WriteStartArray();
+                for (int index = 0; index < array.Length; index++)
+                {
+                    BsonSerializer.Serialize(bsonWriter, typeof(T), array[index], itemSerializationOptions);
+                }
+                bsonWriter.WriteEndArray();
             }
         }
     }
@@ -153,6 +157,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the TwoDimensionalArraySerializer class.
         /// </summary>
         public TwoDimensionalArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -250,31 +255,33 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 VerifyTypes(nominalType, actualType, typeof(T[,]));
 
-                if (nominalType != typeof(object))
-                {
-                    bsonWriter.WriteStartArray();
-                    var array = (T[,])value;
-                    var length1 = array.GetLength(0);
-                    var length2 = array.GetLength(1);
-                    for (int i = 0; i < length1; i++)
-                    {
-                        bsonWriter.WriteStartArray();
-                        for (int j = 0; j < length2; j++)
-                        {
-                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j]);
-                        }
-                        bsonWriter.WriteEndArray();
-                    }
-                    bsonWriter.WriteEndArray();
-                }
-                else
+                if (nominalType == typeof(object))
                 {
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options);
                     bsonWriter.WriteEndDocument();
+                    return;
                 }
+
+                var array = (T[,])value;
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
+                bsonWriter.WriteStartArray();
+                var length1 = array.GetLength(0);
+                var length2 = array.GetLength(1);
+                for (int i = 0; i < length1; i++)
+                {
+                    bsonWriter.WriteStartArray();
+                    for (int j = 0; j < length2; j++)
+                    {
+                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j], itemSerializationOptions);
+                    }
+                    bsonWriter.WriteEndArray();
+                }
+                bsonWriter.WriteEndArray();
             }
         }
     }
@@ -290,6 +297,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the ThreeDimensionalArraySerializer class.
         /// </summary>
         public ThreeDimensionalArraySerializer()
+            : base(new ArraySerializationOptions())
         {
         }
 
@@ -404,37 +412,39 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var actualType = value.GetType();
                 VerifyTypes(nominalType, actualType, typeof(T[, ,]));
 
-                if (nominalType != typeof(object))
+                if (nominalType == typeof(object))
+                {
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
+                    bsonWriter.WriteName("_v");
+                    Serialize(bsonWriter, actualType, value, options);
+                    bsonWriter.WriteEndDocument();
+                    return;
+                }
+
+                var array = (T[, ,])value;
+                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
+                bsonWriter.WriteStartArray();
+                var length1 = array.GetLength(0);
+                var length2 = array.GetLength(1);
+                var length3 = array.GetLength(2);
+                for (int i = 0; i < length1; i++)
                 {
                     bsonWriter.WriteStartArray();
-                    var array = (T[, ,])value;
-                    var length1 = array.GetLength(0);
-                    var length2 = array.GetLength(1);
-                    var length3 = array.GetLength(2);
-                    for (int i = 0; i < length1; i++)
+                    for (int j = 0; j < length2; j++)
                     {
                         bsonWriter.WriteStartArray();
-                        for (int j = 0; j < length2; j++)
+                        for (int k = 0; k < length3; k++)
                         {
-                            bsonWriter.WriteStartArray();
-                            for (int k = 0; k < length3; k++)
-                            {
-                                BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k]);
-                            }
-                            bsonWriter.WriteEndArray();
+                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k], itemSerializationOptions);
                         }
                         bsonWriter.WriteEndArray();
                     }
                     bsonWriter.WriteEndArray();
                 }
-                else
-                {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
-                    bsonWriter.WriteName("_v");
-                    Serialize(bsonWriter, actualType, value, options);
-                    bsonWriter.WriteEndDocument();
-                }
+                bsonWriter.WriteEndArray();
             }
         }
     }

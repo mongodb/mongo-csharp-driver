@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
@@ -58,27 +57,28 @@ namespace MongoDB.Driver.Linq
         private static Type GetDocumentType(Expression expression)
         {
             // look for the innermost nested constant of type MongoQueryable<T> and return typeof(T)
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null)
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression != null)
             {
-                var firstArgument = methodCallExpression.Arguments[0];
-                var constantExpression = firstArgument as ConstantExpression;
-                if (constantExpression != null)
+                var constantType = constantExpression.Type;
+                if (constantType.IsGenericType)
                 {
-                    var constantType = constantExpression.Type;
-                    if (constantType.IsGenericType)
+                    var genericTypeDefinition = constantType.GetGenericTypeDefinition();
+                    if (genericTypeDefinition == typeof(MongoQueryable<>))
                     {
-                        var genericTypeDefinition = constantType.GetGenericTypeDefinition();
-                        if (genericTypeDefinition == typeof(MongoQueryable<>))
-                        {
-                            return constantType.GetGenericArguments()[0];
-                        }
+                        return constantType.GetGenericArguments()[0];
                     }
                 }
-                return GetDocumentType(firstArgument);
             }
 
-            throw new ArgumentOutOfRangeException("Unable to find root IQueryable");
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null && methodCallExpression.Arguments.Count != 0)
+            {
+                return GetDocumentType(methodCallExpression.Arguments[0]);
+            }
+
+            var message = string.Format("Unable to find document type of expression: {0}.", ExpressionFormatter.ToString(expression));
+            throw new ArgumentOutOfRangeException(message);
         }
     }
 }

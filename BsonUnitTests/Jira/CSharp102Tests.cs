@@ -46,9 +46,9 @@ namespace MongoDB.BsonUnitTests.Jira
         public void TestClassMap()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(Test));
-            Assert.AreEqual(2, classMap.MemberMaps.Count());
-            Assert.IsTrue(classMap.MemberMaps.Any(m => m.MemberName == "Id"));
-            Assert.IsTrue(classMap.MemberMaps.Any(m => m.MemberName == "Normal"));
+            Assert.AreEqual(2, classMap.AllMemberMaps.Count());
+            Assert.IsTrue(classMap.AllMemberMaps.Any(m => m.MemberName == "Id"));
+            Assert.IsTrue(classMap.AllMemberMaps.Any(m => m.MemberName == "Normal"));
             Assert.AreEqual("Id", classMap.IdMemberMap.MemberName);
 
             var test = new Test { Normal = "normal" };

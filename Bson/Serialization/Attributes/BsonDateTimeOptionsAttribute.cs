@@ -69,22 +69,5 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _representation; }
             set { _representation = value; }
         }
-
-        // public methods
-        /// <summary>
-        /// Gets the serialization options specified by this attribute.
-        /// </summary>
-        /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions()
-        {
-            if (_dateOnly)
-            {
-                return new DateTimeSerializationOptions(_dateOnly, _representation);
-            }
-            else
-            {
-                return new DateTimeSerializationOptions(_kind, _representation);
-            }
-        }
     }
 }

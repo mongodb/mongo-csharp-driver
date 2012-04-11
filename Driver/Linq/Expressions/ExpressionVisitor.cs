@@ -19,7 +19,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {

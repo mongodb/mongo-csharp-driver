@@ -40,9 +40,9 @@ namespace MongoDB.Driver
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
-        private static double __waitQueueMultiple = 1.0; // default multiple of 1
+        private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
         private static int __waitQueueSize = 0; // use multiple by default
-        private static TimeSpan __waitQueueTimeout = TimeSpan.FromMilliseconds(500);
+        private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
 
         // public static properties
         /// <summary>
@@ -201,7 +201,7 @@ namespace MongoDB.Driver
             get { return __waitQueueSize; }
             set
             {
-                __waitQueueMultiple = 0;
+                __waitQueueMultiple = 0.0;
                 __waitQueueSize = value;
             }
         }

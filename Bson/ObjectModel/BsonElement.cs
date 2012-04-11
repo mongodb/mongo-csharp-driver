@@ -50,6 +50,14 @@ namespace MongoDB.Bson
         /// <param name="value">The value of the element.</param>
         public BsonElement(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             ValidateElementName(name);
             _name = name;
             _value = value;
@@ -113,6 +121,10 @@ namespace MongoDB.Bson
         /// <returns>A BsonElement or null.</returns>
         public static BsonElement Create(bool condition, string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             if (condition && value != null)
             {
                 return new BsonElement(name, value);
@@ -131,6 +143,10 @@ namespace MongoDB.Bson
         /// <returns>A BsonElement or null.</returns>
         public static BsonElement Create(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             if (value != null)
             {
                 return new BsonElement(name, value);
@@ -181,10 +197,6 @@ namespace MongoDB.Bson
         // private static methods
         private static void ValidateElementName(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
             if (name.IndexOf('\0') >= 0)
             {
                 throw new ArgumentException("Element name cannot contain null (0x00) characters");
@@ -198,7 +210,10 @@ namespace MongoDB.Bson
         /// <returns>A shallow clone of the element.</returns>
         public BsonElement Clone()
         {
-            return new BsonElement(_name, _value.Clone());
+            var clone = new BsonElement();
+            clone._name = _name;
+            clone._value = _value;
+            return clone;
         }
 
         /// <summary>

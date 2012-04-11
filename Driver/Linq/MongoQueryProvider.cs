@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 using System.Reflection;
 
 // for a good blog post on implementing LINQ query providers see Matt Warren's blog posts
@@ -38,6 +37,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Initializes a new instance of the MongoQueryProvider class.
         /// </summary>
+        /// <param name="collection">The collection being queried.</param>
         public MongoQueryProvider(MongoCollection collection)
         {
             if (collection == null)
@@ -57,6 +57,18 @@ namespace MongoDB.Driver.Linq
         }
 
         // public methods
+        /// <summary>
+        /// Builds the MongoDB query that will be sent to the server when the LINQ query is executed.
+        /// </summary>
+        /// <typeparam name="T">The type of the documents being queried.</typeparam>
+        /// <param name="query">The LINQ query.</param>
+        /// <returns>The MongoDB query.</returns>
+        public IMongoQuery BuildMongoQuery<T>(MongoQueryable<T> query)
+        {
+            var translatedQuery = MongoQueryTranslator.Translate(this, ((IQueryable)query).Expression);
+            return ((SelectQuery)translatedQuery).BuildQuery();
+        }
+
         /// <summary>
         /// Creates a new instance of MongoQueryable{{T}} for this provider.
         /// </summary>

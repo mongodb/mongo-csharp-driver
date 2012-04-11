@@ -39,6 +39,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the EnumSerializer class.
         /// </summary>
         public EnumSerializer()
+            : base(new RepresentationSerializationOptions((BsonType)0)) // 0 means use underlying type
         {
         }
 
@@ -64,6 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyDeserializeType(nominalType);
+
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
@@ -92,8 +94,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var actualType = value.GetType();
             VerifySerializeTypes(nominalType, actualType);
-            var representation = (options == null) ? 0 : ((RepresentationSerializationOptions)options).Representation;
-            switch (representation)
+
+            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
+
+            switch (representationSerializationOptions.Representation)
             {
                 case 0:
                     var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(actualType));

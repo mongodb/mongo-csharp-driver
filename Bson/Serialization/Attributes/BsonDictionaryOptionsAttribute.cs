@@ -58,15 +58,5 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _representation; }
             set { _representation = value; }
         }
-
-        // public methods
-        /// <summary>
-        /// Gets the serialization options specified by this attribute.
-        /// </summary>
-        /// <returns>The serialization options.</returns>
-        public override IBsonSerializationOptions GetOptions()
-        {
-            return new DictionarySerializationOptions(_representation);
-        }
     }
 }

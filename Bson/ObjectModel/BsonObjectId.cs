@@ -49,11 +49,11 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the BsonObjectId class.
         /// </summary>
-        /// <param name="value">The value.</param>
-        public BsonObjectId(byte[] value)
+        /// <param name="bytes">The bytes.</param>
+        public BsonObjectId(byte[] bytes)
             : base(BsonType.ObjectId)
         {
-            _value = new ObjectId(value);
+            _value = new ObjectId(bytes);
         }
 
         /// <summary>

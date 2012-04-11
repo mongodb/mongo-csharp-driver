@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -77,6 +78,14 @@ namespace MongoDB.Bson.Serialization
 
         // public properties
         /// <summary>
+        /// Gets all the member maps (including maps for inherited members).
+        /// </summary>
+        public IEnumerable<BsonMemberMap> AllMemberMaps
+        {
+            get { return _allMemberMaps; }
+        }
+
+        /// <summary>
         /// Gets the base class map.
         /// </summary>
         public BsonClassMap BaseClassMap
@@ -98,6 +107,14 @@ namespace MongoDB.Bson.Serialization
         public ConventionProfile Conventions
         {
             get { return _conventions; }
+        }
+
+        /// <summary>
+        /// Gets the declared member maps (only for members declared in this class).
+        /// </summary>
+        public IEnumerable<BsonMemberMap> DeclaredMemberMaps
+        {
+            get { return _declaredMemberMaps; }
         }
 
         /// <summary>
@@ -191,6 +208,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the member maps.
         /// </summary>
+        [Obsolete("Use AllMemberMaps or DeclaredMemberMaps instead.")]
         public IEnumerable<BsonMemberMap> MemberMaps
         {
             get { return _allMemberMaps; }
@@ -219,68 +237,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             throw new NotSupportedException("Only field and properties are supported at this time.");
-        }
-
-        /// <summary>
-        /// Gets a loadable type name (like AssemblyQualifiedName but shortened when possible)
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The type name.</returns>
-        public static string GetTypeNameDiscriminator(Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-
-            string typeName;
-            if (type.IsGenericType)
-            {
-                var genericTypeNames = "";
-                foreach (var genericType in type.GetGenericArguments())
-                {
-                    var genericTypeName = GetTypeNameDiscriminator(genericType);
-                    if (genericTypeName.IndexOf(',') != -1)
-                    {
-                        genericTypeName = "[" + genericTypeName + "]";
-                    }
-                    if (genericTypeNames != "")
-                    {
-                        genericTypeNames += ",";
-                    }
-                    genericTypeNames += genericTypeName;
-                }
-                typeName = type.GetGenericTypeDefinition().FullName + "[" + genericTypeNames + "]";
-            }
-            else
-            {
-                typeName = type.FullName;
-            }
-
-            string assemblyName = type.Assembly.FullName;
-            Match match = Regex.Match(assemblyName, "(?<dll>[^,]+), Version=[^,]+, Culture=[^,]+, PublicKeyToken=(?<token>[^,]+)");
-            if (match.Success)
-            {
-                var dll = match.Groups["dll"].Value;
-                var publicKeyToken = match.Groups["token"].Value;
-                if (dll == "mscorlib")
-                {
-                    assemblyName = null;
-                }
-                else if (publicKeyToken == "null")
-                {
-                    assemblyName = dll;
-                }
-            }
-
-            if (assemblyName == null)
-            {
-                return typeName;
-            }
-            else
-            {
-                return typeName + ", " + assemblyName;
-            }
         }
 
         /// <summary>
@@ -506,7 +462,7 @@ namespace MongoDB.Bson.Serialization
                             _baseClassMap = LookupClassMap(baseType);
                             _discriminatorIsRequired |= _baseClassMap._discriminatorIsRequired;
                             _hasRootClass |= (_isRootClass || _baseClassMap.HasRootClass);
-                            _allMemberMaps.AddRange(_baseClassMap.MemberMaps);
+                            _allMemberMaps.AddRange(_baseClassMap.AllMemberMaps);
                             if (_baseClassMap.IgnoreExtraElements && _baseClassMap.IgnoreExtraElementsIsInherited)
                             {
                                 _ignoreExtraElements = true;
@@ -626,10 +582,10 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets a member map.
+        /// Gets a member map (only considers members declared in this class).
         /// </summary>
         /// <param name="memberName">The member name.</param>
-        /// <returns>The member map.</returns>
+        /// <returns>The member map (or null if the member was not found).</returns>
         public BsonMemberMap GetMemberMap(string memberName)
         {
             if (memberName == null)
@@ -877,9 +833,9 @@ namespace MongoDB.Bson.Serialization
                 var message = string.Format("Class {0} already has an extra elements member.", _classType.FullName);
                 throw new InvalidOperationException(message);
             }
-            if (memberMap.MemberType != typeof(BsonDocument))
+            if (memberMap.MemberType != typeof(BsonDocument) && !typeof(IDictionary<string, object>).IsAssignableFrom(memberMap.MemberType))
             {
-                var message = string.Format("Type of ExtraElements member must be BsonDocument.");
+                var message = string.Format("Type of ExtraElements member must be BsonDocument or implement IDictionary<string, object>.");
                 throw new InvalidOperationException(message);
             }
 
@@ -1104,8 +1060,14 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetSerializationOptions(serializationOptions);
             }
 
-            foreach (var attribute in memberInfo.GetCustomAttributes(false))
+            foreach (Attribute attribute in memberInfo.GetCustomAttributes(false))
             {
+                if (!(attribute is BsonSerializationOptionsAttribute))
+                {
+                    // ignore all attributes that aren't BSON serialization related
+                    continue;
+                }
+
                 var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
                 if (defaultValueAttribute != null)
                 {
@@ -1117,6 +1079,7 @@ namespace MongoDB.Bson.Serialization
                         memberMap.SetIgnoreIfDefault(!defaultValueAttribute.SerializeDefaultValue);
                     }
 #pragma warning restore 618
+                    continue;
                 }
 
                 var elementAttribute = attribute as BsonElementAttribute;
@@ -1154,6 +1117,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     memberMap.SetIgnoreIfNull(false);
                     memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
+                    continue;
                 }
 
                 var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
@@ -1161,20 +1125,34 @@ namespace MongoDB.Bson.Serialization
                 {
                     memberMap.SetIgnoreIfDefault(false);
                     memberMap.SetIgnoreIfNull(ignoreIfNullAttribute.Value);
+                    continue;
                 }
 
                 var requiredAttribute = attribute as BsonRequiredAttribute;
                 if (requiredAttribute != null)
                 {
                     memberMap.SetIsRequired(true);
+                    continue;
                 }
 
-                // note: this handles subclasses of BsonSerializationOptionsAttribute also
-                var serializationOptionsAttribute = attribute as BsonSerializationOptionsAttribute;
-                if (serializationOptionsAttribute != null)
+                // if none of the above apply then apply the attribute to the serialization options
+                var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);
+                var memberSerializationOptions = memberMap.SerializationOptions;
+                if (memberSerializationOptions == null)
                 {
-                    memberMap.SetSerializationOptions(serializationOptionsAttribute.GetOptions());
+                    var memberDefaultSerializationOptions = memberSerializer.GetDefaultSerializationOptions();
+                    if (memberDefaultSerializationOptions == null)
+                    {
+                        var message = string.Format(
+                            "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
+                            BsonUtils.GetFriendlyTypeName(attribute.GetType()),
+                            BsonUtils.GetFriendlyTypeName(memberSerializer.GetType()));
+                        throw new NotSupportedException(message);
+                    }
+                    memberSerializationOptions = memberDefaultSerializationOptions.Clone();
+                    memberMap.SetSerializationOptions(memberSerializationOptions);
                 }
+                memberSerializationOptions.ApplyAttribute(memberSerializer, attribute);
             }
 
             return memberMap;

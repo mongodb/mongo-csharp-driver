@@ -1,0 +1,443 @@
+BSON library changes from 1.3.1 to 1.4
+
+BsonBinaryReader.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonBinaryReaderSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonBinaryWriter.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonBinaryWriterSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonDocumentReader.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonDocumentReaderSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonDocumentWriter.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonDocumentWriterSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonReader.cs
+    CLS compliant
+    changed protected fields to private
+    added protected properties to access private fields
+    CurrentBsonType no longer has side effects (see GetCurrentBsonType)
+
+BsonReaderBookmark.cs
+    CLS compliant
+    changed protected fields to private
+
+BsonReaderSettings.cs
+    CLS compliant
+    changed protected fields to private
+
+BsonWriter.cs
+    CLS compliant
+    changed protected fields to private
+    added protected properties to access private fields
+    optimized string operations
+
+BsonWriterSettings.cs
+    CLS compliant
+    changed protected fields to private
+
+JsonReader.cs
+    CLS compliant
+    access inherited fields via properties
+    ReadBsonType handles ContextTypes more accurately when setting State on exit
+    optimized string operations
+
+JsonReaderSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+JsonWriter.cs
+    CLS compliant
+    access inherited fields via properties
+
+JsonWriterSettings.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonArray.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonBinaryData.cs
+    CLS compliant
+    access inherited fields via properties
+    RawValue now returns byte[] if subtype is Binary or OldBinary
+
+BsonBoolean.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonDateTime.cs
+    CLS compliant
+    access inherited fields via properties
+    value is now stored as millisecondsSinceEpoch only (no DateTime)
+    added ToLocalTime and ToUniversalTime methods
+
+BsonDocument.cs
+    CLS compliant
+    access inherited fields via properties
+    better argument checking
+    Deserialize now supports DocumentSerializationOptions
+    Serialize now supports DocumentSerializationOptions
+    ToDictionary and ToHashtable now correctly map BsonDateTime values to DateTime
+
+BsonDouble.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonInt32.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonInt64.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonJavaScript.cs
+    CLS compliant
+    changed protected fields to private
+    access inherited fields via properties
+    ToString returns better string representation
+
+BsonJavaScriptWithScope.cs
+    CLS compliant
+    access inherited fields via properties
+    ToString returns better string representation
+
+BsonMaxKey.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonMinKey.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonNull.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonObjectId.cs
+    CLS compliant
+    access inherited fields via properties
+    new constructor to provide timestamp as a DateTime
+    new overloads of GenerateNewId where timestamp can be provided as an int or a DateTime
+
+BsonRegularExpression.cs
+    CLS compliant
+    access inherited fields via properties
+    optimized string operations
+
+BsonString.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonTimestamp.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonTypeMapper.cs
+    added mapping from BsonUndefined
+    added mapping from BsonMaxKey to BsonBoolean
+    added mapping from BsonMinKey to BsonBoolean
+    added mapping from BsonUndefined to BsonBoolean
+    added mapping from BsonUndefined to BsonUndefined (it's a noop of course)
+    implemented conversion from BsonJavaScript to BsonJavaScriptWithScope
+    implemented conversion from BsonUndefined to BsonBoolean
+
+BsonUndefined.cs
+    CLS compliant
+    access inherited fields via properties
+
+BsonValue.cs
+    CLS compliant
+    changed protected fields to private
+    added AsLocalTime and AsUniversalTime
+
+ObjectId.cs
+    new constructor to provide timestamp as a DateTime
+    new overloads of GenerateNewId where timestamp can be provided as an int or a DateTime
+
+AssemblyInfo.cs
+    added CLSCompliant(true) assembly attribute
+
+BsonDateTimeOptionsAttribute.cs
+    removed GetOptions method
+
+BsonDefaultValueAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+    SerializeDefaultValue property is now obsolete
+
+BsonDictionaryOptionsAttribute.cs
+    removed GetOptions method
+
+BsonDiscriminatorAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonElementAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonExtraElementsAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonIdAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonIgnoreAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonIgnoreExtraElementsAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+    added Inherited property (causes extra elements to be ignored in derived classes also)
+
+BsonIgnoreIfDefaultAttribute.cs
+    new subclass of BsonSerializationOptionsAttribute
+
+BsonIgnoreIfNullAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+    added a Value property
+
+BsonKnownTypesAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+    added a constructor that doesn't use params keyword to be CLS compliant
+
+BsonDateTimeOptionsAttribute.cs
+    removed GetOptions method
+
+BsonRequiredAttribute.cs
+    now a subclass of BsonSerializationOptionsAttribute
+
+BsonSerializationOptionsAttribute.cs
+    removed AttributeUsage attribute that didn't belong here (it goes on the subclasses)
+    removed virtual GetOptions method
+
+ConventionsProfile.cs
+    added IgnoreIfDefaultConvention
+    added SerializationOptionsConvention
+    obsoleted SerializeDefaultValueConvention (replaced by IgnoreIfDefaultConvention)
+
+IgnoreIfDefaultConventions.cs
+    new interface IIgnoreIfDefaultConvention
+    new class NeverIgnoreIfDefaultConvention
+    new class AlwaysIgnoreIfDefaultConvention
+
+SerializationOptionsConventions.cs
+    new interface ISerializationOptionsConvention
+    new class NullSerializationOptionsConvention
+    new class TypeRepresentationSerializationOptionsConvention
+
+SerializeDefaultValueConventions.cs
+    obsoleted ISerializeDefaultValueConvention
+    obsoleted NeverSerializeDefaultValueConvention
+    obsoleted AlwaysSerializeDefaultValueConvention
+
+ArraySerializationOptions.cs
+    new class
+    ItemSerializationOptions property specifies serialization options for the array items
+    implements ApplyAttribute
+
+BsonBaseSerializationOptions.cs
+    new abstract base class for implementations of IBsonSerializationOptions
+    implements Freeze protocol
+
+DateTimeSerializationOptions.cs
+    now derived from BsonBaseSerializationOptions
+    property setters now call EnsureNotFrozen
+    implements ApplyAttribute
+
+DictionarySerializationOptions.cs
+    now derived from BsonBaseSerializationOptions
+    property setters now call EnsureNotFrozen
+    added ItemSerializationOptions that specified serialization options for the dictionary values
+    implements ApplyAttribute
+
+DocumentSerializationOptions.cs
+    now derived from BsonBaseSerializationOptions
+    property setters now call EnsureNotFrozen
+    added AllowDuplicateNames property
+    implements ApplyAttribute
+
+RepresentationSerializationOptions.cs
+    now derived from BsonBaseSerializationOptions
+    property setters now call EnsureNotFrozen
+    marked certain methods CLSCompliant(false)
+    implements ApplyAttribute
+
+TimeSpanSerializationOptions.cs
+    new class representing serialization options for TimeSpans
+    Representation property specifies the representation for the TimeSpan
+    Units property specifies the units for numeric representations of the TimeSpan
+    implements ApplyAttribute
+
+TimeSpanUnits.cs
+    defines the TimeSpanUnits enum
+
+ArraySerializer.cs
+    constructors set ArraySerializationOptions as the default serialization options
+    implemented GetItemSerializationInfo
+    Serialize now uses itemSerializationOptions
+
+BsonBaseSerializer.cs
+    added DefaultSerializationOptions property
+    added default implementation of GetItemSerializationInfo
+    added default implementation of GetMemberSerializationInfo
+    added EnsureSerializationOptions protected method
+
+BsonIBsonSerializableSerializer.cs
+    implemented GetDefaultSerializationoptions (null)
+    implemented GetItemSerializationInfo (NotSupportedException)
+    implemented GetMemberSerializationInfo (NotSupportedException)
+
+BsonPrimitiveSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    removed static Default instances
+    String Deserializer now only accepts ObjectIds if representation is ObjectId
+
+BsonValueSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    
+CollectionGenericSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    implemented GetItemSerializationInfo methods
+    Serialize methods now use itemSerializationOptions
+
+CollectionSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    implemented GetItemSerializationInfo methods
+    Serialize methods now use itemSerializationOptions
+
+DictionaryGenericSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    implemented GetItemSerializationInfo methods
+    Serialize methods now use itemSerializationOptions
+    optimized string operations
+
+DictionarySerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    implemented GetItemSerializationInfo methods
+    Serialize methods now use itemSerializationOptions
+    optimized string operations
+
+EnumSerializer.cs
+    constructor now sets the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    
+ImageSerializers.cs
+    new class ImageSerializer
+    new class BitmapSerializer
+
+NetPrimitiveSerializers.cs
+    constructors now set the default serialization options
+    standardized on calling EnsureSerializationOptions to check and cast options
+    removed static Default instances
+    added support for new TimeSpanSerializationOptions
+
+NullableGenericSerializer.cs
+    implemented GetDefaultSerializationOptions
+
+ObjectSerializer.cs
+    implemented GetDefaultSerializationoptions (null)
+    implemented GetItemSerializationInfo (NotSupportedException)
+    implemented GetMemberSerializationInfo (NotSupportedException)
+
+BsonClassMap.cs
+    changed protected fields to private
+    added Conventions property to access existing field
+    added IgnoreExtraElementsIsInherited property and backing field
+    better argument checking
+    optimized string operations
+    implemented inheriting IgnoreExtraElements from base classes
+    better error messages when mapping members incorrectly
+    AutoMapMember supports new IgnoreIfDefaultValueConvention
+    AutoMapMember supports new SerializationOptionsConvention
+    AutoMapMember supports new BsonIgnoreIfDefaultAttribute
+    AutoMapMember now ignores any attributes that are not derived from BsonSerializationOptionsAttribute
+    AutoMapMember now delegates attribute processing by calling ApplyAttributes
+    added EnsureMemberInfoIsForThisClass helper method
+    added EnsureMemberMapIsForThisClass helper method
+    improved performance of GetMemberInfoFromLambda
+
+BsonClassMapSerializer.cs
+    a class map serializer now has a reference to its class map
+    Deserialize calls BeginInit/EndInit if object being deserializer implements ISupportInitialize
+    missing fields are now always set to their default values
+    implemented GetDefaultSerializationOptions (null)
+    implemented GetItemSerializationInfo (NotSupportedException)
+    implemented GetMemberSerializationInfo
+    implemented suport for extra elements member of type IDictionary<string, object>
+    refactored decision about whether to serialize a member in ShouldSerialize method of BsonMemberMap
+
+BsonDefaultSerializer.cs
+    register new serializers for Bitmap and Image
+    GetSerializer now passes class map to BsonClassMapSerializer constructor
+
+BsonMemberMap.cs
+    removed _conventions field (conventions are only used during the AutoMap process)
+    added ClassMap property referencing the class map that contains this member
+    removed HasDefaultValue property (member maps now always have a default value)
+    added IgnoreIfDefault property
+    obsoleted SerializeDefaultValue property
+    obsoleted overload of SetDefaultValue with serializeDefaultValue parameter
+    new ShouldSerialize method consolidates decision about whether to serialize a member
+    new GetDefaultValue helper method figures out appropriate default value for all types
+
+BsonSerializationInfo.cs
+    new class that holds several related pieces of information about how to serialize a value
+    this class is used extensively in the implementation of LINQ
+    added ElementName property to represent the element name to use
+    added Serializer property to represent the serializer to use
+    added NominalType property to represent the nominal type
+    added SerializationOptions property to represent the serialization options to use
+
+BsonSerializer.cs
+    changed Deserializer to pass options to BsonDocument Deserialize method
+
+IBsonSerializationOptions.cs
+    added methods to support an extensible attribute processing framework
+    new ApplyAttribute is called by AutoMapMember to apply attributes as a way of setting serialization options
+    new Clone method returns a clone of the serialization options
+    new Freeze method freezes a serialization options value preventing further changes
+
+IBsonSerializer.cs
+    added methods to support processing serialization attributes and the LINQ implementation
+    added GetDefaultSerializationOptions to provide the base value to apply attributes to
+    added GetItemSerializationInfo to support the LINQ implementation
+    added GetMemberSerializationInfo to support the LINQ implementation
+
+Bson.csproj
+    added some configuration for Visual Studio code analysis
+
+BsonDefaults.cs
+    removed unused InitialBsonBufferSize property
+
+BsonUtils.cs
+    added new GetFriendlyTypeName for format type names suitable for inclusion in error messages
+    ToDateTimeFromMillisecondsSinceEpoch has better error message when argument is out of range
+    ToLocalTime no longer has a DateTimeKind parameter (caller now handles setting Kind if necessary)
+    ToUniversalTime doesn't need a special case for argument that is already in UTC
+    TryParseHexString now calls ParseHexString instead of the other way around

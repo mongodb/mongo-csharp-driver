@@ -64,7 +64,9 @@ namespace MongoDB.DriverUnitTests.GridFS
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",
-                SafeMode = SafeMode.True
+                SafeMode = SafeMode.True,
+                UpdateMD5 = false,
+                VerifyMD5 = false
             };
             var clone = settings.Clone();
             Assert.IsTrue(settings == clone);

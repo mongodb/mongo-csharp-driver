@@ -95,6 +95,7 @@
     <Compile Include="DefaultSerializer\SerializeFlagsTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithAttributesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />
+    <Compile Include="DefaultSerializer\Serializers\CircularReferencesTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\JaggedArraySerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\ObjectSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\ThreeDimensionalArraySerializerTests.cs" />

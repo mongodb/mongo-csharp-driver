@@ -550,6 +550,10 @@ namespace MongoDB.Bson
         /// <returns>A bool.</returns>
         public static explicit operator bool(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsBoolean;
         }
 
@@ -760,6 +764,10 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public static explicit operator DateTime(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsDateTime;
         }
 
@@ -780,6 +788,10 @@ namespace MongoDB.Bson
         /// <returns>A double.</returns>
         public static explicit operator double(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsDouble;
         }
 
@@ -800,6 +812,10 @@ namespace MongoDB.Bson
         /// <returns>A Guid.</returns>
         public static explicit operator Guid(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsGuid;
         }
 
@@ -820,6 +836,10 @@ namespace MongoDB.Bson
         /// <returns>An int.</returns>
         public static explicit operator int(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsInt32;
         }
 
@@ -840,6 +860,10 @@ namespace MongoDB.Bson
         /// <returns>A long.</returns>
         public static explicit operator long(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsInt64;
         }
 
@@ -860,6 +884,10 @@ namespace MongoDB.Bson
         /// <returns>An ObjectId.</returns>
         public static explicit operator ObjectId(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return value.AsObjectId;
         }
 
@@ -980,7 +1008,7 @@ namespace MongoDB.Bson
             // optimize away the call to MapToBsonValue for the most common cases
             if (value == null)
             {
-                return null;
+                return null; // not BsonNull.Value to be consistent with other Create methods
             }
             else if (value is BsonValue)
             {

@@ -73,6 +73,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        public override IBsonSerializationOptions GetDefaultSerializationOptions()
+        {
+            return _serializer.GetDefaultSerializationOptions();
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>

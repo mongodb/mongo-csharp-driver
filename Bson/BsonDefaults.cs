@@ -28,6 +28,7 @@ namespace MongoDB.Bson
         // private static fields
         private static GuidRepresentation __guidRepresentation = GuidRepresentation.CSharpLegacy;
         private static int __maxDocumentSize = 4 * 1024 * 1024; // 4MiB
+        private static int __maxSerializationDepth = 100;
 
         // public static properties
         /// <summary>
@@ -48,6 +49,15 @@ namespace MongoDB.Bson
         {
             get { return __maxDocumentSize; }
             set { __maxDocumentSize = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the default max serialization depth (used to detect circular references during serialization). The default is 100.
+        /// </summary>
+        public static int MaxSerializationDepth
+        {
+            get { return __maxSerializationDepth; }
+            set { __maxSerializationDepth = value; }
         }
     }
 }

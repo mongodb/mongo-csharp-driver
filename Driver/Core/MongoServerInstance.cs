@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         private MongoServerBuildInfo _buildInfo;
         private Exception _connectException;
         private MongoConnectionPool _connectionPool;
-        private IPEndPoint _endPoint;
+        private IPEndPoint _ipEndPoint;
         private bool _isArbiter;
         private CommandResult _isMasterResult;
         private bool _isPassive;
@@ -114,14 +114,6 @@ namespace MongoDB.Driver
         public MongoConnectionPool ConnectionPool
         {
             get { return _connectionPool; }
-        }
-
-        /// <summary>
-        /// Gets the IP end point of this server instance.
-        /// </summary>
-        public IPEndPoint EndPoint
-        {
-            get { return _endPoint; }
         }
 
         /// <summary>
@@ -205,6 +197,23 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Gets the IP end point of this server instance.
+        /// </summary>
+        /// <returns>The IP end point of this server instance.</returns>
+        public IPEndPoint GetIPEndPoint()
+        {
+            // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable
+            // the intermediate variable is important to avoid race conditions
+            var ipEndPoint = _ipEndPoint;
+            if (ipEndPoint == null)
+            {
+                ipEndPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
+                _ipEndPoint = ipEndPoint;
+            }
+            return ipEndPoint;
+        }
+
         /// <summary>
         /// Checks whether the server is alive (throws an exception if not).
         /// </summary>
@@ -307,8 +316,6 @@ namespace MongoDB.Driver
                 _connectException = null;
                 try
                 {
-                    _endPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
-
                     try
                     {
                         var connection = _connectionPool.AcquireConnection(null);
@@ -454,6 +461,38 @@ namespace MongoDB.Driver
                 _maxMessageLength = maxMessageLength;
                 _buildInfo = buildInfo;
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
+
+                // if this is the primary of a replica set check to see if any instances have been added or removed
+                if (isPrimary && _server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
+                {
+                    var instanceAddresses = new List<MongoServerAddress>();
+                    if (isMasterResult.Response.Contains("hosts"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["hosts"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    if (isMasterResult.Response.Contains("passives"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["passives"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    if (isMasterResult.Response.Contains("arbiters"))
+                    {
+                        foreach (var hostName in isMasterResult.Response["arbiters"].AsBsonArray)
+                        {
+                            var address = MongoServerAddress.Parse(hostName.AsString);
+                            instanceAddresses.Add(address);
+                        }
+                    }
+                    _server.VerifyInstances(instanceAddresses);
+                }
+
                 ok = true;
             }
             finally

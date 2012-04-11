@@ -51,6 +51,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\Release\MongoDB.Bson.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -90,6 +91,7 @@
     <Compile Include="ObjectModel\GuidConverter.cs" />
     <Compile Include="IO\JsonReaderSettings.cs" />
     <Compile Include="ObjectModel\ICustomBsonTypeMapper.cs" />
+    <Compile Include="ObjectModel\BsonTypeMapperOptions.cs" />
     <Compile Include="Serialization\Attributes\BsonDateTimeOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonDictionaryOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonExtraElementsAttribute.cs" />
@@ -99,6 +101,8 @@
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
+    <Compile Include="Serialization\Options\ArraySerializationOptions.cs" />
+    <Compile Include="Serialization\Options\BsonBaseSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
@@ -215,6 +219,7 @@
     <Compile Include="Serialization\Serializers\NetPrimitiveSerializers.cs" />
     <Compile Include="Serialization\Serializers\BsonPrimitiveSerializers.cs" />
     <Compile Include="Serialization\IBsonSerializationProvider.cs" />
+    <Compile Include="Serialization\TypeNameDiscriminator.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

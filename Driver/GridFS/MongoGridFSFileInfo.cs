@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS
@@ -233,25 +234,38 @@ namespace MongoDB.Driver.GridFS
 
         // public operators
         /// <summary>
-        /// Compares two MongoGridFSFileInfos.
+        /// Determines whether two specified MongoGridFSFileInfo objects have different values.
         /// </summary>
-        /// <param name="lhs">The first MongoGridFSFileInfo.</param>
-        /// <param name="rhs">The other MongoGridFSFileInfo.</param>
-        /// <returns>True if the two MongoGridFSFileInfos are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
         public static bool operator !=(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)
         {
-            return !(lhs == rhs);
+            return !MongoGridFSFileInfo.Equals(lhs, rhs);
         }
 
         /// <summary>
-        /// Compares two MongoGridFSFileInfos.
+        /// Determines whether two specified MongoGridFSFileInfo objects have the same value.
         /// </summary>
-        /// <param name="lhs">The first MongoGridFSFileInfo.</param>
-        /// <param name="rhs">The other MongoGridFSFileInfo.</param>
-        /// <returns>True if the two MongoGridFSFileInfos are equal (or both null).</returns>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
         public static bool operator ==(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)
         {
-            return object.Equals(lhs, rhs);
+            return MongoGridFSFileInfo.Equals(lhs, rhs);
+        }
+
+        // public static methods
+        /// <summary>
+        /// Determines whether two specified MongoGridFSFileInfo objects have the same value.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool Equals(MongoGridFSFileInfo lhs, MongoGridFSFileInfo rhs)
+        {
+            if ((object)lhs == null) { return (object)rhs == null; }
+            return lhs.Equals(rhs);
         }
 
         // public methods
@@ -334,13 +348,14 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Compares this MongoGridFSFileInfo to another MongoGridFSFileInfo.
+        /// Determines whether this instance and another specified MongoGridFSFileInfo object have the same value.
         /// </summary>
-        /// <param name="rhs">The other MongoGridFSFileInfo.</param>
-        /// <returns>True if the two MongoGridFSFileInfos are equal.</returns>
+        /// <param name="rhs">The MongoGridFSFileInfo object to compare to this instance.</param>
+        /// <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
         public bool Equals(MongoGridFSFileInfo rhs)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
+            if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
+            if ((object)this == (object)rhs) { return true; }
             return
                 (_aliases == null && rhs._aliases == null || _aliases != null && rhs._aliases != null && _aliases.SequenceEqual(rhs._aliases)) &&
                 _chunkSize == rhs._chunkSize &&
@@ -354,19 +369,19 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Compares this MongoGridFSFileInfo to another object.
+        /// Determines whether this instance and a specified object, which must also be a MongoGridFSFileInfo object, have the same value.
         /// </summary>
-        /// <param name="obj">The other object.</param>
-        /// <returns>True if the other object is a MongoGridFSFileInfo and equal to this one.</returns>
+        /// <param name="obj">The MongoGridFSFileInfo object to compare to this instance.</param>
+        /// <returns>True if obj is a MongoGridFSFileInfo object and its value is the same as this instance; otherwise, false.</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as MongoGridFSFileInfo); // works even if obj is null or of a different type
         }
 
         /// <summary>
-        /// Gets the hash code.
+        /// Returns the hash code for this MongoGridFSFileInfo object.
         /// </summary>
-        /// <returns>The hash code.</returns>
+        /// <returns>A 32-bit signed integer hash code.</returns>
         public override int GetHashCode()
         {
             // see Effective Java by Joshua Bloch
@@ -516,7 +531,7 @@ namespace MongoDB.Driver.GridFS
                 _id = fileInfo["_id"];
                 _length = fileInfo["length"].ToInt64();
                 var md5Value = fileInfo["md5", null];
-                if (md5Value != null && !md5Value.IsBsonNull)
+                if (md5Value != null && md5Value.IsString)
                 {
                     _md5 = md5Value.AsString;
                 }
@@ -571,7 +586,7 @@ namespace MongoDB.Driver.GridFS
         }
 
         // nested classes
-        internal class SerializationOptions : IBsonSerializationOptions
+        internal class SerializationOptions : BsonBaseSerializationOptions
         {
             internal MongoGridFS GridFS;
         }

@@ -678,4 +678,77 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
             return sb.ToString();
         }
     }
+
+    [TestFixture]
+    public class EnumDictionaryTests
+    {
+        private enum E
+        {
+            None,
+            A,
+            B
+        }
+
+        private class C
+        {
+            [BsonRepresentation(BsonType.String)]
+            public Hashtable Hashtable;
+        }
+
+        [Test]
+        public void TestSerializeNull()
+        {
+            C c = new C { Hashtable = null };
+            var json = c.ToJson();
+            var expected = ("{ 'Hashtable' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEmpty()
+        {
+            C c = new C { Hashtable = new Hashtable() };
+            var json = c.ToJson();
+            var expected = ("{ 'Hashtable' : { } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize1()
+        {
+            C c = new C { Hashtable = new Hashtable { { "a", E.A } } };
+            var json = c.ToJson();
+            var expected = ("{ 'Hashtable' : { \"a\" : \"A\" } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize2()
+        {
+            C c = new C { Hashtable = new Hashtable { { "a", E.A }, { "b", E.B } } };
+            var json = c.ToJson();
+            var expected1 = ("{ 'Hashtable' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
+            var expected2 = ("{ 'Hashtable' : { \"b\" : \"B\", \"a\" : \"A\" } }").Replace("'", "\"");
+            if (json != expected1 && json != expected2)
+            {
+                Assert.AreEqual(expected1, json);
+            }
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
 }

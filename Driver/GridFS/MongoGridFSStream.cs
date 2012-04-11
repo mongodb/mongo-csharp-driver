@@ -43,7 +43,8 @@ namespace MongoDB.Driver.GridFS
         private int _chunkIndex = -1; // -1 means no chunk is loaded
         private BsonValue _chunkId;
         private bool _chunkIsDirty;
-        private bool _updateMD5 = true;
+        private bool _fileIsDirty;
+        private bool _updateMD5; // will eventually be removed, for now initialize from settings
 
         // constructors
         /// <summary>
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.GridFS
             _fileInfo = fileInfo;
             _mode = mode;
             _access = access;
+            _updateMD5 = _gridFS.Settings.UpdateMD5;
 
             var exists = fileInfo.Exists;
             string message;
@@ -217,6 +219,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets or sets whether to compute and update the MD5 hash for the file when the stream is closed.
         /// </summary>
+        [Obsolete("Use UpdateMD5 on MongoGridFSSettings instead.")]
         public bool UpdateMD5
         {
             get { return _updateMD5; }
@@ -323,6 +326,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     _position = _length;
                 }
+                _fileIsDirty = true;
 
                 var lastChunkIndex = (int)((_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize) - 1;
                 if (_chunkIndex == lastChunkIndex)
@@ -368,6 +372,7 @@ namespace MongoDB.Driver.GridFS
                 if (partialCount > count) { partialCount = count; }
                 Buffer.BlockCopy(buffer, offset, _chunk, chunkOffset, partialCount);
                 _chunkIsDirty = true;
+                _fileIsDirty = true;
 
                 _position += partialCount;
                 if (_length < _position)
@@ -401,6 +406,7 @@ namespace MongoDB.Driver.GridFS
             }
             _chunk[chunkOffset] = value;
             _chunkIsDirty = true;
+            _fileIsDirty = true;
             _position += 1;
             if (_length < _position)
             {
@@ -421,9 +427,12 @@ namespace MongoDB.Driver.GridFS
                 {
                     if (disposing)
                     {
-                        Flush();
-                        AddMissingChunks(); // also removes extra chunks
-                        UpdateMetadata();
+                        if (_fileIsDirty)
+                        {
+                            Flush();
+                            AddMissingChunks(); // also removes extra chunks
+                            UpdateMetadata();
+                        }
                     }
                     _disposed = true;
                 }
@@ -551,6 +560,7 @@ namespace MongoDB.Driver.GridFS
 
         private void OpenCreate()
         {
+            _fileIsDirty = true;
             if (_fileInfo.Id == null)
             {
                 _fileInfo.SetId(ObjectId.GenerateNewId());
@@ -581,6 +591,7 @@ namespace MongoDB.Driver.GridFS
 
         private void OpenTruncate()
         {
+            _fileIsDirty = true;
             // existing chunks will be overwritten as needed and extra chunks will be removed on Close
             _length = 0;
             _position = 0;

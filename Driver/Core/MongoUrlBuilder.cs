@@ -707,7 +707,7 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("socketTimeout={0};", FormatTimeSpan(_socketTimeout));
             }
-            if (_waitQueueMultiple != 00 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
+            if (_waitQueueMultiple != 0.0 && _waitQueueMultiple != MongoDefaults.WaitQueueMultiple)
             {
                 query.AppendFormat("waitQueueMultiple={0};", _waitQueueMultiple);
             }

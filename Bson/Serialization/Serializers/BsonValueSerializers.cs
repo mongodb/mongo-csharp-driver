@@ -40,6 +40,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonArraySerializer class.
         /// </summary>
         public BsonArraySerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Array))
         {
         }
 
@@ -119,6 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonBinaryDataSerializer class.
         /// </summary>
         public BsonBinaryDataSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Binary))
         {
         }
 
@@ -189,6 +191,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var bytes = binaryData.Bytes;
                 var subType = binaryData.SubType;
                 var guidRepresentation = binaryData.GuidRepresentation;
+
                 if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                 {
                     var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
@@ -210,6 +213,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                     }
                 }
+
                 bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
             }
         }
@@ -228,6 +232,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonBooleanSerializer class.
         /// </summary>
         public BsonBooleanSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Boolean))
         {
         }
 
@@ -307,6 +312,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDateTimeSerializer class.
         /// </summary>
         public BsonDateTimeSerializer()
+            : base(DateTimeSerializationOptions.Defaults)
         {
         }
 
@@ -335,6 +341,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDateTime));
+            var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -344,10 +351,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions)options;
                 long? millisecondsSinceEpoch = null;
                 long? ticks = null;
-
                 switch (bsonType)
                 {
                     case BsonType.DateTime:
@@ -370,7 +375,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case BsonType.String:
                         // note: we're not using XmlConvert because of bugs in Mono
                         DateTime dateTime;
-                        if (dateTimeOptions.DateOnly)
+                        if (dateTimeSerializationOptions.DateOnly)
                         {
                             dateTime = DateTime.SpecifyKind(DateTime.ParseExact(bsonReader.ReadString(), "yyyy-MM-dd", null), DateTimeKind.Utc);
                         }
@@ -396,25 +401,25 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonDateTime = BsonDateTime.Create(millisecondsSinceEpoch.Value);
                 }
 
-                if (dateTimeOptions.DateOnly)
+                if (dateTimeSerializationOptions.DateOnly)
                 {
                     var dateTime = bsonDateTime.Value;
                     if (dateTime.TimeOfDay != TimeSpan.Zero)
                     {
                         throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero.");
                     }
-                    bsonDateTime = BsonDateTime.Create(DateTime.SpecifyKind(dateTime, dateTimeOptions.Kind)); // not ToLocalTime or ToUniversalTime!
+                    bsonDateTime = BsonDateTime.Create(DateTime.SpecifyKind(dateTime, dateTimeSerializationOptions.Kind)); // not ToLocalTime or ToUniversalTime!
                 }
                 else
                 {
                     if (bsonDateTime.IsValidDateTime)
                     {
                         var dateTime = bsonDateTime.Value;
-                        switch (dateTimeOptions.Kind)
+                        switch (dateTimeSerializationOptions.Kind)
                         {
                             case DateTimeKind.Local:
                             case DateTimeKind.Unspecified:
-                                dateTime = DateTime.SpecifyKind(BsonUtils.ToLocalTime(dateTime), dateTimeOptions.Kind);
+                                dateTime = DateTime.SpecifyKind(BsonUtils.ToLocalTime(dateTime), dateTimeSerializationOptions.Kind);
                                 break;
                             case DateTimeKind.Utc:
                                 dateTime = BsonUtils.ToUniversalTime(dateTime);
@@ -424,7 +429,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     else
                     {
-                        if (dateTimeOptions.Kind != DateTimeKind.Utc)
+                        if (dateTimeSerializationOptions.Kind != DateTimeKind.Utc)
                         {
                             throw new FileFormatException("BsonDateTime is outside the range of .NET DateTime.");
                         }
@@ -455,11 +460,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var bsonDateTime = (BsonDateTime)value;
-                var dateTimeOptions = (options == null) ? DateTimeSerializationOptions.Defaults : (DateTimeSerializationOptions)options;
+                var dateTimeSerializationOptions = EnsureSerializationOptions<DateTimeSerializationOptions>(options);
 
                 DateTime utcDateTime = DateTime.MinValue;
                 long millisecondsSinceEpoch;
-                if (dateTimeOptions.DateOnly)
+                if (dateTimeSerializationOptions.DateOnly)
                 {
                     if (bsonDateTime.Value.TimeOfDay != TimeSpan.Zero)
                     {
@@ -477,7 +482,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     millisecondsSinceEpoch = bsonDateTime.MillisecondsSinceEpoch;
                 }
 
-                switch (dateTimeOptions.Representation)
+                switch (dateTimeSerializationOptions.Representation)
                 {
                     case BsonType.DateTime:
                         bsonWriter.WriteDateTime(millisecondsSinceEpoch);
@@ -506,7 +511,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                         break;
                     case BsonType.String:
-                        if (dateTimeOptions.DateOnly)
+                        if (dateTimeSerializationOptions.DateOnly)
                         {
                             bsonWriter.WriteString(bsonDateTime.Value.ToString("yyyy-MM-dd"));
                         }
@@ -528,7 +533,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         }
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid representation for type DateTime.", dateTimeOptions.Representation);
+                        var message = string.Format("'{0}' is not a valid DateTime representation.", dateTimeSerializationOptions.Representation);
                         throw new BsonSerializationException(message);
                 }
             }
@@ -548,6 +553,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDocumentSerializer class.
         /// </summary>
         public BsonDocumentSerializer()
+            : base(new DocumentSerializationOptions())
         {
         }
 
@@ -715,6 +721,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDoubleSerializer class.
         /// </summary>
         public BsonDoubleSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Double))
         {
         }
 
@@ -794,6 +801,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonInt32Serializer class.
         /// </summary>
         public BsonInt32Serializer()
+            : base(new RepresentationSerializationOptions(BsonType.Int32))
         {
         }
 
@@ -873,6 +881,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonInt64Serializer class.
         /// </summary>
         public BsonInt64Serializer()
+            : base(new RepresentationSerializationOptions(BsonType.Int64))
         {
         }
 
@@ -1357,6 +1366,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonObjectIdSerializer class.
         /// </summary>
         public BsonObjectIdSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.ObjectId))
         {
         }
 
@@ -1436,6 +1446,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonRegularExpressionSerializer class.
         /// </summary>
         public BsonRegularExpressionSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.RegularExpression))
         {
         }
 
@@ -1517,6 +1528,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonStringSerializer class.
         /// </summary>
         public BsonStringSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.String))
         {
         }
 
@@ -1596,6 +1608,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonSymbolSerializer class.
         /// </summary>
         public BsonSymbolSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Symbol))
         {
         }
 
@@ -1661,8 +1674,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var symbol = (BsonSymbol)value;
-                var representation = (options == null) ? BsonType.Symbol : ((RepresentationSerializationOptions)options).Representation;
-                switch (representation)
+                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
+
+                switch (representationSerializationOptions.Representation)
                 {
                     case BsonType.String:
                         bsonWriter.WriteString(symbol.Name);
@@ -1671,7 +1685,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonWriter.WriteSymbol(symbol.Name);
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid BsonSymbol value.", representation);
+                        var message = string.Format("'{0}' is not a valid BsonSymbol representation.", representationSerializationOptions.Representation);
                         throw new BsonSerializationException(message);
                 }
             }
@@ -1691,6 +1705,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonTimestampSerializer class.
         /// </summary>
         public BsonTimestampSerializer()
+            : base(new RepresentationSerializationOptions(BsonType.Timestamp))
         {
         }
 

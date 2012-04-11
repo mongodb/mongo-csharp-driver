@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Indicates whether a field or property equal to null should be ignored when serializing this class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIgnoreIfNullAttribute : Attribute
+    public class BsonIgnoreIfNullAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
         private bool _value;

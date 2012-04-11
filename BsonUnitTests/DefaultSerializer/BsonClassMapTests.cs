@@ -56,7 +56,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestMappingPicksUpAllMembersWithAttributes()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(A));
-            Assert.AreEqual(6, classMap.MemberMaps.Count());
+            Assert.AreEqual(6, classMap.AllMemberMaps.Count());
         }
     }
 
@@ -234,8 +234,8 @@ namespace MongoDB.BsonUnitTests.Serialization
             });
             classMap.Freeze();
             Assert.IsNull(classMap.IdMemberMap);
-            Assert.AreEqual(1, classMap.MemberMaps.Count());
-            var memberMap = classMap.MemberMaps.Single();
+            Assert.AreEqual(1, classMap.AllMemberMaps.Count());
+            var memberMap = classMap.AllMemberMaps.Single();
             Assert.AreEqual("X", memberMap.MemberName);
         }
     }

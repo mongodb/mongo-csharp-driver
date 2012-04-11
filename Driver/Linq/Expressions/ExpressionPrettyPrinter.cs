@@ -20,7 +20,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Returns the pretty printed string representation of the Expression.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The pretty printed string representation of the Expression.</returns>
         public override string ToString()
         {
             return _sb.ToString();
@@ -260,6 +259,15 @@ namespace MongoDB.Driver.Linq
             using (new Indentation(this))
             {
                 WriteLine("Method={0}", node.Method.Name);
+                if (node.Object == null)
+                {
+                    WriteLine("Object=null");
+                }
+                else
+                {
+                    WriteLine("Object:");
+                    VisitIndented(node.Object);
+                }
                 WriteLine("Arguments:");
                 using (new Indentation(this))
                 {

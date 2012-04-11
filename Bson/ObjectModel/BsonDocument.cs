@@ -163,10 +163,6 @@ namespace MongoDB.Bson
         public BsonDocument(string name, BsonValue value)
             : base(BsonType.Document)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
             Add(name, value);
         }
 
@@ -513,7 +509,10 @@ namespace MongoDB.Bson
         {
             if (dictionary != null)
             {
-                Add(dictionary, dictionary.Keys);
+                foreach (var entry in dictionary)
+                {
+                    Add(entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
+                }
             }
             return this;
         }
@@ -526,11 +525,15 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
         {
+            if (keys == null)
+            {
+                throw new ArgumentNullException("keys");
+            }
             if (dictionary != null)
             {
                 foreach (var key in keys)
                 {
-                    Add(key, BsonValue.Create(dictionary[key]));
+                    Add(key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
                 }
             }
             return this;
@@ -545,7 +548,14 @@ namespace MongoDB.Bson
         {
             if (dictionary != null)
             {
-                Add(dictionary, dictionary.Keys);
+                foreach (DictionaryEntry entry in dictionary)
+                {
+                    if (entry.Key.GetType() != typeof(string))
+                    {
+                        throw new ArgumentOutOfRangeException("One or more keys in the dictionary passed to BsonDocument.Add is not a string.");
+                    }
+                    Add((string)entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
+                }
             }
             return this;
         }
@@ -558,11 +568,19 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public BsonDocument Add(IDictionary dictionary, IEnumerable keys)
         {
+            if (keys == null)
+            {
+                throw new ArgumentNullException("keys");
+            }
             if (dictionary != null)
             {
-                foreach (string key in keys)
+                foreach (var key in keys)
                 {
-                    Add(key, BsonValue.Create(dictionary[key]));
+                    if (key.GetType() != typeof(string))
+                    {
+                        throw new ArgumentOutOfRangeException("A key passed to BsonDocument.Add is not a string.");
+                    }
+                    Add((string)key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
                 }
             }
             return this;
@@ -627,9 +645,9 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            if (condition)
+            if (value != null && condition)
             {
-                Add(name, value);
+                Add(new BsonElement(name, value));
             }
             return this;
         }
@@ -708,6 +726,10 @@ namespace MongoDB.Bson
         /// <returns>True if the document contains an element with the specified value.</returns>
         public bool ContainsValue(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _elements.Any(e => e.Value == value);
         }
 
@@ -741,11 +763,16 @@ namespace MongoDB.Bson
             }
             else
             {
-                var documentSerializationOptions = options as DocumentSerializationOptions;
-                if (documentSerializationOptions != null)
+                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                if (documentSerializationOptions == null)
                 {
-                    _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
+                    var message = string.Format(
+                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                        BsonUtils.GetFriendlyTypeName(options.GetType()));
+                    throw new BsonSerializationException(message);
                 }
+                _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
                 
                 bsonReader.ReadStartDocument();
                 Clear();
@@ -771,18 +798,22 @@ namespace MongoDB.Bson
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
             {
-                id = idElement.Value.RawValue;
-                if (id == null)
-                {
-                    id = idElement.Value;
-                }
-
+                id = idElement.Value;
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
+
+                if (idGenerator == null)
+                {
+                    var idBinaryData = id as BsonBinaryData;
+                    if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
+                    {
+                        idGenerator = BsonBinaryDataGuidGenerator.GetInstance(idBinaryData.GuidRepresentation);
+                    }
+                }
             }
             else
             {
                 id = null;
-                idGenerator = ObjectIdGenerator.Instance;
+                idGenerator = BsonObjectIdGenerator.Instance;
             }
 
             idNominalType = typeof(BsonValue);
@@ -914,18 +945,19 @@ namespace MongoDB.Bson
         /// <param name="element">The element.</param>
         public void InsertAt(int index, BsonElement element)
         {
-            if (element != null)
+            if (element == null)
             {
-                if (_indexes.ContainsKey(element.Name) && !_allowDuplicateNames)
-                {
-                    var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
-                    throw new InvalidOperationException(message);
-                }
-                else
-                {
-                    _elements.Insert(index, element);
-                    RebuildDictionary();
-                }
+                throw new ArgumentNullException("element");
+            }
+            if (_indexes.ContainsKey(element.Name) && !_allowDuplicateNames)
+            {
+                var message = string.Format("Duplicate element name '{0}' not allowed.", element.Name);
+                throw new InvalidOperationException(message);
+            }
+            else
+            {
+                _elements.Insert(index, element);
+                RebuildDictionary();
             }
         }
 
@@ -995,6 +1027,10 @@ namespace MongoDB.Bson
         /// <param name="element">The element to remove.</param>
         public void RemoveElement(BsonElement element)
         {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
             _elements.Remove(element);
             RebuildDictionary();
         }
@@ -1007,11 +1043,27 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options (can be null).</param>
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            bsonWriter.WriteStartDocument();
+            if (bsonWriter == null)
+            {
+                throw new ArgumentNullException("bsonWriter");
+            }
+            if (nominalType == null)
+            {
+                throw new ArgumentNullException("nominalType");
+            }
+            var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+            if (documentSerializationOptions == null)
+            {
+                var message = string.Format(
+                    "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                    BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                    BsonUtils.GetFriendlyTypeName(options.GetType()));
+                throw new BsonSerializationException(message);
+            }
 
-            var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
+            bsonWriter.WriteStartDocument();
             int idIndex;
-            if (documentOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
+            if (documentSerializationOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
             {
                 _elements[idIndex].WriteTo(bsonWriter);
             }
@@ -1074,15 +1126,20 @@ namespace MongoDB.Bson
         /// <param name="id">The value of the Id.</param>
         public void SetDocumentId(object id)
         {
+            if (id == null)
+            {
+                throw new ArgumentNullException("id");
+            }
+            var idBsonValue = (BsonValue)id;
+
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
             {
-                idElement.Value = BsonValue.Create(id);
+                idElement.Value = idBsonValue;
             }
             else
             {
-                idElement = new BsonElement("_id", BsonValue.Create(id));
-                InsertAt(0, idElement);
+                InsertAt(0, new BsonElement("_id", idBsonValue));
             }
         }
 
@@ -1094,6 +1151,10 @@ namespace MongoDB.Bson
         /// <returns>The document.</returns>
         public BsonDocument SetElement(int index, BsonElement element)
         {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
             _elements[index] = element;
             RebuildDictionary();
             return this;
@@ -1106,6 +1167,10 @@ namespace MongoDB.Bson
         /// <returns>The document.</returns>
         public BsonDocument SetElement(BsonElement element)
         {
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
             int index;
             if (_indexes.TryGetValue(element.Name, out index))
             {
@@ -1124,12 +1189,14 @@ namespace MongoDB.Bson
         /// <returns>A dictionary.</returns>
         public Dictionary<string, object> ToDictionary()
         {
-            var dictionary = new Dictionary<string, object>(_elements.Count);
-            foreach (var element in _elements)
+            var options = new BsonTypeMapperOptions
             {
-                dictionary.Add(element.Name, ToDictionaryHelper(element.Value));
-            }
-            return dictionary;
+                DuplicateNameHandling = DuplicateNameHandling.ThrowException,
+                MapBsonArrayTo = typeof(object[]), // TODO: should this be List<object>?
+                MapBsonDocumentTo = typeof(Dictionary<string, object>),
+                MapOldBinaryToByteArray = false
+            };
+            return (Dictionary<string, object>)BsonTypeMapper.MapToDotNetValue(this, options);
         }
 
         /// <summary>
@@ -1138,12 +1205,14 @@ namespace MongoDB.Bson
         /// <returns>A hashtable.</returns>
         public Hashtable ToHashtable()
         {
-            var hashtable = new Hashtable(_elements.Count);
-            foreach (var element in _elements)
+            var options = new BsonTypeMapperOptions
             {
-                hashtable.Add(element.Name, ToHashtableHelper(element.Value));
-            }
-            return hashtable;
+                DuplicateNameHandling = DuplicateNameHandling.ThrowException,
+                MapBsonArrayTo = typeof(object[]), // TODO: should this be ArrayList?
+                MapBsonDocumentTo = typeof(Hashtable),
+                MapOldBinaryToByteArray = false
+            };
+            return (Hashtable)BsonTypeMapper.MapToDotNetValue(this, options);
         }
 
         /// <summary>
@@ -1163,8 +1232,12 @@ namespace MongoDB.Bson
         /// <returns>True if an element with that name was found.</returns>
         public bool TryGetElement(string name, out BsonElement value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             int index;
-            if (name != null && _indexes.TryGetValue(name, out index))
+            if (_indexes.TryGetValue(name, out index))
             {
                 value = _elements[index];
                 return true;
@@ -1184,8 +1257,12 @@ namespace MongoDB.Bson
         /// <returns>True if an element with that name was found.</returns>
         public bool TryGetValue(string name, out BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
             int index;
-            if (name != null && _indexes.TryGetValue(name, out index))
+            if (_indexes.TryGetValue(name, out index))
             {
                 value = _elements[index].Value;
                 return true;
@@ -1253,46 +1330,6 @@ namespace MongoDB.Bson
                 {
                     _indexes.Add(element.Name, index);
                 }
-            }
-        }
-
-        private object ToDictionaryHelper(BsonValue value)
-        {
-            switch (value.BsonType)
-            {
-                case BsonType.Array:
-                    var array = new object[value.AsBsonArray.Count];
-                    value.AsBsonArray.CopyTo(array, 0);
-                    return array;
-
-                case BsonType.Document:
-                    return value.AsBsonDocument.ToDictionary();
-
-                case BsonType.DateTime:
-                    return value.AsDateTime;
-
-                default:
-                    return value.RawValue;
-            }
-        }
-
-        private object ToHashtableHelper(BsonValue value)
-        {
-            switch (value.BsonType)
-            {
-                case BsonType.Array:
-                    var array = new object[value.AsBsonArray.Count];
-                    value.AsBsonArray.CopyTo(array, 0);
-                    return array;
-
-                case BsonType.Document:
-                    return value.AsBsonDocument.ToHashtable();
-
-                case BsonType.DateTime:
-                    return value.AsDateTime;
-
-                default:
-                    return value.RawValue;
             }
         }
 

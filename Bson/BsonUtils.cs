@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -32,6 +33,28 @@ namespace MongoDB.Bson
     {
 
         // public static methods
+        /// <summary>
+        /// Gets a friendly class name suitable for use in error messages.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>A friendly class name.</returns>
+        public static string GetFriendlyTypeName(Type type)
+        {
+            if (!type.IsGenericType)
+            {
+                return type.Name;
+            }
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("{0}<", Regex.Replace(type.Name, @"\`\d+$", ""));
+            foreach (var typeParameter in type.GetGenericArguments())
+            {
+                sb.AppendFormat("{0}, ", GetFriendlyTypeName(typeParameter));
+            }
+            sb.Remove(sb.Length - 2, 2);
+            sb.Append(">");
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Parses a hex string into its equivalent byte array.

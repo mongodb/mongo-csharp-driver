@@ -79,7 +79,8 @@ namespace MongoDB.Driver.Internal
                         }
                         break;
                     case ConnectWaitFor.AnySlaveOk:
-                        if (_server.Instances.Any(i => (i.IsPrimary || i.IsSecondary || i.IsPassive) && i.State == MongoServerState.Connected))
+                        // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
+                        if (_server.Instances.Any(i => (i.IsPrimary || i.IsSecondary) && i.State == MongoServerState.Connected))
                         {
                             exitEarly = true;
                         }

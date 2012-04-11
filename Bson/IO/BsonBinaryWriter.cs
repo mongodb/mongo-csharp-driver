@@ -254,6 +254,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidContextType("WriteEndArray", _context.ContextType, ContextType.Array);
             }
 
+            base.WriteEndArray();
             _buffer.WriteByte(0);
             BackpatchSize(); // size of document
 
@@ -276,6 +277,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidContextType("WriteEndDocument", _context.ContextType, ContextType.Document, ContextType.ScopeDocument);
             }
 
+            base.WriteEndDocument();
             _buffer.WriteByte(0);
             BackpatchSize(); // size of document
 
@@ -478,6 +480,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartArray", BsonWriterState.Value);
             }
 
+            base.WriteStartArray();
             _buffer.WriteByte((byte)BsonType.Array);
             WriteNameHelper();
             _context = new BsonBinaryWriterContext(_context, ContextType.Array, _buffer.Position);
@@ -497,6 +500,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteStartDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
             }
 
+            base.WriteStartDocument();
             if (State == BsonWriterState.Value)
             {
                 _buffer.WriteByte((byte)BsonType.Document);

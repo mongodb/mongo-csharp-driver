@@ -37,6 +37,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the DictionarySerializer class.
         /// </summary>
         public DictionarySerializer()
+            : base(DictionarySerializationOptions.Defaults)
         {
         }
 
@@ -166,6 +167,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
+        /// Gets the serialization info for individual items of an enumerable type.
+        /// </summary>
+        /// <returns>The serialization info for the items.</returns>
+        public override BsonSerializationInfo GetItemSerializationInfo()
+        {
+            string elementName = null;
+            var serializer = BsonSerializer.LookupSerializer(typeof(TValue));
+            var nominalType = typeof(TValue);
+            IBsonSerializationOptions serializationOptions = null;
+            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+        }
+
+        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -184,47 +198,40 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var dictionary = (IDictionary<TKey, TValue>)value;
-
                 if (nominalType == typeof(object))
                 {
                     var actualType = value.GetType();
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", BsonClassMap.GetTypeNameDiscriminator(actualType));
+                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
                     bsonWriter.WriteName("_v");
                     Serialize(bsonWriter, actualType, value, options); // recursive call replacing nominalType with actualType
                     bsonWriter.WriteEndDocument();
                     return;
                 }
 
-                var dictionaryOptions = options as DictionarySerializationOptions;
-                if (dictionaryOptions == null)
+                // support RepresentationSerializationOptions for backward compatibility
+                var representationSerializationOptions = options as RepresentationSerializationOptions;
+                if (representationSerializationOptions != null)
                 {
-                    // support RepresentationSerializationOptions for backward compatibility
-                    var representationOptions = options as RepresentationSerializationOptions;
-                    if (representationOptions != null)
+                    switch (representationSerializationOptions.Representation)
                     {
-                        switch (representationOptions.Representation)
-                        {
-                            case BsonType.Array:
-                                dictionaryOptions = DictionarySerializationOptions.ArrayOfArrays;
-                                break;
-                            case BsonType.Document:
-                                dictionaryOptions = DictionarySerializationOptions.Document;
-                                break;
-                            default:
-                                var message = string.Format("BsonType {0} is not a valid representation for a Dictionary.", representationOptions.Representation);
-                                throw new BsonSerializationException(message);
-                        }
-                    }
-
-                    if (dictionaryOptions == null)
-                    {
-                        dictionaryOptions = DictionarySerializationOptions.Defaults;
+                        case BsonType.Array:
+                            options = DictionarySerializationOptions.ArrayOfArrays;
+                            break;
+                        case BsonType.Document:
+                            options = DictionarySerializationOptions.Document;
+                            break;
+                        default:
+                            var message = string.Format("BsonType {0} is not a valid representation for a Dictionary.", representationSerializationOptions.Representation);
+                            throw new BsonSerializationException(message);
                     }
                 }
 
-                var representation = dictionaryOptions.Representation;
+                var dictionary = (IDictionary<TKey, TValue>)value;
+                var dictionarySerializationOptions = EnsureSerializationOptions<DictionarySerializationOptions>(options);
+                var representation = dictionarySerializationOptions.Representation;
+                var itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
+
                 if (representation == DictionaryRepresentation.Dynamic)
                 {
                     if (typeof(TKey) == typeof(string) || typeof(TKey) == typeof(object))
@@ -253,7 +260,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         foreach (KeyValuePair<TKey, TValue> entry in dictionary)
                         {
                             bsonWriter.WriteName((string)(object)entry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value, itemSerializationOptions);
                         }
                         bsonWriter.WriteEndDocument();
                         break;
@@ -263,7 +270,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             bsonWriter.WriteStartArray();
                             BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value, itemSerializationOptions);
                             bsonWriter.WriteEndArray();
                         }
                         bsonWriter.WriteEndArray();
@@ -276,15 +283,16 @@ namespace MongoDB.Bson.Serialization.Serializers
                             bsonWriter.WriteName("k");
                             BsonSerializer.Serialize(bsonWriter, typeof(TKey), entry.Key);
                             bsonWriter.WriteName("v");
-                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value);
+                            BsonSerializer.Serialize(bsonWriter, typeof(TValue), entry.Value, itemSerializationOptions);
                             bsonWriter.WriteEndDocument();
                         }
                         bsonWriter.WriteEndArray();
                         break;
                     default:
                         var message = string.Format(
-                            "'{0}' is not a valid representation for type IDictionary<{1}, {2}>.",
-                            representation, typeof(TKey).Name, typeof(TValue).Name);
+                            "'{0}' is not a valid {1} representation.",
+                            representation,
+                            BsonUtils.GetFriendlyTypeName(typeof(IDictionary<TKey, TValue>)));
                         throw new BsonSerializationException(message);
                 }
             }

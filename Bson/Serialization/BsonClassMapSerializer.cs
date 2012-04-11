@@ -39,6 +39,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Initializes a new instance of the BsonClassMapSerializer class.
         /// </summary>
+        /// <param name="classMap">The class map.</param>
         public BsonClassMapSerializer(BsonClassMap classMap)
         {
             _classMap = classMap;
@@ -129,7 +130,7 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 bsonReader.ReadStartDocument();
-                var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.MemberMaps); // make a copy!
+                var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.AllMemberMaps); // make a copy!
                 var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
@@ -192,6 +193,15 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Get the default serialization options for this serializer.
+        /// </summary>
+        /// <returns>The default serialization options for this serializer.</returns>
+        public IBsonSerializationOptions GetDefaultSerializationOptions()
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Gets the document Id.
         /// </summary>
         /// <param name="document">The document.</param>
@@ -239,12 +249,23 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serialization info for the member.</returns>
         public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
-            var memberMap = _classMap.GetMemberMap(memberName);
-            var elementName = memberMap.ElementName;
-            var serializer = memberMap.GetSerializer(memberMap.MemberType);
-            var nominalType = memberMap.MemberType;
-            var serializationOptions = memberMap.SerializationOptions;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            foreach (var memberMap in _classMap.AllMemberMaps)
+            {
+                if (memberMap.MemberName == memberName)
+                {
+                    var elementName = memberMap.ElementName;
+                    var serializer = memberMap.GetSerializer(memberMap.MemberType);
+                    var nominalType = memberMap.MemberType;
+                    var serializationOptions = memberMap.SerializationOptions;
+                    return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+                }
+            }
+
+            var message = string.Format(
+                "Class {0} does not have a member called {1}.",
+                BsonUtils.GetFriendlyTypeName(_classMap.ClassType),
+                memberName);
+            throw new ArgumentOutOfRangeException("memberName", message);
         }
 
         /// <summary>
@@ -278,10 +299,19 @@ namespace MongoDB.Bson.Serialization
                 var actualType = (value == null) ? nominalType : value.GetType();
                 var classMap = BsonClassMap.LookupClassMap(actualType);
 
+                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                if (documentSerializationOptions == null)
+                {
+                    var message = string.Format(
+                        "Serializer BsonClassMapSerializer expected serialization options of type {0}, not {1}.",
+                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                        BsonUtils.GetFriendlyTypeName(options.GetType()));
+                    throw new BsonSerializationException(message);
+                }
+
                 bsonWriter.WriteStartDocument();
-                var documentOptions = (options == null) ? DocumentSerializationOptions.Defaults : (DocumentSerializationOptions)options;
                 BsonMemberMap idMemberMap = null;
-                if (documentOptions.SerializeIdFirst)
+                if (documentSerializationOptions.SerializeIdFirst)
                 {
                     idMemberMap = classMap.IdMemberMap;
                     if (idMemberMap != null)
@@ -305,7 +335,7 @@ namespace MongoDB.Bson.Serialization
                     }
                 }
 
-                foreach (var memberMap in classMap.MemberMaps)
+                foreach (var memberMap in classMap.AllMemberMaps)
                 {
                     // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
                     if (memberMap != idMemberMap)
@@ -358,14 +388,35 @@ namespace MongoDB.Bson.Serialization
             string elementName,
             BsonMemberMap extraElementsMemberMap)
         {
-            var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
-            if (extraElements == null)
+            if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
             {
-                extraElements = new BsonDocument();
-                extraElementsMemberMap.Setter(obj, extraElements);
+                var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
+                if (extraElements == null)
+                {
+                    extraElements = new BsonDocument();
+                    extraElementsMemberMap.Setter(obj, extraElements);
+                }
+                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                extraElements[elementName] = bsonValue;
             }
-            var value = BsonValue.ReadFrom(bsonReader);
-            extraElements[elementName] = value;
+            else
+            {
+                var extraElements = (IDictionary<string, object>)extraElementsMemberMap.Getter(obj);
+                if (extraElements == null)
+                {
+                    if (extraElementsMemberMap.MemberType == typeof(IDictionary<string, object>))
+                    {
+                        extraElements = new Dictionary<string, object>();
+                    }
+                    else
+                    {
+                        extraElements = (IDictionary<string, object>)Activator.CreateInstance(extraElementsMemberMap.MemberType);
+                    }
+                    extraElementsMemberMap.Setter(obj, extraElements);
+                }
+                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
+            }
         }
 
         private void DeserializeMember(BsonReader bsonReader, object obj, BsonMemberMap memberMap)
@@ -398,12 +449,34 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeExtraElements(BsonWriter bsonWriter, object obj, BsonMemberMap extraElementsMemberMap)
         {
-            var extraElements = (BsonDocument)extraElementsMemberMap.Getter(obj);
+            var extraElements = extraElementsMemberMap.Getter(obj);
             if (extraElements != null)
             {
-                foreach (var element in extraElements)
+                if (extraElementsMemberMap.MemberType == typeof(BsonDocument))
                 {
-                    element.WriteTo(bsonWriter);
+                    var bsonDocument = (BsonDocument)extraElements;
+                    foreach (var element in bsonDocument)
+                    {
+                        element.WriteTo(bsonWriter);
+                    }
+                }
+                else
+                {
+                    var dictionary = (IDictionary<string, object>)extraElements;
+                    foreach (var key in dictionary.Keys)
+                    {
+                        bsonWriter.WriteName(key);
+                        var value = dictionary[key];
+                        if (value == null)
+                        {
+                            bsonWriter.WriteNull();
+                        }
+                        else
+                        {
+                            var bsonValue = BsonTypeMapper.MapToBsonValue(dictionary[key]);
+                            bsonValue.WriteTo(bsonWriter);
+                        }
+                    }
                 }
             }
         }

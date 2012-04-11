@@ -122,29 +122,94 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEquals()
         {
-            var a = new SafeMode(false);
-            var b = new SafeMode(false);
-            var c = new SafeMode(true);
-            var n = (SafeMode)null;
+            var a1 = new SafeMode(false);
+            var a2 = new SafeMode(true) { Enabled = false };
+            var a3 = a2;
+            var b = new SafeMode(false) { Enabled = true };
+            var c = new SafeMode(false) { FSync = true };
+            var d = new SafeMode(false) { J = true };
+            var e = new SafeMode(false) { W = 2 };
+            var f = new SafeMode(false) { WMode = "mode" };
+            var g = new SafeMode(false) { WTimeout = TimeSpan.FromMinutes(1) };
+            var null1 = (SafeMode)null;
+            var null2 = (SafeMode)null;
 
-            Assert.IsTrue(object.Equals(a, b));
-            Assert.IsFalse(object.Equals(a, c));
-            Assert.IsFalse(a.Equals(n));
-            Assert.IsFalse(a.Equals(null));
+            Assert.AreNotSame(a1, a2);
+            Assert.AreSame(a2, a3);
+            Assert.IsTrue(a1.Equals((object)a2));
+            Assert.IsFalse(a1.Equals((object)null));
+            Assert.IsFalse(a1.Equals((object)"x"));
 
-            Assert.IsTrue(a == b);
-            Assert.IsFalse(a == c);
-            Assert.IsFalse(a == null);
-            Assert.IsFalse(null == a);
-            Assert.IsTrue(n == null);
-            Assert.IsTrue(null == n);
+            Assert.IsTrue(a1 == a2);
+            Assert.IsTrue(a2 == a3);
+            Assert.IsFalse(a1 == b);
+            Assert.IsFalse(a1 == c);
+            Assert.IsFalse(a1 == d);
+            Assert.IsFalse(a1 == e);
+            Assert.IsFalse(a1 == f);
+            Assert.IsFalse(a1 == g);
+            Assert.IsFalse(a1 == null1);
+            Assert.IsFalse(null1 == a1);
+            Assert.IsTrue(null1 == null2);
 
-            Assert.IsFalse(a != b);
-            Assert.IsTrue(a != c);
-            Assert.IsTrue(a != null);
-            Assert.IsTrue(null != a);
-            Assert.IsFalse(n != null);
-            Assert.IsFalse(null != n);
+            Assert.IsFalse(a1 != a2);
+            Assert.IsFalse(a2 != a3);
+            Assert.IsTrue(a1 != b);
+            Assert.IsTrue(a1 != c);
+            Assert.IsTrue(a1 != d);
+            Assert.IsTrue(a1 != e);
+            Assert.IsTrue(a1 != f);
+            Assert.IsTrue(a1 != g);
+            Assert.IsTrue(a1 != null1);
+            Assert.IsTrue(null1 != a1);
+            Assert.IsFalse(null1 != null2);
+
+            var hash = a1.GetHashCode();
+            Assert.AreEqual(hash, a2.GetHashCode());
+
+            // check that all tests still pass after objects are Frozen
+            a1.Freeze();
+            a2.Freeze();
+            a3.Freeze();
+            b.Freeze();
+            c.Freeze();
+            d.Freeze();
+            e.Freeze();
+            f.Freeze();
+            g.Freeze();
+
+            Assert.AreNotSame(a1, a2);
+            Assert.AreSame(a2, a3);
+            Assert.IsTrue(a1.Equals((object)a2));
+            Assert.IsFalse(a1.Equals((object)null));
+            Assert.IsFalse(a1.Equals((object)"x"));
+
+            Assert.IsTrue(a1 == a2);
+            Assert.IsTrue(a2 == a3);
+            Assert.IsFalse(a1 == b);
+            Assert.IsFalse(a1 == c);
+            Assert.IsFalse(a1 == d);
+            Assert.IsFalse(a1 == e);
+            Assert.IsFalse(a1 == f);
+            Assert.IsFalse(a1 == g);
+            Assert.IsFalse(a1 == null1);
+            Assert.IsFalse(null1 == a1);
+            Assert.IsTrue(null1 == null2);
+
+            Assert.IsFalse(a1 != a2);
+            Assert.IsFalse(a2 != a3);
+            Assert.IsTrue(a1 != b);
+            Assert.IsTrue(a1 != c);
+            Assert.IsTrue(a1 != d);
+            Assert.IsTrue(a1 != e);
+            Assert.IsTrue(a1 != f);
+            Assert.IsTrue(a1 != g);
+            Assert.IsTrue(a1 != null1);
+            Assert.IsTrue(null1 != a1);
+            Assert.IsFalse(null1 != null2);
+
+            Assert.AreEqual(hash, a1.GetHashCode());
+            Assert.AreEqual(hash, a2.GetHashCode());
         }
 
         // CSHARP-386

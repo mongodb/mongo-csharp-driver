@@ -37,6 +37,7 @@ namespace MongoDB.Driver
         private static Dictionary<MongoServerSettings, MongoServer> __servers = new Dictionary<MongoServerSettings, MongoServer>();
         private static int __nextSequentialId;
         private static int __maxServerCount = 100;
+        private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
         private object _serverLock = new object();
@@ -56,6 +57,12 @@ namespace MongoDB.Driver
         // static constructor
         static MongoServer()
         {
+            // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
+            // the C# driver checks that the database name is valid on any of the supported platforms
+            __invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
+            foreach (var c in Path.GetInvalidPathChars()) { __invalidDatabaseNameChars.Add(c); }
+            foreach (var c in Path.GetInvalidFileNameChars()) { __invalidDatabaseNameChars.Add(c); }
+
             BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
             BsonSerializer.RegisterSerializer(typeof(SystemProfileInfo), new SystemProfileInfoSerializer());
         }
@@ -219,7 +226,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the arbiter instances.
         /// </summary>
-        public MongoServerInstance[] Arbiters
+        public virtual MongoServerInstance[] Arbiters
         {
             get
             {
@@ -233,7 +240,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the build info of the server.
         /// </summary>
-        public MongoServerBuildInfo BuildInfo
+        public virtual MongoServerBuildInfo BuildInfo
         {
             get
             {
@@ -260,7 +267,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the most recent connection attempt number.
         /// </summary>
-        public int ConnectionAttempt
+        public virtual int ConnectionAttempt
         {
             get { return _connectionAttempt; }
         }
@@ -310,7 +317,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the passive instances.
         /// </summary>
-        public MongoServerInstance[] Passives
+        public virtual MongoServerInstance[] Passives
         {
             get
             {
@@ -324,7 +331,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the primary instance (null if there is no primary).
         /// </summary>
-        public MongoServerInstance Primary
+        public virtual MongoServerInstance Primary
         {
             get
             {
@@ -393,7 +400,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the secondary instances.
         /// </summary>
-        public MongoServerInstance[] Secondaries
+        public virtual MongoServerInstance[] Secondaries
         {
             get
             {
@@ -599,7 +606,8 @@ namespace MongoDB.Driver
                                         }
                                         break;
                                     case ConnectWaitFor.AnySlaveOk:
-                                        if (_instances.Any(i => i.State == MongoServerState.Connected && (i.IsPrimary || i.IsSecondary || i.IsPassive)))
+                                        // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
+                                        if (_instances.Any(i => i.State == MongoServerState.Connected && (i.IsPrimary || i.IsSecondary)))
                                         {
                                             return;
                                         }
@@ -915,6 +923,46 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Checks whether a given database name is valid on this server.
+        /// </summary>
+        /// <param name="databaseName">The database name.</param>
+        /// <param name="message">An error message if the database name is not valid.</param>
+        /// <returns>True if the database name is valid; otherwise, false.</returns>
+        public virtual bool IsDatabaseNameValid(string databaseName, out string message)
+        {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+
+            if (databaseName == "")
+            {
+                message = "Database name is empty.";
+                return false;
+            }
+
+            foreach (var c in databaseName)
+            {
+                if (__invalidDatabaseNameChars.Contains(c))
+                {
+                    var bytes = new byte[] { (byte)((int)c >> 8), (byte)((int)c & 255) };
+                    var hex = BsonUtils.ToHexString(bytes);
+                    message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", databaseName, hex, c);
+                    return false;
+                }
+            }
+
+            if (Encoding.UTF8.GetBytes(databaseName).Length > 64)
+            {
+                message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", databaseName);
+                return false;
+            }
+
+            message = null;
+            return true;
+        }
+
+        /// <summary>
         /// Checks whether the server is alive (throws an exception if not). If server is a replica set, pings all members one at a time.
         /// </summary>
         public virtual void Ping()
@@ -1000,7 +1048,42 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var connection = AcquireConnection(initialDatabase, slaveOk);
+                    var serverInstance = ChooseServerInstance(slaveOk);
+                    var connection = serverInstance.AcquireConnection(initialDatabase);
+                    request = new Request(connection, slaveOk);
+                    _requests.Add(threadId, request);
+                }
+
+                return new RequestStartResult(this);
+            }
+        }
+
+        /// <summary>
+        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
+        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
+        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
+        /// </summary>
+        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
+        /// <param name="serverInstance">The server instance this request should be tied to.</param>
+        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
+        {
+            lock (_serverLock)
+            {
+                int threadId = Thread.CurrentThread.ManagedThreadId;
+                Request request;
+                if (_requests.TryGetValue(threadId, out request))
+                {
+                    if (serverInstance != request.Connection.ServerInstance)
+                    {
+                        throw new InvalidOperationException("The server instance passed to a nested call to RequestStart does not match the server instance of the current Request.");
+                    }
+                    request.NestingLevel++;
+                }
+                else
+                {
+                    var connection = serverInstance.AcquireConnection(initialDatabase);
+                    var slaveOk = serverInstance.IsSecondary;
                     request = new Request(connection, slaveOk);
                     _requests.Add(threadId, request);
                 }
@@ -1051,7 +1134,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Verifies the state of the server (in the case of a replica set all members are contacted one at a time).
         /// </summary>
-        public void VerifyState()
+        public virtual void VerifyState()
         {
             lock (_serverLock)
             {
@@ -1162,7 +1245,8 @@ namespace MongoDB.Driver
                                         _loadBalancingInstanceIndex = 0;
                                     }
                                     var instance = _instances[_loadBalancingInstanceIndex];
-                                    if (instance.State == MongoServerState.Connected && (instance.IsSecondary || instance.IsPassive))
+                                    // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
+                                    if (instance.State == MongoServerState.Connected && instance.IsSecondary)
                                     {
                                         return instance;
                                     }
@@ -1230,6 +1314,28 @@ namespace MongoDB.Driver
                 instance.StateChanged -= InstanceStateChanged;
                 _instances.Remove(instance);
                 InstanceStateChanged(instance, null); // removing an instance can change server state
+            }
+        }
+
+        internal void VerifyInstances(List<MongoServerAddress> instanceAddresses)
+        {
+            lock (_stateLock)
+            {
+                foreach (var instance in _instances)
+                {
+                    if (!instanceAddresses.Contains(instance.Address))
+                    {
+                        RemoveInstance(instance);
+                    }
+                }
+                foreach (var address in instanceAddresses)
+                {
+                    if (!_instances.Any(instance => instance.Address == address))
+                    {
+                        var instance = new MongoServerInstance(this, address);
+                        AddInstance(instance);
+                    }
+                }
             }
         }
 
@@ -1331,7 +1437,6 @@ namespace MongoDB.Driver
             public MongoConnection Connection
             {
                 get { return _connection; }
-                set { _connection = value; }
             }
 
             public int NestingLevel

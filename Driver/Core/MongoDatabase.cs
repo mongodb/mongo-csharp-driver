@@ -32,9 +32,6 @@ namespace MongoDB.Driver
     /// </summary>
     public class MongoDatabase
     {
-        // private static fields
-        private static HashSet<char> __invalidDatabaseNameChars;
-
         // private fields
         private object _databaseLock = new object();
         private MongoServer _server;
@@ -43,15 +40,6 @@ namespace MongoDB.Driver
         private Dictionary<MongoCollectionSettings, MongoCollection> _collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> _commandCollection;
         private MongoGridFS _gridFS;
-
-        // static constructor
-        static MongoDatabase()
-        {
-            // MongoDB itself prohibits some characters and the rest are prohibited by the Windows restrictions on filenames
-            __invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
-            foreach (var c in Path.GetInvalidPathChars()) { __invalidDatabaseNameChars.Add(c); }
-            foreach (var c in Path.GetInvalidFileNameChars()) { __invalidDatabaseNameChars.Add(c); }
-        }
 
         // constructors
         /// <summary>
@@ -62,7 +50,20 @@ namespace MongoDB.Driver
         /// <param name="settings">The settings to use to access this database.</param>
         public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
         {
-            ValidateDatabaseName(settings.DatabaseName);
+            if (server == null)
+            {
+                throw new ArgumentNullException("server");
+            }
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+            string message;
+            if (!server.IsDatabaseNameValid(settings.DatabaseName, out message))
+            {
+                throw new ArgumentOutOfRangeException(message);
+            }
+
             _server = server;
             _settings = settings.FrozenCopy();
             _name = settings.DatabaseName;
@@ -456,7 +457,7 @@ namespace MongoDB.Driver
             }
 
             var collection = GetCollection(dbRef.CollectionName);
-            var query = Query.EQ("_id", BsonValue.Create(dbRef.Id));
+            var query = Query.EQ("_id", dbRef.Id);
             return collection.FindOneAs(documentType, query);
         }
 
@@ -735,6 +736,41 @@ namespace MongoDB.Driver
             return RunCommandAs<DatabaseStatsResult>("dbstats");
         }
 
+        /// <summary>
+        /// Checks whether a given collection name is valid in this database.
+        /// </summary>
+        /// <param name="collectionName">The collection name.</param>
+        /// <param name="message">An error message if the collection name is not valid.</param>
+        /// <returns>True if the collection name is valid; otherwise, false.</returns>
+        public virtual bool IsCollectionNameValid(string collectionName, out string message)
+        {
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+
+            if (collectionName == "")
+            {
+                message = "Collection name cannot be empty.";
+                return false;
+            }
+
+            if (collectionName.IndexOf('\0') != -1)
+            {
+                message = "Collection name cannot contain null characters.";
+                return false;
+            }
+
+            if (Encoding.UTF8.GetBytes(collectionName).Length > 121)
+            {
+                message = "Collection name cannot exceed 121 bytes (after encoding to UTF-8).";
+                return false;
+            }
+
+            message = null;
+            return true;
+        }
+
         // TODO: mongo shell has IsMaster at database level?
 
         /// <summary>
@@ -794,7 +830,20 @@ namespace MongoDB.Driver
             bool dropTarget,
             MongoCredentials adminCredentials)
         {
-            MongoCollection.ValidateCollectionName(newCollectionName);
+            if (oldCollectionName == null)
+            {
+                throw new ArgumentNullException("oldCollectionName");
+            }
+            if (newCollectionName == null)
+            {
+                throw new ArgumentNullException("newCollectionName");
+            }
+            string message;
+            if (!IsCollectionNameValid(newCollectionName, out message))
+            {
+                throw new ArgumentOutOfRangeException("newCollectionName", message);
+            }
+
             var command = new CommandDocument
             {
                 { "renameCollection", string.Format("{0}.{1}", _name, oldCollectionName) },
@@ -979,34 +1028,6 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return _name;
-        }
-
-        // private methods
-        private void ValidateDatabaseName(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (name == "")
-            {
-                throw new ArgumentException("Database name is empty.");
-            }
-            foreach (var c in name)
-            {
-                if (__invalidDatabaseNameChars.Contains(c))
-                {
-                    var bytes = new byte[] { (byte)((int)c >> 8), (byte)((int)c & 255) };
-                    var hex = BsonUtils.ToHexString(bytes);
-                    var message = string.Format("Database name '{0}' is not valid. The character 0x{1} '{2}' is not allowed in database names.", name, hex, c);
-                    throw new ArgumentException(message);
-                }
-            }
-            if (Encoding.UTF8.GetBytes(name).Length > 64)
-            {
-                var message = string.Format("Database name '{0}' exceeds 64 bytes (after encoding to UTF8).", name);
-                throw new ArgumentException(message);
-            }
         }
     }
 }

@@ -1,0 +1,293 @@
+C# driver changes from 1.3.1 to 1.4
+
+QueryBuilder.cs
+    CLS compliant
+    changed protected fields to private
+    added protected properties to access private fields
+    access inherited fields via properties
+    better argument checking
+    flatten out nested $and when possible
+    flatten out nested $or when possible
+
+UpdateBuilder.cs
+    better argument checking
+
+CollectionStatsResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+CommandResult.cs
+    CLS compliant
+    changed protected fields to private
+
+DatabaseStatsResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+FindAndModifyResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+GeoHaystackSearchResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+GeoNearResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+GetLastErrorResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+GetProfilingLevelResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+MapReduceResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+ValidateCollectionResult.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoCollection.cs
+    better argument checking
+    DropIndexByName no longer throws exception if index doesn't exist
+    Save now checks class map for custom serializer for _id field
+    optimized string operations
+
+MongoCollectionSettings.cs
+    CLS compliant
+    changed protected fields to private
+    access inherited fields via properties
+    simplified GetHashCode and ToString
+
+MongoCredentials.cs
+    optimized string operations
+
+MongoCredentialsStore.cs
+    new class to hold credentials keyed by database name
+
+MongoCursor.cs
+    fixed bug in Clone (_fields was not being cloned)
+
+MongoDatabase.cs
+    optimized string operations
+    Drop now uses credentials
+    added GetLastError (useful instead of version in MongoServer when credentials are needed)
+    added overloads of RenameCollection with admin credentials parameter
+
+MongoDatabaseSettings.cs
+    credentials now initialized from credentials store
+    enforce that credentials for the admin database have the Admin flag set to true
+    simplified GetHashCode and ToString
+
+MongoDBRef.cs
+    MongoDBRef no longer implements IBsonSerializer (see MongoDBRefSerializer)
+    MongoDBRef now implements IEquatable<MongoDBRef>
+    better argument checking
+    new implementation of !=, ==, Equals and GetHashCode
+    new MongoDBRefSerializer class makes DBRefs queryable from LINQ queries
+    implemented ToString
+
+MongoInsertOptions.cs
+    constructor no longer takes the collection as an argument
+
+MongoServer.cs
+    new static constructor to register some serializers
+    optimized string operations
+    removed Admin database properties and methods (just use existing methods with "admin" arg)
+    added virtual to some properties that were missing it
+    added static GetAllServers method
+    fixed bug where slaveOk queries were being sent to passives in recovering mode
+    added overload of DatabaseExists that takes admin credentials
+    added overload of DropDatabase that takes admin credentials
+    added overload of GetDatabaseNames that takes admin credentials
+    added overload of GetLastError that takes admin credentials
+    added overload of RequestStart that lets caller choose the server instance to use
+    added overload of Shutdown that takes admin credentials
+    fixed some issues with locking
+    added dynamic detection of added or removed replica set members
+
+MongoServerInstance.cs
+    replaced EndPoint property with GetIPEndPoint method because it now blocks if DNS lookup is needed
+    fixed some issues with locking
+    replace catch with finally where possible to avoid rethrowing the same exception
+    when verifying state of primary send current list of members to MongoServer so it can adjust set
+
+MongoServerSettings.cs
+    added CredentialsStore to hold credentials for multiple databases
+    added GetCredentials method to get credentials from the store for a database
+    simplified GetHashCode and ToString
+
+MongoUpdateOptions.cs
+    constructor no longer takes the collection as an argument	
+
+MongoUrlBuilder.cs
+    optimized string operations
+
+MongoUser.cs
+    now implements IEquatable<MongoUser>
+    now implements != and ==
+    now implements GetHashCode
+    better argument checking
+
+SafeMode.cs
+    freeze all static instances to prevent inadvertent modification by user code
+    standardized implementation of !=, ==, Equals
+    simplified GetHashCode and ToString
+
+SystemProfileInfo.cs
+    no longer implements IBsonSerializable
+    new class SystemProfileInfoSerializer (so subfields can be queried using LINQ)
+
+MongoGridFSFileInfo.cs
+    standardized implementation of !=, ==, Equals
+    
+MongoGridFSSettings.cs
+    optimized GetHashCode for frozen instances
+
+MongoConnection.cs
+    refactor away use of catch to avoid rethrowing exceptions
+    RunCommand now has a throwOnError parameter
+    interpret socket timeout of 0 to mean use operating system default
+
+MongoConnectionPool.cs
+    added call to Monitor.Pulse when min size work item adds new connection to the pool
+    ReleaseConnection now does more of its work outside of holding the connection pool lock
+    RemoveConnection private method is now responsible for its own locking
+    TimerCallback now does more of its work outside of holding the connection pool lock
+
+MongoDeleteMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoDeleteMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoGetMoreMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoInsertMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoKillCursorsMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoMessage.cs
+    CLS compliant
+    changed protected fields to private
+    added protected properties to access private fields
+
+MongoQueryMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+MongoReplyMessage.cs
+    CLS compliant
+    access inherited fields via properties
+    allow duplicate names when reading BsonDocument from server
+
+MongoRequestMessage.cs
+    CLS compliant
+    changed protected fields to private
+    added protected properties to access private fields
+    access inherited fields via properties
+
+MongoUpdateMessage.cs
+    CLS compliant
+    access inherited fields via properties
+
+ReplicaSetConnector.cs
+    don't treat passive in recovering mode as available for slaveOk queries
+
+ExpressionFormatter.cs
+    new class that formats an Expression as a string suitable for error messages
+    we had to write our own (instead of using Expression.ToString) because Expression.ToString is platform and version dependent
+
+ExpressionParameter.cs
+    new class that rewrites an expression replacing instances of a parameter with a new expression
+
+ExpressionPrettyPrinter.cs
+    new class that pretty prints an Expression using indentation
+    used only for debugging
+
+ExpressionVisitor.cs
+    new abstract base class for classes that recursively visit an Expression tree
+    when we make .NET Framework 4 a minimum requirement we can switch to the implementation in .NET 4
+
+DeserializationProjector.cs
+    new class that projects a sequence of BsonValues onto TResult by deserializing them
+
+MongoQueryTranslator.cs
+    new static class that translates IQueryable to TranslatedQuery
+    delegates the bulk of the work to methods in the TranslateQuery itself
+
+Nominator.cs
+    an ExpressionVisitor that finds nodes that match a predicate
+
+OrderByClause.cs
+    new class that represents an order by key and direction
+
+OrderByDirection.cs
+    new enumeration that represents the order by direction
+
+PartialEvaluator.cs
+    an ExpressionVisitor that evaluates as much of an expression as possible
+
+Projector.cs
+    new class that projects a sequence of TSource onto TResult by evaluation a projection delegate
+
+SelectQuery.cs
+    new subclass of TranslatedQuery
+    currently the only subclass of TranslatedQuery (though more are expected)
+    represents a query that will be sent to the server
+    represent a LINQ query decomposed into the following components:
+        an optional where clause
+        an optional list of order by clauses
+        an optional projection lamda expression
+        an optional skip expression
+        an optional take expression
+        an optional element selector delegate (used for First, Last, etc...)
+        an optional flag indicating whether this is a Distinct query
+    Translate method parses a LINQ expression and sets all the above fields
+    Execute method sends query to the server and returns the result
+
+TranslatedQuery.cs
+    new abstract base class representing a LINQ Expression that has been translated
+    currently only has one subclass: SelectQuery
+    expect more subclasses (e.g. for aggregation framework queries)
+
+TypeHelper.cs
+    new static class containing helper methods used by the LINQ implementation
+
+LinqExtensionMethods.cs
+    new static class containing the LINQ extension method
+    defines AsQueryable<T> for MongoCollection, the entry point to the LINQ implementation
+
+LinqToMongo.cs
+    new static class containing extension methods used in LINQ queries
+    ContainsAll checks that a source sequence contains all of the supplied values
+    ContainsAny checks that a source sequence contains at least one of the supplied values
+    In checks that a scalar value is contained in a source sequence 
+    Inject is used to inject a lower level IMongoQuery into a LINQ query
+
+MongoQueryable.cs
+    implements IOrderedQueryable<T> for MongoDB
+
+MongoQueryProvider.cs
+    implements IQueryProvider for MongoDB
+
+AssemblyInfo.cs
+    added CLSCompliant(true)
+
+MongoDefaults.cs
+    changed SocketTimeout default to Zero (which means use operating system default, which is infinity)
+    changed WaitQueueMultiple default to 5.0 (same as Java driver)
+    changed WaitQueueTimeout default to 2 minutes (same as Java driver)

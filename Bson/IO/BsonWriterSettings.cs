@@ -29,6 +29,7 @@ namespace MongoDB.Bson.IO
         // private fields
         private GuidRepresentation _guidRepresentation = BsonDefaults.GuidRepresentation;
         private bool _isFrozen;
+        private int _maxSerializationDepth = BsonDefaults.MaxSerializationDepth;
 
         // constructors
         /// <summary>
@@ -67,6 +68,19 @@ namespace MongoDB.Bson.IO
         public bool IsFrozen
         {
             get { return _isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets the max serialization depth allowed (used to detect circular references).
+        /// </summary>
+        public int MaxSerializationDepth
+        {
+            get { return _maxSerializationDepth; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozenException(); }
+                _maxSerializationDepth = value;
+            }
         }
 
         // public methods

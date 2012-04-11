@@ -16,13 +16,14 @@
 using System;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>
     /// Represents serialization options for a DateTime value.
     /// </summary>
-    public class DateTimeSerializationOptions : IBsonSerializationOptions
+    public class DateTimeSerializationOptions : BsonBaseSerializationOptions
     {
         // private static fields
         private static DateTimeSerializationOptions __dateOnlyInstance = new DateTimeSerializationOptions(true);
@@ -124,6 +125,11 @@ namespace MongoDB.Bson.Serialization.Options
         public bool DateOnly
         {
             get { return _dateOnly; }
+            set
+            {
+                EnsureNotFrozen();
+                _dateOnly = value;
+            }
         }
 
         /// <summary>
@@ -132,6 +138,11 @@ namespace MongoDB.Bson.Serialization.Options
         public DateTimeKind Kind
         {
             get { return _kind; }
+            set
+            {
+                EnsureNotFrozen();
+                _kind = value;
+            }
         }
 
         /// <summary>
@@ -140,6 +151,50 @@ namespace MongoDB.Bson.Serialization.Options
         public BsonType Representation
         {
             get { return _representation; }
+            set
+            {
+                EnsureNotFrozen();
+                _representation = value;
+            }
+        }
+
+        // public methods
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
+        {
+            EnsureNotFrozen();
+            var dateTimeSerializationOptionsAttribute = attribute as BsonDateTimeOptionsAttribute;
+            if (dateTimeSerializationOptionsAttribute != null)
+            {
+                _dateOnly = dateTimeSerializationOptionsAttribute.DateOnly;
+                _kind = dateTimeSerializationOptionsAttribute.Kind;
+                _representation = dateTimeSerializationOptionsAttribute.Representation;
+                return;
+            }
+
+            var message = string.Format("A serialization options attribute of type {0} cannot be applied to serialization options of type {1}.",
+                BsonUtils.GetFriendlyTypeName(attribute.GetType()), BsonUtils.GetFriendlyTypeName(GetType()));
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        public override IBsonSerializationOptions Clone()
+        {
+            if (_dateOnly)
+            {
+                return new DateTimeSerializationOptions(_dateOnly, _representation);
+            }
+            else
+            {
+                return new DateTimeSerializationOptions(_kind, _representation);
+            }
         }
     }
 }

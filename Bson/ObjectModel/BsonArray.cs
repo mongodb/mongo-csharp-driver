@@ -217,7 +217,13 @@ namespace MongoDB.Bson
         public BsonValue this[int index]
         {
             get { return _values[index]; }
-            set { _values[index] = value; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _values[index] = value;
+            }
         }
 
         // public static methods
@@ -450,7 +456,13 @@ namespace MongoDB.Bson
         {
             if (values != null)
             {
-                _values.AddRange(values);
+                foreach (var value in values)
+                {
+                    if (value != null)
+                    {
+                        _values.Add(value);
+                    }
+                }
             }
             return this;
         }
@@ -551,7 +563,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    _values.Add(BsonString.Create(value));
+                    _values.Add((value == null) ? (BsonValue)BsonNull.Value : BsonString.Create(value));
                 }
             }
             return this;
@@ -568,7 +580,7 @@ namespace MongoDB.Bson
             {
                 foreach (var value in values)
                 {
-                    _values.Add(BsonValue.Create(value));
+                    _values.Add(BsonTypeMapper.MapToBsonValue(value));
                 }
             }
             return this;
@@ -583,7 +595,7 @@ namespace MongoDB.Bson
             var clone = new BsonArray(_values.Capacity);
             foreach (var value in _values)
             {
-                clone.Add(value.Clone());
+                clone.Add(value);
             }
             return clone;
         }
@@ -635,6 +647,10 @@ namespace MongoDB.Bson
         /// <returns>True if the array contains the value.</returns>
         public bool Contains(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _values.Contains(value);
         }
 
@@ -731,6 +747,10 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _values.IndexOf(value);
         }
 
@@ -742,6 +762,10 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value, int index)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _values.IndexOf(value, index);
         }
 
@@ -754,6 +778,10 @@ namespace MongoDB.Bson
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
         public int IndexOf(BsonValue value, int index, int count)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _values.IndexOf(value, index, count);
         }
 
@@ -764,6 +792,10 @@ namespace MongoDB.Bson
         /// <param name="value">The new value.</param>
         public void Insert(int index, BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _values.Insert(index, value);
         }
 
@@ -774,6 +806,10 @@ namespace MongoDB.Bson
         /// <returns>True if the value was removed.</returns>
         public bool Remove(BsonValue value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             return _values.Remove(value);
         }
 

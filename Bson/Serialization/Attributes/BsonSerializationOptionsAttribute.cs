@@ -19,13 +19,13 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {
     /// <summary>
-    /// Specifies the serialization options for this class (see derived attributes).
+    /// Abstract base class for serialization options attributes.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public abstract class BsonSerializationOptionsAttribute : Attribute
     {
         // constructors
@@ -35,12 +35,5 @@ namespace MongoDB.Bson.Serialization.Attributes
         protected BsonSerializationOptionsAttribute()
         {
         }
-
-        // public methods
-        /// <summary>
-        /// Gets the serialization options specified by this attribute.
-        /// </summary>
-        /// <returns>The serialization options.</returns>
-        public abstract IBsonSerializationOptions GetOptions();
     }
 }

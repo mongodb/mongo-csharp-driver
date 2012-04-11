@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests
@@ -26,18 +27,50 @@ namespace MongoDB.DriverUnitTests
     [TestFixture]
     public class MongoServerTests
     {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
+
+        [TestFixtureSetUp]
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
+        }
+
+        // TODO: more tests for MongoServer
+
         [Test]
         public void TestCreateNoArgs()
         {
             var server = MongoServer.Create(); // no args!
-            var expectedSeedList = new[] { new MongoServerAddress("localhost") };
             Assert.IsNull(server.Settings.DefaultCredentials);
-            Assert.AreEqual(1, server.Instances.Count()); // Instance is created immediately but not connected
             Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
             Assert.AreEqual(false, server.Settings.SlaveOk);
-            Assert.AreEqual(MongoServerState.Disconnected, server.State);
-            Assert.IsTrue(expectedSeedList.SequenceEqual(server.Settings.Servers));
+            Assert.AreEqual(new MongoServerAddress("localhost"), server.Instance.Address);
+        }
+
+        [Test]
+        public void TestDatabaseExists()
+        {
+            _database.Drop();
+            Assert.IsFalse(_server.DatabaseExists(_database.Name));
+            _collection.Insert(new BsonDocument("x", 1));
+            Assert.IsTrue(_server.DatabaseExists(_database.Name));
+        }
+
+        [Test]
+        public void TestDropDatabase()
+        {
+            _collection.Insert(new BsonDocument());
+            var databaseNames = _server.GetDatabaseNames();
+            Assert.IsTrue(databaseNames.Contains(_database.Name));
+
+            var result = _server.DropDatabase(_database.Name);
+            databaseNames = _server.GetDatabaseNames();
+            Assert.IsFalse(databaseNames.Contains(_database.Name));
         }
 
         [Test]
@@ -53,6 +86,88 @@ namespace MongoDB.DriverUnitTests
             var snapshot3 = MongoServer.GetAllServers();
             Assert.AreEqual(snapshot1.Length, snapshot3.Length);
             Assert.IsFalse(snapshot3.Contains(server));
+        }
+
+        [Test]
+        public void TestPing()
+        {
+            _server.Ping();
+        }
+
+        [Test]
+        public void TestGetDatabaseNames()
+        {
+            var databaseNames = _server.GetDatabaseNames();
+        }
+
+        [Test]
+        public void TestIsDatabaseNameValid()
+        {
+            string message;
+            Assert.Throws<ArgumentNullException>(() => { _server.IsDatabaseNameValid(null, out message); });
+            Assert.IsFalse(_server.IsDatabaseNameValid("", out message));
+            Assert.IsFalse(_server.IsDatabaseNameValid("/", out message));
+            Assert.IsFalse(_server.IsDatabaseNameValid(new string('x', 128), out message));
+        }
+
+        [Test]
+        public void TestReconnect()
+        {
+            _server.Reconnect();
+            Assert.AreEqual(MongoServerState.Connected, _server.State);
+        }
+
+        [Test]
+        public void TestRequestStart()
+        {
+            using (_server.RequestStart(_database))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartPrimary()
+        {
+            using (_server.RequestStart(_database, _server.Primary))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartPrimaryNested()
+        {
+            using (_server.RequestStart(_database, _server.Primary))
+            {
+                using (_server.RequestStart(_database, _server.Primary))
+                {
+                }
+            }
+        }
+
+        [Test]
+        public void TestRequestStartSlaveOk()
+        {
+            using (_server.RequestStart(_database, true))
+            {
+            }
+        }
+
+        [Test]
+        public void TestRequestStartSlaveOkNested()
+        {
+            using (_server.RequestStart(_database, false))
+            {
+                using (_server.RequestStart(_database, true))
+                {
+                }
+            }
+        }
+
+        [Test]
+        public void TestVersion()
+        {
+            var versionZero = new Version(0, 0, 0, 0);
+            Assert.AreNotEqual(versionZero, _server.BuildInfo.Version);
         }
     }
 }

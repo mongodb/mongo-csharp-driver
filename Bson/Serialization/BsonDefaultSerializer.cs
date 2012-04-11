@@ -210,7 +210,7 @@ namespace MongoDB.Bson.Serialization
 
                 if (actualType == null && discriminator.IsString)
                 {
-                    actualType = Type.GetType(discriminator.AsString); // see if it's a Type name
+                    actualType = TypeNameDiscriminator.GetActualType(discriminator.AsString); // see if it's a Type name
                 }
 
                 if (actualType == null)

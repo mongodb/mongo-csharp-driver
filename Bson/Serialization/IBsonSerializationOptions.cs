@@ -16,6 +16,7 @@
 using System;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -24,5 +25,21 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public interface IBsonSerializationOptions
     {
+        /// <summary>
+        /// Apply an attribute to these serialization options and modify the options accordingly.
+        /// </summary>
+        /// <param name="serializer">The serializer that these serialization options are for.</param>
+        /// <param name="attribute">The serialization options attribute.</param>
+        void ApplyAttribute(IBsonSerializer serializer, Attribute attribute);
+        /// <summary>
+        /// Clones the serialization options.
+        /// </summary>
+        /// <returns>A cloned copy of the serialization options.</returns>
+        IBsonSerializationOptions Clone();
+        /// <summary>
+        /// Freezes the serialization options.
+        /// </summary>
+        /// <returns>The frozen serialization options.</returns>
+        IBsonSerializationOptions Freeze();
     }
 }

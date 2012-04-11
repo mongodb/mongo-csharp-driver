@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// Represents a MongoDB user.
     /// </summary>
     [Serializable]
-    public class MongoUser
+    public class MongoUser : IEquatable<MongoUser>
     {
         // private fields
         private string _username;
@@ -39,6 +39,10 @@ namespace MongoDB.Driver
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
         public MongoUser(MongoCredentials credentials, bool isReadOnly)
         {
+            if (credentials == null)
+            {
+                throw new ArgumentNullException("credentials");
+            }
             _username = credentials.Username;
             _passwordHash = HashPassword(credentials.Username, credentials.Password);
             _isReadOnly = isReadOnly;
@@ -52,6 +56,14 @@ namespace MongoDB.Driver
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
         public MongoUser(string username, string passwordHash, bool isReadOnly)
         {
+            if (username == null)
+            {
+                throw new ArgumentNullException("username");
+            }
+            if (passwordHash == null)
+            {
+                throw new ArgumentNullException("passwordHash");
+            }
             _username = username;
             _passwordHash = passwordHash;
             _isReadOnly = isReadOnly;
@@ -64,7 +76,13 @@ namespace MongoDB.Driver
         public string Username
         {
             get { return _username; }
-            set { _username = value; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _username = value;
+            }
         }
 
         /// <summary>
@@ -73,7 +91,13 @@ namespace MongoDB.Driver
         public string PasswordHash
         {
             get { return _passwordHash; }
-            set { _passwordHash = value; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _passwordHash = value;
+            }
         }
 
         /// <summary>
@@ -85,7 +109,42 @@ namespace MongoDB.Driver
             set { _isReadOnly = value; }
         }
 
+        // public operators
+        /// <summary>
+        /// Determines whether two specified MongoUser objects have different values.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is different from the value of rhs; otherwise, false.</returns>
+        public static bool operator !=(MongoUser lhs, MongoUser rhs)
+        {
+            return !MongoUser.Equals(lhs, rhs);
+        }
+
+        /// <summary>
+        /// Determines whether two specified MongoUser objects have the same value.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool operator ==(MongoUser lhs, MongoUser rhs)
+        {
+            return MongoUser.Equals(lhs, rhs);
+        }
+
         // public static methods
+        /// <summary>
+        /// Determines whether two specified MongoUser objects have the same value.
+        /// </summary>
+        /// <param name="lhs">The first value to compare, or null.</param>
+        /// <param name="rhs">The second value to compare, or null.</param>
+        /// <returns>True if the value of lhs is the same as the value of rhs; otherwise, false.</returns>
+        public static bool Equals(MongoUser lhs, MongoUser rhs)
+        {
+            if ((object)lhs == null) { return (object)rhs == null; }
+            return lhs.Equals(rhs);
+        }
+
         /// <summary>
         /// Calculates the password hash.
         /// </summary>
@@ -98,6 +157,42 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Determines whether this instance and another specified MongoUser object have the same value.
+        /// </summary>
+        /// <param name="rhs">The MongoUser object to compare to this instance.</param>
+        /// <returns>True if the value of the rhs parameter is the same as this instance; otherwise, false.</returns>
+        public bool Equals(MongoUser rhs)
+        {
+            if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
+            if ((object)this == (object)rhs) { return true; }
+            return _username.Equals(rhs._username) && _passwordHash.Equals(rhs._passwordHash) && _isReadOnly.Equals(rhs._isReadOnly);
+        }
+
+        /// <summary>
+        /// Determines whether this instance and a specified object, which must also be a MongoUser object, have the same value.
+        /// </summary>
+        /// <param name="obj">The MongoUser object to compare to this instance.</param>
+        /// <returns>True if obj is a MongoUser object and its value is the same as this instance; otherwise, false.</returns>
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as MongoUser); // works even if obj is null or of a different type
+        }
+
+        /// <summary>
+        /// Returns the hash code for this Class1 object.
+        /// </summary>
+        /// <returns>A 32-bit signed integer hash code.</returns>
+        public override int GetHashCode()
+        {
+            // see Effective Java by Joshua Bloch
+            int hash = 17;
+            hash = 37 * hash + _username.GetHashCode();
+            hash = 37 * hash + _passwordHash.GetHashCode();
+            hash = 37 * hash + _isReadOnly.GetHashCode();
+            return hash;
+        }
+
         /// <summary>
         /// Returns a string representation of the credentials.
         /// </summary>

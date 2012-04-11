@@ -254,12 +254,17 @@ namespace MongoDB.Driver.GridFS
         /// <param name="fileInfo">The GridFS file.</param>
         public void Download(Stream stream, MongoGridFSFileInfo fileInfo)
         {
+            if (_settings.VerifyMD5 && fileInfo.MD5 == null)
+            {
+                throw new MongoGridFSException("VerifyMD5 is true and file being downloaded has no MD5 hash.");
+            }
+
             using (_database.RequestStart(_database.Settings.SlaveOk))
             {
                 EnsureIndexes();
 
-                string md5Client;
-                using (var md5Algorithm = MD5.Create())
+                string md5Client = null;
+                using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
                 {
                     var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
                     for (int n = 0; n < numberOfChunks; n++)
@@ -282,14 +287,20 @@ namespace MongoDB.Driver.GridFS
                             }
                         }
                         stream.Write(data.Bytes, 0, data.Bytes.Length);
-                        md5Algorithm.TransformBlock(data.Bytes, 0, data.Bytes.Length, null, 0);
+                        if (_settings.VerifyMD5)
+                        {
+                            md5Algorithm.TransformBlock(data.Bytes, 0, data.Bytes.Length, null, 0);
+                        }
                     }
 
-                    md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
-                    md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                    if (_settings.VerifyMD5)
+                    {
+                        md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
+                        md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                    }
                 }
 
-                if (!md5Client.Equals(fileInfo.MD5, StringComparison.OrdinalIgnoreCase))
+                if (_settings.VerifyMD5 && !md5Client.Equals(fileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new MongoGridFSException("Download client and server MD5 hashes are not equal.");
                 }
@@ -775,8 +786,8 @@ namespace MongoDB.Driver.GridFS
                 var buffer = new byte[chunkSize];
 
                 var length = 0;
-                string md5Client;
-                using (var md5Algorithm = MD5.Create())
+                string md5Client = null;
+                using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
                 {
                     for (int n = 0; true; n++)
                     {
@@ -815,7 +826,10 @@ namespace MongoDB.Driver.GridFS
                         };
                         _chunks.Insert(chunk, _settings.SafeMode);
 
-                        md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
+                        if (_settings.VerifyMD5)
+                        {
+                            md5Algorithm.TransformBlock(data, 0, data.Length, null, 0);
+                        }
 
                         if (bytesRead < chunkSize)
                         {
@@ -823,19 +837,26 @@ namespace MongoDB.Driver.GridFS
                         }
                     }
 
-                    md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
-                    md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                    if (_settings.VerifyMD5)
+                    {
+                        md5Algorithm.TransformFinalBlock(new byte[0], 0, 0);
+                        md5Client = BsonUtils.ToHexString(md5Algorithm.Hash);
+                    }
                 }
 
-                var md5Command = new CommandDocument
+                string md5Server = null;
+                if (_settings.UpdateMD5 || _settings.VerifyMD5)
                 {
-                    { "filemd5", files_id },
-                    { "root", _settings.Root }
-                };
-                var md5Result = _database.RunCommand(md5Command);
-                var md5Server = md5Result.Response["md5"].AsString;
+                    var md5Command = new CommandDocument
+                    {
+                        { "filemd5", files_id },
+                        { "root", _settings.Root }
+                    };
+                    var md5Result = _database.RunCommand(md5Command);
+                    md5Server = md5Result.Response["md5"].AsString;
+                }
 
-                if (!md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
+                if ( _settings.VerifyMD5 && !md5Client.Equals(md5Server, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new MongoGridFSException("Upload client and server MD5 hashes are not equal.");
                 }
@@ -848,7 +869,7 @@ namespace MongoDB.Driver.GridFS
                     { "length", length },
                     { "chunkSize", chunkSize },
                     { "uploadDate", uploadDate },
-                    { "md5", md5Server },
+                    { "md5", (md5Server == null) ? (BsonValue)BsonNull.Value : new BsonString(md5Server) },
                     { "contentType", createOptions.ContentType }, // optional
                     { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
                     { "metadata", createOptions.Metadata } // optional

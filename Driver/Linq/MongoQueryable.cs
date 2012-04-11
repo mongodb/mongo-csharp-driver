@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 
 namespace MongoDB.Driver.Linq
 {
@@ -27,6 +26,7 @@ namespace MongoDB.Driver.Linq
     /// An implementation of IQueryable{{T}} for querying a MongoDB collection.
     /// This class has been named MongoQueryable instead of MongoQuery to avoid confusion with IMongoQuery.
     /// </summary>
+    /// <typeparam name="T">The type of the documents being queried.</typeparam>
     public class MongoQueryable<T> : IOrderedQueryable<T>
     {
         // private fields
@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Initializes a new instance of the MongoQueryable class.
         /// </summary>
+        /// <param name="provider">The query provider.</param>
         public MongoQueryable(MongoQueryProvider provider)
         {
             if (provider == null)
@@ -50,6 +51,8 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Initializes a new instance of the MongoQueryable class.
         /// </summary>
+        /// <param name="provider">The query provider.</param>
+        /// <param name="expression">The expression.</param>
         public MongoQueryable(MongoQueryProvider provider, Expression expression)
         {
             if (provider == null)
@@ -72,10 +75,19 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets an enumerator for the results of a MongoDB LINQ query.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An enumerator for the results of a MongoDB LINQ query.</returns>
         public IEnumerator<T> GetEnumerator()
         {
             return ((IEnumerable<T>)_provider.Execute(_expression)).GetEnumerator();
+        }
+
+        /// <summary>
+        /// Gets the MongoDB query that will be sent to the server when this LINQ query is executed.
+        /// </summary>
+        /// <returns>The MongoDB query.</returns>
+        public IMongoQuery GetMongoQuery()
+        {
+            return _provider.BuildMongoQuery(this);
         }
 
         // explicit implementation of IEnumerable

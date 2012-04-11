@@ -35,6 +35,8 @@ namespace MongoDB.Driver.GridFS
         private string _filesCollectionName = "fs.files";
         private string _root = "fs";
         private SafeMode _safeMode = SafeMode.False;
+        private bool _updateMD5 = true;
+        private bool _verifyMD5 = true;
         private bool _isFrozen;
         private int _frozenHashCode;
 
@@ -146,6 +148,30 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to udpate the MD5 hash on the server when a file is uploaded or modified.
+        /// </summary>
+        public bool UpdateMD5
+        {
+            get { return _updateMD5; }
+            set {
+                if (_isFrozen) { ThrowFrozen(); }
+                _updateMD5 = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify the MD5 hash when a file is uploaded or downloaded.
+        /// </summary>
+        public bool VerifyMD5
+        {
+            get { return _verifyMD5; }
+            set {
+                if (_isFrozen) { ThrowFrozen(); }
+                _verifyMD5 = value;
+            }
+        }
+
         // public operators
         /// <summary>
         /// Compares two MongoGridFSSettings.
@@ -176,7 +202,13 @@ namespace MongoDB.Driver.GridFS
         /// <returns>A clone of the settings.</returns>
         public MongoGridFSSettings Clone()
         {
-            return new MongoGridFSSettings(_chunkSize, _root, _safeMode);
+            var clone = new MongoGridFSSettings();
+            clone._chunkSize = _chunkSize;
+            clone._root = _root;
+            clone._safeMode = _safeMode;
+            clone._updateMD5 = _updateMD5;
+            clone._verifyMD5 = _verifyMD5;
+            return clone;
         }
 
         /// <summary>
@@ -190,7 +222,9 @@ namespace MongoDB.Driver.GridFS
             return
                 _chunkSize == rhs._chunkSize &&
                 _root == rhs._root &&
-                _safeMode == rhs._safeMode;
+                _safeMode == rhs._safeMode &&
+                _updateMD5 == rhs._updateMD5 &&
+                _verifyMD5 == rhs._verifyMD5;
         }
 
         /// <summary>
@@ -250,6 +284,8 @@ namespace MongoDB.Driver.GridFS
             hash = 37 * hash + _chunkSize.GetHashCode();
             hash = 37 * hash + _root.GetHashCode();
             hash = 37 * hash + _safeMode.GetHashCode();
+            hash = 37 * hash + _updateMD5.GetHashCode();
+            hash = 37 * hash + _verifyMD5.GetHashCode();
             return hash;
         }
 

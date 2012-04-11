@@ -38,6 +38,10 @@ namespace MongoDB.Bson
         public BsonJavaScriptWithScope(string code, BsonDocument scope)
             : base(code, BsonType.JavaScriptWithScope)
         {
+            if (scope == null)
+            {
+                throw new ArgumentNullException("scope");
+            }
             _scope = scope;
         }
 
