@@ -353,6 +353,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildStringIndexOfQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = BuildStringLengthQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -740,6 +746,119 @@ namespace MongoDB.Driver.Linq
             }
 
             return query;
+        }
+
+        private IMongoQuery BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            if (constantExpression.Type != typeof(int))
+            {
+                return null;
+            }
+            var index = ToInt32(constantExpression);
+
+            var methodCallExpression = variableExpression as MethodCallExpression;
+            if (methodCallExpression != null && methodCallExpression.Method.Name == "IndexOf" && methodCallExpression.Method.DeclaringType == typeof(string))
+            {
+                var serializationInfo = GetSerializationInfo(methodCallExpression.Object);
+                if (serializationInfo == null)
+                {
+                    return null;
+                }
+
+                object value;
+                var startIndex = -1;
+                var count = -1;
+
+                var args = methodCallExpression.Arguments.ToArray();
+                switch (args.Length)
+                {
+                    case 3:
+                        var countExpression = args[2] as ConstantExpression;
+                        if (countExpression == null)
+                        {
+                            return null;
+                        }
+                        count = ToInt32(countExpression);
+                        goto case 2;
+                    case 2:
+                        var startIndexExpression = args[1] as ConstantExpression;
+                        if (startIndexExpression == null)
+                        {
+                            return null;
+                        }
+                        startIndex = ToInt32(startIndexExpression);
+                        goto case 1;
+                    case 1:
+                        var valueExpression = args[0] as ConstantExpression;
+                        if (valueExpression == null)
+                        {
+                            return null;
+                        }
+                        value = valueExpression.Value;
+                        break;
+                    default:
+                        return null;
+                }
+
+                string pattern = null;
+                if (value.GetType() == typeof(char))
+                {
+                    var c = Regex.Escape(((char)value).ToString());
+                    if (startIndex == -1)
+                    {
+                        // the regex for: IndexOf(c) == index 
+                        // is: /^[^c]{index}c/
+                        pattern = string.Format("^[^{0}]{{{1}}}{0}", c, index);
+                    }
+                    else
+                    {
+                        if (count == -1)
+                        {
+                            // the regex for: IndexOf(c, startIndex) == index
+                            // is: /^.{startIndex}[^c]{index - startIndex}c/
+                            pattern = string.Format("^.{{{1}}}[^{0}]{{{2}}}{0}", c, startIndex, index - startIndex);
+                        }
+                        else
+                        {
+                            // the regex for: IndexOf(c, startIndex, count) == index
+                            // is: /^.{startIndex}(?=.{count})[^c]{index - startIndex}c/
+                            pattern = string.Format("^.{{{1}}}(?=.{{{2}}})[^{0}]{{{3}}}{0}", c, startIndex, count, index - startIndex);
+                        }
+                    }
+                }
+                else if (value.GetType() == typeof(string))
+                {
+                    var s = Regex.Escape((string)value);
+                    if (startIndex == -1)
+                    {
+                        // the regex for: IndexOf(s) == index 
+                        // is: /^(?!.{0,index - 1}s).{index}s/
+                        pattern = string.Format("^(?!.{{0,{2}}}{0}).{{{1}}}{0}", s, index, index - 1);
+                    }
+                    else
+                    {
+                        if (count == -1)
+                        {
+                            // the regex for: IndexOf(s, startIndex) == index
+                            // is: /^.{startIndex}(?!.{0, index - startIndex - 1}s).{index - startIndex}s/
+                            pattern = string.Format("^.{{{1}}}(?!.{{0,{2}}}{0}).{{{3}}}{0}", s, startIndex, index - startIndex - 1, index - startIndex);
+                        }
+                        else
+                        {
+                            // the regex for: IndexOf(s, startIndex, count) == index
+                            // is: /^.{startIndex}(?=.{count})(?!.{0,index - startIndex - 1}s).{index - startIndex)s/
+                            pattern = string.Format("^.{{{1}}}(?=.{{{2}}})(?!.{{0,{3}}}{0}).{{{4}}}{0}", s, startIndex, count, index - startIndex - 1, index - startIndex);
+                        }
+                    }
+                }
+
+                if (pattern != null)
+                {
+                    return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
+                }
+            }
+
+            return null;
         }
 
         private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
