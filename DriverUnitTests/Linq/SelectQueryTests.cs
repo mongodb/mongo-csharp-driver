@@ -4492,36 +4492,36 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereSIndexOfAnyBC()
         {
-            var collection = _database.GetCollection("temp");
-            collection.Drop();
-            collection.Insert(new C { S = "bxxx" });
-            collection.Insert(new C { S = "xbxx" });
-            collection.Insert(new C { S = "xxbx" });
-            collection.Insert(new C { S = "xxxb" });
-            collection.Insert(new C { S = "bxbx" });
-            collection.Insert(new C { S = "xbbx" });
-            collection.Insert(new C { S = "xxbb" });
+            var tempCollection = _database.GetCollection("temp");
+            tempCollection.Drop();
+            tempCollection.Insert(new C { S = "bxxx" });
+            tempCollection.Insert(new C { S = "xbxx" });
+            tempCollection.Insert(new C { S = "xxbx" });
+            tempCollection.Insert(new C { S = "xxxb" });
+            tempCollection.Insert(new C { S = "bxbx" });
+            tempCollection.Insert(new C { S = "xbbx" });
+            tempCollection.Insert(new C { S = "xxbb" });
 
             var query1 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOfAny(new char[] { 'b', 'c' }) == 2
                 select c;
             Assert.AreEqual(2, Consume(query1));
 
             var query2 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1) == 2
                 select c;
             Assert.AreEqual(3, Consume(query2));
 
             var query3 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1, 1) == 2
                 select c;
             Assert.AreEqual(0, Consume(query3));
 
             var query4 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1, 2) == 2
                 select c;
             Assert.AreEqual(3, Consume(query4));
@@ -4599,36 +4599,36 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereSIndexOfB()
         {
-            var collection = _database.GetCollection("temp");
-            collection.Drop();
-            collection.Insert(new C { S = "bxxx" });
-            collection.Insert(new C { S = "xbxx" });
-            collection.Insert(new C { S = "xxbx" });
-            collection.Insert(new C { S = "xxxb" });
-            collection.Insert(new C { S = "bxbx" });
-            collection.Insert(new C { S = "xbbx" });
-            collection.Insert(new C { S = "xxbb" });
+            var tempCollection = _database.GetCollection("temp");
+            tempCollection.Drop();
+            tempCollection.Insert(new C { S = "bxxx" });
+            tempCollection.Insert(new C { S = "xbxx" });
+            tempCollection.Insert(new C { S = "xxbx" });
+            tempCollection.Insert(new C { S = "xxxb" });
+            tempCollection.Insert(new C { S = "bxbx" });
+            tempCollection.Insert(new C { S = "xbbx" });
+            tempCollection.Insert(new C { S = "xxbb" });
 
             var query1 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf('b') == 2
                 select c;
             Assert.AreEqual(2, Consume(query1));
 
             var query2 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf('b', 1) == 2
                 select c;
             Assert.AreEqual(3, Consume(query2));
 
             var query3 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf('b', 1, 1) == 2
                 select c;
             Assert.AreEqual(0, Consume(query3));
 
             var query4 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf('b', 1, 2) == 2
                 select c;
             Assert.AreEqual(3, Consume(query4));
@@ -4706,35 +4706,35 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereSIndexOfXyz()
         {
-            var collection = _database.GetCollection("temp");
-            collection.Drop();
-            collection.Insert(new C { S = "xyzaaa" });
-            collection.Insert(new C { S = "axyzaa" });
-            collection.Insert(new C { S = "aaxyza" });
-            collection.Insert(new C { S = "aaaxyz" });
-            collection.Insert(new C { S = "aaaaxy" });
-            collection.Insert(new C { S = "xyzxyz" });
+            var tempCollection = _database.GetCollection("temp");
+            tempCollection.Drop();
+            tempCollection.Insert(new C { S = "xyzaaa" });
+            tempCollection.Insert(new C { S = "axyzaa" });
+            tempCollection.Insert(new C { S = "aaxyza" });
+            tempCollection.Insert(new C { S = "aaaxyz" });
+            tempCollection.Insert(new C { S = "aaaaxy" });
+            tempCollection.Insert(new C { S = "xyzxyz" });
 
             var query1 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf("xyz") == 3
                 select c;
             Assert.AreEqual(1, Consume(query1));
 
             var query2 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf("xyz", 1) == 3
                 select c;
             Assert.AreEqual(2, Consume(query2));
 
             var query3 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf("xyz", 1, 4) == 3
                 select c;
             Assert.AreEqual(0, Consume(query3)); // substring isn't long enough to match
 
             var query4 =
-                from c in collection.AsQueryable<C>()
+                from c in tempCollection.AsQueryable<C>()
                 where c.S.IndexOf("xyz", 1, 5) == 3
                 select c;
             Assert.AreEqual(2, Consume(query4));
@@ -4924,6 +4924,36 @@ namespace MongoDB.DriverUnitTests.Linq
 
             Assert.AreEqual("{ \"s\" : /^abc/i }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIsNullOrEmpty()
+        {
+            var tempCollection = _database.GetCollection("temp");
+            tempCollection.Drop();
+            tempCollection.Insert(new C()); // serialized document will have no "s" field
+            tempCollection.Insert(new BsonDocument("s", BsonNull.Value)); // work around [BsonIgnoreIfNull] on S
+            tempCollection.Insert(new C { S = "" });
+            tempCollection.Insert(new C { S = "x" });
+
+            var query = from c in tempCollection.AsQueryable<C>()
+                        where string.IsNullOrEmpty(c.S)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(tempCollection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => String.IsNullOrEmpty(c.S)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"$or\" : [{ \"s\" : { \"$type\" : 10 } }, { \"s\" : \"\" }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
         }
 
         [Test]

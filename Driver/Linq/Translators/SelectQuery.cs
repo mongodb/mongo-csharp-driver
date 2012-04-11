@@ -629,6 +629,27 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildIsNullOrEmptyQuery(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(string) && methodCallExpression.Object == null)
+            {
+                var arguments = methodCallExpression.Arguments.ToArray();
+                if (arguments.Length == 1)
+                {
+                    var serializationInfo = GetSerializationInfo(arguments[0]);
+                    if (serializationInfo != null)
+                    {
+                        return Query.Or(
+                            Query.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
+                            Query.EQ(serializationInfo.ElementName, "")
+                        );
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private IMongoQuery BuildMethodCallQuery(MethodCallExpression methodCallExpression)
         {
             switch (methodCallExpression.Method.Name)
@@ -642,6 +663,7 @@ namespace MongoDB.Driver.Linq
                 case "In": return BuildInQuery(methodCallExpression);
                 case "Inject": return BuildInjectQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
+                case "IsNullOrEmpty": return BuildIsNullOrEmptyQuery(methodCallExpression);
                 case "StartsWith": return BuildStringQuery(methodCallExpression);
             }
             return null;
