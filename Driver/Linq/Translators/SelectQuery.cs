@@ -750,6 +750,12 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
+            // TODO: support other comparison operators
+            if (operatorType != ExpressionType.Equal)
+            {
+                return null;
+            }
+
             if (constantExpression.Type != typeof(int))
             {
                 return null;
@@ -803,12 +809,12 @@ namespace MongoDB.Driver.Linq
                 string pattern = null;
                 if (value.GetType() == typeof(char))
                 {
-                    var c = Regex.Escape(((char)value).ToString());
+                    var escapedChar = Regex.Escape(((char)value).ToString());
                     if (startIndex == -1)
                     {
                         // the regex for: IndexOf(c) == index 
                         // is: /^[^c]{index}c/
-                        pattern = string.Format("^[^{0}]{{{1}}}{0}", c, index);
+                        pattern = string.Format("^[^{0}]{{{1}}}{0}", escapedChar, index);
                     }
                     else
                     {
@@ -816,24 +822,32 @@ namespace MongoDB.Driver.Linq
                         {
                             // the regex for: IndexOf(c, startIndex) == index
                             // is: /^.{startIndex}[^c]{index - startIndex}c/
-                            pattern = string.Format("^.{{{1}}}[^{0}]{{{2}}}{0}", c, startIndex, index - startIndex);
+                            pattern = string.Format("^.{{{1}}}[^{0}]{{{2}}}{0}", escapedChar, startIndex, index - startIndex);
                         }
                         else
                         {
-                            // the regex for: IndexOf(c, startIndex, count) == index
-                            // is: /^.{startIndex}(?=.{count})[^c]{index - startIndex}c/
-                            pattern = string.Format("^.{{{1}}}(?=.{{{2}}})[^{0}]{{{3}}}{0}", c, startIndex, count, index - startIndex);
+                            if (index >= startIndex + count)
+                            {
+                                // index is outside of the substring so no match is possible
+                                return Query.Exists("_id", false); // matches no documents
+                            }
+                            else
+                            {
+                                // the regex for: IndexOf(c, startIndex, count) == index
+                                // is: /^.{startIndex}(?=.{count})[^c]{index - startIndex}c/
+                                pattern = string.Format("^.{{{1}}}(?=.{{{2}}})[^{0}]{{{3}}}{0}", escapedChar, startIndex, count, index - startIndex);
+                            }
                         }
                     }
                 }
                 else if (value.GetType() == typeof(string))
                 {
-                    var s = Regex.Escape((string)value);
+                    var escapedString = Regex.Escape((string)value);
                     if (startIndex == -1)
                     {
                         // the regex for: IndexOf(s) == index 
                         // is: /^(?!.{0,index - 1}s).{index}s/
-                        pattern = string.Format("^(?!.{{0,{2}}}{0}).{{{1}}}{0}", s, index, index - 1);
+                        pattern = string.Format("^(?!.{{0,{2}}}{0}).{{{1}}}{0}", escapedString, index, index - 1);
                     }
                     else
                     {
@@ -841,13 +855,22 @@ namespace MongoDB.Driver.Linq
                         {
                             // the regex for: IndexOf(s, startIndex) == index
                             // is: /^.{startIndex}(?!.{0, index - startIndex - 1}s).{index - startIndex}s/
-                            pattern = string.Format("^.{{{1}}}(?!.{{0,{2}}}{0}).{{{3}}}{0}", s, startIndex, index - startIndex - 1, index - startIndex);
+                            pattern = string.Format("^.{{{1}}}(?!.{{0,{2}}}{0}).{{{3}}}{0}", escapedString, startIndex, index - startIndex - 1, index - startIndex);
                         }
                         else
                         {
-                            // the regex for: IndexOf(s, startIndex, count) == index
-                            // is: /^.{startIndex}(?=.{count})(?!.{0,index - startIndex - 1}s).{index - startIndex)s/
-                            pattern = string.Format("^.{{{1}}}(?=.{{{2}}})(?!.{{0,{3}}}{0}).{{{4}}}{0}", s, startIndex, count, index - startIndex - 1, index - startIndex);
+                            var unescapedLength = ((string)value).Length;
+                            if (unescapedLength > startIndex + count - index)
+                            {
+                                // substring isn't long enough to match
+                                return Query.Exists("_id", false); // matches no documents
+                            }
+                            else
+                            {
+                                // the regex for: IndexOf(s, startIndex, count) == index
+                                // is: /^.{startIndex}(?=.{count})(?!.{0,index - startIndex - 1}s).{index - startIndex)s/
+                                pattern = string.Format("^.{{{1}}}(?=.{{{2}}})(?!.{{0,{3}}}{0}).{{{4}}}{0}", escapedString, startIndex, count, index - startIndex - 1, index - startIndex);
+                            }
                         }
                     }
                 }

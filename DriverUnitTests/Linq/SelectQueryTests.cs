@@ -4352,6 +4352,44 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSIndexOfB()
+        {
+            var collection = _database.GetCollection("temp");
+            collection.Drop();
+            collection.Insert(new C { S = "bxxx" });
+            collection.Insert(new C { S = "xbxx" });
+            collection.Insert(new C { S = "xxbx" });
+            collection.Insert(new C { S = "xxxb" });
+            collection.Insert(new C { S = "bxbx" });
+            collection.Insert(new C { S = "xbbx" });
+            collection.Insert(new C { S = "xxbb" });
+
+            var query1 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf('b') == 2
+                select c;
+            Assert.AreEqual(2, Consume(query1));
+
+            var query2 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf('b', 1) == 2
+                select c;
+            Assert.AreEqual(3, Consume(query2));
+
+            var query3 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf('b', 1, 1) == 2
+                select c;
+            Assert.AreEqual(0, Consume(query3));
+
+            var query4 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf('b', 1, 2) == 2
+                select c;
+            Assert.AreEqual(3, Consume(query4));
+        }
+
+        [Test]
         public void TestWhereSIndexOfBEquals1()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -4418,6 +4456,43 @@ namespace MongoDB.DriverUnitTests.Linq
 
             Assert.AreEqual("{ \"s\" : /^.{1}(?=.{2})[^b]{0}b/s }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIndexOfXyz()
+        {
+            var collection = _database.GetCollection("temp");
+            collection.Drop();
+            collection.Insert(new C { S = "xyzaaa" });
+            collection.Insert(new C { S = "axyzaa" });
+            collection.Insert(new C { S = "aaxyza" });
+            collection.Insert(new C { S = "aaaxyz" });
+            collection.Insert(new C { S = "aaaaxy" });
+            collection.Insert(new C { S = "xyzxyz" });
+
+            var query1 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf("xyz") == 3
+                select c;
+            Assert.AreEqual(1, Consume(query1));
+
+            var query2 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf("xyz", 1) == 3
+                select c;
+            Assert.AreEqual(2, Consume(query2));
+
+            var query3 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf("xyz", 1, 4) == 3
+                select c;
+            Assert.AreEqual(0, Consume(query3)); // substring isn't long enough to match
+
+            var query4 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOf("xyz", 1, 5) == 3
+                select c;
+            Assert.AreEqual(2, Consume(query4));
         }
 
         [Test]
