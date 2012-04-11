@@ -763,7 +763,9 @@ namespace MongoDB.Driver.Linq
             var index = ToInt32(constantExpression);
 
             var methodCallExpression = variableExpression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "IndexOf" && methodCallExpression.Method.DeclaringType == typeof(string))
+            if (methodCallExpression != null && 
+                (methodCallExpression.Method.Name == "IndexOf" || methodCallExpression.Method.Name == "IndexOfAny") &&
+                methodCallExpression.Method.DeclaringType == typeof(string))
             {
                 var serializationInfo = GetSerializationInfo(methodCallExpression.Object);
                 if (serializationInfo == null)
@@ -807,14 +809,29 @@ namespace MongoDB.Driver.Linq
                 }
 
                 string pattern = null;
-                if (value.GetType() == typeof(char))
+                if (value.GetType() == typeof(char) || value.GetType() == typeof(char[]))
                 {
-                    var escapedChar = Regex.Escape(((char)value).ToString());
+                    char[] chars;
+                    if (value.GetType() == typeof(char))
+                    {
+                        chars = new char[] { (char)value };
+                    }
+                    else
+                    {
+                        chars = (char[])value;
+                    }
+                    var positiveClass = string.Join("", chars.Select(c => (c == '-') ? "\\-" : (c == ']') ? "\\]" : Regex.Escape(c.ToString())).ToArray());
+                    var negativeClass = "[^" + positiveClass + "]";
+                    if (chars.Length > 1)
+                    {
+                        positiveClass = "[" + positiveClass + "]";
+                    }
+
                     if (startIndex == -1)
                     {
                         // the regex for: IndexOf(c) == index 
                         // is: /^[^c]{index}c/
-                        pattern = string.Format("^[^{0}]{{{1}}}{0}", escapedChar, index);
+                        pattern = string.Format("^{0}{{{1}}}{2}", negativeClass, index, positiveClass);
                     }
                     else
                     {
@@ -822,7 +839,7 @@ namespace MongoDB.Driver.Linq
                         {
                             // the regex for: IndexOf(c, startIndex) == index
                             // is: /^.{startIndex}[^c]{index - startIndex}c/
-                            pattern = string.Format("^.{{{1}}}[^{0}]{{{2}}}{0}", escapedChar, startIndex, index - startIndex);
+                            pattern = string.Format("^.{{{0}}}{1}{{{2}}}{3}", startIndex, negativeClass, index - startIndex, positiveClass);
                         }
                         else
                         {
@@ -835,7 +852,7 @@ namespace MongoDB.Driver.Linq
                             {
                                 // the regex for: IndexOf(c, startIndex, count) == index
                                 // is: /^.{startIndex}(?=.{count})[^c]{index - startIndex}c/
-                                pattern = string.Format("^.{{{1}}}(?=.{{{2}}})[^{0}]{{{3}}}{0}", escapedChar, startIndex, count, index - startIndex);
+                                pattern = string.Format("^.{{{0}}}(?=.{{{1}}}){2}{{{3}}}{4}", startIndex, count, negativeClass, index - startIndex, positiveClass);
                             }
                         }
                     }
@@ -1233,26 +1250,12 @@ namespace MongoDB.Driver.Linq
             }
 
             // build a pattern that matches the characters to be trimmed
-            var sb = new StringBuilder();
-            sb.Append("[");
-            var sawDash = false; // if dash is one of the characters it must be last in the pattern
-            foreach (var c in trimChars)
+            var characterClass = string.Join("", trimChars.Select(c => (c == '-') ? "\\-" : (c == ']') ? "\\]" : Regex.Escape(c.ToString())).ToArray());
+            if (trimChars.Length > 1)
             {
-                if (c == '-')
-                {
-                    sawDash = true;
-                }
-                else
-                {
-                    sb.Append(Regex.Escape(c.ToString()));
-                }
+                characterClass = "[" + characterClass + "]";
             }
-            if (sawDash)
-            {
-                sb.Append("-");
-            }
-            sb.Append("]*");
-            return sb.ToString();
+            return characterClass + "*";
         }
 
         private BsonValue SerializeValue(BsonSerializationInfo serializationInfo, object value)

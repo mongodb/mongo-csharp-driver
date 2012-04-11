@@ -4352,6 +4352,113 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSIndexOfAnyBC()
+        {
+            var collection = _database.GetCollection("temp");
+            collection.Drop();
+            collection.Insert(new C { S = "bxxx" });
+            collection.Insert(new C { S = "xbxx" });
+            collection.Insert(new C { S = "xxbx" });
+            collection.Insert(new C { S = "xxxb" });
+            collection.Insert(new C { S = "bxbx" });
+            collection.Insert(new C { S = "xbbx" });
+            collection.Insert(new C { S = "xxbb" });
+
+            var query1 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOfAny(new char[] { 'b', 'c' }) == 2
+                select c;
+            Assert.AreEqual(2, Consume(query1));
+
+            var query2 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1) == 2
+                select c;
+            Assert.AreEqual(3, Consume(query2));
+
+            var query3 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1, 1) == 2
+                select c;
+            Assert.AreEqual(0, Consume(query3));
+
+            var query4 =
+                from c in collection.AsQueryable<C>()
+                where c.S.IndexOfAny(new char[] { 'b', 'c' }, 1, 2) == 2
+                select c;
+            Assert.AreEqual(3, Consume(query4));
+        }
+
+        [Test]
+        public void TestWhereSIndexOfAnyBDashCEquals1()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.IndexOfAny(new char[] { 'b', '-', 'c' }) == 1
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }) == 1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^[^b\\-c]{1}[b\\-c]/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIndexOfAnyBCStartIndex1Equals1()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1) == 1
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }, 1) == 1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^.{1}[^b\\-c]{0}[b\\-c]/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }, 1, 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^.{1}(?=.{2})[^b\\-c]{0}[b\\-c]/s }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereSIndexOfB()
         {
             var collection = _database.GetCollection("temp");
@@ -5068,7 +5175,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : /^[\\ \\.\\t-]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^[\\ \\.\\-\\t]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
