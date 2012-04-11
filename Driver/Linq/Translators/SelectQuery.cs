@@ -365,6 +365,11 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
+        }
+
+        private IMongoQuery BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
             BsonSerializationInfo serializationInfo = null;
             var value = constantExpression.Value;
 
@@ -490,6 +495,54 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildEqualsQuery(MethodCallExpression methodCallExpression)
+        {
+            var arguments = methodCallExpression.Arguments.ToArray();
+
+            // assume that static and instance Equals mean the same thing for all classes (i.e. an equality test)
+            Expression firstExpression = null;
+            Expression secondExpression = null;
+            if (methodCallExpression.Object == null)
+            {
+                // static Equals method
+                if (arguments.Length == 2)
+                {
+                    firstExpression = arguments[0];
+                    secondExpression = arguments[1];
+                }
+            }
+            else
+            {
+                // instance Equals method
+                if (arguments.Length == 1)
+                {
+                    firstExpression = methodCallExpression.Object;
+                    secondExpression = arguments[0];
+                }
+            }
+
+            if (firstExpression != null && secondExpression != null)
+            {
+                // the constant could be either expression
+                var variableExpression = firstExpression;
+                var constantExpression = secondExpression as ConstantExpression;
+                if (constantExpression == null)
+                {
+                    constantExpression = firstExpression as ConstantExpression;
+                    variableExpression = secondExpression;
+                }
+
+                if (constantExpression == null)
+                {
+                    return null;
+                }
+
+                return BuildComparisonQuery(variableExpression, ExpressionType.Equal, constantExpression);
+            }
+
+            return null;
+        }
+
         private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
@@ -585,6 +638,7 @@ namespace MongoDB.Driver.Linq
                 case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
                 case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);
                 case "EndsWith": return BuildStringQuery(methodCallExpression);
+                case "Equals": return BuildEqualsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
                 case "Inject": return BuildInjectQuery(methodCallExpression);
                 case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
