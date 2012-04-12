@@ -359,6 +359,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildStringIndexQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = BuildStringLengthQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -975,6 +981,83 @@ namespace MongoDB.Driver.Linq
             }
 
             return null;
+        }
+
+        private IMongoQuery BuildStringIndexQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            var unaryExpression = variableExpression as UnaryExpression;
+            if (unaryExpression == null)
+            {
+                return null;
+            }
+
+            if (unaryExpression.NodeType != ExpressionType.Convert || unaryExpression.Type != typeof(int))
+            {
+                return null;
+            }
+
+            var methodCallExpression = unaryExpression.Operand as MethodCallExpression;
+            if (methodCallExpression == null)
+            {
+                return null;
+            }
+
+            var method = methodCallExpression.Method;
+            if (method.DeclaringType != typeof(string) || method.Name != "get_Chars")
+            {
+                return null;
+            }
+
+            var stringExpression = methodCallExpression.Object;
+            if (stringExpression == null)
+            {
+                return null;
+            }
+
+            var serializationInfo = GetSerializationInfo(stringExpression);
+            if (serializationInfo == null)
+            {
+                return null;
+            }
+
+            var args = methodCallExpression.Arguments.ToArray();
+            if (args.Length != 1)
+            {
+                return null;
+            }
+
+            var indexExpression = args[0] as ConstantExpression;
+            if (indexExpression == null)
+            {
+                return null;
+            }
+            var index = ToInt32(indexExpression);
+
+            if (constantExpression.Type != typeof(int))
+            {
+                return null;
+            }
+            var value = ToInt32(constantExpression);
+
+            var c = new string((char)value, 1);
+            var positiveClass = (c == "-") ? "\\-" : (c == "]") ? "\\]" : Regex.Escape(c);
+            var negativeClass = "[^" + positiveClass + "]";
+
+            string characterClass;
+            switch (operatorType)
+            {
+                case ExpressionType.Equal:
+                    characterClass = positiveClass;
+                    break;
+                case ExpressionType.NotEqual:
+                    characterClass = negativeClass;
+                    break;
+                default:
+                    return null; // TODO: suport other comparison operators?
+            }
+            var pattern = string.Format("^.{{{0}}}{1}", index, characterClass);
+
+            return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
         }
 
         private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
