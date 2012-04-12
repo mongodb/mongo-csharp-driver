@@ -162,6 +162,8 @@
     <Compile Include="Jira\CSharp93Tests.cs" />
     <Compile Include="Jira\CSharp98Tests.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
+    <Compile Include="Linq\SelectOfTypeHierarchicalTests.cs" />
+    <Compile Include="Linq\SelectOfTypeTests.cs" />
     <Compile Include="Linq\SelectQueryTests.cs" />
     <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\MongoQueryProviderTests.cs" />

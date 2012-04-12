@@ -183,6 +183,7 @@
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
     <Compile Include="Linq\Expressions\ExpressionFormatter.cs" />
+    <Compile Include="Linq\Expressions\ExpressionParameterFinder.cs" />
     <Compile Include="Linq\Expressions\ExpressionParameterReplacer.cs" />
     <Compile Include="Linq\LinqToMongo.cs" />
     <Compile Include="Linq\Translators\DeserializationProjector.cs" />

@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Linq
     {
         // private fields
         private LambdaExpression _where;
+        private Type _ofType;
         private List<OrderByClause> _orderBy;
         private LambdaExpression _projection;
         private Expression _skip;
@@ -56,6 +57,14 @@ namespace MongoDB.Driver.Linq
         }
 
         // public properties
+        /// <summary>
+        /// Gets the final result type if an OfType query operator was used (otherwise null).
+        /// </summary>
+        public Type OfType
+        {
+            get { return _ofType; }
+        }
+
         /// <summary>
         /// Gets a list of Expressions that defines the sort order (or null if not specified).
         /// </summary>
@@ -157,6 +166,21 @@ namespace MongoDB.Driver.Linq
                 cursor.SetLimit(ToInt32(_take));
             }
 
+            if (_ofType != null)
+            {
+                if (_projection == null)
+                {
+                    var paramExpression = Expression.Parameter(DocumentType, "x");
+                    var convertExpression = Expression.Convert(paramExpression, _ofType);
+                    _projection = Expression.Lambda(convertExpression, paramExpression);
+                }
+                else
+                {
+                    // TODO: handle projection after OfType
+                    throw new NotSupportedException();
+                }
+            }
+
             IEnumerable enumerable;
             if (_projection == null)
             {
@@ -208,6 +232,7 @@ namespace MongoDB.Driver.Linq
             }
 
             var message = string.Format("Don't know how to translate expression: {0}.", ExpressionFormatter.ToString(expression));
+            throw new NotSupportedException(message);
         }
 
         // private methods
@@ -1239,10 +1264,39 @@ namespace MongoDB.Driver.Linq
                     return;
                 }
 
+                if (_where.Parameters.Count != 1)
+                {
+                    throw new MongoInternalException("Where lambda expression should have one parameter.");
+                }
                 var whereBody = _where.Body;
-                var predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicate.Body, predicate.Parameters[0], _where.Parameters[0]);
+                var whereParameter = _where.Parameters[0];
+
+                if (predicate.Parameters.Count != 1)
+                {
+                    throw new MongoInternalException("Predicate lambda expression should have one parameter.");
+                }
+                var predicateBody = predicate.Body;
+                var predicateParameter = predicate.Parameters[0];
+
+                // when using OfType the parameter types might not match (but they do have to be compatible)
+                ParameterExpression parameter;
+                if (predicateParameter.Type.IsAssignableFrom(whereParameter.Type))
+                {
+                    predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicateBody, predicateParameter, whereParameter);
+                    parameter = whereParameter;
+                }
+                else if (whereParameter.Type.IsAssignableFrom(predicateParameter.Type))
+                {
+                    whereBody = ExpressionParameterReplacer.ReplaceParameter(whereBody, whereParameter, predicateParameter);
+                    parameter = predicateParameter;
+                }
+                else
+                {
+                    throw new NotSupportedException("Can't combine existing where clause with new predicate because parameter types are incompatible.");
+                }
+
                 var combinedBody = Expression.AndAlso(whereBody, predicateBody);
-                _where = Expression.Lambda(combinedBody, _where.Parameters.ToArray());
+                _where = Expression.Lambda(combinedBody, parameter);
             }
         }
 
@@ -1278,7 +1332,9 @@ namespace MongoDB.Driver.Linq
 
         private BsonSerializationInfo GetSerializationInfo(Expression expression)
         {
-            var documentSerializer = BsonSerializer.LookupSerializer(DocumentType);
+            // when using OfType the documentType used by the parameter might be a subclass of the DocumentType from the collection
+            var parameterExpression = ExpressionParameterFinder.FindParameter(expression);
+            var documentSerializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
             return GetSerializationInfo(documentSerializer, expression);
         }
 
@@ -1755,6 +1811,9 @@ namespace MongoDB.Driver.Linq
                 case "Min":
                     TranslateMaxMin(methodCallExpression);
                     break;
+                case "OfType":
+                    TranslateOfType(methodCallExpression);
+                    break;
                 case "OrderBy":
                 case "OrderByDescending":
                     TranslateOrderBy(methodCallExpression);
@@ -1779,6 +1838,63 @@ namespace MongoDB.Driver.Linq
                     var message = string.Format("The {0} query operator is not supported.", methodName);
                     throw new NotSupportedException(message);
             }
+        }
+
+        private void TranslateOfType(MethodCallExpression methodCallExpression)
+        {
+            var method = methodCallExpression.Method;
+            if (method.DeclaringType != typeof(Queryable))
+            {
+                var message = string.Format("OfType method of class {0} is not supported.", BsonUtils.GetFriendlyTypeName(method.DeclaringType));
+                throw new NotSupportedException(message);
+            }
+            if (!method.IsStatic)
+            {
+                throw new NotSupportedException("Expected OfType to be a static method.");
+            }
+            if (!method.IsGenericMethod)
+            {
+                throw new NotSupportedException("Expected OfType to be a generic method.");
+            }
+            var actualType = method.GetGenericArguments()[0];
+
+            var args = methodCallExpression.Arguments.ToArray();
+            if (args.Length != 1)
+            {
+                throw new NotSupportedException("Expected OfType method to have a single argument.");
+            }
+            var sourceExpression = args[0];
+            if (!sourceExpression.Type.IsGenericType)
+            {
+                throw new NotSupportedException("Expected source argument to OfType to be a generic type.");
+            }
+            var nominalType = sourceExpression.Type.GetGenericArguments()[0];
+
+            if (nominalType == actualType)
+            {
+                return; // nothing to do
+            }
+
+            if (_projection != null)
+            {
+                throw new NotSupportedException("OfType after a projection is not supported.");
+            }
+
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            if (discriminator.IsBsonArray)
+            {
+                discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
+            }
+
+            var injectMethodInfo = typeof(LinqToMongo).GetMethod("Inject");
+            var query = Query.EQ("_t", discriminator);
+            var body = Expression.Call(injectMethodInfo, Expression.Constant(query));
+            var parameter = Expression.Parameter(nominalType, "x");
+            var predicate = Expression.Lambda(body, parameter);
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
+
+            _ofType = actualType;
         }
 
         private void TranslateOrderBy(MethodCallExpression methodCallExpression)

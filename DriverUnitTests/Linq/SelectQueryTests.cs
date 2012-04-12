@@ -1315,15 +1315,6 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The OfType query operator is not supported.")]
-        public void TestOfType()
-        {
-            var query = (from c in _collection.AsQueryable<C>()
-                         select c).OfType<C>();
-            query.ToList(); // execute query
-        }
-
-        [Test]
         public void TestOrderByAscending()
         {
             var query = from c in _collection.AsQueryable<C>()

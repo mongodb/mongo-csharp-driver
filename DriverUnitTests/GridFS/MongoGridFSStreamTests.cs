@@ -282,7 +282,9 @@ namespace MongoDB.DriverUnitTests.GridFS
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
+#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
                 stream.UpdateMD5 = false;
+#pragma warning restore
             }
 
             fileInfo = _gridFS.FindOne("test");
