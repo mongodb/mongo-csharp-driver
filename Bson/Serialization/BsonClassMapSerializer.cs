@@ -142,14 +142,17 @@ namespace MongoDB.Bson.Serialization
                     }
 
                     var memberMap = classMap.GetMemberMapForElement(elementName);
-                    if (memberMap != null && memberMap != classMap.ExtraElementsMemberMap && !memberMap.IsReadOnly)
+                    if (memberMap != null && memberMap != classMap.ExtraElementsMemberMap)
                     {
-                        DeserializeMember(bsonReader, obj, memberMap);
+                        if (memberMap.IsReadOnly)
+                        {
+                            bsonReader.SkipValue();
+                        }
+                        else
+                        {
+                            DeserializeMember(bsonReader, obj, memberMap);
+                        }
                         missingElementMemberMaps.Remove(memberMap);
-                    }
-                    else if (memberMap != null && memberMap.IsReadOnly)
-                    {
-                        bsonReader.SkipValue();
                     }
                     else
                     {
