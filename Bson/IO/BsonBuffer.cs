@@ -533,23 +533,25 @@ namespace MongoDB.Bson.IO
         public string ReadCString()
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            byte ascii = 0;
             // optimize for the case where the null terminator is on the same chunk
-            int partialCount;
-            if (_chunkIndex < _chunks.Count - 1)
+            int endIndex = __chunkSize;
+            if (_chunkIndex == _chunks.Count - 1)
             {
-                partialCount = __chunkSize - _chunkOffset; // remaining part of any chunk but the last
+                endIndex = _length - _position + _chunkOffset; // populated part of last chunk
             }
-            else
+            for (var index = _chunkOffset; index < endIndex; ++index)
             {
-                partialCount = _length - _position; // populated part of last chunk
-            }
-            var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset, partialCount);
-            if (index != -1)
-            {
-                var stringLength = index - _chunkOffset;
-                var value = Encoding.UTF8.GetString(_chunk, _chunkOffset, stringLength);
-                Position += stringLength + 1;
-                return value;
+                var c = _chunk[index];
+                if (c == 0)
+                {
+                    var stringLength = index - _chunkOffset;
+                    var encoding = (ascii & 0x80) == 0 ? Encoding.ASCII : Encoding.UTF8; // Prefer ASCIIEncoding because GetCharCount is O(1)
+                    var value = encoding.GetString(_chunk, _chunkOffset, stringLength);
+                    Position += stringLength + 1;
+                    return value;
+                }
+                ascii |= c; // high bit remains 0 if all characters are ascii
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
@@ -558,22 +560,23 @@ namespace MongoDB.Bson.IO
             while (localPosition < _length)
             {
                 var localChunk = _chunks[localChunkIndex];
-                if (localChunkIndex < _chunks.Count - 1)
+                if (localChunkIndex == _chunks.Count - 1)
                 {
-                    partialCount = __chunkSize; // all of any chunk but the last
+                    endIndex = _length - localPosition; // populated part of last chunk
                 }
-                else
+                for (var index = 0; index < endIndex; ++index)
                 {
-                    partialCount = _length - localPosition; // populated part of last chunk
-                }
-                index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
-                if (index != -1)
-                {
-                    localPosition += index;
-                    var stringLength = localPosition - _position;
-                    var value = Encoding.UTF8.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
-                    Position += 1; // skip over null byte at end
-                    return value;
+                    var c = localChunk[index];
+                    if (c == 0)
+                    {
+                        localPosition += index;
+                        var stringLength = localPosition - _position;
+                        var encoding = (ascii & 0x80) == 0 ? Encoding.ASCII : Encoding.UTF8; // Prefer ASCIIEncoding because GetCharCount is O(1)
+                        var value = encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                        Position += 1; // skip over null byte at end
+                        return value;
+                    }
+                    ascii |= c; // high bit remains 0 if all characters are ascii
                 }
                 localChunkIndex++;
                 localPosition += __chunkSize;
