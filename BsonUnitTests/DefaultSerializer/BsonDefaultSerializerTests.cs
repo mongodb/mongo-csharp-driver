@@ -75,6 +75,7 @@ namespace MongoDB.BsonUnitTests.Serialization
                     cm.MapProperty(e => e.FirstName).SetElementName("fn");
                     cm.MapProperty(e => e.LastName).SetElementName("ln");
                     cm.MapProperty(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
+                    cm.MapProperty(e => e.Age).SetElementName("age");
                 });
             }
 
@@ -82,6 +83,18 @@ namespace MongoDB.BsonUnitTests.Serialization
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public DateTime DateOfBirth { get; set; }
+            public int Age
+            {
+                get
+                {
+                    DateTime now = DateTime.Today;
+                    int age = now.Year - DateOfBirth.Year;
+                    if (DateOfBirth > now.AddYears(-age)) 
+                        age--;
+
+                    return age;
+                }
+            }
         }
 
         [Test]

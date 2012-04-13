@@ -34,6 +34,12 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Initializes a new instance of the BsonElementAttribute class.
         /// </summary>
+        public BsonElementAttribute()
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonElementAttribute class.
+        /// </summary>
         /// <param name="elementName">The name of the element.</param>
         public BsonElementAttribute(string elementName)
         {
