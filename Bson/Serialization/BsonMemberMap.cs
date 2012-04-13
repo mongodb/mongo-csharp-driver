@@ -240,6 +240,34 @@ namespace MongoDB.Bson.Serialization
             get { return _defaultValue; }
         }
 
+        /// <summary>
+        /// Gets whether the member is readonly.
+        /// </summary>
+        /// <remarks>
+        /// Readonly indicates that the member is written to the database, but not read from the database.
+        /// </remarks>
+        public bool IsReadOnly
+        {
+            get
+            {
+                switch(_memberInfo.MemberType)
+                {
+                    case MemberTypes.Field:
+                        var field = (FieldInfo)_memberInfo;
+                        return field.IsInitOnly || field.IsLiteral;
+                    case MemberTypes.Property:
+                        var property = (PropertyInfo)_memberInfo;
+                        return !property.CanWrite;
+                    default:
+                        throw new NotSupportedException(
+                            string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
+                            _memberInfo.Name,
+                            _memberInfo.DeclaringType.Name,
+                            _memberInfo.MemberType));
+                }
+            }
+        }
+
         // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
@@ -497,10 +525,10 @@ namespace MongoDB.Bson.Serialization
         {
             var fieldInfo = (FieldInfo)_memberInfo;
 
-            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+            if (IsReadOnly)
             {
                 var message = string.Format(
-                    "The field '{0} {1}' of class '{2}' is readonly.",
+                    "The field '{0} {1}' of class '{2}' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
                     fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
@@ -554,10 +582,10 @@ namespace MongoDB.Bson.Serialization
         {
             var propertyInfo = (PropertyInfo)_memberInfo;
             var setMethodInfo = propertyInfo.GetSetMethod(true);
-            if (setMethodInfo == null)
+            if (IsReadOnly)
             {
                 var message = string.Format(
-                    "The property '{0} {1}' of class '{2}' has no 'set' accessor.",
+                    "The property '{0} {1}' of class '{2}' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
                     propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }

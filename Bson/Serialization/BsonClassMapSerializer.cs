@@ -142,10 +142,14 @@ namespace MongoDB.Bson.Serialization
                     }
 
                     var memberMap = classMap.GetMemberMapForElement(elementName);
-                    if (memberMap != null && memberMap != classMap.ExtraElementsMemberMap)
+                    if (memberMap != null && memberMap != classMap.ExtraElementsMemberMap && !memberMap.IsReadOnly)
                     {
                         DeserializeMember(bsonReader, obj, memberMap);
                         missingElementMemberMaps.Remove(memberMap);
+                    }
+                    else if (memberMap != null && memberMap.IsReadOnly)
+                    {
+                        bsonReader.SkipValue();
                     }
                     else
                     {
@@ -171,6 +175,11 @@ namespace MongoDB.Bson.Serialization
 
                 foreach (var memberMap in missingElementMemberMaps)
                 {
+                    if (memberMap.IsReadOnly)
+                    {
+                        continue;
+                    }
+
                     if (memberMap.IsRequired)
                     {
                         var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
