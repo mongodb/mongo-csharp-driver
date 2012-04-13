@@ -34,6 +34,21 @@ namespace MongoDB.BsonUnitTests.IO
         private static int __filler = __chunkSize - __used;
 
         [Test]
+        public void TestNameUtf8()
+        {
+            const char LowercasePi = '\u03c0';
+
+            var document = new BsonDocument
+            {
+                { "abcd" + LowercasePi + "efgh" + LowercasePi, 1 },
+            };
+
+            var bson = document.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<BsonDocument>(bson);
+            Assert.AreEqual(bson, rehydrated.ToBson());
+        }
+
+        [Test]
         public void TestNameStraddles()
         {
             var document = new BsonDocument
