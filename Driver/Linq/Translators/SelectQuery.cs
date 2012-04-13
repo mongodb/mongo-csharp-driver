@@ -844,6 +844,9 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.OrElse:
                     query = BuildOrElseQuery((BinaryExpression)expression);
                     break;
+                case ExpressionType.TypeIs:
+                    query = BuildTypeIsQuery((TypeBinaryExpression)expression);
+                    break;
             }
 
             if (query == null)
@@ -1246,6 +1249,26 @@ namespace MongoDB.Driver.Linq
             }
 
             return null;
+        }
+
+        private IMongoQuery BuildTypeIsQuery(TypeBinaryExpression typeBinaryExpression)
+        {
+            var nominalType = typeBinaryExpression.Expression.Type;
+            var actualType = typeBinaryExpression.TypeOperand;
+
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            if (discriminator == null)
+            {
+                return Query.Not("_").Mod(1, 2); // best query I could come up with that's always true
+            }
+
+            if (discriminator.IsBsonArray)
+            {
+                discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
+            }
+
+            return Query.EQ(discriminatorConvention.ElementName, discriminator);
         }
 
         private void CombinePredicateWithWhereClause(MethodCallExpression methodCallExpression, LambdaExpression predicate)
@@ -1870,11 +1893,6 @@ namespace MongoDB.Driver.Linq
             }
             var nominalType = sourceExpression.Type.GetGenericArguments()[0];
 
-            if (nominalType == actualType)
-            {
-                return; // nothing to do
-            }
-
             if (_projection != null)
             {
                 throw new NotSupportedException("OfType after a projection is not supported.");
@@ -1882,13 +1900,18 @@ namespace MongoDB.Driver.Linq
 
             var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            if (discriminator == null)
+            {
+                return; // nothing to do
+            }
+
             if (discriminator.IsBsonArray)
             {
                 discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
             }
+            var query = Query.EQ(discriminatorConvention.ElementName, discriminator);
 
             var injectMethodInfo = typeof(LinqToMongo).GetMethod("Inject");
-            var query = Query.EQ("_t", discriminator);
             var body = Expression.Call(injectMethodInfo, Expression.Constant(query));
             var parameter = Expression.Parameter(nominalType, "x");
             var predicate = Expression.Lambda(body, parameter);

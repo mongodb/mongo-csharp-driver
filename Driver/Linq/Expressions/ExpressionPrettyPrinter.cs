@@ -332,7 +332,14 @@ namespace MongoDB.Driver.Linq
         /// <returns>The TypeBinaryExpression.</returns>
         protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
-            throw new NotImplementedException();
+            WriteHeader(node);
+            using (new Indentation(this))
+            {
+                WriteLine("TypeOperand={0}", FriendlyClassName(node.TypeOperand));
+                WriteLine("Expression:");
+                VisitIndented(node.Expression);
+            }
+            return node;
         }
 
         /// <summary>

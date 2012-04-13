@@ -173,6 +173,81 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query)); // should match 2 but for that you need to use the hierarchical discriminator
         }
 
+        [Test]
+        public void TestWhereBIsB()
+        {
+            var query =
+                from b in _collection.AsQueryable<B>()
+                where b is B
+                select b;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(B), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(B b) => (b is B)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual(null, selectQuery.OfType); // OfType ignored because <T> was the same as <TDocument>
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_\" : { \"$not\" : { \"$mod\" : [1, 2] } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereBIsC()
+        {
+            var query =
+                from b in _collection.AsQueryable<B>()
+                where b is C
+                select b;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(B), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(B b) => (b is C)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual(null, selectQuery.OfType);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_t\" : \"C\" }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query)); // should match 2 but for that you need to use the hierarchical discriminator
+        }
+
+        [Test]
+        public void TestWhereBIsD()
+        {
+            var query =
+                from b in _collection.AsQueryable<B>()
+                where b is D
+                select b;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(B), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(B b) => (b is D)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual(null, selectQuery.OfType);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_t\" : \"D\" }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
         private int Consume<T>(IQueryable<T> query)
         {
             var count = 0;
