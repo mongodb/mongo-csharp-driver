@@ -98,6 +98,36 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestAndWithEmptyQuery()
+        {
+            var emptyQuery = new QueryDocument();
+
+            var query = Query.And(emptyQuery);
+            var expected = "{ }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.And(emptyQuery, emptyQuery);
+            expected = "{ }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.And(emptyQuery, Query.EQ("x", 1));
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.And(Query.EQ("x", 1), emptyQuery);
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.And(emptyQuery, Query.EQ("x", 1), emptyQuery);
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.And(Query.EQ("x", 1), emptyQuery, Query.EQ("y", 2));
+            expected = "{ \"x\" : 1, \"y\" : 2 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestElementMatch()
         {
             var query = Query.ElemMatch("x", 
@@ -385,6 +415,36 @@ namespace MongoDB.DriverUnitTests.Builders
                     );
             });
             Assert.IsTrue(ex.Message.StartsWith("One of the queries is null."));
+        }
+
+        [Test]
+        public void TestOrWithEmptyQuery()
+        {
+            var emptyQuery = new QueryDocument();
+
+            var query = Query.Or(emptyQuery);
+            var expected = "{ }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.Or(emptyQuery, emptyQuery);
+            expected = "{ }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.Or(emptyQuery, Query.EQ("x", 1));
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.Or(Query.EQ("x", 1), emptyQuery);
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.Or(emptyQuery, Query.EQ("x", 1), emptyQuery);
+            expected = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+
+            query = Query.Or(Query.EQ("x", 1), emptyQuery, Query.EQ("y", 2));
+            expected = "{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]

@@ -396,6 +396,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildTypeComparisonQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
         }
 
@@ -1251,6 +1257,74 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            if (operatorType != ExpressionType.Equal)
+            {
+                // TODO: support NotEqual?
+                return null;
+            }
+
+            if (constantExpression.Type != typeof(Type))
+            {
+                return null;
+            }
+            var actualType = (Type)constantExpression.Value;
+
+            var methodCallExpression = variableExpression as MethodCallExpression;
+            if (methodCallExpression == null)
+            {
+                return null;
+            }
+            if (methodCallExpression.Method.Name != "GetType" || methodCallExpression.Object == null)
+            {
+                return null;
+            }
+            if (methodCallExpression.Arguments.Count != 0)
+            {
+                return null;
+            }
+
+            // TODO: would the object ever not be a ParameterExpression?
+            var parameterExpression = methodCallExpression.Object as ParameterExpression;
+            if (parameterExpression == null)
+            {
+                return null;
+            }
+
+            var serializationInfo = GetSerializationInfo(parameterExpression);
+            if (serializationInfo == null)
+            {
+                return null;
+            }
+            var nominalType = serializationInfo.NominalType;
+
+            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            if (discriminator == null)
+            {
+                return new QueryDocument(); // matches everything
+            }
+
+            if (discriminator.IsBsonArray)
+            {
+                var discriminatorArray = discriminator.AsBsonArray;
+                var queries = new IMongoQuery[discriminatorArray.Count + 1];
+                queries[0] = Query.Size(discriminatorConvention.ElementName, discriminatorArray.Count);
+                for (var i = 0; i < discriminatorArray.Count; i++)
+                {
+                    queries[i + 1] = Query.EQ(string.Format("{0}.{1}", discriminatorConvention.ElementName, i), discriminatorArray[i]);
+                }
+                return Query.And(queries);
+            }
+            else
+            {
+                return Query.And(
+                    Query.Exists(discriminatorConvention.ElementName + ".0", false), // trick to check that element is not an array
+                    Query.EQ(discriminatorConvention.ElementName, discriminator));
+            }
+        }
+
         private IMongoQuery BuildTypeIsQuery(TypeBinaryExpression typeBinaryExpression)
         {
             var nominalType = typeBinaryExpression.Expression.Type;
@@ -1260,7 +1334,7 @@ namespace MongoDB.Driver.Linq
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {
-                return Query.Not("_").Mod(1, 2); // best query I could come up with that's always true
+                return new QueryDocument(); // matches everything
             }
 
             if (discriminator.IsBsonArray)
@@ -1355,10 +1429,26 @@ namespace MongoDB.Driver.Linq
 
         private BsonSerializationInfo GetSerializationInfo(Expression expression)
         {
+            var parameterExpression = expression as ParameterExpression;
+            if (parameterExpression != null)
+            {
+                var serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                return new BsonSerializationInfo(
+                    null, // elementName
+                    serializer,
+                    parameterExpression.Type, // nominalType
+                    null); // serialization options
+            }
+
             // when using OfType the documentType used by the parameter might be a subclass of the DocumentType from the collection
-            var parameterExpression = ExpressionParameterFinder.FindParameter(expression);
-            var documentSerializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
-            return GetSerializationInfo(documentSerializer, expression);
+            parameterExpression = ExpressionParameterFinder.FindParameter(expression);
+            if (parameterExpression != null)
+            {
+                var serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                return GetSerializationInfo(serializer, expression);
+            }
+
+            return null;
         }
 
         private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, Expression expression)

@@ -513,6 +513,13 @@ namespace MongoDB.Driver.Linq
                 return;
             }
 
+            var type = value as Type;
+            if (type != null)
+            {
+                _sb.AppendFormat("typeof({0})", FriendlyClassName(type));
+                return;
+            }
+
             _sb.Append(value.ToString());
         }
     }

@@ -572,12 +572,18 @@ namespace MongoDB.Driver.Builders
                 }
                 else
                 {
-                    queryArray.Add(queryDocument);
+                    // skip query like { } which matches everything
+                    if (queryDocument.ElementCount != 0)
+                    {
+                        queryArray.Add(queryDocument);
+                    }
                 }
             }
 
             switch (queryArray.Count)
             {
+                case 0:
+                    return new QueryComplete(new QueryDocument()); // all queries were empty queries so just return an empty query
                 case 1:
                     return new QueryComplete(queryArray[0].AsBsonDocument);
                 default:
