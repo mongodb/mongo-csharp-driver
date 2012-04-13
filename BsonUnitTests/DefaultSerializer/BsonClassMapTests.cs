@@ -40,6 +40,8 @@ namespace MongoDB.BsonUnitTests.Serialization
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
             private int fieldMappedByAttribute;
+            [BsonElement]
+            private readonly int fieldMappedByAttribute2;
 
             public int PropertyMapped { get; set; }
             public int PropertyMapped2 { get; private set; }
@@ -49,6 +51,17 @@ namespace MongoDB.BsonUnitTests.Serialization
 
             [BsonElement("PropertyMappedByAttribute")]
             private int PropertyMappedByAttribute { get; set; }
+
+            [BsonElement]
+            public int PropertyMappedByAttribute2
+            {
+                get { return PropertyMapped + 1; }
+            }
+
+            public A()
+            {
+                fieldMappedByAttribute2 = 10;
+            }
         }
 #pragma warning restore
 
@@ -56,7 +69,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestMappingPicksUpAllMembersWithAttributes()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(A));
-            Assert.AreEqual(6, classMap.AllMemberMaps.Count());
+            Assert.AreEqual(8, classMap.AllMemberMaps.Count());
         }
     }
 

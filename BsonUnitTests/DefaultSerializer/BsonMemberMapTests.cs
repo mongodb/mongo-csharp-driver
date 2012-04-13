@@ -31,15 +31,23 @@ namespace MongoDB.BsonUnitTests.Serialization
     {
         private class TestClass
         {
+            public readonly int ReadOnlyField;
+
             public int Field;
 
             public int Property { get; set; }
 
-            public int ReadOnlyProperty { get; private set; }
+            public int PrivateSettableProperty { get; private set; }
+
+            public int ReadOnlyProperty
+            {
+                get { return Property + 1; }
+            }
 
             public TestClass()
             {
-                ReadOnlyProperty = 10;
+                ReadOnlyField = 13;
+                PrivateSettableProperty = 10;
             }
         }
 
@@ -56,6 +64,15 @@ namespace MongoDB.BsonUnitTests.Serialization
         }
 
         [Test]
+        public void TestIsReadOnlyPropertyOfAField()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("Field");
+
+            Assert.IsFalse(memberMap.IsReadOnly);
+        }
+
+        [Test]
         public void TestSettingAField()
         {
             var instance = new TestClass();
@@ -65,6 +82,50 @@ namespace MongoDB.BsonUnitTests.Serialization
             memberMap.Setter(instance, 42);
 
             Assert.AreEqual(42, instance.Field);
+        }
+
+        [Test]
+        public void TestGettingAReadOnlyField()
+        {
+            var instance = new TestClass();
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyField);
+            });
+            var memberMap = classMap.GetMemberMap("ReadOnlyField");
+
+            int value = (int)memberMap.Getter(instance);
+
+            Assert.AreEqual(13, value);
+        }
+
+        [Test]
+        public void TestIsReadOnlyPropertyOfAReadOnlyField()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyField);
+            });
+            var memberMap = classMap.GetMemberMap("ReadOnlyField");
+
+            Assert.IsTrue(memberMap.IsReadOnly);
+        }
+
+        [Test]
+        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.BsonUnitTests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
+        public void TestSettingAReadOnlyField()
+        {
+            var instance = new TestClass();
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyField);
+            });
+            var memberMap = classMap.GetMemberMap("ReadOnlyField");
+
+            memberMap.Setter(instance, 12);
         }
 
         [Test]
@@ -80,6 +141,15 @@ namespace MongoDB.BsonUnitTests.Serialization
         }
 
         [Test]
+        public void TestIsReadOnlyPropertyOfAProperty()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("Property");
+
+            Assert.IsFalse(memberMap.IsReadOnly);
+        }
+
+        [Test]
         public void TestSettingAProperty()
         {
             var instance = new TestClass();
@@ -92,11 +162,11 @@ namespace MongoDB.BsonUnitTests.Serialization
         }
 
         [Test]
-        public void TestGettingAReadOnlyProperty()
+        public void TestGettingAPrivateSettableProperty()
         {
             var instance = new TestClass();
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
-            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+            var memberMap = classMap.GetMemberMap("PrivateSettableProperty");
 
             int value = (int)memberMap.Getter(instance);
 
@@ -104,15 +174,69 @@ namespace MongoDB.BsonUnitTests.Serialization
         }
 
         [Test]
-        public void TestSettingAReadOnlyProperty()
+        public void TestIsReadOnlyPropertyOfAPrivateSettableProperty()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("PrivateSettableProperty");
+
+            Assert.IsFalse(memberMap.IsReadOnly);
+        }
+
+        [Test]
+        public void TestSettingAPrivateSettableProperty()
         {
             var instance = new TestClass();
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
-            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+            var memberMap = classMap.GetMemberMap("PrivateSettableProperty");
 
             memberMap.Setter(instance, 42);
 
-            Assert.AreEqual(42, instance.ReadOnlyProperty);
+            Assert.AreEqual(42, instance.PrivateSettableProperty);
+        }
+
+        [Test]
+        public void TestGettingAReadOnlyProperty()
+        {
+            var instance = new TestClass { Property = 10 };
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyProperty);
+            });
+
+            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+
+            int value = (int)memberMap.Getter(instance);
+
+            Assert.AreEqual(11, value);
+        }
+
+        [Test]
+        public void TestIsReadOnlyPropertyOfAReadOnlyProperty()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyProperty);
+            });
+            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+
+            Assert.IsTrue(memberMap.IsReadOnly);
+        }
+
+        [Test]
+        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.BsonUnitTests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
+        public void TestSettingAReadOnlyProperty()
+        {
+            var instance = new TestClass { Property = 10 };
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.AutoMap();
+                cm.MapMember(c => c.ReadOnlyProperty);
+            });
+            var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
+
+            memberMap.Setter(instance, 12);
         }
     }
 }

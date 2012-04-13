@@ -1085,7 +1085,10 @@ namespace MongoDB.Bson.Serialization
                 var elementAttribute = attribute as BsonElementAttribute;
                 if (elementAttribute != null)
                 {
-                    memberMap.SetElementName(elementAttribute.ElementName);
+                    if (!string.IsNullOrEmpty(elementAttribute.ElementName))
+                    {
+                        memberMap.SetElementName(elementAttribute.ElementName);
+                    }
                     memberMap.SetOrder(elementAttribute.Order);
                     continue;
                 }
@@ -1191,7 +1194,7 @@ namespace MongoDB.Bson.Serialization
             foreach (var fieldInfo in _classType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
             {
                 var elementAttribute = (BsonElementAttribute)fieldInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute == null || fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+                if (elementAttribute == null)
                 {
                     continue;
                 }
@@ -1206,7 +1209,7 @@ namespace MongoDB.Bson.Serialization
             foreach (var propertyInfo in _classType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
             {
                 var elementAttribute = (BsonElementAttribute)propertyInfo.GetCustomAttributes(typeof(BsonElementAttribute), false).FirstOrDefault();
-                if (elementAttribute == null || !propertyInfo.CanRead || (!propertyInfo.CanWrite && !_isAnonymous))
+                if (elementAttribute == null)
                 {
                     continue;
                 }

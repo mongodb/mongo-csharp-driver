@@ -27,3 +27,6 @@ Help
 
 #Nupkg artifacts
 *.nupkg
+
+# NCrunch artifacts
+*.ncrunch*
