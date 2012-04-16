@@ -258,6 +258,33 @@ namespace MongoDB.Driver.Linq
                 }
                 else if (arguments.Length == 2)
                 {
+                    var serializationInfo = GetSerializationInfo(arguments[0]);
+
+                    if (serializationInfo != null)
+                    {
+                        var expression = arguments[1] as LambdaExpression;
+
+                        if (null != expression)
+                        {
+                            var binaryExpression = expression.Body as BinaryExpression;
+
+                            if (null != binaryExpression)
+                            {
+                                var constantExpression = binaryExpression.Right as ConstantExpression;
+                                
+                                if (null != constantExpression)
+                                {
+                                    var value = constantExpression.Value;
+                                    var serializer = BsonSerializer.LookupSerializer(value.GetType());
+                                    var itemSerializationInfo = new BsonSerializationInfo("", serializer, value.GetType(), null); // OID Generator doesn't support GetItemSerializationInfo?
+                                    var serializedValues = SerializeValues(itemSerializationInfo, new[] { value });
+
+                                    return Query.And(Query.In(serializationInfo.ElementName, serializedValues));
+                                }
+                            }
+                        }
+                    }
+
                     throw new NotSupportedException("Enumerable.Any with a predicate is not supported.");
                 }
             }
@@ -1526,7 +1553,8 @@ namespace MongoDB.Driver.Linq
             var memberName = memberExpression.Member.Name;
 
             var containingExpression = memberExpression.Expression;
-            if (containingExpression.NodeType == ExpressionType.Parameter)
+            if (containingExpression.NodeType == ExpressionType.Parameter ||
+                containingExpression.NodeType == ExpressionType.Convert)
             {
                 try
                 {
