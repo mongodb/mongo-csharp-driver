@@ -166,13 +166,14 @@ namespace MongoDB.Driver.Linq
                 cursor.SetLimit(ToInt32(_take));
             }
 
+            var projection = _projection;
             if (_ofType != null)
             {
-                if (_projection == null)
+                if (projection == null)
                 {
                     var paramExpression = Expression.Parameter(DocumentType, "x");
                     var convertExpression = Expression.Convert(paramExpression, _ofType);
-                    _projection = Expression.Lambda(convertExpression, paramExpression);
+                    projection = Expression.Lambda(convertExpression, paramExpression);
                 }
                 else
                 {
@@ -182,19 +183,19 @@ namespace MongoDB.Driver.Linq
             }
 
             IEnumerable enumerable;
-            if (_projection == null)
+            if (projection == null)
             {
                 enumerable = cursor;
             }
             else
             {
-                var lambdaType = _projection.GetType();
+                var lambdaType = projection.GetType();
                 var delegateType = lambdaType.GetGenericArguments()[0];
                 var sourceType = delegateType.GetGenericArguments()[0];
                 var resultType = delegateType.GetGenericArguments()[1];
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
-                var projection = _projection.Compile();
-                var projector = Activator.CreateInstance(projectorType, cursor, projection);
+                var compiledProjection = projection.Compile();
+                var projector = Activator.CreateInstance(projectorType, cursor, compiledProjection);
                 enumerable = (IEnumerable)projector;
             }
 
