@@ -12,7 +12,7 @@ BsonWriter.cs
 	added private field _serializationDepth
 	added public property SerializationDepth
 	changed WriteEndArray to decrement _serializationDepth
-	changed WriteEndDocument to increment _serializationDepth
+	changed WriteEndDocument to decrement _serializationDepth
 	changed WriteStartArray to increment _serializationDepth and check if it exceeds MaxSerializationDepth
 	changed WriteStartDocument to increment _serializationDepth and check if it exceeds MaxSerializationDepth
 
@@ -60,7 +60,7 @@ BsonJavaScriptWithScope.cs
 BsonRegularExpression.cs
 	added checks for invalid null arguments
 	changed constructor to not unescape "\" (if it's escaped it's because it needs to be)
-	changed ToString to not escape "\" (it would already be escaped)
+	changed ToString to not escape "\" (if it needed to be escaped it already would be)
 
 BsonString.cs
 	added checks for invalid null arguments
@@ -73,7 +73,7 @@ BsonSymbolTable.cs
 
 BsonTypeMapper.cs
 	changed MapToBsonValue to map null to BsonNull.Value
-	added new MapToDotNetValue methods (maps from BsonValue to best matching .NET types)
+	added new MapToDotNetValue methods (maps from BsonValue to the best matching .NET types)
 	changed TryMapToBsonValue to map null to BsonNull.Value
 
 BsonTypeMapperOptions.cs
@@ -112,7 +112,7 @@ BsonClassMap.cs
 	changed FindMembers to support using BsonElement to opt-in serialization of read-only properties
 
 BsonClassMapSerializer.cs
-	changed Deserialize to ignore any values that were serialized for opted-in read-only properties
+	changed Deserialize to ignore any values that correspond to opted-in read-only properties
 	changed GetMemberSerializationInfo to check AllMemberMaps directly instead of calling GetMemberMap
 	changed DeserializeExtraElement to use new MapToDotNetValue method when extra elements property is of type IDictionary<string, object>
 	removed MapBsonValueToDotNetValue (use new MapToDotNetValue method of BsonTypeMapper instead)

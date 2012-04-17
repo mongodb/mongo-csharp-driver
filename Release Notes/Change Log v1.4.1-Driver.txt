@@ -1,7 +1,8 @@
 C# driver changes from 1.4 to 1.4.1
 
 QueryBuilder.cs
-	changed Or method to support empty queries (an empty query matches all documents)
+	changed Or method to handle empty queries (an empty query matches all documents)
+	note: the And method did not require any changes to handle empty queries
 
 MongoCollection.cs
 	added checks for invalid null arguments
@@ -27,7 +28,7 @@ MongoGridFSSettings.cs
 	added private field _verifyMD5
 	added public property UpdateMD5
 	added public property VerifyMD5
-	changed Clone, Equal and GetHashCode to consider new fields
+	changed Clone, Equal and GetHashCode to take new fields into account
 
 MongoGridFSStream.cs
 	added private field _fileIsDirty
@@ -54,7 +55,7 @@ MongoQueryTranslator.cs
 SelectQuery.cs
 	added private field _ofType
 	added public property OfType
-	changed Execute to handle LINQ queries that included an OfType query operator
+	changed Execute to handle LINQ queries that included an OfType<T> query operator
 	changed Translate to handle bare AsQueryable (no Where clause or anything else)
 	changed Translate to move switch statement on method name to new TranslateMethodCall method
 	changed BuildArrayLengthQuery to handle constant on either side
@@ -66,14 +67,14 @@ SelectQuery.cs
 	added private method BuildStringIndexQuery to support string[index] in LINQ queries
 	added private method BuildStringLengthQuery to support string.Length in LINQ queries
 	changed BuildStringQuery to allow combining ToLower/ToUpper/Trim/TrimStart/TrimEnd with Contains/StartsWith/EndsWith in LINQ queries
-	added private method BuildTypeComparisonQuery to support x.GetType() == typeof(X) in LINQ queries
-	added private method BuildTypeIsQuery to support x is X in LINQ queries
-	changed CombinePredicateWithWhereClause to handle parameter type being changed by OfType query operator
+	added private method BuildTypeComparisonQuery to support x.GetType() == typeof(T) in LINQ queries
+	added private method BuildTypeIsQuery to support x is T in LINQ queries
+	changed CombinePredicateWithWhereClause to handle parameter type being changed by OfType<T> query operator
 	changed GetSerializationInfo to lookup serializer based on the parameter type (and not necessarily the document type)
 	changed GetSerializationInfoMember to stop recursion when it gets to a parameter (which may or may not be of the document type)
 	added private method GetTrimCharsPattern
 	added private method TranslateMethodCall
-	added private method TranslateOfType to support OfType query operator
+	added private method TranslateOfType to support OfType<T> query operator
 
 LinqExtensionMethods.cs
 	added an overload of AsQueryable that can deduce the type of <T> from the collection parameter

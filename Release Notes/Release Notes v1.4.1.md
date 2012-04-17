@@ -92,10 +92,7 @@ will now be mapped to a BsonNull. For example:
 
     var dictionary = new Dictionary<string, object> { { "x", null } };
 	var document = new BsonDocument(dictionary);
-
-will result in the following BsonDocument:
-
-    var document = new BsonDocument { { "x", BsonNull.Value } };
+	// document["x"] == BsonNull.Value
 
 and when mapping in the reverse direction a BsonNull will map to a C# null:
 
@@ -109,6 +106,7 @@ can access the BsonTypeMapper directly:
 
     var dictionary = new Dictionary<string, object> { { "x", null } };
 	var document = BsonTypeMapper.MapToBsonValue(dictionary);
+	// document["x"] == BsonNull.Value
 
 or in the other direction:
 
@@ -167,10 +165,10 @@ file. You can also disable the client side verification of the MD5 that is
 normally done on Upload or Download. The reason you might choose to disable
 MD5 verification is that it is computationally expensive to compute the MD5.
 
-LINQ OfType query operator
---------------------------
+LINQ OfType\<T\> query operator
+-------------------------------
 
-You can now use the OfType<T> query operator in LINQ queries. For example:
+You can now use the OfType\<T\> query operator in LINQ queries. For example:
 
     var query = collection.AsQueryable<B>().OfType<C>();
 
@@ -223,8 +221,15 @@ The following expressions are now supported in LINQ where clauses:
 	// you can use any combination of ToLower/ToUpper/Trim/TrimStart/TrimEnd
 	// before Contains/StartsWith/EndsWith
 
-Type of <T> in AsQueryable can now be deduced
----------------------------------------------
+In the 1.4 version of the C# driver the constant always had to appear on the
+right of a comparison operator. That restriction is lifted in 1.4.1 so now the
+following are equivalent:
+
+    where d.Height < 60
+	where 60 > d.Height
+
+Type of \<T\> in AsQueryable can now be deduced
+-----------------------------------------------
 
 The type of \<T\> in the call to AsQueryable can now be deduced from the collection argument:
 
