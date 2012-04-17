@@ -15,8 +15,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CustomDictionary.xml = CustomDictionary.xml
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 		README.md = README.md
-		Release Notes\Release Notes v1.4.md = Release Notes\Release Notes v1.4.md
 		uuidhelpers.js = uuidhelpers.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release Notes", "{AA4F6FD3-8844-4DF1-9944-0364C934B3F7}"
+	ProjectSection(SolutionItems) = preProject
+		Release Notes\Change Log v1.4-Bson.txt = Release Notes\Change Log v1.4-Bson.txt
+		Release Notes\Change Log v1.4-Driver.txt = Release Notes\Change Log v1.4-Driver.txt
+		Release Notes\Change Log v1.4.1-Bson.txt = Release Notes\Change Log v1.4.1-Bson.txt
+		Release Notes\Change Log v1.4.1-Driver.txt = Release Notes\Change Log v1.4.1-Driver.txt
+		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
+		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
+		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
+		Release Notes\Release Notes v1.0.txt = Release Notes\Release Notes v1.0.txt
+		Release Notes\Release Notes v1.1.txt = Release Notes\Release Notes v1.1.txt
+		Release Notes\Release Notes v1.2.txt = Release Notes\Release Notes v1.2.txt
+		Release Notes\Release Notes v1.3.1.txt = Release Notes\Release Notes v1.3.1.txt
+		Release Notes\Release Notes v1.3.txt = Release Notes\Release Notes v1.3.txt
+		Release Notes\Release Notes v1.4.1.md = Release Notes\Release Notes v1.4.1.md
+		Release Notes\Release Notes v1.4.md = Release Notes\Release Notes v1.4.md
 	EndProjectSection
 EndProject
 Global
@@ -44,5 +61,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AA4F6FD3-8844-4DF1-9944-0364C934B3F7} = {00502D63-7789-410D-B6BE-5F16327FF810}
 	EndGlobalSection
 EndGlobal
