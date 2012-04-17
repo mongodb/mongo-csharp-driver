@@ -1,7 +1,7 @@
 C# Driver Version 1.4.1 Release Notes
 ===================================
 
-The minor release fixes a few issues found by users in the LINQ support added
+This minor release fixes a few issues found by users of the LINQ support added
 in v1.4 of the C# driver and also adds support for a few new LINQ query
 operators and where clauses.
 
@@ -74,7 +74,7 @@ MaxSerializationDepth
 The BSON serialization mechanism does not support circular references in your
 object graph. In earlier versions of the C# driver if you attempted to
 serialize an object with circular references you would get a
-StackOverflowExpection. The 1.4.1 release now tracks the serialization depth
+StackOverflowExpection. The 1.4.1 version now tracks the serialization depth
 as it serializes an object and if it exceeds MaxSerializationDepth a
 BsonSerializationException is thrown. The problem with StackOverflowException
 was that it was fatal to your process, but the BsonSerializationException can
@@ -182,12 +182,12 @@ Additional expressions supported in LINQ where clauses
 
 The following expressions are now supported in LINQ where clauses:
 
-d is the document
-p is a property of the document
-c is a character constant
-ca is an array of character constants
-s is a string constant
-i, j, k, n are integer constants
+    // d is the document
+    // p is a property of the document
+    // c is a character constant
+    // ca is an array of character constants
+    // s is a string constant
+    // i, j, k, n are integer constants
 
     where d.p.Equals(constant)
 	where string.IsNullOrEmpty(d.p)
@@ -205,17 +205,28 @@ i, j, k, n are integer constants
 	where d.p.ToLower().Contains("xyz")
 	where d.p.ToLower().StartsWith("xyz")
 	where d.p.ToLower().EndsWith("xyz")
+	where d.p.ToUpper().Contains("xyz")
+	where d.p.ToUpper().StartsWith("xyz")
+	where d.p.ToUpper().EndsWith("xyz")
 	where d.p.Trim().Contains("xyz")
 	where d.p.Trim().StartsWith("xyz")
 	where d.p.Trim().EndsWith("xyz")
-	// any combination of ToLower/ToUpper/Trim/TrimStart/TrimEnd followed by Contains/StartsWith/EndsWith
+	where d.p.TrimStart().Contains("xyz")
+	where d.p.TrimStart().StartsWith("xyz")
+	where d.p.TrimStart().EndsWith("xyz")
+	where d.p.TrimEnd().Contains("xyz")
+	where d.p.TrimEnd().StartsWith("xyz")
+	where d.p.TrimEnd().EndsWith("xyz")
 	where d.GetType() == typeof(T)
 	where d is T
+
+	// you can use any combination of ToLower/ToUpper/Trim/TrimStart/TrimEnd
+	// before Contains/StartsWith/EndsWith
 
 Type of <T> in AsQueryable can now be deduced
 ---------------------------------------------
 
-The type of <T> in the call to AsQueryable can now be deduced from the collection argument:
+The type of \<T\> in the call to AsQueryable can now be deduced from the collection argument:
 
     var collection = database.GetCollection<MyDocument>("mydocuments")
 	var query = collection.AsQueryable(); // <T> is deduced to be MyDocument
