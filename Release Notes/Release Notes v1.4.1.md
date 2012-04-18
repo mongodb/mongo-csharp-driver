@@ -1,5 +1,5 @@
 C# Driver Version 1.4.1 Release Notes
-===================================
+=====================================
 
 This minor release fixes a few issues found by users of the LINQ support added
 in v1.4 of the C# driver and also adds support for a few new LINQ query
