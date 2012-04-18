@@ -40,8 +40,10 @@ namespace MongoDB.BsonUnitTests.Serialization
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
             private int fieldMappedByAttribute;
+#pragma warning disable 414 // fieldMappedByAttribute2 is assigned but its value is never used
             [BsonElement]
             private readonly int fieldMappedByAttribute2;
+#pragma warning restore
 
             public int PropertyMapped { get; set; }
             public int PropertyMapped2 { get; private set; }
