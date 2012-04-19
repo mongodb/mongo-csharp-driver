@@ -967,7 +967,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Ping()
         {
-            foreach (var instance in _instances.ToArray())
+            foreach (var instance in Instances)
             {
                 instance.Ping();
             }
