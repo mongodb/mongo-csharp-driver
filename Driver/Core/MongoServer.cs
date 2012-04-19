@@ -967,7 +967,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Ping()
         {
-            foreach (var instance in _instances.ToArray())
+            foreach (var instance in Instances)
             {
                 instance.Ping();
             }
@@ -1321,11 +1321,11 @@ namespace MongoDB.Driver
         {
             lock (_stateLock)
             {
-                foreach (var instance in _instances)
+                for (int i = _instances.Count - 1; i >= 0; i--)
                 {
-                    if (!instanceAddresses.Contains(instance.Address))
+                    if (!instanceAddresses.Contains(_instances[i].Address))
                     {
-                        RemoveInstance(instance);
+                        RemoveInstance(_instances[i]);
                     }
                 }
                 foreach (var address in instanceAddresses)
