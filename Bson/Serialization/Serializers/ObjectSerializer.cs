@@ -22,6 +22,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -87,7 +88,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
             }
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+            var discriminatorConvention = FastSingleton<IDiscriminatorConvention, object>.Instance.Value;
+            if (discriminatorConvention == null)
+            {
+                // LookupDiscriminatorConvention populates FastSingleton<IDiscriminatorConvention, object>
+                discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+            }
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
             if (actualType == typeof(object))
             {

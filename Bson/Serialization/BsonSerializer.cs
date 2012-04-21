@@ -34,7 +34,6 @@ namespace MongoDB.Bson.Serialization
         // private static fields
         private static ReaderWriterLockSlim __configLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static Dictionary<Type, IIdGenerator> __idGenerators = new Dictionary<Type, IIdGenerator>();
-        private static Dictionary<Type, IBsonSerializer> __serializers = new Dictionary<Type, IBsonSerializer>();
         private static Dictionary<Type, Type> __genericSerializerDefinitions = new Dictionary<Type, Type>();
         private static List<IBsonSerializationProvider> __serializationProviders = new List<IBsonSerializationProvider>();
         private static bool __useNullIdChecker = false;
@@ -43,7 +42,6 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
-            RegisterDefaultSerializationProvider();
             RegisterIdGenerators();
         }
 
@@ -359,76 +357,21 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Looks up a serializer for a Type.
+        /// Looks up and populates the serializer singleton for a type.
         /// </summary>
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
         public static IBsonSerializer LookupSerializer(Type type)
         {
-            __configLock.EnterReadLock();
-            try
+            FastSingleton<IBsonSerializer> singleton;
+
+            if (!TryLookupSerializer(type, out singleton))
             {
-                IBsonSerializer serializer;
-                if (__serializers.TryGetValue(type, out serializer))
-                {
-                    return serializer;
-                }
-            }
-            finally
-            {
-                __configLock.ExitReadLock();
+                var message = string.Format("No serializer found for type {0}.", type.FullName);
+                throw new BsonSerializationException(message);
             }
 
-            __configLock.EnterWriteLock();
-            try
-            {
-                IBsonSerializer serializer;
-                if (!__serializers.TryGetValue(type, out serializer))
-                {
-                    // special case for IBsonSerializable
-                    if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type))
-                    {
-                        serializer = Serializers.BsonIBsonSerializableSerializer.Instance;
-                    }
-
-                    if (serializer == null && type.IsGenericType)
-                    {
-                        var genericTypeDefinition = type.GetGenericTypeDefinition();
-                        var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
-                        if (genericSerializerDefinition != null)
-                        {
-                            var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                            serializer = (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
-                        }
-                    }
-
-                    if (serializer == null)
-                    {
-                        foreach (var serializationProvider in __serializationProviders)
-                        {
-                            serializer = serializationProvider.GetSerializer(type);
-                            if (serializer != null)
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (serializer == null)
-                    {
-                        var message = string.Format("No serializer found for type {0}.", type.FullName);
-                        throw new BsonSerializationException(message);
-                    }
-
-                    __serializers[type] = serializer;
-                }
-
-                return serializer;
-            }
-            finally
-            {
-                __configLock.ExitWriteLock();
-            }
+            return singleton.Value;
         }
 
         /// <summary>
@@ -475,6 +418,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="provider">The serialization provider.</param>
         public static void RegisterSerializationProvider(IBsonSerializationProvider provider)
         {
+            if (provider == BsonDefaultSerializer.Instance)
+            {
+                throw new ArgumentException("BsonDefaultSerializer is implicitly registered", "provider");
+            }
+
             __configLock.EnterWriteLock();
             try
             {
@@ -497,7 +445,12 @@ namespace MongoDB.Bson.Serialization
             __configLock.EnterWriteLock();
             try
             {
-                __serializers[type] = serializer;
+                var singleton = FastSingleton<IBsonSerializer>.Lookup(type);
+                if (!singleton.TrySetValue(serializer, null))
+                {
+                    var message = string.Format("There is already a serializer registered for type {0}.", type.FullName);
+                    throw new BsonSerializationException(message);
+                }
             }
             finally
             {
@@ -555,24 +508,93 @@ namespace MongoDB.Bson.Serialization
             object value,
             IBsonSerializationOptions options)
         {
-            var bsonSerializable = value as IBsonSerializable;
-            if (bsonSerializable != null)
-            {
-                bsonSerializable.Serialize(bsonWriter, nominalType, options);
-                return;
-            }
-
             var actualType = (value == null) ? nominalType : value.GetType();
             var serializer = LookupSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, options);
         }
 
-        // private static methods
-        private static void RegisterDefaultSerializationProvider()
+        /// <summary>
+        /// Looks up and populates the serializer singleton for a type.
+        /// </summary>
+        /// <param name="type">The Type.</param>
+        /// <param name="singleton">The serializer singleton for the type.</param>
+        /// <returns>Whether a serializer was returned for the Type.</returns>
+        internal static bool TryLookupSerializer(
+            Type type,
+            out FastSingleton<IBsonSerializer> singleton)
         {
-            RegisterSerializationProvider(BsonDefaultSerializer.Instance);
+            singleton = FastSingleton<IBsonSerializer>.Lookup(type);
+            if (singleton.Value != null)
+            {
+                return true;
+            }
+
+            __configLock.EnterWriteLock();
+            try
+            {
+                if (singleton.Value != null)
+                {
+                    return true;
+                }
+
+                IBsonSerializer serializer;
+
+                if (__serializationProviders.Count > 0)
+                {
+                    foreach (var serializationProvider in __serializationProviders)
+                    {
+                        serializer = serializationProvider.GetSerializer(type);
+                        if (serializer != null)
+                        {
+                            singleton.TrySetValue(serializer, null);
+                            return true;
+                        }
+                    }
+                }
+
+                if (typeof(IBsonSerializable).IsAssignableFrom(type))
+                {
+                    serializer = Serializers.BsonIBsonSerializableSerializer.Instance;
+                    if (serializer != null)
+                    {
+                        singleton.TrySetValue(serializer, null);
+                        return true;
+                    }
+                }
+
+                if (type.IsGenericType)
+                {
+                    var genericTypeDefinition = type.GetGenericTypeDefinition();
+                    var genericSerializerDefinition = LookupGenericSerializerDefinition(genericTypeDefinition);
+                    if (genericSerializerDefinition != null)
+                    {
+                        var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
+                        serializer = (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
+                        if (serializer != null)
+                        {
+                            singleton.TrySetValue(serializer, null);
+                            return true;
+                        }
+                    }
+                }
+
+                serializer = BsonDefaultSerializer.Instance.GetSerializer(type);
+                if (serializer != null)
+                {
+                    singleton.TrySetValue(serializer, null);
+                    return true;
+                }
+
+                serializer = null;
+                return false;
+            }
+            finally
+            {
+                __configLock.ExitWriteLock();
+            }
         }
 
+        // private static methods
         private static void RegisterIdGenerators()
         {
             BsonSerializer.RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
