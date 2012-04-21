@@ -74,10 +74,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryConditionList(name).All(values);
         }
 
@@ -96,10 +92,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryConditionList(name).All(values);
         }
@@ -262,10 +254,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryConditionList(name).In(values);
         }
 
@@ -284,10 +272,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryConditionList(name).In(values);
         }
@@ -508,10 +492,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryConditionList(name).NotIn(values);
         }
 
@@ -530,10 +510,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryConditionList(name).NotIn(values);
         }
@@ -909,10 +885,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -927,10 +899,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$all", new BsonArray(values));
             return this;
@@ -1018,10 +986,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -1036,10 +1000,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$in", new BsonArray(values));
             return this;
@@ -1170,10 +1130,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }
@@ -1188,10 +1144,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
@@ -1339,10 +1291,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryNotConditionList(_name).All(values);
         }
 
@@ -1356,10 +1304,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryNotConditionList(_name).All(values);
         }
@@ -1441,10 +1385,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryNotConditionList(_name).In(values);
         }
 
@@ -1458,10 +1398,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryNotConditionList(_name).In(values);
         }
@@ -1544,10 +1480,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             return new QueryNotConditionList(_name).NotIn(values);
         }
 
@@ -1561,10 +1493,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             return new QueryNotConditionList(_name).NotIn(values);
         }
@@ -1651,10 +1579,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$all", new BsonArray(values));
             return this;
         }
@@ -1669,10 +1593,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$all", new BsonArray(values));
             return this;
@@ -1760,10 +1680,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$in", new BsonArray(values));
             return this;
         }
@@ -1778,10 +1694,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$in", new BsonArray(values));
             return this;
@@ -1870,10 +1782,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
-            }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
         }
@@ -1888,10 +1796,6 @@ namespace MongoDB.Driver.Builders
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            }
-            if (values.Contains(null))
-            {
-                throw new ArgumentOutOfRangeException("values", "One of the values is null.");
             }
             _conditions.Add("$nin", new BsonArray(values));
             return this;
