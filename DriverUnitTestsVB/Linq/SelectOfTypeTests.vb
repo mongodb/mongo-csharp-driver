@@ -27,8 +27,7 @@ Imports MongoDB.Driver.Linq
 
 Namespace MongoDB.DriverUnitTests.Linq
     <TestFixture()> _
-    Public Class SelectOfTypeHierarchicalTests
-        <BsonDiscriminator(RootClass:=True)> _
+    Public Class SelectOfTypeTests
         Private Class B
             Public Id As ObjectId
             Public b As Integer
@@ -60,13 +59,13 @@ Namespace MongoDB.DriverUnitTests.Linq
                  .Id = ObjectId.GenerateNewId(),
                  .b = 1
             })
-            _collection.Insert(New C() With
+            _collection.Insert(Of B)(New C() With
             {
                 .Id = ObjectId.GenerateNewId(),
                 .b = 2,
                 .c = 2
             })
-            _collection.Insert(New D() With
+            _collection.Insert(Of B)(New D() With
             {
                  .Id = ObjectId.GenerateNewId(),
                  .b = 3,
@@ -85,14 +84,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(B), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(B x) => LinqToMongo.Inject({ ""_t"" : ""B"" })", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.AreEqual(GetType(B), selectQuery.OfType)
+            Assert.IsNull(selectQuery.Where)
+            Assert.AreEqual(Nothing, selectQuery.OfType)
+            ' OfType ignored because <T> was the same as <TDocument>
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_t"" : ""B"" }", selectQuery.BuildQuery().ToJson())
+            Assert.IsNull(selectQuery.BuildQuery())
             Assert.AreEqual(3, Consume(query))
         End Sub
 
@@ -114,7 +114,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""_t"" : ""C"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual(1, Consume(query))
+            ' should match 2 but for that you need to use the hierarchical discriminator
         End Sub
 
         <Test()> _
@@ -135,7 +136,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""_t"" : ""C"", ""c"" : { ""$gt"" : 0 } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual(1, Consume(query))
+            ' should match 2 but for that you need to use the hierarchical discriminator
         End Sub
 
         <Test()> _
@@ -177,7 +179,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""b"" : { ""$gt"" : 0 }, ""_t"" : ""C"", ""c"" : { ""$gt"" : 0 } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual(1, Consume(query))
+            ' should match 2 but for that you need to use the hierarchical discriminator
         End Sub
 
         <Test()> _
@@ -200,7 +203,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_t"" : ""B"" }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(3, Consume(query))
         End Sub
 
@@ -224,7 +227,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""_t"" : ""C"" }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual(1, Consume(query))
+            ' should match 2 but for that you need to use the hierarchical discriminator
         End Sub
 
         <Test()> _
@@ -252,28 +256,26 @@ Namespace MongoDB.DriverUnitTests.Linq
 
         <Test()> _
         Public Sub TestWhereBTypeEqualsB()
-            If _server.BuildInfo.Version >= New Version(2, 0) Then
-                Dim query = From b In _collection.AsQueryable(Of B)()
-                            Where b.GetType() = GetType(B)
-                            Select b
+            Dim query = From b In _collection.AsQueryable(Of B)()
+                        Where b.GetType() = GetType(B)
+                        Select b
 
-                Dim translatedQuery = MongoQueryTranslator.Translate(query)
-                Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-                Assert.AreSame(_collection, translatedQuery.Collection)
-                Assert.AreSame(GetType(B), translatedQuery.DocumentType)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(B), translatedQuery.DocumentType)
 
-                Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(B b) => (b.GetType() == typeof(B))", ExpressionFormatter.ToString(selectQuery.Where))
-                Assert.AreEqual(Nothing, selectQuery.OfType)
-                ' OfType ignored because <T> was the same as <TDocument>
-                Assert.IsNull(selectQuery.OrderBy)
-                Assert.IsNull(selectQuery.Projection)
-                Assert.IsNull(selectQuery.Skip)
-                Assert.IsNull(selectQuery.Take)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(B b) => (b.GetType() == typeof(B))", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.AreEqual(Nothing, selectQuery.OfType)
+            ' OfType ignored because <T> was the same as <TDocument>
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
 
-                Assert.AreEqual("{ ""_t.0"" : { ""$exists"" : false }, ""_t"" : ""B"" }", selectQuery.BuildQuery().ToJson())
-                Assert.AreEqual(1, Consume(query))
-            End If
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
         End Sub
 
         <Test()> _
@@ -295,7 +297,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_t"" : { ""$size"" : 2 }, ""_t.0"" : ""B"", ""_t.1"" : ""C"" }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""_t.0"" : { ""$exists"" : false }, ""_t"" : ""C"" }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
 
@@ -318,7 +320,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_t"" : { ""$size"" : 3 }, ""_t.0"" : ""B"", ""_t.1"" : ""C"", ""_t.2"" : ""D"" }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""_t.0"" : { ""$exists"" : false }, ""_t"" : ""D"" }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
 

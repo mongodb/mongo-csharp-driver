@@ -70,6 +70,7 @@
     <Compile Include="Linq\MongoQueryableTests.vb" />
     <Compile Include="Linq\MongoQueryProviderTests.vb" />
     <Compile Include="Linq\SelectOfTypeHierarchicalTests.vb" />
+    <Compile Include="Linq\SelectOfTypeTests.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
