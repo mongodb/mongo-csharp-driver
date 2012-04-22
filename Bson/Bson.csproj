@@ -83,6 +83,7 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BsonExtensionMethods.cs" />
+    <Compile Include="FastSingleton.cs" />
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
     <Compile Include="IO\BsonReaderSettings.cs" />

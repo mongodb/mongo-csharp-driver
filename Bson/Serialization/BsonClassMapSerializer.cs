@@ -23,6 +23,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization
@@ -131,7 +132,15 @@ namespace MongoDB.Bson.Serialization
 
                 bsonReader.ReadStartDocument();
                 var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.AllMemberMaps); // make a copy!
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                IDiscriminatorConvention discriminatorConvention;
+                if (actualType == nominalType)
+                {
+                    discriminatorConvention = classMap.GetDiscriminatorConvention();
+                }
+                else
+                {
+                    discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                }
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
                     var elementName = bsonReader.ReadName();
@@ -443,7 +452,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                    var discriminatorConvention = memberMap.GetDiscriminatorConvention();
                     actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
                 }
                 var serializer = memberMap.GetSerializer(actualType);

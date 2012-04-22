@@ -50,6 +50,8 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
         private object _defaultValue;
+        private readonly FastSingleton<IDiscriminatorConvention> _discriminatorConvention;
+        private readonly FastSingleton<IBsonSerializer> _singletonSerializer;
 
         // constructors
         /// <summary>
@@ -63,6 +65,8 @@ namespace MongoDB.Bson.Serialization
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _defaultValue = GetDefaultValue(_memberType);
+            _discriminatorConvention = FastSingleton<IDiscriminatorConvention>.Lookup(_memberType);
+            _singletonSerializer = FastSingleton<IBsonSerializer>.Lookup(_memberType);
         }
 
         // public properties
@@ -289,10 +293,34 @@ namespace MongoDB.Bson.Serialization
             {
                 return _serializer;
             }
-            else
+
+            if (actualType != _memberType)
             {
                 return BsonSerializer.LookupSerializer(actualType);
             }
+
+            if (_singletonSerializer.Value == null)
+            {
+                // LookupSerializer populates _singletonSerializer
+                BsonSerializer.LookupSerializer(_memberType);
+            }
+
+            return _singletonSerializer.Value;
+        }
+
+        /// <summary>
+        /// Gets the discriminator convention for the member type.
+        /// </summary>
+        /// <returns>The discriminator convention for the member type.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        {
+            if (_discriminatorConvention.Value == null)
+            {
+                // LookupDiscriminatorConvention will populate _discriminatorConvention
+                BsonDefaultSerializer.LookupDiscriminatorConvention(_memberType);
+            }
+
+            return _discriminatorConvention.Value;
         }
 
         /// <summary>

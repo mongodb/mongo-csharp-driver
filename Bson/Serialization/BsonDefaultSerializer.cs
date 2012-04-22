@@ -44,7 +44,6 @@ namespace MongoDB.Bson.Serialization
         private static BsonDefaultSerializer __instance = new BsonDefaultSerializer();
         private static Dictionary<Type, IBsonSerializer> __serializers;
         private static Dictionary<Type, Type> __genericSerializerDefinitions;
-        private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
         private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
@@ -242,71 +241,88 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A discriminator convention.</returns>
         public static IDiscriminatorConvention LookupDiscriminatorConvention(Type type)
         {
-            BsonSerializer.ConfigLock.EnterReadLock();
-            try
+            FastSingleton<IDiscriminatorConvention> singleton;
+
+            if (!TryLookupDiscriminatorConvention(type, out singleton))
             {
-                IDiscriminatorConvention convention;
-                if (__discriminatorConventions.TryGetValue(type, out convention))
-                {
-                    return convention;
-                }
+                var message = string.Format("No discriminator convention found for type {0}.", type.FullName);
+                throw new BsonSerializationException(message);
             }
-            finally
+
+            return singleton.Value;
+        }
+
+        /// <summary>
+        /// Looks up and populates the discriminator convention singleton for a type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="singleton">The discriminator convention singleton for the type.</param>
+        /// <returns>Whether a discriminator convention was returned for the Type.</returns>
+        private static bool TryLookupDiscriminatorConvention(
+            Type type,
+            out FastSingleton<IDiscriminatorConvention> singleton)
+        {
+            singleton = FastSingleton<IDiscriminatorConvention>.Lookup(type);
+            if (singleton.Value != null)
             {
-                BsonSerializer.ConfigLock.ExitReadLock();
+                return true;
             }
 
             BsonSerializer.ConfigLock.EnterWriteLock();
             try
             {
-                IDiscriminatorConvention convention;
-                if (!__discriminatorConventions.TryGetValue(type, out convention))
+                if (singleton.Value != null)
                 {
-                    // if there is no convention registered for object register the default one
-                    if (!__discriminatorConventions.ContainsKey(typeof(object)))
-                    {
-                        var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
-                        __discriminatorConventions.Add(typeof(object), defaultDiscriminatorConvention);
-                        if (type == typeof(object))
-                        {
-                            return defaultDiscriminatorConvention;
-                        }
-                    }
+                    return true;
+                }
 
-                    if (type.IsInterface)
+                // if there is no convention registered for object register the default one
+                var objectSingleton = (FastSingleton<IDiscriminatorConvention>)FastSingleton<IDiscriminatorConvention, object>.Instance;
+                if (objectSingleton.Value == null)
+                {
+                    var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
+                    objectSingleton.TrySetValue(defaultDiscriminatorConvention, null);
+                    if (type == typeof(object))
                     {
-                        // TODO: should convention for interfaces be inherited from parent interfaces?
-                        convention = __discriminatorConventions[typeof(object)];
-                        __discriminatorConventions[type] = convention;
-                    }
-                    else
-                    {
-                        // inherit the discriminator convention from the closest parent that has one
-                        Type parentType = type.BaseType;
-                        while (convention == null)
-                        {
-                            if (parentType == null)
-                            {
-                                var message = string.Format("No discriminator convention found for type {0}.", type.FullName);
-                                throw new BsonSerializationException(message);
-                            }
-                            if (__discriminatorConventions.TryGetValue(parentType, out convention))
-                            {
-                                break;
-                            }
-                            parentType = parentType.BaseType;
-                        }
-
-                        // register this convention for all types between this and the parent type where we found the convention
-                        var unregisteredType = type;
-                        while (unregisteredType != parentType)
-                        {
-                            BsonDefaultSerializer.RegisterDiscriminatorConvention(unregisteredType, convention);
-                            unregisteredType = unregisteredType.BaseType;
-                        }
+                        singleton = objectSingleton;
+                        return true;
                     }
                 }
-                return convention;
+
+                if (type.IsInterface)
+                {
+                    // TODO: should convention for interfaces be inherited from parent interfaces?
+                    singleton = FastSingleton<IDiscriminatorConvention>.Lookup(type);
+                    singleton.TrySetValue(objectSingleton.Value, null);
+                }
+                else
+                {
+                    // inherit the discriminator convention from the closest parent that has one
+                    Type parentType = type.BaseType;
+                    for (;;)
+                    {
+                        if (parentType == null)
+                        {
+                            singleton = null;
+                            return false;
+                        }
+                        singleton = FastSingleton<IDiscriminatorConvention>.Lookup(parentType);
+                        if (singleton.Value != null)
+                        {
+                            break;
+                        }
+                        parentType = parentType.BaseType;
+                    }
+
+                    // register this convention for all types between this and the parent type where we found the convention
+                    var unregisteredType = type;
+                    while (unregisteredType != parentType)
+                    {
+                        BsonDefaultSerializer.RegisterDiscriminatorConvention(unregisteredType, singleton.Value);
+                        unregisteredType = unregisteredType.BaseType;
+                    }
+                }
+                return true;
             }
             finally
             {
@@ -364,11 +380,8 @@ namespace MongoDB.Bson.Serialization
             BsonSerializer.ConfigLock.EnterWriteLock();
             try
             {
-                if (!__discriminatorConventions.ContainsKey(type))
-                {
-                    __discriminatorConventions.Add(type, convention);
-                }
-                else
+                var singleton = FastSingleton<IDiscriminatorConvention>.Lookup(type);
+                if (!singleton.TrySetValue(convention, null))
                 {
                     var message = string.Format("There is already a discriminator convention registered for type {0}.", type.FullName);
                     throw new BsonSerializationException(message);

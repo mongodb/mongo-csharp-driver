@@ -24,6 +24,7 @@ using System.IO;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -71,7 +72,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "nominalType");
             }
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(Image));
+            var discriminatorConvention = FastSingleton<IDiscriminatorConvention, Image>.Instance.Value;
+            if (discriminatorConvention == null)
+            {
+                // LookupDiscriminatorConvention populates FastSingleton<IDiscriminatorConvention, Image>
+                discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(Image));
+            }
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(Image));
             if (actualType == typeof(Image))
             {

@@ -62,6 +62,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreExtraElementsIsInherited = false;
         private BsonMemberMap _extraElementsMemberMap;
         private List<Type> _knownTypes = new List<Type>();
+        private readonly FastSingleton<IDiscriminatorConvention> _discriminatorConvention;
 
         // constructors
         /// <summary>
@@ -74,6 +75,7 @@ namespace MongoDB.Bson.Serialization
             _conventions = LookupConventions(classType);
             _discriminator = classType.Name;
             _isAnonymous = IsAnonymousType(classType);
+            _discriminatorConvention = FastSingleton<IDiscriminatorConvention>.Lookup(classType);
         }
 
         // public properties
@@ -582,7 +584,33 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Gets the discriminator convention for the member type.
+        /// </summary>
+        /// <returns>The discriminator convention for the member type.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        {
+            if (_discriminatorConvention.Value == null)
+            {
+                // LookupDiscriminatorConvention will populate _discriminatorConvention
+                BsonDefaultSerializer.LookupDiscriminatorConvention(_classType);
+            }
+
+            return _discriminatorConvention.Value;
+        }
+
+        /// <summary>
         /// Gets a member map (only considers members declared in this class).
+        /// </summary>
+        /// <param name="memberInfo">The MemberInfo.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap GetMemberMap(MemberInfo memberInfo)
+        {
+            // can be called whether frozen or not
+            return _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+        }
+
+        /// <summary>
+        /// Gets a member map.
         /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The member map (or null if the member was not found).</returns>
@@ -1485,7 +1513,7 @@ namespace MongoDB.Bson.Serialization
             UnmapMember(propertyLambda);
         }
 
-        // private methods
+        // private static methods
         private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var body = memberLambda.Body;
