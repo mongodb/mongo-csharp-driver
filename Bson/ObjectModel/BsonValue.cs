@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -1297,7 +1298,7 @@ namespace MongoDB.Bson
                         var documentWrapper = this as BsonDocumentWrapper;
                         if (documentWrapper != null)
                         {
-                            documentWrapper.Serialize(bsonWriter, typeof(BsonDocument), null);
+                            ((IBsonSerializable)documentWrapper).Serialize(bsonWriter, typeof(BsonDocument), null);
                         }
                         else
                         {

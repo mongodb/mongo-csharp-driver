@@ -601,7 +601,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             out IIdGenerator idGenerator)
         {
             var bsonDocument = (BsonDocument)document;
-            return bsonDocument.GetDocumentId(out id, out idNominalType, out idGenerator);
+            return ((IBsonSerializable)bsonDocument).GetDocumentId(out id, out idNominalType, out idGenerator);
         }
 
         /// <summary>
@@ -623,8 +623,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var document = (BsonDocument)value;
-                document.Serialize(bsonWriter, nominalType, options);
+                var bsonDocument = (BsonDocument)value;
+                ((IBsonSerializable)bsonDocument).Serialize(bsonWriter, nominalType, options);
             }
         }
 
@@ -636,7 +636,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void SetDocumentId(object document, object id)
         {
             var bsonDocument = (BsonDocument)document;
-            bsonDocument.SetDocumentId(id);
+            ((IBsonSerializable)bsonDocument).SetDocumentId(id);
         }
     }
 
@@ -702,8 +702,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var documentWrapper = (BsonDocumentWrapper)value;
-                documentWrapper.Serialize(bsonWriter, nominalType, options);
+                var bsonDocumentWrapper = (BsonDocumentWrapper)value;
+                ((IBsonSerializable)bsonDocumentWrapper).Serialize(bsonWriter, nominalType, options);
             }
         }
     }

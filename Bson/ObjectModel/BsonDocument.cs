@@ -381,7 +381,7 @@ namespace MongoDB.Bson
             using (var bsonReader = BsonReader.Create(json))
             {
                 var document = new BsonDocument();
-                return (BsonDocument)document.Deserialize(bsonReader, typeof(BsonDocument), null);
+                return (BsonDocument)((IBsonSerializable)document).Deserialize(bsonReader, typeof(BsonDocument), null);
             }
         }
 
@@ -406,7 +406,7 @@ namespace MongoDB.Bson
         public static new BsonDocument ReadFrom(BsonReader bsonReader)
         {
             BsonDocument document = new BsonDocument();
-            return (BsonDocument)document.Deserialize(bsonReader, typeof(BsonDocument), null);
+            return (BsonDocument)((IBsonSerializable)document).Deserialize(bsonReader, typeof(BsonDocument), null);
         }
 
         /// <summary>
@@ -754,6 +754,7 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the object (ignored, but should be BsonDocument).</param>
         /// <param name="options">The serialization options (ignored).</param>
         /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
+        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
         public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
@@ -793,16 +794,25 @@ namespace MongoDB.Bson
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
+        [Obsolete("GetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] or document.GetValue(\"_id\") instead.")]
         public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
             {
-                id = idElement.Value;
+                // TODO: in a future release we will always return a BsonValue (GetDocumentId is not supposed to transform Id values in any way)
+                // we're returning the raw value in 1.4.2 to remain temporarily backward compatible with 1.4.0 and earlier
+                id = idElement.Value.RawValue;
+                if (id == null)
+                {
+                    id = idElement.Value;
+                }
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
 
                 if (idGenerator == null)
                 {
+                    // note: in 1.4.2 this code isn't yet used because if the RawValue was a Guid then the GuidIdGenerator was found
+                    // but once we start returning BsonValue like we should this code will start being used
                     var idBinaryData = id as BsonBinaryData;
                     if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
                     {
@@ -813,7 +823,7 @@ namespace MongoDB.Bson
             else
             {
                 id = null;
-                idGenerator = BsonObjectIdGenerator.Instance;
+                idGenerator = ObjectIdGenerator.Instance; // TODO: in a future release we will return an instance of BsonObjectIdGenerator
             }
 
             idNominalType = typeof(BsonValue);
@@ -1041,6 +1051,7 @@ namespace MongoDB.Bson
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominalType.</param>
         /// <param name="options">The serialization options (can be null).</param>
+        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonWriter == null)
@@ -1124,13 +1135,24 @@ namespace MongoDB.Bson
         /// Sets the document Id.
         /// </summary>
         /// <param name="id">The value of the Id.</param>
+        [Obsolete("SetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] = value or document.Set(\"_id\", value) instead.")]
         public void SetDocumentId(object id)
         {
             if (id == null)
             {
                 throw new ArgumentNullException("id");
             }
-            var idBsonValue = (BsonValue)id;
+
+            // TODO: in a future release we will just cast directly to BsonValue because the caller is required to pass a BsonValue
+            // var idBsonValue = (BsonValue)id;
+
+            var idBsonValue = id as BsonValue;
+            if (idBsonValue == null)
+            {
+                // SetDocumentId contract requires that caller provide an id of the correct type so this conversion is not correct
+                // for temporary backward compatibility with versions prior to 1.4.2 we continue to map objects to BsonValue for now
+                idBsonValue = BsonValue.Create(id); // TODO: in a future release this mapping will be removed
+            }
 
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
@@ -1280,7 +1302,7 @@ namespace MongoDB.Bson
         /// <param name="bsonWriter">The writer.</param>
         public new void WriteTo(BsonWriter bsonWriter)
         {
-            Serialize(bsonWriter, typeof(BsonDocument), null);
+            ((IBsonSerializable)this).Serialize(bsonWriter, typeof(BsonDocument), null);
         }
 
         /// <summary>
