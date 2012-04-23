@@ -84,6 +84,19 @@ namespace MongoDB.Driver.Linq
             return base.VisitBinary(node);
         }
 
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            if (node.NodeType == ExpressionType.Convert)
+            {
+                if (node.Type.IsAssignableFrom(node.Operand.Type))
+                {
+                    return Visit(node.Operand);
+                }
+            }
+
+            return base.VisitUnary(node);
+        }
+
         private BinaryExpression FlipBinaryExpression(BinaryExpression node)
         {
             var left = node.Left;
@@ -144,21 +157,6 @@ namespace MongoDB.Driver.Linq
             }
 
             return null;
-        }
-
-        protected override Expression VisitUnary(UnaryExpression node)
-        {
-            if (node.NodeType != ExpressionType.Convert)
-            {
-                return base.VisitUnary(node);
-            }
-
-            if (node.Type.IsAssignableFrom(node.Operand.Type))
-            {
-                return Visit(node.Operand);
-            }
-
-            return base.VisitUnary(node);
         }
     }
 }

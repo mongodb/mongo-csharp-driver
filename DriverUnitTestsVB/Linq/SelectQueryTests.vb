@@ -5251,7 +5251,7 @@ Namespace MongoDB.DriverUnitTests.Linq
 
         <Test()> _
         Public Sub TestWhereSystemProfileInfoDurationGreatherThan10Seconds()
-            Dim query = From pi In _collection.AsQueryable(Of SystemProfileInfo)()
+            Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.Duration > TimeSpan.FromSeconds(10)
                         Select pi
 
@@ -5272,7 +5272,7 @@ Namespace MongoDB.DriverUnitTests.Linq
 
         <Test()> _
         Public Sub TestWhereSystemProfileInfoNamespaceEqualsNs()
-            Dim query = From pi In _collection.AsQueryable(Of SystemProfileInfo)()
+            Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.[Namespace] = "ns"
                         Select pi
 
@@ -5293,7 +5293,7 @@ Namespace MongoDB.DriverUnitTests.Linq
 
         <Test()> _
         Public Sub TestWhereSystemProfileInfoNumberScannedGreaterThan1000()
-            Dim query = From pi In _collection.AsQueryable(Of SystemProfileInfo)()
+            Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.NumberScanned > 1000
                         Select pi
 
@@ -5314,7 +5314,7 @@ Namespace MongoDB.DriverUnitTests.Linq
 
         <Test()> _
         Public Sub TestWhereSystemProfileInfoTimeStampGreatherThanJan12012()
-            Dim query = From pi In _collection.AsQueryable(Of SystemProfileInfo)()
+            Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.Timestamp > New DateTime(2012, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                         Select pi
 
@@ -5472,7 +5472,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1, ""y"" : 11 }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$ne"" : 1 } }, { ""y"" : { ""$ne"" : 11 } }] }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
@@ -5560,7 +5560,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1 }, { ""y"" : 33 }] }", selectQuery.BuildQuery().ToJson())
+            'Assert.AreEqual("{ ""$nor"" : [{ ""x"" : 1 }, { ""y"" : 33 }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$ne"" : 1 }, ""y"" : { ""$ne"" : 33 } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(3, Consume(query))
         End Sub
 
@@ -5670,7 +5671,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$nor"" : [{ ""x"" : { ""$gt"" : 1, ""$lt"" : 3 } }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$lte"" : 1 } }, { ""x"" : { ""$gte"" : 3 } }] }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
@@ -5692,7 +5693,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$gt"" : 1 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$lte"" : 1 } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
 
@@ -5758,7 +5759,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$gte"" : 1 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$lt"" : 1 } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(0, Consume(query))
         End Sub
 
@@ -5912,7 +5913,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$lt"" : 1 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$gte"" : 1 } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(5, Consume(query))
         End Sub
 
@@ -5978,7 +5979,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""x"" : { ""$not"" : { ""$lte"" : 1 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""x"" : { ""$gt"" : 1 } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
 
@@ -6047,7 +6048,9 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.IsNull(selectQuery.Skip)
                 Assert.IsNull(selectQuery.Take)
 
-                Assert.AreEqual("{ ""$nor"" : [{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson())
+                Dim json = selectQuery.BuildQuery().ToJson()
+
+                Assert.AreEqual("{ ""$or"" : [{ ""x"" : { ""$not"" : { ""$mod"" : [1, 0] } } }, { ""x"" : { ""$not"" : { ""$mod"" : [2, 0] } } }] }", selectQuery.BuildQuery().ToJson())
                 Assert.AreEqual(3, Consume(query))
             End If
         End Sub
@@ -6071,7 +6074,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.IsNull(selectQuery.Skip)
                 Assert.IsNull(selectQuery.Take)
 
-                Assert.AreEqual("{ ""$or"" : [{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }] }", selectQuery.BuildQuery().ToJson())
+                Assert.AreEqual("{ ""$and"" : [{ ""x"" : { ""$mod"" : [1, 0] } }, { ""x"" : { ""$mod"" : [2, 0] } }] }", selectQuery.BuildQuery().ToJson())
                 Assert.AreEqual(2, Consume(query))
             End If
         End Sub
