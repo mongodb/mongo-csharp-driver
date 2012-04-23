@@ -136,24 +136,12 @@ namespace MongoDB.Driver.Linq
 
         private Expression VisitVBCompilerServicesOperatorsCompareString(MethodCallExpression mex, ExpressionType expressionType, int comparisonValue)
         {
-            switch(expressionType)
+            if (comparisonValue == 0)
             {
-                case ExpressionType.Equal:
-                    if (comparisonValue == 0)
-                    {
-                        return Expression.Equal(
-                            mex.Arguments[0],
-                            mex.Arguments[1]);
-                    }
-                    break;
-                case ExpressionType.NotEqual:
-                    if (comparisonValue == 0)
-                    {
-                        return Expression.NotEqual(
-                            mex.Arguments[0],
-                            mex.Arguments[1]);
-                    }
-                    break;
+                return Expression.MakeBinary(
+                    expressionType,
+                    mex.Arguments[0],
+                    mex.Arguments[1]);
             }
 
             return null;

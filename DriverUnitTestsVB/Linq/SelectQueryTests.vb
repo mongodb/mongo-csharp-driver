@@ -1176,7 +1176,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Max must be used with either Select or a selector argument, but not both.")> _
         Public Sub TestMaxWithProjectionAndSelector()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
+            Dim query = (From c In _collection.AsQueryable(Of C)()
                           Select c.D).Max(Function(d) d.Z)
         End Sub
 
