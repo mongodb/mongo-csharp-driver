@@ -94,6 +94,14 @@ namespace MongoDB.Driver.Linq
                             mex.Arguments[1]);
                     }
                     break;
+                case ExpressionType.NotEqual:
+                    if (comparisonValue == 0)
+                    {
+                        return Expression.NotEqual(
+                            mex.Arguments[0],
+                            mex.Arguments[1]);
+                    }
+                    break;
             }
 
             return null;
