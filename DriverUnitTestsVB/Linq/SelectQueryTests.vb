@@ -1283,7 +1283,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(1, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy(0).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1310,9 +1310,9 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(2, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy(0).Direction)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(1).Key))
+
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy(1).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1339,9 +1339,9 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(2, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy(0).Direction)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(1).Key))
+
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy(1).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1368,7 +1368,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(1, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy(0).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1395,9 +1395,9 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(2, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy(0).Direction)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(1).Key))
+
             Assert.AreEqual(OrderByDirection.Ascending, selectQuery.OrderBy(1).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1424,9 +1424,9 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.AreEqual(2, selectQuery.OrderBy.Count)
-            Assert.AreEqual("(C c) => c.Y", ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy(0).Direction)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.OrderBy(1).Key))
+
             Assert.AreEqual(OrderByDirection.Descending, selectQuery.OrderBy(1).Direction)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1463,7 +1463,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
             Assert.IsNull(selectQuery.Where)
             Assert.IsNull(selectQuery.OrderBy)
-            Assert.AreEqual("(C c) => c.X", ExpressionFormatter.ToString(selectQuery.Projection))
+
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
@@ -1842,7 +1842,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Enumerable.Any<Int32>(c.A)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1874,7 +1874,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Enumerable.Contains<Int32>(c.A, 2)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1896,7 +1896,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Enumerable.Contains<Int32>(c.A, 2)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1918,7 +1918,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAll<Int32>(c.A, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1940,7 +1940,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAll<Int32>(c.A, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1962,7 +1962,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAny<Int32>(c.A, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -1984,7 +1984,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAny<Int32>(c.A, Int32[]:{ 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2006,7 +2006,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.Inject({ ""a"" : { ""$exists"" : false } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2028,7 +2028,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.Inject({ ""a"" : { ""$exists"" : true } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2050,7 +2050,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.Inject({ ""a"" : { ""$exists"" : true } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2072,7 +2072,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.A.Length == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2094,7 +2094,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.A.Length == 3)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2116,7 +2115,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (3 == c.A.Length)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2138,7 +2137,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.A.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2160,7 +2159,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.A.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2182,7 +2180,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.A[1] == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2204,7 +2202,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.A[1] == 3)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2226,7 +2223,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.A[1] % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2248,7 +2245,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.A[1] % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2270,7 +2266,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.A[1] % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2292,7 +2288,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.A[1] % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2314,7 +2309,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.A[1] != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2336,7 +2331,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.A[1] != 3)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2358,7 +2352,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.B", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2380,7 +2374,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.BA[0]", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2402,7 +2396,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.BA[0] == false)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2424,7 +2418,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.BA[0] == false)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2446,7 +2439,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.BA[0] == true)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2468,7 +2461,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.BA[0] == true)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2490,7 +2482,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.BA[0]", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2512,7 +2504,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.B == false)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2534,7 +2526,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.B == false)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2556,7 +2547,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.B == true)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2578,7 +2569,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.B == true)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2600,7 +2590,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.B", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2622,7 +2612,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.DBRef.CollectionName == ""c"")", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2644,7 +2633,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.DBRef.DatabaseName == ""db"")", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2666,7 +2654,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.DBRef == new MongoDBRef(""db"", ""c"", 1))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2688,7 +2676,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.DBRef == new MongoDBRef(""db"", ""c"", 1))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2710,7 +2698,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.DBRef != new MongoDBRef(""db"", ""c"", 1))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2732,7 +2720,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.DBRef != new MongoDBRef(""db"", ""c"", 1))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2754,7 +2742,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.DBRef.Id == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2872,7 +2860,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAll<E>(c.EA, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2894,7 +2881,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAll<E>(c.EA, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2916,7 +2903,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAny<E>(c.EA, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2938,7 +2925,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAny<E>(c.EA, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2960,7 +2947,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Enumerable.Contains<E>(c.EA, E.B)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -2982,7 +2969,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Enumerable.Contains<E>(c.EA, E.B)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3004,7 +2991,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.EA[0] == 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3026,7 +3012,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.EA[0] == 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3048,7 +3033,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.EA[0] != 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3070,7 +3054,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.EA[0] != 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3092,7 +3075,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.E == 1)", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3114,7 +3096,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.E == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3136,7 +3118,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 == (Int32)c.E)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3158,7 +3140,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.In<E>(c.E, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3180,7 +3162,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.In<E>(c.E, E[]:{ E.A, E.B })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3202,7 +3184,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.E != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3224,7 +3206,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.E != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3246,7 +3228,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.L.Contains(2)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3268,7 +3250,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.L.Contains(2)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3290,7 +3272,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAll<Int32>(c.L, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3312,7 +3294,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAll<Int32>(c.L, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3334,7 +3316,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.ContainsAny<Int32>(c.L, Int32[]:{ 2, 3 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3356,7 +3338,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.ContainsAny<Int32>(c.L, Int32[]:{ 1, 2 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3378,7 +3360,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.Inject({ ""l"" : { ""$exists"" : false } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3400,7 +3382,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.Inject({ ""l"" : { ""$exists"" : true } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3422,7 +3404,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.Inject({ ""l"" : { ""$exists"" : true } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3444,7 +3426,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (Enumerable.Count<Int32>(c.L) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3466,7 +3448,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(Enumerable.Count<Int32>(c.L) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3488,7 +3470,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (3 == Enumerable.Count<Int32>(c.L))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3510,7 +3492,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.L.Count == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3532,7 +3514,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.L.Count == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3554,7 +3536,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (3 == c.L.Count)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3576,7 +3558,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.L.Count != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3598,7 +3580,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.L.Count != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3620,7 +3602,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.L.get_Item(1) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3642,7 +3624,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.L.get_Item(1) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3664,7 +3646,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.L.get_Item(1) % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3686,7 +3668,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.L.get_Item(1) % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3708,7 +3690,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.L.get_Item(1) % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3730,7 +3712,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.L.get_Item(1) % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3752,7 +3734,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.L.get_Item(1) != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3774,7 +3756,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.L.get_Item(1) != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3796,7 +3778,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.SA[0].Contains(""o"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3818,7 +3800,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.SA[0].Contains(""o"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3840,7 +3822,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.SA[0].EndsWith(""m"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3862,7 +3844,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.SA[0].EndsWith(""m"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3885,7 +3867,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex:(@""^T"").IsMatch(c.SA[0])", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3908,7 +3890,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Regex:(@""^T"").IsMatch(c.SA[0])", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3930,7 +3912,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex.IsMatch(c.SA[0], ""^T"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3952,7 +3934,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Regex.IsMatch(c.SA[0], ""^T"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3974,7 +3956,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex.IsMatch(c.SA[0], ""^t"", RegexOptions.IgnoreCase)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -3996,7 +3978,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.SA[0].StartsWith(""T"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4018,7 +4000,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.SA[0].StartsWith(""T"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4040,7 +4022,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Contains(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4062,7 +4044,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.Contains(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4084,7 +4066,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Contains(""."")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4106,7 +4088,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (Enumerable.Count<Char>(c.S) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4128,7 +4110,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S == ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4150,7 +4132,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.S == ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4172,7 +4154,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Equals(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4194,7 +4176,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.Equals(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4216,7 +4198,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => String.Equals(c.S, ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4238,7 +4220,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !String.Equals(c.S, ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4260,7 +4242,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.EndsWith(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4282,7 +4264,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.EndsWith(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4351,7 +4333,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4373,7 +4355,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }, 1) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4395,7 +4377,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOfAny(Char[]:{ 'b', '-', 'c' }, 1, 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4464,7 +4446,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf('b') == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4486,7 +4468,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf('b', 1) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4508,7 +4490,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf('b', 1, 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4574,7 +4556,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf(""xyz"") == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4596,7 +4578,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf(""xyz"", 1) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4618,7 +4600,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.IndexOf(""xyz"", 1, 5) == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4641,7 +4623,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex:(@""^abc"").IsMatch(c.S)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4664,7 +4646,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Regex:(@""^abc"").IsMatch(c.S)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4686,7 +4668,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex.IsMatch(c.S, ""^abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4708,7 +4690,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !Regex.IsMatch(c.S, ""^abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4730,7 +4712,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Regex.IsMatch(c.S, ""^abc"", RegexOptions.IgnoreCase)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4765,7 +4747,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => String.IsNullOrEmpty(c.S)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4787,7 +4769,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4809,7 +4791,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.S.Length == 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4831,7 +4813,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length > 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4853,7 +4835,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length >= 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4875,7 +4857,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length < 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4897,7 +4879,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length <= 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4919,7 +4901,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4941,7 +4923,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.S.Length != 3)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4963,7 +4945,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.S != ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -4985,7 +4967,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.S != ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5007,7 +4989,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.StartsWith(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5029,7 +5011,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.StartsWith(""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5051,7 +5033,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.S.get_Chars(1) == 98)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5073,7 +5055,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.S.get_Chars(1) == 98)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5095,7 +5077,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((Int32)c.S.get_Chars(1) != 98)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5117,7 +5099,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((Int32)c.S.get_Chars(1) != 98)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5139,7 +5121,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Trim().Contains(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5161,7 +5143,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.Trim().Contains(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5183,7 +5165,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Trim().EndsWith(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5205,7 +5187,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.Trim().EndsWith(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5227,7 +5209,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.Trim().StartsWith(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5249,7 +5231,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !c.S.Trim().StartsWith(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5271,7 +5253,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '" & vbTab & "' }).TrimEnd(Char[]:{ }).ToLower().Contains(""xyz"")", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5379,7 +5361,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
                 Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(C c) => (((c.X >= 0) && (c.X >= 1)) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where))
+
                 Assert.IsNull(selectQuery.OrderBy)
                 Assert.IsNull(selectQuery.Projection)
                 Assert.IsNull(selectQuery.Skip)
@@ -5402,7 +5384,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (((c.X == 1) || (c.Y == 33)) || (c.S == ""x is 1""))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5432,7 +5414,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5454,7 +5436,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5475,7 +5457,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where))
+
             ' note parameter replacement from c to d in second clause
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
@@ -5498,7 +5480,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.X == 1) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5520,7 +5502,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (((c.X == 1) && (c.Y == 11)) && (c.D.Z == 11))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5542,7 +5524,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5564,7 +5546,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X == 1) || (c.Y == 33))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5586,7 +5568,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.X == 1) || (c.Y == 33))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5608,7 +5590,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !!((c.X == 1) || (c.Y == 33))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5630,7 +5612,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X == 1) && LinqToMongo.Inject({ ""$where"" : { ""$code"" : ""this.x < 9"" } }))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5652,7 +5634,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X > 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5674,7 +5656,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X > 1) && (c.X < 3))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5696,7 +5678,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.X > 1) && (c.X < 3))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5718,7 +5700,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X > 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5740,7 +5722,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 < c.X)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5762,7 +5744,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X >= 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5784,7 +5766,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X >= 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5806,7 +5788,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 <= c.X)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5828,7 +5810,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.In<Int32>(c.X, Int32[]:{ 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5850,7 +5832,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.In<Int32>(c.X, Int32[]:{ 1, 9 })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5872,7 +5854,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => LinqToMongo.Inject({ ""x"" : { ""$type"" : 16 } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5894,7 +5876,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !LinqToMongo.Inject({ ""x"" : { ""$type"" : 16 } })", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5916,7 +5898,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X < 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5938,7 +5920,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X < 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5960,7 +5942,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 > c.X)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -5982,7 +5964,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X <= 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6004,7 +5986,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X <= 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6026,7 +6008,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 >= c.X)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6049,7 +6031,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
                 Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(C c) => (((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where))
+
                 Assert.IsNull(selectQuery.OrderBy)
                 Assert.IsNull(selectQuery.Projection)
                 Assert.IsNull(selectQuery.Skip)
@@ -6073,7 +6055,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
                 Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(C c) => !(((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where))
+
                 Assert.IsNull(selectQuery.OrderBy)
                 Assert.IsNull(selectQuery.Projection)
                 Assert.IsNull(selectQuery.Skip)
@@ -6097,7 +6079,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
                 Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(C c) => !!(((c.X % 1) == 0) && ((c.X % 2) == 0))", ExpressionFormatter.ToString(selectQuery.Where))
+
                 Assert.IsNull(selectQuery.OrderBy)
                 Assert.IsNull(selectQuery.Projection)
                 Assert.IsNull(selectQuery.Skip)
@@ -6120,7 +6102,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6142,7 +6124,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.X % 2) == 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6164,7 +6146,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (1 == (c.X % 2))", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6186,7 +6168,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => ((c.X % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6208,7 +6190,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !((c.X % 2) != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6230,7 +6212,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => (c.X != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
@@ -6252,7 +6234,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => !(c.X != 1)", ExpressionFormatter.ToString(selectQuery.Where))
+
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)
