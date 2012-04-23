@@ -4278,44 +4278,30 @@ Namespace MongoDB.DriverUnitTests.Linq
         Public Sub TestWhereSIndexOfAnyBC()
             Dim tempCollection = _database.GetCollection("temp")
             tempCollection.Drop()
-            tempCollection.Insert(New C() With { _
-             .S = "bxxx" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "xbxx" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "xxbx" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "xxxb" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "bxbx" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "xbbx" _
-            })
-            tempCollection.Insert(New C() With { _
-             .S = "xxbb" _
-            })
+            tempCollection.Insert(New C() With {.S = "bxxx"})
+            tempCollection.Insert(New C() With {.S = "xbxx"})
+            tempCollection.Insert(New C() With {.S = "xxbx"})
+            tempCollection.Insert(New C() With {.S = "xxxb"})
+            tempCollection.Insert(New C() With {.S = "bxbx"})
+            tempCollection.Insert(New C() With {.S = "xbbx"})
+            tempCollection.Insert(New C() With {.S = "xxbb"})
 
-            Dim query1 = From c In _collection.AsQueryable(Of C)()
+            Dim query1 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}) = 2
                         Select c
             Assert.AreEqual(2, Consume(query1))
 
-            Dim query2 = From c In _collection.AsQueryable(Of C)()
+            Dim query2 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1) = 2
                         Select c
             Assert.AreEqual(3, Consume(query2))
 
-            Dim query3 = From c In _collection.AsQueryable(Of C)()
+            Dim query3 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 1) = 2
                         Select c
             Assert.AreEqual(0, Consume(query3))
 
-            Dim query4 = From c In _collection.AsQueryable(Of C)()
+            Dim query4 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOfAny(New Char() {"b"c, "c"c}, 1, 2) = 2
                         Select c
             Assert.AreEqual(3, Consume(query4))
@@ -4413,22 +4399,22 @@ Namespace MongoDB.DriverUnitTests.Linq
              .S = "xxbb" _
             })
 
-            Dim query1 = From c In _collection.AsQueryable(Of C)()
+            Dim query1 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c) = 2
                         Select c
             Assert.AreEqual(2, Consume(query1))
 
-            Dim query2 = From c In _collection.AsQueryable(Of C)()
+            Dim query2 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c, 1) = 2
                         Select c
             Assert.AreEqual(3, Consume(query2))
 
-            Dim query3 = From c In _collection.AsQueryable(Of C)()
+            Dim query3 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c, 1, 1) = 2
                         Select c
             Assert.AreEqual(0, Consume(query3))
 
-            Dim query4 = From c In _collection.AsQueryable(Of C)()
+            Dim query4 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("b"c, 1, 2) = 2
                         Select c
             Assert.AreEqual(3, Consume(query4))
@@ -4523,22 +4509,22 @@ Namespace MongoDB.DriverUnitTests.Linq
              .S = "xyzxyz" _
             })
 
-            Dim query1 = From c In _collection.AsQueryable(Of C)()
+            Dim query1 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz") = 3
                         Select c
             Assert.AreEqual(1, Consume(query1))
 
-            Dim query2 = From c In _collection.AsQueryable(Of C)()
+            Dim query2 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz", 1) = 3
                         Select c
             Assert.AreEqual(2, Consume(query2))
 
-            Dim query3 = From c In _collection.AsQueryable(Of C)()
+            Dim query3 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz", 1, 4) = 3
                         Select c
             Assert.AreEqual(0, Consume(query3))
             ' substring isn't long enough to match
-            Dim query4 = From c In _collection.AsQueryable(Of C)()
+            Dim query4 = From c In tempCollection.AsQueryable(Of C)()
                         Where c.S.IndexOf("xyz", 1, 5) = 3
                         Select c
             Assert.AreEqual(2, Consume(query4))
@@ -4737,7 +4723,7 @@ Namespace MongoDB.DriverUnitTests.Linq
              .S = "x" _
             })
 
-            Dim query = From c In _collection.AsQueryable(Of C)()
+            Dim query = From c In tempCollection.AsQueryable(Of C)()
                         Where String.IsNullOrEmpty(c.S)
                         Select c
 

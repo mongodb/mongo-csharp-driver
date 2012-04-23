@@ -47,12 +47,14 @@ namespace MongoDB.Driver.Linq
         /// <returns>The normalized expression.</returns>
         public static Expression Normalize(Expression node)
         {
-            var remover = new ExpressionNormalizer(node);
-            return remover.Visit(node);
+            var normalizer = new ExpressionNormalizer(node);
+            return normalizer.Visit(node);
         }
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            node = FlipBinaryExpression(node);
+
             Expression result = null;
             if (node.Left.NodeType == ExpressionType.Call && node.Right.NodeType == ExpressionType.Constant)
             {
@@ -70,6 +72,33 @@ namespace MongoDB.Driver.Linq
             }
 
             return base.VisitBinary(node);
+        }
+
+        private BinaryExpression FlipBinaryExpression(BinaryExpression node)
+        {
+            var left = node.Left;
+            var right = node.Right;
+            var operatorType = node.NodeType;
+            if (left.NodeType == ExpressionType.Constant)
+            {
+                right = node.Left as ConstantExpression;
+                left = node.Right;
+                // if the constant was on the left some operators need to be flipped
+                switch (operatorType)
+                {
+                    case ExpressionType.LessThan: operatorType = ExpressionType.GreaterThan; break;
+                    case ExpressionType.LessThanOrEqual: operatorType = ExpressionType.GreaterThanOrEqual; break;
+                    case ExpressionType.GreaterThan: operatorType = ExpressionType.LessThan; break;
+                    case ExpressionType.GreaterThanOrEqual: operatorType = ExpressionType.LessThanOrEqual; break;
+                }
+            }
+
+            if (left != node.Left || right != node.Right || operatorType != node.NodeType)
+            {
+                return Expression.MakeBinary(operatorType, left, right);
+            }
+
+            return node;
         }
 
         private Expression VisitVBCompilerServicesOperators(MethodCallExpression mex, ExpressionType expressionType, ConstantExpression constant)
