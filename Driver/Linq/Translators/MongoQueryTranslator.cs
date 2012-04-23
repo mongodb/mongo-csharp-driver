@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Linq
         public static TranslatedQuery Translate(MongoQueryProvider provider, Expression expression)
         {
             expression = PartialEvaluator.Evaluate(expression, provider.CanBeEvaluatedLocally);
+            expression = ExpressionConvertRemover.RemoveConversions(expression);
             // assume for now it's a SelectQuery
             var documentType = GetDocumentType(expression);
             var selectQuery = new SelectQuery(provider.Collection, documentType);

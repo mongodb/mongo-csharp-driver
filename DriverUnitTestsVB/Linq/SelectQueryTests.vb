@@ -155,10 +155,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                  .Id = _id2,
                  .X = 2,
                  .Y = 11,
-                 .D = New D() With
-                    {
-                  .Z = 22
-                 },
+                 .D = New D() With {.Z = 22},
                  .A = {2, 3, 4},
                  .L = New List(Of Integer)({2, 3, 4})
             })
@@ -167,10 +164,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                  .Id = _id1,
                  .X = 1,
                  .Y = 11,
-                 .D = New D() With
-                 {
-                  .Z = 11
-                 },
+                 .D = New D() With {.Z = 11},
                  .S = "abc",
                  .SA = {"Tom", "Dick", "Harry"}
             })
@@ -179,35 +173,26 @@ Namespace MongoDB.DriverUnitTests.Linq
                  .Id = _id3,
                  .X = 3,
                  .Y = 33,
-                 .D = New D() With
-                 {
-                  .Z = 33
-                 },
-             .B = True,
-             .BA = {True},
-             .E = E.A,
-             .EA = New E() {E.A, E.B}
+                 .D = New D() With {.Z = 33},
+                 .B = True,
+                 .BA = {True},
+                 .E = E.A,
+                 .EA = New E() {E.A, E.B}
             })
             _collection.Insert(New C() With
             {
                  .Id = _id5,
                  .X = 5,
                  .Y = 44,
-                 .D = New D() With
-                 {
-                  .Z = 55
-                 },
-             .DBRef = New MongoDBRef("db", "c", 1)
+                 .D = New D() With {.Z = 55},
+                .DBRef = New MongoDBRef("db", "c", 1)
             })
             _collection.Insert(New C() With
             {
                  .Id = _id4,
                  .X = 4,
                  .Y = 44,
-                 .D = New D() With
-                 {
-                    .Z = 44
-                 },
+                 .D = New D() With {.Z = 44 },
                  .S = "   xyz   "
             })
         End Sub
