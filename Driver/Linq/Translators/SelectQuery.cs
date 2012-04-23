@@ -412,7 +412,7 @@ namespace MongoDB.Driver.Linq
             var value = constantExpression.Value;
 
             var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
+            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked) && unaryExpression.Operand.Type.IsEnum)
             {
                 var enumType = unaryExpression.Operand.Type;
                 if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
