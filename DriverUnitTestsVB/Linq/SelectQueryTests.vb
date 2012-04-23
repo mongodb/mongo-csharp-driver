@@ -1173,12 +1173,12 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(55, result)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Max must be used with either Select or a selector argument, but not both.")> _
-        Public Sub TestMaxWithProjectionAndSelector()
-            Dim query = (From c In _collection.AsQueryable(Of C)()
-                          Select c.D).Max(Function(d) d.Z)
-        End Sub
+        '<Test()> _
+        '<ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Max must be used with either Select or a selector argument, but not both.")> _
+        'Public Sub TestMaxWithProjectionAndSelector()
+        '    Dim query = (From c In _collection.AsQueryable(Of C)()
+        '                  Select c.D).Max(Function(d) d.Z)
+        'End Sub
 
         <Test()> _
         Public Sub TestMaxXWithProjection()
@@ -1228,12 +1228,12 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(11, result)
         End Sub
 
-        <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Min must be used with either Select or a selector argument, but not both.")> _
-        Public Sub TestMinWithProjectionAndSelector()
-            Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c.D).Min(Function(d) d.Z)
-        End Sub
+        '<Test()> _
+        '<ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Min must be used with either Select or a selector argument, but not both.")> _
+        'Public Sub TestMinWithProjectionAndSelector()
+        '    Dim result = (From c In _collection.AsQueryable(Of C)()
+        '                  Select c.D).Min(Function(d) d.Z)
+        'End Sub
 
         <Test()> _
         Public Sub TestMinXWithProjection()
@@ -2752,101 +2752,97 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        '<Test()> _
-        'Public Sub TestWhereDEquals11()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where c.D = New D() With { _
-        '                 .Z = 11 _
-        '                }
-        '                Select c
+        <Test()> _
+        Public Sub TestWhereDEquals11()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.D.Equals(New D() With { _
+                         .Z = 11 _
+                        })
+                        Select c
 
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-        '    Assert.AreEqual("(C c) => (c.D == new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where))
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
 
-        '    Assert.AreEqual("{ ""d"" : { ""z"" : 11 } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(1, Consume(query))
-        'End Sub
+            Assert.AreEqual("{ ""d"" : { ""z"" : 11 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(1, Consume(query))
+        End Sub
 
-        '<Test()> _
-        'Public Sub TestWhereDEquals11Not()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where Not (c.D = New D() With { _
-        '                 .Z = 11 _
-        '                })
-        '                Select c
+        <Test()> _
+        Public Sub TestWhereDEquals11Not()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where Not (c.D.Equals(New D() With { _
+                         .Z = 11 _
+                        }))
+                        Select c
 
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-        '    Assert.AreEqual("(C c) => !(c.D == new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where))
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
 
-        '    Assert.AreEqual("{ ""d"" : { ""$ne"" : { ""z"" : 11 } } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(4, Consume(query))
-        'End Sub
+            Assert.AreEqual("{ ""d"" : { ""$ne"" : { ""z"" : 11 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(4, Consume(query))
+        End Sub
 
-        '<Test()> _
-        'Public Sub TestWhereDNotEquals11()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where c.D <> New D() With { _
-        '                 .Z = 11 _
-        '                }
-        '                Select c
+        <Test()> _
+        Public Sub TestWhereDNotEquals11()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where Not c.D.Equals(New D() With { _
+                         .Z = 11 _
+                        })
+                        Select c
 
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-        '    Assert.AreEqual("(C c) => (c.D != new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where))
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
 
-        '    Assert.AreEqual("{ ""d"" : { ""$ne"" : { ""z"" : 11 } } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(4, Consume(query))
-        'End Sub
+            Assert.AreEqual("{ ""d"" : { ""$ne"" : { ""z"" : 11 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(4, Consume(query))
+        End Sub
 
-        '<Test()> _
-        'Public Sub TestWhereDNotEquals11Not()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where Not (c.D <> New D() With { _
-        '                 .Z = 11 _
-        '                })
-        '                Select c
+        <Test()> _
+        Public Sub TestWhereDNotEquals11Not()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where Not (Not c.D.Equals(New D() With { _
+                         .Z = 11 _
+                        }))
+                        Select c
 
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-        '    Assert.AreEqual("(C c) => !(c.D != new D { Z = 11 })", ExpressionFormatter.ToString(selectQuery.Where))
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
 
-        '    Assert.AreEqual("{ ""d"" : { ""z"" : 11 } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(1, Consume(query))
-        'End Sub
+            Assert.AreEqual("{ ""d"" : { ""z"" : 11 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(1, Consume(query))
+        End Sub
 
         <Test()> _
         Public Sub TestWhereEAContainsAll()
@@ -5029,27 +5025,27 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
-        Public Sub TestWhereSSub1EqualsBNot()
-            Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where Not (c.S(1) = "b"c)
-                        Select c
+        '<Test()> _
+        'Public Sub TestWhereSSub1EqualsBNot()
+        '    Dim query = From c In _collection.AsQueryable(Of C)()
+        '                Where Not (c.S(1) = "b"c)
+        '                Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
+        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+        '    Assert.AreSame(_collection, translatedQuery.Collection)
+        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
 
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+        '    Assert.IsNull(selectQuery.OrderBy)
+        '    Assert.IsNull(selectQuery.Projection)
+        '    Assert.IsNull(selectQuery.Skip)
+        '    Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}b/s } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(4, Consume(query))
-        End Sub
+        '    Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}b/s } }", selectQuery.BuildQuery().ToJson())
+        '    Assert.AreEqual(4, Consume(query))
+        'End Sub
 
         <Test()> _
         Public Sub TestWhereSSub1NotEqualsB()
@@ -5073,27 +5069,27 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        <Test()> _
-        Public Sub TestWhereSSub1NotEqualsBNot()
-            Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where Not (c.S(1) <> "b"c)
-                        Select c
+        '<Test()> _
+        'Public Sub TestWhereSSub1NotEqualsBNot()
+        '    Dim query = From c In _collection.AsQueryable(Of C)()
+        '                Where Not (c.S(1) <> "b"c)
+        '                Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
+        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+        '    Assert.AreSame(_collection, translatedQuery.Collection)
+        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
-            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
 
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
+        '    Assert.IsNull(selectQuery.OrderBy)
+        '    Assert.IsNull(selectQuery.Projection)
+        '    Assert.IsNull(selectQuery.Skip)
+        '    Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}[^b]/s } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(4, Consume(query))
-        End Sub
+        '    Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}[^b]/s } }", selectQuery.BuildQuery().ToJson())
+        '    Assert.AreEqual(4, Consume(query))
+        'End Sub
 
         <Test()> _
         Public Sub TestWhereSTrimContainsXyz()
