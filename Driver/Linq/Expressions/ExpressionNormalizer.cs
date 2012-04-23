@@ -62,7 +62,17 @@ namespace MongoDB.Driver.Linq
                 var constant = (ConstantExpression)node.Right;
                 if (mex.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators")
                 {
+                    //VB creates expression trees with "special" operators
                     result = VisitVBCompilerServicesOperators(mex, node.NodeType, constant);
+                }
+                else if (mex.Method.DeclaringType == typeof(string) && mex.Method.Name == "get_Chars" && constant.Type == typeof(char))
+                {
+                    //VB creates string index expressions using character comparison whereas C# uses ascii value comparison
+                    //So, we make VB's string index comparison look like C#.
+                    result = Expression.MakeBinary(
+                        node.NodeType,
+                        Expression.Convert(mex, typeof(int)),
+                        Expression.Constant(Convert.ToInt32((char)constant.Value)));
                 }
             }
 
