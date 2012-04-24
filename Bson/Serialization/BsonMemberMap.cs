@@ -44,6 +44,8 @@ namespace MongoDB.Bson.Serialization
         private Action<object, object> _setter;
         private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
+        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
+        private volatile IBsonSerializer _cachedSerializer;
         private IIdGenerator _idGenerator;
         private bool _isRequired;
         private Func<object, bool> _shouldSerializeMethod;
@@ -291,7 +293,20 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
-                return BsonSerializer.LookupSerializer(actualType);
+                if (actualType == _memberType)
+                {
+                    var cachedSerializer = _cachedSerializer;
+                    if (cachedSerializer == null)
+                    {
+                        cachedSerializer = BsonSerializer.LookupSerializer(_memberType);
+                        _cachedSerializer = cachedSerializer;
+                    }
+                    return cachedSerializer;
+                }
+                else
+                {
+                    return BsonSerializer.LookupSerializer(actualType);
+                }
             }
         }
 
@@ -481,6 +496,22 @@ namespace MongoDB.Bson.Serialization
             }
 
             return true;
+        }
+
+        // internal methods
+        /// <summary>
+        /// Gets the discriminator convention for the member type.
+        /// </summary>
+        /// <returns>The discriminator convention for the member type.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        {
+            var classDiscriminatorConvention = _cachedDiscriminatorConvention;
+            if (classDiscriminatorConvention == null)
+            {
+                classDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_memberType);
+                _cachedDiscriminatorConvention = classDiscriminatorConvention;
+            }
+            return classDiscriminatorConvention;
         }
 
         // private methods
