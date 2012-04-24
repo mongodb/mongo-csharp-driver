@@ -1173,13 +1173,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(55, result)
         End Sub
 
-        '<Test()> _
-        '<ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Max must be used with either Select or a selector argument, but not both.")> _
-        'Public Sub TestMaxWithProjectionAndSelector()
-        '    Dim query = (From c In _collection.AsQueryable(Of C)()
-        '                  Select c.D).Max(Function(d) d.Z)
-        'End Sub
-
         <Test()> _
         Public Sub TestMaxXWithProjection()
             Dim result = (From c In _collection.AsQueryable(Of C)()
@@ -1227,13 +1220,6 @@ Namespace MongoDB.DriverUnitTests.Linq
                           Select c).Min(Function(c) c.D.Z)
             Assert.AreEqual(11, result)
         End Sub
-
-        '<Test()> _
-        '<ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Min must be used with either Select or a selector argument, but not both.")> _
-        'Public Sub TestMinWithProjectionAndSelector()
-        '    Dim result = (From c In _collection.AsQueryable(Of C)()
-        '                  Select c.D).Min(Function(d) d.Z)
-        'End Sub
 
         <Test()> _
         Public Sub TestMinXWithProjection()
@@ -5025,28 +5011,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(1, Consume(query))
         End Sub
 
-        '<Test()> _
-        'Public Sub TestWhereSSub1EqualsBNot()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where Not (c.S(1) = "b"c)
-        '                Select c
-
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
-
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
-
-        '    Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}b/s } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(4, Consume(query))
-        'End Sub
-
         <Test()> _
         Public Sub TestWhereSSub1NotEqualsB()
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -5068,28 +5032,6 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""s"" : /^.{1}[^b]/s }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
-
-        '<Test()> _
-        'Public Sub TestWhereSSub1NotEqualsBNot()
-        '    Dim query = From c In _collection.AsQueryable(Of C)()
-        '                Where Not (c.S(1) <> "b"c)
-        '                Select c
-
-        '    Dim translatedQuery = MongoQueryTranslator.Translate(query)
-        '    Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-        '    Assert.AreSame(_collection, translatedQuery.Collection)
-        '    Assert.AreSame(GetType(C), translatedQuery.DocumentType)
-
-        '    Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-
-        '    Assert.IsNull(selectQuery.OrderBy)
-        '    Assert.IsNull(selectQuery.Projection)
-        '    Assert.IsNull(selectQuery.Skip)
-        '    Assert.IsNull(selectQuery.Take)
-
-        '    Assert.AreEqual("{ ""s"" : { ""$not"" : /^.{1}[^b]/s } }", selectQuery.BuildQuery().ToJson())
-        '    Assert.AreEqual(4, Consume(query))
-        'End Sub
 
         <Test()> _
         Public Sub TestWhereSTrimContainsXyz()
