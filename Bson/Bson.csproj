@@ -98,6 +98,7 @@
     <Compile Include="Serialization\Attributes\BsonIgnoreIfDefaultAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
+    <Compile Include="Serialization\BsonClassMapSerializationProvider.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
@@ -205,7 +206,7 @@
     <Compile Include="ObjectModel\BsonMaxKey.cs" />
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="IO\BsonBuffer.cs" />
-    <Compile Include="Serialization\BsonDefaultSerializer.cs" />
+    <Compile Include="Serialization\BsonDefaultSerializationProvider.cs" />
     <Compile Include="Serialization\Serializers\BsonBaseSerializer.cs" />
     <Compile Include="Serialization\Serializers\EnumSerializer.cs" />
     <Compile Include="Serialization\Serializers\ArraySerializer.cs" />

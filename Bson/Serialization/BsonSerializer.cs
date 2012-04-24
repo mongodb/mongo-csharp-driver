@@ -41,8 +41,8 @@ namespace MongoDB.Bson.Serialization
         private static List<IBsonSerializationProvider> __serializationProviders = new List<IBsonSerializationProvider>();
         private static Dictionary<Type, IDiscriminatorConvention> __discriminatorConventions = new Dictionary<Type, IDiscriminatorConvention>();
         private static Dictionary<BsonValue, HashSet<Type>> __discriminators = new Dictionary<BsonValue, HashSet<Type>>();
-        private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
         private static HashSet<Type> __discriminatedTypes = new HashSet<Type>();
+        private static HashSet<Type> __typesWithRegisteredKnownTypes = new HashSet<Type>();
 
         private static bool __useNullIdChecker = false;
         private static bool __useZeroIdChecker = false;
@@ -214,7 +214,7 @@ namespace MongoDB.Bson.Serialization
             // if nominalType is an interface find out the actualType and use it instead
             if (nominalType.IsInterface)
             {
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
+                var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
                 var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
                 if (actualType == nominalType)
                 {
@@ -431,7 +431,7 @@ namespace MongoDB.Bson.Serialization
                         var unregisteredType = type;
                         while (unregisteredType != parentType)
                         {
-                            BsonSerializer.RegisterDiscriminatorConvention(unregisteredType, convention);
+                            RegisterDiscriminatorConvention(unregisteredType, convention);
                             unregisteredType = unregisteredType.BaseType;
                         }
                     }
@@ -834,8 +834,8 @@ namespace MongoDB.Bson.Serialization
                     var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
                     if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
                     {
-                        // known types will be registered as a side effect of calling LookupClassMap
-                        BsonClassMap.LookupClassMap(nominalType);
+                        //try and force a scan of the known types
+                        LookupSerializer(nominalType);
                     }
 
                     __typesWithRegisteredKnownTypes.Add(nominalType);
@@ -850,14 +850,16 @@ namespace MongoDB.Bson.Serialization
         // private static methods
         private static void RegisterDefaultSerializationProvider()
         {
-            RegisterSerializationProvider(BsonDefaultSerializer.Instance);
+            //These are run in reverse order.
+            RegisterSerializationProvider(new BsonClassMapSerializationProvider());
+            RegisterSerializationProvider(new BsonDefaultSerializationProvider());
         }
 
         private static void RegisterIdGenerators()
         {
-            BsonSerializer.RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
-            BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
-            BsonSerializer.RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
+            RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
+            RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
+            RegisterIdGenerator(typeof(ObjectId), ObjectIdGenerator.Instance);
         }
     }
 }
