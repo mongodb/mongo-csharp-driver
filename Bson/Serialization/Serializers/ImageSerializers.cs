@@ -71,7 +71,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentException(message, "nominalType");
             }
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(Image));
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(Image));
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(Image));
             if (actualType == typeof(Image))
             {
@@ -164,7 +164,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         // static constructor
         static BitmapSerializer()
         {
-            BsonDefaultSerializer.RegisterDiscriminator(typeof(Bitmap), "Bitmap");
+            BsonSerializer.RegisterDiscriminator(typeof(Bitmap), "Bitmap");
         }
 
         // constructors

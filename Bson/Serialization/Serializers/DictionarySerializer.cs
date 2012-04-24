@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartDocument();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
                     var key = bsonReader.ReadName();
@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 var dictionary = CreateInstance(nominalType);
                 bsonReader.ReadStartArray();
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
                     var keyValuePairBsonType = bsonReader.GetCurrentBsonType();
