@@ -993,22 +993,29 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            MongoConnection connectionToRelease = null;
+
             lock (_serverLock)
             {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
                     if (--request.NestingLevel == 0)
                     {
                         _requests.Remove(threadId);
-                        ReleaseConnection(request.Connection);
+                        connectionToRelease = request.Connection;
                     }
                 }
                 else
                 {
                     throw new InvalidOperationException("Thread is not in a request (did you call RequestStart?).");
                 }
+            }
+
+            if (connectionToRelease != null)
+            {
+                connectionToRelease.ServerInstance.ReleaseConnection(connectionToRelease);
             }
         }
 
@@ -1034,9 +1041,10 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, bool slaveOk)
         {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+
             lock (_serverLock)
             {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
@@ -1045,15 +1053,18 @@ namespace MongoDB.Driver
                         throw new InvalidOperationException("A nested call to RequestStart with slaveOk false is not allowed when the original call to RequestStart was made with slaveOk true.");
                     }
                     request.NestingLevel++;
-                }
-                else
-                {
-                    var serverInstance = ChooseServerInstance(slaveOk);
-                    var connection = serverInstance.AcquireConnection(initialDatabase);
-                    request = new Request(connection, slaveOk);
-                    _requests.Add(threadId, request);
+                    return new RequestStartResult(this);
                 }
 
+            }
+
+            var serverInstance = ChooseServerInstance(slaveOk);
+            var connection = serverInstance.AcquireConnection(initialDatabase);
+
+            lock (_serverLock)
+            {
+                var request = new Request(connection, slaveOk);
+                _requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
         }
@@ -1068,9 +1079,10 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, MongoServerInstance serverInstance)
         {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+
             lock (_serverLock)
             {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
@@ -1079,15 +1091,17 @@ namespace MongoDB.Driver
                         throw new InvalidOperationException("The server instance passed to a nested call to RequestStart does not match the server instance of the current Request.");
                     }
                     request.NestingLevel++;
+                    return new RequestStartResult(this);
                 }
-                else
-                {
-                    var connection = serverInstance.AcquireConnection(initialDatabase);
-                    var slaveOk = serverInstance.IsSecondary;
-                    request = new Request(connection, slaveOk);
-                    _requests.Add(threadId, request);
-                }
+            }
 
+            var connection = serverInstance.AcquireConnection(initialDatabase);
+            var slaveOk = serverInstance.IsSecondary;
+
+            lock (_serverLock)
+            {
+                var request = new Request(connection, slaveOk);
+                _requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
         }
