@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.3.1.txt = Release Notes\Release Notes v1.3.1.txt
 		Release Notes\Release Notes v1.3.txt = Release Notes\Release Notes v1.3.txt
 		Release Notes\Release Notes v1.4.1.md = Release Notes\Release Notes v1.4.1.md
+		Release Notes\Release Notes v1.4.2.md = Release Notes\Release Notes v1.4.2.md
 		Release Notes\Release Notes v1.4.md = Release Notes\Release Notes v1.4.md
 	EndProjectSection
 EndProject

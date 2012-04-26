@@ -44,11 +44,11 @@ Query.All/In/NotIn
 ------------------
 
 There was an issue with Query.All/In/NotIn that might have affected you. If you
-cast a BsonArray to IEnumerable<BsonValue> before calling Query.All/In/NotIn
+cast a BsonArray to IEnumerable&lt;BsonValue&gt; before calling Query.All/In/NotIn
 you would get an exception. This only happened when casting a BsonArray to
-IEnumerable<BsonValue>. If you passed a BsonArray to the BsonArray overload or
-passed an IEnumerable<BsonValue> that was not a BsonArray to the
-IEnumerable<BsonValue> overload no exception was thrown.
+IEnumerable&lt;BsonValue&gt;. If you passed a BsonArray to the BsonArray overload or
+passed an IEnumerable&lt;BsonValue&gt; that was not a BsonArray to the
+IEnumerable&lt;BsonValue&gt; overload no exception was thrown.
 
 RequestStart/RequestDone
 ------------------------
