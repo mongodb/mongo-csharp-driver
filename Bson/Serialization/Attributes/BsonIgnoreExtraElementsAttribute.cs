@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies whether extra elements should be ignored when this class is deserialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonIgnoreExtraElementsAttribute : BsonSerializationOptionsAttribute
+    public class BsonIgnoreExtraElementsAttribute : Attribute, IBsonClassMapModifier
     {
         // private fields
         private bool _ignoreExtraElements;
@@ -64,6 +64,16 @@ namespace MongoDB.Bson.Serialization.Attributes
         {
             get { return _inherited; }
             set { _inherited = value; }
+        }
+
+        /// <summary>
+        /// Applies a modification to the class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
+        public void Apply(BsonClassMap classMap)
+        {
+            classMap.SetIgnoreExtraElements(_ignoreExtraElements);
+            classMap.SetIgnoreExtraElementsIsInherited(_inherited);
         }
     }
 }

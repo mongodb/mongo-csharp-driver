@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the discriminator and related options for a class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class BsonDiscriminatorAttribute : BsonSerializationOptionsAttribute
+    public class BsonDiscriminatorAttribute : Attribute, IBsonClassMapModifier
     {
         // private fields
         private string _discriminator;
@@ -73,6 +73,20 @@ namespace MongoDB.Bson.Serialization.Attributes
         {
             get { return _rootClass; }
             set { _rootClass = value; }
+        }
+
+        /// <summary>
+        /// Applies a modification to the class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
+        public void Apply(BsonClassMap classMap)
+        {
+            if (_discriminator != null)
+            {
+                classMap.SetDiscriminator(_discriminator);
+            }
+            classMap.SetDiscriminatorIsRequired(_required);
+            classMap.SetIsRootClass(_rootClass);
         }
     }
 }

@@ -869,6 +869,18 @@ namespace MongoDB.Bson.Serialization
             _extraElementsMemberMap = memberMap;
         }
 
+        public void AddKnownType(Type type)
+        {
+            if (!_classType.IsAssignableFrom(type))
+            {
+                string message = string.Format("Class {0} cannot be assigned to Class {1}.  Ensure that known types are derived from the mapped class.", type.FullName, _classType.FullName);
+                throw new ArgumentNullException("type", message);
+            }
+
+            if (_frozen) { ThrowFrozenException(); }
+            _knownTypes.Add(type);
+        }
+
         /// <summary>
         /// Sets the Id member.
         /// </summary>
@@ -1034,34 +1046,11 @@ namespace MongoDB.Bson.Serialization
         // private methods
         private void AutoMapClass()
         {
-            foreach (BsonKnownTypesAttribute knownTypesAttribute in _classType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false))
-            {
-                foreach (var knownType in knownTypesAttribute.KnownTypes)
-                {
-                    _knownTypes.Add(knownType); // knownTypes will be processed when Freeze is called
-                }
-            }
+            _ignoreExtraElements = _conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(_classType);
 
-            var discriminatorAttribute = (BsonDiscriminatorAttribute)_classType.GetCustomAttributes(typeof(BsonDiscriminatorAttribute), false).FirstOrDefault();
-            if (discriminatorAttribute != null)
+            foreach (IBsonClassMapModifier attribute in _classType.GetCustomAttributes(typeof(IBsonClassMapModifier), false))
             {
-                if (discriminatorAttribute.Discriminator != null)
-                {
-                    _discriminator = discriminatorAttribute.Discriminator;
-                }
-                _discriminatorIsRequired = discriminatorAttribute.Required;
-                _isRootClass = discriminatorAttribute.RootClass;
-            }
-
-            var ignoreExtraElementsAttribute = (BsonIgnoreExtraElementsAttribute)_classType.GetCustomAttributes(typeof(BsonIgnoreExtraElementsAttribute), false).FirstOrDefault();
-            if (ignoreExtraElementsAttribute != null)
-            {
-                _ignoreExtraElements = ignoreExtraElementsAttribute.IgnoreExtraElements;
-                _ignoreExtraElementsIsInherited = ignoreExtraElementsAttribute.Inherited;
-            }
-            else
-            {
-                _ignoreExtraElements = _conventions.IgnoreExtraElementsConvention.IgnoreExtraElements(_classType);
+                attribute.Apply(this);
             }
 
             AutoMapMembers();
@@ -1126,102 +1115,9 @@ namespace MongoDB.Bson.Serialization
                 memberMap.SetSerializationOptions(serializationOptions);
             }
 
-            foreach (Attribute attribute in memberInfo.GetCustomAttributes(false))
+            foreach (IBsonMemberMapModifier attribute in memberInfo.GetCustomAttributes(typeof(IBsonMemberMapModifier), false))
             {
-                if (!(attribute is BsonSerializationOptionsAttribute))
-                {
-                    // ignore all attributes that aren't BSON serialization related
-                    continue;
-                }
-
-                var defaultValueAttribute = attribute as BsonDefaultValueAttribute;
-                if (defaultValueAttribute != null)
-                {
-                    memberMap.SetDefaultValue(defaultValueAttribute.DefaultValue);
-#pragma warning disable 618 // SerializeDefaultValue is obsolete
-                    if (defaultValueAttribute.SerializeDefaultValueWasSet)
-                    {
-                        memberMap.SetIgnoreIfNull(false);
-                        memberMap.SetIgnoreIfDefault(!defaultValueAttribute.SerializeDefaultValue);
-                    }
-#pragma warning restore 618
-                    continue;
-                }
-
-                var elementAttribute = attribute as BsonElementAttribute;
-                if (elementAttribute != null)
-                {
-                    if (!string.IsNullOrEmpty(elementAttribute.ElementName))
-                    {
-                        memberMap.SetElementName(elementAttribute.ElementName);
-                    }
-                    memberMap.SetOrder(elementAttribute.Order);
-                    continue;
-                }
-
-                var extraElementsAttribute = attribute as BsonExtraElementsAttribute;
-                if (extraElementsAttribute != null)
-                {
-                    SetExtraElementsMember(memberMap);
-                    continue;
-                }
-
-                var idAttribute = attribute as BsonIdAttribute;
-                if (idAttribute != null)
-                {
-                    memberMap.SetElementName("_id");
-                    memberMap.SetOrder(idAttribute.Order);
-                    var idGeneratorType = idAttribute.IdGenerator;
-                    if (idGeneratorType != null)
-                    {
-                        var idGenerator = (IIdGenerator)Activator.CreateInstance(idGeneratorType); // public default constructor required
-                        memberMap.SetIdGenerator(idGenerator);
-                    }
-                    SetIdMember(memberMap);
-                    continue;
-                }
-
-                var ignoreIfDefaultAttribute = attribute as BsonIgnoreIfDefaultAttribute;
-                if (ignoreIfDefaultAttribute != null)
-                {
-                    memberMap.SetIgnoreIfNull(false);
-                    memberMap.SetIgnoreIfDefault(ignoreIfDefaultAttribute.Value);
-                    continue;
-                }
-
-                var ignoreIfNullAttribute = attribute as BsonIgnoreIfNullAttribute;
-                if (ignoreIfNullAttribute != null)
-                {
-                    memberMap.SetIgnoreIfDefault(false);
-                    memberMap.SetIgnoreIfNull(ignoreIfNullAttribute.Value);
-                    continue;
-                }
-
-                var requiredAttribute = attribute as BsonRequiredAttribute;
-                if (requiredAttribute != null)
-                {
-                    memberMap.SetIsRequired(true);
-                    continue;
-                }
-
-                // if none of the above apply then apply the attribute to the serialization options
-                var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);
-                var memberSerializationOptions = memberMap.SerializationOptions;
-                if (memberSerializationOptions == null)
-                {
-                    var memberDefaultSerializationOptions = memberSerializer.GetDefaultSerializationOptions();
-                    if (memberDefaultSerializationOptions == null)
-                    {
-                        var message = string.Format(
-                            "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
-                            BsonUtils.GetFriendlyTypeName(attribute.GetType()),
-                            BsonUtils.GetFriendlyTypeName(memberSerializer.GetType()));
-                        throw new NotSupportedException(message);
-                    }
-                    memberSerializationOptions = memberDefaultSerializationOptions.Clone();
-                    memberMap.SetSerializationOptions(memberSerializationOptions);
-                }
-                memberSerializationOptions.ApplyAttribute(memberSerializer, attribute);
+                attribute.Apply(memberMap);
             }
 
             return memberMap;

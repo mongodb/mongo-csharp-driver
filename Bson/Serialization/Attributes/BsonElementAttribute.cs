@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the element name and related options for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonElementAttribute : BsonSerializationOptionsAttribute
+    public class BsonElementAttribute : Attribute, IBsonMemberMapModifier
     {
         // private fields
         private string _elementName;
@@ -62,6 +62,19 @@ namespace MongoDB.Bson.Serialization.Attributes
         {
             get { return _order; }
             set { _order = value; }
+        }
+
+        /// <summary>
+        /// Applies a modification to the member map.
+        /// </summary>
+        /// <param name="memberMap">The member map.</param>
+        public void Apply(BsonMemberMap memberMap)
+        {
+            if (!string.IsNullOrEmpty(_elementName))
+            {
+                memberMap.SetElementName(_elementName);
+            }
+            memberMap.SetOrder(_order);
         }
     }
 }

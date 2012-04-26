@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// <summary>
     /// Abstract base class for serialization options attributes.
     /// </summary>
-    public abstract class BsonSerializationOptionsAttribute : Attribute
+    public abstract class BsonSerializationOptionsAttribute : Attribute, IBsonMemberMapModifier
     {
         // constructors
         /// <summary>
@@ -34,6 +34,27 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         protected BsonSerializationOptionsAttribute()
         {
+        }
+
+        public virtual void Apply(BsonMemberMap memberMap)
+        {
+            var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);
+            var memberSerializationOptions = memberMap.SerializationOptions;
+            if (memberSerializationOptions == null)
+            {
+                var memberDefaultSerializationOptions = memberSerializer.GetDefaultSerializationOptions();
+                if (memberDefaultSerializationOptions == null)
+                {
+                    var message = string.Format(
+                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
+                        BsonUtils.GetFriendlyTypeName(this.GetType()),
+                        BsonUtils.GetFriendlyTypeName(memberSerializer.GetType()));
+                    throw new NotSupportedException(message);
+                }
+                memberSerializationOptions = memberDefaultSerializationOptions.Clone();
+                memberMap.SetSerializationOptions(memberSerializationOptions);
+            }
+            memberSerializationOptions.ApplyAttribute(memberSerializer, this);
         }
     }
 }

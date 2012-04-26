@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Indicates that this field or property should be ignored when this class is serialized.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIgnoreAttribute : BsonSerializationOptionsAttribute
+    public class BsonIgnoreAttribute : Attribute
     {
     }
 }
