@@ -74,6 +74,13 @@ namespace MongoDB.Driver.Internal
             _state = MongoConnectionState.Initial;
         }
 
+        internal MongoConnection(MongoServerInstance serverInstance)
+        {
+            _serverInstance = serverInstance;
+            _createdAt = DateTime.UtcNow;
+            _state = MongoConnectionState.Initial;
+        }
+
         // public properties
         /// <summary>
         /// Gets the connection pool that this connection belongs to.
@@ -540,7 +547,10 @@ namespace MongoDB.Driver.Internal
                     break;
                 case HandleExceptionAction.ClearConnectionPool:
                     Close();
-                    _connectionPool.Clear();
+                    if (_connectionPool != null)
+                    {
+                        _connectionPool.Clear();
+                    }
                     break;
                 default:
                     throw new MongoInternalException("Invalid HandleExceptionAction");
