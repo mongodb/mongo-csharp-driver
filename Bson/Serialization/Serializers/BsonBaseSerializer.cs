@@ -104,16 +104,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public virtual BsonSerializationInfo GetItemSerializationInfo()
-        {
-            var message = string.Format("{0} does not implement the GetItemSerializationInfo method.", this.GetType().Name);
-            throw new NotSupportedException(message);
-        }
-
-        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>

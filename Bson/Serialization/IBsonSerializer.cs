@@ -47,11 +47,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The default serialization options for this serializer.</returns>
         IBsonSerializationOptions GetDefaultSerializationOptions();
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        BsonSerializationInfo GetItemSerializationInfo();
-        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
