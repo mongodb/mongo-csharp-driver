@@ -52,12 +52,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The serialization info for the items.</returns>
         BsonSerializationInfo GetItemSerializationInfo();
         /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
-        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>

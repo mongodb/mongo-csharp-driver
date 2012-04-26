@@ -1529,11 +1529,12 @@ namespace MongoDB.Driver.Linq
             var containingExpression = memberExpression.Expression;
             if (containingExpression.NodeType == ExpressionType.Parameter)
             {
-                try
+                var memberInfoProvider = serializer as IBsonMemberSerializationInfoProvider;
+                if(memberInfoProvider != null)
                 {
-                    return serializer.GetMemberSerializationInfo(memberName);
+                    return memberInfoProvider.GetMemberSerializationInfo(memberName);
                 }
-                catch (NotSupportedException)
+                else
                 {
                     var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
                     throw new NotSupportedException(message);
@@ -1542,16 +1543,17 @@ namespace MongoDB.Driver.Linq
             else
             {
                 var containingSerializationInfo = GetSerializationInfo(serializer, containingExpression);
-                try
+                var memberInfoProvider = containingSerializationInfo.Serializer as IBsonMemberSerializationInfoProvider;
+                if(memberInfoProvider != null)
                 {
-                    var memberSerializationInfo = containingSerializationInfo.Serializer.GetMemberSerializationInfo(memberName);
+                    var memberSerializationInfo = memberInfoProvider.GetMemberSerializationInfo(memberName);
                     return new BsonSerializationInfo(
                         containingSerializationInfo.ElementName + "." + memberSerializationInfo.ElementName,
                         memberSerializationInfo.Serializer,
                         memberSerializationInfo.NominalType,
                         memberSerializationInfo.SerializationOptions);
                 }
-                catch (NotSupportedException)
+                else
                 {
                     var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
                     throw new NotSupportedException(message);
