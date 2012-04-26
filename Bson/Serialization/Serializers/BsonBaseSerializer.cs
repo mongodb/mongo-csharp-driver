@@ -104,23 +104,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Gets the document Id.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="id">The Id.</param>
-        /// <param name="idNominalType">The nominal type of the Id.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id type.</param>
-        /// <returns>True if the document has an Id.</returns>
-        public virtual bool GetDocumentId(
-            object document,
-            out object id,
-            out Type idNominalType,
-            out IIdGenerator idGenerator)
-        {
-            throw new NotSupportedException("Subclass must implement GetDocumentId.");
-        }
-
-        /// <summary>
         /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
@@ -155,16 +138,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             throw new NotSupportedException("Subclass must implement Serialize.");
-        }
-
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="id">The Id.</param>
-        public virtual void SetDocumentId(object document, object id)
-        {
-            throw new NotSupportedException("Subclass must implement SetDocumentId.");
         }
 
         // protected methods

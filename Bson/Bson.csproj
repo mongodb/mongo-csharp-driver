@@ -104,6 +104,7 @@
     <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
     <Compile Include="Serialization\IBsonClassMapModifier.cs" />
     <Compile Include="Serialization\IBsonMemberMapModifier.cs" />
+    <Compile Include="Serialization\IBsonIdProvider.cs" />
     <Compile Include="Serialization\Options\ArraySerializationOptions.cs" />
     <Compile Include="Serialization\Options\BsonBaseSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
