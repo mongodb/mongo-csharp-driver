@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                var discriminatorConvention = _classMap.GetDiscriminatorConvention();
                 var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
                 if (actualType != nominalType)
                 {
@@ -131,7 +131,7 @@ namespace MongoDB.Bson.Serialization
 
                 bsonReader.ReadStartDocument();
                 var missingElementMemberMaps = new HashSet<BsonMemberMap>(classMap.AllMemberMaps); // make a copy!
-                var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                var discriminatorConvention = classMap.GetDiscriminatorConvention();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
                     var elementName = bsonReader.ReadName();
@@ -337,7 +337,7 @@ namespace MongoDB.Bson.Serialization
                     // never write out a discriminator for an anonymous class
                     if (!classMap.IsAnonymous)
                     {
-                        var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                        var discriminatorConvention = classMap.GetDiscriminatorConvention();
                         var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                         if (discriminator != null)
                         {
@@ -443,7 +443,7 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+                    var discriminatorConvention = memberMap.GetDiscriminatorConvention();
                     actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
                 }
                 var serializer = memberMap.GetSerializer(actualType);
