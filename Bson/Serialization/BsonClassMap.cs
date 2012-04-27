@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization
         private bool _frozen; // once a class map has been frozen no further changes are allowed
         private BsonClassMap _baseClassMap; // null for class object and interfaces
         private Type _classType;
+        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
         private Func<object> _creator;
         private ConventionProfile _conventions;
         private string _discriminator;
@@ -965,6 +966,22 @@ namespace MongoDB.Bson.Serialization
             UnmapMember(propertyInfo);
         }
 
+        // internal methods
+        /// <summary>
+        /// Gets the discriminator convention for the member type.
+        /// </summary>
+        /// <returns>The discriminator convention for the member type.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        {
+            var classDiscriminatorConvention = _cachedDiscriminatorConvention;
+            if (classDiscriminatorConvention == null)
+            {
+                classDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_classType);
+                _cachedDiscriminatorConvention = classDiscriminatorConvention;
+            }
+            return classDiscriminatorConvention;
+        }
+
         // private methods
         private void AutoMapClass()
         {
@@ -1485,7 +1502,7 @@ namespace MongoDB.Bson.Serialization
             UnmapMember(propertyLambda);
         }
 
-        // private methods
+        // private static methods
         private static MemberInfo GetMemberInfoFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var body = memberLambda.Body;

@@ -43,7 +43,6 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
-            RegisterDefaultSerializationProvider();
             RegisterIdGenerators();
         }
 
@@ -359,7 +358,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Looks up a serializer for a Type.
+        /// Looks up and populates the serializer singleton for a type.
         /// </summary>
         /// <param name="type">The Type.</param>
         /// <returns>A serializer for the Type.</returns>
@@ -368,7 +367,7 @@ namespace MongoDB.Bson.Serialization
             __configLock.EnterReadLock();
             try
             {
-                IBsonSerializer serializer;
+               IBsonSerializer serializer;
                 if (__serializers.TryGetValue(type, out serializer))
                 {
                     return serializer;
@@ -385,6 +384,18 @@ namespace MongoDB.Bson.Serialization
                 IBsonSerializer serializer;
                 if (!__serializers.TryGetValue(type, out serializer))
                 {
+                    if (serializer == null)
+                    {
+                        foreach (var serializationProvider in __serializationProviders)
+                        {
+                            serializer = serializationProvider.GetSerializer(type);
+                            if (serializer != null)
+                            {
+                                break;
+                            }
+                        }
+                    }
+
                     // special case for IBsonSerializable
                     if (serializer == null && typeof(IBsonSerializable).IsAssignableFrom(type))
                     {
@@ -404,14 +415,7 @@ namespace MongoDB.Bson.Serialization
 
                     if (serializer == null)
                     {
-                        foreach (var serializationProvider in __serializationProviders)
-                        {
-                            serializer = serializationProvider.GetSerializer(type);
-                            if (serializer != null)
-                            {
-                                break;
-                            }
-                        }
+                        serializer = BsonDefaultSerializer.Instance.GetSerializer(type);
                     }
 
                     if (serializer == null)
@@ -475,6 +479,11 @@ namespace MongoDB.Bson.Serialization
         /// <param name="provider">The serialization provider.</param>
         public static void RegisterSerializationProvider(IBsonSerializationProvider provider)
         {
+            if (provider == BsonDefaultSerializer.Instance)
+            {
+                throw new ArgumentException("BsonDefaultSerializer is implicitly registered", "provider");
+            }
+
             __configLock.EnterWriteLock();
             try
             {
@@ -497,7 +506,12 @@ namespace MongoDB.Bson.Serialization
             __configLock.EnterWriteLock();
             try
             {
-                __serializers[type] = serializer;
+                if (__serializers.ContainsKey(type))
+                {
+                    var message = string.Format("There is already a serializer registered for type {0}.", type.FullName);
+                    throw new BsonSerializationException(message);
+                }
+                __serializers.Add(type, serializer);
             }
             finally
             {
@@ -555,24 +569,12 @@ namespace MongoDB.Bson.Serialization
             object value,
             IBsonSerializationOptions options)
         {
-            var bsonSerializable = value as IBsonSerializable;
-            if (bsonSerializable != null)
-            {
-                bsonSerializable.Serialize(bsonWriter, nominalType, options);
-                return;
-            }
-
             var actualType = (value == null) ? nominalType : value.GetType();
             var serializer = LookupSerializer(actualType);
             serializer.Serialize(bsonWriter, nominalType, value, options);
         }
 
         // private static methods
-        private static void RegisterDefaultSerializationProvider()
-        {
-            RegisterSerializationProvider(BsonDefaultSerializer.Instance);
-        }
-
         private static void RegisterIdGenerators()
         {
             BsonSerializer.RegisterIdGenerator(typeof(BsonObjectId), BsonObjectIdGenerator.Instance);
