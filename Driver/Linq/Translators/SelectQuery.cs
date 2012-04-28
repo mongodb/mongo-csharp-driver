@@ -1190,7 +1190,7 @@ namespace MongoDB.Driver.Linq
                     if (operatorType == ExpressionType.Equal)
                     {
                         // if comparing Foo.ToLower() == "Some Non Lower Case String"
-                        // then that is always false as long as Foo is set/exists                        
+                        // then that is always false for all documents
                         if (caseMismatch)
                             return Query.Exists("_id", false); 
 
