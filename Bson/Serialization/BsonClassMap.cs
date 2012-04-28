@@ -968,18 +968,20 @@ namespace MongoDB.Bson.Serialization
 
         // internal methods
         /// <summary>
-        /// Gets the discriminator convention for the member type.
+        /// Gets the discriminator convention for the class.
         /// </summary>
-        /// <returns>The discriminator convention for the member type.</returns>
+        /// <returns>The discriminator convention for the class.</returns>
         internal IDiscriminatorConvention GetDiscriminatorConvention()
         {
-            var classDiscriminatorConvention = _cachedDiscriminatorConvention;
-            if (classDiscriminatorConvention == null)
+            // return a cached discriminator convention when possible
+            var discriminatorConvention = _cachedDiscriminatorConvention;
+            if (discriminatorConvention == null)
             {
-                classDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_classType);
-                _cachedDiscriminatorConvention = classDiscriminatorConvention;
+                // it's possible but harmless for multiple threads to do the initial lookup at the same time
+                discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_classType);
+                _cachedDiscriminatorConvention = discriminatorConvention;
             }
-            return classDiscriminatorConvention;
+            return discriminatorConvention;
         }
 
         // private methods

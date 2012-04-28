@@ -287,21 +287,24 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public IBsonSerializer GetSerializer(Type actualType)
         {
+            // if a custom serializer is configured always return it
             if (_serializer != null)
             {
                 return _serializer;
             }
             else
             {
+                // return a cached serializer when possible
                 if (actualType == _memberType)
                 {
-                    var cachedSerializer = _cachedSerializer;
-                    if (cachedSerializer == null)
+                    var serializer = _cachedSerializer;
+                    if (serializer == null)
                     {
-                        cachedSerializer = BsonSerializer.LookupSerializer(_memberType);
-                        _cachedSerializer = cachedSerializer;
+                        // it's possible but harmless for multiple threads to do the initial lookup at the same time
+                        serializer = BsonSerializer.LookupSerializer(_memberType);
+                        _cachedSerializer = serializer;
                     }
-                    return cachedSerializer;
+                    return serializer;
                 }
                 else
                 {
@@ -505,13 +508,15 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The discriminator convention for the member type.</returns>
         internal IDiscriminatorConvention GetDiscriminatorConvention()
         {
-            var classDiscriminatorConvention = _cachedDiscriminatorConvention;
-            if (classDiscriminatorConvention == null)
+            // return a cached discriminator convention when possible
+            var discriminatorConvention = _cachedDiscriminatorConvention;
+            if (discriminatorConvention == null)
             {
-                classDiscriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_memberType);
-                _cachedDiscriminatorConvention = classDiscriminatorConvention;
+                // it's possible but harmless for multiple threads to do the initial lookup at the same time
+                discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_memberType);
+                _cachedDiscriminatorConvention = discriminatorConvention;
             }
-            return classDiscriminatorConvention;
+            return discriminatorConvention;
         }
 
         // private methods
