@@ -397,6 +397,12 @@ namespace MongoDB.Driver.Linq
                 return query;
             }
 
+            query = BuildStringCaseComparisonQuery(variableExpression, operatorType, constantExpression);
+            if (query != null)
+            {
+                return query;
+            }
+
             query = BuildTypeComparisonQuery(variableExpression, operatorType, constantExpression);
             if (query != null)
             {
@@ -1150,6 +1156,59 @@ namespace MongoDB.Driver.Linq
                     {
                         return Query.Matches(serializationInfo.ElementName, regex);
                     }
+                }
+            }
+
+            return null;
+        }
+
+        private IMongoQuery BuildStringCaseComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
+        {
+            var methodExpression = variableExpression as MethodCallExpression;
+            if (methodExpression != null)
+            {
+                var sourceExpression = methodExpression.Object as MemberExpression;
+
+                if (methodExpression.Type == typeof(string) && sourceExpression != null)
+                {
+                    var serializationInfo = GetSerializationInfo(methodExpression.Object);
+                    var serializedValue = SerializeValue(serializationInfo, constantExpression.Value);
+                    var coalescedStringValue = constantExpression.Value == null ? string.Empty : serializedValue.AsString;
+
+                    string regexPattern = "/^" + coalescedStringValue + "$/i";
+                    var regex = new BsonRegularExpression(regexPattern);
+
+                    bool caseMismatch = false;
+
+                    if (methodExpression.Method.Name == "ToLower" && (coalescedStringValue != coalescedStringValue.ToLower()))
+                        caseMismatch = true;
+                    else if (methodExpression.Method.Name == "ToUpper" && (coalescedStringValue != coalescedStringValue.ToUpper()))
+                        caseMismatch = true;
+                    else if (constantExpression.Value == null)
+                        caseMismatch = true;
+
+                    if (operatorType == ExpressionType.Equal)
+                    {
+                        // if comparing Foo.ToLower() == "Some Non Lower Case String"
+                        // then that is always false as long as Foo is set/exists                        
+                        if (caseMismatch)
+                            return Query.Exists("_id", false); 
+
+                        return Query.And(Query.Exists(serializationInfo.ElementName, true),
+                                          Query.Matches(serializationInfo.ElementName, regex));
+                    }
+                    else if (operatorType == ExpressionType.NotEqual)
+                    {
+                        // if comparing Foo.ToLower() != "Some Non Lower Case String"
+                        // then that is always true as long as Foo is set/exists
+                        if (caseMismatch)
+                            return Query.Exists(serializationInfo.ElementName, true);
+
+                        return Query.And(Query.Exists(serializationInfo.ElementName, true),
+                                          Query.Not(serializationInfo.ElementName).Matches(regex));
+                    }
+                    else
+                        return null;
                 }
             }
 
