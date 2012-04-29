@@ -1175,7 +1175,7 @@ namespace MongoDB.Driver.Linq
                     var serializedValue = SerializeValue(serializationInfo, constantExpression.Value);
                     var coalescedStringValue = constantExpression.Value == null ? string.Empty : serializedValue.AsString;
 
-                    string regexPattern = "/^" + coalescedStringValue + "$/i";
+                    string regexPattern = "/^" + Regex.Escape(coalescedStringValue) + "$/i";
                     var regex = new BsonRegularExpression(regexPattern);
 
                     bool caseMismatch = false;
