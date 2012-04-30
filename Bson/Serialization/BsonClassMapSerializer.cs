@@ -185,17 +185,24 @@ namespace MongoDB.Bson.Serialization
                 }
                 bsonReader.ReadEndDocument();
 
-                // check any members left over that we didn't have elements for
+                // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)
                 for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
                 {
                     var memberMapIndex = bitArrayIndex << 5;
-                    var memberMapBlock = ~memberMapBitArray[bitArrayIndex];
+                    var memberMapBlock = ~memberMapBitArray[bitArrayIndex]; // notice that bits are flipped so 1's are now the missing elements
 
+                    // work through this memberMapBlock of 32 elements
                     for (;;)
                     {
+                        // examine missing elements (memberMapBlock is shifted right as we work through the block)
                         while ((memberMapBlock & 1) != 0)
                         {
                             var memberMap = allMemberMaps[memberMapIndex];
+                            if (memberMap.IsReadOnly)
+                            {
+                                continue;
+                            }
+
                             if (memberMap.IsRequired)
                             {
                                 var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
@@ -215,6 +222,7 @@ namespace MongoDB.Bson.Serialization
                             break;
                         }
 
+                        // skip ahead to the next missing element
                         var leastSignificantBit = FastMemberMapHelper.GetLeastSignificantBit(memberMapBlock);
                         memberMapIndex += leastSignificantBit;
                         memberMapBlock >>= leastSignificantBit;
