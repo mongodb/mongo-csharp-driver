@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -56,12 +57,14 @@ namespace MongoDB.Bson.Serialization
         private bool _isRootClass;
         private bool _isAnonymous;
         private BsonMemberMap _idMemberMap;
-        private List<BsonMemberMap> _allMemberMaps = new List<BsonMemberMap>(); // includes inherited member maps
+        private readonly List<BsonMemberMap> _allMemberMaps; // includes inherited member maps
+        private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
         private List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
-        private Dictionary<string, BsonMemberMap> _elementDictionary = new Dictionary<string, BsonMemberMap>();
+        private readonly Dictionary<string, int> _elementDictionary;
         private bool _ignoreExtraElements = true;
         private bool _ignoreExtraElementsIsInherited = false;
         private BsonMemberMap _extraElementsMemberMap;
+        private int _extraElementsMemberIndex = -1;
         private List<Type> _knownTypes = new List<Type>();
 
         // constructors
@@ -75,15 +78,18 @@ namespace MongoDB.Bson.Serialization
             _conventions = LookupConventions(classType);
             _discriminator = classType.Name;
             _isAnonymous = IsAnonymousType(classType);
+            _allMemberMaps = new List<BsonMemberMap>();
+            _allMemberMapsReadonly = _allMemberMaps.AsReadOnly();
+            _elementDictionary = new Dictionary<string, int>();
         }
 
         // public properties
         /// <summary>
         /// Gets all the member maps (including maps for inherited members).
         /// </summary>
-        public IEnumerable<BsonMemberMap> AllMemberMaps
+        public ReadOnlyCollection<BsonMemberMap> AllMemberMaps
         {
-            get { return _allMemberMaps; }
+            get { return _allMemberMapsReadonly; }
         }
 
         /// <summary>
@@ -213,6 +219,15 @@ namespace MongoDB.Bson.Serialization
         public IEnumerable<BsonMemberMap> MemberMaps
         {
             get { return _allMemberMaps; }
+        }
+
+        // internal properties
+        /// <summary>
+        /// Gets the member index of the member used to hold extra elements.
+        /// </summary>
+        internal int ExtraElementsMemberMapIndex
+        {
+            get { return _extraElementsMemberIndex; }
         }
 
         // public static methods
@@ -518,15 +533,18 @@ namespace MongoDB.Bson.Serialization
                             }
                         }
 
-                        foreach (var memberMap in _allMemberMaps)
+                        _extraElementsMemberIndex = -1;
+                        for (int memberIndex = 0; memberIndex < _allMemberMaps.Count; ++memberIndex)
                         {
-                            BsonMemberMap conflictingMemberMap;
-                            if (!_elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberMap))
+                            var memberMap = _allMemberMaps[memberIndex];
+                            int conflictingMemberIndex;
+                            if (!_elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberIndex))
                             {
-                                _elementDictionary.Add(memberMap.ElementName, memberMap);
+                                _elementDictionary.Add(memberMap.ElementName, memberIndex);
                             }
                             else
                             {
+                                var conflictingMemberMap = _allMemberMaps[conflictingMemberIndex];
                                 var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
                                 var conflictingFieldOrProperty = (conflictingMemberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
                                 var conflictingType = conflictingMemberMap.MemberInfo.DeclaringType;
@@ -545,6 +563,10 @@ namespace MongoDB.Bson.Serialization
                                         fieldOrProperty, memberMap.MemberName, _classType.FullName, memberMap.ElementName, conflictingFieldOrProperty, conflictingMemberMap.MemberName, conflictingType.FullName);
                                 }
                                 throw new BsonSerializationException(message);
+                            }
+                            if (memberMap == _extraElementsMemberMap)
+                            {
+                                _extraElementsMemberIndex = memberIndex;
                             }
                         }
 
@@ -611,8 +633,12 @@ namespace MongoDB.Bson.Serialization
             }
 
             if (!_frozen) { ThrowNotFrozenException(); }
-            BsonMemberMap memberMap;
-            _elementDictionary.TryGetValue(elementName, out memberMap);
+            int memberIndex;
+            if (!_elementDictionary.TryGetValue(elementName, out memberIndex))
+            {
+                return null;
+            }
+            var memberMap = _allMemberMaps[memberIndex];
             return memberMap;
         }
 
@@ -982,6 +1008,27 @@ namespace MongoDB.Bson.Serialization
                 _cachedDiscriminatorConvention = discriminatorConvention;
             }
             return discriminatorConvention;
+        }
+
+        /// <summary>
+        /// Gets the member map for a BSON element.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
+        /// <returns>The member map.</returns>
+        internal int GetMemberMapIndexForElement(string elementName)
+        {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException("elementName");
+            }
+
+            if (!_frozen) { ThrowNotFrozenException(); }
+            int memberMapIndex;
+            if (!_elementDictionary.TryGetValue(elementName, out memberMapIndex))
+            {
+                return -1;
+            }
+            return memberMapIndex;
         }
 
         // private methods

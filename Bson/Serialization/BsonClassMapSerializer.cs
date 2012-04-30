@@ -135,7 +135,9 @@ namespace MongoDB.Bson.Serialization
                 }
 
                 var discriminatorConvention = _classMap.GetDiscriminatorConvention();
-                var fastMemberMapFinder = new FastMemberMapFinder(_classMap);
+                var allMemberMaps = _classMap.AllMemberMaps;
+                var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
+                var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
 
                 bsonReader.ReadStartDocument();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
@@ -147,9 +149,10 @@ namespace MongoDB.Bson.Serialization
                         continue;
                     }
 
-                    var memberMap = fastMemberMapFinder.GetMemberMapForElement(elementName);
-                    if (memberMap != null)
+                    var memberMapIndex = _classMap.GetMemberMapIndexForElement(elementName);
+                    if (memberMapIndex >= 0 && memberMapIndex != extraElementsMemberMapIndex)
                     {
+                        var memberMap = allMemberMaps[memberMapIndex];
                         if (memberMap.IsReadOnly)
                         {
                             bsonReader.SkipValue();
@@ -158,12 +161,14 @@ namespace MongoDB.Bson.Serialization
                         {
                             DeserializeMember(bsonReader, obj, memberMap);
                         }
+                        memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                     }
                     else
                     {
-                        if (_classMap.ExtraElementsMemberMap != null)
+                        if (extraElementsMemberMapIndex >= 0)
                         {
                             DeserializeExtraElement(bsonReader, obj, elementName, _classMap.ExtraElementsMemberMap);
+                            memberMapBitArray[extraElementsMemberMapIndex >> 5] |= 1U << (extraElementsMemberMapIndex & 31);
                         }
                         else if (_classMap.IgnoreExtraElements)
                         {
@@ -181,25 +186,38 @@ namespace MongoDB.Bson.Serialization
                 bsonReader.ReadEndDocument();
 
                 // check any members left over that we didn't have elements for
-                if (fastMemberMapFinder.HasLeftOverMemberMaps())
+                for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
                 {
-                    foreach (var memberMap in fastMemberMapFinder.GetLeftOverMemberMaps())
+                    var memberMapIndex = bitArrayIndex << 5;
+                    var memberMapBlock = ~memberMapBitArray[bitArrayIndex];
+
+                    for (;;)
                     {
-                        if (memberMap.IsReadOnly)
+                        while ((memberMapBlock & 1) != 0)
                         {
-                            continue;
+                            var memberMap = allMemberMaps[memberMapIndex];
+                            if (memberMap.IsRequired)
+                            {
+                                var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
+                                var message = string.Format(
+                                    "Required element '{0}' for {1} '{2}' of class {3} is missing.",
+                                    memberMap.ElementName, fieldOrProperty, memberMap.MemberName, _classMap.ClassType.FullName);
+                                throw new FileFormatException(message);
+                            }
+                            memberMap.ApplyDefaultValue(obj);
+
+                            ++memberMapIndex;
+                            memberMapBlock >>= 1;
                         }
 
-                        if (memberMap.IsRequired)
+                        if (memberMapBlock == 0)
                         {
-                            var fieldOrProperty = (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property";
-                            var message = string.Format(
-                                "Required element '{0}' for {1} '{2}' of class {3} is missing.",
-                                memberMap.ElementName, fieldOrProperty, memberMap.MemberName, _classMap.ClassType.FullName);
-                            throw new FileFormatException(message);
+                            break;
                         }
 
-                        memberMap.ApplyDefaultValue(obj);
+                        var leastSignificantBit = FastMemberMapHelper.GetLeastSignificantBit(memberMapBlock);
+                        memberMapIndex += leastSignificantBit;
+                        memberMapBlock >>= leastSignificantBit;
                     }
                 }
 
@@ -359,18 +377,22 @@ namespace MongoDB.Bson.Serialization
                     }
                 }
 
-                foreach (var memberMap in _classMap.AllMemberMaps)
+                var allMemberMaps = _classMap.AllMemberMaps;
+                var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
+
+                for (var memberMapIndex = 0; memberMapIndex < allMemberMaps.Count; ++memberMapIndex)
                 {
+                    var memberMap = allMemberMaps[memberMapIndex];
                     // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
                     if (memberMap != idMemberMap)
                     {
-                        if (memberMap == _classMap.ExtraElementsMemberMap)
+                        if (memberMapIndex != extraElementsMemberMapIndex)
                         {
-                            SerializeExtraElements(bsonWriter, value, memberMap);
+                            SerializeMember(bsonWriter, value, memberMap);
                         }
                         else
                         {
-                            SerializeMember(bsonWriter, value, memberMap);
+                            SerializeExtraElements(bsonWriter, value, memberMap);
                         }
                     }
                 }
@@ -531,90 +553,35 @@ namespace MongoDB.Bson.Serialization
         }
 
         // nested classes
-        // helper class that implements fast linear searching of member maps by using a shrinking range
-        // and optimized for the case when the elements occur in the same order as the maps
-        private class FastMemberMapFinder
+        // helper class that implements member map bit array helper functions
+        private static class FastMemberMapHelper
         {
-            private BsonClassMap _classMap;
-            private BsonMemberMap _extraElementsMemberMap;
-            private BsonMemberMap[] _memberMaps;
-            private int _from;
-            private int _to;
-
-            public FastMemberMapFinder(BsonClassMap classMap)
+            private static readonly byte[] __multiplyDeBruijnBitIndex =
             {
-                _classMap = classMap;
-                _extraElementsMemberMap = classMap.ExtraElementsMemberMap;
-                _memberMaps = classMap.AllMemberMaps.ToArray();
-                _from = 0;
-                _to = _memberMaps.Length - 1;
-                if (_extraElementsMemberMap != null)
+                0, 1, 28, 2, 29, 14, 24, 3,
+                30, 22, 20, 15, 25, 17, 4, 8,
+                31, 27, 13, 23, 21, 19, 16, 7,
+                26, 12, 18, 6, 11, 5, 10, 9,
+            };
+
+            public static uint[] GetBitArray(int memberCount)
+            {
+                var bitArrayOffset = memberCount & 31;
+                var bitArrayLength = memberCount >> 5;
+                if (bitArrayOffset == 0)
                 {
-                    var i = Array.IndexOf(_memberMaps, _extraElementsMemberMap);
-                    _memberMaps[i] = null;
+                    return new uint[bitArrayLength];
                 }
+                var bitArray = new uint[bitArrayLength + 1];
+                bitArray[bitArrayLength] = ~0U << bitArrayOffset; // set unused bits to 1
+                return bitArray;
             }
 
-            public BsonMemberMap GetMemberMapForElement(string elementName)
+            // see http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
+            // also returns 0 if no bits are set; caller must check this case
+            public static int GetLeastSignificantBit(uint bitBlock)
             {
-                // linear search should be fast because elements will normally be in the same order as the member maps
-                for (int i = _from; i <= _to; i++)
-                {
-                    var memberMap = _memberMaps[i];
-                    if (memberMap == null)
-                    {
-                        if (i == _from)
-                        {
-                            _from++; // shrink the range from the left
-                        }
-                        continue;
-                    }
-
-                    if (memberMap.ElementName == elementName)
-                    {
-                        if (i == _from)
-                        {
-                            _from++; // shrink the range from the left
-                        }
-                        else if (i == _to)
-                        {
-                            _to--; // shrink the range from the right
-                        }
-                        else
-                        {
-                            _memberMaps[i] = null; // set to null so we don't think it's missing
-                        }
-                        return memberMap;
-                    }
-                }
-
-                // fall back to the class map in case it's a duplicate element name that we've already null'ed out
-                // but make sure not to return the extraElementsMemberMap
-                if (_extraElementsMemberMap == null || elementName != _extraElementsMemberMap.ElementName)
-                {
-                    return _classMap.GetMemberMapForElement(elementName);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            public bool HasLeftOverMemberMaps()
-            {
-                for (int i = _from; i <= _to; i++)
-                {
-                    if (_memberMaps[i] != null)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            public IEnumerable<BsonMemberMap> GetLeftOverMemberMaps()
-            {
-                return _memberMaps.Where((m, i) => (i >= _from) && (i <= _to) && (m != null));
+                return __multiplyDeBruijnBitIndex[((uint)((bitBlock & -bitBlock) * 0x077cb531U)) >> 27];
             }
         }
     }
