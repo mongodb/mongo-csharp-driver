@@ -1079,18 +1079,18 @@ namespace MongoDB.Driver
                         if (_settings.AssignIdOnInsert)
                         {
                             var serializer = BsonSerializer.LookupSerializer(document.GetType());
-                            var identityProvider = serializer as IBsonIdProvider;
-                            if (identityProvider != null)
+                            var idProvider = serializer as IBsonIdProvider;
+                            if (idProvider != null)
                             {
                                 object id;
                                 Type idNominalType;
                                 IIdGenerator idGenerator;
-                                if (identityProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+                                if (idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
                                 {
                                     if (idGenerator != null && idGenerator.IsEmpty(id))
                                     {
                                         id = idGenerator.GenerateId(this, document);
-                                        identityProvider.SetDocumentId(document, id);
+                                        idProvider.SetDocumentId(document, id);
                                     }
                                 }
                             }
@@ -1356,11 +1356,11 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("document");
             }
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
-            var identityProvider = serializer as IBsonIdProvider;
+            var idProvider = serializer as IBsonIdProvider;
             object id;
             Type idNominalType;
             IIdGenerator idGenerator;
-            if (identityProvider != null && identityProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+            if (idProvider != null && idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
             {
                 if (id == null && idGenerator == null)
                 {
@@ -1370,7 +1370,7 @@ namespace MongoDB.Driver
                 if (idGenerator != null && idGenerator.IsEmpty(id))
                 {
                     id = idGenerator.GenerateId(this, document);
-                    identityProvider.SetDocumentId(document, id);
+                    idProvider.SetDocumentId(document, id);
                     return Insert(nominalType, document, options);
                 }
                 else

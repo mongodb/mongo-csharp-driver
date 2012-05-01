@@ -52,9 +52,9 @@ namespace MongoDB.BsonUnitTests.Jira
             var idMemberMap = classMap.IdMemberMap;
             Assert.AreEqual("Id", idMemberMap.MemberName);
 
-            var identityProvider = BsonSerializer.LookupSerializer(typeof(User)) as IBsonIdProvider;
+            var idProvider = BsonSerializer.LookupSerializer(typeof(User)) as IBsonIdProvider;
             var idGenerator = BsonSerializer.LookupIdGenerator(typeof(ObjectId));
-            identityProvider.SetDocumentId(u, idGenerator.GenerateId(null, u));
+            idProvider.SetDocumentId(u, idGenerator.GenerateId(null, u));
             Assert.IsFalse(idGenerator.IsEmpty(u.Id));
             Assert.IsTrue(idGenerator.IsEmpty(u.FriendId));
 

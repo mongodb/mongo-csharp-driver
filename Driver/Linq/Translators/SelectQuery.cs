@@ -467,8 +467,8 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (serializationInfo != null && valuesExpression != null)
                     {
-                        var itemSerializationProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                        if (itemSerializationProvider == null)
+                        var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                        if (itemSerializationInfoProvider == null)
                         {
                             var message = string.Format(
                                 "ContainsAll cannot be run against a member whose serializer does not implement {0}. The current serializer is {1}.",
@@ -476,7 +476,7 @@ namespace MongoDB.Driver.Linq
                                 BsonUtils.GetFriendlyTypeName(serializationInfo.Serializer.GetType()));
                             throw new NotSupportedException(message);
                         }
-                        var itemSerializationInfo = itemSerializationProvider.GetItemSerializationInfo();
+                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                         var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
                         return Query.All(serializationInfo.ElementName, serializedValues);
                     }
@@ -496,8 +496,8 @@ namespace MongoDB.Driver.Linq
                     var valuesExpression = arguments[1] as ConstantExpression;
                     if (serializationInfo != null && valuesExpression != null)
                     {
-                        var itemSerializationProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                        if (itemSerializationProvider == null)
+                        var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                        if (itemSerializationInfoProvider == null)
                         {
                             var message = string.Format(
                                 "ContainsAny cannot be run against a member whose serializer does not implement {0}. The current serializer is {1}.",
@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Linq
                                 BsonUtils.GetFriendlyTypeName(serializationInfo.Serializer.GetType()));
                             throw new NotSupportedException(message);
                         }
-                        var itemSerializationInfo = itemSerializationProvider.GetItemSerializationInfo();
+                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                         var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
                         return Query.In(serializationInfo.ElementName, serializedValues);
                     }
@@ -543,8 +543,8 @@ namespace MongoDB.Driver.Linq
 
             if (serializationInfo != null && valueExpression != null)
             {
-                var itemSerializationProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                if (itemSerializationProvider == null)
+                var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                if (itemSerializationInfoProvider == null)
                 {
                     var message = string.Format(
                         "Contains cannot be run against a member whose serializer does not implement {0}. The current serializer is {1}.",
@@ -552,7 +552,7 @@ namespace MongoDB.Driver.Linq
                         BsonUtils.GetFriendlyTypeName(serializationInfo.Serializer.GetType()));
                     throw new NotSupportedException(message);
                 }
-                var itemSerializationInfo = itemSerializationProvider.GetItemSerializationInfo();
+                var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                 var serializedValue = SerializeValue(itemSerializationInfo, valueExpression.Value);
                 return Query.EQ(serializationInfo.ElementName, serializedValue);
             }
@@ -1507,8 +1507,8 @@ namespace MongoDB.Driver.Linq
             var arraySerializationInfo = GetSerializationInfo(serializer, binaryExpression.Left);
             if (arraySerializationInfo != null)
             {
-                var itemSerializationProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                if (itemSerializationProvider == null)
+                var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                if (itemSerializationInfoProvider == null)
                 {
                     var message = string.Format(
                         "Queries using an array index cannot be run against a member whose serializer does not implement {0}. The current serializer is {1}.",
@@ -1516,7 +1516,7 @@ namespace MongoDB.Driver.Linq
                         BsonUtils.GetFriendlyTypeName(arraySerializationInfo.Serializer.GetType()));
                     throw new NotSupportedException(message);
                 }
-                var itemSerializationInfo = itemSerializationProvider.GetItemSerializationInfo();
+                var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                 var indexEpression = binaryExpression.Right as ConstantExpression;
                 if (indexEpression != null)
                 {
@@ -1539,16 +1539,18 @@ namespace MongoDB.Driver.Linq
             {
                 var indexEpression = arguments[0] as ConstantExpression;
                 if (indexEpression == null)
+                {
                     return null;
+                }
+                var index = Convert.ToInt32(indexEpression.Value);
 
                 var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Object);
                 if (arraySerializationInfo != null)
                 {
-                    var itemSerializationProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                    if (itemSerializationProvider != null)
+                    var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                    if (itemSerializationInfoProvider != null)
                     {
-                        var itemSerializationInfo = itemSerializationProvider.GetItemSerializationInfo();
-                        var index = Convert.ToInt32(indexEpression.Value);
+                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                         return new BsonSerializationInfo(
                             arraySerializationInfo.ElementName + "." + index.ToString(),
                             itemSerializationInfo.Serializer,
@@ -1569,10 +1571,10 @@ namespace MongoDB.Driver.Linq
             var containingExpression = memberExpression.Expression;
             if (containingExpression.NodeType == ExpressionType.Parameter)
             {
-                var memberInfoProvider = serializer as IBsonMemberSerializationInfoProvider;
-                if(memberInfoProvider != null)
+                var memberSerializationInfoProvider = serializer as IBsonMemberSerializationInfoProvider;
+                if (memberSerializationInfoProvider != null)
                 {
-                    return memberInfoProvider.GetMemberSerializationInfo(memberName);
+                    return memberSerializationInfoProvider.GetMemberSerializationInfo(memberName);
                 }
                 else
                 {
@@ -1583,10 +1585,10 @@ namespace MongoDB.Driver.Linq
             else
             {
                 var containingSerializationInfo = GetSerializationInfo(serializer, containingExpression);
-                var memberInfoProvider = containingSerializationInfo.Serializer as IBsonMemberSerializationInfoProvider;
-                if(memberInfoProvider != null)
+                var memberSerializationInfoProvider = containingSerializationInfo.Serializer as IBsonMemberSerializationInfoProvider;
+                if (memberSerializationInfoProvider != null)
                 {
-                    var memberSerializationInfo = memberInfoProvider.GetMemberSerializationInfo(memberName);
+                    var memberSerializationInfo = memberSerializationInfoProvider.GetMemberSerializationInfo(memberName);
                     return new BsonSerializationInfo(
                         containingSerializationInfo.ElementName + "." + memberSerializationInfo.ElementName,
                         memberSerializationInfo.Serializer,
