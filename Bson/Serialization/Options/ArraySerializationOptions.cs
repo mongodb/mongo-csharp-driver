@@ -71,7 +71,17 @@ namespace MongoDB.Bson.Serialization.Options
         public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
         {
             EnsureNotFrozen();
-            var itemSerializer = serializer.GetItemSerializationInfo().Serializer;
+            var itemSerializationProvider = serializer as IBsonItemSerializationInfoProvider;
+            if (itemSerializationProvider == null)
+            {
+                var message = string.Format(
+                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
+                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
+                        BsonUtils.GetFriendlyTypeName(serializer.GetType()));
+                throw new NotSupportedException(message);
+            }
+
+            var itemSerializer = itemSerializationProvider.GetItemSerializationInfo().Serializer;
             if (_itemSerializationOptions == null)
             {
                 var itemDefaultSerializationOptions = itemSerializer.GetDefaultSerializationOptions();

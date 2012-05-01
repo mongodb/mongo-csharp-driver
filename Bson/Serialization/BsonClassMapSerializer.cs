@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serializer for a class map.
     /// </summary>
-    public class BsonClassMapSerializer : IBsonSerializer
+    internal class BsonClassMapSerializer : IBsonSerializer, IBsonIdProvider, IBsonMemberSerializationInfoProvider
     {
         // private fields
         private BsonClassMap _classMap;

@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
-    public class DictionarySerializer : BsonBaseSerializer
+    public class DictionarySerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
     {
         // private static fields
         private static DictionarySerializer __instance = new DictionarySerializer();
@@ -180,7 +180,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
-        public override BsonSerializationInfo GetItemSerializationInfo()
+        public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
             var serializer = BsonSerializer.LookupSerializer(typeof(object));

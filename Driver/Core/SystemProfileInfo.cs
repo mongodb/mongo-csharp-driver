@@ -328,7 +328,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for SystemProfileInfo.
     /// </summary>
-    public class SystemProfileInfoSerializer : BsonBaseSerializer
+    public class SystemProfileInfoSerializer : BsonBaseSerializer, IBsonMemberSerializationInfoProvider
     {
         // public methods
         /// <summary>
@@ -462,7 +462,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The serialization info for the member.</returns>
-        public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
             string elementName;
             IBsonSerializer serializer;

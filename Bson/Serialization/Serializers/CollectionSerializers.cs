@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for enumerable values.
     /// </summary>
-    public class EnumerableSerializer : BsonBaseSerializer
+    public class EnumerableSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
     {
         // private static fields
         private static EnumerableSerializer __instance = new EnumerableSerializer();
@@ -103,7 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
-        public override BsonSerializationInfo GetItemSerializationInfo()
+        public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
             var serializer = BsonSerializer.LookupSerializer(typeof(object));
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Queues.
     /// </summary>
-    public class QueueSerializer : BsonBaseSerializer
+    public class QueueSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
     {
         // private static fields
         private static QueueSerializer __instance = new QueueSerializer();
@@ -233,7 +233,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
-        public override BsonSerializationInfo GetItemSerializationInfo()
+        public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
             var serializer = BsonSerializer.LookupSerializer(typeof(object));
@@ -289,7 +289,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Stacks.
     /// </summary>
-    public class StackSerializer : BsonBaseSerializer
+    public class StackSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
     {
         // private static fields
         private static StackSerializer __instance = new StackSerializer();
@@ -363,7 +363,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Gets the serialization info for individual items of an enumerable type.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
-        public override BsonSerializationInfo GetItemSerializationInfo()
+        public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
             var serializer = BsonSerializer.LookupSerializer(typeof(object));

@@ -543,7 +543,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonDocuments.
     /// </summary>
-    public class BsonDocumentSerializer : BsonBaseSerializer
+    public class BsonDocumentSerializer : BsonBaseSerializer, IBsonIdProvider
     {
         // private static fields
         private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
@@ -594,7 +594,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id type.</param>
         /// <returns>True if the document has an Id.</returns>
-        public override bool GetDocumentId(
+        public bool GetDocumentId(
             object document,
             out object id,
             out Type idNominalType,
@@ -633,7 +633,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="document">The document.</param>
         /// <param name="id">The Id.</param>
-        public override void SetDocumentId(object document, object id)
+        public void SetDocumentId(object document, object id)
         {
             var bsonDocument = (BsonDocument)document;
             ((IBsonSerializable)bsonDocument).SetDocumentId(id);

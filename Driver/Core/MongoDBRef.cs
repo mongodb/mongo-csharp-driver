@@ -193,7 +193,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for MongoDBRefs.
     /// </summary>
-    public class MongoDBRefSerializer : BsonBaseSerializer
+    public class MongoDBRefSerializer : BsonBaseSerializer, IBsonMemberSerializationInfoProvider
     {
         // public methods
         /// <summary>
@@ -255,7 +255,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="memberName">The member name.</param>
         /// <returns>The serialization info for the member.</returns>
-        public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
             string elementName;
             IBsonSerializer serializer;
