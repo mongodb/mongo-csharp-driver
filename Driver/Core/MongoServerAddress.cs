@@ -83,6 +83,7 @@ namespace MongoDB.Driver
         /// <returns>True if the string is parsed succesfully.</returns>
         public static bool TryParse(string value, out MongoServerAddress address)
         {
+            // don't throw ArgumentNullException if value is null
             if (value != null)
             {
                 Match match = Regex.Match(value, @"^(?<host>(\[[^]]+?\]|[^:]+))(:(?<port>\d+))?$");
