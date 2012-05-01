@@ -1016,7 +1016,7 @@ namespace MongoDB.Bson.Serialization
             if (discriminatorConvention == null)
             {
                 // it's possible but harmless for multiple threads to do the initial lookup at the same time
-                discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(_classType);
+                discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(_classType);
                 _cachedDiscriminatorConvention = discriminatorConvention;
             }
             return discriminatorConvention;
