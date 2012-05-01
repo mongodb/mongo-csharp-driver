@@ -195,7 +195,7 @@ namespace MongoDB.Bson.Serialization
                     for (;;)
                     {
                         // examine missing elements (memberMapBlock is shifted right as we work through the block)
-                        while ((memberMapBlock & 1) != 0)
+                        for (; (memberMapBlock & 1) != 0; ++memberMapIndex, memberMapBlock >>= 1)
                         {
                             var memberMap = allMemberMaps[memberMapIndex];
                             if (memberMap.IsReadOnly)
@@ -212,9 +212,6 @@ namespace MongoDB.Bson.Serialization
                                 throw new FileFormatException(message);
                             }
                             memberMap.ApplyDefaultValue(obj);
-
-                            ++memberMapIndex;
-                            memberMapBlock >>= 1;
                         }
 
                         if (memberMapBlock == 0)
