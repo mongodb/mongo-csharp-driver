@@ -22,9 +22,9 @@ using System.Threading;
 
 // don't add using statement for MongoDB.Bson.Serialization.Serializers to minimize dependencies on DefaultSerializer
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.Bson.Serialization
 {
