@@ -75,6 +75,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             set { _rootClass = value; }
         }
 
+        // public methods
         /// <summary>
         /// Applies a modification to the class map.
         /// </summary>

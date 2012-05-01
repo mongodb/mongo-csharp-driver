@@ -64,6 +64,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             set { _order = value; }
         }
 
+        // public methods
         /// <summary>
         /// Applies a modification to the member map.
         /// </summary>

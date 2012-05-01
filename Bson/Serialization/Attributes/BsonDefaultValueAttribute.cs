@@ -63,14 +63,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             }
         }
 
-        /// <summary>
-        /// Gets whether SerializeDefaultValue was set.
-        /// </summary>
-        internal bool SerializeDefaultValueWasSet
-        {
-            get { return _serializeDefaultValueWasSet; }
-        }
-
+        // public methods
         /// <summary>
         /// Applies a modification to the member map.
         /// </summary>

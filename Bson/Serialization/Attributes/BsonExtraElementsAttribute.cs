@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonExtraElementsAttribute : Attribute, IBsonMemberMapModifier
     {
+        // public methods
         /// <summary>
         /// Applies a modification to the member map.
         /// </summary>

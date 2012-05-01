@@ -66,6 +66,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             set { _inherited = value; }
         }
 
+        // public methods
         /// <summary>
         /// Applies a modification to the class map.
         /// </summary>

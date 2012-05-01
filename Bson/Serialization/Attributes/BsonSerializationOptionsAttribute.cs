@@ -36,6 +36,11 @@ namespace MongoDB.Bson.Serialization.Attributes
         {
         }
 
+        // public methods
+        /// <summary>
+        /// Applies a modification to the member map.
+        /// </summary>
+        /// <param name="memberMap">The member map.</param>
         public virtual void Apply(BsonMemberMap memberMap)
         {
             var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);

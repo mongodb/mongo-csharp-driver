@@ -56,6 +56,7 @@ namespace MongoDB.Bson.Serialization.Attributes
             get { return _value; }
         }
 
+        // public methods
         /// <summary>
         /// Applies a modification to the member map.
         /// </summary>

@@ -57,6 +57,11 @@ namespace MongoDB.Bson.Serialization.Attributes
             set { _order = value; }
         }
 
+        // public methods
+        /// <summary>
+        /// Applies a modification to the member map.
+        /// </summary>
+        /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
             memberMap.SetElementName("_id");
