@@ -1300,7 +1300,7 @@ namespace MongoDB.Driver.Linq
             }
             var nominalType = serializationInfo.NominalType;
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {
@@ -1331,7 +1331,7 @@ namespace MongoDB.Driver.Linq
             var nominalType = typeBinaryExpression.Expression.Type;
             var actualType = typeBinaryExpression.TypeOperand;
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {
@@ -1989,7 +1989,7 @@ namespace MongoDB.Driver.Linq
                 throw new NotSupportedException("OfType after a projection is not supported.");
             }
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {

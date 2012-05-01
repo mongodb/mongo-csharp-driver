@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
                     var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>)Activator.CreateInstance(nominalType);
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
@@ -184,7 +184,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
                     var queue = new Queue<T>();
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
@@ -303,7 +303,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
                     var stack = new Stack<T>();
-                    var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(T));
+                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));

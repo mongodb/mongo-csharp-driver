@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests.Samples
         {
             static A()
             {
-                BsonDefaultSerializer.RegisterDiscriminatorConvention(typeof(A), new MagicDiscriminatorConvention());
+                BsonSerializer.RegisterDiscriminatorConvention(typeof(A), new MagicDiscriminatorConvention());
             }
 
             public string InA { get; set; }

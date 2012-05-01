@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
             }
 
-            var discriminatorConvention = BsonDefaultSerializer.LookupDiscriminatorConvention(typeof(object));
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
             var actualType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
             if (actualType == typeof(object))
             {
