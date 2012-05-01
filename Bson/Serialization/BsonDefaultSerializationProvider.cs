@@ -38,15 +38,15 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the default serialization provider.
     /// </summary>
-    public class BsonDefaultSerializer : IBsonSerializationProvider
+    internal class BsonDefaultSerializationProvider : IBsonSerializationProvider
     {
         // private static fields
-        private static BsonDefaultSerializer __instance = new BsonDefaultSerializer();
+        private static BsonDefaultSerializationProvider __instance = new BsonDefaultSerializationProvider();
         private static Dictionary<Type, IBsonSerializer> __serializers;
         private static Dictionary<Type, Type> __genericSerializerDefinitions;
 
         // static constructor
-        static BsonDefaultSerializer()
+        static BsonDefaultSerializationProvider()
         {
             __serializers = new Dictionary<Type, IBsonSerializer>
             {
@@ -139,17 +139,8 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Initializes a new instance of the BsonDefaultSerializer class.
         /// </summary>
-        public BsonDefaultSerializer()
+        public BsonDefaultSerializationProvider()
         {
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets an instance of the BsonDefaultSerializer class.
-        /// </summary>
-        public static BsonDefaultSerializer Instance
-        {
-            get { return __instance; }
         }
 
         // public methods
@@ -203,14 +194,6 @@ namespace MongoDB.Bson.Serialization
             if (type.IsEnum)
             {
                 return EnumSerializer.Instance;
-            }
-
-            if ((type.IsClass || (type.IsValueType && !type.IsPrimitive)) &&
-                !typeof(Array).IsAssignableFrom(type) &&
-                !typeof(Enum).IsAssignableFrom(type))
-            {
-                var classMap = BsonClassMap.LookupClassMap(type);
-                return new BsonClassMapSerializer(classMap);
             }
 
             return null;

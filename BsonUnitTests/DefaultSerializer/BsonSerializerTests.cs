@@ -32,7 +32,7 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.BsonUnitTests.Serialization
 {
     [TestFixture]
-    public class BsonDefaultSerializerTests
+    public class BsonSerializerTests
     {
         [Test]
         public void TestAnonymousClass()
@@ -190,6 +190,24 @@ namespace MongoDB.BsonUnitTests.Serialization
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
             Assert.IsTrue(rehydrated.WasBeginInitCalled);
             Assert.IsTrue(rehydrated.WasEndInitCalled);
+        }
+
+        [BsonKnownTypes(typeof(B), typeof(C))]
+        private class A
+        { }
+
+        private class B : A
+        { }
+
+        private class C : A
+        { }
+
+        [Test]
+        public void TestLookupActualType()
+        {
+            var actualType = BsonSerializer.LookupActualType(typeof(A), BsonValue.Create("C"));
+
+            Assert.AreEqual(typeof(C), actualType);
         }
     }
 }
