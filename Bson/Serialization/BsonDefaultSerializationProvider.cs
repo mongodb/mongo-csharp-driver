@@ -19,18 +19,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -41,7 +33,6 @@ namespace MongoDB.Bson.Serialization
     internal class BsonDefaultSerializationProvider : IBsonSerializationProvider
     {
         // private static fields
-        private static BsonDefaultSerializationProvider __instance = new BsonDefaultSerializationProvider();
         private static Dictionary<Type, IBsonSerializer> __serializers;
         private static Dictionary<Type, Type> __genericSerializerDefinitions;
 

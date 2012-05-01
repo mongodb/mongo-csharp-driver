@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization
         // static constructor
         static BsonSerializer()
         {
-            RegisterDefaultSerializationProvider();
+            RegisterDefaultSerializationProviders();
             RegisterIdGenerators();
         }
 
@@ -834,7 +834,7 @@ namespace MongoDB.Bson.Serialization
                     var knownTypesAttribute = nominalType.GetCustomAttributes(typeof(BsonKnownTypesAttribute), false);
                     if (knownTypesAttribute != null && knownTypesAttribute.Length > 0)
                     {
-                        //try and force a scan of the known types
+                        // try and force a scan of the known types
                         LookupSerializer(nominalType);
                     }
 
@@ -848,9 +848,9 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private static methods
-        private static void RegisterDefaultSerializationProvider()
+        private static void RegisterDefaultSerializationProviders()
         {
-            //These are run in reverse order.
+            // last one registered gets first chance at providing the serializer
             RegisterSerializationProvider(new BsonClassMapSerializationProvider());
             RegisterSerializationProvider(new BsonDefaultSerializationProvider());
         }
