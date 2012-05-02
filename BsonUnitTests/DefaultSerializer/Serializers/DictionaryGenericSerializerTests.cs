@@ -651,4 +651,73 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionaryGenericSerializers
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
+
+    [TestFixture]
+    public class StringToObjectIdDictionaryTests
+    {
+        private class C
+        {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public Dictionary<string, string> Dictionary;
+        }
+
+        private static string id1 = "123456789012345678901234";
+        private static string id2 = "432109876543210987654321";
+
+        [Test]
+        public void TestSerializeNull()
+        {
+            C c = new C { Dictionary = null };
+            var json = c.ToJson();
+            var expected = ("{ 'Dictionary' : null }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerializeEmpty()
+        {
+            C c = new C { Dictionary = new Dictionary<string, string>() };
+            var json = c.ToJson();
+            var expected = ("{ 'Dictionary' : { } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize1()
+        {
+            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
+            var json = c.ToJson();
+            var expected = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestSerialize2()
+        {
+            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
+            var json = c.ToJson();
+            var expected1 = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\"), \"b\" : ObjectId(\"432109876543210987654321\") } }").Replace("'", "\"");
+            var expected2 = ("{ 'Dictionary' : { \"b\" : ObjectId(\"432109876543210987654321\"), \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
+            if (json != expected1 && json != expected2)
+            {
+                Assert.AreEqual(expected1, json);
+            }
+
+            var bson = c.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
 }
