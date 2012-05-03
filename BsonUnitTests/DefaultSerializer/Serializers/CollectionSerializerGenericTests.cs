@@ -428,4 +428,115 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }
+
+    [TestFixture]
+    public class EnumerableSerializerWithStringToObjectIdTests
+    {
+        public class T
+        {
+            [BsonRepresentation(BsonType.ObjectId)]
+            public List<string> L { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public ICollection<string> IC { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public IEnumerable<string> IE { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public IList<string> IL { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public Queue<string> Q { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public Stack<string> S { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public HashSet<string> H { get; set; }
+            [BsonRepresentation(BsonType.ObjectId)]
+            public LinkedList<string> LL { get; set; }
+        }
+
+        private static string id1 = "123456789012345678901234";
+        private static string id2 = "432109876543210987654321";
+
+        [Test]
+        public void TestNull()
+        {
+            var obj = new T { L = null, IC = null, IE = null, IL = null, Q = null, S = null, H = null, LL = null };
+            var json = obj.ToJson();
+            var rep = "null";
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsNull(rehydrated.L);
+            Assert.IsNull(rehydrated.Q);
+            Assert.IsNull(rehydrated.S);
+            Assert.IsNull(rehydrated.IC);
+            Assert.IsNull(rehydrated.IE);
+            Assert.IsNull(rehydrated.IL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestEmpty()
+        {
+            var list = new List<string>();
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<string>(list), S = new Stack<string>(list), H = new HashSet<string>(list), LL = new LinkedList<string>(list) };
+            var json = obj.ToJson();
+            var rep = "[]";
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<List<string>>(rehydrated.L);
+            Assert.IsInstanceOf<Queue<string>>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack<string>>(rehydrated.S);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IC);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IE);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestOneString()
+        {
+            var list = new List<string>(new[] { id1 });
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<string>(list), S = new Stack<string>(list), H = new HashSet<string>(list), LL = new LinkedList<string>(list) };
+            var json = obj.ToJson();
+            var rep = "[ObjectId(\"123456789012345678901234\")]";
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<List<string>>(rehydrated.L);
+            Assert.IsInstanceOf<Queue<string>>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack<string>>(rehydrated.S);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IC);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IE);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+
+        [Test]
+        public void TestTwoStrings()
+        {
+            var list = new List<string>(new[] { id1, id2 });
+            var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<string>(list), S = new Stack<string>(list), H = new HashSet<string>(list), LL = new LinkedList<string>(list) };
+            var json = obj.ToJson();
+            var rep = "[ObjectId(\"123456789012345678901234\"), ObjectId(\"432109876543210987654321\")]";
+            var expected = "{ 'L' : #R, 'IC' : #R, 'IE' : #R, 'IL' : #R, 'Q' : #R, 'S' : #R, 'H' : #R, 'LL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<List<string>>(rehydrated.L);
+            Assert.IsInstanceOf<Queue<string>>(rehydrated.Q);
+            Assert.IsInstanceOf<Stack<string>>(rehydrated.S);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IC);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IE);
+            Assert.IsInstanceOf<List<string>>(rehydrated.IL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+    }
 }

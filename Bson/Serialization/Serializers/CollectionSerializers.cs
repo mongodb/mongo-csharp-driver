@@ -67,6 +67,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
+            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
@@ -81,7 +84,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                         var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
+                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, itemSerializationOptions);
                         list.Add(element);
                     }
                     bsonReader.ReadEndArray();
@@ -197,6 +200,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
+            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
@@ -211,7 +217,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                         var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
+                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, itemSerializationOptions);
                         queue.Enqueue(element);
                     }
                     bsonReader.ReadEndArray();
@@ -327,6 +333,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
+            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
+            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
@@ -341,7 +350,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
                         var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, null);
+                        var element = serializer.Deserialize(bsonReader, typeof(object), elementType, itemSerializationOptions);
                         stack.Push(element);
                     }
                     bsonReader.ReadEndArray();
