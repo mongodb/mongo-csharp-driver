@@ -48,6 +48,8 @@ namespace MongoDB.DriverUnitTests.Linq
             public int Y { get; set; }
             [BsonElement("d")]
             public D D { get; set; }
+            [BsonElement("da")]
+            public List<D> DA { get; set; }
             [BsonElement("s")]
             [BsonIgnoreIfNull]
             public string S { get; set; }
@@ -149,11 +151,11 @@ namespace MongoDB.DriverUnitTests.Linq
 
             // documents inserted deliberately out of order to test sorting
             _collection.Drop();
-            _collection.Insert(new C { Id = _id2, X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, L = new List<int> { 2, 3, 4 } });
+            _collection.Insert(new C { Id = _id2, X = 2, Y = 11, D = new D { Z = 22 }, A = new [] { 2, 3, 4 }, DA = new List<D> { new D { Z = 111 }, new D { Z = 222 } }, L = new List<int> { 2, 3, 4 } });
             _collection.Insert(new C { Id = _id1, X = 1, Y = 11, D = new D { Z = 11 }, S = "abc", SA = new string[] { "Tom", "Dick", "Harry" } });
             _collection.Insert(new C { Id = _id3, X = 3, Y = 33, D = new D { Z = 33 }, B = true, BA = new bool[] { true }, E = E.A, EA = new E[] { E.A, E.B } });
             _collection.Insert(new C { Id = _id5, X = 5, Y = 44, D = new D { Z = 55 }, DBRef = new MongoDBRef("db", "c", 1) });
-            _collection.Insert(new C { Id = _id4, X = 4, Y = 44, D = new D { Z = 44 }, S = "   xyz   " });
+            _collection.Insert(new C { Id = _id4, X = 4, Y = 44, D = new D { Z = 44 }, S = "   xyz   ", DA = new List<D> { new D { Z = 333 }, new D { Z = 444 } } });
         }
 
         [Test]
@@ -1939,13 +1941,27 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Enumerable.Any with a predicate is not supported.")]
+        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Any is only support for items that serialize into documents. The current serializer is BsonSerializationInfo and must implement IBsonMemberSerializationInfoProvider for participation in Any queries.")]
         public void TestWhereAAnyWithPredicate()
         {
             var query = from c in _collection.AsQueryable<C>()
                         where c.A.Any(a => a > 3)
                         select c;
-            query.ToList(); // execute query
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => Enumerable.Any<Int32>(c.A, (Int32 a) => (a > 3))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"a\" : 2 }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
         }
 
         [Test]
@@ -3030,6 +3046,29 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take);
 
             Assert.AreEqual("{ \"d\" : { \"z\" : 11 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereDAAnyWithPredicate()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.DA.Any(x => x.Z == 333)
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => Enumerable.Any<D>(c.DA, (D x) => (x.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"da\" : { \"$elemMatch\" : { \"z\" : 333 } } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 

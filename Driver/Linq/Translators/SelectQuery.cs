@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Linq
     public class SelectQuery : TranslatedQuery
     {
         // private fields
+        private readonly Dictionary<ParameterExpression, IBsonSerializer> _parameterSerializers;
         private LambdaExpression _where;
         private Type _ofType;
         private List<OrderByClause> _orderBy;
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Linq
         public SelectQuery(MongoCollection collection, Type documentType)
             : base(collection, documentType)
         {
+            _parameterSerializers = new Dictionary<ParameterExpression, IBsonSerializer>();
         }
 
         // public properties
@@ -247,19 +249,41 @@ namespace MongoDB.Driver.Linq
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
             {
                 var arguments = methodCallExpression.Arguments.ToArray();
+                var serializationInfo = GetSerializationInfo(arguments[0]);
+                var itemSerializerProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                if (itemSerializerProvider == null)
+                {
+                    return null;
+                }
+
+                var itemSerializationInfo = itemSerializerProvider.GetItemSerializationInfo();
+                if (itemSerializationInfo == null)
+                {
+                    return null;
+                }
+
                 if (arguments.Length == 1)
                 {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    if (serializationInfo != null)
-                    {
-                        return Query.And(
-                            Query.NE(serializationInfo.ElementName, BsonNull.Value),
-                            Query.Not(serializationInfo.ElementName).Size(0));
-                    }
+                    return Query.And(
+                        Query.NE(serializationInfo.ElementName, BsonNull.Value),
+                        Query.Not(serializationInfo.ElementName).Size(0));
                 }
                 else if (arguments.Length == 2)
                 {
-                    throw new NotSupportedException("Enumerable.Any with a predicate is not supported.");
+                    if (!(itemSerializationInfo.Serializer is IBsonMemberSerializationInfoProvider))
+                    {
+                        var message = string.Format("Any is only support for items that serialize into documents. The current serializer is {0} and must implement {1} for participation in Any queries.",
+                            BsonUtils.GetFriendlyTypeName(itemSerializationInfo.GetType()),
+                            BsonUtils.GetFriendlyTypeName(typeof(IBsonMemberSerializationInfoProvider)));
+                        throw new NotSupportedException(message);
+                    }
+                    var itemSerializer = itemSerializationInfo.Serializer;
+                    var lambda = (LambdaExpression)arguments[1];
+                    _parameterSerializers[lambda.Parameters[0]] = itemSerializer;
+                    var query = BuildQuery(lambda.Body);
+                    query = Query.ElemMatch(serializationInfo.ElementName, query);
+                    _parameterSerializers.Remove(lambda.Parameters[0]);
+                    return query;
                 }
             }
             return null;
@@ -1481,7 +1505,9 @@ namespace MongoDB.Driver.Linq
             var parameterExpression = expression as ParameterExpression;
             if (parameterExpression != null)
             {
-                var serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                IBsonSerializer serializer;
+                if(!_parameterSerializers.TryGetValue(parameterExpression, out serializer))
+                    serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
                 return new BsonSerializationInfo(
                     null, // elementName
                     serializer,
@@ -1493,8 +1519,8 @@ namespace MongoDB.Driver.Linq
             parameterExpression = ExpressionParameterFinder.FindParameter(expression);
             if (parameterExpression != null)
             {
-                var serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
-                return GetSerializationInfo(serializer, expression);
+                var info = GetSerializationInfo(parameterExpression);
+                return GetSerializationInfo(info.Serializer, expression);
             }
 
             return null;
