@@ -1206,6 +1206,27 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Removes documents from this collection by its _id value.
+        /// </summary>
+        /// <param name="id">The id of the document.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult RemoveById(BsonValue id)
+        {
+            return Remove(Query.EQ("_id", id), RemoveFlags.Single, null);
+        }
+
+        /// <summary>
+        /// Removes documents from this collection by its _id value.
+        /// </summary>
+        /// <param name="id">The id of the document.</param>
+        /// <param name="safeMode">The SafeMode to use for this operation.</param>
+        /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
+        public virtual SafeModeResult RemoveById(BsonValue id, SafeMode safeMode)
+        {
+            return Remove(Query.EQ("_id", id), RemoveFlags.Single, safeMode);
+        }
+
+        /// <summary>
         /// Removes documents from this collection that match a query.
         /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
