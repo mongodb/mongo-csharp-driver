@@ -229,6 +229,13 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereWithAnyAsPredicate()
+        {
+            var result = _collection.AsQueryable<C>().Where(c => c.L.Any(y => y == 2));
+            Assert.IsTrue(result.Any());
+        }
+
+        [Test]
         public void TestAnyWithPredicateFalse()
         {
             var result = _collection.AsQueryable<C>().Any(c => c.X == 9);
