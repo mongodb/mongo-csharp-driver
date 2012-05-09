@@ -344,23 +344,9 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
-            // the constant could be on either side
             var variableExpression = binaryExpression.Left;
             var constantExpression = binaryExpression.Right as ConstantExpression;
             var operatorType = binaryExpression.NodeType;
-            if (constantExpression == null)
-            {
-                constantExpression = binaryExpression.Left as ConstantExpression;
-                variableExpression = binaryExpression.Right;
-                // if the constant was on the left some operators need to be flipped
-                switch (operatorType)
-                {
-                    case ExpressionType.LessThan: operatorType = ExpressionType.GreaterThan; break;
-                    case ExpressionType.LessThanOrEqual: operatorType = ExpressionType.GreaterThanOrEqual; break;
-                    case ExpressionType.GreaterThan: operatorType = ExpressionType.LessThan; break;
-                    case ExpressionType.GreaterThanOrEqual: operatorType = ExpressionType.LessThanOrEqual; break;
-                }
-            }
 
             if (constantExpression == null)
             {
@@ -412,7 +398,7 @@ namespace MongoDB.Driver.Linq
             var value = constantExpression.Value;
 
             var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
+            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked) && unaryExpression.Operand.Type.IsEnum)
             {
                 var enumType = unaryExpression.Operand.Type;
                 if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
