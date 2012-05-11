@@ -5,6 +5,7 @@ obj
 *.suo
 *.vsp
 *.csproj.VisualState.xml
+*.vbproj.VisualState.xml
 *.cache
 
 # MonoDevelop artifacts

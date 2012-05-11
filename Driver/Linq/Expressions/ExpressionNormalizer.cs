@@ -51,9 +51,15 @@ namespace MongoDB.Driver.Linq
             return normalizer.Visit(node);
         }
 
+        // protected methods
+        /// <summary>
+        /// Visits a BinaryExpression.
+        /// </summary>
+        /// <param name="node">The BinaryExpression.</param>
+        /// <returns>The BinaryExpression (possibly modified).</returns>
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            node = FlipBinaryExpression(node);
+            node = EnsureConstantIsOnRight(node);
 
             Expression result = null;
             if (node.Left.NodeType == ExpressionType.Call && node.Right.NodeType == ExpressionType.Constant)
@@ -62,13 +68,13 @@ namespace MongoDB.Driver.Linq
                 var constant = (ConstantExpression)node.Right;
                 if (mex.Method.DeclaringType.FullName == "Microsoft.VisualBasic.CompilerServices.Operators")
                 {
-                    //VB creates expression trees with "special" operators
+                    // VB creates expression trees with "special" operators
                     result = VisitVBCompilerServicesOperators(mex, node.NodeType, constant);
                 }
                 else if (mex.Method.DeclaringType == typeof(string) && mex.Method.Name == "get_Chars" && constant.Type == typeof(char))
                 {
-                    //VB creates string index expressions using character comparison whereas C# uses ascii value comparison
-                    //So, we make VB's string index comparison look like C#.
+                    // VB creates string index expressions using character comparison whereas C# uses ascii value comparison
+                    // so, we make VB's string index comparison look like C#
                     result = Expression.MakeBinary(
                         node.NodeType,
                         Expression.Convert(mex, typeof(int)),
@@ -84,12 +90,18 @@ namespace MongoDB.Driver.Linq
             return base.VisitBinary(node);
         }
 
+        /// <summary>
+        /// Visits a UnaryExpression.
+        /// </summary>
+        /// <param name="node">The UnaryExpression.</param>
+        /// <returns>The UnaryExpression (possibly modified).</returns>
         protected override Expression VisitUnary(UnaryExpression node)
         {
             if (node.NodeType == ExpressionType.Convert)
             {
                 if (node.Type.IsAssignableFrom(node.Operand.Type))
                 {
+                    // ignore the unnecessary conversion added by VB
                     return Visit(node.Operand);
                 }
             }
@@ -97,14 +109,14 @@ namespace MongoDB.Driver.Linq
             return base.VisitUnary(node);
         }
 
-        private BinaryExpression FlipBinaryExpression(BinaryExpression node)
+        private BinaryExpression EnsureConstantIsOnRight(BinaryExpression node)
         {
             var left = node.Left;
             var right = node.Right;
             var operatorType = node.NodeType;
             if (left.NodeType == ExpressionType.Constant)
             {
-                right = node.Left as ConstantExpression;
+                right = node.Left;
                 left = node.Right;
                 // if the constant was on the left some operators need to be flipped
                 switch (operatorType)
