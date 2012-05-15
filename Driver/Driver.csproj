@@ -194,6 +194,7 @@
     <Compile Include="Linq\Translators\PartialEvaluator.cs" />
     <Compile Include="Linq\Expressions\ExpressionPrettyPrinter.cs" />
     <Compile Include="Linq\Expressions\ExpressionVisitor.cs" />
+    <Compile Include="Linq\Translators\PredicateTranslator.cs" />
     <Compile Include="Linq\Translators\Projector.cs" />
     <Compile Include="Linq\Translators\SelectQuery.cs" />
     <Compile Include="Linq\LinqExtensionMethods.cs" />
@@ -201,6 +202,7 @@
     <Compile Include="Linq\MongoQueryProvider.cs" />
     <Compile Include="Linq\Translators\MongoQueryTranslator.cs" />
     <Compile Include="Linq\Translators\TranslatedQuery.cs" />
+    <Compile Include="Linq\Utils\BsonSerializationInfoHelper.cs" />
     <Compile Include="Linq\Utils\TypeHelper.cs" />
     <Compile Include="MongoUtils.cs" />
     <Compile Include="MongoDefaults.cs" />

@@ -27,29 +27,64 @@ namespace MongoDB.Driver.Linq
     public static class PartialEvaluator
     {
         /// <summary>
-        /// Performs evaluation and replacement of independent sub-trees.
-        /// </summary>
-        /// <param name="expression">The root of the expression tree.</param>
-        /// <param name="fnCanBeEvaluated">A function that decides whether a given expression node can be part of the local function.</param>
-        /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
-        public static Expression Evaluate(Expression expression, Func<Expression, bool> fnCanBeEvaluated)
-        {
-            return new SubtreeEvaluator(new Nominator(fnCanBeEvaluated).Nominate(expression)).Evaluate(expression);
-        }
-
-        /// <summary>
         /// Performs evaluation and replacement of independent sub-trees
         /// </summary>
         /// <param name="expression">The root of the expression tree.</param>
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
         public static Expression Evaluate(Expression expression)
         {
-            return Evaluate(expression, PartialEvaluator.CanBeEvaluatedLocally);
+            return Evaluate(expression, null);
         }
 
-        private static bool CanBeEvaluatedLocally(Expression expression)
+        /// <summary>
+        /// Performs evaluation and replacement of independent sub-trees.
+        /// </summary>
+        /// <param name="expression">The root of the expression tree.</param>
+        /// <param name="fnCanBeEvaluated">A function that decides whether a given expression node can be part of the local function.</param>
+        /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
+        public static Expression Evaluate(Expression expression, IQueryProvider queryProvider)
         {
-            return expression.NodeType != ExpressionType.Parameter;
+            return new SubtreeEvaluator(new Nominator(e => CanBeEvaluatedLocally(e, queryProvider)).Nominate(expression)).Evaluate(expression);
+        }
+
+        private static bool CanBeEvaluatedLocally(Expression expression, IQueryProvider queryProvider)
+        {
+            // any operation on a query can't be done locally
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression != null)
+            {
+                var query = constantExpression.Value as IQueryable;
+                if (query != null && (queryProvider == null || query.Provider == queryProvider))
+                {
+                    return false;
+                }
+            }
+
+            var methodCallExpression = expression as MethodCallExpression;
+            if (methodCallExpression != null)
+            {
+                var declaringType = methodCallExpression.Method.DeclaringType;
+                if (declaringType == typeof(Enumerable) || declaringType == typeof(Queryable))
+                {
+                    return false;
+                }
+                if (declaringType == typeof(LinqToMongo))
+                {
+                    return false;
+                }
+            }
+
+            if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
+            {
+                return true;
+            }
+
+            if (expression.NodeType == ExpressionType.Parameter || expression.NodeType == ExpressionType.Lambda)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

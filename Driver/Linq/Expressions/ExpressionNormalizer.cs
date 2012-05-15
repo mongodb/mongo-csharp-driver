@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The UnaryExpression (possibly modified).</returns>
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Convert)
+            if (node.NodeType == ExpressionType.Convert || node.NodeType == ExpressionType.ConvertChecked)
             {
                 if (node.Type.IsAssignableFrom(node.Operand.Type))
                 {

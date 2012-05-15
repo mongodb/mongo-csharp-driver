@@ -47,6 +47,8 @@ Namespace MongoDB.DriverUnitTests.Linq
 
             <BsonElement("d")> _
             Public Property D() As D
+            <BsonElement("da")> _
+            Public Property DA() As List(Of D)
             <BsonElement("s")> _
             <BsonIgnoreIfNull()> _
             Public Property S() As String
@@ -192,8 +194,9 @@ Namespace MongoDB.DriverUnitTests.Linq
                  .Id = _id4,
                  .X = 4,
                  .Y = 44,
-                 .D = New D() With {.Z = 44 },
-                 .S = "   xyz   "
+                 .D = New D() With {.Z = 44},
+                 .DA = {New D() With {.Z = 333}}.ToList,
+                .S = "   xyz   "
             })
         End Sub
 
@@ -1839,7 +1842,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
         <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Enumerable.Any with a predicate is not supported.")> _
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is BsonSerializationInfo and must implement IBsonMemberSerializationInfoProvider for participation in Any queries.")> _
         Public Sub TestWhereAAnyWithPredicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Any(Function(a) a > 3)
@@ -2638,6 +2641,29 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual("{ ""b"" : { ""$ne"" : true } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(4, Consume(query))
         End Sub
+
+        <Test()> _
+        Public Sub TestWhereDAAnyWithPredicate()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.DA.Any(Function(x) x.Z = 333)
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(Query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => Enumerable.Any<D>(c.DA, (D x) => (x.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""da"" : { ""$elemMatch"" : { ""z"" : 333 } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(1, Consume(Query))
+        End Sub
+
 
         <Test()> _
         Public Sub TestWhereDBRefCollectionNameEqualsC()

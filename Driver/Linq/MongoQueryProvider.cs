@@ -20,9 +20,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Reflection;
 
-// for a good blog post on implementing LINQ query providers see Matt Warren's blog posts
-// see: http://blogs.msdn.com/b/mattwar/archive/2008/11/18/linq-links.aspx
-
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
@@ -145,47 +142,6 @@ namespace MongoDB.Driver.Linq
 
             var translatedQuery = MongoQueryTranslator.Translate(this, expression);
             return translatedQuery.Execute();
-        }
-
-        // private methods
-        internal bool CanBeEvaluatedLocally(Expression expression)
-        {
-            // any operation on a query can't be done locally
-            var constantExpression = expression as ConstantExpression;
-            if (constantExpression != null)
-            {
-                var query = constantExpression.Value as IQueryable;
-                if (query != null && query.Provider == this)
-                {
-                    return false;
-                }
-            }
-
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null)
-            {
-                var declaringType = methodCallExpression.Method.DeclaringType;
-                if (declaringType == typeof(Enumerable) || declaringType == typeof(Queryable))
-                {
-                    return false;
-                }
-                if (declaringType == typeof(LinqToMongo))
-                {
-                    return false;
-                }
-            }
-
-            if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
-            {
-                return true;
-            }
-
-            if (expression.NodeType == ExpressionType.Parameter || expression.NodeType == ExpressionType.Lambda)
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }
