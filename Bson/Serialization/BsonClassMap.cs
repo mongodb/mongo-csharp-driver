@@ -816,6 +816,7 @@ namespace MongoDB.Bson.Serialization
             }
             return MapMember(propertyInfo);
         }
+
         /// <summary>
         /// Sets the creator for the object.
         /// </summary>
@@ -823,10 +824,10 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The class map (so method calls can be chained).</returns>
         public BsonClassMap SetCreator(Func<object> creator)
         {
-            this._creator = creator;
+            _creator = creator;
             return this;
-
         }
+
         /// <summary>
         /// Sets the discriminator.
         /// </summary>
@@ -878,6 +879,7 @@ namespace MongoDB.Bson.Serialization
 
             _extraElementsMemberMap = memberMap;
         }
+
         /// <summary>
         /// Adds a known type to the class map.
         /// </summary>
@@ -1316,8 +1318,6 @@ namespace MongoDB.Bson.Serialization
             var memberName = GetMemberNameFromLambda(memberLambda);
             return GetMemberMap(memberName);
         }
-
-        
 
         /// <summary>
         /// Creates a member map for the extra elements field and adds it to the class map.
