@@ -129,7 +129,11 @@ namespace MongoDB.Driver.Linq
                     var lambda = (LambdaExpression)arguments[1];
                     _serializationHelper.RegisterExpressionSerializer(lambda.Parameters[0], itemSerializer);
                     var query = BuildQuery(lambda.Body);
+<<<<<<< HEAD
+                    return Query.ElemMatch(serializationInfo.ElementName, query);
+=======
                     return _queryBuilder.ElemMatch(serializationInfo.ElementName, query);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
                 }
             }
             return null;
@@ -323,7 +327,11 @@ namespace MongoDB.Driver.Linq
                     {
                         var itemSerializationInfo = _serializationHelper.GetItemSerializationInfo("ContainsAll", serializationInfo);
                         var serializedValues = _serializationHelper.SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
+<<<<<<< HEAD
+                        return Query.All(serializationInfo.ElementName, serializedValues);
+=======
                         return _queryBuilder.All(serializationInfo.ElementName, serializedValues);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
                     }
                 }
             }
@@ -343,7 +351,11 @@ namespace MongoDB.Driver.Linq
                     {
                         var itemSerializationInfo = _serializationHelper.GetItemSerializationInfo("ContainsAny", serializationInfo);
                         var serializedValues = _serializationHelper.SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
+<<<<<<< HEAD
+                        return Query.In(serializationInfo.ElementName, serializedValues);
+=======
                         return _queryBuilder.In(serializationInfo.ElementName, serializedValues);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
                     }
                 }
             }
@@ -390,7 +402,11 @@ namespace MongoDB.Driver.Linq
             {
                 var itemSerializationInfo = _serializationHelper.GetItemSerializationInfo("Contains", serializationInfo);
                 var serializedValue = _serializationHelper.SerializeValue(itemSerializationInfo, valueExpression.Value);
+<<<<<<< HEAD
+                return Query.EQ(serializationInfo.ElementName, serializedValue);
+=======
                 return _queryBuilder.EQ(serializationInfo.ElementName, serializedValue);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
             }
 
             return null;
@@ -484,7 +500,11 @@ namespace MongoDB.Driver.Linq
             if (serializationInfo != null && valuesExpression != null)
             {
                 var serializedValues = _serializationHelper.SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
+<<<<<<< HEAD
+                return Query.In(serializationInfo.ElementName, serializedValues);
+=======
                 return _queryBuilder.In(serializationInfo.ElementName, serializedValues);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
             }
             return null;
         }
@@ -564,9 +584,15 @@ namespace MongoDB.Driver.Linq
                 if (arguments.Length == 1)
                 {
                     var serializationInfo = _serializationHelper.GetSerializationInfo(arguments[0]);
+<<<<<<< HEAD
+                    return Query.Or(
+                        Query.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
+                        Query.EQ(serializationInfo.ElementName, ""));
+=======
                     return _queryBuilder.Or(
                         _queryBuilder.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
                         _queryBuilder.EQ(serializationInfo.ElementName, ""));
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
                 }
             }
 
@@ -1021,7 +1047,11 @@ namespace MongoDB.Driver.Linq
 
             var serializationInfo = _serializationHelper.GetSerializationInfo(stringExpression);
             var options = caseInsensitive ? "is" : "s";
+<<<<<<< HEAD
+            return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, options));
+=======
             return _queryBuilder.Matches(serializationInfo.ElementName, pattern, options);
+>>>>>>> 29ca8c9... Added typed query builders and reimagined untyped query builder.
         }
 
         private IMongoQuery BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)

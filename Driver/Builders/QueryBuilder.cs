@@ -21,6 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Builders
 {
@@ -36,6 +37,30 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery Null
         {
             get { return null; }
+        }
+
+        /// <summary>
+        /// Builds a query using a strongly-typed query builder.
+        /// </summary>
+        /// <typeparam name="TDocument"></typeparam>
+        /// <param name="queryBuilder">The query.</param>
+        /// <returns>an IMongoQuery.</returns>
+        public static IMongoQuery Build<TDocument>(Func<QueryBuilder<TDocument>, IMongoQuery> queryBuilder)
+        {
+            var builder = new QueryBuilder<TDocument>();
+            return queryBuilder(builder);
+        }
+
+        /// <summary>
+        /// Builds a query from an expression.
+        /// </summary>
+        /// <typeparam name="TDocument">The entity type.</typeparam>
+        /// <param name="expression">The query.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Where<TDocument>(Expression<Func<TDocument, bool>> expression)
+        {
+            var builder = new QueryBuilder<TDocument>();
+            return builder.Where(expression);
         }
 
         // public static methods
