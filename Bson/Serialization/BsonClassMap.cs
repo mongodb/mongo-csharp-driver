@@ -868,7 +868,16 @@ namespace MongoDB.Bson.Serialization
 
             _extraElementsMemberMap = memberMap;
         }
+        /// <summary>
+        /// Sets the constructor for the object
+        /// </summary>
+        /// <param name="constructor"></param>
+        public BsonClassMap SetConstructor(Func<object> constructor)
+        {
+            this._creator = constructor;
+            return this;
 
+        }
         /// <summary>
         /// Adds a known type to the class map.
         /// </summary>
@@ -1307,6 +1316,8 @@ namespace MongoDB.Bson.Serialization
             var memberName = GetMemberNameFromLambda(memberLambda);
             return GetMemberMap(memberName);
         }
+
+        
 
         /// <summary>
         /// Creates a member map for the extra elements field and adds it to the class map.
