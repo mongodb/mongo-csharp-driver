@@ -3053,7 +3053,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereDAAnyWithPredicate()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.DA.Any(x => x.Z == 333)
+                        where c.DA.Any(d => d.Z == 333)
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -3062,7 +3062,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => Enumerable.Any<D>(c.DA, (D x) => (x.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual("(C c) => Enumerable.Any<D>(c.DA, (D d) => (d.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);

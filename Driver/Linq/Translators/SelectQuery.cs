@@ -250,14 +250,7 @@ namespace MongoDB.Driver.Linq
             {
                 var arguments = methodCallExpression.Arguments.ToArray();
                 var serializationInfo = GetSerializationInfo(arguments[0]);
-                var itemSerializerProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                if (itemSerializerProvider == null)
-                {
-                    return null;
-                }
-
-                var itemSerializationInfo = itemSerializerProvider.GetItemSerializationInfo();
-                if (itemSerializationInfo == null)
+                if (serializationInfo == null)
                 {
                     return null;
                 }
@@ -270,6 +263,18 @@ namespace MongoDB.Driver.Linq
                 }
                 else if (arguments.Length == 2)
                 {
+                    var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                    if (itemSerializationInfoProvider == null)
+                    {
+                        return null;
+                    }
+
+                    var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+                    if (itemSerializationInfo == null)
+                    {
+                        return null;
+                    }
+
                     if (!(itemSerializationInfo.Serializer is IBsonMemberSerializationInfoProvider))
                     {
                         var message = string.Format("Any is only support for items that serialize into documents. The current serializer is {0} and must implement {1} for participation in Any queries.",
@@ -1506,8 +1511,11 @@ namespace MongoDB.Driver.Linq
             if (parameterExpression != null)
             {
                 IBsonSerializer serializer;
-                if(!_parameterSerializers.TryGetValue(parameterExpression, out serializer))
+                if (!_parameterSerializers.TryGetValue(parameterExpression, out serializer))
+                {
                     serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                }
+
                 return new BsonSerializationInfo(
                     null, // elementName
                     serializer,
