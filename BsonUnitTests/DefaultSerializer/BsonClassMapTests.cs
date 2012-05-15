@@ -65,6 +65,16 @@ namespace MongoDB.BsonUnitTests.Serialization
                 fieldMappedByAttribute2 = 10;
             }
         }
+
+        private class B
+        {
+            public int A { get; set; }
+
+            public B(int a)
+            {
+                A = a;
+            }
+        }
 #pragma warning restore
 
         [Test]
@@ -72,6 +82,21 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(A));
             Assert.AreEqual(8, classMap.AllMemberMaps.Count());
+        }
+
+        [Test]
+        public void TestSetCreator()
+        {
+            var classMap = new BsonClassMap<B>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetCreator(() => new B(10));
+            });
+
+            classMap.Freeze();
+
+            var instance = (B)classMap.CreateInstance();
+            Assert.AreEqual(10, instance.A);
         }
     }
 

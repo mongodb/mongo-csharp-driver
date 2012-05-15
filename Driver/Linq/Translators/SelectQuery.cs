@@ -344,23 +344,9 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
         {
-            // the constant could be on either side
             var variableExpression = binaryExpression.Left;
             var constantExpression = binaryExpression.Right as ConstantExpression;
             var operatorType = binaryExpression.NodeType;
-            if (constantExpression == null)
-            {
-                constantExpression = binaryExpression.Left as ConstantExpression;
-                variableExpression = binaryExpression.Right;
-                // if the constant was on the left some operators need to be flipped
-                switch (operatorType)
-                {
-                    case ExpressionType.LessThan: operatorType = ExpressionType.GreaterThan; break;
-                    case ExpressionType.LessThanOrEqual: operatorType = ExpressionType.GreaterThanOrEqual; break;
-                    case ExpressionType.GreaterThan: operatorType = ExpressionType.LessThan; break;
-                    case ExpressionType.GreaterThanOrEqual: operatorType = ExpressionType.LessThanOrEqual; break;
-                }
-            }
 
             if (constantExpression == null)
             {
@@ -412,7 +398,7 @@ namespace MongoDB.Driver.Linq
             var value = constantExpression.Value;
 
             var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
+            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked) && unaryExpression.Operand.Type.IsEnum)
             {
                 var enumType = unaryExpression.Operand.Type;
                 if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
@@ -521,6 +507,11 @@ namespace MongoDB.Driver.Linq
                 return BuildStringQuery(methodCallExpression);
             }
 
+            if (methodCallExpression.Object != null && methodCallExpression.Object.NodeType == ExpressionType.Constant)
+            {
+                return BuildInQuery(methodCallExpression);
+            }
+
             BsonSerializationInfo serializationInfo = null;
             ConstantExpression valueExpression = null;
             var arguments = methodCallExpression.Arguments.ToArray();
@@ -536,6 +527,10 @@ namespace MongoDB.Driver.Linq
             {
                 if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
                 {
+                    if (arguments[0].NodeType == ExpressionType.Constant)
+                    {
+                        return BuildInQuery(methodCallExpression);
+                    }
                     serializationInfo = GetSerializationInfo(arguments[0]);
                     valueExpression = arguments[1] as ConstantExpression;
                 }
@@ -610,19 +605,45 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
+            var methodDeclaringType = methodCallExpression.Method.DeclaringType;
+            var arguments = methodCallExpression.Arguments.ToArray();
+            BsonSerializationInfo serializationInfo = null;
+            ConstantExpression valuesExpression = null;
+            if (methodDeclaringType == typeof(LinqToMongo))
             {
-                var arguments = methodCallExpression.Arguments.ToArray();
                 if (arguments.Length == 2)
                 {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    var valuesExpression = arguments[1] as ConstantExpression;
-                    if (serializationInfo != null && valuesExpression != null)
-                    {
-                        var serializedValues = SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
-                        return Query.In(serializationInfo.ElementName, serializedValues);
-                    }
+                    serializationInfo = GetSerializationInfo(arguments[0]);
+                    valuesExpression = arguments[1] as ConstantExpression;
                 }
+            }
+            else if (methodDeclaringType == typeof(Enumerable) || methodDeclaringType == typeof(Queryable))
+            {
+                if (arguments.Length == 2)
+                {
+                    serializationInfo = GetSerializationInfo(arguments[1]);
+                    valuesExpression = arguments[0] as ConstantExpression;
+                }
+            }
+            else
+            {
+                if (methodDeclaringType.IsGenericType)
+                {
+                    methodDeclaringType = methodDeclaringType.GetGenericTypeDefinition();
+                }
+
+                bool contains = methodDeclaringType.GetInterface("ICollection`1") != null;
+                if (contains && arguments.Length == 1)
+                {
+                    serializationInfo = GetSerializationInfo(arguments[0]);
+                    valuesExpression = methodCallExpression.Object as ConstantExpression;
+                }
+            }
+
+            if (serializationInfo != null && valuesExpression != null)
+            {
+                var serializedValues = SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
+                return Query.In(serializationInfo.ElementName, serializedValues);
             }
             return null;
         }

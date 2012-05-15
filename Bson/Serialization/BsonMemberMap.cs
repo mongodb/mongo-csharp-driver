@@ -52,6 +52,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
         private object _defaultValue;
+        private bool _defaultValueSpecified;
 
         // constructors
         /// <summary>
@@ -65,6 +66,7 @@ namespace MongoDB.Bson.Serialization
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _defaultValue = GetDefaultValue(_memberType);
+            _defaultValueSpecified = false;
         }
 
         // public properties
@@ -277,7 +279,10 @@ namespace MongoDB.Bson.Serialization
         /// <param name="obj">The object.</param>
         public void ApplyDefaultValue(object obj)
         {
-            this.Setter(obj, _defaultValue);
+            if (_defaultValueSpecified)
+            {
+                this.Setter(obj, _defaultValue);
+            }
         }
 
         /// <summary>
@@ -321,6 +326,7 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetDefaultValue(object defaultValue)
         {
             _defaultValue = defaultValue;
+            _defaultValueSpecified = true;
             return this;
         }
 

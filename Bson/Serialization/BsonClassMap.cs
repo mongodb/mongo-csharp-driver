@@ -818,6 +818,17 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Sets the creator for the object.
+        /// </summary>
+        /// <param name="creator">The creator.</param>
+        /// <returns>The class map (so method calls can be chained).</returns>
+        public BsonClassMap SetCreator(Func<object> creator)
+        {
+            _creator = creator;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the discriminator.
         /// </summary>
         /// <param name="discriminator">The discriminator.</param>
