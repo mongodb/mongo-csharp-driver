@@ -16,13 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 using MongoDB.Driver.Wrappers;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {
@@ -228,8 +227,10 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes the last value from the named array element (see $pop).
         /// </summary>
-        /// <param name="name">The name of the array element.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
+        /// <param name="name">The name.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
         public static UpdateBuilder PopLast(string name)
         {
             return new UpdateBuilder().PopLast(name);
@@ -1201,6 +1202,764 @@ namespace MongoDB.Driver.Builders
             var incDocument = incElement.Value.AsBsonDocument;
 
             incDocument.Add(name, value);
+        }
+    }
+
+
+    /// <summary>
+    /// A builder for creating update modifiers.
+    /// </summary>
+    public static class Update<TDocument>
+    {
+        // public static methods
+        /// <summary>
+        /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to add to the set.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> AddToSet<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().AddToSet(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to add to the set.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> AddToSetEach<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            return new UpdateBuilder<TDocument>().AddToSetEach(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseAnd(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseAnd(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseAnd(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseAnd(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise or of its value with another value (see $bit with "or").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be or-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseOr(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseOr(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise or of its value with another value (see $bit with "or").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be or-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseOr(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseOr(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
+        /// </summary>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <returns>
+        /// A combined UpdateBuilder.
+        /// </returns>
+        public static UpdateBuilder<TDocument> Combine(IEnumerable<UpdateBuilder<TDocument>> updates)
+        {
+            if (updates == null) { throw new ArgumentNullException("updates"); }
+            var combined = new UpdateBuilder<TDocument>();
+            foreach (var update in updates)
+            {
+                combined = combined.Combine(update);
+            }
+            return combined;
+        }
+
+        /// <summary>
+        /// Combines several UpdateBuilders into a single UpdateBuilder.
+        /// </summary>
+        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <returns>
+        /// A combined UpdateBuilder.
+        /// </returns>
+        public static UpdateBuilder<TDocument> Combine(params UpdateBuilder<TDocument>[] updates)
+        {
+            return Combine((IEnumerable<UpdateBuilder<TDocument>>)updates);
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, double>> memberExpression, double value)
+        {
+            return new UpdateBuilder<TDocument>().Inc(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            return new UpdateBuilder<TDocument>().Inc(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            return new UpdateBuilder<TDocument>().Inc(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Removes the first value from the named array element (see $pop).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> PopFirst<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().PopFirst(memberExpression);
+        }
+
+        /// <summary>
+        /// Removes the last value from the named array element (see $pop).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> PopLast<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().PopLast(memberExpression);
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to some value (see $pull).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().Pull(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that match some query (see $pull).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, Func<QueryBuilder<TMember>, IMongoQuery> queryBuilder)
+        {
+            return new UpdateBuilder<TDocument>().Pull(memberExpression, queryBuilder);
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> PullAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            return new UpdateBuilder<TDocument>().PullAll(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Adds a value to the end of the named array element (see $push).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to add to the end of the array.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Push<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().Push(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> PushAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            return new UpdateBuilder<TDocument>().PushAll(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to a new value (see $set).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Set<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().Set(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Removes the named element from the document (see $unset).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Unset<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().Unset(memberExpression);
+        }
+    }
+
+    /// <summary>
+    /// A builder for creating update modifiers.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Serializable]
+    public class UpdateBuilder<TDocument> : BuilderBase, IMongoUpdate
+    {
+        private readonly BsonSerializationInfoHelper _serializationHelper;
+        private UpdateBuilder _updateBuilder;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the UpdateBuilder class.
+        /// </summary>
+        public UpdateBuilder()
+        {
+            _serializationHelper = new BsonSerializationInfoHelper();
+            _updateBuilder = new UpdateBuilder();
+        }
+
+        // public methods
+        /// <summary>
+        /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to add to the set.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> AddToSet<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("AddToSet", info);
+
+            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
+            _updateBuilder = _updateBuilder.AddToSet(info.ElementName, serializedValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to add to the set.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> AddToSetEach<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("AddToSet", info);
+
+            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
+            _updateBuilder = _updateBuilder.AddToSetEach(info.ElementName, serializedValues);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseAnd(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.BitwiseAnd(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise and of its value with another value (see $bit with "and").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseAnd(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.BitwiseAnd(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise or of its value with another value (see $bit with "or").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be or-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseOr(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.BitwiseOr(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise or of its value with another value (see $bit with "or").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseOr(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.BitwiseOr(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Combines another UpdateBuilder into this one.
+        /// </summary>
+        /// <param name="otherUpdateBuilder">The UpdateBuilder to combine into this one.</param>
+        /// <returns>A combined UpdateBuilder.</returns>
+        public UpdateBuilder<TDocument> Combine(UpdateBuilder<TDocument> otherUpdateBuilder)
+        {
+            _updateBuilder = _updateBuilder.Combine(otherUpdateBuilder._updateBuilder);
+            return this;
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, double>> memberExpression, double value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Increments the named element by a value (see $inc).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to increment by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+
+            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the first value from the named array element (see $pop).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> PopFirst<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.PopFirst(info.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes the last value from the named array element (see $pop).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> PopLast<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.PopLast(info.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to some value (see $pull).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("Pull", info);
+
+            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
+            _updateBuilder = _updateBuilder.Pull(info.ElementName, serializedValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that match some query (see $pull).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, Func<QueryBuilder<TMember>, IMongoQuery> queryBuilder)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (queryBuilder == null)
+            {
+                throw new ArgumentNullException("queryBuilder");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("Pull", info);
+
+            var builder = new QueryBuilder<TMember>(_serializationHelper, itemInfo.Serializer);
+
+            var query = queryBuilder(builder);
+
+            _updateBuilder = _updateBuilder.Pull(info.ElementName, query);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to remove.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> PullAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("PullAll", info);
+
+            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
+            _updateBuilder = _updateBuilder.PullAll(info.ElementName, serializedValues);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a value to the end of the named array element (see $push).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to add to the end of the array.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Push<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("Push", info);
+
+            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
+            _updateBuilder = _updateBuilder.Push(info.ElementName, serializedValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a list of values to the end of the named array element (see $pushAll).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="values">The values to add to the end of the array.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> PushAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var itemInfo = _serializationHelper.GetItemSerializationInfo("PushAll", info);
+
+            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
+            _updateBuilder = _updateBuilder.PushAll(info.ElementName, serializedValues);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to a new value (see $set).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Set<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationHelper.SerializeValue(info, value);
+            _updateBuilder = _updateBuilder.Set(info.ElementName, serializedValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public override BsonDocument ToBsonDocument()
+        {
+            return _updateBuilder.ToBsonDocument();
+        }
+
+        /// <summary>
+        /// Removes the named element from the document (see $unset).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Unset<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.Unset(info.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
+            ((IBsonSerializable)_updateBuilder).Serialize(bsonWriter, nominalType, options);
         }
     }
 }

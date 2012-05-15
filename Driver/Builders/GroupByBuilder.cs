@@ -14,14 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {
@@ -61,21 +59,43 @@ namespace MongoDB.Driver.Builders
         // private fields
         private BsonDocument _document;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GroupByBuilder"/> class.
+        /// </summary>
+        public GroupByBuilder()
+        {
+            _document = new BsonDocument();
+        }
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the GroupByBuilder class.
         /// </summary>
         /// <param name="names">One or more key names.</param>
         public GroupByBuilder(string[] names)
+            : this()
         {
-            _document = new BsonDocument();
+            Keys(names);
+        }
+
+        // public methods
+        /// <summary>
+        /// Sets one or more key names.
+        /// </summary>
+        /// <param name="names">The names.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public GroupByBuilder Keys(params string[] names)
+        {
             foreach (var name in names)
             {
                 _document.Add(name, 1);
             }
+
+            return this;
         }
 
-        // public methods
         /// <summary>
         /// Returns the result of the builder as a BsonDocument.
         /// </summary>
@@ -95,6 +115,81 @@ namespace MongoDB.Driver.Builders
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying what the GroupBy command should group by.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public static class GroupBy<TDocument>
+    {
+        /// <summary>
+        /// Sets one or more key names.
+        /// </summary>
+        /// <param name="memberExpressions">One or more key names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static GroupByBuilder<TDocument> Keys(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new GroupByBuilder<TDocument>().Keys(memberExpressions);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying what the GroupBy command should group by.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public class GroupByBuilder<TDocument> : BuilderBase, IMongoGroupBy
+    {
+        private readonly BsonSerializationInfoHelper _serializationHelper;
+        private GroupByBuilder _groupByBuilder;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GroupByBuilder&lt;TDocument&gt;"/> class.
+        /// </summary>
+        public GroupByBuilder()
+        {
+            _serializationHelper = new BsonSerializationInfoHelper();
+            _groupByBuilder = new GroupByBuilder();
+        }
+
+        /// <summary>
+        /// Sets one or more key names.
+        /// </summary>
+        /// <param name="memberExpressions">One or more key names.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public GroupByBuilder<TDocument> Keys(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            var names = memberExpressions
+                .Select(x => _serializationHelper.GetSerializationInfo(x))
+                .Select(x => x.ElementName);
+
+            _groupByBuilder = _groupByBuilder.Keys(names.ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public override BsonDocument ToBsonDocument()
+        {
+            return _groupByBuilder.ToBsonDocument();
+        }
+
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
+            ((IBsonSerializable)_groupByBuilder).Serialize(bsonWriter, nominalType, options);
         }
     }
 }

@@ -16,12 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {
@@ -183,6 +182,195 @@ namespace MongoDB.Driver.Builders
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying the keys for an index.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public static class IndexKeys<TDocument>
+    {
+        // public static methods
+        /// <summary>
+        /// Sets one or more key names to index in ascending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> Ascending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new IndexKeysBuilder<TDocument>().Ascending(memberExpressions);
+        }
+
+        /// <summary>
+        /// Sets one or more key names to index in descending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> Descending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new IndexKeysBuilder<TDocument>().Descending(memberExpressions);
+        }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> GeoSpatial(Expression<Func<TDocument, object>> memberExpression)
+        {
+            return new IndexKeysBuilder<TDocument>().GeoSpatial(memberExpression);
+        }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression)
+        {
+            return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression);
+        }
+
+        /// <summary>
+        /// Sets the key name and additional field name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="additionalMemberExpression">The additional member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression, Expression<Func<TDocument, object>> additionalMemberExpression)
+        {
+            return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression, additionalMemberExpression);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying the keys for an index.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Serializable]
+    public class IndexKeysBuilder<TDocument> : BuilderBase, IMongoIndexKeys
+    {
+        private readonly BsonSerializationInfoHelper _serializationHelper;
+        private IndexKeysBuilder _indexKeysBuilder;
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the IndexKeysBuilder class.
+        /// </summary>
+        public IndexKeysBuilder()
+        {
+            _serializationHelper = new BsonSerializationInfoHelper();
+            _indexKeysBuilder = new IndexKeysBuilder();
+        }
+
+        // public methods
+        /// <summary>
+        /// Sets one or more key names to index in ascending order.
+        /// </summary>
+        /// <param name="memberExpressions">One or more key names.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> Ascending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.Ascending(GetElementNames(memberExpressions).ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Sets one or more key names to index in descending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> Descending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.Descending(GetElementNames(memberExpressions).ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> GeoSpatial(Expression<Func<TDocument, object>> memberExpression)
+        {
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatial(info.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression)
+        {
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(info.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name and additional field name to create a geospatial haystack index on.
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="additionalMemberExpression">The additional member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression, Expression<Func<TDocument, object>> additionalMemberExpression)
+        {
+            var info = _serializationHelper.GetSerializationInfo(memberExpression);
+            var additionalInfo = _serializationHelper.GetSerializationInfo(additionalMemberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(info.ElementName, additionalInfo.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public override BsonDocument ToBsonDocument()
+        {
+            return _indexKeysBuilder.ToBsonDocument();
+        }
+
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
+            ((IBsonSerializable)_indexKeysBuilder).Serialize(bsonWriter, nominalType, options);
+        }
+
+        private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
+        {
+            return memberExpressions
+                .Select(x => _serializationHelper.GetSerializationInfo(x))
+                .Select(x => x.ElementName);
         }
     }
 }

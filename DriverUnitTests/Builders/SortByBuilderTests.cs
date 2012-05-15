@@ -22,16 +22,34 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
     public class SortByBuilderTests
     {
+        private class Test
+        {
+            [BsonElement("a")]
+            public string A { get; set; }
+
+            [BsonElement("b")]
+            public string B { get; set; }
+        }
+
         [Test]
         public void TestAscending1()
         {
             var sortBy = SortBy.Ascending("a");
+            string expected = "{ \"a\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestAscending1_Typed()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A);
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -45,9 +63,25 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestAscending2_Typed()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A, x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
         public void TestAscendingAscending()
         {
             var sortBy = SortBy.Ascending("a").Ascending("b");
+            string expected = "{ \"a\" : 1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingAscending_Typed()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Ascending(x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -61,9 +95,25 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestAscendingDescending_Typed()
+        {
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Descending(x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
         public void TestDescending1()
         {
             var sortBy = SortBy.Descending("a");
+            string expected = "{ \"a\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescending1_Typed()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A);
             string expected = "{ \"a\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -77,6 +127,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestDescending2_Typed()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A, x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : -1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
         public void TestDescendingAscending()
         {
             var sortBy = SortBy.Descending("a").Ascending("b");
@@ -85,9 +143,17 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestDescendingAscending_Typed()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
         public void TestDescendingDescending()
         {
-            var sortBy = SortBy.Descending("a").Descending("b");
+            var sortBy = SortBy<Test>.Descending(x => x.A).Descending(x => x.B);
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }

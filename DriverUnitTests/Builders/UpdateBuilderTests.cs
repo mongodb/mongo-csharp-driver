@@ -20,6 +20,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -28,9 +29,27 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class UpdateBuilderTests
     {
+        private class Test
+        {
+            [BsonElement("x")]
+            public int X = 0;
+
+            [BsonElement("y")]
+            public int[] Y { get; set; }
+
+            [BsonElement("b")]
+            public List<B> B { get; set; }
+        }
+
+        private class B
+        {
+            [BsonElement("c")]
+            public int C = 0;
+        }
+
         private class C
         {
-            public int X;
+            public int X = 0;
         }
 
         private C _a = new C { X = 1 };
@@ -45,10 +64,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestAddToSet_Typed()
+        {
+            var update = Update<Test>.AddToSet(t => t.Y, 1);
+            var expected = "{ \"$addToSet\" : { \"y\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestAddToSetEach()
         {
             var update = Update.AddToSetEach("name", "abc", "def");
             var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [\"abc\", \"def\"] } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestAddToSetEach_Typed()
+        {
+            var update = Update<Test>.AddToSetEach(t => t.Y, new [] { 1, 2 });
+            var expected = "{ \"$addToSet\" : { \"y\" : { \"$each\" : [1, 2] } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -73,6 +108,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.BitwiseAnd("name", 1);
             var expected = "{ '$bit' : { 'name' : { 'and' : 1 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseAndInt_Typed()
+        {
+            var update = Update<Test>.BitwiseAnd(t => t.X, 1);
+            var expected = "{ '$bit' : { 'x' : { 'and' : 1 } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -109,10 +152,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestBitwiseAndOrInt_Typed()
+        {
+            var update = Update<Test>.BitwiseAnd(t => t.X, 1).BitwiseOr(t => t.X, 2);
+            var expected = "{ '$bit' : { 'x' : { 'and' : 1, 'or' : 2 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestBitwiseOrInt()
         {
             var update = Update.BitwiseOr("name", 1);
             var expected = "{ '$bit' : { 'name' : { 'or' : 1 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseOrInt_Typed()
+        {
+            var update = Update<Test>.BitwiseOr(t => t.X, 1);
+            var expected = "{ '$bit' : { 'x' : { 'or' : 1 } } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -152,6 +211,17 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestCombineIncSet_Typed()
+        {
+            var update = Update<Test>.Combine(
+                Update<Test>.Inc(t => t.X, 1),
+                Update<Test>.Set(t => t.Y, new[] { 1, 2 }));
+
+            var expected = "{ '$inc' : { 'x' : 1 }, '$set' : { 'y' : [1, 2] } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestCombineSetSet()
         {
             var update = Update.Combine(
@@ -179,6 +249,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestIncInt_Typed()
+        {
+            var update = Update<Test>.Inc(t => t.X, 1);
+            var expected = "{ \"$inc\" : { \"x\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestIncLong()
         {
             var update = Update.Inc("name", 1L);
@@ -195,10 +273,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPopFirst_Typed()
+        {
+            var update = Update<Test>.PopFirst(t => t.Y);
+            var expected = "{ \"$pop\" : { \"y\" : -1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPopLast()
         {
             var update = Update.PopLast("name");
             var expected = "{ \"$pop\" : { \"name\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPopLast_Typed()
+        {
+            var update = Update<Test>.PopLast(t => t.Y);
+            var expected = "{ \"$pop\" : { \"y\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -211,6 +305,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPull_Typed()
+        {
+            var update = Update<Test>.Pull(t => t.Y, 3);
+            var expected = "{ \"$pull\" : { \"y\" : 3 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPullQuery()
         {
             var update = Update.Pull("name", Query.GT("x", "abc"));
@@ -219,10 +321,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPullQuery_Typed()
+        {
+            var update = Update<Test>.Pull(t => t.B, q => q.GreaterThan(b => b.C, 3));
+            var expected = "{ \"$pull\" : { \"b\" : { \"c\" : { \"$gt\" : 3 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPullAll()
         {
             var update = Update.PullAll("name", "abc", "def");
             var expected = "{ \"$pullAll\" : { \"name\" : [\"abc\", \"def\"] } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPullAll_Typed()
+        {
+            var update = Update<Test>.PullAll(t => t.Y, new [] { 1, 2});
+            var expected = "{ \"$pullAll\" : { \"y\" : [1, 2] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -251,10 +369,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPush_Typed()
+        {
+            var update = Update<Test>.Push(t => t.Y, 7);
+            var expected = "{ \"$push\" : { \"y\" : 7 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPushAll()
         {
             var update = Update.PushAll("name", "abc", "def");
             var expected = "{ \"$pushAll\" : { \"name\" : [\"abc\", \"def\"] } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushAll_Typed()
+        {
+            var update = Update<Test>.PushAll(t => t.Y, new [] { 23, 32 });
+            var expected = "{ \"$pushAll\" : { \"y\" : [23, 32] } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -291,6 +425,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestSet_Typed()
+        {
+            var update = Update<Test>.Set(t => t.X, 42);
+            var expected = "{ \"$set\" : { \"x\" : 42 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestSetWrapped()
         {
             var update = Update.SetWrapped("name", _a);
@@ -303,6 +445,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.Unset("name");
             var expected = "{ \"$unset\" : { \"name\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestUnset_Typed()
+        {
+            var update = Update<Test>.Unset(t => t.X);
+            var expected = "{ \"$unset\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

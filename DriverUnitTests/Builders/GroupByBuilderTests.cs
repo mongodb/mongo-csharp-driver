@@ -22,16 +22,35 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
     public class GroupByBuilderTests
     {
+        private class Test
+        {
+            [BsonElement("a")]
+            public int A = 0;
+            [BsonElement("b")]
+            public int B = 0;
+            [BsonElement("c")]
+            public int C = 0;
+        }
+
         [Test]
         public void Test1Key()
         {
             var groupBy = GroupBy.Keys("a");
+            string expected = "{ \"a\" : 1 }";
+            Assert.AreEqual(expected, groupBy.ToJson());
+        }
+
+        [Test]
+        public void Test1Key_Typed()
+        {
+            var groupBy = GroupBy<Test>.Keys(x => x.A);
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, groupBy.ToJson());
         }
@@ -45,9 +64,25 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void Test2Keys_Typed()
+        {
+            var groupBy = GroupBy<Test>.Keys(x => x.A, x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : 1 }";
+            Assert.AreEqual(expected, groupBy.ToJson());
+        }
+
+        [Test]
         public void Test3Keys()
         {
             var groupBy = GroupBy.Keys("a", "b", "c");
+            string expected = "{ \"a\" : 1, \"b\" : 1, \"c\" : 1 }";
+            Assert.AreEqual(expected, groupBy.ToJson());
+        }
+
+        [Test]
+        public void Test3Keys_Typed()
+        {
+            var groupBy = GroupBy<Test>.Keys(x => x.A, x => x.B, x => x.C);
             string expected = "{ \"a\" : 1, \"b\" : 1, \"c\" : 1 }";
             Assert.AreEqual(expected, groupBy.ToJson());
         }
