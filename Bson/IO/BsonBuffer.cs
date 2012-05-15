@@ -970,18 +970,35 @@ namespace MongoDB.Bson.IO
                 return 1;
             }
 
-            // special case the _id string
-            if (length >= 4 &&
-                c1 == 0x5f && // '_'
-                c2 == 0x69 && // 'i'
-                buffer[startIndex + 2] == 0x64 && // 'd'
-                buffer[startIndex + 3] == 0) // '/0'
+            if (length < 3)
             {
-                value = "_id";
+                value = null;
+                return -1;
+            }
+
+            var c3 = buffer[startIndex + 2];
+            if (c3 == 0)
+            {
+                value = __utf8Encoding.GetString(buffer, startIndex, 2);
+                return 2;
+            }
+
+            if (length < 4)
+            {
+                value = null;
+                return -1;
+            }
+
+            if (buffer[startIndex + 3] == 0)
+            {
+                // special case the _id string
+                // '_id'; 0x5f == '_', 0x69 == 'i', 0x64 == 'd'
+                value = ((c1 | c2 << 8 | c3 << 16) == 0x64695f) ?
+                    "_id" : __utf8Encoding.GetString(buffer, startIndex, 3);
                 return 3;
             }
 
-            var index = Array.IndexOf<byte>(buffer, 0, startIndex + 2, length - 2);
+            var index = Array.IndexOf<byte>(buffer, 0, startIndex + 4, length - 4);
             if (index != -1)
             {
                 var stringLength = index - startIndex;
