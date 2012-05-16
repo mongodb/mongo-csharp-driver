@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -144,11 +145,6 @@ namespace MongoDB.Driver.Linq
                 {
                     var keyExpression = clause.Key.Body;
                     var serializationInfo = _serializationProvider.GetSerializationInfo(keyExpression);
-                    if (serializationInfo == null)
-                    {
-                        var message = string.Format("Invalid OrderBy expression: {0}.", ExpressionFormatter.ToString(keyExpression));
-                        throw new NotSupportedException(message);
-                    }
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
                     sortBy.Add(serializationInfo.ElementName, direction);
                 }
@@ -305,11 +301,6 @@ namespace MongoDB.Driver.Linq
 
             var keyExpression = _projection.Body;
             var serializationInfo = _serializationProvider.GetSerializationInfo(keyExpression);
-            if (serializationInfo == null)
-            {
-                var message = string.Format("Select used with Distinct is not valid: {0}.", ExpressionFormatter.ToString(keyExpression));
-                throw new NotSupportedException(message);
-            }
             var dottedElementName = serializationInfo.ElementName;
             var source = Collection.Distinct(dottedElementName, query);
 

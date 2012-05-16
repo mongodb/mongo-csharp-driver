@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq
     public static class PartialEvaluator
     {
         /// <summary>
-        /// Performs evaluation and replacement of independent sub-trees
+        /// Performs evaluation and replacement of independent sub-trees.
         /// </summary>
         /// <param name="expression">The root of the expression tree.</param>
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>

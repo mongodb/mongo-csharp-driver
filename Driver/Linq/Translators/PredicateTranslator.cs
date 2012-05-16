@@ -18,6 +18,7 @@ using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -835,12 +836,6 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            var serializationInfo = _serializationHelper.GetSerializationInfo(stringExpression);
-            if (serializationInfo == null)
-            {
-                return null;
-            }
-
             var index = ToInt32(indexExpression);
             var value = ToInt32(constantExpression);
 
@@ -862,6 +857,7 @@ namespace MongoDB.Driver.Linq
             }
             var pattern = string.Format("^.{{{0}}}{1}", index, characterClass);
 
+            var serializationInfo = _serializationHelper.GetSerializationInfo(stringExpression);
             return _queryBuilder.Matches(serializationInfo.ElementName, pattern, "s");
         }
 

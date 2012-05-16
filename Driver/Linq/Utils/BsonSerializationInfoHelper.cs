@@ -14,13 +14,15 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
+
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.IO;
-using System.Collections;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -162,8 +164,8 @@ namespace MongoDB.Driver.Linq.Utils
 
         private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, Expression expression)
         {
-            //when looking to get a member's serialization info, we will ignore a top-level return conversion because 
-            //it is inconsequential.
+            // when looking to get a member's serialization info, we will ignore a top-level return conversion because 
+            // it is inconsequential
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
             {
                 return GetSerializationInfo(serializer, ((UnaryExpression)expression).Operand);

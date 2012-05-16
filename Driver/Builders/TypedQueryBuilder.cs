@@ -14,17 +14,16 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Driver.Linq.Utils;
+using System.Text;
 using System.Text.RegularExpressions;
+
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {

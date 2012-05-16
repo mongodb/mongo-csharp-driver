@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -228,9 +230,7 @@ namespace MongoDB.Driver.Builders
         /// Removes the last value from the named array element (see $pop).
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static UpdateBuilder PopLast(string name)
         {
             return new UpdateBuilder().PopLast(name);
