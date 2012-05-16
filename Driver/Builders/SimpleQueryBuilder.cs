@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Builders
 {
     internal class SimpleQueryBuilder
     {
+        // public methods
         /// <summary>
         /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
@@ -212,7 +213,6 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-
             
             return new QueryDocument(name, new BsonDocument("$in", new BsonArray(values)));
         }
@@ -516,7 +516,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>
         /// An IMongoQuery.
         /// </returns>
-        public IMongoQuery NIN(string name, IEnumerable<BsonValue> values)
+        public IMongoQuery NotIn(string name, IEnumerable<BsonValue> values)
         {
             return new QueryDocument(name, new BsonDocument("$nin", new BsonArray(values)));
         }
@@ -546,6 +546,7 @@ namespace MongoDB.Driver.Builders
                 {
                     throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
                 }
+
                 // flatten out nested $or
                 var queryDocument = query.ToBsonDocument();
                 if (queryDocument.ElementCount == 1 && queryDocument.GetElement(0).Name == "$or")
@@ -737,7 +738,8 @@ namespace MongoDB.Driver.Builders
             return new QueryDocument(name, condition);
         }
 
-        private static void AddAndClause(BsonDocument query, BsonElement clause)
+        // private methods
+        private void AddAndClause(BsonDocument query, BsonElement clause)
         {
             // flatten out nested $and
             if (clause.Name == "$and")
@@ -796,7 +798,7 @@ namespace MongoDB.Driver.Builders
             }
         }
 
-        private static void PromoteQueryToDollarAndForm(BsonDocument query, BsonElement clause)
+        private void PromoteQueryToDollarAndForm(BsonDocument query, BsonElement clause)
         {
             var clauses = new BsonArray();
             foreach (var queryElement in query)

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -220,11 +221,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Sets the key name to create a geospatial index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static IndexKeysBuilder<TDocument> GeoSpatial(Expression<Func<TDocument, object>> memberExpression)
+        public static IndexKeysBuilder<TDocument> GeoSpatial<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
             return new IndexKeysBuilder<TDocument>().GeoSpatial(memberExpression);
         }
@@ -232,11 +234,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Sets the key name to create a geospatial haystack index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression)
+        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
             return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression);
         }
@@ -244,12 +247,14 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Sets the key name and additional field name to create a geospatial haystack index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TAdditionalMember">The type of the additional member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="additionalMemberExpression">The additional member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression, Expression<Func<TDocument, object>> additionalMemberExpression)
+        public static IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember, TAdditionalMember>(Expression<Func<TDocument, TMember>> memberExpression, Expression<Func<TDocument, TAdditionalMember>> additionalMemberExpression)
         {
             return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression, additionalMemberExpression);
         }
@@ -262,15 +267,17 @@ namespace MongoDB.Driver.Builders
     [Serializable]
     public class IndexKeysBuilder<TDocument> : BuilderBase, IMongoIndexKeys
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private IndexKeysBuilder _indexKeysBuilder;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the IndexKeysBuilder class.
         /// </summary>
         public IndexKeysBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _indexKeysBuilder = new IndexKeysBuilder();
         }
 
@@ -304,44 +311,48 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Sets the key name to create a geospatial index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public IndexKeysBuilder<TDocument> GeoSpatial(Expression<Func<TDocument, object>> memberExpression)
+        public IndexKeysBuilder<TDocument> GeoSpatial<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatial(info.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatial(serializationInfo.ElementName);
             return this;
         }
 
         /// <summary>
         /// Sets the key name to create a geospatial haystack index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression)
+        public IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(info.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(serializationInfo.ElementName);
             return this;
         }
 
         /// <summary>
         /// Sets the key name and additional field name to create a geospatial haystack index on.
         /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TAdditionalMember">The type of the additional member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="additionalMemberExpression">The additional member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public IndexKeysBuilder<TDocument> GeoSpatialHaystack(Expression<Func<TDocument, object>> memberExpression, Expression<Func<TDocument, object>> additionalMemberExpression)
+        public IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember, TAdditionalMember>(Expression<Func<TDocument, TMember>> memberExpression, Expression<Func<TDocument, TAdditionalMember>> additionalMemberExpression)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var additionalInfo = _serializationHelper.GetSerializationInfo(additionalMemberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(info.ElementName, additionalInfo.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var additionalSerializationInfo = _serializationInfoHelper.GetSerializationInfo(additionalMemberExpression);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(serializationInfo.ElementName, additionalSerializationInfo.ElementName);
             return this;
         }
 
@@ -356,6 +367,7 @@ namespace MongoDB.Driver.Builders
             return _indexKeysBuilder.ToBsonDocument();
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
@@ -367,10 +379,11 @@ namespace MongoDB.Driver.Builders
             ((IBsonSerializable)_indexKeysBuilder).Serialize(bsonWriter, nominalType, options);
         }
 
+        // private methods
         private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
         {
             return memberExpressions
-                .Select(x => _serializationHelper.GetSerializationInfo(x))
+                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
                 .Select(x => x.ElementName);
         }
     }

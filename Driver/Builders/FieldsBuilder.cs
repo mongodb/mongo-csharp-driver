@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -197,10 +198,8 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
-        /// <param name="memberExpressions">One or more field names.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder<TDocument> Exclude(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             return new FieldsBuilder<TDocument>().Exclude(memberExpressions);
@@ -210,9 +209,7 @@ namespace MongoDB.Driver.Builders
         /// Adds one or more field names to be included in the results.
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static FieldsBuilder<TDocument> Include(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             return new FieldsBuilder<TDocument>().Include(memberExpressions);
@@ -221,13 +218,11 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="size">The size of the slice (negative sizes are taken from the end).</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
-        public static FieldsBuilder<TDocument> Slice<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, int size)
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static FieldsBuilder<TDocument> Slice<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, int size)
         {
             return new FieldsBuilder<TDocument>().Slice(memberExpression, size);
         }
@@ -235,14 +230,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="skip">The number of values to skip.</param>
         /// <param name="limit">The number of values to extract.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
-        public static FieldsBuilder<TDocument> Slice<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, int skip, int limit)
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static FieldsBuilder<TDocument> Slice<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, int skip, int limit)
         {
             return new FieldsBuilder<TDocument>().Slice(memberExpression, skip, limit);
         }
@@ -255,7 +248,8 @@ namespace MongoDB.Driver.Builders
     [Serializable]
     public class FieldsBuilder<TDocument> : BuilderBase, IMongoFields
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private FieldsBuilder _fieldsBuilder;
 
         // constructors
@@ -264,7 +258,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public FieldsBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _fieldsBuilder = new FieldsBuilder();
         }
 
@@ -273,13 +267,10 @@ namespace MongoDB.Driver.Builders
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder<TDocument> Exclude(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             var elementNames = GetElementNames(memberExpressions);
-
             _fieldsBuilder = _fieldsBuilder.Exclude(elementNames.ToArray());
             return this;
         }
@@ -288,13 +279,10 @@ namespace MongoDB.Driver.Builders
         /// Adds one or more field names to be included in the results.
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public FieldsBuilder<TDocument> Include(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             var elementNames = GetElementNames(memberExpressions);
-
             _fieldsBuilder = _fieldsBuilder.Include(elementNames.ToArray());
             return this;
         }
@@ -302,47 +290,42 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="size">The size of the slice (negative sizes are taken from the end).</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
-        public FieldsBuilder<TDocument> Slice<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, int size)
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public FieldsBuilder<TDocument> Slice<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, int size)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _fieldsBuilder = _fieldsBuilder.Slice(info.ElementName, size);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _fieldsBuilder = _fieldsBuilder.Slice(serializationInfo.ElementName, size);
             return this;
         }
 
         /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="skip">The number of values to skip.</param>
         /// <param name="limit">The number of values to extract.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
-        public FieldsBuilder<TDocument> Slice<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, int skip, int limit)
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public FieldsBuilder<TDocument> Slice<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, int skip, int limit)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _fieldsBuilder = _fieldsBuilder.Slice(info.ElementName, skip, limit);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _fieldsBuilder = _fieldsBuilder.Slice(serializationInfo.ElementName, skip, limit);
             return this;
         }
 
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>
-        /// <returns>
-        /// A BsonDocument.
-        /// </returns>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
             return _fieldsBuilder.ToBsonDocument();
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
@@ -354,10 +337,11 @@ namespace MongoDB.Driver.Builders
             ((IBsonSerializable)_fieldsBuilder).Serialize(bsonWriter, nominalType, options);
         }
 
+        // private methods
         private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
         {
             var elementNames = memberExpressions
-                .Select(x => _serializationHelper.GetSerializationInfo(x))
+                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
                 .Select(x => x.ElementName);
             return elementNames;
         }

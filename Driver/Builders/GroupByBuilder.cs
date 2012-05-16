@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -61,6 +62,7 @@ namespace MongoDB.Driver.Builders
         // private fields
         private BsonDocument _document;
 
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="GroupByBuilder"/> class.
         /// </summary>
@@ -69,7 +71,6 @@ namespace MongoDB.Driver.Builders
             _document = new BsonDocument();
         }
 
-        // constructors
         /// <summary>
         /// Initializes a new instance of the GroupByBuilder class.
         /// </summary>
@@ -85,9 +86,7 @@ namespace MongoDB.Driver.Builders
         /// Sets one or more key names.
         /// </summary>
         /// <param name="names">The names.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public GroupByBuilder Keys(params string[] names)
         {
             foreach (var name in names)
@@ -126,6 +125,7 @@ namespace MongoDB.Driver.Builders
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public static class GroupBy<TDocument>
     {
+        // public static methods
         /// <summary>
         /// Sets one or more key names.
         /// </summary>
@@ -143,29 +143,30 @@ namespace MongoDB.Driver.Builders
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public class GroupByBuilder<TDocument> : BuilderBase, IMongoGroupBy
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private GroupByBuilder _groupByBuilder;
 
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="GroupByBuilder&lt;TDocument&gt;"/> class.
         /// </summary>
         public GroupByBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _groupByBuilder = new GroupByBuilder();
         }
 
+        // public methods
         /// <summary>
         /// Sets one or more key names.
         /// </summary>
         /// <param name="memberExpressions">One or more key names.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public GroupByBuilder<TDocument> Keys(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             var names = memberExpressions
-                .Select(x => _serializationHelper.GetSerializationInfo(x))
+                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
                 .Select(x => x.ElementName);
 
             _groupByBuilder = _groupByBuilder.Keys(names.ToArray());
@@ -175,14 +176,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>
-        /// <returns>
-        /// A BsonDocument.
-        /// </returns>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
             return _groupByBuilder.ToBsonDocument();
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>

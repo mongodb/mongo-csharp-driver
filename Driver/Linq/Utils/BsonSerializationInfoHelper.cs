@@ -31,8 +31,10 @@ namespace MongoDB.Driver.Linq.Utils
     /// </summary>
     internal class BsonSerializationInfoHelper
     {
+        // private fields
         private readonly Dictionary<Expression, IBsonSerializer> _serializerCache;
 
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonSerializationInfoHelper"/> class.
         /// </summary>
@@ -41,6 +43,7 @@ namespace MongoDB.Driver.Linq.Utils
             _serializerCache = new Dictionary<Expression, IBsonSerializer>();
         }
 
+        // public methods
         /// <summary>
         /// Gets the serialization info for an expression if it exists.
         /// </summary>
@@ -61,7 +64,11 @@ namespace MongoDB.Driver.Linq.Utils
             {
                 IBsonSerializer serializer;
                 if (!_serializerCache.TryGetValue(parameterExpression, out serializer))
-                    _serializerCache[parameterExpression] = serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                {
+                    serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
+                    _serializerCache[parameterExpression] = serializer;
+                }
+
                 return new BsonSerializationInfo(
                     null, // elementName
                     serializer,
@@ -72,16 +79,16 @@ namespace MongoDB.Driver.Linq.Utils
             parameterExpression = ExpressionParameterFinder.FindParameter(expression);
             if (parameterExpression != null)
             {
-                var info = GetSerializationInfo(parameterExpression);
-                info = GetSerializationInfo(info.Serializer, expression);
-                if (info != null)
+                var parameterSerializationInfo = GetSerializationInfo(parameterExpression);
+                var expressionSerializationInfo = GetSerializationInfo(parameterSerializationInfo.Serializer, expression);
+                if (expressionSerializationInfo != null)
                 {
-                    _serializerCache[expression] = info.Serializer;
+                    _serializerCache[expression] = expressionSerializationInfo.Serializer;
+                    return expressionSerializationInfo;
                 }
-                return info;
             }
 
-            string message = string.Format("Unable to determine the serialization information for the expression {0}.",
+            string message = string.Format("Unable to determine the serialization information for the expression: {0}.",
                 ExpressionFormatter.ToString(expression));
             throw new NotSupportedException(message);
         }
@@ -205,6 +212,7 @@ namespace MongoDB.Driver.Linq.Utils
                         BsonUtils.GetFriendlyTypeName(arraySerializationInfo.Serializer.GetType()));
                     throw new NotSupportedException(message);
                 }
+
                 var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                 var indexEpression = binaryExpression.Right as ConstantExpression;
                 if (indexEpression != null)

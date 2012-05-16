@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -189,9 +190,7 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value fo the additional field.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public static GeoHaystackSearchOptionsBuilder<TDocument> SetQuery<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
             return new GeoHaystackSearchOptionsBuilder<TDocument>().SetQuery(memberExpression, value);
@@ -205,7 +204,8 @@ namespace MongoDB.Driver.Builders
     [Serializable]
     public class GeoHaystackSearchOptionsBuilder<TDocument> : BuilderBase, IMongoGeoHaystackSearchOptions
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private GeoHaystackSearchOptionsBuilder _geoHaystackBuilder;
 
         // constructors
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public GeoHaystackSearchOptionsBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _geoHaystackBuilder = new GeoHaystackSearchOptionsBuilder();
         }
 
@@ -247,28 +247,25 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value fo the additional field.</param>
-        /// <returns>
-        /// The builder (so method calls can be chained).
-        /// </returns>
+        /// <returns>The builder (so method calls can be chained).</returns>
         public GeoHaystackSearchOptionsBuilder<TDocument> SetQuery<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-            _geoHaystackBuilder = _geoHaystackBuilder.SetQuery(info.ElementName, serializedValue);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _geoHaystackBuilder = _geoHaystackBuilder.SetQuery(serializationInfo.ElementName, serializedValue);
             return this;
         }
 
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>
-        /// <returns>
-        /// A BsonDocument.
-        /// </returns>
+        /// <returns>A BsonDocument.</returns>
         public override BsonDocument ToBsonDocument()
         {
             return _geoHaystackBuilder.ToBsonDocument();
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>

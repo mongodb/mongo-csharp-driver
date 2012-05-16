@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq
     public class SelectQuery : TranslatedQuery
     {
         // private fields
-        private readonly BsonSerializationInfoHelper _serializationProvider;
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private LambdaExpression _where;
         private Type _ofType;
         private List<OrderByClause> _orderBy;
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq
         public SelectQuery(MongoCollection collection, Type documentType)
             : base(collection, documentType)
         {
-            _serializationProvider = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
         }
 
         // public properties
@@ -119,8 +119,9 @@ namespace MongoDB.Driver.Linq
 
             // TODO: check lambda for proper type
 
+            var predicateTranslator = new PredicateTranslator(_serializationInfoHelper);
             var body = _where.Body;
-            return new PredicateTranslator(_serializationProvider).BuildQuery(body);
+            return predicateTranslator.BuildQuery(body);
         }
 
         /// <summary>
@@ -144,7 +145,7 @@ namespace MongoDB.Driver.Linq
                 foreach (var clause in _orderBy)
                 {
                     var keyExpression = clause.Key.Body;
-                    var serializationInfo = _serializationProvider.GetSerializationInfo(keyExpression);
+                    var serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
                     sortBy.Add(serializationInfo.ElementName, direction);
                 }
@@ -300,7 +301,7 @@ namespace MongoDB.Driver.Linq
             }
 
             var keyExpression = _projection.Body;
-            var serializationInfo = _serializationProvider.GetSerializationInfo(keyExpression);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
             var dottedElementName = serializationInfo.ElementName;
             var source = Collection.Distinct(dottedElementName, query);
 

@@ -169,15 +169,17 @@ namespace MongoDB.Driver.Builders
     [Serializable]
     public class SortByBuilder<TDocument> : BuilderBase, IMongoSortBy
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private SortByBuilder _sortByBuilder;
 
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="SortByBuilder&lt;TDocument&gt;"/> class.
         /// </summary>
         public SortByBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _sortByBuilder = new SortByBuilder();
         }
 
@@ -210,13 +212,6 @@ namespace MongoDB.Driver.Builders
             return this;
         }
 
-        private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
-        {
-            return memberExpressions
-                .Select(x => _serializationHelper.GetSerializationInfo(x))
-                .Select(x => x.ElementName);
-        }
-
         /// <summary>
         /// Converts this object to a BsonDocument.
         /// </summary>
@@ -228,6 +223,7 @@ namespace MongoDB.Driver.Builders
             return _sortByBuilder.ToBsonDocument();
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
@@ -237,6 +233,14 @@ namespace MongoDB.Driver.Builders
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             ((IBsonSerializable)_sortByBuilder).Serialize(bsonWriter, nominalType, options);
+        }
+
+        // private methods
+        private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
+        {
+            return memberExpressions
+                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
+                .Select(x => x.ElementName);
         }
     }
 }

@@ -22,8 +22,8 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Wrappers;
 using MongoDB.Driver.Linq.Utils;
+using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver.Builders
 {
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes the last value from the named array element (see $pop).
         /// </summary>
-        /// <param name="name">The name.</param>
+        /// <param name="name">The name of the array element.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public static UpdateBuilder PopLast(string name)
         {
@@ -1215,13 +1215,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to add to the set.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> AddToSet<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public static UpdateBuilder<TDocument> AddToSet<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             return new UpdateBuilder<TDocument>().AddToSet(memberExpression, value);
         }
@@ -1229,13 +1229,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> AddToSetEach<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public static UpdateBuilder<TDocument> AddToSetEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             return new UpdateBuilder<TDocument>().AddToSetEach(memberExpression, values);
         }
@@ -1364,12 +1364,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes the first value from the named array element (see $pop).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> PopFirst<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        public static UpdateBuilder<TDocument> PopFirst<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression)
         {
             return new UpdateBuilder<TDocument>().PopFirst(memberExpression);
         }
@@ -1377,12 +1377,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes the last value from the named array element (see $pop).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> PopLast<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        public static UpdateBuilder<TDocument> PopLast<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression)
         {
             return new UpdateBuilder<TDocument>().PopLast(memberExpression);
         }
@@ -1390,13 +1390,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes all values from the named array element that are equal to some value (see $pull).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public static UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             return new UpdateBuilder<TDocument>().Pull(memberExpression, value);
         }
@@ -1404,13 +1404,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes all values from the named array element that match some query (see $pull).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, Func<QueryBuilder<TMember>, IMongoQuery> queryBuilder)
+        public static UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> queryBuilder)
         {
             return new UpdateBuilder<TDocument>().Pull(memberExpression, queryBuilder);
         }
@@ -1418,13 +1418,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> PullAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public static UpdateBuilder<TDocument> PullAll<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             return new UpdateBuilder<TDocument>().PullAll(memberExpression, values);
         }
@@ -1432,13 +1432,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a value to the end of the named array element (see $push).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to add to the end of the array.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> Push<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public static UpdateBuilder<TDocument> Push<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             return new UpdateBuilder<TDocument>().Push(memberExpression, value);
         }
@@ -1446,13 +1446,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $pushAll).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> PushAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public static UpdateBuilder<TDocument> PushAll<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             return new UpdateBuilder<TDocument>().PushAll(memberExpression, values);
         }
@@ -1492,7 +1492,8 @@ namespace MongoDB.Driver.Builders
     [Serializable]
     public class UpdateBuilder<TDocument> : BuilderBase, IMongoUpdate
     {
-        private readonly BsonSerializationInfoHelper _serializationHelper;
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private UpdateBuilder _updateBuilder;
 
         // constructors
@@ -1501,7 +1502,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         public UpdateBuilder()
         {
-            _serializationHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
             _updateBuilder = new UpdateBuilder();
         }
 
@@ -1509,37 +1510,36 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a value to a named array element if the value is not already in the array (see $addToSet).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to add to the set.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> AddToSet<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public UpdateBuilder<TDocument> AddToSet<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("AddToSet", info);
-
-            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
-            _updateBuilder = _updateBuilder.AddToSet(info.ElementName, serializedValue);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("AddToSet", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            _updateBuilder = _updateBuilder.AddToSet(serializationInfo.ElementName, serializedValue);
             return this;
         }
 
         /// <summary>
         /// Adds a list of values to a named array element adding each value only if it not already in the array (see $addToSet and $each).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to add to the set.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> AddToSetEach<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public UpdateBuilder<TDocument> AddToSetEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
             {
@@ -1550,11 +1550,10 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("values");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("AddToSet", info);
-
-            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
-            _updateBuilder = _updateBuilder.AddToSetEach(info.ElementName, serializedValues);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("AddToSet", serializationInfo);
+            var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
+            _updateBuilder = _updateBuilder.AddToSetEach(serializationInfo.ElementName, serializedValues);
             return this;
         }
 
@@ -1573,10 +1572,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.BitwiseAnd(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1595,10 +1593,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.BitwiseAnd(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1617,10 +1614,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.BitwiseOr(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1639,10 +1635,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.BitwiseOr(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1672,10 +1667,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1694,10 +1688,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
             return this;
         }
 
@@ -1716,87 +1709,85 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-
-            _updateBuilder = _updateBuilder.Inc(info.ElementName, value);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
             return this;
         }
 
         /// <summary>
         /// Removes the first value from the named array element (see $pop).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> PopFirst<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        public UpdateBuilder<TDocument> PopFirst<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _updateBuilder = _updateBuilder.PopFirst(info.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.PopFirst(serializationInfo.ElementName);
             return this;
         }
 
         /// <summary>
         /// Removes the last value from the named array element (see $pop).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> PopLast<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression)
+        public UpdateBuilder<TDocument> PopLast<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _updateBuilder = _updateBuilder.PopLast(info.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.PopLast(serializationInfo.ElementName);
             return this;
         }
 
         /// <summary>
         /// Removes all values from the named array element that are equal to some value (see $pull).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("Pull", info);
-
-            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
-            _updateBuilder = _updateBuilder.Pull(info.ElementName, serializedValue);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            _updateBuilder = _updateBuilder.Pull(serializationInfo.ElementName, serializedValue);
             return this;
         }
 
         /// <summary>
         /// Removes all values from the named array element that match some query (see $pull).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> Pull<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, Func<QueryBuilder<TMember>, IMongoQuery> queryBuilder)
+        public UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> queryBuilder)
         {
             if (memberExpression == null)
             {
@@ -1807,27 +1798,24 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("queryBuilder");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("Pull", info);
-
-            var builder = new QueryBuilder<TMember>(_serializationHelper, itemInfo.Serializer);
-
-            var query = queryBuilder(builder);
-
-            _updateBuilder = _updateBuilder.Pull(info.ElementName, query);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo);
+            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper, itemSerializationInfo.Serializer);
+            var elementQuery = queryBuilder(elementQueryBuilder);
+            _updateBuilder = _updateBuilder.Pull(serializationInfo.ElementName, elementQuery);
             return this;
         }
 
         /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to remove.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> PullAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public UpdateBuilder<TDocument> PullAll<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
             {
@@ -1838,48 +1826,46 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("values");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("PullAll", info);
-
-            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
-            _updateBuilder = _updateBuilder.PullAll(info.ElementName, serializedValues);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("PullAll", serializationInfo);
+            var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
+            _updateBuilder = _updateBuilder.PullAll(serializationInfo.ElementName, serializedValues);
             return this;
         }
 
         /// <summary>
         /// Adds a value to the end of the named array element (see $push).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value to add to the end of the array.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> Push<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, TMember value)
+        public UpdateBuilder<TDocument> Push<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("Push", info);
-
-            var serializedValue = _serializationHelper.SerializeValue(itemInfo, value);
-            _updateBuilder = _updateBuilder.Push(info.ElementName, serializedValue);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Push", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            _updateBuilder = _updateBuilder.Push(serializationInfo.ElementName, serializedValue);
             return this;
         }
 
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $pushAll).
         /// </summary>
-        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> PushAll<TMember>(Expression<Func<TDocument, IEnumerable<TMember>>> memberExpression, IEnumerable<TMember> values)
+        public UpdateBuilder<TDocument> PushAll<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
             {
@@ -1890,11 +1876,10 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("values");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var itemInfo = _serializationHelper.GetItemSerializationInfo("PushAll", info);
-
-            var serializedValues = _serializationHelper.SerializeValues(itemInfo, values);
-            _updateBuilder = _updateBuilder.PushAll(info.ElementName, serializedValues);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("PushAll", serializationInfo);
+            var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
+            _updateBuilder = _updateBuilder.PushAll(serializationInfo.ElementName, serializedValues);
             return this;
         }
 
@@ -1914,9 +1899,9 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            var serializedValue = _serializationHelper.SerializeValue(info, value);
-            _updateBuilder = _updateBuilder.Set(info.ElementName, serializedValue);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Set(serializationInfo.ElementName, serializedValue);
             return this;
         }
 
@@ -1946,11 +1931,12 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("memberExpression");
             }
 
-            var info = _serializationHelper.GetSerializationInfo(memberExpression);
-            _updateBuilder = _updateBuilder.Unset(info.ElementName);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder = _updateBuilder.Unset(serializationInfo.ElementName);
             return this;
         }
 
+        // protected methods
         /// <summary>
         /// Serializes the result of the builder to a BsonWriter.
         /// </summary>
