@@ -368,10 +368,9 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        [Ignore("Not Implemented")]
         public void TestMatchesExpressionRegexVariable()
         {
-            var regex = new Regex("abc");
+            var regex = new Regex("abc", RegexOptions.Singleline);
             var query = Query.Where<A>(a => regex.IsMatch(a.S));
             var expected = "{ \"s\" : /abc/s }";
             Assert.AreEqual(expected, query.ToJson());

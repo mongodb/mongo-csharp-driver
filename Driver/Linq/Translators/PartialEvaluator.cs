@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq
         /// Performs evaluation and replacement of independent sub-trees.
         /// </summary>
         /// <param name="expression">The root of the expression tree.</param>
-        /// <param name="fnCanBeEvaluated">A function that decides whether a given expression node can be part of the local function.</param>
+        /// <param name="queryProvider">The query provider when the expression is a LINQ query (can be null).</param>
         /// <returns>A new tree with sub-trees evaluated and replaced.</returns>
         public static Expression Evaluate(Expression expression, IQueryProvider queryProvider)
         {
