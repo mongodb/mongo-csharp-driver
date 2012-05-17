@@ -231,6 +231,20 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>
+        /// A query.
+        /// </returns>
+        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return _queryBuilder.Matches(serializationInfo.ElementName, regex);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element matches a regular expression (see $regex).
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="pattern">The pattern.</param>
         /// <returns>
         /// A query.

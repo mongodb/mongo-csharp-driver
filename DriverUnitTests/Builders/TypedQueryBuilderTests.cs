@@ -344,10 +344,34 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        public void TestMatches()
+        public void TestMatchesBsonRegularExpression()
+        {
+            var query = Query.Build<A>(qb => qb.Matches(a => a.S, new BsonRegularExpression("abc", "i")));
+            var expected = "{ \"s\" : /abc/i }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestMatchesPattern()
         {
             var query = Query.Build<A>(qb => qb.Matches(a => a.S, "abc"));
             var expected = "{ \"s\" : /abc/ }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestMatchesPatternOptions()
+        {
+            var query = Query.Build<A>(qb => qb.Matches(a => a.S, "abc", "i"));
+            var expected = "{ \"s\" : /abc/i }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestMatchesRegex()
+        {
+            var query = Query.Build<A>(qb => qb.Matches(a => a.S, new Regex("abc", RegexOptions.IgnoreCase)));
+            var expected = "{ \"s\" : /abc/i }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

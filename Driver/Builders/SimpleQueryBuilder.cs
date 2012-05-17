@@ -265,6 +265,28 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>
+        /// A query.
+        /// </returns>
+        public IMongoQuery Matches(string name, BsonRegularExpression regex)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
+
+            return new QueryDocument(name, regex);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element matches a regular expression (see $regex).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
         /// <param name="pattern">The pattern.</param>
         /// <returns>
         /// A query.
