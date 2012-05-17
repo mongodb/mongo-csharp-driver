@@ -1458,6 +1458,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Replaces the entire document with a new document (the _id must remain the same).
+        /// </summary>
+        /// <param name="document">The replacement document.</param>
+        /// <returns>An UpdateWrapper.</returns>
+        public static IMongoUpdate Replace(TDocument document)
+        {
+            if (document == null) { throw new ArgumentNullException("document"); }
+            return UpdateWrapper.Create<TDocument>(document);
+        }
+
+        /// <summary>
         /// Sets the value of the named element to a new value (see $set).
         /// </summary>
         /// <typeparam name="TMember">The type of the member.</typeparam>

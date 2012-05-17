@@ -31,6 +31,8 @@ namespace MongoDB.DriverUnitTests.Builders
     {
         private class Test
         {
+            public int Id = 0;
+
             [BsonElement("x")]
             public int X = 0;
 
@@ -413,6 +415,24 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.PushAllWrapped("name", _a, _b);
             var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestReplace()
+        {
+            var t = new Test { Id = 1, X = 2, Y = null, B = null };
+            var update = Update.Replace(t);
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"y\" : null, \"b\" : null }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestReplace_Typed()
+        {
+            var t = new Test { Id = 1, X = 2, Y = null, B = null };
+            var update = Update<Test>.Replace(t);
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"y\" : null, \"b\" : null }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
