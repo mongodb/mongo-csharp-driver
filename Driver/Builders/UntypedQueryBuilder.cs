@@ -23,7 +23,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Builders
 {
-    internal class SimpleQueryBuilder
+    internal class UntypedQueryBuilder
     {
         // public methods
         /// <summary>

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq
     {
         // private fields
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
-        private readonly SimpleQueryBuilder _queryBuilder;
+        private readonly UntypedQueryBuilder _queryBuilder;
 
         // constructors
         /// <summary>
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq
         public PredicateTranslator(BsonSerializationInfoHelper serializationHelper)
         {
             _serializationInfoHelper = serializationHelper;
-            _queryBuilder = new SimpleQueryBuilder();
+            _queryBuilder = new UntypedQueryBuilder();
         }
 
         // public methods
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
         {
             var queryDocument = new QueryDocument(BuildQuery(unaryExpression.Operand).ToBsonDocument());
-            return new SimpleQueryBuilder().Not(queryDocument);
+            return new UntypedQueryBuilder().Not(queryDocument);
         }
 
         private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)

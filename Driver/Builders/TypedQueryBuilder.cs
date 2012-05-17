@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Builders
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private readonly IBsonSerializer _rootSerializer;
         private readonly PredicateTranslator _predicateTranslator;
-        private readonly SimpleQueryBuilder _queryBuilder;
+        private readonly UntypedQueryBuilder _queryBuilder;
 
         // constructors
         /// <summary>
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Builders
             _serializationInfoHelper = serializationInfoHelper;
             _rootSerializer = rootSerializer;
             _predicateTranslator = new PredicateTranslator(_serializationInfoHelper);
-            _queryBuilder = new SimpleQueryBuilder();
+            _queryBuilder = new UntypedQueryBuilder();
         }
 
         // public methods
