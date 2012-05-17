@@ -325,7 +325,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullQuery_Typed()
         {
-            var update = Update<Test>.Pull(t => t.B, q => q.GT(b => b.C, 3));
+            var update = Update<Test>.Pull(t => t.B, eqb => eqb.GT(b => b.C, 3));
             var expected = "{ \"$pull\" : { \"b\" : { \"c\" : { \"$gt\" : 3 } } } }";
             Assert.AreEqual(expected, update.ToJson());
         }

@@ -103,16 +103,16 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="queryBuilder">The query to match elements with.</param>
+        /// <param name="elementQueryBuilderFunction">A function that builds a query using the supplied query builder.</param>
         /// <returns>
         /// An IMongoQuery.
         /// </returns>
-        public IMongoQuery ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> queryBuilder)
+        public IMongoQuery ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper, itemSerializationInfo.Serializer);
-            var elementQuery = queryBuilder(elementQueryBuilder);
+            var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             return _queryBuilder.ElemMatch(serializationInfo.ElementName, elementQuery);
         }
 

@@ -1406,13 +1406,13 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
-        /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
+        /// <param name="elementQueryBuilderFunction">A function that builds a query using the supplied query builder.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> queryBuilder)
+        public static UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
         {
-            return new UpdateBuilder<TDocument>().Pull(memberExpression, queryBuilder);
+            return new UpdateBuilder<TDocument>().Pull(memberExpression, elementQueryBuilderFunction);
         }
 
         /// <summary>
@@ -1794,25 +1794,25 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
-        /// <param name="queryBuilder">A query that specifies which elements to remove.</param>
+        /// <param name="elementQueryBuilderFunction">A function that builds a query using the supplied query builder.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> queryBuilder)
+        public UpdateBuilder<TDocument> Pull<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
-            if (queryBuilder == null)
+            if (elementQueryBuilderFunction == null)
             {
-                throw new ArgumentNullException("queryBuilder");
+                throw new ArgumentNullException("elementQueryBuilderFunction");
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo);
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper, itemSerializationInfo.Serializer);
-            var elementQuery = queryBuilder(elementQueryBuilder);
+            var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             _updateBuilder = _updateBuilder.Pull(serializationInfo.ElementName, elementQuery);
             return this;
         }

@@ -43,12 +43,12 @@ namespace MongoDB.Driver.Builders
         /// Builds a query using a strongly-typed query builder.
         /// </summary>
         /// <typeparam name="TDocument"></typeparam>
-        /// <param name="queryBuilder">The query.</param>
+        /// <param name="queryBuilderFunction">A function that builds a query using the supplied query builder.</param>
         /// <returns>an IMongoQuery.</returns>
-        public static IMongoQuery Build<TDocument>(Func<QueryBuilder<TDocument>, IMongoQuery> queryBuilder)
+        public static IMongoQuery Build<TDocument>(Func<QueryBuilder<TDocument>, IMongoQuery> queryBuilderFunction)
         {
-            var builder = new QueryBuilder<TDocument>();
-            return queryBuilder(builder);
+            var queryBuilder = new QueryBuilder<TDocument>();
+            return queryBuilderFunction(queryBuilder);
         }
 
         /// <summary>
