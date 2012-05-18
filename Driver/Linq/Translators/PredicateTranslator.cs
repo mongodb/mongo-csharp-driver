@@ -271,13 +271,33 @@ namespace MongoDB.Driver.Linq
             var value = constantExpression.Value;
 
             var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked) && unaryExpression.Operand.Type.IsEnum)
+            if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                var enumType = unaryExpression.Operand.Type;
-                if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
+                if (unaryExpression.Operand.Type.IsEnum)
                 {
-                    serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
-                    value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
+                    var enumType = unaryExpression.Operand.Type;
+                    if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
+                    {
+                        serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
+                        value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
+                    }
+                }
+                else if (
+                    unaryExpression.Type.IsGenericType &&
+                    unaryExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    unaryExpression.Operand.Type.IsGenericType &&
+                    unaryExpression.Operand.Type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    unaryExpression.Operand.Type.GetGenericArguments()[0].IsEnum)
+                {
+                    var enumType = unaryExpression.Operand.Type.GetGenericArguments()[0];
+                    if (unaryExpression.Type.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
+                    {
+                        serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
+                        if (value != null)
+                        {
+                            value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
+                        }
+                    }
                 }
             }
             else

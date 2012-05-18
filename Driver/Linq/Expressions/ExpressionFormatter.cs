@@ -129,6 +129,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ConstantExpression.</returns>
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            // need to check node.Type instead of value.GetType() because boxed Nullable<T> values are boxed as <T>
+            if (node.Type.IsGenericType && node.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                _sb.AppendFormat("({0})", FriendlyClassName(node.Type));
+            }
             VisitValue(node.Value);
             return node;
         }
@@ -380,7 +385,7 @@ namespace MongoDB.Driver.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.ArrayLength: break;
-                case ExpressionType.Convert: _sb.AppendFormat("({0})", node.Type.Name); break;
+                case ExpressionType.Convert: _sb.AppendFormat("({0})", FriendlyClassName(node.Type)); break;
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
                 case ExpressionType.Quote: break;
@@ -425,6 +430,12 @@ namespace MongoDB.Driver.Linq
 
         private void VisitValue(object value)
         {
+            if (value == null)
+            {
+                _sb.Append("null");
+                return;
+            }
+
             var a = value as Array;
             if (a != null && a.Rank == 1)
             {
