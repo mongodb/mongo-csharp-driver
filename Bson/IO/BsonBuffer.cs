@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reflection;
 
 namespace MongoDB.Bson.IO
 {
@@ -509,16 +510,40 @@ namespace MongoDB.Bson.IO
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var length = ReadInt32();
             EnsureDataAvailable(length);
+            --length;
             string value;
-            if (__chunkSize - _chunkOffset >= length - 1)
+            if (__chunkSize - _chunkOffset >= length)
             {
-                value = ParseString(_chunk, _chunkOffset, length - 1);
-                Position += length - 1;
+                switch (length)
+                {
+                    // special case empty strings
+                    case 0:
+                        value = string.Empty;
+                        break;
+
+                    // special case single character strings
+                    case 1:
+                        var c = _chunk[_chunkOffset];
+                        if (c >= 128)
+                        {
+                            // multiple bytes required
+                            throw new DecoderFallbackException("[" + c.ToString("X2") + "] is an invalid character");
+                        }
+                        value = __asciiStringTable[c];
+                        ++Position;
+                        break;
+
+                    default:
+                        value = __utf8Encoding.GetString(_chunk, _chunkOffset, length);
+                        Position += length;
+                        break;
+                }
             }
             else
             {
                 // straddles chunk boundary
-                value = __utf8Encoding.GetString(ReadBytes(length - 1));
+                var bytes = ReadBytes(length);
+                value = __utf8Encoding.GetString(bytes, 0, length);
             }
             byte terminator = ReadByte();
             if (terminator != 0)
@@ -546,12 +571,40 @@ namespace MongoDB.Bson.IO
                 partialCount = _length - _position; // populated part of last chunk
             }
 
-            string value;
-            var stringLength = TryParseCString(_chunk, _chunkOffset, partialCount, out value);
-            if (stringLength >= 0)
+            if (partialCount > 0)
             {
-                Position += stringLength + 1;
-                return value;
+                var c = _chunk[_chunkOffset];
+
+                // special case empty strings
+                if (c == 0)
+                {
+                    ++Position;
+                    return string.Empty;
+                }
+
+                if (partialCount > 1)
+                {
+                    // special case single character strings
+                    if (_chunk[_chunkOffset + 1] == 0)
+                    {
+                        if (c >= 128)
+                        {
+                            // multiple bytes required
+                            throw new DecoderFallbackException("[" + c.ToString("X2") + "] is an invalid character");
+                        }
+                        Position += 2;
+                        return __asciiStringTable[c];
+                    }
+
+                    var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset + 2, partialCount - 2);
+                    if (index >= 0)
+                    {
+                        var stringLength = index - _chunkOffset;
+                        var value = __utf8Encoding.GetString(_chunk, _chunkOffset, stringLength);
+                        Position += stringLength + 1;
+                        return value;
+                    }
+                }
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
@@ -572,8 +625,8 @@ namespace MongoDB.Bson.IO
                 if (index != -1)
                 {
                     localPosition += index;
-                    stringLength = localPosition - _position;
-                    value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                    var stringLength = localPosition - _position;
+                    var value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
                     Position += 1; // skip over null byte at end
                     return value;
                 }
@@ -910,104 +963,6 @@ namespace MongoDB.Bson.IO
             }
 
             return asciiStringTable;
-        }
-
-        private static string ParseString(byte[] buffer, int startIndex, int stringLength)
-        {
-            switch (stringLength)
-            {
-                // special case empty strings
-                case 0:
-                    return string.Empty;
-
-                // special case single character strings
-                case 1:
-                    var c = buffer[startIndex];
-                    if (c >= 128)
-                    {
-                        // multiple bytes required
-                        throw new DecoderFallbackException("[" + c.ToString("X2") + "] is an invalid character");
-                    }
-                    return __asciiStringTable[c];
-            }
-
-            return __utf8Encoding.GetString(buffer, startIndex, stringLength);
-        }
-
-        /// <returns>The number of bytes parsed excluding the null terminator; -1 otherwise.</returns>
-        private static int TryParseCString(byte[] buffer, int startIndex, int length, out string value)
-        {
-            if (length < 1)
-            {
-                value = null;
-                return -1;
-            }
-
-            // special case empty strings
-            var c1 = buffer[startIndex];
-            if (c1 == 0)
-            {
-                value = string.Empty;
-                return 0;
-            }
-
-            if (length < 2)
-            {
-                value = null;
-                return -1;
-            }
-
-            // special case single character strings
-            var c2 = buffer[startIndex + 1];
-            if (c2 == 0)
-            {
-                if (c1 >= 128)
-                {
-                    // multiple bytes required
-                    throw new DecoderFallbackException("[" + c1.ToString("X2") + "] is an invalid character");
-                }
-                value = __asciiStringTable[c1];
-                return 1;
-            }
-
-            if (length < 3)
-            {
-                value = null;
-                return -1;
-            }
-
-            var c3 = buffer[startIndex + 2];
-            if (c3 == 0)
-            {
-                value = __utf8Encoding.GetString(buffer, startIndex, 2);
-                return 2;
-            }
-
-            if (length < 4)
-            {
-                value = null;
-                return -1;
-            }
-
-            if (buffer[startIndex + 3] == 0)
-            {
-                // special case the _id string
-                // '_id'; 0x5f == '_', 0x69 == 'i', 0x64 == 'd'
-                value = ((c1 | c2 << 8 | c3 << 16) == 0x64695f) ?
-                    "_id" : __utf8Encoding.GetString(buffer, startIndex, 3);
-                return 3;
-            }
-
-            var index = Array.IndexOf<byte>(buffer, 0, startIndex + 4, length - 4);
-            if (index != -1)
-            {
-                var stringLength = index - startIndex;
-                value = __utf8Encoding.GetString(buffer, startIndex, stringLength);
-                return stringLength;
-            }
-
-            value = null;
-            return -1;
         }
 
         // private methods
