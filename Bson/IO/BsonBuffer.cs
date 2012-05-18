@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reflection;
 
 namespace MongoDB.Bson.IO
 {
@@ -31,6 +32,8 @@ namespace MongoDB.Bson.IO
         private static Stack<byte[]> __chunkPool = new Stack<byte[]>();
         private static int __maxChunkPoolSize = 64;
         private const int __chunkSize = 16 * 1024; // 16KiB
+        private static readonly string[] __asciiStringTable = BuildAsciiStringTable();
+        private static readonly UTF8Encoding __utf8Encoding = new UTF8Encoding(false, true); // throw on invalid bytes
         private static readonly bool[] __validBsonTypes = new bool[256];
 
         // private fields
@@ -506,17 +509,41 @@ namespace MongoDB.Bson.IO
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             var length = ReadInt32();
-            EnsureDataAvailable(length + 1);
+            EnsureDataAvailable(length);
+            --length;
             string value;
-            if (__chunkSize - _chunkOffset >= length - 1)
+            if (__chunkSize - _chunkOffset >= length)
             {
-                value = Encoding.UTF8.GetString(_chunk, _chunkOffset, length - 1);
-                Position += length - 1;
+                switch (length)
+                {
+                    // special case empty strings
+                    case 0:
+                        value = string.Empty;
+                        break;
+
+                    // special case single character strings
+                    case 1:
+                        var c = _chunk[_chunkOffset];
+                        if (c >= 128)
+                        {
+                            // multiple bytes required
+                            throw new DecoderFallbackException("[" + c.ToString("X2") + "] is an invalid character");
+                        }
+                        value = __asciiStringTable[c];
+                        ++Position;
+                        break;
+
+                    default:
+                        value = __utf8Encoding.GetString(_chunk, _chunkOffset, length);
+                        Position += length;
+                        break;
+                }
             }
             else
             {
                 // straddles chunk boundary
-                value = Encoding.UTF8.GetString(ReadBytes(length - 1));
+                var bytes = ReadBytes(length);
+                value = __utf8Encoding.GetString(bytes, 0, length);
             }
             byte terminator = ReadByte();
             if (terminator != 0)
@@ -543,13 +570,41 @@ namespace MongoDB.Bson.IO
             {
                 partialCount = _length - _position; // populated part of last chunk
             }
-            var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset, partialCount);
-            if (index != -1)
+
+            if (partialCount > 0)
             {
-                var stringLength = index - _chunkOffset;
-                var value = Encoding.UTF8.GetString(_chunk, _chunkOffset, stringLength);
-                Position += stringLength + 1;
-                return value;
+                var c = _chunk[_chunkOffset];
+
+                // special case empty strings
+                if (c == 0)
+                {
+                    ++Position;
+                    return string.Empty;
+                }
+
+                if (partialCount > 1)
+                {
+                    // special case single character strings
+                    if (_chunk[_chunkOffset + 1] == 0)
+                    {
+                        if (c >= 128)
+                        {
+                            // multiple bytes required
+                            throw new DecoderFallbackException("[" + c.ToString("X2") + "] is an invalid character");
+                        }
+                        Position += 2;
+                        return __asciiStringTable[c];
+                    }
+
+                    var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset + 2, partialCount - 2);
+                    if (index >= 0)
+                    {
+                        var stringLength = index - _chunkOffset;
+                        var value = __utf8Encoding.GetString(_chunk, _chunkOffset, stringLength);
+                        Position += stringLength + 1;
+                        return value;
+                    }
+                }
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
@@ -566,12 +621,12 @@ namespace MongoDB.Bson.IO
                 {
                     partialCount = _length - localPosition; // populated part of last chunk
                 }
-                index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
+                var index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
                 if (index != -1)
                 {
                     localPosition += index;
                     var stringLength = localPosition - _position;
-                    var value = Encoding.UTF8.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                    var value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
                     Position += 1; // skip over null byte at end
                     return value;
                 }
@@ -711,18 +766,18 @@ namespace MongoDB.Bson.IO
         public void WriteCString(string value)
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            int maxLength = Encoding.UTF8.GetMaxByteCount(value.Length) + 1;
+            int maxLength = __utf8Encoding.GetMaxByteCount(value.Length) + 1;
             EnsureSpaceAvailable(maxLength);
             if (__chunkSize - _chunkOffset >= maxLength)
             {
-                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, _chunk, _chunkOffset);
+                int length = __utf8Encoding.GetBytes(value, 0, value.Length, _chunk, _chunkOffset);
                 _chunk[_chunkOffset + length] = 0;
                 Position += length + 1;
             }
             else
             {
                 // straddles chunk boundary
-                byte[] bytes = Encoding.UTF8.GetBytes(value);
+                byte[] bytes = __utf8Encoding.GetBytes(value);
                 WriteBytes(bytes);
                 WriteByte(0);
             }
@@ -829,11 +884,11 @@ namespace MongoDB.Bson.IO
         public void WriteString(string value)
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
-            int maxLength = Encoding.UTF8.GetMaxByteCount(value.Length) + 5;
+            int maxLength = __utf8Encoding.GetMaxByteCount(value.Length) + 5;
             EnsureSpaceAvailable(maxLength);
             if (__chunkSize - _chunkOffset >= maxLength)
             {
-                int length = Encoding.UTF8.GetBytes(value, 0, value.Length, _chunk, _chunkOffset + 4); // write string first
+                int length = __utf8Encoding.GetBytes(value, 0, value.Length, _chunk, _chunkOffset + 4); // write string first
                 int lengthPlusOne = length + 1;
                 _chunk[_chunkOffset + 0] = (byte)(lengthPlusOne); // now we know the length
                 _chunk[_chunkOffset + 1] = (byte)(lengthPlusOne >> 8);
@@ -845,7 +900,7 @@ namespace MongoDB.Bson.IO
             else
             {
                 // straddles chunk boundary
-                byte[] bytes = Encoding.UTF8.GetBytes(value);
+                byte[] bytes = __utf8Encoding.GetBytes(value);
                 WriteInt32(bytes.Length + 1);
                 WriteBytes(bytes);
                 WriteByte(0);
@@ -895,6 +950,19 @@ namespace MongoDB.Bson.IO
             {
                 WriteBytes(BitConverter.GetBytes((int)0)); // straddles chunk boundary
             }
+        }
+
+        // private static methods
+        private static string[] BuildAsciiStringTable()
+        {
+            var asciiStringTable = new string[128];
+
+            for (int i = 0; i < 128; ++i)
+            {
+                asciiStringTable[i] = new string((char)i, 1);
+            }
+
+            return asciiStringTable;
         }
 
         // private methods
