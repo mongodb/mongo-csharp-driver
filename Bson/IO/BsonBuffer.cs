@@ -543,10 +543,10 @@ namespace MongoDB.Bson.IO
 
                     // special case single character strings
                     case 2:
-                        var c = _chunk[_chunkOffset];
-                        if (c < 127)
+                        var c1 = _chunk[_chunkOffset];
+                        if (c1 < 128)
                         {
-                            value = __asciiStringTable[c];
+                            value = __asciiStringTable[c1];
                         }
                         else
                         {
@@ -609,7 +609,7 @@ namespace MongoDB.Bson.IO
                     if (_chunk[_chunkOffset + 1] == 0)
                     {
                         string value;
-                        if (c1 < 127)
+                        if (c1 < 128)
                         {
                             value = __asciiStringTable[c1];
                         }
