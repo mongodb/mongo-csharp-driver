@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Linq\MongoQueryableTests.vb" />
     <Compile Include="Linq\MongoQueryProviderTests.vb" />
+    <Compile Include="Linq\SelectNullableTests.vb" />
     <Compile Include="Linq\SelectOfTypeHierarchicalTests.vb" />
     <Compile Include="Linq\SelectOfTypeTests.vb" />
     <Compile Include="Linq\SelectQueryTests.vb" />

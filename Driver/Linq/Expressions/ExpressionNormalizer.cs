@@ -82,6 +82,26 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
+            //VB creates coalescing operations when dealing with nullable value comparisons, so we try and make this look like C#\
+            if (node.NodeType == ExpressionType.Coalesce)
+            {
+                var right = node.Right as ConstantExpression;
+                if (node.Left.NodeType == ExpressionType.Equal
+                    && node.Left.Type.IsGenericType 
+                    && node.Left.Type.GetGenericTypeDefinition() == typeof(Nullable<>) 
+                    && right != null 
+                    && (bool)right.Value == false)
+                {
+                    node = (BinaryExpression)node.Left;
+                    return Expression.MakeBinary(
+                        ExpressionType.Equal,
+                        Visit(node.Left),
+                        Visit(node.Right),
+                        false,
+                        null);
+                }
+            }
+
             if (result != null)
             {
                 return result;
