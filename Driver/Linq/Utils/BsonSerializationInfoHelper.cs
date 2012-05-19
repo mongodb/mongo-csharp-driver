@@ -69,11 +69,7 @@ namespace MongoDB.Driver.Linq.Utils
                     _serializerCache[parameterExpression] = serializer;
                 }
 
-                return new BsonSerializationInfo(
-                    null, // elementName
-                    serializer,
-                    parameterExpression.Type, // nominalType
-                    null); // serialization options
+                return GetSerializationInfo(serializer, expression);
             }
 
             parameterExpression = ExpressionParameterFinder.FindParameter(expression);
@@ -170,11 +166,24 @@ namespace MongoDB.Driver.Linq.Utils
 
         private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, Expression expression)
         {
-            // when looking to get a member's serialization info, we will ignore a top-level return conversion because 
-            // it is inconsequential
+            var parameterExpression = expression as ParameterExpression;
+            if (parameterExpression != null)
+            {
+                return new BsonSerializationInfo(
+                    null,
+                    serializer,
+                    parameterExpression.Type,
+                    null);
+            }
+
             if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
             {
-                return GetSerializationInfo(serializer, ((UnaryExpression)expression).Operand);
+                var conversionSerializer = serializer;
+
+                //if the operand can be assigned from the expression, than we are upcasting and need to get the more specific serializer
+                if (((UnaryExpression)expression).Operand.Type.IsAssignableFrom(expression.Type))
+                    conversionSerializer = BsonSerializer.LookupSerializer(expression.Type);
+                return GetSerializationInfo(conversionSerializer, ((UnaryExpression)expression).Operand);
             }
 
             var memberExpression = expression as MemberExpression;
@@ -316,8 +325,11 @@ namespace MongoDB.Driver.Linq.Utils
                 if (memberSerializationInfoProvider != null)
                 {
                     var memberSerializationInfo = memberSerializationInfoProvider.GetMemberSerializationInfo(memberName);
+                    var elementName = memberSerializationInfo.ElementName;
+                    if (!string.IsNullOrEmpty(containingSerializationInfo.ElementName))
+                        elementName = containingSerializationInfo.ElementName + "." + elementName;
                     return new BsonSerializationInfo(
-                        containingSerializationInfo.ElementName + "." + memberSerializationInfo.ElementName,
+                        elementName,
                         memberSerializationInfo.Serializer,
                         memberSerializationInfo.NominalType,
                         memberSerializationInfo.SerializationOptions);
