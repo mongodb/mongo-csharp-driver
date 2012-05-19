@@ -195,6 +195,11 @@ namespace MongoDB.Driver.Linq.Utils
                 return GetSerializationInfoGetItem(serializer, methodCallExpression);
             }
 
+            if (methodCallExpression != null && methodCallExpression.Method.Name == "ElementAt")
+            {
+                return GetSerializationInfoElementAt(serializer, methodCallExpression);
+            }
+
             return null;
         }
 
@@ -247,6 +252,31 @@ namespace MongoDB.Driver.Linq.Utils
                     var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
                     if (itemSerializationInfoProvider != null)
                     {
+                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+                        return new BsonSerializationInfo(
+                            arraySerializationInfo.ElementName + "." + index.ToString(),
+                            itemSerializationInfo.Serializer,
+                            itemSerializationInfo.NominalType,
+                            itemSerializationInfo.SerializationOptions);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private BsonSerializationInfo GetSerializationInfoElementAt(IBsonSerializer serializer, MethodCallExpression methodCallExpression)
+        {
+            var declaringType = methodCallExpression.Method.DeclaringType;
+            if (declaringType == typeof(Enumerable) || declaringType == typeof(Queryable))
+            {
+                var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Arguments[0]);
+                if (arraySerializationInfo != null)
+                {
+                    var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
+                    if (itemSerializationInfoProvider != null)
+                    {
+                        var index = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                         var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
                         return new BsonSerializationInfo(
                             arraySerializationInfo.ElementName + "." + index.ToString(),
