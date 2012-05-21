@@ -26,67 +26,23 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Utils
 {
-    /// <summary>
-    /// Provides serialization info based on an expression.
-    /// </summary>
     internal class BsonSerializationInfoHelper
     {
-        // private fields
-        private readonly Dictionary<Expression, IBsonSerializer> _serializerCache;
+        private readonly Dictionary<Expression, BsonSerializationInfo> _serializationInfoCache;
 
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BsonSerializationInfoHelper"/> class.
-        /// </summary>
         public BsonSerializationInfoHelper()
         {
-            _serializerCache = new Dictionary<Expression, IBsonSerializer>();
+            _serializationInfoCache = new Dictionary<Expression, BsonSerializationInfo>();
         }
 
-        // public methods
         /// <summary>
-        /// Gets the serialization info for an expression if it exists.
+        /// Gets the serialization info for the given expression.
         /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>
-        /// The serialization info or null if it does not exist.
-        /// </returns>
-        public BsonSerializationInfo GetSerializationInfo(Expression expression)
+        /// <param name="node">The expression.</param>
+        /// <returns></returns>
+        public BsonSerializationInfo GetSerializationInfo(Expression node)
         {
-            var lambdaExpression = expression as LambdaExpression;
-            if (lambdaExpression != null)
-            {
-                return GetSerializationInfo(lambdaExpression.Body);
-            }
-
-            var parameterExpression = expression as ParameterExpression;
-            if (parameterExpression != null)
-            {
-                IBsonSerializer serializer;
-                if (!_serializerCache.TryGetValue(parameterExpression, out serializer))
-                {
-                    serializer = BsonSerializer.LookupSerializer(parameterExpression.Type);
-                    _serializerCache[parameterExpression] = serializer;
-                }
-
-                return GetSerializationInfo(serializer, expression);
-            }
-
-            parameterExpression = ExpressionParameterFinder.FindParameter(expression);
-            if (parameterExpression != null)
-            {
-                var parameterSerializationInfo = GetSerializationInfo(parameterExpression);
-                var expressionSerializationInfo = GetSerializationInfo(parameterSerializationInfo.Serializer, expression);
-                if (expressionSerializationInfo != null)
-                {
-                    _serializerCache[expression] = expressionSerializationInfo.Serializer;
-                    return expressionSerializationInfo;
-                }
-            }
-
-            string message = string.Format("Unable to determine the serialization information for the expression: {0}.",
-                ExpressionFormatter.ToString(expression));
-            throw new NotSupportedException(message);
+            return BsonSerializationInfoFinder.GetSerializationInfo(node, _serializationInfoCache);
         }
 
         /// <summary>
@@ -118,11 +74,15 @@ namespace MongoDB.Driver.Linq.Utils
         /// <summary>
         /// Registers a serializer with the given expression.
         /// </summary>
-        /// <param name="expression">The expression.</param>
+        /// <param name="node">The expression.</param>
         /// <param name="serializer">The serializer.</param>
-        public void RegisterExpressionSerializer(Expression expression, IBsonSerializer serializer)
+        public void RegisterExpressionSerializer(Expression node, IBsonSerializer serializer)
         {
-            _serializerCache[expression] = serializer;
+            _serializationInfoCache[node] = new BsonSerializationInfo(
+                null,
+                serializer,
+                node.Type,
+                serializer.GetDefaultSerializationOptions());
         }
 
         /// <summary>
@@ -162,184 +122,6 @@ namespace MongoDB.Driver.Linq.Utils
             bsonWriter.WriteEndArray();
             bsonWriter.WriteEndDocument();
             return bsonDocument[0].AsBsonArray;
-        }
-
-        private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, Expression expression)
-        {
-            var parameterExpression = expression as ParameterExpression;
-            if (parameterExpression != null)
-            {
-                return new BsonSerializationInfo(
-                    null,
-                    serializer,
-                    parameterExpression.Type,
-                    null);
-            }
-
-            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.ConvertChecked)
-            {
-                var conversionSerializer = serializer;
-
-                //if the operand can be assigned from the expression, than we are upcasting and need to get the more specific serializer
-                if (((UnaryExpression)expression).Operand.Type.IsAssignableFrom(expression.Type))
-                    conversionSerializer = BsonSerializer.LookupSerializer(expression.Type);
-                return GetSerializationInfo(conversionSerializer, ((UnaryExpression)expression).Operand);
-            }
-
-            var memberExpression = expression as MemberExpression;
-            if (memberExpression != null)
-            {
-                return GetSerializationInfoMember(serializer, memberExpression);
-            }
-
-            var binaryExpression = expression as BinaryExpression;
-            if (binaryExpression != null && binaryExpression.NodeType == ExpressionType.ArrayIndex)
-            {
-                return GetSerializationInfoArrayIndex(serializer, binaryExpression);
-            }
-
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "get_Item")
-            {
-                return GetSerializationInfoGetItem(serializer, methodCallExpression);
-            }
-
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "ElementAt")
-            {
-                return GetSerializationInfoElementAt(serializer, methodCallExpression);
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoArrayIndex(IBsonSerializer serializer, BinaryExpression binaryExpression)
-        {
-            var arraySerializationInfo = GetSerializationInfo(serializer, binaryExpression.Left);
-            if (arraySerializationInfo != null)
-            {
-                var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                if (itemSerializationInfoProvider == null)
-                {
-                    var message = string.Format(
-                        "Queries using an array index cannot be run against a member whose serializer does not implement {0}. The current serializer is {1}.",
-                        BsonUtils.GetFriendlyTypeName(typeof(IBsonItemSerializationInfoProvider)),
-                        BsonUtils.GetFriendlyTypeName(arraySerializationInfo.Serializer.GetType()));
-                    throw new NotSupportedException(message);
-                }
-
-                var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
-                var indexEpression = binaryExpression.Right as ConstantExpression;
-                if (indexEpression != null)
-                {
-                    var index = Convert.ToInt32(indexEpression.Value);
-                    return new BsonSerializationInfo(
-                        arraySerializationInfo.ElementName + "." + index.ToString(),
-                        itemSerializationInfo.Serializer,
-                        itemSerializationInfo.NominalType,
-                        itemSerializationInfo.SerializationOptions);
-                }
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoGetItem(IBsonSerializer serializer, MethodCallExpression methodCallExpression)
-        {
-            var arguments = methodCallExpression.Arguments.ToArray();
-            if (arguments.Length == 1)
-            {
-                var indexEpression = arguments[0] as ConstantExpression;
-                if (indexEpression == null)
-                {
-                    return null;
-                }
-                var index = Convert.ToInt32(indexEpression.Value);
-
-                var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Object);
-                if (arraySerializationInfo != null)
-                {
-                    var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                    if (itemSerializationInfoProvider != null)
-                    {
-                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
-                        return new BsonSerializationInfo(
-                            arraySerializationInfo.ElementName + "." + index.ToString(),
-                            itemSerializationInfo.Serializer,
-                            itemSerializationInfo.NominalType,
-                            itemSerializationInfo.SerializationOptions);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoElementAt(IBsonSerializer serializer, MethodCallExpression methodCallExpression)
-        {
-            var declaringType = methodCallExpression.Method.DeclaringType;
-            if (declaringType == typeof(Enumerable) || declaringType == typeof(Queryable))
-            {
-                var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Arguments[0]);
-                if (arraySerializationInfo != null)
-                {
-                    var itemSerializationInfoProvider = arraySerializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-                    if (itemSerializationInfoProvider != null)
-                    {
-                        var index = (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
-                        var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
-                        return new BsonSerializationInfo(
-                            arraySerializationInfo.ElementName + "." + index.ToString(),
-                            itemSerializationInfo.Serializer,
-                            itemSerializationInfo.NominalType,
-                            itemSerializationInfo.SerializationOptions);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoMember(IBsonSerializer serializer, MemberExpression memberExpression)
-        {
-            var declaringType = memberExpression.Expression.Type;
-            var memberName = memberExpression.Member.Name;
-
-            var containingExpression = memberExpression.Expression;
-            if (containingExpression.NodeType == ExpressionType.Parameter)
-            {
-                var memberSerializationInfoProvider = serializer as IBsonMemberSerializationInfoProvider;
-                if (memberSerializationInfoProvider != null)
-                {
-                    return memberSerializationInfoProvider.GetMemberSerializationInfo(memberName);
-                }
-                else
-                {
-                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
-                    throw new NotSupportedException(message);
-                }
-            }
-            else
-            {
-                var containingSerializationInfo = GetSerializationInfo(serializer, containingExpression);
-                var memberSerializationInfoProvider = containingSerializationInfo.Serializer as IBsonMemberSerializationInfoProvider;
-                if (memberSerializationInfoProvider != null)
-                {
-                    var memberSerializationInfo = memberSerializationInfoProvider.GetMemberSerializationInfo(memberName);
-                    var elementName = memberSerializationInfo.ElementName;
-                    if (!string.IsNullOrEmpty(containingSerializationInfo.ElementName))
-                        elementName = containingSerializationInfo.ElementName + "." + elementName;
-                    return new BsonSerializationInfo(
-                        elementName,
-                        memberSerializationInfo.Serializer,
-                        memberSerializationInfo.NominalType,
-                        memberSerializationInfo.SerializationOptions);
-                }
-                else
-                {
-                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
-                    throw new NotSupportedException(message);
-                }
-            }
         }
     }
 }

@@ -64,6 +64,18 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
             public int Primitive { get; set; }
         }
 
+        private class Test4 : Test3
+        {
+            [BsonElement("pe")]
+            public List<int> PrimitiveEnumerable { get; set; }
+        }
+
+        private class Test5 : Test
+        {
+            [BsonElement("s")]
+            public string String { get; set; }
+        }
+
         [Test]
         public void TestPrimitiveMember()
         {
@@ -166,6 +178,22 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
             var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable.ElementAt(0).Primitive, 1));
 
             Assert.AreEqual("{ \"ce.0.p\" : 1 }", query.ToString());
+        }
+
+        [Test]
+        public void TestRootConversion()
+        {
+            var query = Query.Build<Test>(qb => qb.EQ(t => ((Test5)t).String, "f"));
+
+            Assert.AreEqual("{ \"s\" : \"f\" }", query.ToString());
+        }
+
+        [Test]
+        public void TestNestedConversion()
+        {
+            var query = Query.Build<Test>(qb => qb.EQ(t => ((Test4)t.Complex.Complex).PrimitiveEnumerable, null));
+            
+            Assert.AreEqual("{ \"c.c.pe\" : null }", query.ToString());
         }
 
 
