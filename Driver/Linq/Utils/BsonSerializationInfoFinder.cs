@@ -31,8 +31,19 @@ namespace MongoDB.Driver.Linq.Utils
     /// </summary>
     internal class BsonSerializationInfoFinder : ExpressionVisitor<BsonSerializationInfo>
     {
+        // private fields
         private Dictionary<Expression, BsonSerializationInfo> _serializationInfoCache;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonSerializationInfoFinder class.
+        /// </summary>
+        private BsonSerializationInfoFinder(Dictionary<Expression, BsonSerializationInfo> serializationInfoCache)
+        {
+            _serializationInfoCache = serializationInfoCache ?? new Dictionary<Expression, BsonSerializationInfo>();
+        }
+
+        // public static methods
         /// <summary>
         /// Gets the serialization info for the node utilizing precalculated serialization information.
         /// </summary>
@@ -41,8 +52,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>BsonSerializationInfo for the expression.</returns>
         public static BsonSerializationInfo GetSerializationInfo(Expression node, Dictionary<Expression, BsonSerializationInfo> serializationInfoCache)
         {
-            var finder = new BsonSerializationInfoFinder();
-            finder._serializationInfoCache = serializationInfoCache ?? new Dictionary<Expression, BsonSerializationInfo>();
+            var finder = new BsonSerializationInfoFinder(serializationInfoCache);
             var serializationInfo = finder.Visit(node);
             if (serializationInfo == null)
             {
@@ -54,19 +64,12 @@ namespace MongoDB.Driver.Linq.Utils
             return serializationInfo;
         }
 
-        /// <summary>
-        /// Prevents a default instance of the <see cref="BsonSerializationInfoFinder"/> class from being created.
-        /// </summary>
-        private BsonSerializationInfoFinder()
-        { }
-
+        // protected methods
         /// <summary>
         /// Visits an Expression.
         /// </summary>
         /// <param name="node">The Expression.</param>
-        /// <returns>
-        /// The Expression (posibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo Visit(Expression node)
         {
             BsonSerializationInfo serializationInfo;
@@ -78,13 +81,12 @@ namespace MongoDB.Driver.Linq.Utils
             return base.Visit(node);
         }
 
+        // protected methods
         /// <summary>
         /// Visits a BinaryExpression.
         /// </summary>
         /// <param name="node">The BinaryExpression.</param>
-        /// <returns>
-        /// The BinaryExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitBinary(BinaryExpression node)
         {
             if (node.NodeType != ExpressionType.ArrayIndex)
@@ -92,13 +94,13 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var serializationinfo = Visit(node.Left);
-            if (serializationinfo == null)
+            var serializationInfo = Visit(node.Left);
+            if (serializationInfo == null)
             {
                 return null;
             }
 
-            var itemSerializationInfoProvider = serializationinfo.Serializer as IBsonItemSerializationInfoProvider;
+            var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
             if (itemSerializationInfoProvider == null)
             {
                 return null;
@@ -109,8 +111,8 @@ namespace MongoDB.Driver.Linq.Utils
             {
                 return null;
             }
-
             var index = Convert.ToInt32(indexEpression.Value);
+
             var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
@@ -118,16 +120,14 @@ namespace MongoDB.Driver.Linq.Utils
                 itemSerializationInfo.NominalType,
                 itemSerializationInfo.SerializationOptions);
 
-            return CombineSerializationInfo(serializationinfo, itemSerializationInfo);
+            return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
 
         /// <summary>
         /// Visits a LambdaExpression.
         /// </summary>
         /// <param name="node">The LambdaExpression.</param>
-        /// <returns>
-        /// The LambdaExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitLambda(LambdaExpression node)
         {
             return Visit(node.Body);
@@ -137,9 +137,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// Visits a MemberExpression.
         /// </summary>
         /// <param name="node">The MemberExpression.</param>
-        /// <returns>
-        /// The MemberExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitMember(MemberExpression node)
         {
             var serializationInfo = Visit(node.Expression);
@@ -162,9 +160,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// Visits a MethodCallExpression.
         /// </summary>
         /// <param name="node">The MethodCallExpression.</param>
-        /// <returns>
-        /// The MethodCallExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitMethodCall(MethodCallExpression node)
         {
             switch (node.Method.Name)
@@ -182,18 +178,12 @@ namespace MongoDB.Driver.Linq.Utils
         /// Visits a ParameterExpression.
         /// </summary>
         /// <param name="node">The ParameterExpression.</param>
-        /// <returns>
-        /// The ParameterExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitParameter(ParameterExpression node)
         {
-            BsonSerializationInfo serializationInfo;
-            if (!_serializationInfoCache.TryGetValue(node, out serializationInfo))
-            {
-                var serializer = BsonSerializer.LookupSerializer(node.Type);
-                _serializationInfoCache[node] = serializationInfo = CreateSerializationInfo(node, serializer);
-            }
-
+            var serializer = BsonSerializer.LookupSerializer(node.Type);
+            var serializationInfo = CreateSerializationInfo(node, serializer);
+            _serializationInfoCache.Add(node, serializationInfo);
             return serializationInfo;
         }
 
@@ -201,9 +191,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// Visits a UnaryExpression.
         /// </summary>
         /// <param name="node">The UnaryExpression.</param>
-        /// <returns>
-        /// The UnaryExpression (possibly modified).
-        /// </returns>
+        /// <returns>BsonSerializationInfo for the expression.</returns>
         protected override BsonSerializationInfo VisitUnary(UnaryExpression node)
         {
             if (node.NodeType != ExpressionType.Convert && node.NodeType != ExpressionType.ConvertChecked)
@@ -217,7 +205,7 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            // if the target conversion type cannot be assigned from the operand, than we are upcasting and need to get the more specific serializer.
+            // if the target conversion type cannot be assigned from the operand, than we are downcasting and we need to get the more specific serializer
             if (!node.Type.IsAssignableFrom(node.Operand.Type))
             {
                 var conversionSerializer = BsonSerializer.LookupSerializer(node.Type);
@@ -228,6 +216,7 @@ namespace MongoDB.Driver.Linq.Utils
             return serializationInfo;
         }
 
+        // private methods
         private BsonSerializationInfo VisitGetItem(MethodCallExpression node)
         {
             var arguments = node.Arguments.ToArray();
@@ -241,6 +230,7 @@ namespace MongoDB.Driver.Linq.Utils
             {
                 return null;
             }
+            var index = Convert.ToInt32(indexExpression.Value);
 
             var serializationInfo = Visit(node.Object);
             if (serializationInfo == null)
@@ -254,7 +244,6 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var index = Convert.ToInt32(indexExpression.Value);
             var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),

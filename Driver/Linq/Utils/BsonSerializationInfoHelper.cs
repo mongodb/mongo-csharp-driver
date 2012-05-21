@@ -28,13 +28,16 @@ namespace MongoDB.Driver.Linq.Utils
 {
     internal class BsonSerializationInfoHelper
     {
+        // private fields
         private readonly Dictionary<Expression, BsonSerializationInfo> _serializationInfoCache;
 
+        // constructors
         public BsonSerializationInfoHelper()
         {
             _serializationInfoCache = new Dictionary<Expression, BsonSerializationInfo>();
         }
 
+        // public methods
         /// <summary>
         /// Gets the serialization info for the given expression.
         /// </summary>
