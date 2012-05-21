@@ -184,10 +184,11 @@
     <Compile Include="Internal\MongoReplyMessage.cs" />
     <Compile Include="Internal\MongoUpdateMessage.cs" />
     <Compile Include="Internal\ReplicaSetConnector.cs" />
+    <Compile Include="Linq\Expressions\ExpressionVisitorGeneric.cs" />
+    <Compile Include="Linq\Utils\BsonSerializationInfoFinder.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelper.cs" />
     <Compile Include="Linq\Expressions\ExpressionNormalizer.cs" />
     <Compile Include="Linq\Expressions\ExpressionFormatter.cs" />
-    <Compile Include="Linq\Expressions\ExpressionParameterFinder.cs" />
     <Compile Include="Linq\Expressions\ExpressionParameterReplacer.cs" />
     <Compile Include="Linq\LinqToMongo.cs" />
     <Compile Include="Linq\Translators\DeserializationProjector.cs" />
