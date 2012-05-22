@@ -286,16 +286,16 @@ namespace MongoDB.Driver.Linq.Utils
 
         private static BsonSerializationInfo CombineSerializationInfo(BsonSerializationInfo baseInfo, BsonSerializationInfo newInfo)
         {
-            string elementName = string.Empty;
-            if (!string.IsNullOrEmpty(baseInfo.ElementName) && !string.IsNullOrEmpty(newInfo.ElementName))
+            string elementName = null;
+            if (baseInfo.ElementName != null && newInfo.ElementName != null)
             {
                 elementName = baseInfo.ElementName + "." + newInfo.ElementName;
             }
-            else if (!string.IsNullOrEmpty(baseInfo.ElementName))
+            else if (baseInfo.ElementName != null)
             {
                 elementName = baseInfo.ElementName;
             }
-            else if (!string.IsNullOrEmpty(newInfo.ElementName))
+            else if (newInfo.ElementName != null)
             {
                 elementName = newInfo.ElementName;
             }
