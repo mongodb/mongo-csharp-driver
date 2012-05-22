@@ -463,6 +463,11 @@ namespace MongoDB.Driver.Linq
                     return null;
                 }
 
+                if (variableExpression.Type == typeof(Type) && constantExpression.Type == typeof(Type))
+                {
+                    return BuildTypeComparisonQuery(variableExpression, ExpressionType.Equal, constantExpression);
+                }
+
                 return BuildComparisonQuery(variableExpression, ExpressionType.Equal, constantExpression);
             }
 
@@ -1135,13 +1140,13 @@ namespace MongoDB.Driver.Linq
                 return "\\s*";
             }
 
-            var constantExpresion = trimCharsExpression as ConstantExpression;
-            if (constantExpresion == null || constantExpresion.Type != typeof(char[]))
+            var constantExpression = trimCharsExpression as ConstantExpression;
+            if (constantExpression == null || !constantExpression.Type.IsArray || constantExpression.Type.GetElementType() != typeof(char))
             {
                 return null;
             }
 
-            var trimChars = (char[])constantExpresion.Value;
+            var trimChars = (char[])constantExpression.Value;
             if (trimChars.Length == 0)
             {
                 return "\\s*";

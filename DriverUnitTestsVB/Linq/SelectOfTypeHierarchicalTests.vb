@@ -254,7 +254,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         Public Sub TestWhereBTypeEqualsB()
             If _server.BuildInfo.Version >= New Version(2, 0) Then
                 Dim query = From b In _collection.AsQueryable(Of B)()
-                            Where b.GetType() = GetType(B)
+                            Where b.GetType().Equals(GetType(B))
                             Select b
 
                 Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -263,7 +263,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                 Assert.AreSame(GetType(B), translatedQuery.DocumentType)
 
                 Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-                Assert.AreEqual("(B b) => (b.GetType() == typeof(B))", ExpressionFormatter.ToString(selectQuery.Where))
+                Assert.AreEqual("(B b) => b.GetType().Equals(typeof(B))", ExpressionFormatter.ToString(selectQuery.Where))
                 Assert.AreEqual(Nothing, selectQuery.OfType)
                 ' OfType ignored because <T> was the same as <TDocument>
                 Assert.IsNull(selectQuery.OrderBy)
@@ -279,7 +279,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereBTypeEqualsC()
             Dim query = From b In _collection.AsQueryable(Of B)()
-                        Where b.GetType() = GetType(C)
+                        Where b.GetType().Equals(GetType(C))
                         Select b
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -288,7 +288,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(B), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(B b) => (b.GetType() == typeof(C))", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.AreEqual("(B b) => b.GetType().Equals(typeof(C))", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.AreEqual(Nothing, selectQuery.OfType)
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
@@ -302,7 +302,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereBTypeEqualsD()
             Dim query = From b In _collection.AsQueryable(Of B)()
-                        Where b.GetType() = GetType(D)
+                        Where b.GetType().Equals(GetType(D))
                         Select b
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -311,7 +311,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(B), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(B b) => (b.GetType() == typeof(D))", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.AreEqual("(B b) => b.GetType().Equals(typeof(D))", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.AreEqual(Nothing, selectQuery.OfType)
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)

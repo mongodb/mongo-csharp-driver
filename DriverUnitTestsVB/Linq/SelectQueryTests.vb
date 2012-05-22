@@ -91,7 +91,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Public Z As Integer
             ' use field instead of property to test fields also
             Public Overrides Function Equals(ByVal obj As Object) As Boolean
-                If obj Is Nothing OrElse [GetType]() <> obj.[GetType]() Then
+                If obj Is Nothing OrElse Not obj.GetType().Equals(GetType(D)) Then
                     Return False
                 End If
                 Return Z = DirectCast(obj, D).Z
