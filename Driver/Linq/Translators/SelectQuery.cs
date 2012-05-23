@@ -173,8 +173,10 @@ namespace MongoDB.Driver.Linq
                 }
                 else
                 {
-                    // TODO: handle projection after OfType
-                    throw new NotSupportedException();
+                    var paramExpression = Expression.Parameter(DocumentType, "x");
+                    var convertExpression = Expression.Convert(paramExpression, _ofType);
+                    var body = ExpressionParameterReplacer.ReplaceParameter(projection.Body, projection.Parameters[0], convertExpression);
+                    projection = Expression.Lambda(body, paramExpression);
                 }
             }
 

@@ -152,6 +152,29 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestOfTypeDWithProjection()
+        {
+            var query = _collection.AsQueryable<B>().OfType<D>().Select(x => new { A = x.d });
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(B), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(B x) => LinqToMongo.Inject({ \"_t\" : \"D\" })", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.AreEqual(typeof(D), selectQuery.OfType);
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNotNull(selectQuery.Projection);
+            Assert.AreEqual("(D x) => new <>f__AnonymousType1`1(x.d)", ExpressionFormatter.ToString(selectQuery.Projection));
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_t\" : \"D\" }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
         public void TestWhereBGreaterThan0OfTypeCWhereCGreaterThan0()
         {
             var query = _collection.AsQueryable<B>().Where(b => b.b > 0).OfType<C>().Where(c => c.c > 0);
