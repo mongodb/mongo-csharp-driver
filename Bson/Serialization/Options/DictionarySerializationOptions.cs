@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Options
 
         // private fields
         private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
-        private IBsonSerializationOptions _valueSerializationOptions;
+        private KeyValuePairSerializationOptions _keyValuePairSerializationOptions;
 
         // constructors
         /// <summary>
@@ -66,6 +66,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// </summary>
         public DictionarySerializationOptions()
         {
+            _keyValuePairSerializationOptions = (KeyValuePairSerializationOptions)KeyValuePairSerializationOptions.Defaults.Clone();
         }
 
         /// <summary>
@@ -75,17 +76,22 @@ namespace MongoDB.Bson.Serialization.Options
         public DictionarySerializationOptions(DictionaryRepresentation representation)
         {
             _representation = representation;
+            _keyValuePairSerializationOptions = (KeyValuePairSerializationOptions)KeyValuePairSerializationOptions.Defaults.Clone();
         }
 
         /// <summary>
         /// Initializes a new instance of the DictionarySerializationOptions class.
         /// </summary>
         /// <param name="representation">The representation to use for a Dictionary.</param>
-        /// <param name="valueSerializationOptions">The serialization options for the values in the dictionary.</param>
-        public DictionarySerializationOptions(DictionaryRepresentation representation, IBsonSerializationOptions valueSerializationOptions)
+        /// <param name="keyValuePairSerializationOptions">The serialization options for the key/value pairs in the dictionary.</param>
+        public DictionarySerializationOptions(DictionaryRepresentation representation, KeyValuePairSerializationOptions keyValuePairSerializationOptions)
         {
+            if (keyValuePairSerializationOptions == null)
+            {
+                throw new ArgumentNullException("keyValuePairSerializationOptions");
+            }
             _representation = representation;
-            _valueSerializationOptions = valueSerializationOptions;
+            _keyValuePairSerializationOptions = keyValuePairSerializationOptions;
         }
 
         // public static properties
@@ -111,7 +117,13 @@ namespace MongoDB.Bson.Serialization.Options
         public static DictionarySerializationOptions Defaults
         {
             get { return __defaults; }
-            set { __defaults = value; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                __defaults = value;
+            }
         }
 
         /// <summary>
@@ -134,11 +146,20 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// Gets or sets the serialization options for the values in the dictionary.
         /// </summary>
-        [Obsolete("Use ValueSerializationOptions instead.")]
+        [Obsolete("Use KeyValuePairSerializationOptions instead.")]
         public IBsonSerializationOptions ItemSerializationOptions
         {
-            get { return ValueSerializationOptions; }
-            set { ValueSerializationOptions = value; }
+            get { return _keyValuePairSerializationOptions.ValueSerializationOptions; }
+            set {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
+                    _keyValuePairSerializationOptions.Representation,
+                    _keyValuePairSerializationOptions.KeySerializationOptions,
+                    value);
+            }
         }
 
         /// <summary>
@@ -157,13 +178,17 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// Gets or sets the serialization options for the values in the dictionary.
         /// </summary>
-        public IBsonSerializationOptions ValueSerializationOptions
+        public KeyValuePairSerializationOptions KeyValuePairSerializationOptions
         {
-            get { return _valueSerializationOptions; }
+            get { return _keyValuePairSerializationOptions; }
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 EnsureNotFrozen();
-                _valueSerializationOptions = value;
+                _keyValuePairSerializationOptions = value;
             }
         }
 
@@ -176,6 +201,7 @@ namespace MongoDB.Bson.Serialization.Options
         public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
         {
             EnsureNotFrozen();
+
             var dictionaryOptionsAttribute = attribute as BsonDictionaryOptionsAttribute;
             if (dictionaryOptionsAttribute != null)
             {
@@ -198,14 +224,16 @@ namespace MongoDB.Bson.Serialization.Options
                 }
             }
 
+            // any other attributes are applied to the values
             var valueType = typeof(object);
             if (serializer.GetType().IsGenericType)
             {
-                valueType = serializer.GetType().GetGenericArguments()[1];
+                valueType = serializer.GetType().GetGenericArguments()[1]; // TValue
             }
             var valueSerializer = BsonSerializer.LookupSerializer(valueType);
 
-            if (_valueSerializationOptions == null)
+            var valueSerializationOptions = _keyValuePairSerializationOptions.ValueSerializationOptions;
+            if (valueSerializationOptions == null)
             {
                 var valueDefaultSerializationOptions = valueSerializer.GetDefaultSerializationOptions();
 
@@ -227,10 +255,14 @@ namespace MongoDB.Bson.Serialization.Options
                     throw new NotSupportedException(message);
                 }
 
-                _valueSerializationOptions = valueDefaultSerializationOptions.Clone();
+                valueSerializationOptions = valueDefaultSerializationOptions.Clone();
             }
 
-            _valueSerializationOptions.ApplyAttribute(valueSerializer, attribute);
+            valueSerializationOptions.ApplyAttribute(valueSerializer, attribute);
+            _keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
+                _keyValuePairSerializationOptions.Representation,
+                _keyValuePairSerializationOptions.KeySerializationOptions,
+                valueSerializationOptions);
         }
 
         /// <summary>
@@ -239,7 +271,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>A cloned copy of the serialization options.</returns>
         public override IBsonSerializationOptions Clone()
         {
-            return new DictionarySerializationOptions(_representation, _valueSerializationOptions);
+            return new DictionarySerializationOptions(_representation, _keyValuePairSerializationOptions);
         }
 
         /// <summary>
@@ -250,9 +282,9 @@ namespace MongoDB.Bson.Serialization.Options
         {
             if (!IsFrozen)
             {
-                if (_valueSerializationOptions != null)
+                if (_keyValuePairSerializationOptions != null)
                 {
-                    _valueSerializationOptions.Freeze();
+                    _keyValuePairSerializationOptions.Freeze();
                 }
             }
             return base.Freeze();

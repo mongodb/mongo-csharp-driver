@@ -74,8 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var dictionarySerializationOptions = EnsureSerializationOptions(options);
             var dictionaryRepresentation = dictionarySerializationOptions.Representation;
-            var keySerializationOptions = (IBsonSerializationOptions)null; // TODO: how should these be provided?
-            var valueSerializationOptions = dictionarySerializationOptions.ValueSerializationOptions;
+            var keyValuePairSerializationOptions = dictionarySerializationOptions.KeyValuePairSerializationOptions;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -104,7 +103,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var key = bsonReader.ReadName();
                     var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, valueSerializationOptions);
+                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
                     dictionary.Add(key, value);
                 }
                 bsonReader.ReadEndDocument();
@@ -114,10 +113,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             else if (bsonType == BsonType.Array)
             {
                 var dictionary = CreateInstance(actualType);
-                var keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
-                    (dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays) ? BsonType.Array : BsonType.Document,
-                    keySerializationOptions,
-                    valueSerializationOptions);
 
                 bsonReader.ReadStartArray();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
@@ -172,8 +167,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var dictionary = (IDictionary)value;
                 var dictionarySerializationOptions = EnsureSerializationOptions(options);
                 var dictionaryRepresentation = dictionarySerializationOptions.Representation;
-                var keySerializationOptions = (IBsonSerializationOptions)null; // TODO: how should these be provided?
-                var valueSerializationOptions = dictionarySerializationOptions.ValueSerializationOptions;
+                var keyValuePairSerializationOptions = dictionarySerializationOptions.KeyValuePairSerializationOptions;
 
                 if (dictionaryRepresentation == DictionaryRepresentation.Dynamic)
                 {
@@ -196,16 +190,23 @@ namespace MongoDB.Bson.Serialization.Serializers
                         foreach (DictionaryEntry dictionaryEntry in dictionary)
                         {
                             bsonWriter.WriteName((string)dictionaryEntry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), dictionaryEntry.Value, valueSerializationOptions);
+                            BsonSerializer.Serialize(bsonWriter, typeof(object), dictionaryEntry.Value, keyValuePairSerializationOptions.ValueSerializationOptions);
                         }
                         bsonWriter.WriteEndDocument();
                         break;
+
                     case DictionaryRepresentation.ArrayOfArrays:
                     case DictionaryRepresentation.ArrayOfDocuments:
-                        var keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
-                            (dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays) ? BsonType.Array : BsonType.Document,
-                            keySerializationOptions,
-                            valueSerializationOptions);
+                        // override KeyValuePair representation if necessary
+                        var keyValuePairRepresentation = (dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays) ? BsonType.Array : BsonType.Document;
+                        if (keyValuePairSerializationOptions.Representation != keyValuePairRepresentation)
+                        {
+                            keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
+                                keyValuePairRepresentation,
+                                keyValuePairSerializationOptions.KeySerializationOptions,
+                                keyValuePairSerializationOptions.ValueSerializationOptions);
+                        }
+
                         bsonWriter.WriteStartArray();
                         foreach (DictionaryEntry dictionaryEntry in dictionary)
                         {
