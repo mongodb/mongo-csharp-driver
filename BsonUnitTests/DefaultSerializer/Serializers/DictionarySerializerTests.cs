@@ -695,6 +695,13 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
             public Hashtable Hashtable;
         }
 
+        // required for deterministic tests
+        private class D
+        {
+            [BsonRepresentation(BsonType.String)]
+            public SortedList Hashtable;
+        }
+
         [Test]
         public void TestSerializeNull()
         {
@@ -737,17 +744,13 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
         [Test]
         public void TestSerialize2()
         {
-            C c = new C { Hashtable = new Hashtable { { "a", E.A }, { "b", E.B } } };
-            var json = c.ToJson();
-            var expected1 = ("{ 'Hashtable' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
-            var expected2 = ("{ 'Hashtable' : { \"b\" : \"B\", \"a\" : \"A\" } }").Replace("'", "\"");
-            if (json != expected1 && json != expected2)
-            {
-                Assert.AreEqual(expected1, json);
-            }
+            D d = new D { Hashtable = new SortedList { { "a", E.A }, { "b", E.B } } };
+            var json = d.ToJson();
+            var expected = ("{ 'Hashtable' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            var bson = d.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<D>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
     }

@@ -276,15 +276,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
-        {
-            throw new NotSupportedException("BsonClassMapSerializer does not implement the GetItemSerializationInfo method.");
-        }
-
-        /// <summary>
         /// Gets the serialization info for a member.
         /// </summary>
         /// <param name="memberName">The member name.</param>

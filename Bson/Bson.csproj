@@ -112,6 +112,7 @@
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
     <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
+    <Compile Include="Serialization\Options\KeyValuePairSerializationOptions.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptions.cs" />
     <Compile Include="Exceptions\TruncationException.cs" />
     <Compile Include="IO\BsonDocumentReader.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Serialization\BsonSerializationInfo.cs" />
     <Compile Include="Serialization\Serializers\CollectionGenericSerializers.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
+    <Compile Include="Serialization\Serializers\KeyValuePairSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionarySerializer.cs" />
     <Compile Include="Serialization\Serializers\ImageSerializers.cs" />

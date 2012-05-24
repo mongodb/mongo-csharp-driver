@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
@@ -29,10 +30,13 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
-    public class DictionarySerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class DictionarySerializer : BsonBaseSerializer
     {
         // private static fields
         private static DictionarySerializer __instance = new DictionarySerializer();
+
+        // private fields
+        private readonly KeyValuePairSerializer<object, object> _keyValuePairSerializer;
 
         // constructors
         /// <summary>
@@ -41,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public DictionarySerializer()
             : base(DictionarySerializationOptions.Defaults)
         {
+            _keyValuePairSerializer = new KeyValuePairSerializer<object, object>();
         }
 
         // public static properties
@@ -68,7 +73,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var dictionarySerializationOptions = EnsureSerializationOptions(options);
-            var itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
+            var dictionaryRepresentation = dictionarySerializationOptions.Representation;
+            var keySerializationOptions = (IBsonSerializationOptions)null; // TODO: how should these be provided?
+            var valueSerializationOptions = dictionarySerializationOptions.ValueSerializationOptions;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -88,88 +95,41 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return value;
                 }
 
-                var dictionary = CreateInstance(nominalType);
+                var dictionary = CreateInstance(actualType);
+                var valueDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+
                 bsonReader.ReadStartDocument();
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
                     var key = bsonReader.ReadName();
-                    var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
+                    var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(object));
                     var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, itemSerializationOptions);
+                    var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, valueSerializationOptions);
                     dictionary.Add(key, value);
                 }
                 bsonReader.ReadEndDocument();
+
                 return dictionary;
             }
             else if (bsonType == BsonType.Array)
             {
-                var dictionary = CreateInstance(nominalType);
+                var dictionary = CreateInstance(actualType);
+                var keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
+                    (dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays) ? BsonType.Array : BsonType.Document,
+                    keySerializationOptions,
+                    valueSerializationOptions);
+
                 bsonReader.ReadStartArray();
-                var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    var keyValuePairBsonType = bsonReader.GetCurrentBsonType();
-                    if (keyValuePairBsonType == BsonType.Array)
-                    {
-                        bsonReader.ReadStartArray();
-                        bsonReader.ReadBsonType();
-                        var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-                        var keySerializer = BsonSerializer.LookupSerializer(keyType);
-                        var key = keySerializer.Deserialize(bsonReader, typeof(object), keyType, null); // no serialization options for key
-                        bsonReader.ReadBsonType();
-                        var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-                        var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                        var value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, itemSerializationOptions);
-                        bsonReader.ReadEndArray();
-                        dictionary.Add(key, value);
-                    }
-                    else if (keyValuePairBsonType == BsonType.Document)
-                    {
-                        bsonReader.ReadStartDocument();
-                        object key = null;
-                        object value = null;
-                        bool keyFound = false, valueFound = false;
-                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                        {
-                            var name = bsonReader.ReadName();
-                            switch (name)
-                            {
-                                case "k":
-                                    var keyType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-                                    var keySerializer = BsonSerializer.LookupSerializer(keyType);
-                                    key = keySerializer.Deserialize(bsonReader, typeof(object), keyType, null); // no serialization options for key
-                                    keyFound = true;
-                                    break;
-                                case "v":
-                                    var valueType = discriminatorConvention.GetActualType(bsonReader, typeof(object));
-                                    var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-                                    value = valueSerializer.Deserialize(bsonReader, typeof(object), valueType, itemSerializationOptions);
-                                    valueFound = true;
-                                    break;
-                                default:
-                                    var message = string.Format("Element '{0}' is not valid for Dictionary items (expecting 'k' or 'v').", name);
-                                    throw new FileFormatException(message);
-                            }
-                        }
-                        bsonReader.ReadEndDocument();
-                        if (!keyFound)
-                        {
-                            throw new FileFormatException("Dictionary item was missing the 'k' element.");
-                        }
-                        if (!valueFound)
-                        {
-                            throw new FileFormatException("Dictionary item was missing the 'v' element.");
-                        }
-                        dictionary.Add(key, value);
-                    }
-                    else
-                    {
-                        var message = string.Format("Expected document or array for Dictionary item, not {0}.", keyValuePairBsonType);
-                        throw new FileFormatException(message);
-                    }
+                    var keyValuePair = (KeyValuePair<object, object>)_keyValuePairSerializer.Deserialize(
+                        bsonReader,
+                        typeof(KeyValuePair<object, object>),
+                        keyValuePairSerializationOptions);
+                    dictionary.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 bsonReader.ReadEndArray();
+
                 return dictionary;
             }
             else
@@ -177,19 +137,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
                 throw new FileFormatException(message);
             }
-        }
-
-        /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
-        {
-            string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(object));
-            var nominalType = typeof(object);
-            IBsonSerializationOptions serializationOptions = null;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
         }
 
         /// <summary>
@@ -224,93 +171,98 @@ namespace MongoDB.Bson.Serialization.Serializers
 
                 var dictionary = (IDictionary)value;
                 var dictionarySerializationOptions = EnsureSerializationOptions(options);
-                var representation = dictionarySerializationOptions.Representation;
-                var itemSerializationOptions = dictionarySerializationOptions.ItemSerializationOptions;
+                var dictionaryRepresentation = dictionarySerializationOptions.Representation;
+                var keySerializationOptions = (IBsonSerializationOptions)null; // TODO: how should these be provided?
+                var valueSerializationOptions = dictionarySerializationOptions.ValueSerializationOptions;
 
-                if (representation == DictionaryRepresentation.Dynamic)
+                if (dictionaryRepresentation == DictionaryRepresentation.Dynamic)
                 {
-                    representation = DictionaryRepresentation.Document;
+                    dictionaryRepresentation = DictionaryRepresentation.Document;
                     foreach (object key in dictionary.Keys)
                     {
                         var name = key as string; // check for null and type string at the same time
                         if (name == null || name[0] == '$' || name.IndexOf('.') != -1)
                         {
-                            representation = DictionaryRepresentation.ArrayOfArrays;
+                            dictionaryRepresentation = DictionaryRepresentation.ArrayOfArrays;
                             break;
                         }
                     }
                 }
 
-                switch (representation)
+                switch (dictionaryRepresentation)
                 {
                     case DictionaryRepresentation.Document:
                         bsonWriter.WriteStartDocument();
-                        foreach (DictionaryEntry entry in dictionary)
+                        foreach (DictionaryEntry dictionaryEntry in dictionary)
                         {
-                            bsonWriter.WriteName((string)entry.Key);
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
+                            bsonWriter.WriteName((string)dictionaryEntry.Key);
+                            BsonSerializer.Serialize(bsonWriter, typeof(object), dictionaryEntry.Value, valueSerializationOptions);
                         }
                         bsonWriter.WriteEndDocument();
                         break;
                     case DictionaryRepresentation.ArrayOfArrays:
-                        bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry entry in dictionary)
-                        {
-                            bsonWriter.WriteStartArray();
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key, null); // no serialization options for key
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
-                            bsonWriter.WriteEndArray();
-                        }
-                        bsonWriter.WriteEndArray();
-                        break;
                     case DictionaryRepresentation.ArrayOfDocuments:
+                        var keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
+                            (dictionaryRepresentation == DictionaryRepresentation.ArrayOfArrays) ? BsonType.Array : BsonType.Document,
+                            keySerializationOptions,
+                            valueSerializationOptions);
                         bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry entry in dictionary)
+                        foreach (DictionaryEntry dictionaryEntry in dictionary)
                         {
-                            bsonWriter.WriteStartDocument();
-                            bsonWriter.WriteName("k");
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Key, null);  // no serialization options for key
-                            bsonWriter.WriteName("v");
-                            BsonSerializer.Serialize(bsonWriter, typeof(object), entry.Value, itemSerializationOptions);
-                            bsonWriter.WriteEndDocument();
+                            var keyValuePair = new KeyValuePair<object, object>(dictionaryEntry.Key, dictionaryEntry.Value);
+                            _keyValuePairSerializer.Serialize(
+                                bsonWriter,
+                                typeof(KeyValuePair<object, object>),
+                                keyValuePair,
+                                keyValuePairSerializationOptions);
                         }
                         bsonWriter.WriteEndArray();
                         break;
                     default:
-                        var message = string.Format("'{0}' is not a valid IDictionary representation.", representation);
+                        var message = string.Format("'{0}' is not a valid IDictionary representation.", dictionaryRepresentation);
                         throw new BsonSerializationException(message);
                 }
             }
         }
 
         // private methods
-        private IDictionary CreateInstance(Type nominalType)
+        private IDictionary CreateInstance(Type type)
         {
-            if (nominalType == typeof(Hashtable))
+            if (type.IsInterface)
             {
-                return new Hashtable();
-            }
-            else if (nominalType == typeof(ListDictionary))
-            {
-                return new ListDictionary();
-            }
-            else if (nominalType == typeof(IDictionary))
-            {
-                return new Hashtable();
-            }
-            else if (nominalType == typeof(OrderedDictionary))
-            {
-                return new OrderedDictionary();
-            }
-            else if (nominalType == typeof(SortedList))
-            {
-                return new SortedList();
+                // in the case of an interface pick a reasonable class that implements that interface
+                if (type == typeof(IDictionary))
+                {
+                    return new Hashtable();
+                }
             }
             else
             {
-                var message = string.Format("Invalid nominalType {0} for DictionarySerializer.", nominalType.FullName);
-                throw new BsonSerializationException(message);
+                if (type == typeof(Hashtable))
+                {
+                    return new Hashtable();
+                }
+                else if (type == typeof(ListDictionary))
+                {
+                    return new ListDictionary();
+                }
+                else if (type == typeof(OrderedDictionary))
+                {
+                    return new OrderedDictionary();
+                }
+                else if (type == typeof(SortedList))
+                {
+                    return new SortedList();
+                }
+                else if (typeof(IDictionary).IsAssignableFrom(type))
+                {
+                    return (IDictionary)Activator.CreateInstance(type);
+                }
             }
+
+            var message = string.Format("DictionarySerializer can't be used with type {0}.",
+                BsonUtils.GetFriendlyTypeName(type));
+            throw new BsonSerializationException(message);
         }
 
         private DictionarySerializationOptions EnsureSerializationOptions(IBsonSerializationOptions options)

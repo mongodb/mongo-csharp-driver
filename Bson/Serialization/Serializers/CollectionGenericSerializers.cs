@@ -67,17 +67,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return null;
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    var list = (nominalType == typeof(List<T>) || nominalType.IsInterface) ? new List<T>() : (ICollection<T>)Activator.CreateInstance(nominalType);
+                    var collection = CreateInstance(actualType);
                     var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
                         var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
                         var serializer = BsonSerializer.LookupSerializer(elementType);
                         var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
-                        list.Add(element);
+                        collection.Add(element);
                     }
                     bsonReader.ReadEndArray();
-                    return list;
+                    return collection;
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     bsonReader.ReadString("_t"); // skip over discriminator
@@ -145,6 +145,42 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 bsonWriter.WriteEndArray();
             }
+        }
+
+        // private methods
+        private ICollection<T> CreateInstance(Type type)
+        {
+            string message;
+
+            if (type.IsInterface)
+            {
+                // in the case of an interface pick a reasonable class that implements that interface
+                if (type == typeof(IEnumerable<T>) || type == typeof(ICollection<T>) || type == typeof(IList<T>))
+                {
+                    return new List<T>();
+                }
+            }
+            else
+            {
+                if (type == typeof(List<T>))
+                {
+                    return new List<T>();
+                }
+                else if (typeof(IEnumerable<T>).IsAssignableFrom(type))
+                {
+                    var instance = (IEnumerable<T>)Activator.CreateInstance(type);
+                    var collection = instance as ICollection<T>;
+                    if (collection == null)
+                    {
+                        message = string.Format("Enumerable class {0} does not implement ICollection<T> so it can't be deserialized.", BsonUtils.GetFriendlyTypeName(type));
+                        throw new BsonSerializationException(message);
+                    }
+                    return collection;
+                }
+            }
+
+            message = string.Format("EnumerableSerializer<{0}> can't be used with type {1}.", BsonUtils.GetFriendlyTypeName(typeof(T)), BsonUtils.GetFriendlyTypeName(type));
+            throw new BsonSerializationException(message);
         }
     }
 

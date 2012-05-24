@@ -58,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Options
 
         // private fields
         private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
-        private IBsonSerializationOptions _itemSerializationOptions;
+        private IBsonSerializationOptions _valueSerializationOptions;
 
         // constructors
         /// <summary>
@@ -81,11 +81,11 @@ namespace MongoDB.Bson.Serialization.Options
         /// Initializes a new instance of the DictionarySerializationOptions class.
         /// </summary>
         /// <param name="representation">The representation to use for a Dictionary.</param>
-        /// <param name="itemSerializationOptions">The serialization options for the items in the dictionary.</param>
-        public DictionarySerializationOptions(DictionaryRepresentation representation, IBsonSerializationOptions itemSerializationOptions)
+        /// <param name="valueSerializationOptions">The serialization options for the values in the dictionary.</param>
+        public DictionarySerializationOptions(DictionaryRepresentation representation, IBsonSerializationOptions valueSerializationOptions)
         {
             _representation = representation;
-            _itemSerializationOptions = itemSerializationOptions;
+            _valueSerializationOptions = valueSerializationOptions;
         }
 
         // public static properties
@@ -132,6 +132,16 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public properties
         /// <summary>
+        /// Gets or sets the serialization options for the values in the dictionary.
+        /// </summary>
+        [Obsolete("Use ValueSerializationOptions instead.")]
+        public IBsonSerializationOptions ItemSerializationOptions
+        {
+            get { return ValueSerializationOptions; }
+            set { ValueSerializationOptions = value; }
+        }
+
+        /// <summary>
         /// Gets the representation to use for a Dictionary.
         /// </summary>
         public DictionaryRepresentation Representation
@@ -145,15 +155,15 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         /// <summary>
-        /// Gets or sets the serialization options for the items in the dictionary.
+        /// Gets or sets the serialization options for the values in the dictionary.
         /// </summary>
-        public IBsonSerializationOptions ItemSerializationOptions
+        public IBsonSerializationOptions ValueSerializationOptions
         {
-            get { return _itemSerializationOptions; }
+            get { return _valueSerializationOptions; }
             set
             {
                 EnsureNotFrozen();
-                _itemSerializationOptions = value;
+                _valueSerializationOptions = value;
             }
         }
 
@@ -173,7 +183,7 @@ namespace MongoDB.Bson.Serialization.Options
                 return;
             }
 
-            // for backward compatibility reasons representations Array and Document apply to the Dictionary and not the items
+            // for backward compatibility reasons representations Array and Document apply to the Dictionary and not the values
             var representationAttribute = attribute as BsonRepresentationAttribute;
             if (representationAttribute != null)
             {
@@ -188,43 +198,39 @@ namespace MongoDB.Bson.Serialization.Options
                 }
             }
 
-            var itemSerializationInfoProvider = serializer as IBsonItemSerializationInfoProvider;
-            if (itemSerializationInfoProvider == null)
+            var valueType = typeof(object);
+            if (serializer.GetType().IsGenericType)
             {
-                var message = string.Format(
-                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
-                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
-                        BsonUtils.GetFriendlyTypeName(serializer.GetType()));
-                throw new NotSupportedException(message);
+                valueType = serializer.GetType().GetGenericArguments()[1];
             }
+            var valueSerializer = BsonSerializer.LookupSerializer(valueType);
 
-            var itemSerializer = itemSerializationInfoProvider.GetItemSerializationInfo().Serializer;
-            if (_itemSerializationOptions == null)
+            if (_valueSerializationOptions == null)
             {
-                var itemDefaultSerializationOptions = itemSerializer.GetDefaultSerializationOptions();
+                var valueDefaultSerializationOptions = valueSerializer.GetDefaultSerializationOptions();
 
                 // special case for legacy dictionaries: allow BsonRepresentation on object
-                if (itemDefaultSerializationOptions == null && 
+                if (valueDefaultSerializationOptions == null && 
                     serializer.GetType() == typeof(DictionarySerializer) && 
                     attribute.GetType() == typeof(BsonRepresentationAttribute))
                 {
-                    itemDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
+                    valueDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
                 }
 
-                if (itemDefaultSerializationOptions == null)
+                if (valueDefaultSerializationOptions == null)
                 {
                     var message = string.Format(
-                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1} and the item serializer is of type {2}.",
+                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1} and the value serializer is of type {2}.",
                         BsonUtils.GetFriendlyTypeName(attribute.GetType()),
                         BsonUtils.GetFriendlyTypeName(serializer.GetType()),
-                        BsonUtils.GetFriendlyTypeName(itemSerializer.GetType()));
+                        BsonUtils.GetFriendlyTypeName(valueSerializer.GetType()));
                     throw new NotSupportedException(message);
                 }
 
-                _itemSerializationOptions = itemDefaultSerializationOptions.Clone();
+                _valueSerializationOptions = valueDefaultSerializationOptions.Clone();
             }
 
-            _itemSerializationOptions.ApplyAttribute(itemSerializer, attribute);
+            _valueSerializationOptions.ApplyAttribute(valueSerializer, attribute);
         }
 
         /// <summary>
@@ -233,7 +239,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <returns>A cloned copy of the serialization options.</returns>
         public override IBsonSerializationOptions Clone()
         {
-            return new DictionarySerializationOptions(_representation, _itemSerializationOptions);
+            return new DictionarySerializationOptions(_representation, _valueSerializationOptions);
         }
 
         /// <summary>
@@ -244,9 +250,9 @@ namespace MongoDB.Bson.Serialization.Options
         {
             if (!IsFrozen)
             {
-                if (_itemSerializationOptions != null)
+                if (_valueSerializationOptions != null)
                 {
-                    _itemSerializationOptions.Freeze();
+                    _valueSerializationOptions.Freeze();
                 }
             }
             return base.Freeze();

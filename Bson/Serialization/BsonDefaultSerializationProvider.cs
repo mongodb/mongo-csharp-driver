@@ -41,7 +41,6 @@ namespace MongoDB.Bson.Serialization
         {
             __serializers = new Dictionary<Type, IBsonSerializer>
             {
-                { typeof(ArrayList), EnumerableSerializer.Instance },
                 { typeof(BitArray), BitArraySerializer.Instance },
                 { typeof(Bitmap), BitmapSerializer.Instance },
                 { typeof(Boolean), BooleanSerializer.Instance },
@@ -76,26 +75,18 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Double), DoubleSerializer.Instance },
                 { typeof(System.Drawing.Size), DrawingSizeSerializer.Instance },
                 { typeof(Guid), GuidSerializer.Instance },
-                { typeof(Hashtable), DictionarySerializer.Instance },
                 { typeof(IBsonSerializable), BsonIBsonSerializableSerializer.Instance },
-                { typeof(ICollection), EnumerableSerializer.Instance },
-                { typeof(IDictionary), DictionarySerializer.Instance },
-                { typeof(IEnumerable), EnumerableSerializer.Instance },
-                { typeof(IList), EnumerableSerializer.Instance },
                 { typeof(Image), ImageSerializer.Instance },
                 { typeof(Int16), Int16Serializer.Instance },
                 { typeof(Int32), Int32Serializer.Instance },
                 { typeof(Int64), Int64Serializer.Instance },
                 { typeof(IPAddress), IPAddressSerializer.Instance },
                 { typeof(IPEndPoint), IPEndPointSerializer.Instance },
-                { typeof(ListDictionary), DictionarySerializer.Instance },
                 { typeof(Object), ObjectSerializer.Instance },
                 { typeof(ObjectId), ObjectIdSerializer.Instance },
-                { typeof(OrderedDictionary), DictionarySerializer.Instance },
                 { typeof(Queue), QueueSerializer.Instance },
                 { typeof(SByte), SByteSerializer.Instance },
                 { typeof(Single), SingleSerializer.Instance },
-                { typeof(SortedList), DictionarySerializer.Instance },
                 { typeof(Stack), StackSerializer.Instance },
                 { typeof(String), StringSerializer.Instance },
                 { typeof(TimeSpan), TimeSpanSerializer.Instance },
@@ -108,20 +99,9 @@ namespace MongoDB.Bson.Serialization
 
             __genericSerializerDefinitions = new Dictionary<Type, Type>
             {
-                { typeof(Collection<>), typeof(EnumerableSerializer<>)},
-                { typeof(Dictionary<,>), typeof(DictionarySerializer<,>) },
-                { typeof(HashSet<>), typeof(EnumerableSerializer<>) },
-                { typeof(ICollection<>), typeof(EnumerableSerializer<>) },
-                { typeof(IDictionary<,>), typeof(DictionarySerializer<,>) },
-                { typeof(IEnumerable<>), typeof(EnumerableSerializer<>) },
-                { typeof(IList<>), typeof(EnumerableSerializer<>) },
-                { typeof(LinkedList<>), typeof(EnumerableSerializer<>) },
-                { typeof(List<>), typeof(EnumerableSerializer<>) },
+                { typeof(KeyValuePair<,>), typeof(KeyValuePairSerializer<,>) },
                 { typeof(Nullable<>), typeof(NullableSerializer<>) },
-                { typeof(ObservableCollection<>), typeof(EnumerableSerializer<>)},
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
-                { typeof(SortedDictionary<,>), typeof(DictionarySerializer<,>) },
-                { typeof(SortedList<,>), typeof(DictionarySerializer<,>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) }
             };
         }
@@ -185,6 +165,82 @@ namespace MongoDB.Bson.Serialization
             if (type.IsEnum)
             {
                 return EnumSerializer.Instance;
+            }
+
+            // classes that implement IDictionary or IEnumerable are serialized using either DictionarySerializer or EnumerableSerializer
+            // this does mean that any additional public properties the class might have won't be serialized (just like the XmlSerializer)
+            var collectionSerializer = GetCollectionSerializer(type);
+            if (collectionSerializer != null)
+            {
+                return collectionSerializer;
+            }
+
+            return null;
+        }
+
+        // private methods
+        private IBsonSerializer GetCollectionSerializer(Type type)
+        {
+            Type implementedGenericDictionaryInterface = null;
+            Type implementedGenericEnumerableInterface = null;
+            Type implementedDictionaryInterface = null;
+            Type implementedEnumerableInterface = null;
+
+            var implementedInterfaces = new List<Type>(type.GetInterfaces());
+            if (type.IsInterface)
+            {
+                implementedInterfaces.Add(type);
+            }
+            foreach (var implementedInterface in implementedInterfaces)
+            {
+                if (implementedInterface.IsGenericType)
+                {
+                    var genericInterfaceDefinition = implementedInterface.GetGenericTypeDefinition();
+                    if (genericInterfaceDefinition == typeof(IDictionary<,>))
+                    {
+                        implementedGenericDictionaryInterface = implementedInterface;
+                    }
+                    if (genericInterfaceDefinition == typeof(IEnumerable<>))
+                    {
+                        implementedGenericEnumerableInterface = implementedInterface;
+                    }
+                }
+                else
+                {
+                    if (implementedInterface == typeof(IDictionary))
+                    {
+                        implementedDictionaryInterface = implementedInterface;
+                    }
+                    if (implementedInterface == typeof(IEnumerable))
+                    {
+                        implementedEnumerableInterface = implementedInterface;
+                    }
+                }
+            }
+
+            // the order of the tests is important
+            if (implementedGenericDictionaryInterface != null)
+            {
+                var keyType = implementedGenericDictionaryInterface.GetGenericArguments()[0];
+                var valueType = implementedGenericDictionaryInterface.GetGenericArguments()[1];
+                var genericSerializerDefinition = typeof(DictionarySerializer<,>);
+                var genericSerializerType = genericSerializerDefinition.MakeGenericType(keyType, valueType);
+                return (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
+            }
+            else if (implementedDictionaryInterface != null)
+            {
+                return DictionarySerializer.Instance;
+            }
+            else if (implementedGenericEnumerableInterface != null)
+            {
+                var valueType = implementedGenericEnumerableInterface.GetGenericArguments()[0];
+                var genericSerializerDefinition = typeof(EnumerableSerializer<>);
+                var genericSerializerType = genericSerializerDefinition.MakeGenericType(valueType);
+                return (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
+            }
+            else if (implementedEnumerableInterface != null)
+            {
+                return EnumerableSerializer.Instance;
             }
 
             return null;
