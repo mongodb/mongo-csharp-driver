@@ -15,16 +15,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp475
@@ -35,7 +31,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp475
         public abstract class Base
         {
             public ObjectId Id { get; set; }
-
             public string A { get; set; }
         }
 
@@ -52,7 +47,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp475
             var collection = db.GetCollection<Base>("ProjectTest");
             collection.Drop();
             
-
             var t1 = new T1 { A = "T1.A", B = "T1.B" };
             collection.Insert(t1);
 
