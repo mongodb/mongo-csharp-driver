@@ -1842,7 +1842,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
         <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is BsonSerializationInfo and must implement IBsonMemberSerializationInfoProvider for participation in Any queries.")> _
+        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="Any is only support for items that serialize into documents. The current serializer is Int32Serializer and must implement IBsonDocumentSerializer for participation in Any queries.")> _
         Public Sub TestWhereAAnyWithPredicate()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.A.Any(Function(a) a > 3)

@@ -100,8 +100,8 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-            if (itemSerializationInfoProvider == null)
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
             {
                 return null;
             }
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Linq.Utils
             }
             var index = Convert.ToInt32(indexEpression.Value);
 
-            var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,
@@ -146,13 +146,13 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var memberSerializationInfoProvider = serializationInfo.Serializer as IBsonMemberSerializationInfoProvider;
-            if (memberSerializationInfoProvider == null)
+            var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
+            if (documentSerializer == null)
             {
                 return null;
             }
 
-            var memberSerializationInfo = memberSerializationInfoProvider.GetMemberSerializationInfo(node.Member.Name);
+            var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(node.Member.Name);
             return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
         }
 
@@ -238,13 +238,13 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-            if (itemSerializationInfoProvider == null)
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
             {
                 return null;
             }
 
-            var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,
@@ -267,14 +267,14 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-            if (itemSerializationInfoProvider == null)
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            if (arraySerializer == null)
             {
                 return null;
             }
 
             var index = (int)((ConstantExpression)node.Arguments[1]).Value;
-            var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,

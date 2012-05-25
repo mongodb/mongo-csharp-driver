@@ -123,11 +123,11 @@ namespace MongoDB.Driver.Linq
                 else if (arguments.Length == 2)
                 {
                     var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Any", serializationInfo);
-                    if (!(itemSerializationInfo.Serializer is IBsonMemberSerializationInfoProvider))
+                    if (!(itemSerializationInfo.Serializer is IBsonDocumentSerializer))
                     {
                         var message = string.Format("Any is only support for items that serialize into documents. The current serializer is {0} and must implement {1} for participation in Any queries.",
-                            BsonUtils.GetFriendlyTypeName(itemSerializationInfo.GetType()),
-                            BsonUtils.GetFriendlyTypeName(typeof(IBsonMemberSerializationInfoProvider)));
+                            BsonUtils.GetFriendlyTypeName(itemSerializationInfo.Serializer.GetType()),
+                            BsonUtils.GetFriendlyTypeName(typeof(IBsonDocumentSerializer)));
                         throw new NotSupportedException(message);
                     }
                     var itemSerializer = itemSerializationInfo.Serializer;

@@ -328,7 +328,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for SystemProfileInfo.
     /// </summary>
-    public class SystemProfileInfoSerializer : BsonBaseSerializer, IBsonMemberSerializationInfoProvider
+    public class SystemProfileInfoSerializer : BsonBaseSerializer, IBsonDocumentSerializer
     {
         // public methods
         /// <summary>

@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for one-dimensional arrays.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class ArraySerializer<T> : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class ArraySerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
         // constructors
         /// <summary>

@@ -23,10 +23,10 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Contract for serializers to implement if they serialize an array of items.
     /// </summary>
-    public interface IBsonItemSerializationInfoProvider
+    public interface IBsonArraySerializer : IBsonSerializer
     {
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
+        /// Gets the serialization info for individual items of the array.
         /// </summary>
         /// <returns>The serialization info for the items.</returns>
         BsonSerializationInfo GetItemSerializationInfo();

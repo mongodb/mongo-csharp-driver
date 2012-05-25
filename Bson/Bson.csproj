@@ -103,10 +103,10 @@
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
     <Compile Include="Serialization\IBsonClassMapModifier.cs" />
-    <Compile Include="Serialization\IBsonItemSerializationInfoProvider.cs" />
+    <Compile Include="Serialization\IBsonArraySerializer.cs" />
     <Compile Include="Serialization\IBsonMemberMapModifier.cs" />
     <Compile Include="Serialization\IBsonIdProvider.cs" />
-    <Compile Include="Serialization\IBsonMemberSerializationInfoProvider.cs" />
+    <Compile Include="Serialization\IBsonDocumentSerializer.cs" />
     <Compile Include="Serialization\Options\ArraySerializationOptions.cs" />
     <Compile Include="Serialization\Options\BsonBaseSerializationOptions.cs" />
     <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
