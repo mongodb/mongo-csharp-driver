@@ -16,12 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {
@@ -126,7 +127,120 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            _document.Serialize(bsonWriter, nominalType, options);
+            ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying a sort order.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public static class SortBy<TDocument>
+    {
+        /// <summary>
+        /// Adds keys to be sorted by in ascending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static SortByBuilder<TDocument> Ascending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new SortByBuilder<TDocument>().Ascending(memberExpressions);
+        }
+
+        /// <summary>
+        /// Adds keys to be sorted by in descending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static SortByBuilder<TDocument> Descending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new SortByBuilder<TDocument>().Descending(memberExpressions);
+        }
+    }
+
+    /// <summary>
+    /// A builder for specifying a sort order.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Serializable]
+    public class SortByBuilder<TDocument> : BuilderBase, IMongoSortBy
+    {
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
+        private SortByBuilder _sortByBuilder;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SortByBuilder&lt;TDocument&gt;"/> class.
+        /// </summary>
+        public SortByBuilder()
+        {
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
+            _sortByBuilder = new SortByBuilder();
+        }
+
+        // public methods
+        /// <summary>
+        /// Adds keys to be sorted by in ascending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions indicating which elements to sort by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public SortByBuilder<TDocument> Ascending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            var elementNames = GetElementNames(memberExpressions);
+            _sortByBuilder = _sortByBuilder.Ascending(elementNames.ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Adds keys to be sorted by in descending order.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions indicating which elements to sort by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public SortByBuilder<TDocument> Descending(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            var elementNames = GetElementNames(memberExpressions);
+            _sortByBuilder = _sortByBuilder.Descending(elementNames.ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public override BsonDocument ToBsonDocument()
+        {
+            return _sortByBuilder.ToBsonDocument();
+        }
+
+        // protected methods
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
+            ((IBsonSerializable)_sortByBuilder).Serialize(bsonWriter, nominalType, options);
+        }
+
+        // private methods
+        private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
+        {
+            return memberExpressions
+                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
+                .Select(x => x.ElementName);
         }
     }
 }

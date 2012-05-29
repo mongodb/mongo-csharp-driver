@@ -1,0 +1,58 @@
+C# driver changes from 1.4.1 to 1.4.2
+
+CollectionOptionsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+FieldsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+GeoHaystackSearchOptionsOptionsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+GeoNearOptionsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+GroupByBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+IndexKeysBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+IndexOptionsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+MapReduceOptionsBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+QueryBuilder.cs
+    All method now skips nulls like functional construction
+    In method now skips nulls like functional construction
+    NotIn method now skips nulls like functional construction
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+SortByBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+UpdateBuilder.cs
+    Serialize method now casts document to IBsonSerializable to call Serialize method
+
+BaseWrapper.cs
+    Deserialize method marked obsolete
+    GetDocumentId method marked obsolete
+    Serialize method marked obsolete
+    SetDocumentId method marked obsolete
+    
+MongoServer.cs
+    Ping method now uses Instances poperty instead of _instances field for thread safety
+    RequestDone method now releases _serverLock before calling other methods
+    RequestStart method now releases _serverLock before calling other methods
+    VerifyInstances method now enumerates the instances in a way that is safe even if RemoveInstance is called
+
+MongoServerInstance.cs
+    Ping method now uses a new connection instead of one from the connection pool
+    VerifyState method now uses a new connection instead of one from the connection pool
+    added new internal Ping helper method
+
+MongoConnection.cs
+    added new constructor for connections that are not part of the connection pool
+    changed HandleException to check for _connectionPool == null

@@ -19,14 +19,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Linq
 {
@@ -36,7 +34,9 @@ namespace MongoDB.Driver.Linq
     public class SelectQuery : TranslatedQuery
     {
         // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
         private LambdaExpression _where;
+        private Type _ofType;
         private List<OrderByClause> _orderBy;
         private LambdaExpression _projection;
         private Expression _skip;
@@ -53,9 +53,18 @@ namespace MongoDB.Driver.Linq
         public SelectQuery(MongoCollection collection, Type documentType)
             : base(collection, documentType)
         {
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
         }
 
         // public properties
+        /// <summary>
+        /// Gets the final result type if an OfType query operator was used (otherwise null).
+        /// </summary>
+        public Type OfType
+        {
+            get { return _ofType; }
+        }
+
         /// <summary>
         /// Gets a list of Expressions that defines the sort order (or null if not specified).
         /// </summary>
@@ -110,8 +119,9 @@ namespace MongoDB.Driver.Linq
 
             // TODO: check lambda for proper type
 
+            var predicateTranslator = new PredicateTranslator(_serializationInfoHelper);
             var body = _where.Body;
-            return BuildQuery(body);
+            return predicateTranslator.BuildQuery(body);
         }
 
         /// <summary>
@@ -135,12 +145,7 @@ namespace MongoDB.Driver.Linq
                 foreach (var clause in _orderBy)
                 {
                     var keyExpression = clause.Key.Body;
-                    var serializationInfo = GetSerializationInfo(keyExpression);
-                    if (serializationInfo == null)
-                    {
-                        var message = string.Format("Invalid OrderBy expression: {0}.", ExpressionFormatter.ToString(keyExpression));
-                        throw new NotSupportedException(message);
-                    }
+                    var serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
                     var direction = (clause.Direction == OrderByDirection.Descending) ? -1 : 1;
                     sortBy.Add(serializationInfo.ElementName, direction);
                 }
@@ -157,20 +162,38 @@ namespace MongoDB.Driver.Linq
                 cursor.SetLimit(ToInt32(_take));
             }
 
+            var projection = _projection;
+            if (_ofType != null)
+            {
+                if (projection == null)
+                {
+                    var paramExpression = Expression.Parameter(DocumentType, "x");
+                    var convertExpression = Expression.Convert(paramExpression, _ofType);
+                    projection = Expression.Lambda(convertExpression, paramExpression);
+                }
+                else
+                {
+                    var paramExpression = Expression.Parameter(DocumentType, "x");
+                    var convertExpression = Expression.Convert(paramExpression, _ofType);
+                    var body = ExpressionParameterReplacer.ReplaceParameter(projection.Body, projection.Parameters[0], convertExpression);
+                    projection = Expression.Lambda(body, paramExpression);
+                }
+            }
+
             IEnumerable enumerable;
-            if (_projection == null)
+            if (projection == null)
             {
                 enumerable = cursor;
             }
             else
             {
-                var lambdaType = _projection.GetType();
+                var lambdaType = projection.GetType();
                 var delegateType = lambdaType.GetGenericArguments()[0];
                 var sourceType = delegateType.GetGenericArguments()[0];
                 var resultType = delegateType.GetGenericArguments()[1];
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
-                var projection = _projection.Compile();
-                var projector = Activator.CreateInstance(projectorType, cursor, projection);
+                var compiledProjection = projection.Compile();
+                var projector = Activator.CreateInstance(projectorType, cursor, compiledProjection);
                 enumerable = (IEnumerable)projector;
             }
 
@@ -208,916 +231,10 @@ namespace MongoDB.Driver.Linq
             }
 
             var message = string.Format("Don't know how to translate expression: {0}.", ExpressionFormatter.ToString(expression));
+            throw new NotSupportedException(message);
         }
 
         // private methods
-        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
-        {
-            return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
-        }
-
-        private IMongoQuery BuildAnyQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    if (serializationInfo != null)
-                    {
-                        return Query.And(
-                            Query.NE(serializationInfo.ElementName, BsonNull.Value),
-                            Query.Not(serializationInfo.ElementName).Size(0));
-                    }
-                }
-                else if (arguments.Length == 2)
-                {
-                    throw new NotSupportedException("Enumerable.Any with a predicate is not supported.");
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
-        {
-            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
-            {
-                return null;
-            }
-
-            if (constantExpression.Type != typeof(int))
-            {
-                return null;
-            }
-            var value = ToInt32(constantExpression);
-
-            BsonSerializationInfo serializationInfo = null;
-
-            var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.ArrayLength)
-            {
-                var arrayMemberExpression = unaryExpression.Operand as MemberExpression;
-                if (arrayMemberExpression != null)
-                {
-                    serializationInfo = GetSerializationInfo(arrayMemberExpression);
-                }
-            }
-
-            var memberExpression = variableExpression as MemberExpression;
-            if (memberExpression != null && memberExpression.Member.Name == "Count")
-            {
-                var arrayMemberExpression = memberExpression.Expression as MemberExpression;
-                if (arrayMemberExpression != null)
-                {
-                    serializationInfo = GetSerializationInfo(arrayMemberExpression);
-                }
-            }
-
-            var methodCallExpression = variableExpression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "Count" && methodCallExpression.Method.DeclaringType == typeof(Enumerable))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var arrayMemberExpression = methodCallExpression.Arguments[0] as MemberExpression;
-                    if (arrayMemberExpression != null && arrayMemberExpression.Type != typeof(string))
-                    {
-                        serializationInfo = GetSerializationInfo(arrayMemberExpression);
-                    }
-                }
-            }
-
-            if (serializationInfo != null)
-            {
-                if (operatorType == ExpressionType.Equal)
-                {
-                    return Query.Size(serializationInfo.ElementName, value);
-                }
-                else
-                {
-                    return Query.Not(serializationInfo.ElementName).Size(value);
-                }
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildBooleanQuery(Expression expression)
-        {
-            if (expression.Type == typeof(bool))
-            {
-                var serializationInfo = GetSerializationInfo(expression);
-                if (serializationInfo != null)
-                {
-                    return new QueryDocument(serializationInfo.ElementName, true);
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildComparisonQuery(BinaryExpression binaryExpression)
-        {
-            // the constant could be on either side
-            var variableExpression = binaryExpression.Left;
-            var constantExpression = binaryExpression.Right as ConstantExpression;
-            var operatorType = binaryExpression.NodeType;
-            if (constantExpression == null)
-            {
-                constantExpression = binaryExpression.Left as ConstantExpression;
-                variableExpression = binaryExpression.Right;
-                // if the constant was on the left some operators need to be flipped
-                switch (operatorType)
-                {
-                    case ExpressionType.LessThan: operatorType = ExpressionType.GreaterThan; break;
-                    case ExpressionType.LessThanOrEqual: operatorType = ExpressionType.GreaterThanOrEqual; break;
-                    case ExpressionType.GreaterThan: operatorType = ExpressionType.LessThan; break;
-                    case ExpressionType.GreaterThanOrEqual: operatorType = ExpressionType.LessThanOrEqual; break;
-                }
-            }
-
-            if (constantExpression == null)
-            {
-                return null;
-            }
-
-            var query = BuildArrayLengthQuery(variableExpression, operatorType, constantExpression);
-            if (query != null)
-            {
-                return query;
-            }
-
-            query = BuildModQuery(variableExpression, operatorType, constantExpression);
-            if (query != null)
-            {
-                return query;
-            }
-
-            query = BuildStringIndexOfQuery(variableExpression, operatorType, constantExpression);
-            if (query != null)
-            {
-                return query;
-            }
-
-            query = BuildStringLengthQuery(variableExpression, operatorType, constantExpression);
-            if (query != null)
-            {
-                return query;
-            }
-
-            return BuildComparisonQuery(variableExpression, operatorType, constantExpression);
-        }
-
-        private IMongoQuery BuildComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
-        {
-            BsonSerializationInfo serializationInfo = null;
-            var value = constantExpression.Value;
-
-            var unaryExpression = variableExpression as UnaryExpression;
-            if (unaryExpression != null && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Operand.Type.IsEnum)
-            {
-                var enumType = unaryExpression.Operand.Type;
-                if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
-                {
-                    serializationInfo = GetSerializationInfo(unaryExpression.Operand);
-                    value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
-                }
-            }
-            else
-            {
-                serializationInfo = GetSerializationInfo(variableExpression);
-            }
-
-            if (serializationInfo != null)
-            {
-                var serializedValue = SerializeValue(serializationInfo, value);
-                switch (operatorType)
-                {
-                    case ExpressionType.Equal: return Query.EQ(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThan: return Query.GT(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThanOrEqual: return Query.GTE(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThan: return Query.LT(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThanOrEqual: return Query.LTE(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.NotEqual: return Query.NE(serializationInfo.ElementName, serializedValue);
-                }
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildConstantQuery(ConstantExpression constantExpression)
-        {
-            var value = constantExpression.Value;
-            if (value != null && value.GetType() == typeof(bool))
-            {
-                // simulate true or false with a tautology or a reverse tautology
-                // the particular reverse tautology chosen has the nice property that it uses the index to return no results quickly
-                return new QueryDocument("_id", new BsonDocument("$exists", (bool)value));
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildContainsAllQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    var valuesExpression = arguments[1] as ConstantExpression;
-                    if (serializationInfo != null && valuesExpression != null)
-                    {
-                        var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
-                        var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
-                        return Query.All(serializationInfo.ElementName, serializedValues);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildContainsAnyQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    var valuesExpression = arguments[1] as ConstantExpression;
-                    if (serializationInfo != null && valuesExpression != null)
-                    {
-                        var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
-                        var serializedValues = SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
-                        return Query.In(serializationInfo.ElementName, serializedValues);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(string))
-            {
-                return BuildStringQuery(methodCallExpression);
-            }
-
-            BsonSerializationInfo serializationInfo = null;
-            ConstantExpression valueExpression = null;
-            var arguments = methodCallExpression.Arguments.ToArray();
-            if (arguments.Length == 1)
-            {
-                if (typeof(IEnumerable).IsAssignableFrom(methodCallExpression.Method.DeclaringType))
-                {
-                    serializationInfo = GetSerializationInfo(methodCallExpression.Object);
-                    valueExpression = arguments[0] as ConstantExpression;
-                }
-            }
-            else if (arguments.Length == 2)
-            {
-                if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
-                {
-                    serializationInfo = GetSerializationInfo(arguments[0]);
-                    valueExpression = arguments[1] as ConstantExpression;
-                }
-            }
-
-            if (serializationInfo != null && valueExpression != null)
-            {
-                var itemSerializationInfo = serializationInfo.Serializer.GetItemSerializationInfo();
-                var serializedValue = SerializeValue(itemSerializationInfo, valueExpression.Value);
-                return Query.EQ(serializationInfo.ElementName, serializedValue);
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildEqualsQuery(MethodCallExpression methodCallExpression)
-        {
-            var arguments = methodCallExpression.Arguments.ToArray();
-
-            // assume that static and instance Equals mean the same thing for all classes (i.e. an equality test)
-            Expression firstExpression = null;
-            Expression secondExpression = null;
-            if (methodCallExpression.Object == null)
-            {
-                // static Equals method
-                if (arguments.Length == 2)
-                {
-                    firstExpression = arguments[0];
-                    secondExpression = arguments[1];
-                }
-            }
-            else
-            {
-                // instance Equals method
-                if (arguments.Length == 1)
-                {
-                    firstExpression = methodCallExpression.Object;
-                    secondExpression = arguments[0];
-                }
-            }
-
-            if (firstExpression != null && secondExpression != null)
-            {
-                // the constant could be either expression
-                var variableExpression = firstExpression;
-                var constantExpression = secondExpression as ConstantExpression;
-                if (constantExpression == null)
-                {
-                    constantExpression = firstExpression as ConstantExpression;
-                    variableExpression = secondExpression;
-                }
-
-                if (constantExpression == null)
-                {
-                    return null;
-                }
-
-                return BuildComparisonQuery(variableExpression, ExpressionType.Equal, constantExpression);
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildInQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 2)
-                {
-                    var serializationInfo = GetSerializationInfo(arguments[0]);
-                    var valuesExpression = arguments[1] as ConstantExpression;
-                    if (serializationInfo != null && valuesExpression != null)
-                    {
-                        var serializedValues = SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
-                        return Query.In(serializationInfo.ElementName, serializedValues);
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildInjectQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(LinqToMongo))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                if (arguments.Length == 1)
-                {
-                    var queryExpression = arguments[0] as ConstantExpression;
-                    if (queryExpression != null)
-                    {
-                        return (IMongoQuery)queryExpression.Value;
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildIsMatchQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType == typeof(Regex))
-            {
-                var arguments = methodCallExpression.Arguments.ToArray();
-                var obj = methodCallExpression.Object;
-                if (obj == null)
-                {
-                    if (arguments.Length == 2 || arguments.Length == 3)
-                    {
-                        var serializationInfo = GetSerializationInfo(arguments[0]);
-                        var patternExpression = arguments[1] as ConstantExpression;
-                        if (serializationInfo != null && patternExpression != null)
-                        {
-                            var pattern = patternExpression.Value as string;
-                            if (pattern != null)
-                            {
-                                var options = RegexOptions.None;
-                                if (arguments.Length == 3)
-                                {
-                                    var optionsExpression = arguments[2] as ConstantExpression;
-                                    if (optionsExpression == null || optionsExpression.Type != typeof(RegexOptions))
-                                    {
-                                        return null;
-                                    }
-                                    options = (RegexOptions)optionsExpression.Value;
-                                }
-                                var regex = new Regex(pattern, options);
-                                return Query.Matches(serializationInfo.ElementName, regex);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    var regexExpression = obj as ConstantExpression;
-                    if (regexExpression != null && arguments.Length == 1)
-                    {
-                        var serializationInfo = GetSerializationInfo(arguments[0]);
-                        var regex = regexExpression.Value as Regex;
-                        if (serializationInfo != null && regex != null)
-                        {
-                            return Query.Matches(serializationInfo.ElementName, regex);
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildMethodCallQuery(MethodCallExpression methodCallExpression)
-        {
-            switch (methodCallExpression.Method.Name)
-            {
-                case "Any": return BuildAnyQuery(methodCallExpression);
-                case "Contains": return BuildContainsQuery(methodCallExpression);
-                case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
-                case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);
-                case "EndsWith": return BuildStringQuery(methodCallExpression);
-                case "Equals": return BuildEqualsQuery(methodCallExpression);
-                case "In": return BuildInQuery(methodCallExpression);
-                case "Inject": return BuildInjectQuery(methodCallExpression);
-                case "IsMatch": return BuildIsMatchQuery(methodCallExpression);
-                case "StartsWith": return BuildStringQuery(methodCallExpression);
-            }
-            return null;
-        }
-
-        private IMongoQuery BuildModQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
-        {
-            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
-            {
-                return null;
-            }
-
-            if (constantExpression.Type != typeof(int))
-            {
-                return null;
-            }
-            var value = ToInt32(constantExpression);
-
-            var modBinaryExpression = variableExpression as BinaryExpression;
-            if (modBinaryExpression != null && modBinaryExpression.NodeType == ExpressionType.Modulo)
-            {
-                var serializationInfo = GetSerializationInfo(modBinaryExpression.Left);
-                var modulusExpression = modBinaryExpression.Right as ConstantExpression;
-                if (serializationInfo != null && modulusExpression != null)
-                {
-                    var modulus = ToInt32(modulusExpression);
-                    if (operatorType == ExpressionType.Equal)
-                    {
-                        return Query.Mod(serializationInfo.ElementName, modulus, value);
-                    }
-                    else
-                    {
-                        return Query.Not(serializationInfo.ElementName).Mod(modulus, value);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
-        {
-            var queryDocument = BuildQuery(unaryExpression.Operand).ToBsonDocument();
-            if (queryDocument.ElementCount == 1)
-            {
-                var elementName = queryDocument.GetElement(0).Name;
-                switch (elementName)
-                {
-                    case "$and":
-                        // there is no $nand and $not only works as a meta operator on a single operator so simulate $not using $nor
-                        return new QueryDocument("$nor", new BsonArray { queryDocument });
-                    case "$or":
-                        return new QueryDocument("$nor", queryDocument[0].AsBsonArray);
-                    case "$nor":
-                        return new QueryDocument("$or", queryDocument[0].AsBsonArray);
-                }
-
-                var operatorDocument = queryDocument[0] as BsonDocument;
-                if (operatorDocument != null && operatorDocument.ElementCount > 0)
-                {
-                    var operatorName = operatorDocument.GetElement(0).Name;
-                    if (operatorDocument.ElementCount == 1)
-                    {
-                        switch (operatorName)
-                        {
-                            case "$exists":
-                                var boolValue = operatorDocument[0].AsBoolean;
-                                return new QueryDocument(elementName, new BsonDocument("$exists", !boolValue));
-                            case "$in":
-                                var values = operatorDocument[0].AsBsonArray;
-                                return new QueryDocument(elementName, new BsonDocument("$nin", values));
-                            case "$not":
-                                var predicate = operatorDocument[0];
-                                return new QueryDocument(elementName, predicate);
-                            case "$ne":
-                                var comparisonValue = operatorDocument[0];
-                                return new QueryDocument(elementName, comparisonValue);
-                        }
-                        if (operatorName[0] == '$')
-                        {
-                            // use $not as a meta operator on a single operator
-                            return new QueryDocument(elementName, new BsonDocument("$not", operatorDocument));
-                        }
-                    }
-                    else
-                    {
-                        // $ref isn't an operator (it's the first field of a DBRef)
-                        if (operatorName[0] == '$' && operatorName != "$ref")
-                        {
-                            // $not only works as a meta operator on a single operator so simulate $not using $nor
-                            return new QueryDocument("$nor", new BsonArray { queryDocument });
-                        }
-                    }
-                }
-
-                var operatorValue = queryDocument[0];
-                if (operatorValue.IsBsonRegularExpression)
-                {
-                    return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
-                }
-
-                // turn implied equality comparison into $ne
-                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
-            }
-
-            // $not only works as a meta operator on a single operator so simulate $not using $nor
-            return new QueryDocument("$nor", new BsonArray { queryDocument });
-        }
-
-        private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
-        {
-            return Query.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
-        }
-
-        private IMongoQuery BuildQuery(Expression expression)
-        {
-            IMongoQuery query = null;
-
-            switch (expression.NodeType)
-            {
-                case ExpressionType.AndAlso:
-                    query = BuildAndAlsoQuery((BinaryExpression)expression);
-                    break;
-                case ExpressionType.ArrayIndex:
-                    query = BuildBooleanQuery(expression);
-                    break;
-                case ExpressionType.Call:
-                    query = BuildMethodCallQuery((MethodCallExpression)expression);
-                    break;
-                case ExpressionType.Constant:
-                    query = BuildConstantQuery((ConstantExpression)expression);
-                    break;
-                case ExpressionType.Equal:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                case ExpressionType.NotEqual:
-                    query = BuildComparisonQuery((BinaryExpression)expression);
-                    break;
-                case ExpressionType.MemberAccess:
-                    query = BuildBooleanQuery(expression);
-                    break;
-                case ExpressionType.Not:
-                    query = BuildNotQuery((UnaryExpression)expression);
-                    break;
-                case ExpressionType.OrElse:
-                    query = BuildOrElseQuery((BinaryExpression)expression);
-                    break;
-            }
-
-            if (query == null)
-            {
-                var message = string.Format("Unsupported where clause: {0}.", ExpressionFormatter.ToString(expression));
-                throw new ArgumentException(message);
-            }
-
-            return query;
-        }
-
-        private IMongoQuery BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
-        {
-            // TODO: support other comparison operators
-            if (operatorType != ExpressionType.Equal)
-            {
-                return null;
-            }
-
-            if (constantExpression.Type != typeof(int))
-            {
-                return null;
-            }
-            var index = ToInt32(constantExpression);
-
-            var methodCallExpression = variableExpression as MethodCallExpression;
-            if (methodCallExpression != null && 
-                (methodCallExpression.Method.Name == "IndexOf" || methodCallExpression.Method.Name == "IndexOfAny") &&
-                methodCallExpression.Method.DeclaringType == typeof(string))
-            {
-                var serializationInfo = GetSerializationInfo(methodCallExpression.Object);
-                if (serializationInfo == null)
-                {
-                    return null;
-                }
-
-                object value;
-                var startIndex = -1;
-                var count = -1;
-
-                var args = methodCallExpression.Arguments.ToArray();
-                switch (args.Length)
-                {
-                    case 3:
-                        var countExpression = args[2] as ConstantExpression;
-                        if (countExpression == null)
-                        {
-                            return null;
-                        }
-                        count = ToInt32(countExpression);
-                        goto case 2;
-                    case 2:
-                        var startIndexExpression = args[1] as ConstantExpression;
-                        if (startIndexExpression == null)
-                        {
-                            return null;
-                        }
-                        startIndex = ToInt32(startIndexExpression);
-                        goto case 1;
-                    case 1:
-                        var valueExpression = args[0] as ConstantExpression;
-                        if (valueExpression == null)
-                        {
-                            return null;
-                        }
-                        value = valueExpression.Value;
-                        break;
-                    default:
-                        return null;
-                }
-
-                string pattern = null;
-                if (value.GetType() == typeof(char) || value.GetType() == typeof(char[]))
-                {
-                    char[] chars;
-                    if (value.GetType() == typeof(char))
-                    {
-                        chars = new char[] { (char)value };
-                    }
-                    else
-                    {
-                        chars = (char[])value;
-                    }
-                    var positiveClass = string.Join("", chars.Select(c => (c == '-') ? "\\-" : (c == ']') ? "\\]" : Regex.Escape(c.ToString())).ToArray());
-                    var negativeClass = "[^" + positiveClass + "]";
-                    if (chars.Length > 1)
-                    {
-                        positiveClass = "[" + positiveClass + "]";
-                    }
-
-                    if (startIndex == -1)
-                    {
-                        // the regex for: IndexOf(c) == index 
-                        // is: /^[^c]{index}c/
-                        pattern = string.Format("^{0}{{{1}}}{2}", negativeClass, index, positiveClass);
-                    }
-                    else
-                    {
-                        if (count == -1)
-                        {
-                            // the regex for: IndexOf(c, startIndex) == index
-                            // is: /^.{startIndex}[^c]{index - startIndex}c/
-                            pattern = string.Format("^.{{{0}}}{1}{{{2}}}{3}", startIndex, negativeClass, index - startIndex, positiveClass);
-                        }
-                        else
-                        {
-                            if (index >= startIndex + count)
-                            {
-                                // index is outside of the substring so no match is possible
-                                return Query.Exists("_id", false); // matches no documents
-                            }
-                            else
-                            {
-                                // the regex for: IndexOf(c, startIndex, count) == index
-                                // is: /^.{startIndex}(?=.{count})[^c]{index - startIndex}c/
-                                pattern = string.Format("^.{{{0}}}(?=.{{{1}}}){2}{{{3}}}{4}", startIndex, count, negativeClass, index - startIndex, positiveClass);
-                            }
-                        }
-                    }
-                }
-                else if (value.GetType() == typeof(string))
-                {
-                    var escapedString = Regex.Escape((string)value);
-                    if (startIndex == -1)
-                    {
-                        // the regex for: IndexOf(s) == index 
-                        // is: /^(?!.{0,index - 1}s).{index}s/
-                        pattern = string.Format("^(?!.{{0,{2}}}{0}).{{{1}}}{0}", escapedString, index, index - 1);
-                    }
-                    else
-                    {
-                        if (count == -1)
-                        {
-                            // the regex for: IndexOf(s, startIndex) == index
-                            // is: /^.{startIndex}(?!.{0, index - startIndex - 1}s).{index - startIndex}s/
-                            pattern = string.Format("^.{{{1}}}(?!.{{0,{2}}}{0}).{{{3}}}{0}", escapedString, startIndex, index - startIndex - 1, index - startIndex);
-                        }
-                        else
-                        {
-                            var unescapedLength = ((string)value).Length;
-                            if (unescapedLength > startIndex + count - index)
-                            {
-                                // substring isn't long enough to match
-                                return Query.Exists("_id", false); // matches no documents
-                            }
-                            else
-                            {
-                                // the regex for: IndexOf(s, startIndex, count) == index
-                                // is: /^.{startIndex}(?=.{count})(?!.{0,index - startIndex - 1}s).{index - startIndex)s/
-                                pattern = string.Format("^.{{{1}}}(?=.{{{2}}})(?!.{{0,{3}}}{0}).{{{4}}}{0}", escapedString, startIndex, count, index - startIndex - 1, index - startIndex);
-                            }
-                        }
-                    }
-                }
-
-                if (pattern != null)
-                {
-                    return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
-                }
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
-        {
-            if (constantExpression.Type != typeof(int))
-            {
-                return null;
-            }
-            var value = ToInt32(constantExpression);
-
-            BsonSerializationInfo serializationInfo = null;
-
-            var memberExpression = variableExpression as MemberExpression;
-            if (memberExpression != null && memberExpression.Member.Name == "Length")
-            {
-                var stringMemberExpression = memberExpression.Expression as MemberExpression;
-                if (stringMemberExpression != null && stringMemberExpression.Type == typeof(string))
-                {
-                    serializationInfo = GetSerializationInfo(stringMemberExpression);
-                }
-            }
-
-            var methodCallExpression = variableExpression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "Count" && methodCallExpression.Method.DeclaringType == typeof(Enumerable))
-            {
-                var args = methodCallExpression.Arguments.ToArray();
-                if (args.Length == 1)
-                {
-                    var stringMemberExpression = args[0] as MemberExpression;
-                    if (stringMemberExpression != null && stringMemberExpression.Type == typeof(string))
-                    {
-                        serializationInfo = GetSerializationInfo(stringMemberExpression);
-                    }
-                }
-            }
-
-            if (serializationInfo != null)
-            {
-                string regex = null;
-                switch (operatorType)
-                {
-                    case ExpressionType.NotEqual: case ExpressionType.Equal: regex = @"/^.{" + value.ToString() + "}$/s"; break;
-                    case ExpressionType.GreaterThan: regex = @"/^.{" + (value + 1).ToString() + ",}$/s"; break;
-                    case ExpressionType.GreaterThanOrEqual: regex = @"/^.{" + value.ToString() + ",}$/s"; break;
-                    case ExpressionType.LessThan: regex = @"/^.{0," + (value - 1).ToString() + "}$/s"; break;
-                    case ExpressionType.LessThanOrEqual: regex = @"/^.{0," + value.ToString() + "}$/s"; break;
-                }
-                if (regex != null)
-                {
-                    if (operatorType == ExpressionType.NotEqual)
-                    {
-                        return Query.Not(serializationInfo.ElementName).Matches(regex);
-                    }
-                    else
-                    {
-                        return Query.Matches(serializationInfo.ElementName, regex);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private IMongoQuery BuildStringQuery(MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method.DeclaringType != typeof(string))
-            {
-                return null;
-            }
-
-            var arguments = methodCallExpression.Arguments.ToArray();
-            if (arguments.Length != 1)
-            {
-                return null;
-            }
-
-            var stringExpression = methodCallExpression.Object;
-            var constantExpression = arguments[0] as ConstantExpression;
-            if (constantExpression == null)
-            {
-                return null;
-            }
-
-            var pattern = Regex.Escape((string)constantExpression.Value);
-            switch (methodCallExpression.Method.Name)
-            {
-                case "Contains": pattern = ".*" + pattern + ".*"; break;
-                case "EndsWith": pattern = ".*" + pattern; break;
-                case "StartsWith": pattern = pattern + ".*"; break; // query optimizer will use index for rooted regular expressions
-                default: return null;
-            }
-
-            var caseInsensitive = false;
-            MethodCallExpression stringMethodCallExpression;
-            while ((stringMethodCallExpression = stringExpression as MethodCallExpression) != null)
-            {
-                var trimStart = false;
-                var trimEnd = false;
-                Expression trimCharsExpression = null;
-                switch (stringMethodCallExpression.Method.Name)
-                {
-                    case "ToLower":
-                        caseInsensitive = true;
-                        break;
-                    case "ToUpper":
-                        caseInsensitive = true;
-                        break;
-                    case "Trim":
-                        trimStart = true;
-                        trimEnd = true;
-                        trimCharsExpression = stringMethodCallExpression.Arguments.FirstOrDefault();
-                        break;
-                    case "TrimEnd":
-                        trimEnd = true;
-                        trimCharsExpression = stringMethodCallExpression.Arguments.First();
-                        break;
-                    case "TrimStart":
-                        trimStart = true;
-                        trimCharsExpression = stringMethodCallExpression.Arguments.First();
-                        break;
-                    default:
-                        return null;
-                }
-
-                if (trimStart || trimEnd)
-                {
-                    var trimCharsPattern = GetTrimCharsPattern(trimCharsExpression);
-                    if (trimCharsPattern == null)
-                    {
-                        return null;
-                    }
-
-                    if (trimStart)
-                    {
-                        pattern = trimCharsPattern + pattern;
-                    }
-                    if (trimEnd)
-                    {
-                        pattern = pattern + trimCharsPattern;
-                    }
-                }
-
-                stringExpression = stringMethodCallExpression.Object;
-            }
-
-            pattern = "^" + pattern + "$";
-            if (pattern.StartsWith("^.*"))
-            {
-                pattern = pattern.Substring(3);
-            }
-            if (pattern.EndsWith(".*$"))
-            {
-                pattern = pattern.Substring(0, pattern.Length - 3);
-            }
-
-            var serializationInfo = GetSerializationInfo(stringExpression);
-            if (serializationInfo != null)
-            {
-                var options = caseInsensitive ? "is" : "s";
-                return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, options));
-            }
-
-            return null;
-        }
-
         private void CombinePredicateWithWhereClause(MethodCallExpression methodCallExpression, LambdaExpression predicate)
         {
             if (predicate != null)
@@ -1134,10 +251,39 @@ namespace MongoDB.Driver.Linq
                     return;
                 }
 
+                if (_where.Parameters.Count != 1)
+                {
+                    throw new MongoInternalException("Where lambda expression should have one parameter.");
+                }
                 var whereBody = _where.Body;
-                var predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicate.Body, predicate.Parameters[0], _where.Parameters[0]);
+                var whereParameter = _where.Parameters[0];
+
+                if (predicate.Parameters.Count != 1)
+                {
+                    throw new MongoInternalException("Predicate lambda expression should have one parameter.");
+                }
+                var predicateBody = predicate.Body;
+                var predicateParameter = predicate.Parameters[0];
+
+                // when using OfType the parameter types might not match (but they do have to be compatible)
+                ParameterExpression parameter;
+                if (predicateParameter.Type.IsAssignableFrom(whereParameter.Type))
+                {
+                    predicateBody = ExpressionParameterReplacer.ReplaceParameter(predicateBody, predicateParameter, whereParameter);
+                    parameter = whereParameter;
+                }
+                else if (whereParameter.Type.IsAssignableFrom(predicateParameter.Type))
+                {
+                    whereBody = ExpressionParameterReplacer.ReplaceParameter(whereBody, whereParameter, predicateParameter);
+                    parameter = predicateParameter;
+                }
+                else
+                {
+                    throw new NotSupportedException("Can't combine existing where clause with new predicate because parameter types are incompatible.");
+                }
+
                 var combinedBody = Expression.AndAlso(whereBody, predicateBody);
-                _where = Expression.Lambda(combinedBody, _where.Parameters.ToArray());
+                _where = Expression.Lambda(combinedBody, parameter);
             }
         }
 
@@ -1157,186 +303,13 @@ namespace MongoDB.Driver.Linq
             }
 
             var keyExpression = _projection.Body;
-            var serializationInfo = GetSerializationInfo(keyExpression);
-            if (serializationInfo == null)
-            {
-                var message = string.Format("Select used with Distinct is not valid: {0}.", ExpressionFormatter.ToString(keyExpression));
-                throw new NotSupportedException(message);
-            }
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
             var dottedElementName = serializationInfo.ElementName;
             var source = Collection.Distinct(dottedElementName, query);
 
             var deserializationProjectorGenericDefinition = typeof(DeserializationProjector<>);
             var deserializationProjectorType = deserializationProjectorGenericDefinition.MakeGenericType(keyExpression.Type);
             return Activator.CreateInstance(deserializationProjectorType, source, serializationInfo);
-        }
-
-        private BsonSerializationInfo GetSerializationInfo(Expression expression)
-        {
-            var documentSerializer = BsonSerializer.LookupSerializer(DocumentType);
-            return GetSerializationInfo(documentSerializer, expression);
-        }
-
-        private BsonSerializationInfo GetSerializationInfo(IBsonSerializer serializer, Expression expression)
-        {
-            var memberExpression = expression as MemberExpression;
-            if (memberExpression != null)
-            {
-                return GetSerializationInfoMember(serializer, memberExpression);
-            }
-
-            var binaryExpression = expression as BinaryExpression;
-            if (binaryExpression != null && binaryExpression.NodeType == ExpressionType.ArrayIndex)
-            {
-                return GetSerializationInfoArrayIndex(serializer, binaryExpression);
-            }
-
-            var methodCallExpression = expression as MethodCallExpression;
-            if (methodCallExpression != null && methodCallExpression.Method.Name == "get_Item")
-            {
-                return GetSerializationInfoGetItem(serializer, methodCallExpression);
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoArrayIndex(IBsonSerializer serializer, BinaryExpression binaryExpression)
-        {
-            var arraySerializationInfo = GetSerializationInfo(serializer, binaryExpression.Left);
-            if (arraySerializationInfo != null)
-            {
-                var itemSerializationInfo = arraySerializationInfo.Serializer.GetItemSerializationInfo();
-                var indexEpression = binaryExpression.Right as ConstantExpression;
-                if (indexEpression != null)
-                {
-                    var index = Convert.ToInt32(indexEpression.Value);
-                    return new BsonSerializationInfo(
-                        arraySerializationInfo.ElementName + "." + index.ToString(),
-                        itemSerializationInfo.Serializer,
-                        itemSerializationInfo.NominalType,
-                        itemSerializationInfo.SerializationOptions);
-                }
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoGetItem(IBsonSerializer serializer, MethodCallExpression methodCallExpression)
-        {
-            var arguments = methodCallExpression.Arguments.ToArray();
-            if (arguments.Length == 1)
-            {
-                var arraySerializationInfo = GetSerializationInfo(serializer, methodCallExpression.Object);
-                if (arraySerializationInfo != null)
-                {
-                    var itemSerializationInfo = arraySerializationInfo.Serializer.GetItemSerializationInfo();
-                    var indexEpression = arguments[0] as ConstantExpression;
-                    if (indexEpression != null)
-                    {
-                        var index = Convert.ToInt32(indexEpression.Value);
-                        return new BsonSerializationInfo(
-                            arraySerializationInfo.ElementName + "." + index.ToString(),
-                            itemSerializationInfo.Serializer,
-                            itemSerializationInfo.NominalType,
-                            itemSerializationInfo.SerializationOptions);
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private BsonSerializationInfo GetSerializationInfoMember(IBsonSerializer serializer, MemberExpression memberExpression)
-        {
-            var declaringType = memberExpression.Expression.Type;
-            var memberName = memberExpression.Member.Name;
-
-            var containingExpression = memberExpression.Expression;
-            if (containingExpression.NodeType == ExpressionType.Parameter)
-            {
-                try
-                {
-                    return serializer.GetMemberSerializationInfo(memberName);
-                }
-                catch (NotSupportedException)
-                {
-                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
-                    throw new NotSupportedException(message);
-                }
-            }
-            else
-            {
-                var containingSerializationInfo = GetSerializationInfo(serializer, containingExpression);
-                try
-                {
-                    var memberSerializationInfo = containingSerializationInfo.Serializer.GetMemberSerializationInfo(memberName);
-                    return new BsonSerializationInfo(
-                        containingSerializationInfo.ElementName + "." + memberSerializationInfo.ElementName,
-                        memberSerializationInfo.Serializer,
-                        memberSerializationInfo.NominalType,
-                        memberSerializationInfo.SerializationOptions);
-                }
-                catch (NotSupportedException)
-                {
-                    var message = string.Format("LINQ queries on fields or properties of class {0} are not supported because the serializer for {0} does not implement the GetMemberSerializationInfo method.", declaringType.Name);
-                    throw new NotSupportedException(message);
-                }
-            }
-        }
-
-        private string GetTrimCharsPattern(Expression trimCharsExpression)
-        {
-            if (trimCharsExpression == null)
-            {
-                return "\\s*";
-            }
-
-            var constantExpresion = trimCharsExpression as ConstantExpression;
-            if (constantExpresion == null || constantExpresion.Type != typeof(char[]))
-            {
-                return null;
-            }
-
-            var trimChars = (char[])constantExpresion.Value;
-            if (trimChars.Length == 0)
-            {
-                return "\\s*";
-            }
-
-            // build a pattern that matches the characters to be trimmed
-            var characterClass = string.Join("", trimChars.Select(c => (c == '-') ? "\\-" : (c == ']') ? "\\]" : Regex.Escape(c.ToString())).ToArray());
-            if (trimChars.Length > 1)
-            {
-                characterClass = "[" + characterClass + "]";
-            }
-            return characterClass + "*";
-        }
-
-        private BsonValue SerializeValue(BsonSerializationInfo serializationInfo, object value)
-        {
-            var bsonDocument = new BsonDocument();
-            var bsonWriter = BsonWriter.Create(bsonDocument);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("value");
-            serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
-            bsonWriter.WriteEndDocument();
-            return bsonDocument[0];
-        }
-
-        private BsonArray SerializeValues(BsonSerializationInfo serializationInfo, IEnumerable values)
-        {
-            var bsonDocument = new BsonDocument();
-            var bsonWriter = BsonWriter.Create(bsonDocument);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("values");
-            bsonWriter.WriteStartArray();
-            foreach (var value in values)
-            {
-                serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
-            }
-            bsonWriter.WriteEndArray();
-            bsonWriter.WriteEndDocument();
-            return bsonDocument[0].AsBsonArray;
         }
 
         private void SetElementSelector(MethodCallExpression methodCallExpression, Func<IEnumerable, object> elementSelector)
@@ -1650,6 +623,9 @@ namespace MongoDB.Driver.Linq
                 case "Min":
                     TranslateMaxMin(methodCallExpression);
                     break;
+                case "OfType":
+                    TranslateOfType(methodCallExpression);
+                    break;
                 case "OrderBy":
                 case "OrderByDescending":
                     TranslateOrderBy(methodCallExpression);
@@ -1674,6 +650,63 @@ namespace MongoDB.Driver.Linq
                     var message = string.Format("The {0} query operator is not supported.", methodName);
                     throw new NotSupportedException(message);
             }
+        }
+
+        private void TranslateOfType(MethodCallExpression methodCallExpression)
+        {
+            var method = methodCallExpression.Method;
+            if (method.DeclaringType != typeof(Queryable))
+            {
+                var message = string.Format("OfType method of class {0} is not supported.", BsonUtils.GetFriendlyTypeName(method.DeclaringType));
+                throw new NotSupportedException(message);
+            }
+            if (!method.IsStatic)
+            {
+                throw new NotSupportedException("Expected OfType to be a static method.");
+            }
+            if (!method.IsGenericMethod)
+            {
+                throw new NotSupportedException("Expected OfType to be a generic method.");
+            }
+            var actualType = method.GetGenericArguments()[0];
+
+            var args = methodCallExpression.Arguments.ToArray();
+            if (args.Length != 1)
+            {
+                throw new NotSupportedException("Expected OfType method to have a single argument.");
+            }
+            var sourceExpression = args[0];
+            if (!sourceExpression.Type.IsGenericType)
+            {
+                throw new NotSupportedException("Expected source argument to OfType to be a generic type.");
+            }
+            var nominalType = sourceExpression.Type.GetGenericArguments()[0];
+
+            if (_projection != null)
+            {
+                throw new NotSupportedException("OfType after a projection is not supported.");
+            }
+
+            var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
+            var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            if (discriminator == null)
+            {
+                return; // nothing to do
+            }
+
+            if (discriminator.IsBsonArray)
+            {
+                discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
+            }
+            var query = Query.EQ(discriminatorConvention.ElementName, discriminator);
+
+            var injectMethodInfo = typeof(LinqToMongo).GetMethod("Inject");
+            var body = Expression.Call(injectMethodInfo, Expression.Constant(query));
+            var parameter = Expression.Parameter(nominalType, "x");
+            var predicate = Expression.Lambda(body, parameter);
+            CombinePredicateWithWhereClause(methodCallExpression, predicate);
+
+            _ofType = actualType;
         }
 
         private void TranslateOrderBy(MethodCallExpression methodCallExpression)

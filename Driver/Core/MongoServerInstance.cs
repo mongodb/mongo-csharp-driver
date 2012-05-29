@@ -219,15 +219,15 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            var connection = _connectionPool.AcquireConnection(null);
+            // use a new connection instead of one from the connection pool
+            var connection = new MongoConnection(this);
             try
             {
-                var pingCommand = new CommandDocument("ping", 1);
-                connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
+                Ping(connection);
             }
             finally
             {
-                _connectionPool.ReleaseConnection(connection);
+                connection.Close();
             }
         }
 
@@ -238,21 +238,22 @@ namespace MongoDB.Driver
         {
             lock (_serverInstanceLock)
             {
-                // Console.WriteLine("MongoServerInstance[{0}]: VerifyState called.", sequentialId);
-                // if ping fails assume all connections in the connection pool are doomed
+                // use a new connection instead of one from the connection pool
+                var connection = new MongoConnection(this);
                 try
                 {
-                    Ping();
-                }
-                catch
-                {
-                    // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
-                    _connectionPool.Clear();
-                }
+                    // Console.WriteLine("MongoServerInstance[{0}]: VerifyState called.", sequentialId);
+                    // if ping fails assume all connections in the connection pool are doomed
+                    try
+                    {
+                        Ping(connection);
+                    }
+                    catch
+                    {
+                        // Console.WriteLine("MongoServerInstance[{0}]: Ping failed: {1}.", sequentialId, ex.Message);
+                        _connectionPool.Clear();
+                    }
 
-                var connection = _connectionPool.AcquireConnection(null);
-                try
-                {
                     var previousState = _state;
                     try
                     {
@@ -270,7 +271,7 @@ namespace MongoDB.Driver
                 }
                 finally
                 {
-                    _connectionPool.ReleaseConnection(connection);
+                    connection.Close();
                 }
             }
         }
@@ -371,6 +372,12 @@ namespace MongoDB.Driver
                     }
                 }
             }
+        }
+
+        internal void Ping(MongoConnection connection)
+        {
+            var pingCommand = new CommandDocument("ping", 1);
+            connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
         }
 
         internal void ReleaseConnection(MongoConnection connection)

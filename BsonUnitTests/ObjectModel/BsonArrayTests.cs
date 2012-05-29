@@ -171,7 +171,7 @@ namespace MongoDB.BsonUnitTests
         public void TestContainsNull()
         {
             var array = new BsonArray { 1, 2 };
-            Assert.Throws<ArgumentNullException>(() => { array.Contains(null); });
+            Assert.IsFalse(array.Contains(null));
         }
 
         [Test]
@@ -427,7 +427,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestCreateFromObject()
         {
-            var value = (object)new object[] { 1, 1.5, null };
+            var value = (object)new object[] { 1, 1.5, null }; // null will be mapped to BsonNull.Value
             var array = BsonArray.Create(value);
             Assert.AreEqual(3, array.Count);
             Assert.IsInstanceOf<BsonInt32>(array[0]);

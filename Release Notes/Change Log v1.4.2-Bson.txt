@@ -1,0 +1,33 @@
+BSON library changes from 1.4.1 to 1.4.2
+
+BsonArray.cs
+    Contains now returns false if value argument is null (instead of throwing ArgumentNullException)
+
+BsonDocument.cs
+    Parse method now casts document to IBsonSerializable to call Deserialize method
+    ReadFrom method now casts document to IBsonSerializable to call Deserialize method
+    Deserialize method marked obsolete
+    GetDocumentId method marked obsolete
+    GetDocumentId temporarily changed to be backward compatible with 1.4.0 and earlier
+    Serialize method marked obsolete
+    SetDocumentId method marked obsolete
+    SetDocumentId temporarily changed to be backward compatible with 1.4.0 and earlier
+    WriteTo method now casts this to IBsonSerializable to call Deserialize method
+
+BsonDocumentWrapper.cs
+    Deserialize method marked obsolete
+    GetDocumentId method marked obsolete
+    Serialize method marked obsolete
+    SetDocumentId method marked obsolete
+
+BsonValue.cs
+    WriteTo method now casts documentWrapper to IBsonSerializable to call Serialize method
+
+BsonValueSerializers.cs
+    BsonDocumentSerializer.GetDocumentId now casts document to IBsonSerializable to call GetDocumentId method
+    BsonDocumentSerializer.Serialize now casts document to IBsonSerializable to call Serialize method
+    BsonDocumentSerializer.SetDocumentId now casts document to IBsonSerializable to call SetDocumentId method
+    BsonDocumentWrapperSerializer.Serialize now casts document to IBsonSerializable to call Serialize method
+
+BsonSerializer.cs
+    Deserialize method now casts document to IBsonSerializable to call Deserialize method

@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="nominalType">Not applicable.</param>
         /// <param name="options">Not applicable.</param>
         /// <returns>Not applicable.</returns>
+        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
         public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             var message = string.Format("Deserialize method cannot be called on a {0}.", this.GetType().Name);
@@ -75,6 +76,7 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="idNominalType">Not applicable.</param>
         /// <param name="idGenerator">Not applicable.</param>
         /// <returns>Not applicable.</returns>
+        [Obsolete("GetDocumentId was intended to be private and will become private in a future release.")]
         public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             var message = string.Format("GetDocumentId method cannot be called on a {0}.", this.GetType().Name);
@@ -87,6 +89,7 @@ namespace MongoDB.Driver.Wrappers
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type (ignored).</param>
         /// <param name="options">The serialization options.</param>
+        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             BsonSerializer.Serialize(bsonWriter, _nominalType, _obj, options); // use wrapped nominalType
@@ -97,6 +100,7 @@ namespace MongoDB.Driver.Wrappers
         /// </summary>
         /// <param name="id">Not applicable.</param>
         /// <returns>Not applicable.</returns>
+        [Obsolete("SetDocumentId was intended to be private and will become private in a future release.")]
         public void SetDocumentId(object id)
         {
             var message = string.Format("SetDocumentId method cannot be called on a {0}.", this.GetType().Name);

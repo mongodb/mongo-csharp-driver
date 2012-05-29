@@ -202,6 +202,7 @@ namespace MongoDB.Bson
         /// <param name="nominalType">Not applicable.</param>
         /// <param name="options">Not applicable.</param>
         /// <returns>Not applicable.</returns>
+        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
         public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             throw new NotSupportedException();
@@ -214,6 +215,7 @@ namespace MongoDB.Bson
         /// <param name="idNominalType">Not applicable.</param>
         /// <param name="idGenerator">Not applicable.</param>
         /// <returns>Not applicable.</returns>
+        [Obsolete("GetDocumentId was intended to be private and will become private in a future release.")]
         public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             throw new NotSupportedException();
@@ -244,6 +246,7 @@ namespace MongoDB.Bson
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominal type (overridded by the wrapped nominal type).</param>
         /// <param name="options">The serialization options.</param>
+        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             if (_isUpdateDocument)
@@ -272,6 +275,7 @@ namespace MongoDB.Bson
         /// SetDocumentId is an invalid operation for BsonDocumentWrapper.
         /// </summary>
         /// <param name="Id">Not applicable.</param>
+        [Obsolete("SetDocumentId was intended to be private and will become private in a future release.")]
         public void SetDocumentId(object Id)
         {
             throw new NotSupportedException();

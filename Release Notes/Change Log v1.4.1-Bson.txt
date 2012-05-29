@@ -1,0 +1,130 @@
+BSON library changes from 1.4 to 1.4.1
+
+BsonBinaryWriter.cs
+	added calls to base.WriteStartArray/base.WriteEndArray
+	added calls to base.WriteStartDocument/base.WriteEndDocument
+
+BsonDocumentWriter.cs
+	added calls to base.WriteStartArray/base.WriteEndArray
+	added calls to base.WriteStartDocument/base.WriteEndDocument
+
+BsonWriter.cs
+	added private field _serializationDepth
+	added public property SerializationDepth
+	changed WriteEndArray to decrement _serializationDepth
+	changed WriteEndDocument to decrement _serializationDepth
+	changed WriteStartArray to increment _serializationDepth and check if it exceeds MaxSerializationDepth
+	changed WriteStartDocument to increment _serializationDepth and check if it exceeds MaxSerializationDepth
+
+BsonWriterSettings.cs
+	added private field _maxSerializationDepth
+	added public property MaxSerializationDepth
+
+JsonWriter.cs
+	added calls to base.WriteStartArray/base.WriteEndArray
+	added calls to base.WriteStartDocument/base.WriteEndDocument
+	changed WriteRegularExpression to not escape "\" (if it needed to be escaped it already would be)
+
+BsonArray.cs
+	added checks for invalid null arguments
+	changed AddRange(IEnumerable<BsonValue>) to skip null BsonValues passed in (as per functional construction conventions)
+	changed AddRange(IEnumerable<string>) to map null to BsonNull.Value
+	changed AddRange(IEnumerable) to use BsonTypeMapper.MapToBsonValue
+	changed Clone to be shallow like it was supposed to be
+
+BsonBinaryData.cs
+	added checks for invalid null arguments
+
+BsonDocument.cs
+	added checks for invalid null arguments
+	changed Add(IDictionary<string, object>) to use BsonTypeMapper.MapToBsonValue
+	changed Add(IDictionary) to use BsonTypeMapper.MapToBsonValue
+	changed GetDocumentId to return the Value instead of the RawValue as the Id
+	changed GetDocumentId to handle special case of Guid Id
+	changed SetDocumentId to assume Id is already of type BsonValue
+	changed ToDictionary to use new BsonTypeMapper.MapToDotNetValue method
+	changed ToHashtable to use new BsonTypeMapper.MapToDotNetValue method
+	removed private method ToDictionaryHelper (no longer needed now that MapToDotNetValue exists)
+	removed private method ToHashtable (no longer needed now that MapToDotNetValue exists)
+
+BsonElement.cs
+	added checks for invalid null arguments
+	changed Clone to be shallow like it was supposed to be
+
+BsonJavaScript.cs
+	added checks for invalid null arguments
+
+BsonJavaScriptWithScope.cs
+	added checks for invalid null arguments
+
+BsonRegularExpression.cs
+	added checks for invalid null arguments
+	changed constructor to not unescape "\" (if it's escaped it's because it needs to be)
+	changed ToString to not escape "\" (if it needed to be escaped it already would be)
+
+BsonString.cs
+	added checks for invalid null arguments
+
+BsonSymbol.cs
+	added checks for invalid null arguments
+
+BsonSymbolTable.cs
+	added checks for invalid null arguments
+
+BsonTypeMapper.cs
+	changed MapToBsonValue to map null to BsonNull.Value
+	added new MapToDotNetValue methods (maps from BsonValue to the best matching .NET types)
+	changed TryMapToBsonValue to map null to BsonNull.Value
+
+BsonTypeMapperOptions.cs
+	new class containing options for the new MapToDotNetValue method
+
+BsonValue.cs
+	added checks for invalid null arguments
+
+ObjectId.cs
+	added checks for invalid null arguments
+
+BsonElement.cs
+	added no argument constructor (to support opt-in serialization of read-only properties without requiring an explicit element name)
+
+IdGenerators.cs
+	added new BsonBinaryDataGuidGenerator class
+
+CollectionGenericSerializer.cs
+	changed Deserialize methods to handle representation with discriminator when nominalType is object
+	changed Serialize methods to use representation with discriminator when nominalType is object
+
+CollectionSerializer.cs
+	changed Deserialize methods to handle representation with discriminator when nominalType is object
+	changed Serialize methods to use representation with discriminator when nominalType is object
+
+NetPrimitiveSerializers.cs
+	changed Deserialize method of UriSerializer to allow relative or absolute URIs
+	changed Serializer method of UriSerializer to serialize original string (to support relative or absolute URIs)
+
+BsonClassMap.cs
+	added public property AllMemberMaps
+	added public property DeclaredMemberMaps
+	deprecated public property MemberMaps (use AllMemberMaps or DeclaredMemberMaps instead)
+	moved GetTypeNameDiscriminator method to new TypeNameDiscriminator class
+	changed AutoMapMember to support using BsonElement to opt-in serialization of read-only properties
+	changed FindMembers to support using BsonElement to opt-in serialization of read-only properties
+
+BsonClassMapSerializer.cs
+	changed Deserialize to ignore any values that correspond to opted-in read-only properties
+	changed GetMemberSerializationInfo to check AllMemberMaps directly instead of calling GetMemberMap
+	changed DeserializeExtraElement to use new MapToDotNetValue method when extra elements property is of type IDictionary<string, object>
+	removed MapBsonValueToDotNetValue (use new MapToDotNetValue method of BsonTypeMapper instead)
+
+BsonMemberMap.cs
+	added public property IsReadOnly
+
+TypeNameDiscriminator.cs
+	new helper class
+	added public method GetActualType that maps a friendly type name discriminator value to a Type
+	added public method GetDiscriminator that maps a Type to a friendly type name discriminator value
+
+BsonDefaults.cs
+	added private static field _maxSerializationDepth with a default value of 100
+	added public static property MaxSerializationDepth

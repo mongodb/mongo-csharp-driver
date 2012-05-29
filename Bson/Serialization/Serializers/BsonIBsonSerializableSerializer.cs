@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for classes that implement IBsonSerializable.
     /// </summary>
-    public class BsonIBsonSerializableSerializer : IBsonSerializer
+    public class BsonIBsonSerializableSerializer : IBsonSerializer, IBsonIdProvider
     {
         // private static fields
         private static BsonIBsonSerializableSerializer __instance = new BsonIBsonSerializableSerializer();
@@ -107,25 +107,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonSerializable = (IBsonSerializable)document;
             return bsonSerializable.GetDocumentId(out id, out idNominalType, out idGenerator);
-        }
-
-        /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
-        {
-            throw new NotSupportedException("BsonIBsonSerializableSerializer does not implement the GetItemSerializationInfo method.");
-        }
-
-        /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
-        {
-            throw new NotSupportedException("BsonIBsonSerializableSerializer does not implement the GetMemberSerializationInfo method.");
         }
 
         /// <summary>

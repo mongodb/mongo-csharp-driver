@@ -40,6 +40,10 @@ namespace MongoDB.BsonUnitTests.Serialization
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
             private int fieldMappedByAttribute;
+#pragma warning disable 414 // fieldMappedByAttribute2 is assigned but its value is never used
+            [BsonElement]
+            private readonly int fieldMappedByAttribute2;
+#pragma warning restore
 
             public int PropertyMapped { get; set; }
             public int PropertyMapped2 { get; private set; }
@@ -49,6 +53,27 @@ namespace MongoDB.BsonUnitTests.Serialization
 
             [BsonElement("PropertyMappedByAttribute")]
             private int PropertyMappedByAttribute { get; set; }
+
+            [BsonElement]
+            public int PropertyMappedByAttribute2
+            {
+                get { return PropertyMapped + 1; }
+            }
+
+            public A()
+            {
+                fieldMappedByAttribute2 = 10;
+            }
+        }
+
+        private class B
+        {
+            public int A { get; set; }
+
+            public B(int a)
+            {
+                A = a;
+            }
         }
 #pragma warning restore
 
@@ -56,7 +81,22 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestMappingPicksUpAllMembersWithAttributes()
         {
             var classMap = BsonClassMap.LookupClassMap(typeof(A));
-            Assert.AreEqual(6, classMap.AllMemberMaps.Count());
+            Assert.AreEqual(8, classMap.AllMemberMaps.Count());
+        }
+
+        [Test]
+        public void TestSetCreator()
+        {
+            var classMap = new BsonClassMap<B>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetCreator(() => new B(10));
+            });
+
+            classMap.Freeze();
+
+            var instance = (B)classMap.CreateInstance();
+            Assert.AreEqual(10, instance.A);
         }
     }
 

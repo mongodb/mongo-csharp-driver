@@ -1,0 +1,80 @@
+C# driver changes from 1.4 to 1.4.1
+
+QueryBuilder.cs
+	changed Or method to handle empty queries (an empty query matches all documents)
+	note: the And method did not require any changes to handle empty queries
+
+MongoCollection.cs
+	added checks for invalid null arguments
+
+MongoDatabase.cs
+	moved private static field __invalidDatabaseNameChars to MongoServer
+	removed static constructor (no longer needed)
+	added checks for invalid null arguments
+	added public method IsCollectionNameValid
+	removed ValidateDatabaseName method (see new IsDatabaseNameValid method in MongoServer)
+
+MongoServer.cs
+	added private static field __invalidDatabaseNameChars
+	changed static constructor to also initialize __invalidDatabaseNameChars
+	added public method IsDatabaseNameValid
+
+MongoGridFS.cs
+	changed Download to optionally not verify MD5 (default is to verify)
+	changed Upload to optionally not verify MD5 (default is to verify)
+
+MongoGridFSSettings.cs
+	added private field _updateMD5
+	added private field _verifyMD5
+	added public property UpdateMD5
+	added public property VerifyMD5
+	changed Clone, Equal and GetHashCode to take new fields into account
+
+MongoGridFSStream.cs
+	added private field _fileIsDirty
+	changed SetLength to set _fileIsDirty to true
+	changed Write to set _fileIsDirty to true
+	changed WriteByte to set _fileIsDirty to true
+	changed Dispose to only call Flush and UpdateMetadata if file is actually dirty
+	changed OpenCreate to set _fileIsDirty to true
+	changed OpenTruncate to set _fileIsDirty to true
+
+ExpressionFormatter.cs
+	implemented VisitTypeBinary method
+	changed VisitValue to handle char and Type values
+
+ExpressionParameterFinder.cs
+	new class used to find a parameter in an expression
+
+ExpressionPrettyPrinter.cs
+	implemented VisitTypeBinary method
+
+MongoQueryTranslator.cs
+	changed GetDocumentType to handle bare AsQueryable (no Where clause or anything else)
+
+SelectQuery.cs
+	added private field _ofType
+	added public property OfType
+	changed Execute to handle LINQ queries that included an OfType<T> query operator
+	changed Translate to handle bare AsQueryable (no Where clause or anything else)
+	changed Translate to move switch statement on method name to new TranslateMethodCall method
+	changed BuildArrayLengthQuery to handle constant on either side
+	changed BuildComparisonQuery to handle constant on either side
+	added private method BuildEqualsQuery to support Equals method in LINQ queries
+	added private method BuildIsNullOrEmptyQuery to support string.IsNullOrEmpty method in LINQ queries
+	changed BuildModQuery to handle constant on either side
+	added private method BuildStringIndexOfQuery to support string.IndexOf and IndexOfAny methods in LINQ queries
+	added private method BuildStringIndexQuery to support string[index] in LINQ queries
+	added private method BuildStringLengthQuery to support string.Length in LINQ queries
+	changed BuildStringQuery to allow combining ToLower/ToUpper/Trim/TrimStart/TrimEnd with Contains/StartsWith/EndsWith in LINQ queries
+	added private method BuildTypeComparisonQuery to support x.GetType() == typeof(T) in LINQ queries
+	added private method BuildTypeIsQuery to support x is T in LINQ queries
+	changed CombinePredicateWithWhereClause to handle parameter type being changed by OfType<T> query operator
+	changed GetSerializationInfo to lookup serializer based on the parameter type (and not necessarily the document type)
+	changed GetSerializationInfoMember to stop recursion when it gets to a parameter (which may or may not be of the document type)
+	added private method GetTrimCharsPattern
+	added private method TranslateMethodCall
+	added private method TranslateOfType to support OfType<T> query operator
+
+LinqExtensionMethods.cs
+	added an overload of AsQueryable that can deduce the type of <T> from the collection parameter

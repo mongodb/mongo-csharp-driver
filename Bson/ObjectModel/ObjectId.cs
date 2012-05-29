@@ -311,11 +311,8 @@ namespace MongoDB.Bson
         /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(string s, out ObjectId objectId)
         {
-            if (s == null)
-            {
-                throw new ArgumentNullException("s");
-            }
-            if (s.Length == 24)
+            // don't throw ArgumentNullException if s is null
+            if (s != null && s.Length == 24)
             {
                 byte[] bytes;
                 if (BsonUtils.TryParseHexString(s, out bytes))

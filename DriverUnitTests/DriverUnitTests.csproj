@@ -51,6 +51,13 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -91,6 +98,7 @@
     <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
+    <Compile Include="Builders\TypedQueryBuilderTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />
@@ -118,6 +126,7 @@
     <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
     <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
     <Compile Include="GridFS\MongoGridFSTests.cs" />
+    <Compile Include="Jira\CSharp475Tests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />
     <Compile Include="Jira\CSharp103Tests.cs" />
     <Compile Include="Jira\CSharp110Tests.cs" />
@@ -157,14 +166,19 @@
     <Compile Include="Jira\CSharp365Tests.cs" />
     <Compile Include="Jira\CSharp378Tests.cs" />
     <Compile Include="Jira\CSharp418Tests.cs" />
+    <Compile Include="Jira\CSharp471Tests.cs" />
     <Compile Include="Jira\CSharp77Tests.cs" />
     <Compile Include="Jira\CSharp92Tests.cs" />
     <Compile Include="Jira\CSharp93Tests.cs" />
     <Compile Include="Jira\CSharp98Tests.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
+    <Compile Include="Linq\SelectNullableTests.cs" />
+    <Compile Include="Linq\SelectOfTypeHierarchicalTests.cs" />
+    <Compile Include="Linq\SelectOfTypeTests.cs" />
     <Compile Include="Linq\SelectQueryTests.cs" />
     <Compile Include="Linq\MongoQueryableTests.cs" />
     <Compile Include="Linq\MongoQueryProviderTests.cs" />
+    <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
   </ItemGroup>

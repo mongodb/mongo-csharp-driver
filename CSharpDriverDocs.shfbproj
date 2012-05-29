@@ -42,10 +42,10 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <CopyrightText>Copyright 2010-2012 10gen Inc.</CopyrightText>
-    <FeedbackEMailAddress>robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>
-    <FeedbackEMailLinkText>C# driver API doc</FeedbackEMailLinkText>
+    <FeedbackEMailAddress>craig.wilson%4010gen.com, robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>
+    <FeedbackEMailLinkText>CSharp driver API doc</FeedbackEMailLinkText>
     <FrameworkVersion>.NET 3.5</FrameworkVersion>
-    <HelpFileVersion>1.4.0.4468</HelpFileVersion>
+    <HelpFileVersion>1.4.2.4500</HelpFileVersion>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

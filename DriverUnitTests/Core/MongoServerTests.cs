@@ -30,6 +30,7 @@ namespace MongoDB.DriverUnitTests
         private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
+        private bool _isMasterSlavePair;
 
         [TestFixtureSetUp]
         public void Setup()
@@ -37,6 +38,11 @@ namespace MongoDB.DriverUnitTests
             _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
+
+            var adminDatabase = _server.GetDatabase("admin");
+            var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
+            var argv = commandResult.Response["argv"].AsBsonArray;
+            _isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
         }
 
         // TODO: more tests for MongoServer
@@ -55,22 +61,28 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDatabaseExists()
         {
-            _database.Drop();
-            Assert.IsFalse(_server.DatabaseExists(_database.Name));
-            _collection.Insert(new BsonDocument("x", 1));
-            Assert.IsTrue(_server.DatabaseExists(_database.Name));
+            if (!_isMasterSlavePair)
+            {
+                _database.Drop();
+                Assert.IsFalse(_server.DatabaseExists(_database.Name));
+                _collection.Insert(new BsonDocument("x", 1));
+                Assert.IsTrue(_server.DatabaseExists(_database.Name));
+            }
         }
 
         [Test]
         public void TestDropDatabase()
         {
-            _collection.Insert(new BsonDocument());
-            var databaseNames = _server.GetDatabaseNames();
-            Assert.IsTrue(databaseNames.Contains(_database.Name));
+            if (!_isMasterSlavePair)
+            {
+                _collection.Insert(new BsonDocument());
+                var databaseNames = _server.GetDatabaseNames();
+                Assert.IsTrue(databaseNames.Contains(_database.Name));
 
-            var result = _server.DropDatabase(_database.Name);
-            databaseNames = _server.GetDatabaseNames();
-            Assert.IsFalse(databaseNames.Contains(_database.Name));
+                var result = _server.DropDatabase(_database.Name);
+                databaseNames = _server.GetDatabaseNames();
+                Assert.IsFalse(databaseNames.Contains(_database.Name));
+            }
         }
 
         [Test]

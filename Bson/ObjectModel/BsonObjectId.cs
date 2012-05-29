@@ -314,6 +314,7 @@ namespace MongoDB.Bson
         /// <returns>True if the string was parsed successfully.</returns>
         public static bool TryParse(string s, out BsonObjectId value)
         {
+            // don't throw ArgumentNullException if s is null
             ObjectId objectId;
             if (ObjectId.TryParse(s, out objectId))
             {

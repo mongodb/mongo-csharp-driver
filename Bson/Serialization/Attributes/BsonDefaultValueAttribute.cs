@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the default value for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDefaultValueAttribute : BsonSerializationOptionsAttribute
+    public class BsonDefaultValueAttribute : Attribute, IBsonMemberMapModifier
     {
         // private fields
         private object _defaultValue;
@@ -63,12 +63,19 @@ namespace MongoDB.Bson.Serialization.Attributes
             }
         }
 
+        // public methods
         /// <summary>
-        /// Gets whether SerializeDefaultValue was set.
+        /// Applies a modification to the member map.
         /// </summary>
-        internal bool SerializeDefaultValueWasSet
+        /// <param name="memberMap">The member map.</param>
+        public void Apply(BsonMemberMap memberMap)
         {
-            get { return _serializeDefaultValueWasSet; }
+            memberMap.SetDefaultValue(_defaultValue);
+            if (_serializeDefaultValueWasSet)
+            {
+                memberMap.SetIgnoreIfNull(false);
+                memberMap.SetIgnoreIfDefault(!_serializeDefaultValue);
+            }
         }
     }
 }

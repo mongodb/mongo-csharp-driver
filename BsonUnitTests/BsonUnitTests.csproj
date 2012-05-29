@@ -109,6 +109,7 @@
     <Compile Include="DefaultSerializer\Serializers\NullableTypeSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\DiscriminatorTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\StructSerializerTests.cs" />
+    <Compile Include="IO\BsonBufferTests.cs" />
     <Compile Include="IO\BsonBufferValueStraddlesChunksTests.cs" />
     <Compile Include="IO\BsonDocumentReaderTests.cs" />
     <Compile Include="IO\BsonDocumentWriterTests.cs" />
@@ -144,6 +145,9 @@
     <Compile Include="Jira\CSharp357Tests.cs" />
     <Compile Include="Jira\CSharp369Tests.cs" />
     <Compile Include="Jira\CSharp400Tests.cs" />
+    <Compile Include="Jira\CSharp446Tests.cs" />
+    <Compile Include="Jira\CSharp452Tests.cs" />
+    <Compile Include="Jira\CSharp460Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
@@ -167,7 +171,7 @@
     <Compile Include="IO\BsonRoundTripTests.cs" />
     <Compile Include="ObjectModel\BsonValueCompareToTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DefaultSerializer\BsonDefaultSerializerTests.cs" />
+    <Compile Include="DefaultSerializer\BsonSerializerTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\ArraySerializerTests.cs" />
     <Compile Include="DefaultSerializer\SerializeEnumTests.cs" />
     <Compile Include="DefaultSerializer\Serializers\GenericEnumerableSerializerTests.cs" />

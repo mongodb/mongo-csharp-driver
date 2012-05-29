@@ -44,12 +44,15 @@ namespace MongoDB.Bson.Serialization
         private Action<object, object> _setter;
         private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
+        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
+        private volatile IBsonSerializer _cachedSerializer;
         private IIdGenerator _idGenerator;
         private bool _isRequired;
         private Func<object, bool> _shouldSerializeMethod;
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
         private object _defaultValue;
+        private bool _defaultValueSpecified;
 
         // constructors
         /// <summary>
@@ -63,6 +66,7 @@ namespace MongoDB.Bson.Serialization
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _defaultValue = GetDefaultValue(_memberType);
+            _defaultValueSpecified = false;
         }
 
         // public properties
@@ -240,6 +244,34 @@ namespace MongoDB.Bson.Serialization
             get { return _defaultValue; }
         }
 
+        /// <summary>
+        /// Gets whether the member is readonly.
+        /// </summary>
+        /// <remarks>
+        /// Readonly indicates that the member is written to the database, but not read from the database.
+        /// </remarks>
+        public bool IsReadOnly
+        {
+            get
+            {
+                switch(_memberInfo.MemberType)
+                {
+                    case MemberTypes.Field:
+                        var field = (FieldInfo)_memberInfo;
+                        return field.IsInitOnly || field.IsLiteral;
+                    case MemberTypes.Property:
+                        var property = (PropertyInfo)_memberInfo;
+                        return !property.CanWrite;
+                    default:
+                        throw new NotSupportedException(
+                            string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
+                            _memberInfo.Name,
+                            _memberInfo.DeclaringType.Name,
+                            _memberInfo.MemberType));
+                }
+            }
+        }
+
         // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
@@ -247,7 +279,10 @@ namespace MongoDB.Bson.Serialization
         /// <param name="obj">The object.</param>
         public void ApplyDefaultValue(object obj)
         {
-            this.Setter(obj, _defaultValue);
+            if (_defaultValueSpecified)
+            {
+                this.Setter(obj, _defaultValue);
+            }
         }
 
         /// <summary>
@@ -257,13 +292,29 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public IBsonSerializer GetSerializer(Type actualType)
         {
+            // if a custom serializer is configured always return it
             if (_serializer != null)
             {
                 return _serializer;
             }
             else
             {
-                return BsonSerializer.LookupSerializer(actualType);
+                // return a cached serializer when possible
+                if (actualType == _memberType)
+                {
+                    var serializer = _cachedSerializer;
+                    if (serializer == null)
+                    {
+                        // it's possible but harmless for multiple threads to do the initial lookup at the same time
+                        serializer = BsonSerializer.LookupSerializer(_memberType);
+                        _cachedSerializer = serializer;
+                    }
+                    return serializer;
+                }
+                else
+                {
+                    return BsonSerializer.LookupSerializer(actualType);
+                }
             }
         }
 
@@ -275,6 +326,7 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetDefaultValue(object defaultValue)
         {
             _defaultValue = defaultValue;
+            _defaultValueSpecified = true;
             return this;
         }
 
@@ -455,6 +507,24 @@ namespace MongoDB.Bson.Serialization
             return true;
         }
 
+        // internal methods
+        /// <summary>
+        /// Gets the discriminator convention for the member type.
+        /// </summary>
+        /// <returns>The discriminator convention for the member type.</returns>
+        internal IDiscriminatorConvention GetDiscriminatorConvention()
+        {
+            // return a cached discriminator convention when possible
+            var discriminatorConvention = _cachedDiscriminatorConvention;
+            if (discriminatorConvention == null)
+            {
+                // it's possible but harmless for multiple threads to do the initial lookup at the same time
+                discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(_memberType);
+                _cachedDiscriminatorConvention = discriminatorConvention;
+            }
+            return discriminatorConvention;
+        }
+
         // private methods
         private static object GetDefaultValue(Type type)
         {
@@ -497,10 +567,10 @@ namespace MongoDB.Bson.Serialization
         {
             var fieldInfo = (FieldInfo)_memberInfo;
 
-            if (fieldInfo.IsInitOnly || fieldInfo.IsLiteral)
+            if (IsReadOnly)
             {
                 var message = string.Format(
-                    "The field '{0} {1}' of class '{2}' is readonly.",
+                    "The field '{0} {1}' of class '{2}' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
                     fieldInfo.FieldType.FullName, fieldInfo.Name, fieldInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }
@@ -554,10 +624,10 @@ namespace MongoDB.Bson.Serialization
         {
             var propertyInfo = (PropertyInfo)_memberInfo;
             var setMethodInfo = propertyInfo.GetSetMethod(true);
-            if (setMethodInfo == null)
+            if (IsReadOnly)
             {
                 var message = string.Format(
-                    "The property '{0} {1}' of class '{2}' has no 'set' accessor.",
+                    "The property '{0} {1}' of class '{2}' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.",
                     propertyInfo.PropertyType.FullName, propertyInfo.Name, propertyInfo.DeclaringType.FullName);
                 throw new BsonSerializationException(message);
             }

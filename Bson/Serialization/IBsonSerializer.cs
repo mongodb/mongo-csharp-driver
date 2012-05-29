@@ -47,26 +47,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The default serialization options for this serializer.</returns>
         IBsonSerializationOptions GetDefaultSerializationOptions();
         /// <summary>
-        /// Gets the document Id.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="id">The Id.</param>
-        /// <param name="idNominalType">The nominal type of the Id.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id type.</param>
-        /// <returns>True if the document has an Id.</returns>
-        bool GetDocumentId(object document, out object id, out Type idNominalType, out IIdGenerator idGenerator);
-        /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        BsonSerializationInfo GetItemSerializationInfo();
-        /// <summary>
-        /// Gets the serialization info for a member.
-        /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        BsonSerializationInfo GetMemberSerializationInfo(string memberName);
-        /// <summary>
         /// Serializes an object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
@@ -74,11 +54,5 @@ namespace MongoDB.Bson.Serialization
         /// <param name="value">The object.</param>
         /// <param name="options">The serialization options.</param>
         void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options);
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="id">The Id.</param>
-        void SetDocumentId(object document, object id);
     }
 }

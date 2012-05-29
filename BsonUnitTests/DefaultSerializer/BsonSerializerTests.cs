@@ -32,7 +32,7 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.BsonUnitTests.Serialization
 {
     [TestFixture]
-    public class BsonDefaultSerializerTests
+    public class BsonSerializerTests
     {
         [Test]
         public void TestAnonymousClass()
@@ -75,6 +75,7 @@ namespace MongoDB.BsonUnitTests.Serialization
                     cm.MapProperty(e => e.FirstName).SetElementName("fn");
                     cm.MapProperty(e => e.LastName).SetElementName("ln");
                     cm.MapProperty(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
+                    cm.MapProperty(e => e.Age).SetElementName("age");
                 });
             }
 
@@ -82,6 +83,18 @@ namespace MongoDB.BsonUnitTests.Serialization
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public DateTime DateOfBirth { get; set; }
+            public int Age
+            {
+                get
+                {
+                    DateTime now = DateTime.Today;
+                    int age = now.Year - DateOfBirth.Year;
+                    if (DateOfBirth > now.AddYears(-age)) 
+                        age--;
+
+                    return age;
+                }
+            }
         }
 
         [Test]
@@ -177,6 +190,24 @@ namespace MongoDB.BsonUnitTests.Serialization
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);
             Assert.IsTrue(rehydrated.WasBeginInitCalled);
             Assert.IsTrue(rehydrated.WasEndInitCalled);
+        }
+
+        [BsonKnownTypes(typeof(B), typeof(C))]
+        private class A
+        { }
+
+        private class B : A
+        { }
+
+        private class C : A
+        { }
+
+        [Test]
+        public void TestLookupActualType()
+        {
+            var actualType = BsonSerializer.LookupActualType(typeof(A), BsonValue.Create("C"));
+
+            Assert.AreEqual(typeof(C), actualType);
         }
     }
 }

@@ -129,6 +129,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The ConstantExpression.</returns>
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            // need to check node.Type instead of value.GetType() because boxed Nullable<T> values are boxed as <T>
+            if (node.Type.IsGenericType && node.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                _sb.AppendFormat("({0})", FriendlyClassName(node.Type));
+            }
             VisitValue(node.Value);
             return node;
         }
@@ -362,7 +367,11 @@ namespace MongoDB.Driver.Linq
         /// <returns>The TypeBinaryExpression.</returns>
         protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
-            _sb.Append("<TypeBinaryExpression>");
+            _sb.Append("(");
+            Visit(node.Expression);
+            _sb.Append(" is ");
+            _sb.Append(FriendlyClassName(node.TypeOperand));
+            _sb.Append(")");
             return node;
         }
 
@@ -376,7 +385,7 @@ namespace MongoDB.Driver.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.ArrayLength: break;
-                case ExpressionType.Convert: _sb.AppendFormat("({0})", node.Type.Name); break;
+                case ExpressionType.Convert: _sb.AppendFormat("({0})", FriendlyClassName(node.Type)); break;
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
                 case ExpressionType.Quote: break;
@@ -421,6 +430,12 @@ namespace MongoDB.Driver.Linq
 
         private void VisitValue(object value)
         {
+            if (value == null)
+            {
+                _sb.Append("null");
+                return;
+            }
+
             var a = value as Array;
             if (a != null && a.Rank == 1)
             {
@@ -506,6 +521,13 @@ namespace MongoDB.Driver.Linq
             {
                 var ts = (TimeSpan)value;
                 _sb.AppendFormat("TimeSpan:({0})", ts.ToString());
+                return;
+            }
+
+            var type = value as Type;
+            if (type != null)
+            {
+                _sb.AppendFormat("typeof({0})", FriendlyClassName(type));
                 return;
             }
 

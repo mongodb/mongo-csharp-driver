@@ -647,10 +647,8 @@ namespace MongoDB.Bson
         /// <returns>True if the array contains the value.</returns>
         public bool Contains(BsonValue value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
+            // don't throw ArgumentNullException if value is null
+            // just let _values.Contains return false
             return _values.Contains(value);
         }
 

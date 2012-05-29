@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the known types for this class (the derived classes).
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-    public class BsonKnownTypesAttribute : BsonSerializationOptionsAttribute
+    public class BsonKnownTypesAttribute : Attribute, IBsonClassMapModifier
     {
         // private fields
         private Type[] _knownTypes;
@@ -55,6 +55,19 @@ namespace MongoDB.Bson.Serialization.Attributes
         public Type[] KnownTypes
         {
             get { return _knownTypes; }
+        }
+
+        // public methods
+        /// <summary>
+        /// Applies a modification to the class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
+        public void Apply(BsonClassMap classMap)
+        {
+            foreach (var type in _knownTypes)
+            {
+                classMap.AddKnownType(type);
+            }
         }
     }
 }
