@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -22,6 +23,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq.Utils;
 
@@ -375,8 +377,94 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildContainsKeyQuery(MethodCallExpression methodCallExpression)
+        {
+            var dictionaryType = methodCallExpression.Object.Type;
+            var implementedInterfaces = new List<Type>(dictionaryType.GetInterfaces());
+            if (dictionaryType.IsInterface)
+            {
+                implementedInterfaces.Add(dictionaryType);
+            }
+
+            Type dictionaryGenericInterface = null;
+            Type dictionaryInterface = null;
+            foreach (var implementedInterface in implementedInterfaces)
+            {
+                if (implementedInterface.IsGenericType)
+                {
+                    if (implementedInterface.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                    {
+                        dictionaryGenericInterface = implementedInterface;
+                    }
+                }
+                else if (implementedInterface == typeof(IDictionary))
+                {
+                    dictionaryInterface = implementedInterface;
+                }
+            }
+
+            Type keyNominalType;
+            if (dictionaryGenericInterface != null)
+            {
+                keyNominalType = dictionaryGenericInterface.GetGenericArguments()[0]; // TKey
+            }
+            else if (dictionaryInterface != null)
+            {
+                keyNominalType = typeof(object);
+            }
+            else
+            {
+                return null;
+            }
+
+            var arguments = methodCallExpression.Arguments.ToArray();
+            if (arguments.Length != 1)
+            {
+                return null;
+            }
+
+            var constantExpression = arguments[0] as ConstantExpression;
+            if (constantExpression == null)
+            {
+                return null;
+            }
+            var key = constantExpression.Value;
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Object);
+            var dictionarySerializationOptions = (DictionarySerializationOptions)serializationInfo.SerializationOptions ?? DictionarySerializationOptions.Defaults;
+
+            var keyActualType = (key != null) ? key.GetType() : keyNominalType;
+            var keySerializer = BsonSerializer.LookupSerializer(keyActualType);
+            var keySerializationInfo = new BsonSerializationInfo(
+                null, // elementName
+                keySerializer,
+                keyNominalType,
+                dictionarySerializationOptions.KeyValuePairSerializationOptions.KeySerializationOptions);
+            var serializedKey = _serializationInfoHelper.SerializeValue(keySerializationInfo, key);
+
+            switch (dictionarySerializationOptions.Representation)
+            {
+                case DictionaryRepresentation.ArrayOfDocuments:
+                    return Query.EQ(serializationInfo.ElementName + ".k", serializedKey);
+                case DictionaryRepresentation.Document:
+                    return Query.Exists(serializationInfo.ElementName + "." + serializedKey.AsString, true);
+                default:
+                    var message = string.Format(
+                        "{0} in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not {1}.",
+                        methodCallExpression.Method.Name, // could be Contains (for IDictionary) or ContainsKey (for IDictionary<TKey, TValue>)
+                        dictionarySerializationOptions.Representation);
+                    throw new NotSupportedException(message);
+            }
+        }
+
         private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
+            // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
+            if (typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
+            {
+                return BuildContainsKeyQuery(methodCallExpression);
+            }
+
             if (methodCallExpression.Method.DeclaringType == typeof(string))
             {
                 return BuildStringQuery(methodCallExpression);
@@ -611,6 +699,7 @@ namespace MongoDB.Driver.Linq
                 case "Contains": return BuildContainsQuery(methodCallExpression);
                 case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
                 case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);
+                case "ContainsKey": return BuildContainsKeyQuery(methodCallExpression);
                 case "EndsWith": return BuildStringQuery(methodCallExpression);
                 case "Equals": return BuildEqualsQuery(methodCallExpression);
                 case "In": return BuildInQuery(methodCallExpression);
