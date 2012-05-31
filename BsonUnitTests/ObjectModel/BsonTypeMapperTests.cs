@@ -640,5 +640,31 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(true, BsonTypeMapper.TryMapToBsonValue(customDateTime, out bsonValue));
             Assert.AreEqual(utcNowTruncated, bsonValue.AsDateTime);
         }
+
+        // used by TestCustomTypeMapperEnum
+        public enum CustomEnum : int
+        {
+            V = 1
+        }
+
+        [Test]
+        public void TestCustomTypeMapperEnum()
+        {
+            BsonTypeMapper.RegisterCustomTypeMapper(typeof(CustomEnum), new CustomEnumMapper());
+
+            var enumValue = CustomEnum.V;
+            BsonValue bsonValue;
+            Assert.AreEqual(true, BsonTypeMapper.TryMapToBsonValue(enumValue, out bsonValue));
+            Assert.AreEqual(enumValue.ToString(), bsonValue.AsString);
+        }
+
+        public class CustomEnumMapper : ICustomBsonTypeMapper
+        {
+            public bool TryMapToBsonValue(object value, out BsonValue bsonValue)
+            {
+                bsonValue = new BsonString(((CustomEnum)value).ToString());
+                return true;
+            }
+        }
     }
 }

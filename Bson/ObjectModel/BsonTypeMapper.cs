@@ -444,6 +444,15 @@ namespace MongoDB.Bson
             }
 
             var valueType = value.GetType();
+
+            // we check the custom type mappers here because the user
+            // could have defined a type mapper for an enum
+            ICustomBsonTypeMapper customTypeMapper;
+            if (__customTypeMappers.TryGetValue(valueType, out customTypeMapper))
+            {
+                return customTypeMapper.TryMapToBsonValue(value, out bsonValue);
+            }
+
             if (valueType.IsEnum)
             {
                 valueType = Enum.GetUnderlyingType(valueType);
@@ -486,12 +495,6 @@ namespace MongoDB.Bson
             {
                 bsonValue = new BsonArray((IEnumerable)value);
                 return true;
-            }
-
-            ICustomBsonTypeMapper customTypeMapper;
-            if (__customTypeMappers.TryGetValue(valueType, out customTypeMapper))
-            {
-                return customTypeMapper.TryMapToBsonValue(value, out bsonValue);
             }
 
             bsonValue = null;
