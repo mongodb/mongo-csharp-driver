@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildContainsQuery(MethodCallExpression methodCallExpression)
         {
             // handle IDictionary Contains the same way as IDictionary<TKey, TValue> ContainsKey
-            if (typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
+            if (methodCallExpression.Object != null && typeof(IDictionary).IsAssignableFrom(methodCallExpression.Object.Type))
             {
                 return BuildContainsKeyQuery(methodCallExpression);
             }
