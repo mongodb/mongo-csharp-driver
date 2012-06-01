@@ -1050,51 +1050,52 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildStringCaseComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             var methodExpression = variableExpression as MethodCallExpression;
-            if (methodExpression != null)
+            if (methodExpression == null)
             {
-                var sourceExpression = methodExpression.Object as MemberExpression;
+                return null;
+            }
+            var sourceExpression = methodExpression.Object as MemberExpression;
 
-                if (methodExpression.Type == typeof(string) && sourceExpression != null)
-                {
-                    var serializationInfo =  _serializationInfoHelper.GetSerializationInfo(methodExpression.Object);
-                    var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, constantExpression.Value);
-                    var coalescedStringValue = constantExpression.Value == null ? string.Empty : serializedValue.AsString;
+            if (methodExpression.Type != typeof(string) || sourceExpression == null)
+            {
+                return null;
+            }
 
-                    string regexPattern = "/^" + Regex.Escape(coalescedStringValue) + "$/i";
-                    var regex = new BsonRegularExpression(regexPattern);
+            var serializationInfo =  _serializationInfoHelper.GetSerializationInfo(methodExpression.Object);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, constantExpression.Value);
+            var coalescedStringValue = constantExpression.Value == null ? string.Empty : serializedValue.AsString;
 
-                    bool caseMismatch = false;
+            string regexPattern = "/^" + Regex.Escape(coalescedStringValue) + "$/i";
+            var regex = new BsonRegularExpression(regexPattern);
 
-                    if (methodExpression.Method.Name == "ToLower" && (coalescedStringValue != coalescedStringValue.ToLower()))
-                        caseMismatch = true;
-                    else if (methodExpression.Method.Name == "ToUpper" && (coalescedStringValue != coalescedStringValue.ToUpper()))
-                        caseMismatch = true;
-                    else if (constantExpression.Value == null)
-                        caseMismatch = true;
+            bool caseMismatch = false;
 
-                    if (operatorType == ExpressionType.Equal)
-                    {
-                        // if comparing Foo.ToLower() == "Some Non Lower Case String"
-                        // then that is always false for all documents
-                        if (caseMismatch)
-                            return Query.Exists("_id", false);
+            if (methodExpression.Method.Name == "ToLower" && (coalescedStringValue != coalescedStringValue.ToLower()))
+                caseMismatch = true;
+            else if (methodExpression.Method.Name == "ToUpper" && (coalescedStringValue != coalescedStringValue.ToUpper()))
+                caseMismatch = true;
+            else if (constantExpression.Value == null)
+                caseMismatch = true;
 
-                        return Query.And(Query.Exists(serializationInfo.ElementName, true),
-                                          Query.Matches(serializationInfo.ElementName, regex));
-                    }
-                    else if (operatorType == ExpressionType.NotEqual)
-                    {
-                        // if comparing Foo.ToLower() != "Some Non Lower Case String"
-                        // then that is always true as long as Foo is set/exists
-                        if (caseMismatch)
-                            return Query.Exists(serializationInfo.ElementName, true);
+            if (operatorType == ExpressionType.Equal)
+            {
+                // if comparing Foo.ToLower() == "Some Non Lower Case String"
+                // then that is always false for all documents
+                if (caseMismatch)
+                    return Query.Exists("_id", false);
 
-                        return Query.And(Query.Exists(serializationInfo.ElementName, true),
-                                          Query.Not(serializationInfo.ElementName).Matches(regex));
-                    }
-                    else
-                        return null;
-                }
+                return Query.And(Query.Exists(serializationInfo.ElementName, true),
+                                    Query.Matches(serializationInfo.ElementName, regex));
+            }
+            else if (operatorType == ExpressionType.NotEqual)
+            {
+                // if comparing Foo.ToLower() != "Some Non Lower Case String"
+                // then that is always true as long as Foo is set/exists
+                if (caseMismatch)
+                    return Query.Exists(serializationInfo.ElementName, true);
+
+                return Query.And(Query.Exists(serializationInfo.ElementName, true),
+                                    Query.Not(serializationInfo.ElementName).Matches(regex));
             }
 
             return null;
