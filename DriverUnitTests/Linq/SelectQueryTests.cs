@@ -5630,7 +5630,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_id\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(0, Consume(query));
         }
 
@@ -5722,7 +5722,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_id\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(0, Consume(query));
         }
 
@@ -5768,7 +5768,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_id\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(0, Consume(query));
         }
 

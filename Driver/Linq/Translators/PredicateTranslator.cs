@@ -207,10 +207,28 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildBooleanQuery(bool value)
+        {
+            if (value)
+            {
+                return new QueryDocument(); // empty query matches all documents
+            }
+            else
+            {
+                return _queryBuilder.Type("_id", (BsonType)(-1)); // matches no documents (and uses _id index when used at top level)
+            }
+        }
+
         private IMongoQuery BuildBooleanQuery(Expression expression)
         {
             if (expression.Type == typeof(bool))
             {
+                var constantExpression = expression as ConstantExpression;
+                if (constantExpression != null)
+                {
+                    return BuildBooleanQuery((bool)constantExpression.Value);
+                }
+
                 var serializationInfo = _serializationInfoHelper.GetSerializationInfo(expression);
                 return new QueryDocument(serializationInfo.ElementName, true);
             }
@@ -336,9 +354,7 @@ namespace MongoDB.Driver.Linq
             var value = constantExpression.Value;
             if (value != null && value.GetType() == typeof(bool))
             {
-                // simulate true or false with a tautology or a reverse tautology
-                // the particular reverse tautology chosen has the nice property that it uses the index to return no results quickly
-                return new QueryDocument("_id", new BsonDocument("$exists", (bool)value));
+                return BuildBooleanQuery((bool)value);
             }
 
             return null;
@@ -858,7 +874,7 @@ namespace MongoDB.Driver.Linq
                             if (index >= startIndex + count)
                             {
                                 // index is outside of the substring so no match is possible
-                                return _queryBuilder.NotExists("_id"); // matches no documents
+                                return BuildBooleanQuery(false);
                             }
                             else
                             {
@@ -892,7 +908,7 @@ namespace MongoDB.Driver.Linq
                             if (unescapedLength > startIndex + count - index)
                             {
                                 // substring isn't long enough to match
-                                return _queryBuilder.NotExists("_id"); // matches no documents
+                                return BuildBooleanQuery(false);
                             }
                             else
                             {
@@ -1099,12 +1115,12 @@ namespace MongoDB.Driver.Linq
                     if (operatorType == ExpressionType.Equal)
                     {
                         // == "mismatched case" matches no documents
-                        return _queryBuilder.NotExists("_id");
+                        return BuildBooleanQuery(false);
                     }
                     else
                     {
                         // != "mismatched case" matches all documents
-                        return new QueryDocument();
+                        return BuildBooleanQuery(true);
                     }
                 }
             }
@@ -1265,7 +1281,7 @@ namespace MongoDB.Driver.Linq
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {
-                return new QueryDocument(); // matches everything
+                return BuildBooleanQuery(true);
             }
 
             if (discriminator.IsBsonArray)
@@ -1296,7 +1312,7 @@ namespace MongoDB.Driver.Linq
             var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
             if (discriminator == null)
             {
-                return new QueryDocument(); // matches everything
+                return BuildBooleanQuery(true);
             }
 
             if (discriminator.IsBsonArray)
