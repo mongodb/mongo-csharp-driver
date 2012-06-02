@@ -5579,13 +5579,12 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToLower() == \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"$and\" : [{ \"s\" : { \"$exists\" : true } }, { \"s\" : /^abc$/i }] }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : /^abc$/i }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(1, Consume(query));
         }
 
@@ -5603,14 +5602,13 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToLower() != \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true, \"$not\" : /^abc$/i } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(1, Consume(query));
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^abc$/i } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
         }
 
         [Test]
@@ -5627,7 +5625,6 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToLower() == \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -5651,21 +5648,20 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToLower() != \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(2, Consume(query));
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
         }
 
         [Test]
         public void TestWhereSToLowerEqualsNullValue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.S.ToLower() == (string)null
+                        where c.S.ToLower() == null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -5674,21 +5670,21 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-
+            Assert.AreEqual("(C c) => (c.S.ToLower() == null)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_id\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, Consume(query));
+            Assert.AreEqual("{ \"s\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
         }
 
         [Test]
         public void TestWhereSToLowerDoesNotEqualNullValue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.S.ToLower() != (string)null
+                        where c.S.ToLower() != null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -5697,13 +5693,13 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-
+            Assert.AreEqual("(C c) => (c.S.ToLower() != null)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$ne\" : null } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(2, Consume(query));
         }
 
@@ -5721,7 +5717,6 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToUpper() == \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -5745,14 +5740,13 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToUpper() != \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(2, Consume(query));
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
         }
 
         [Test]
@@ -5769,7 +5763,6 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToUpper() == \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
@@ -5793,21 +5786,20 @@ namespace MongoDB.DriverUnitTests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             Assert.AreEqual("(C c) => (c.S.ToUpper() != \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
-
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(2, Consume(query));
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
         }
 
         [Test]
         public void TestWhereSToUpperEqualsNullValue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.S.ToUpper() == (string)null
+                        where c.S.ToUpper() == null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -5816,21 +5808,21 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-
+            Assert.AreEqual("(C c) => (c.S.ToUpper() == null)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"_id\" : { \"$exists\" : false } }", selectQuery.BuildQuery().ToJson());
-            Assert.AreEqual(0, Consume(query));
+            Assert.AreEqual("{ \"s\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
         }
 
         [Test]
         public void TestWhereSToUpperDoesNotEqualNullValue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.S.ToUpper() != (string)null
+                        where c.S.ToUpper() != null
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -5839,13 +5831,13 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;
-
+            Assert.AreEqual("(C c) => (c.S.ToUpper() != null)", ExpressionFormatter.ToString(selectQuery.Where));
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
-            Assert.AreEqual("{ \"s\" : { \"$exists\" : true } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual("{ \"s\" : { \"$ne\" : null } }", selectQuery.BuildQuery().ToJson());
             Assert.AreEqual(2, Consume(query));
         }
 

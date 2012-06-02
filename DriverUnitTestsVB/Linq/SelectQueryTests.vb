@@ -5285,7 +5285,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""$and"" : [{ ""s"" : { ""$exists"" : true } }, { ""s"" : /^abc$/i }] }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""s"" : /^abc$/i }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
         End Sub
 
@@ -5308,8 +5308,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true, ""$not"" : /^abc$/i } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, Consume(query))
+            Assert.AreEqual("{ ""s"" : { ""$not"" : /^abc$/i } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(4, Consume(query))
         End Sub
 
         <Test()> _
@@ -5354,14 +5354,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
         End Sub
 
         <Test()> _
         Public Sub TestWhereSToLowerEqualsNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.S.ToLower() = DirectCast(Nothing, String)
+                        Where c.S.ToLower() = Nothing
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -5376,14 +5376,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_id"" : { ""$exists"" : false } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, Consume(query))
+            Assert.AreEqual("{ ""s"" : null }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
         End Sub
 
         <Test()> _
         Public Sub TestWhereSToLowerDoesNotEqualNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.S.ToLower() <> DirectCast(Nothing, String)
+                        Where c.S.ToLower() <> Nothing
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -5398,7 +5398,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""s"" : { ""$ne"" : null } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(2, Consume(query))
         End Sub
 
@@ -5444,8 +5444,8 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
         End Sub
 
         <Test()> _
@@ -5490,14 +5490,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(2, Consume(query))
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
         End Sub
 
         <Test()> _
         Public Sub TestWhereSToUpperEqualsNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.S.ToUpper() = DirectCast(Nothing, String)
+                        Where c.S.ToUpper() = Nothing
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -5512,14 +5512,14 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""_id"" : { ""$exists"" : false } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(0, Consume(query))
+            Assert.AreEqual("{ ""s"" : null }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
         End Sub
 
         <Test()> _
         Public Sub TestWhereSToUpperDoesNotEqualNullValue()
             Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.S.ToUpper() <> DirectCast(Nothing, String)
+                        Where c.S.ToUpper() <> Nothing
                         Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query)
@@ -5534,7 +5534,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Skip)
             Assert.IsNull(selectQuery.Take)
 
-            Assert.AreEqual("{ ""s"" : { ""$exists"" : true } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual("{ ""s"" : { ""$ne"" : null } }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(2, Consume(query))
         End Sub
 
