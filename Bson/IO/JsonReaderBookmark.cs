@@ -36,7 +36,7 @@ namespace MongoDB.Bson.IO
         internal JsonReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
-            string currentName,
+            object currentName,
             JsonReaderContext context,
             JsonToken currentToken,
             BsonValue currentValue,

@@ -144,11 +144,11 @@ namespace MongoDB.Bson.IO
         // private static methods
         private static string[] BuildAsciiStringTable()
         {
-            var asciiStringTable = new string[128];
+            var asciiStringTable = new string[95]; // 95 printable ASCII characters; first 32 are control characters; 127 is the delete character
 
-            for (int i = 0; i < 128; ++i)
+            for (var i = 0; i < asciiStringTable.Length; ++i)
             {
-                asciiStringTable[i] = new string((char)i, 1);
+                asciiStringTable[i] = new string((char)(i + 32), 1);
             }
 
             return asciiStringTable;
@@ -533,31 +533,7 @@ namespace MongoDB.Bson.IO
                 {
                     throw new FileFormatException("String is missing null terminator.");
                 }
-
-                switch (length)
-                {
-                    // special case empty strings
-                    case 1:
-                        value = string.Empty;
-                        break;
-
-                    // special case single character strings
-                    case 2:
-                        var c1 = _chunk[_chunkOffset];
-                        if (c1 < 128)
-                        {
-                            value = __asciiStringTable[c1];
-                        }
-                        else
-                        {
-                            value = __utf8Encoding.GetString(_chunk, _chunkOffset, 1); // let GetString throw a DecoderFallbackException
-                        }
-                        break;
-
-                    default:
-                        value = __utf8Encoding.GetString(_chunk, _chunkOffset, length - 1); // don't decode the null terminator
-                        break;
-                }
+                value = GetSingleChunkString(length - 1); // don't decode the null terminator
                 Position += length;
             }
             else
@@ -577,8 +553,9 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the reader (a null terminated string).
         /// </summary>
-        /// <returns>A String.</returns>
-        public string ReadCString()
+        /// <param name="bsonTrie">An optional BsonTrie to use during decoding.</param>
+        /// <returns>A value decoded using the optional BsonTrie or a String if no BsonTrie was specified or no value could be decoded using the BsonTrie.</returns>
+        public object ReadCString(BsonTrie bsonTrie)
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             // optimize for the case where the null terminator is on the same chunk
@@ -592,44 +569,20 @@ namespace MongoDB.Bson.IO
                 partialCount = _length - _position; // populated part of last chunk
             }
 
-            if (partialCount > 0)
+            var bsonTrieNode = bsonTrie != null ? bsonTrie.Root : null;
+            var index = FindNull(
+                bsonTrie,
+                ref bsonTrieNode,
+                _chunk,
+                _chunkOffset,
+                partialCount);
+            if (index != -1)
             {
-                var c1 = _chunk[_chunkOffset];
-
-                // special case empty strings
-                if (c1 == 0)
-                {
-                    Position += 1;
-                    return string.Empty;
-                }
-
-                if (partialCount > 1)
-                {
-                    // special case single character strings
-                    if (_chunk[_chunkOffset + 1] == 0)
-                    {
-                        string value;
-                        if (c1 < 128)
-                        {
-                            value = __asciiStringTable[c1];
-                        }
-                        else
-                        {
-                            value = __utf8Encoding.GetString(_chunk, _chunkOffset, 1); // let GetString throw a DecoderFallbackException
-                        }
-                        Position += 2;
-                        return value;
-                    }
-
-                    var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset + 2, partialCount - 2);
-                    if (index != -1)
-                    {
-                        var stringLength = index - _chunkOffset;
-                        var value = __utf8Encoding.GetString(_chunk, _chunkOffset, stringLength);
-                        Position += stringLength + 1;
-                        return value;
-                    }
-                }
+                var stringLength = index - _chunkOffset;
+                var value = bsonTrieNode != null && bsonTrieNode.HasValue ?
+                    bsonTrieNode.Value : GetSingleChunkString(stringLength);
+                Position += stringLength + 1;
+                return value;
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
@@ -646,13 +599,27 @@ namespace MongoDB.Bson.IO
                 {
                     partialCount = _length - localPosition; // populated part of last chunk
                 }
-                var index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
+                index = FindNull(
+                    bsonTrie,
+                    ref bsonTrieNode,
+                    localChunk,
+                    0,
+                    partialCount);
                 if (index != -1)
                 {
                     localPosition += index;
                     var stringLength = localPosition - _position;
-                    var value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
-                    Position += 1; // skip over null byte at end
+                    object value;
+                    if (bsonTrieNode != null && bsonTrieNode.HasValue)
+                    {
+                        value = bsonTrieNode.Value;
+                        Position += stringLength + 1;
+                    }
+                    else
+                    {
+                        value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                        Position += 1; // skip over null byte at end
+                    }
                     return value;
                 }
                 localChunkIndex++;
@@ -1008,6 +975,65 @@ namespace MongoDB.Bson.IO
                     _capacity += __chunkSize;
                 }
             }
+        }
+
+        private static int FindNull(
+            BsonTrie bsonTrie,
+            ref BsonTrieNode bsonTrieNode,
+            byte[] buffer,
+            int index,
+            int count)
+        {
+            while (count > 0)
+            {
+                if (bsonTrieNode == null)
+                {
+                    return Array.IndexOf<byte>(buffer, 0, index, count);
+                }
+
+                var c = buffer[index];
+
+                if (c == 0)
+                {
+                    if (!bsonTrieNode.HasValue)
+                    {
+                        bsonTrieNode = null;
+                    }
+
+                    return index;
+                }
+
+                bsonTrieNode = bsonTrie.GetNext(
+                    bsonTrieNode,
+                    c);
+
+                ++index;
+
+                --count;
+            }
+
+            return -1;
+        }
+
+        private string GetSingleChunkString(int length)
+        {
+            switch (length)
+            {
+                // special case empty strings
+                case 0:
+                    return string.Empty;
+
+                // special case single character strings
+                case 1:
+                    int tableIndex = _chunk[_chunkOffset] - 32;
+                    if ((uint)tableIndex < __asciiStringTable.Length)
+                    {
+                        return __asciiStringTable[tableIndex];
+                    }
+                    break;
+            }
+
+            return __utf8Encoding.GetString(_chunk, _chunkOffset, length);
         }
     }
 }

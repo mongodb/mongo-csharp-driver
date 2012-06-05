@@ -31,7 +31,7 @@ namespace MongoDB.Bson.IO
         private BsonReaderSettings _settings;
         private BsonReaderState _state;
         private BsonType _currentBsonType;
-        private string _currentName;
+        private object _currentName;
 
         // constructors
         /// <summary>
@@ -55,6 +55,15 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Gets the current name.
+        /// </summary>
+        public object CurrentName
+        {
+            get { return _currentName; }
+            protected set { _currentName = value; }
+        }
+
+        /// <summary>
         /// Gets the settings of the reader.
         /// </summary>
         public BsonReaderSettings Settings
@@ -72,15 +81,6 @@ namespace MongoDB.Bson.IO
         }
 
         // protected properties
-        /// <summary>
-        /// Gets the current name.
-        /// </summary>
-        protected string CurrentName
-        {
-            get { return _currentName; }
-            set { _currentName = value; }
-        }
-
         /// <summary>
         /// Gets whether the BsonReader has been disposed.
         /// </summary>
@@ -364,11 +364,17 @@ namespace MongoDB.Bson.IO
             return ReadBoolean();
         }
 
+        /// <returns>A BsonType.</returns>
+        public BsonType ReadBsonType()
+        {
+            return this.ReadBsonType(null);
+        }
+
         /// <summary>
         /// Reads a BsonType from the reader.
         /// </summary>
         /// <returns>A BsonType.</returns>
-        public abstract BsonType ReadBsonType();
+        public abstract BsonType ReadBsonType(BsonTrie bsonTrie);
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.
@@ -529,7 +535,7 @@ namespace MongoDB.Bson.IO
             }
 
             _state = BsonReaderState.Value;
-            return _currentName;
+            return _currentName as string;
         }
 
         /// <summary>

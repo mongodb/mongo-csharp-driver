@@ -134,7 +134,10 @@ namespace MongoDB.Bson.Serialization.Conventions
                     case BsonType.String: primitiveType = typeof(string); break;
                 }
 
-                if (primitiveType != null && nominalType.IsAssignableFrom(primitiveType))
+                // Type.IsAssignableFrom is extremely expensive, always perform a direct type check before calling Type.IsAssignableFrom
+                if (primitiveType != null &&
+                    (primitiveType == nominalType ||
+                    nominalType.IsAssignableFrom(primitiveType)))
                 {
                     return primitiveType;
                 }

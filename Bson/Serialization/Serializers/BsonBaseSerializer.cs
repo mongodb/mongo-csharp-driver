@@ -170,7 +170,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     this.GetType().FullName, expectedType.FullName, actualType.FullName);
                 throw new BsonSerializationException(message);
             }
-            if (!nominalType.IsAssignableFrom(actualType))
+            // Type.IsAssignableFrom is extremely expensive, always perform a direct type check before calling Type.IsAssignableFrom
+            if (actualType != nominalType &&
+                !nominalType.IsAssignableFrom(actualType))
             {
                 var message = string.Format(
                     "{0} can only be used with a nominal type that is assignable from the actual type {1}, but nominal type {2} is not.",

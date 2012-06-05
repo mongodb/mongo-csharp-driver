@@ -33,7 +33,7 @@ namespace MongoDB.Bson.IO
         internal BsonBinaryReaderBookmark(
             BsonReaderState state,
             BsonType currentBsonType,
-            string currentName,
+            object currentName,
             BsonBinaryReaderContext context,
             int position)
             : base(state, currentBsonType, currentName)
