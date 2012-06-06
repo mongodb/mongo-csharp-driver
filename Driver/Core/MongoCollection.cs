@@ -122,7 +122,7 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "count", _name },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
             var result = _database.RunCommand(command);
             return result.Response["n"].ToInt64();
@@ -198,7 +198,7 @@ namespace MongoDB.Driver
             {
                 { "distinct", _name },
                 { "key", key },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
             var result = _database.RunCommand(command);
             return result.Response["values"].AsBsonArray;
@@ -417,10 +417,10 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "findAndModify", _name },
-                { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sortBy) },
+                { "query", BsonDocumentWrapper.Create(query), query != null }, // query is optional
+                { "sort", BsonDocumentWrapper.Create(sortBy), sortBy != null }, // sortBy is optional
                 { "update", BsonDocumentWrapper.Create(update, true) }, // isUpdateDocument = true
-                { "fields", BsonDocumentWrapper.Create(fields) },
+                { "fields", BsonDocumentWrapper.Create(fields), fields != null }, // fields is optional
                 { "new", true, returnNew },
                 { "upsert", true, upsert}
             };
@@ -457,8 +457,8 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "findAndModify", _name },
-                { "query", BsonDocumentWrapper.Create(query) },
-                { "sort", BsonDocumentWrapper.Create(sortBy) },
+                { "query", BsonDocumentWrapper.Create(query), query != null }, // query is optional
+                { "sort", BsonDocumentWrapper.Create(sortBy), sortBy != null }, // sort is optional
                 { "remove", true }
             };
             try
@@ -650,7 +650,7 @@ namespace MongoDB.Driver
                 { "geoNear", _name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
             command.Merge(options.ToBsonDocument());
             return _database.RunCommandAs<GeoNearResult<TDocument>>(command);
@@ -693,7 +693,7 @@ namespace MongoDB.Driver
                 { "geoNear", _name },
                 { "near", new BsonArray { x, y } },
                 { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
             command.Merge(options.ToBsonDocument());
             var geoNearResultDefinition = typeof(GeoNearResult<>);
@@ -770,17 +770,30 @@ namespace MongoDB.Driver
             BsonJavaScript reduce,
             BsonJavaScript finalize)
         {
+            if (keyFunction == null)
+            {
+                throw new ArgumentNullException("keyFunction");
+            }
+            if (initial == null)
+            {
+                throw new ArgumentNullException("initial");
+            }
+            if (reduce == null)
+            {
+                throw new ArgumentNullException("reduce");
+            }
+
             var command = new CommandDocument
             {
                 {
                     "group", new BsonDocument
                     {
                         { "ns", _name },
-                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
+                        { "condition", BsonDocumentWrapper.Create(query), query != null }, // condition is optional
                         { "$keyf", keyFunction },
                         { "initial", initial },
                         { "$reduce", reduce },
-                        { "finalize", finalize }
+                        { "finalize", finalize, finalize != null } // finalize is optional
                     }
                 }
             };
@@ -804,17 +817,30 @@ namespace MongoDB.Driver
             BsonJavaScript reduce,
             BsonJavaScript finalize)
         {
+            if (keys == null)
+            {
+                throw new ArgumentNullException("keys");
+            }
+            if (initial == null)
+            {
+                throw new ArgumentNullException("initial");
+            }
+            if (reduce == null)
+            {
+                throw new ArgumentNullException("reduce");
+            }
+
             var command = new CommandDocument
             {
                 {
                     "group", new BsonDocument
                     {
                         { "ns", _name },
-                        { "condition", BsonDocumentWrapper.Create(query) }, // condition is optional
+                        { "condition", BsonDocumentWrapper.Create(query), query != null }, // condition is optional
                         { "key", BsonDocumentWrapper.Create(keys) },
                         { "initial", initial },
                         { "$reduce", reduce },
-                        { "finalize", finalize }
+                        { "finalize", finalize, finalize != null } // finalize is optional
                     }
                 }
             };

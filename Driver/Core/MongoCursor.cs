@@ -264,7 +264,7 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "count", _collection.Name },
-                { "query", BsonDocumentWrapper.Create(_query) } // query is optional
+                { "query", BsonDocumentWrapper.Create(_query), _query != null } // query is optional
             };
             var result = _database.RunCommand(command);
             return result.Response["n"].ToInt64();
@@ -536,6 +536,10 @@ namespace MongoDB.Driver
         /// <returns>The cursor (so you can chain method calls to it).</returns>
         public virtual MongoCursor SetSortOrder(IMongoSortBy sortBy)
         {
+            if (sortBy == null)
+            {
+                throw new ArgumentNullException("sortBy");
+            }
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$orderby", BsonDocumentWrapper.Create(sortBy));
             return this;
@@ -562,7 +566,7 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "count", _collection.Name },
-                { "query", BsonDocumentWrapper.Create(_query) }, // query is optional
+                { "query", BsonDocumentWrapper.Create(_query), _query != null }, // query is optional
                 { "limit", _limit, _limit != 0 },
                 { "skip", _skip, _skip != 0 }
             };
