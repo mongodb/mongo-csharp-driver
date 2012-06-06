@@ -104,8 +104,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 bool keyFound = false, valueFound = false;
                 while (bsonReader.ReadBsonType(__bsonTrie) != BsonType.EndOfDocument)
                 {
-                    bsonReader.ReadName();
-                    var elementName = bsonReader.CurrentName as string;
+                    var elementName = bsonReader.ReadName();
                     if (elementName != null)
                     {
                         var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", elementName);
