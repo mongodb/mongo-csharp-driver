@@ -31,7 +31,7 @@ namespace MongoDB.Bson.IO
         private BsonReaderSettings _settings;
         private BsonReaderState _state;
         private BsonType _currentBsonType;
-        private object _currentName;
+        private string _currentName;
 
         // constructors
         /// <summary>
@@ -55,15 +55,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets the current name.
-        /// </summary>
-        public object CurrentName
-        {
-            get { return _currentName; }
-            protected set { _currentName = value; }
-        }
-
-        /// <summary>
         /// Gets the settings of the reader.
         /// </summary>
         public BsonReaderSettings Settings
@@ -81,6 +72,15 @@ namespace MongoDB.Bson.IO
         }
 
         // protected properties
+        /// <summary>
+        /// Gets the current name.
+        /// </summary>
+        protected string CurrentName
+        {
+            get { return _currentName; }
+            set { _currentName = value; }
+        }
+
         /// <summary>
         /// Gets whether the BsonReader has been disposed.
         /// </summary>
@@ -364,17 +364,25 @@ namespace MongoDB.Bson.IO
             return ReadBoolean();
         }
 
+        /// <summary>
+        /// Reads a BsonType from the reader.
+        /// </summary>
         /// <returns>A BsonType.</returns>
         public BsonType ReadBsonType()
         {
-            return this.ReadBsonType(null);
+            bool found;
+            object value;
+            return ReadBsonType(null, out found, out value);
         }
 
         /// <summary>
         /// Reads a BsonType from the reader.
         /// </summary>
+        /// <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
+        /// <param name="found">Set to true if a matching value was found in the trie.</param>
+        /// <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
         /// <returns>A BsonType.</returns>
-        public abstract BsonType ReadBsonType(BsonTrie bsonTrie);
+        public abstract BsonType ReadBsonType<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value);
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.
@@ -535,7 +543,7 @@ namespace MongoDB.Bson.IO
             }
 
             _state = BsonReaderState.Value;
-            return _currentName as string;
+            return _currentName;
         }
 
         /// <summary>

@@ -21,17 +21,16 @@ using System.Text;
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// Trie for rapidly mapping binary input to complex values
+    /// Represents a mapping from a set of UTF8 encoded strings to a set of elementName/value pairs, implemented as a trie.
     /// </summary>
-    public class BsonTrie
+    public class BsonTrie<TValue>
     {
         // private static fields
         private static readonly UTF8Encoding __utf8Encoding = new UTF8Encoding(false, true); // throw on invalid bytes
 
         // private fields
-        private readonly byte[] _byteToChildPosition; // 256 element array (one index for each possible byte value)
-        private int _childPositionCount;
-        private readonly BsonTrieNode _root;
+        private readonly BsonTrieNode<TValue> _root;
+        private bool _isFrozen;
 
         // constructors
         /// <summary>
@@ -39,583 +38,277 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonTrie()
         {
-            this._byteToChildPosition = new byte[256];
-
-            for (var i = 0; i < 256; ++i)
-            {
-                // initialize with the highest unassigned child position
-                this._byteToChildPosition[i] = 255;
-            }
-
-            this._root = new BsonTrieNode(0);
+            _root = new BsonTrieNode<TValue>(0);
         }
 
         // public properties
         /// <summary>
         /// Gets the root node.
         /// </summary>
-        public BsonTrieNode Root
+        public BsonTrieNode<TValue> Root
         {
             get
             {
-                return this._root;
+                return _root;
             }
         }
 
+        // public methods
         /// <summary>
-        /// Adds the specified string converted to a UTF8 byte sequence and value to the trie.
+        /// Adds the specified elementName (after encoding as a UTF8 byte sequence) and value to the trie.
         /// </summary>
-        /// <param name="str">The key sequence of the value to add.</param>
+        /// <param name="elementName">The element name to add.</param>
         /// <param name="value">The value to add. The value can be null for reference types.</param>
-        public void Add(string str, object value)
+        public void Add(string elementName, TValue value)
         {
-            var bytes = __utf8Encoding.GetBytes(str);
+            if (_isFrozen) { throw new InvalidOperationException("BsonTrie is frozen."); }
+            var keyBytes = __utf8Encoding.GetBytes(elementName);
 
-            int endIndex;
-
-            var node = this.FindNode(this._root, bytes, 0, out endIndex);
-
-            if (endIndex < bytes.Length)
+            var node = _root;
+            foreach (var keyByte in keyBytes)
             {
-                do
+                var child = node.GetChild(keyByte);
+                if (child == null)
                 {
-                    node = this.AddNode(
-                        node,
-                        bytes[endIndex]);
-
-                    ++endIndex;
+                    child = new BsonTrieNode<TValue>(keyByte);
+                    node.AddChild(child);
                 }
-                while (endIndex < bytes.Length);
-            }
-            else
-            {
-                if (node.HasValue)
-                {
-                    throw new InvalidOperationException();
-                }
+                node = child;
             }
 
-            node.Value = value;
+            node.SetValue(elementName, value);
         }
 
         /// <summary>
-        /// Sorts child array positions by byte frequency in order to map more
-        /// common bytes to lower child positions. Because the length of a
-        /// child array is equal to the largest mapped child position,
-        /// this reduces the size of most child arrays.
+        /// Freezes the BsonTrie and optimizes the nodes included so far for faster retrieval.
         /// </summary>
-        public void Compact()
+        public void Freeze()
         {
-            var frequencyCount = new Dictionary<byte, int>();
-
-            var stack = new Stack<BsonTrieNode>();
-
-            // count all byte to child position map references
-            var node = this._root;
-
-            for (; ; )
+            if (!_isFrozen)
             {
-                var list = node.ChildList;
+                _root.Freeze();
+                _isFrozen = true;
+            }
+        }
 
-                if (list != null)
-                {
-                    for (var i = 0; i < list.Length; ++i)
-                    {
-                        var child = list[i];
+        /// <summary>
+        /// Gets the value associated with the specifie element name.
+        /// </summary>
+        /// <param name="elementName">The element name.</param>
+        /// <param name="value">
+        /// When this method returns, contains the value associated with the specified element name, if the key is found;
+        /// otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
+        /// </param>
+        /// <returns></returns>
+        public bool TryGetValue(string elementName, out TValue value)
+        {
+            var keyBytes = __utf8Encoding.GetBytes(elementName);
 
-                        if (child != null)
-                        {
-                            // only track bytes where the byte to child position map is consulted
-                            Increment(frequencyCount, child.Key);
-
-                            stack.Push(child);
-                        }
-                    }
-                }
-                else
-                {
-                    var child = node.Child;
-
-                    if (child != null)
-                    {
-                        stack.Push(child);
-                    }
-                }
-
-                if (stack.Count == 0)
+            var node = _root;
+            foreach (var keyByte in keyBytes)
+            {
+                node = node.GetChild(keyByte);
+                if (node == null)
                 {
                     break;
                 }
-
-                node = stack.Pop();
             }
 
-            // sort the byte to child position map in descending order by
-            // frequency
-            byte childIndex = 0;
-
-            foreach (var keyValuePair in frequencyCount
-                .OrderByDescending(keyValuePair => keyValuePair.Value))
+            if (node != null && node.HasValue)
             {
-                this._byteToChildPosition[keyValuePair.Key] = childIndex;
-
-                ++childIndex;
-            }
-
-            // update all child lists
-            node = this._root;
-
-            for (; ; )
-            {
-                var newList = new List<BsonTrieNode>();
-
-                var list = node.ChildList;
-
-                if (list != null)
-                {
-                    for (var i = 0; i < list.Length; ++i)
-                    {
-                        var child = list[i];
-
-                        if (child != null)
-                        {
-                            childIndex = this._byteToChildPosition[child.Key];
-
-                            // size the list to the largest child index
-                            while (childIndex > newList.Count)
-                            {
-                                newList.Add(null);
-                            }
-
-                            if (childIndex < newList.Count)
-                            {
-                                newList[childIndex] = child;
-                            }
-                            else
-                            {
-                                newList.Add(child);
-                            }
-
-                            stack.Push(child);
-                        }
-                    }
-
-                    node.ChildList = newList.ToArray();
-                }
-                else
-                {
-                    var child = node.Child;
-
-                    if (child != null)
-                    {
-                        stack.Push(child);
-                    }
-                }
-
-                if (stack.Count == 0)
-                {
-                    break;
-                }
-
-                node = stack.Pop();
-            }
-        }
-
-        /// <summary>
-        /// Gets the child node for a given byte value.
-        /// </summary>
-        /// <param name="parent">The parent node.</param>
-        /// <param name="key">The byte value key of the child node to get.</param>
-        /// <returns>The child node if the parent node contains a child node with the specified key; otherwise, null.</returns>
-        public BsonTrieNode GetNext(BsonTrieNode parent, byte key)
-        {
-            var next = parent.Child;
-
-            if (next != null)
-            {
-                if (key == next.Key)
-                {
-                    return next;
-                }
-            }
-            else
-            {
-                var list = parent.ChildList;
-
-                if (list != null)
-                {
-                    var index = this._byteToChildPosition[key];
-
-                    if (index < list.Length)
-                    {
-                        return list[index];
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the value associated with a string when converted to a UTF8 byte sequence.
-        /// </summary>
-        /// <param name="str">The key of the value to get.</param>
-        /// <param name="value">When this method returns, contains the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.</param>
-        /// <returns>true if the BsonTrie contains a value with the specified key sequence; otherwise, false.</returns>
-        public bool TryGetValue(string str, out object value)
-        {
-            int endIndex;
-
-            // first attempt to traverse directly because ascii characters can be cast to bytes
-            var node = this.FindNodeAscii(this._root, str, out endIndex);
-
-            if (endIndex == str.Length)
-            {
-                if (!node.HasValue)
-                {
-                    value = null;
-
-                    return false;
-                }
-
                 value = node.Value;
-
                 return true;
             }
-
-            var c = str[endIndex];
-
-            if (c < 128)
-            {
-                value = null;
-
-                return false;
-            }
-
-            var bytes = __utf8Encoding.GetBytes(str);
-
-            node = this.FindNode(node, bytes, endIndex, out endIndex);
-
-            if (endIndex < bytes.Length ||
-                !node.HasValue)
-            {
-                value = null;
-
-                return false;
-            }
-
-            value = node.Value;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Increments a value in a dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="key">The key of the value to increment.</param>
-        private static void Increment(
-            Dictionary<byte, int> dictionary,
-            byte key)
-        {
-            int value;
-
-            if (!dictionary.TryGetValue(key, out value))
-            {
-                dictionary.Add(key, 1);
-            }
             else
-            {
-                dictionary[key] = value + 1;
-            }
-        }
-
-        /// <summary>
-        /// Adds a child node for a given byte value.
-        /// </summary>
-        /// <param name="parent">The parent node.</param>
-        /// <param name="key">The child node byte value key.</param>
-        /// <returns>The child node</returns>
-        private BsonTrieNode AddNode(BsonTrieNode parent, byte key)
-        {
-            var child = new BsonTrieNode(key);
-
-            var list = parent.ChildList;
-
-            if (list != null)
-            {
-                var index = this.MapByteToChildPosition(key);
-
-                if (index >= list.Length)
-                {
-                    list = new BsonTrieNode[index + 1];
-
-                    Array.Copy(
-                        parent.ChildList,
-                        0,
-                        list,
-                        0,
-                        parent.ChildList.Length);
-
-                    parent.ChildList = list;
-                }
-
-                list[index] = child;
-            }
-            else
-            {
-                var temp = parent.Child;
-
-                if (temp != null)
-                {
-                    var index1 = this.MapByteToChildPosition(temp.Key);
-
-                    var index2 = this.MapByteToChildPosition(key);
-
-                    var maxIndex = index1 >= index2 ? index1 : index2;
-
-                    list = new BsonTrieNode[maxIndex + 1];
-
-                    list[index1] = temp;
-
-                    list[index2] = child;
-
-                    parent.Child = null;
-
-                    parent.ChildList = list;
-                }
-                else
-                {
-                    parent.Child = child;
-                }
-            }
-
-            return child;
-        }
-
-        /// <summary>
-        /// Finds the last matching child node for a given key sequence.
-        /// </summary>
-        /// <param name="parent">The parent node.</param>
-        /// <param name="key">The child node key sequence to traverse.</param>
-        /// <param name="startIndex">The zero-based starting index within the key sequence to start traversing from.</param>
-        /// <param name="endIndex">The zero-based ending index within the key sequence where traversing stopped.</param>
-        /// <returns>The last matching child node</returns>
-        private BsonTrieNode FindNode(
-            BsonTrieNode parent,
-            byte[] key,
-            int startIndex,
-            out int endIndex)
-        {
-            var index = startIndex;
-
-            var node = parent;
-
-            for (; index < key.Length; ++index)
-            {
-                var temp = this.GetNext(node, key[index]);
-
-                if (temp == null)
-                {
-                    break;
-                }
-
-                node = temp;
-            }
-
-            endIndex = index;
-
-            return node;
-        }
-
-        /// <summary>
-        /// Finds the last matching child node for a given key sequence for ASCII input characters.
-        /// </summary>
-        /// <param name="parent">The parent node.</param>
-        /// <param name="str">The child node key sequence to traverse.</param>
-        /// <param name="endIndex">The zero-based ending index within the key sequence where traversing stopped.</param>
-        /// <returns>The last matching child node</returns>
-        private BsonTrieNode FindNodeAscii(
-            BsonTrieNode parent,
-            string str,
-            out int endIndex)
-        {
-            var index = 0;
-
-            var node = parent;
-
-            for (; index < str.Length; ++index)
-            {
-                var c = str[index];
-
-                if (c >= 128)
-                {
-                    break;
-                }
-
-                var temp = this.GetNext(node, (byte)c);
-
-                if (temp == null)
-                {
-                    break;
-                }
-
-                node = temp;
-            }
-
-            endIndex = index;
-
-            return node;
-        }
-
-        /// <summary>
-        /// Maps a byte to a child position and allocates a new child position if necessary.
-        /// </summary>
-        /// <param name="byteValue">The byte value.</param>
-        /// <returns>The child index.</returns>
-        private byte MapByteToChildPosition(byte byteValue)
-        {
-            var childIndex = this._byteToChildPosition[byteValue];
-
-            if (childIndex >= this._childPositionCount)
-            {
-                childIndex = (byte)this._childPositionCount;
-
-                this._byteToChildPosition[byteValue] = childIndex;
-
-                ++this._childPositionCount;
-            }
-
-            return childIndex;
-        }
-    }
-
-    /// <summary>
-    /// Trie for rapidly mapping binary input to complex values
-    /// </summary>
-    public class BsonTrie<TValue> : BsonTrie
-    {
-        /// <summary>
-        /// Adds the specified string converted to a UTF8 byte sequence and value to the trie.
-        /// </summary>
-        /// <param name="str">The key sequence of the value to add.</param>
-        /// <param name="value">The value to add. The value can be null for reference types.</param>
-        public void Add(string str, TValue value)
-        {
-            base.Add(str, value);
-        }
-
-        /// <summary>
-        /// Gets the value associated with a string when converted to a UTF8 byte sequence.
-        /// </summary>
-        /// <param name="str">The key of the value to get.</param>
-        /// <param name="value">When this method returns, contains the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter. This parameter is passed uninitialized.</param>
-        /// <returns>true if the BsonTrie&lt;TValue&gt; contains a value with the specified key sequence; otherwise, false.</returns>
-        public bool TryGetValue(string str, out TValue value)
-        {
-            object obj;
-
-            if (!base.TryGetValue(str, out obj))
             {
                 value = default(TValue);
-
                 return false;
             }
-
-            value = (TValue)obj;
-
-            return true;
         }
     }
 
     /// <summary>
-    /// Trie node implementation
+    /// Represents a node in a BsonTrie.
     /// </summary>
-    public sealed class BsonTrieNode
+    public sealed class BsonTrieNode<TValue>
     {
-        // internal fields
-        internal readonly byte Key; // Direct access readonly speed optimization
-
         // private fields
-        // Value associated with this state
-        private object _value;
+        private readonly byte _keyByte;
+        private string _elementName;
+        private TValue _value;
+        private BsonTrieNode<TValue> _onlyChild; // used when there is only one child
+        private List<BsonTrieNode<TValue>> _children; // used when there are two or more children
 
-        // Whether this state has a value
-        private bool _hasValue;
+        // private fields set when node is frozen
+        private bool _isFrozen;
+        private byte _minKeyByte;
+        private byte _maxKeyByte;
+        private byte[] _keyByteIndexes; // maps key bytes into indexes into the _children list
 
-        // Special case when there is only 1 child (i.e. list.Length
-        // would == 1) because managed array accesses in .Net incur a
-        // performance penalty due to bounds checking (as well as an
-        // additional layer of indirection).
-        private BsonTrieNode _child;
-
-        // List of child nodes
-        private BsonTrieNode[] _childList;
-
-        internal BsonTrieNode()
+        // constructors
+        internal BsonTrieNode(byte keyByte)
         {
-        }
-
-        internal BsonTrieNode(byte key)
-        {
-            this.Key = key;
-        }
-
-        internal BsonTrieNode Child
-        {
-            get
-            {
-                return this._child;
-            }
-            set
-            {
-                this._child = value;
-            }
-        }
-
-        internal BsonTrieNode[] ChildList
-        {
-            get
-            {
-                return this._childList;
-            }
-            set
-            {
-                this._childList = value;
-            }
+            _keyByte = keyByte;
         }
 
         /// <summary>
-        /// Gets whether this node has a value
+        /// Gets whether this node has a value.
         /// </summary>
         public bool HasValue
         {
             get
             {
-                return this._hasValue;
+                return _elementName != null;
             }
         }
 
         /// <summary>
-        /// Gets the value for this node
+        /// Gets the element name for this node.
         /// </summary>
-        public object Value
+        public string ElementName
         {
             get
             {
-                if (!this._hasValue)
+                if (_elementName == null)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("BsonTrieNode doesn't have a value.");
                 }
 
-                return this._value;
+                return _elementName;
             }
-            internal set
-            {
-                this._value = value;
+        }
 
-                this._hasValue = true;
+        /// <summary>
+        /// Gets the value for this node.
+        /// </summary>
+        public TValue Value
+        {
+            get
+            {
+                if (_elementName == null)
+                {
+                    throw new InvalidOperationException("BsonTrieNode doesn't have a value.");
+                }
+
+                return _value;
             }
+        }
+
+        // public methods
+        /// <summary>
+        /// Gets the child of this node for a given key byte.
+        /// </summary>
+        /// <param name="keyByte">The key byte.</param>
+        /// <returns>The child node if it exists; otherwise, null.</returns>
+        public BsonTrieNode<TValue> GetChild(byte keyByte)
+        {
+            if (_onlyChild != null)
+            {
+                // optimization for nodes that have only one child
+                if (_onlyChild._keyByte == keyByte)
+                {
+                    return _onlyChild;
+                }
+            }
+            else if (_children != null)
+            {
+                if (_isFrozen)
+                {
+                    // once the node is frozen we can use a faster lookup based on fields initialized when Freeze was called
+                    if (keyByte >= _minKeyByte && keyByte <= _maxKeyByte)
+                    {
+                        var index = _keyByteIndexes[keyByte - _minKeyByte];
+                        if (index < _children.Count)
+                        {
+                            return _children[index];
+                        }
+                    }
+                }
+                else
+                {
+                    // until the node is frozen do a simple linear scan of the _children list
+                    return _children.Where(child => child._keyByte == keyByte).SingleOrDefault();
+                }
+            }
+            return null;
+        }
+
+        // internal methods
+        internal void AddChild(BsonTrieNode<TValue> child)
+        {
+            if (_isFrozen) { throw new InvalidOperationException("BsonTrieNode is frozen."); }
+            if (_children == null)
+            {
+                if (_onlyChild == null)
+                {
+                    _onlyChild = child;
+                }
+                else
+                {
+                    if (_onlyChild._keyByte == child._keyByte)
+                    {
+                        throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte");
+                    }
+
+                    var children = new List<BsonTrieNode<TValue>>();
+                    children.Add(_onlyChild);
+                    children.Add(child);
+
+                    _onlyChild = null;
+                    _children = children;
+                }
+            }
+            else
+            {
+                if (_children.Any(n => n._keyByte == child._keyByte))
+                {
+                    throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte");
+                }
+
+                _children.Add(child);
+            }
+        }
+
+        internal void Freeze()
+        {
+            if (!_isFrozen)
+            {
+                if (_onlyChild != null)
+                {
+                    _onlyChild.Freeze();
+                }
+                else if (_children != null)
+                {
+                    _children.ForEach(child => child.Freeze());
+                    _minKeyByte = _children.Min(n => n._keyByte);
+                    _maxKeyByte = _children.Max(n => n._keyByte);
+                    _keyByteIndexes = new byte[_maxKeyByte - _minKeyByte + 1];
+                    for (var index = 0; index < _keyByteIndexes.Length; index++)
+                    {
+                        _keyByteIndexes[index] = 255; // make sure unused entries can be identified
+                    }
+                    for (var index = 0; index < _children.Count; index++)
+                    {
+                        _keyByteIndexes[_children[index]._keyByte - _minKeyByte] = (byte)index;
+                    }
+                }
+                _isFrozen = true;
+            }
+        }
+
+        internal void SetValue(string elementName, TValue value)
+        {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException("elementName");
+            }
+            if (_elementName != null)
+            {
+                throw new InvalidOperationException("BsonTrieNode already has a value.");
+            }
+
+            _elementName = elementName;
+            _value = value;
         }
     }
 }

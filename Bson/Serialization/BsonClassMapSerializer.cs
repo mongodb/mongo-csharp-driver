@@ -136,20 +136,21 @@ namespace MongoDB.Bson.Serialization
 
                 var discriminatorConvention = _classMap.GetDiscriminatorConvention();
                 var allMemberMaps = _classMap.AllMemberMaps;
-                var elementTrie = _classMap.ElementTrie;
                 var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
                 var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
 
                 bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType(elementTrie) != BsonType.EndOfDocument)
+                var elementTrie = _classMap.ElementTrie;
+                bool memberMapFound;
+                int memberMapIndex;
+                while (bsonReader.ReadBsonType(elementTrie, out memberMapFound, out memberMapIndex) != BsonType.EndOfDocument)
                 {
                     var elementName = bsonReader.ReadName();
-                    if (elementName == null)
+                    if (memberMapFound)
                     {
-                        var memberMapIndex = (int)bsonReader.CurrentName;
+                        var memberMap = allMemberMaps[memberMapIndex];
                         if (memberMapIndex != extraElementsMemberMapIndex)
                         {
-                            var memberMap = allMemberMaps[memberMapIndex];
                             if (memberMap.IsReadOnly)
                             {
                                 bsonReader.SkipValue();
@@ -161,11 +162,7 @@ namespace MongoDB.Bson.Serialization
                         }
                         else
                         {
-                            DeserializeExtraElement(
-                                bsonReader,
-                                obj,
-                                _classMap.ExtraElementsMemberMap.ElementName,
-                                _classMap.ExtraElementsMemberMap);
+                            DeserializeExtraElement(bsonReader, obj, elementName, memberMap);
                         }
                         memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                     }
@@ -176,6 +173,7 @@ namespace MongoDB.Bson.Serialization
                             bsonReader.SkipValue(); // skip over discriminator
                             continue;
                         }
+
                         if (extraElementsMemberMapIndex >= 0)
                         {
                             DeserializeExtraElement(bsonReader, obj, elementName, _classMap.ExtraElementsMemberMap);
@@ -199,7 +197,7 @@ namespace MongoDB.Bson.Serialization
                 // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)
                 for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
                 {
-                    var memberMapIndex = bitArrayIndex << 5;
+                    memberMapIndex = bitArrayIndex << 5;
                     var memberMapBlock = ~memberMapBitArray[bitArrayIndex]; // notice that bits are flipped so 1's are now the missing elements
 
                     // work through this memberMapBlock of 32 elements

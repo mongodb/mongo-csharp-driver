@@ -102,27 +102,32 @@ namespace MongoDB.Bson.Serialization.Serializers
                 key = default(TKey);
                 value = default(TValue);
                 bool keyFound = false, valueFound = false;
-                while (bsonReader.ReadBsonType(__bsonTrie) != BsonType.EndOfDocument)
+                bool elementFound;
+                bool elementIsKey;
+                while (bsonReader.ReadBsonType(__bsonTrie, out elementFound, out elementIsKey) != BsonType.EndOfDocument)
                 {
-                    var elementName = bsonReader.ReadName();
-                    if (elementName != null)
+                    var name = bsonReader.ReadName();
+                    if (elementFound)
                     {
-                        var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", elementName);
-                        throw new BsonSerializationException(message);
-                    }
-                    if ((bool)bsonReader.CurrentName)
-                    {
-                        var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
-                        var keySerializer = GetValueSerializer(keyType);
-                        key = (TKey)keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, keyValuePairSerializationOptions.KeySerializationOptions);
-                        keyFound = true;
+                        if (elementIsKey)
+                        {
+                            var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
+                            var keySerializer = GetValueSerializer(keyType);
+                            key = (TKey)keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, keyValuePairSerializationOptions.KeySerializationOptions);
+                            keyFound = true;
+                        }
+                        else
+                        {
+                            var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
+                            var valueSerializer = GetValueSerializer(valueType);
+                            value = (TValue)valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
+                            valueFound = true;
+                        }
                     }
                     else
                     {
-                        var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
-                        var valueSerializer = GetValueSerializer(valueType);
-                        value = (TValue)valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
-                        valueFound = true;
+                        var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", name);
+                        throw new BsonSerializationException(message);
                     }
                 }
                 bsonReader.ReadEndDocument();
@@ -199,10 +204,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         private static BsonTrie<bool> BuildBsonTrie()
         {
             var bsonTrie = new BsonTrie<bool>();
-
-            bsonTrie.Add("k", true);
+            bsonTrie.Add("k", true); // is key
             bsonTrie.Add("v", false);
-
+            bsonTrie.Freeze();
             return bsonTrie;
         }
 

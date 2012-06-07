@@ -578,7 +578,7 @@ namespace MongoDB.Bson.Serialization
                                 _extraElementsMemberIndex = memberIndex;
                             }
                         }
-                        _elementTrie.Compact();
+                        _elementTrie.Freeze();
 
                         // mark this classMap frozen before we start working on knownTypes
                         // because we might get back to this same classMap while processing knownTypes
@@ -1064,25 +1064,35 @@ namespace MongoDB.Bson.Serialization
         {
             // only auto map properties declared in this class (and not in base classes)
             var hasOrderedElements = false;
+            var hasUnorderedElements = false;
             foreach (var memberInfo in FindMembers())
             {
                 var memberMap = AutoMapMember(memberInfo);
-                hasOrderedElements = hasOrderedElements || memberMap.Order != int.MaxValue;
+                if (memberMap.Order != int.MaxValue)
+                {
+                    hasOrderedElements |= true;
+                }
+                else
+                {
+                    hasUnorderedElements |= true;
+                }
             }
 
             if (hasOrderedElements)
             {
-                // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
-                // and then concatenate any items with no value for Order at the end (in their original order)
-                var unsorted = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
-                _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
-                if (unsorted.Count > 0)
+                if (hasUnorderedElements)
                 {
-                    _declaredMemberMaps.RemoveRange(
-                        _declaredMemberMaps.Count - unsorted.Count,
-                        unsorted.Count);
-                    _declaredMemberMaps.AddRange(unsorted);
+                    // split out the unordered elements and add them back at the end (because Sort is unstable, see online help)
+                    var unorderedElements = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
+                    _declaredMemberMaps.RemoveAll(m => m.Order == int.MaxValue);
+                    _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
+                    _declaredMemberMaps.AddRange(unorderedElements);
                 }
+                else
+                {
+                    _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
+                }
+
             }
         }
 

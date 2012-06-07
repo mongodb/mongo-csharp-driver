@@ -28,7 +28,7 @@ namespace MongoDB.Bson.IO
         // private fields
         private BsonReaderState _state;
         private BsonType _currentBsonType;
-        private object _currentName;
+        private string _currentName;
 
         // constructors
         /// <summary>
@@ -37,7 +37,7 @@ namespace MongoDB.Bson.IO
         /// <param name="state">The state of the reader.</param>
         /// <param name="currentBsonType">The current BSON type.</param>
         /// <param name="currentName">The name of the current element.</param>
-        protected BsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, object currentName)
+        protected BsonReaderBookmark(BsonReaderState state, BsonType currentBsonType, string currentName)
         {
             _state = state;
             _currentBsonType = currentBsonType;
@@ -64,7 +64,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Gets the name of the current element.
         /// </summary>
-        public object CurrentName
+        public string CurrentName
         {
             get { return _currentName; }
         }
