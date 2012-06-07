@@ -86,6 +86,7 @@
     <Compile Include="IO\BsonDocumentReaderSettings.cs" />
     <Compile Include="IO\BsonDocumentWriterSettings.cs" />
     <Compile Include="IO\BsonReaderSettings.cs" />
+    <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
     <Compile Include="ObjectModel\GuidRepresentation.cs" />
     <Compile Include="ObjectModel\GuidConverter.cs" />

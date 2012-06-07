@@ -136,35 +136,46 @@ namespace MongoDB.Bson.Serialization
 
                 var discriminatorConvention = _classMap.GetDiscriminatorConvention();
                 var allMemberMaps = _classMap.AllMemberMaps;
+                var elementTrie = _classMap.ElementTrie;
                 var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
                 var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
 
                 bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                while (bsonReader.ReadBsonType(elementTrie) != BsonType.EndOfDocument)
                 {
                     var elementName = bsonReader.ReadName();
-                    if (elementName == discriminatorConvention.ElementName)
+                    if (elementName == null)
                     {
-                        bsonReader.SkipValue(); // skip over discriminator
-                        continue;
-                    }
-
-                    var memberMapIndex = _classMap.GetMemberMapIndexForElement(elementName);
-                    if (memberMapIndex >= 0 && memberMapIndex != extraElementsMemberMapIndex)
-                    {
-                        var memberMap = allMemberMaps[memberMapIndex];
-                        if (memberMap.IsReadOnly)
+                        var memberMapIndex = (int)bsonReader.CurrentName;
+                        if (memberMapIndex != extraElementsMemberMapIndex)
                         {
-                            bsonReader.SkipValue();
+                            var memberMap = allMemberMaps[memberMapIndex];
+                            if (memberMap.IsReadOnly)
+                            {
+                                bsonReader.SkipValue();
+                            }
+                            else
+                            {
+                                DeserializeMember(bsonReader, obj, memberMap);
+                            }
                         }
                         else
                         {
-                            DeserializeMember(bsonReader, obj, memberMap);
+                            DeserializeExtraElement(
+                                bsonReader,
+                                obj,
+                                _classMap.ExtraElementsMemberMap.ElementName,
+                                _classMap.ExtraElementsMemberMap);
                         }
                         memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                     }
                     else
                     {
+                        if (elementName == discriminatorConvention.ElementName)
+                        {
+                            bsonReader.SkipValue(); // skip over discriminator
+                            continue;
+                        }
                         if (extraElementsMemberMapIndex >= 0)
                         {
                             DeserializeExtraElement(bsonReader, obj, elementName, _classMap.ExtraElementsMemberMap);
@@ -552,14 +563,6 @@ namespace MongoDB.Bson.Serialization
         // helper class that implements member map bit array helper functions
         private static class FastMemberMapHelper
         {
-            private static readonly byte[] __multiplyDeBruijnBitIndex =
-            {
-                0, 1, 28, 2, 29, 14, 24, 3,
-                30, 22, 20, 15, 25, 17, 4, 8,
-                31, 27, 13, 23, 21, 19, 16, 7,
-                26, 12, 18, 6, 11, 5, 10, 9,
-            };
-
             public static uint[] GetBitArray(int memberCount)
             {
                 var bitArrayOffset = memberCount & 31;
@@ -573,11 +576,32 @@ namespace MongoDB.Bson.Serialization
                 return bitArray;
             }
 
-            // see http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
-            // also returns 0 if no bits are set; caller must check this case
+            // see http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightBinSearch
+            // also returns 31 if no bits are set; caller must check this case
             public static int GetLeastSignificantBit(uint bitBlock)
             {
-                return __multiplyDeBruijnBitIndex[((uint)((bitBlock & -bitBlock) * 0x077cb531U)) >> 27];
+                var leastSignificantBit = 1;
+                if ((bitBlock & 65535) == 0)
+                {
+                    bitBlock >>= 16;
+                    leastSignificantBit |= 16;
+                }
+                if ((bitBlock & 255) == 0)
+                {
+                    bitBlock >>= 8;
+                    leastSignificantBit |= 8;
+                }
+                if ((bitBlock & 15) == 0)
+                {
+                    bitBlock >>= 4;
+                    leastSignificantBit |= 4;
+                }
+                if ((bitBlock & 3) == 0)
+                {
+                    bitBlock >>= 2;
+                    leastSignificantBit |= 2;
+                }
+                return leastSignificantBit - (int)(bitBlock & 1);
             }
         }
     }

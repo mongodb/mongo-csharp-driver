@@ -109,7 +109,7 @@ namespace MongoDB.Bson.IO
         /// Reads a BsonType from the reader.
         /// </summary>
         /// <returns>A BsonType.</returns>
-        public override BsonType ReadBsonType()
+        public override BsonType ReadBsonType(BsonTrie bsonTrie)
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             if (State == BsonReaderState.Initial || State == BsonReaderState.Done || State == BsonReaderState.ScopeDocument)
@@ -129,7 +129,16 @@ namespace MongoDB.Bson.IO
                 {
                     case JsonTokenType.String:
                     case JsonTokenType.UnquotedString:
-                        CurrentName = nameToken.StringValue;
+                        object currentName;
+                        if (bsonTrie != null &&
+                            bsonTrie.TryGetValue(nameToken.StringValue, out currentName))
+                        {
+                            CurrentName = currentName;
+                        }
+                        else
+                        {
+                            CurrentName = nameToken.StringValue;
+                        }
                         break;
                     case JsonTokenType.EndObject:
                         State = BsonReaderState.EndOfDocument;

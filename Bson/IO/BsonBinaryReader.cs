@@ -161,7 +161,7 @@ namespace MongoDB.Bson.IO
         /// Reads a BsonType from the reader.
         /// </summary>
         /// <returns>A BsonType.</returns>
-        public override BsonType ReadBsonType()
+        public override BsonType ReadBsonType(BsonTrie bsonTrie)
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             if (State == BsonReaderState.Initial || State == BsonReaderState.Done || State == BsonReaderState.ScopeDocument)
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.IO
                         break;
                     case ContextType.Document:
                     case ContextType.ScopeDocument:
-                        CurrentName = _buffer.ReadCString();
+                        CurrentName = _buffer.ReadCString(bsonTrie);
                         State = BsonReaderState.Name;
                         break;
                     default:
@@ -417,8 +417,8 @@ namespace MongoDB.Bson.IO
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            pattern = _buffer.ReadCString();
-            options = _buffer.ReadCString();
+            pattern = (string)_buffer.ReadCString(null);
+            options = (string)_buffer.ReadCString(null);
             State = GetNextState();
         }
 

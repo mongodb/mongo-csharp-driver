@@ -32,6 +32,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public class KeyValuePairSerializer<TKey, TValue> : BsonBaseSerializer
     {
+        // private static fields
+        private static readonly BsonTrie<bool> __bsonTrie = BuildBsonTrie();
+
         // private fields
         private volatile IDiscriminatorConvention _cachedKeyDiscriminatorConvention;
         private volatile IDiscriminatorConvention _cachedValueDiscriminatorConvention;
@@ -99,26 +102,27 @@ namespace MongoDB.Bson.Serialization.Serializers
                 key = default(TKey);
                 value = default(TValue);
                 bool keyFound = false, valueFound = false;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                while (bsonReader.ReadBsonType(__bsonTrie) != BsonType.EndOfDocument)
                 {
-                    var name = bsonReader.ReadName();
-                    switch (name)
+                    var elementName = bsonReader.ReadName();
+                    if (elementName != null)
                     {
-                        case "k":
-                            var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
-                            var keySerializer = GetValueSerializer(keyType);
-                            key = (TKey)keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, keyValuePairSerializationOptions.KeySerializationOptions);
-                            keyFound = true;
-                            break;
-                        case "v":
-                            var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
-                            var valueSerializer = GetValueSerializer(valueType);
-                            value = (TValue)valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
-                            valueFound = true;
-                            break;
-                        default:
-                            var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", name);
-                            throw new FileFormatException(message);
+                        var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", elementName);
+                        throw new BsonSerializationException(message);
+                    }
+                    if ((bool)bsonReader.CurrentName)
+                    {
+                        var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
+                        var keySerializer = GetValueSerializer(keyType);
+                        key = (TKey)keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, keyValuePairSerializationOptions.KeySerializationOptions);
+                        keyFound = true;
+                    }
+                    else
+                    {
+                        var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
+                        var valueSerializer = GetValueSerializer(valueType);
+                        value = (TValue)valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
+                        valueFound = true;
                     }
                 }
                 bsonReader.ReadEndDocument();
@@ -185,6 +189,21 @@ namespace MongoDB.Bson.Serialization.Serializers
                         BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>)));
                     throw new BsonSerializationException(message);
             }
+        }
+
+        // private static methods
+        /// <summary>
+        /// Builds the bson decoding trie.
+        /// </summary>
+        /// <returns>A BsonTrie.</returns>
+        private static BsonTrie<bool> BuildBsonTrie()
+        {
+            var bsonTrie = new BsonTrie<bool>();
+
+            bsonTrie.Add("k", true);
+            bsonTrie.Add("v", false);
+
+            return bsonTrie;
         }
 
         // private methods
