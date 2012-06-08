@@ -206,7 +206,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonTrie = new BsonTrie<bool>();
             bsonTrie.Add("k", true); // is key
             bsonTrie.Add("v", false);
-            bsonTrie.Freeze();
             return bsonTrie;
         }
 

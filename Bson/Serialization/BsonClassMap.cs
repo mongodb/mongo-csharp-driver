@@ -578,7 +578,6 @@ namespace MongoDB.Bson.Serialization
                                 _extraElementsMemberIndex = memberIndex;
                             }
                         }
-                        _elementTrie.Freeze();
 
                         // mark this classMap frozen before we start working on knownTypes
                         // because we might get back to this same classMap while processing knownTypes
