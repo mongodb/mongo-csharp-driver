@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -92,7 +91,7 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets the value associated with the specifie element name.
+        /// Gets the value associated with the specified element name.
         /// </summary>
         /// <param name="elementName">The element name.</param>
         /// <param name="value">
@@ -105,25 +104,24 @@ namespace MongoDB.Bson.IO
             var keyBytes = __utf8Encoding.GetBytes(elementName);
 
             var node = _root;
-            foreach (var keyByte in keyBytes)
+            for (var i = 0; i < keyBytes.Length; i++)
             {
-                node = node.GetChild(keyByte);
+                node = node.GetChild(keyBytes[i]);
                 if (node == null)
                 {
-                    break;
+                    value = default(TValue);
+                    return false;
                 }
             }
 
-            if (node != null && node.HasValue)
-            {
-                value = node.Value;
-                return true;
-            }
-            else
+            if (!node.HasValue)
             {
                 value = default(TValue);
                 return false;
             }
+
+            value = node.Value;
+            return true;
         }
     }
 
@@ -137,12 +135,11 @@ namespace MongoDB.Bson.IO
         private string _elementName;
         private TValue _value;
         private BsonTrieNode<TValue> _onlyChild; // used when there is only one child
-        private List<BsonTrieNode<TValue>> _children; // used when there are two or more children
+        private BsonTrieNode<TValue>[] _children; // used when there are two or more children
 
         // private fields set when node is frozen
         private bool _isFrozen;
         private byte _minKeyByte;
-        private byte _maxKeyByte;
         private byte[] _keyByteIndexes; // maps key bytes into indexes into the _children list
 
         // constructors
@@ -212,22 +209,18 @@ namespace MongoDB.Bson.IO
             }
             else if (_children != null)
             {
-                if (_isFrozen)
+                var index = (uint)((int)keyByte - _minKeyByte);
+                // enable the .Net CLR to eliminate an array bounds check on _keyByteIndexes
+                var keyByteIndexes = _keyByteIndexes;
+                if (index < keyByteIndexes.Length)
                 {
-                    // once the node is frozen we can use a faster lookup based on fields initialized when Freeze was called
-                    if (keyByte >= _minKeyByte && keyByte <= _maxKeyByte)
+                    index = keyByteIndexes[index];
+                    // enable the .Net CLR to eliminate an array bounds check on _children
+                    var children = _children;
+                    if (index < children.Length)
                     {
-                        var index = _keyByteIndexes[keyByte - _minKeyByte];
-                        if (index < _children.Count)
-                        {
-                            return _children[index];
-                        }
+                        return children[index];
                     }
-                }
-                else
-                {
-                    // until the node is frozen do a simple linear scan of the _children list
-                    return _children.Where(child => child._keyByte == keyByte).SingleOrDefault();
                 }
             }
             return null;
@@ -237,35 +230,39 @@ namespace MongoDB.Bson.IO
         internal void AddChild(BsonTrieNode<TValue> child)
         {
             if (_isFrozen) { throw new InvalidOperationException("BsonTrieNode is frozen."); }
-            if (_children == null)
+            if (_children != null)
             {
-                if (_onlyChild == null)
+                if (_children[child._keyByte] != null)
                 {
-                    _onlyChild = child;
+                    throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte.");
                 }
-                else
+
+                _children[child._keyByte] = child;
+            }
+            else if (_onlyChild != null)
+            {
+                if (_onlyChild._keyByte == child._keyByte)
                 {
-                    if (_onlyChild._keyByte == child._keyByte)
-                    {
-                        throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte");
-                    }
-
-                    var children = new List<BsonTrieNode<TValue>>();
-                    children.Add(_onlyChild);
-                    children.Add(child);
-
-                    _onlyChild = null;
-                    _children = children;
+                    throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte.");
                 }
+
+                var children = new BsonTrieNode<TValue>[256];
+                children[_onlyChild._keyByte] = _onlyChild;
+                children[child._keyByte] = child;
+
+                var keyByteIndexes = new byte[256];
+                for (var i = 0; i < keyByteIndexes.Length; i++)
+                {
+                    keyByteIndexes[i] = (byte)i;
+                }
+
+                _keyByteIndexes = keyByteIndexes;
+                _onlyChild = null;
+                _children = children;
             }
             else
             {
-                if (_children.Any(n => n._keyByte == child._keyByte))
-                {
-                    throw new ArgumentException("BsonTrieNode already contains a child with the same keyByte");
-                }
-
-                _children.Add(child);
+                _onlyChild = child;
             }
         }
 
@@ -279,18 +276,48 @@ namespace MongoDB.Bson.IO
                 }
                 else if (_children != null)
                 {
-                    _children.ForEach(child => child.Freeze());
-                    _minKeyByte = _children.Min(n => n._keyByte);
-                    _maxKeyByte = _children.Max(n => n._keyByte);
-                    _keyByteIndexes = new byte[_maxKeyByte - _minKeyByte + 1];
-                    for (var index = 0; index < _keyByteIndexes.Length; index++)
+                    var i = 0;
+
+                    // _children is guaranteed to have at least one element that isn't null
+                    for (; _children[i] == null; i++);
+
+                    var minKeyByte = (byte)i;
+                    var maxKeyByte = minKeyByte;
+
+                    byte childIndex = 0;
+
+                    for (i++; i < _children.Length; i++)
                     {
-                        _keyByteIndexes[index] = 255; // make sure unused entries can be identified
+                        if (_children[i] != null)
+                        {
+                            maxKeyByte = (byte)i;
+                            childIndex++;
+                        }
                     }
-                    for (var index = 0; index < _children.Count; index++)
+
+                    var keyByteIndexes = new byte[(int)maxKeyByte - minKeyByte + 1];
+                    for (i = 0; i < keyByteIndexes.Length; i++)
                     {
-                        _keyByteIndexes[_children[index]._keyByte - _minKeyByte] = (byte)index;
+                        keyByteIndexes[i] = 255; // make sure unused entries can be identified
                     }
+
+                    var children = new BsonTrieNode<TValue>[(int)childIndex + 1];
+                    childIndex = 0;
+                    for (i = 0; i < _children.Length; i++)
+                    {
+                        var child = _children[i];
+                        if (child != null)
+                        {
+                            keyByteIndexes[child._keyByte - minKeyByte] = childIndex;
+                            children[childIndex] = child;
+                            child.Freeze();
+                            childIndex++;
+                        }
+                    }
+
+                    _minKeyByte = minKeyByte;
+                    _keyByteIndexes = keyByteIndexes;
+                    _children = children;
                 }
                 _isFrozen = true;
             }
@@ -306,6 +333,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new InvalidOperationException("BsonTrieNode already has a value.");
             }
+            if (_isFrozen) { throw new InvalidOperationException("BsonTrieNode is frozen."); }
 
             _elementName = elementName;
             _value = value;

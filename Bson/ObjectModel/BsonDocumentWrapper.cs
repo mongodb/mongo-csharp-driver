@@ -63,8 +63,8 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
         /// <param name="wrappedObject">The wrapped object.</param>
-        public BsonDocumentWrapper(Type wrappedNominalType, object value)
-            : this(wrappedNominalType, value, false)
+        public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject)
+            : this(wrappedNominalType, wrappedObject, false)
         {
         }
 
