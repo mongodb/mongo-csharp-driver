@@ -1092,7 +1092,6 @@ namespace MongoDB.Bson.Serialization
                 {
                     _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
                 }
-
             }
         }
 

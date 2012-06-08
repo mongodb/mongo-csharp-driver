@@ -557,7 +557,7 @@ namespace MongoDB.Bson.IO
         public string ReadCString()
         {
             bool found;
-            object value;
+            int value;
             return ReadCString(null, out found, out value);
         }
 
@@ -960,21 +960,23 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        // private methods
-        private string DecodeUtf8String(byte[] buffer, int index, int count)
+        // private static methods
+        private static string DecodeUtf8String(byte[] buffer, int index, int count)
         {
             switch (count)
             {
                 // special case empty strings
                 case 0:
-                    return "";
+                    return string.Empty;
 
                 // special case single character strings
                 case 1:
-                    var byte1 = (int)buffer[index];
-                    if (byte1 < __asciiStringTable.Length)
+                    var byte1 = buffer[index];
+                    // enable the .Net CLR to eliminate an array bounds check on __asciiStringTable
+                    var asciiStringTable = __asciiStringTable;
+                    if (byte1 < asciiStringTable.Length)
                     {
-                        return __asciiStringTable[byte1];
+                        return asciiStringTable[byte1];
                     }
                     break;
             }
@@ -982,6 +984,33 @@ namespace MongoDB.Bson.IO
             return __utf8Encoding.GetString(buffer, index, count);
         }
 
+        private static int IndexOfNull<TValue>(
+            byte[] buffer,
+            int index,
+            int count,
+            ref BsonTrieNode<TValue> bsonTrieNode)
+        {
+            for (; count > 0; index++, count--)
+            {
+                // bsonTrieNode might be null on entry or it might become null while navigating the trie
+                if (bsonTrieNode == null)
+                {
+                    return Array.IndexOf<byte>(buffer, 0, index, count);
+                }
+
+                var keyByte = buffer[index];
+                if (keyByte == 0)
+                {
+                    return index;
+                }
+
+                bsonTrieNode = bsonTrieNode.GetChild(keyByte); // might return null
+            }
+
+            return -1;
+        }
+
+        // private methods
         private void EnsureDataAvailable(int needed)
         {
             if (_length - _position < needed)
@@ -1012,32 +1041,6 @@ namespace MongoDB.Bson.IO
                     _capacity += __chunkSize;
                 }
             }
-        }
-
-        private static int IndexOfNull<TValue>(
-            byte[] buffer,
-            int index,
-            int count,
-            ref BsonTrieNode<TValue> bsonTrieNode)
-        {
-            for (; count > 0; index++, count--)
-            {
-                // bsonTrieNode might be null on entry or it might become null while navigating the trie
-                if (bsonTrieNode == null)
-                {
-                    return Array.IndexOf<byte>(buffer, 0, index, count);
-                }
-
-                var keyByte = buffer[index];
-                if (keyByte == 0)
-                {
-                    return index;
-                }
-
-                bsonTrieNode = bsonTrieNode.GetChild(keyByte); // might return null
-            }
-
-            return -1;
         }
     }
 }
