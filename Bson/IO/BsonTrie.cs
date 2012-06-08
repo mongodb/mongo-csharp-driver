@@ -193,16 +193,12 @@ namespace MongoDB.Bson.IO
             else if (_children != null)
             {
                 var index = (uint)((int)keyByte - _minChildKeyByte);
-                // enable the .Net CLR to eliminate an array bounds check on _keyByteIndexes
-                var childrenIndexes = _childrenIndexes;
-                if (index < childrenIndexes.Length)
+                if (index < _childrenIndexes.Length)
                 {
-                    index = childrenIndexes[index];
-                    // enable the .Net CLR to eliminate an array bounds check on _children
-                    var children = _children;
-                    if (index < children.Length)
+                    index = _childrenIndexes[index];
+                    if (index < _children.Length)
                     {
-                        return children[index];
+                        return _children[index];
                     }
                 }
             }

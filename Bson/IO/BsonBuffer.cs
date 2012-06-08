@@ -972,11 +972,9 @@ namespace MongoDB.Bson.IO
                 // special case single character strings
                 case 1:
                     var byte1 = buffer[index];
-                    // enable the .Net CLR to eliminate an array bounds check on __asciiStringTable
-                    var asciiStringTable = __asciiStringTable;
-                    if (byte1 < asciiStringTable.Length)
+                    if (byte1 < __asciiStringTable.Length)
                     {
-                        return asciiStringTable[byte1];
+                        return __asciiStringTable[byte1];
                     }
                     break;
             }
