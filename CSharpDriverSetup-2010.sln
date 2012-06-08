@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CSharpDriverInstaller", "Installer\CSharpDriverInstaller.wixproj", "{0F21668D-B8AD-4B32-9392-A7BEADF54EFD}"

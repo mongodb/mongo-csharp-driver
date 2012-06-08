@@ -160,6 +160,7 @@
     <Compile Include="ObjectModel\BsonArrayTests.cs" />
     <Compile Include="ObjectModel\BsonBinaryDataTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
+    <Compile Include="ObjectModel\BsonDocumentWrapperTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />
     <Compile Include="IO\JsonWriterTests.cs" />

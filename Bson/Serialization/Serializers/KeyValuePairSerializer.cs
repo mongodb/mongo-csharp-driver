@@ -32,6 +32,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public class KeyValuePairSerializer<TKey, TValue> : BsonBaseSerializer
     {
+        // private static fields
+        private static readonly BsonTrie<bool> __bsonTrie = BuildBsonTrie();
+
         // private fields
         private volatile IDiscriminatorConvention _cachedKeyDiscriminatorConvention;
         private volatile IDiscriminatorConvention _cachedValueDiscriminatorConvention;
@@ -99,26 +102,32 @@ namespace MongoDB.Bson.Serialization.Serializers
                 key = default(TKey);
                 value = default(TValue);
                 bool keyFound = false, valueFound = false;
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                bool elementFound;
+                bool elementIsKey;
+                while (bsonReader.ReadBsonType(__bsonTrie, out elementFound, out elementIsKey) != BsonType.EndOfDocument)
                 {
                     var name = bsonReader.ReadName();
-                    switch (name)
+                    if (elementFound)
                     {
-                        case "k":
+                        if (elementIsKey)
+                        {
                             var keyType = keyDiscriminatorConvention.GetActualType(bsonReader, typeof(TKey));
                             var keySerializer = GetValueSerializer(keyType);
                             key = (TKey)keySerializer.Deserialize(bsonReader, typeof(TKey), keyType, keyValuePairSerializationOptions.KeySerializationOptions);
                             keyFound = true;
-                            break;
-                        case "v":
+                        }
+                        else
+                        {
                             var valueType = valueDiscriminatorConvention.GetActualType(bsonReader, typeof(TValue));
                             var valueSerializer = GetValueSerializer(valueType);
                             value = (TValue)valueSerializer.Deserialize(bsonReader, typeof(TValue), valueType, keyValuePairSerializationOptions.ValueSerializationOptions);
                             valueFound = true;
-                            break;
-                        default:
-                            var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", name);
-                            throw new FileFormatException(message);
+                        }
+                    }
+                    else
+                    {
+                        var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", name);
+                        throw new BsonSerializationException(message);
                     }
                 }
                 bsonReader.ReadEndDocument();
@@ -185,6 +194,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                         BsonUtils.GetFriendlyTypeName(typeof(KeyValuePair<TKey, TValue>)));
                     throw new BsonSerializationException(message);
             }
+        }
+
+        // private static methods
+        /// <summary>
+        /// Builds the bson decoding trie.
+        /// </summary>
+        /// <returns>A BsonTrie.</returns>
+        private static BsonTrie<bool> BuildBsonTrie()
+        {
+            var bsonTrie = new BsonTrie<bool>();
+            bsonTrie.Add("k", true); // is key
+            bsonTrie.Add("v", false);
+            bsonTrie.Freeze();
+            return bsonTrie;
         }
 
         // private methods

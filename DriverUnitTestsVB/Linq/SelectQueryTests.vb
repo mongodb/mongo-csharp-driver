@@ -5267,6 +5267,279 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
         <Test()> _
+        Public Sub TestWhereSToLowerEqualsConstantLowerCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() = "abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToLower() == ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : /^abc$/i }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(1, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToLowerDoesNotEqualConstantLowerCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() <> "abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToLower() != ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : { ""$not"" : /^abc$/i } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(4, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToLowerEqualsConstantMixedCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() = "Abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToLower() == ""Abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""_id"" : { ""$type"" : -1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(0, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToLowerDoesNotEqualConstantMixedCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() <> "Abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToLower() != ""Abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToLowerEqualsNullValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() = Nothing
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : null }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToLowerDoesNotEqualNullValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToLower() <> Nothing
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : { ""$ne"" : null } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(2, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperEqualsConstantLowerCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() = "abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToUpper() == ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""_id"" : { ""$type"" : -1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(0, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperDoesNotEqualConstantLowerCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() <> "abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToUpper() != ""abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperEqualsConstantMixedCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() = "Abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToUpper() == ""Abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""_id"" : { ""$type"" : -1 } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(0, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperDoesNotEqualConstantMixedCaseValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() <> "Abc"
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+            Assert.AreEqual("(C c) => (c.S.ToUpper() != ""Abc"")", ExpressionFormatter.ToString(selectQuery.Where))
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(5, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperEqualsNullValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() = Nothing
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : null }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereSToUpperDoesNotEqualNullValue()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.S.ToUpper() <> Nothing
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""s"" : { ""$ne"" : null } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(2, Consume(query))
+        End Sub
+
+
+        <Test()> _
         Public Sub TestWhereSystemProfileInfoDurationGreatherThan10Seconds()
             Dim query = From pi In _systemProfileCollection.AsQueryable(Of SystemProfileInfo)()
                         Where pi.Duration > TimeSpan.FromSeconds(10)

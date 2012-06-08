@@ -103,10 +103,15 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BsonType from the reader.
         /// </summary>
+        /// <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
+        /// <param name="found">Set to true if a matching value was found in the trie.</param>
+        /// <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
         /// <returns>A BsonType.</returns>
-        public override BsonType ReadBsonType()
+        public override BsonType ReadBsonType<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
         {
             if (Disposed) { ThrowObjectDisposedException(); }
+            found = false;
+            value = default(TValue);
             if (State == BsonReaderState.Initial || State == BsonReaderState.ScopeDocument)
             {
                 // there is an implied type of Document for the top level and for scope documents
@@ -136,6 +141,10 @@ namespace MongoDB.Bson.IO
                     {
                         State = BsonReaderState.EndOfDocument;
                         return BsonType.EndOfDocument;
+                    }
+                    if (bsonTrie != null)
+                    {
+                        found = bsonTrie.TryGetValue(currentElement.Name, out value);
                     }
                     CurrentName = currentElement.Name;
                     _currentValue = currentElement.Value;

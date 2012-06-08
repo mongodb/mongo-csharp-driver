@@ -172,6 +172,7 @@
     <Compile Include="Jira\CSharp93Tests.cs" />
     <Compile Include="Jira\CSharp98Tests.cs" />
     <Compile Include="Jira\CSharp100Tests.cs" />
+    <Compile Include="Linq\SelectDictionaryTests.cs" />
     <Compile Include="Linq\SelectNullableTests.cs" />
     <Compile Include="Linq\SelectOfTypeHierarchicalTests.cs" />
     <Compile Include="Linq\SelectOfTypeTests.cs" />

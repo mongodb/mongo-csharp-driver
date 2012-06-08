@@ -40,7 +40,7 @@ namespace MongoDB.Driver.GridFS
         private long _length;
         private long _position;
         private byte[] _chunk;
-        private int _chunkIndex = -1; // -1 means no chunk is loaded
+        private long _chunkIndex = -1; // -1 means no chunk is loaded
         private BsonValue _chunkId;
         private bool _chunkIsDirty;
         private bool _fileIsDirty;
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.GridFS
             if (_disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
             var available = _length - _position;
             if (count > available) { count = (int)available; }
-            var chunkIndex = (int)(_position / _fileInfo.ChunkSize);
+            var chunkIndex = _position / _fileInfo.ChunkSize;
             var chunkOffset = (int)(_position % _fileInfo.ChunkSize);
             var bytesRead = 0;
             while (count > 0)
@@ -276,7 +276,7 @@ namespace MongoDB.Driver.GridFS
             if (_disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
             if (_position < _length)
             {
-                var chunkIndex = (int)(_position / _fileInfo.ChunkSize);
+                var chunkIndex = _position / _fileInfo.ChunkSize;
                 var chunkOffset = (int)(_position % _fileInfo.ChunkSize);
                 if (_chunkIndex != chunkIndex) { LoadChunk(chunkIndex); }
                 var b = _chunk[chunkOffset];
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.GridFS
                 }
                 _fileIsDirty = true;
 
-                var lastChunkIndex = (int)((_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize) - 1;
+                var lastChunkIndex = ((_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize) - 1;
                 if (_chunkIndex == lastChunkIndex)
                 {
                     // if the current chunk is the new last chunk mark it dirty (its size has changed)
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.GridFS
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (_disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
-            var chunkIndex = (int)(_position / _fileInfo.ChunkSize);
+            var chunkIndex = _position / _fileInfo.ChunkSize;
             var chunkOffset = (int)(_position % _fileInfo.ChunkSize);
             while (count > 0)
             {
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.GridFS
         public override void WriteByte(byte value)
         {
             if (_disposed) { throw new ObjectDisposedException("MongoGridFSStream"); }
-            var chunkIndex = (int)(_position / _fileInfo.ChunkSize);
+            var chunkIndex = _position / _fileInfo.ChunkSize;
             var chunkOffset = (int)(_position % _fileInfo.ChunkSize);
             if (_chunkIndex != chunkIndex)
             {
@@ -448,12 +448,12 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("files_id", _fileInfo.Id);
             var fields = Fields.Include("n");
-            var chunkCount = (int)((_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize);
-            var chunksFound = new HashSet<int>();
+            var chunkCount = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize;
+            var chunksFound = new HashSet<long>();
             var foundExtraChunks = false;
             foreach (var chunk in _gridFS.Chunks.Find(query).SetFields(fields))
             {
-                var n = chunk["n"].ToInt32();
+                var n = chunk["n"].ToInt64();
                 chunksFound.Add(n);
                 if (n >= chunkCount)
                 {
@@ -468,7 +468,7 @@ namespace MongoDB.Driver.GridFS
             }
 
             BsonBinaryData zeros = null; // delay creating it until it's actually needed
-            for (var n = 0; n < chunkCount; n++)
+            for (var n = 0L; n < chunkCount; n++)
             {
                 if (!chunksFound.Contains(n))
                 {
@@ -480,7 +480,7 @@ namespace MongoDB.Driver.GridFS
                     {
                         { "_id", ObjectId.GenerateNewId() },
                         { "files_id", _fileInfo.Id },
-                        { "n", n },
+                        { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
                         { "data", zeros }
                     };
                     _gridFS.Chunks.Insert(missingChunk);
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        private void LoadChunk(int chunkIndex)
+        private void LoadChunk(long chunkIndex)
         {
             if (_chunkIsDirty) { SaveChunk(); }
             var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.GridFS
             _chunkIndex = chunkIndex;
         }
 
-        private void LoadChunkNoData(int chunkIndex)
+        private void LoadChunkNoData(long chunkIndex)
         {
             if (_chunkIsDirty) { SaveChunk(); }
             if (_chunk == null)
@@ -599,7 +599,7 @@ namespace MongoDB.Driver.GridFS
 
         private void SaveChunk()
         {
-            var lastChunkIndex = (int)((_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize) - 1;
+            var lastChunkIndex = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize - 1;
             if (_chunkIndex == -1 || _chunkIndex > lastChunkIndex)
             {
                 var message = string.Format("Invalid chunk index {0}.", _chunkIndex);
@@ -629,7 +629,7 @@ namespace MongoDB.Driver.GridFS
             {
                 { "_id", _chunkId },
                 { "files_id", _fileInfo.Id },
-                { "n", _chunkIndex },
+                { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)_chunkIndex) : BsonInt64.Create(_chunkIndex) },
                 { "data", data }
             };
             _gridFS.Chunks.Update(query, update, UpdateFlags.Upsert);
