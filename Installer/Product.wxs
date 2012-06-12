@@ -132,7 +132,7 @@
       <Feature Id="Help"
                Title ="Driver Help"
                Description="The driver help file"
-               Level ="100">
+               Level ="1">
         <ComponentRef Id="c_Help"/>
         <ComponentRef Id="c_HelpShortCut"/>
       </Feature>
