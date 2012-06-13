@@ -281,26 +281,30 @@ namespace MongoDB.Driver
         // these helper methods are shared with MongoConnectionStringBuilder
         internal static string FormatTimeSpan(TimeSpan value)
         {
-            const int oneSecond = 1000; // milliseconds
-            const int oneMinute = 60 * oneSecond;
-            const int oneHour = 60 * oneMinute;
+            const int msInOneSecond = 1000; // milliseconds
+            const int msInOneMinute = 60 * msInOneSecond;
+            const int msInOneHour = 60 * msInOneMinute;
 
             var ms = (int)value.TotalMilliseconds;
-            if ((ms % oneHour) == 0)
+            if ((ms % msInOneHour) == 0)
             {
-                return string.Format("{0}h", ms / oneHour);
+                return string.Format("{0}h", ms / msInOneHour);
             }
-            else if ((ms % oneMinute) == 0)
+            else if ((ms % msInOneMinute) == 0 && ms < msInOneHour)
             {
-                return string.Format("{0}m", ms / oneMinute);
+                return string.Format("{0}m", ms / msInOneMinute);
             }
-            else if ((ms % oneSecond) == 0)
+            else if ((ms % msInOneSecond) == 0 && ms < msInOneMinute)
             {
-                return string.Format("{0}s", ms / oneSecond);
+                return string.Format("{0}s", ms / msInOneSecond);
+            }
+            else if (ms < 1000)
+            {
+                return string.Format("{0}ms", ms);
             }
             else
             {
-                return string.Format("{0}ms", ms);
+                return value.ToString();
             }
         }
 
@@ -373,7 +377,7 @@ namespace MongoDB.Driver
                 s = s.ToLower();
                 var end = s.Length - 1;
 
-                var multiplier = 1000;
+                var multiplier = 1000; // default units are seconds
                 if (name.EndsWith("ms", StringComparison.Ordinal))
                 {
                     multiplier = 1;
@@ -508,12 +512,14 @@ namespace MongoDB.Driver
                                 _safeMode.FSync = ParseBoolean(name, value);
                                 break;
                             case "guids":
+                            case "uuidrepresentation":
                                 _guidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), value, true); // ignoreCase
                                 break;
                             case "ipv6":
                                 _ipv6 = ParseBoolean(name, value);
                                 break;
                             case "j":
+                            case "journal":
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
                                 SafeMode.J = ParseBoolean(name, value);
                                 break;
@@ -665,7 +671,7 @@ namespace MongoDB.Driver
                 }
                 if (_safeMode.J)
                 {
-                    query.Append("j=true;");
+                    query.Append("journal=true;");
                 }
                 if (_safeMode.W != 0 || _safeMode.WMode != null)
                 {
@@ -721,7 +727,7 @@ namespace MongoDB.Driver
             }
             if (_guidRepresentation != MongoDefaults.GuidRepresentation)
             {
-                query.AppendFormat("guids={0};", _guidRepresentation);
+                query.AppendFormat("uuidRepresentation={0};", _guidRepresentation);
             }
             if (query.Length != 0)
             {

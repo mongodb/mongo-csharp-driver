@@ -37,13 +37,16 @@ namespace MongoDB.Driver
         {
             { "connect", "connect" },
             { "connecttimeout", "connectTimeout" },
-            { "connecttimeoutms", "connectTimeoutMS" },
+            { "connecttimeoutms", "connectTimeout" },
             { "database", "database" },
             { "fsync", "fsync" },
-            { "guids", "guids" },
-            { "j", "j" },
+            { "guids", "uuidRepresentation" },
+            { "j", "journal" },
+            { "journal", "journal" },
             { "maxidletime", "maxIdleTime" },
+            { "maxidletimems", "maxIdleTime" },
             { "maxlifetime", "maxLifeTime" },
+            { "maxlifetimems", "maxLifeTime" },
             { "maxpoolsize", "maxPoolSize" },
             { "minpoolsize", "minPoolSize" },
             { "password", "password" },
@@ -53,13 +56,14 @@ namespace MongoDB.Driver
             { "servers", "server" },
             { "slaveok", "slaveOk" },
             { "sockettimeout", "socketTimeout" },
-            { "sockettimeoutms", "socketTimeoutMS" },
+            { "sockettimeoutms", "socketTimeout" },
             { "username", "username" },
+            { "uuidrepresentation", "uuidRepresentation" },
             { "w", "w" },
             { "waitqueuemultiple", "waitQueueMultiple" },
             { "waitqueuesize", "waitQueueSize" },
             { "waitqueuetimeout", "waitQueueTimeout" },
-            { "waitqueuetimeoutms", "waitQueueTimeoutMS" },
+            { "waitqueuetimeoutms", "waitQueueTimeout" },
             { "wtimeout", "wtimeout" },
             { "wtimeoutms", "wtimeout" }
         };
@@ -170,7 +174,7 @@ namespace MongoDB.Driver
             get { return _guidRepresentation; }
             set
             {
-                base["guids"] = _guidRepresentation = value;
+                base["uuidRepresentation"] = _guidRepresentation = value;
             }
         }
 
@@ -276,28 +280,28 @@ namespace MongoDB.Driver
                 if (value == null)
                 {
                     base["safe"] = null;
+                    base["fsync"] = null;
+                    base["journal"] = null;
                     base["w"] = null;
                     base["wtimeout"] = null;
-                    base["fsync"] = null;
-                    base["j"] = null;
                 }
                 else
                 {
                     if (value.Enabled)
                     {
                         base["safe"] = "true";
+                        base["fsync"] = (value.FSync) ? "true" : null;
+                        base["journal"] = (value.J) ? "true" : null;
                         base["w"] = (value.W != 0) ? value.W.ToString() : (value.WMode != null) ? value.WMode : null;
                         base["wtimeout"] = (value.W != 0 && value.WTimeout != TimeSpan.Zero) ? MongoUrlBuilder.FormatTimeSpan(value.WTimeout) : null;
-                        base["fsync"] = (value.FSync) ? "true" : null;
-                        base["j"] = (value.J) ? "true" : null;
                     }
                     else
                     {
                         base["safe"] = "false";
+                        base["fsync"] = null;
+                        base["journal"] = null;
                         base["w"] = null;
                         base["wtimeout"] = null;
-                        base["fsync"] = null;
-                        base["j"] = null;
                     }
                 }
             }
@@ -376,7 +380,9 @@ namespace MongoDB.Driver
             set
             {
                 _waitQueueMultiple = value;
-                base["waitQueueMultiple"] = (value != 0) ? XmlConvert.ToString(value) : null;
+                _waitQueueSize = 0;
+                base["waitQueueMultiple"] = (value != 0.0) ? XmlConvert.ToString(value) : null;
+                base["waitQueueSize"] = null;
             }
         }
 
@@ -389,7 +395,9 @@ namespace MongoDB.Driver
             set
             {
                 _waitQueueSize = value;
+                _waitQueueMultiple = 0.0;
                 base["waitQueueSize"] = (value != 0) ? XmlConvert.ToString(value) : null;
+                base["waitQueueMultiple"] = null;
             }
         }
 
@@ -447,12 +455,14 @@ namespace MongoDB.Driver
                         SafeMode = _safeMode;
                         break;
                     case "guids":
+                    case "uuidrepresentation":
                         GuidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), (string)value, true); // ignoreCase
                         break;
                     case "ipv6":
                         IPv6 = Convert.ToBoolean(value);
                         break;
                     case "j":
+                    case "journal":
                         if (_safeMode == null) { _safeMode = new SafeMode(false); }
                         _safeMode.J = Convert.ToBoolean(value);
                         SafeMode = _safeMode;
@@ -511,17 +521,16 @@ namespace MongoDB.Driver
                         break;
                     case "waitqueuemultiple":
                         WaitQueueMultiple = Convert.ToDouble(value);
-                        WaitQueueSize = 0;
                         break;
                     case "waitqueuesize":
                         WaitQueueSize = Convert.ToInt32(value);
-                        WaitQueueMultiple = 0;
                         break;
                     case "waitqueuetimeout":
                     case "waitqueuetimeoutms":
                         WaitQueueTimeout = ToTimeSpan(keyword, value);
                         break;
                     case "wtimeout":
+                    case "wtimeoutms":
                         if (_safeMode == null) { _safeMode = new SafeMode(false); }
                         _safeMode.WTimeout = ToTimeSpan(keyword, value);
                         SafeMode = _safeMode;

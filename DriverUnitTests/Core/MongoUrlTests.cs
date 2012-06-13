@@ -183,9 +183,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestConnectTimeout()
         {
-            string connectionString = "mongodb://localhost/?connectTimeout=123";
+            string connectionString = "mongodb://localhost/?connectTimeout=12";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(TimeSpan.FromSeconds(123), url.ConnectTimeout);
+            Assert.AreEqual(TimeSpan.FromSeconds(12), url.ConnectTimeout);
             Assert.AreEqual(connectionString + "s", url.ToString()); // "s" units added
 
             connectionString = "mongodb://localhost/?connectTimeout=123ms";
@@ -193,19 +193,19 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(TimeSpan.FromMilliseconds(123), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
 
-            connectionString = "mongodb://localhost/?connectTimeout=123s";
+            connectionString = "mongodb://localhost/?connectTimeout=12s";
             url = new MongoUrl(connectionString);
-            Assert.AreEqual(TimeSpan.FromSeconds(123), url.ConnectTimeout);
+            Assert.AreEqual(TimeSpan.FromSeconds(12), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
 
-            connectionString = "mongodb://localhost/?connectTimeout=123m";
+            connectionString = "mongodb://localhost/?connectTimeout=12m";
             url = new MongoUrl(connectionString);
-            Assert.AreEqual(TimeSpan.FromMinutes(123), url.ConnectTimeout);
+            Assert.AreEqual(TimeSpan.FromMinutes(12), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
 
-            connectionString = "mongodb://localhost/?connectTimeout=123h";
+            connectionString = "mongodb://localhost/?connectTimeout=12h";
             url = new MongoUrl(connectionString);
-            Assert.AreEqual(TimeSpan.FromHours(123), url.ConnectTimeout);
+            Assert.AreEqual(TimeSpan.FromHours(12), url.ConnectTimeout);
             Assert.AreEqual(connectionString, url.ToString());
 
             connectionString = "mongodb://localhost/?connectTimeoutMS=123";
@@ -235,7 +235,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGuidRepresentationPythonLegacy()
         {
-            string connectionString = "mongodb://localhost/?guids=PythonLegacy";
+            string connectionString = "mongodb://localhost/?uuidRepresentation=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
             Assert.AreEqual(connectionString, url.ToString());
@@ -244,7 +244,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGuidRepresentationJavaLegacy()
         {
-            string connectionString = "mongodb://localhost/?guids=JavaLegacy";
+            string connectionString = "mongodb://localhost/?uuidRepresentation=JavaLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.AreEqual(GuidRepresentation.JavaLegacy, url.GuidRepresentation);
             Assert.AreEqual(connectionString, url.ToString());
@@ -436,7 +436,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAll()
         {
-            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;guids=PythonLegacy";
+            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;uuidRepresentation=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
