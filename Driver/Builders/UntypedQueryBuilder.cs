@@ -23,16 +23,16 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Builders
 {
-    internal class UntypedQueryBuilder
+    public static class UntypedQuery
     {
-        // public methods
+        // public static methods
         /// <summary>
         /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="values">The values to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery All(string name, IEnumerable<BsonValue> values)
+        public static IMongoQuery All(string name, IEnumerable<BsonValue> values)
         {
             if (name == null)
             {
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="queries">A list of subqueries.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery And(IEnumerable<IMongoQuery> queries)
+        public static IMongoQuery And(IEnumerable<IMongoQuery> queries)
         {
             if (queries == null)
             {
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="queries">A list of subqueries.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery And(params IMongoQuery[] queries)
+        public static IMongoQuery And(params IMongoQuery[] queries)
         {
             return And((IEnumerable<IMongoQuery>)queries);
         }
@@ -94,10 +94,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="query">The query to match elements with.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery ElemMatch(string name, IMongoQuery query)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery ElemMatch(string name, IMongoQuery query)
         {
             if (name == null)
             {
@@ -117,10 +115,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery EQ(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery EQ(string name, BsonValue value)
         {
             if (name == null)
             {
@@ -138,10 +134,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that an element of that name exists (see $exists).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Exists(string name)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Exists(string name)
         {
             if (name == null)
             {
@@ -156,10 +150,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery GT(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GT(string name, BsonValue value)
         {
             if (name == null)
             {
@@ -169,7 +161,7 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("value");
             }
-                
+
             return new QueryDocument(name, new BsonDocument("$gt", value));
         }
 
@@ -178,10 +170,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery GTE(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GTE(string name, BsonValue value)
         {
             if (name == null)
             {
@@ -200,10 +190,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="values">The values to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery In(string name, IEnumerable<BsonValue> values)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery In(string name, IEnumerable<BsonValue> values)
         {
             if (name == null)
             {
@@ -213,7 +201,7 @@ namespace MongoDB.Driver.Builders
             {
                 throw new ArgumentNullException("values");
             }
-            
+
             return new QueryDocument(name, new BsonDocument("$in", new BsonArray(values)));
         }
 
@@ -222,10 +210,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery LT(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery LT(string name, BsonValue value)
         {
             if (name == null)
             {
@@ -244,10 +230,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery LTE(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery LTE(string name, BsonValue value)
         {
             if (name == null)
             {
@@ -266,10 +250,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="regex">The regex.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(string name, BsonRegularExpression regex)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Matches(string name, BsonRegularExpression regex)
         {
             if (name == null)
             {
@@ -288,10 +270,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="pattern">The pattern.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(string name, string pattern)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Matches(string name, string pattern)
         {
             if (name == null)
             {
@@ -311,10 +291,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to test.</param>
         /// <param name="pattern">The pattern.</param>
         /// <param name="options">The options.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(string name, string pattern, string options)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Matches(string name, string pattern, string options)
         {
             if (name == null)
             {
@@ -337,10 +315,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="regex">The regex.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(string name, Regex regex)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Matches(string name, Regex regex)
         {
             if (name == null)
             {
@@ -360,10 +336,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to test.</param>
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Mod(string name, int modulus, int value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Mod(string name, int modulus, int value)
         {
             if (name == null)
             {
@@ -380,10 +354,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to test.</param>
         /// <param name="x">The x value of the origin.</param>
         /// <param name="y">The y value of the origin.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Near(string name, double x, double y)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near(string name, double x, double y)
         {
             return Near(name, x, y, double.MaxValue);
         }
@@ -395,10 +367,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="x">The x value of the origin.</param>
         /// <param name="y">The y value of the origin.</param>
         /// <param name="maxDistance">The max distance.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Near(string name, double x, double y, double maxDistance)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near(string name, double x, double y, double maxDistance)
         {
             return Near(name, x, y, maxDistance, false);
         }
@@ -411,10 +381,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="y">The y value of the origin.</param>
         /// <param name="maxDistance">The max distance.</param>
         /// <param name="spherical">if set to <c>true</c> then the query will be translated to $nearSphere.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Near(string name, double x, double y, double maxDistance, bool spherical)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near(string name, double x, double y, double maxDistance, bool spherical)
         {
             if (name == null)
             {
@@ -435,8 +403,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that the inverse of the query is true (see $not).
         /// </summary>
         /// <param name="query">The query.</param>
-        /// <returns></returns>
-        public IMongoQuery Not(IMongoQuery query)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Not(IMongoQuery query)
         {
             var queryDocument = query.ToBsonDocument();
             if (queryDocument.ElementCount == 1)
@@ -510,10 +478,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="value">The value.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery NE(string name, BsonValue value)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery NE(string name, BsonValue value)
         {
             return new QueryDocument(name, new BsonDocument("$ne", value));
         }
@@ -522,10 +488,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that an element of that name does not exist (see $exists).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery NotExists(string name)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery NotExists(string name)
         {
             return new QueryDocument(name, new BsonDocument("$exists", false));
         }
@@ -535,10 +499,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="values">The values to compare.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery NotIn(string name, IEnumerable<BsonValue> values)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery NotIn(string name, IEnumerable<BsonValue> values)
         {
             return new QueryDocument(name, new BsonDocument("$nin", new BsonArray(values)));
         }
@@ -547,10 +509,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that at least one of the subqueries is true (see $or).
         /// </summary>
         /// <param name="queries">The subqueries.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Or(IEnumerable<IMongoQuery> queries)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Or(IEnumerable<IMongoQuery> queries)
         {
             if (queries == null)
             {
@@ -603,10 +563,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that at least one of the subqueries is true (see $or).
         /// </summary>
         /// <param name="queries">The subqueries.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Or(params IMongoQuery[] queries)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Or(params IMongoQuery[] queries)
         {
             return Or((IEnumerable<IMongoQuery>)queries);
         }
@@ -616,10 +574,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="size">The size to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Size(string name, int size)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Size(string name, int size)
         {
             if (name == null)
             {
@@ -635,10 +591,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="type">The type to compare to.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery Type(string name, BsonType type)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type(string name, BsonType type)
         {
             if (name == null)
             {
@@ -653,10 +607,8 @@ namespace MongoDB.Driver.Builders
         /// Tests that a JavaScript expression is true (see $where).
         /// </summary>
         /// <param name="javascript">The javascript.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Where(BsonJavaScript javascript)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Where(BsonJavaScript javascript)
         {
             if (javascript == null)
             {
@@ -673,10 +625,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="centerX">The x coordinate of the origin.</param>
         /// <param name="centerY">The y coordinate of the origin.</param>
         /// <param name="radius">The radius of the circle.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius)
         {
             return WithinCircle(name, centerX, centerY, radius, false);
         }
@@ -689,10 +639,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="centerY">The y coordinate of the origin.</param>
         /// <param name="radius">The radius of the circle.</param>
         /// <param name="spherical">if set to <c>true</c> [spherical].</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius, bool spherical)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius, bool spherical)
         {
             if (name == null)
             {
@@ -709,10 +657,8 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="points">An array of points that defines the polygon (the second dimension must be of length 2).</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery WithinPolygon(string name, double[,] points)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery WithinPolygon(string name, double[,] points)
         {
             if (name == null)
             {
@@ -746,10 +692,8 @@ namespace MongoDB.Driver.Builders
         /// <param name="lowerLeftY">The y coordinate of the lower left corner.</param>
         /// <param name="upperRightX">The x coordinate of the upper right corner.</param>
         /// <param name="upperRightY">The y coordinate of the upper right corner.</param>
-        /// <returns>
-        /// An IMongoQuery.
-        /// </returns>
-        public IMongoQuery WithinRectangle(string name, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery WithinRectangle(string name, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
         {
             if (name == null)
             {
@@ -761,7 +705,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // private methods
-        private void AddAndClause(BsonDocument query, BsonElement clause)
+        private static void AddAndClause(BsonDocument query, BsonElement clause)
         {
             // flatten out nested $and
             if (clause.Name == "$and")
@@ -820,7 +764,7 @@ namespace MongoDB.Driver.Builders
             }
         }
 
-        private void PromoteQueryToDollarAndForm(BsonDocument query, BsonElement clause)
+        private static void PromoteQueryToDollarAndForm(BsonDocument query, BsonElement clause)
         {
             var clauses = new BsonArray();
             foreach (var queryElement in query)

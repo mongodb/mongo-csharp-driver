@@ -41,18 +41,6 @@ namespace MongoDB.Driver.Builders
 
         // public static methods
         /// <summary>
-        /// Builds a query using a strongly-typed query builder.
-        /// </summary>
-        /// <typeparam name="TDocument"></typeparam>
-        /// <param name="queryBuilderFunction">A function that builds a query using the supplied query builder.</param>
-        /// <returns>an IMongoQuery.</returns>
-        public static IMongoQuery Build<TDocument>(Func<QueryBuilder<TDocument>, IMongoQuery> queryBuilderFunction)
-        {
-            var queryBuilder = new QueryBuilder<TDocument>();
-            return queryBuilderFunction(queryBuilder);
-        }
-
-        /// <summary>
         /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -622,18 +610,6 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("javaScript");
             }
             return new QueryComplete(new BsonDocument("$where", javaScript));
-        }
-
-        /// <summary>
-        /// Builds a query from an expression.
-        /// </summary>
-        /// <typeparam name="TDocument">The entity type.</typeparam>
-        /// <param name="expression">The query.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Where<TDocument>(Expression<Func<TDocument, bool>> expression)
-        {
-            var builder = new QueryBuilder<TDocument>();
-            return builder.Where(expression);
         }
 
         /// <summary>

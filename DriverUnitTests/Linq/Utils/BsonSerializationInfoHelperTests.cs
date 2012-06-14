@@ -79,7 +79,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestPrimitiveMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.Primitive, 1));
+            var query = Query<Test>.EQ(t => t.Primitive, 1);
 
             Assert.AreEqual("{ \"p\" : 1 }", query.ToString());
         }
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.Complex, null));
+            var query = Query<Test>.EQ(t => t.Complex, null);
 
             Assert.AreEqual("{ \"c\" : null }", query.ToString());
         }
@@ -95,7 +95,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexMemberMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.Complex.Primitive, 1));
+            var query = Query<Test>.EQ(t => t.Complex.Primitive, 1);
 
             Assert.AreEqual("{ \"c.p\" : 1 }", query.ToString());
         }
@@ -103,7 +103,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexMemberComplex()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.Complex.Complex, null));
+            var query = Query<Test>.EQ(t => t.Complex.Complex, null);
 
             Assert.AreEqual("{ \"c.c\" : null }", query.ToString());
         }
@@ -111,7 +111,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexMemberComplexMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.Complex.Complex.Primitive, 1));
+            var query = Query<Test>.EQ(t => t.Complex.Complex.Primitive, 1);
 
             Assert.AreEqual("{ \"c.c.p\" : 1 }", query.ToString());
         }
@@ -119,7 +119,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestPrimitiveEnumerable()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.PrimitiveEnumerable, null));
+            var query = Query<Test>.EQ(t => t.PrimitiveEnumerable, null);
 
             Assert.AreEqual("{ \"pe\" : null }", query.ToString());
         }
@@ -127,7 +127,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexEnumerable()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable, null));
+            var query = Query<Test>.EQ(t => t.ComplexEnumerable, null);
 
             Assert.AreEqual("{ \"ce\" : null }", query.ToString());
         }
@@ -135,7 +135,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestPrimitiveIndex()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.PrimitiveEnumerable[0], 1));
+            var query = Query<Test>.EQ(t => t.PrimitiveEnumerable[0], 1);
 
             Assert.AreEqual("{ \"pe.0\" : 1 }", query.ToString());
         }
@@ -143,7 +143,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexIndex()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable[1], null));
+            var query = Query<Test>.EQ(t => t.ComplexEnumerable[1], null);
 
             Assert.AreEqual("{ \"ce.1\" : null }", query.ToString());
         }
@@ -151,7 +151,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexIndexMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable[1].Primitive, 2));
+            var query = Query<Test>.EQ(t => t.ComplexEnumerable[1].Primitive, 2);
 
             Assert.AreEqual("{ \"ce.1.p\" : 2 }", query.ToString());
         }
@@ -159,7 +159,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestPrimitiveElementAt()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.PrimitiveEnumerable.ElementAt(0), 1));
+            var query = Query<Test>.EQ(t => t.PrimitiveEnumerable.ElementAt(0), 1);
 
             Assert.AreEqual("{ \"pe.0\" : 1 }", query.ToString());
         }
@@ -167,7 +167,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexElementAt()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable.ElementAt(0), null));
+            var query = Query<Test>.EQ(t => t.ComplexEnumerable.ElementAt(0), null);
 
             Assert.AreEqual("{ \"ce.0\" : null }", query.ToString());
         }
@@ -175,7 +175,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestComplexElementAtMember()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => t.ComplexEnumerable.ElementAt(0).Primitive, 1));
+            var query = Query<Test>.EQ(t => t.ComplexEnumerable.ElementAt(0).Primitive, 1);
 
             Assert.AreEqual("{ \"ce.0.p\" : 1 }", query.ToString());
         }
@@ -183,7 +183,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestRootConversion()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => ((Test5)t).String, "f"));
+            var query = Query<Test>.EQ(t => ((Test5)t).String, "f");
 
             Assert.AreEqual("{ \"s\" : \"f\" }", query.ToString());
         }
@@ -191,7 +191,7 @@ namespace MongoDB.DriverUnitTests.Linq.Utils
         [Test]
         public void TestNestedConversion()
         {
-            var query = Query.Build<Test>(qb => qb.EQ(t => ((Test4)t.Complex.Complex).PrimitiveEnumerable, null));
+            var query = Query<Test>.EQ(t => ((Test4)t.Complex.Complex).PrimitiveEnumerable, null);
             
             Assert.AreEqual("{ \"c.c.pe\" : null }", query.ToString());
         }

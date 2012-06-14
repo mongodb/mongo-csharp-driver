@@ -31,13 +31,12 @@ using MongoDB.Driver.Linq.Utils;
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
-    /// Translates an expression tree into an IMongo_queryBuilder.
+    /// Translates an expression tree into an IMongoUntypedQuery.
     /// </summary>
     internal class PredicateTranslator
     {
         // private fields
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
-        private readonly UntypedQueryBuilder _queryBuilder;
 
         // constructors
         /// <summary>
@@ -47,7 +46,6 @@ namespace MongoDB.Driver.Linq
         public PredicateTranslator(BsonSerializationInfoHelper serializationHelper)
         {
             _serializationInfoHelper = serializationHelper;
-            _queryBuilder = new UntypedQueryBuilder();
         }
 
         // public methods
@@ -108,7 +106,7 @@ namespace MongoDB.Driver.Linq
         // private methods
         private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
         {
-            return _queryBuilder.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+            return UntypedQuery.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
         }
 
         private IMongoQuery BuildAnyQuery(MethodCallExpression methodCallExpression)
@@ -137,7 +135,7 @@ namespace MongoDB.Driver.Linq
                     var lambda = (LambdaExpression)arguments[1];
                     _serializationInfoHelper.RegisterExpressionSerializer(lambda.Parameters[0], itemSerializer);
                     var query = BuildQuery(lambda.Body);
-                    return _queryBuilder.ElemMatch(serializationInfo.ElementName, query);
+                    return UntypedQuery.ElemMatch(serializationInfo.ElementName, query);
                 }
             }
             return null;
@@ -196,11 +194,11 @@ namespace MongoDB.Driver.Linq
             {
                 if (operatorType == ExpressionType.Equal)
                 {
-                    return _queryBuilder.Size(serializationInfo.ElementName, value);
+                    return UntypedQuery.Size(serializationInfo.ElementName, value);
                 }
                 else
                 {
-                    return _queryBuilder.Not(_queryBuilder.Size(serializationInfo.ElementName, value));
+                    return UntypedQuery.Not(UntypedQuery.Size(serializationInfo.ElementName, value));
                 }
             }
 
@@ -215,7 +213,7 @@ namespace MongoDB.Driver.Linq
             }
             else
             {
-                return _queryBuilder.Type("_id", (BsonType)(-1)); // matches no documents (and uses _id index when used at top level)
+                return UntypedQuery.Type("_id", (BsonType)(-1)); // matches no documents (and uses _id index when used at top level)
             }
         }
 
@@ -337,12 +335,12 @@ namespace MongoDB.Driver.Linq
                 var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
                 switch (operatorType)
                 {
-                    case ExpressionType.Equal: return _queryBuilder.EQ(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThan: return _queryBuilder.GT(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.GreaterThanOrEqual: return _queryBuilder.GTE(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThan: return _queryBuilder.LT(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.LessThanOrEqual: return _queryBuilder.LTE(serializationInfo.ElementName, serializedValue);
-                    case ExpressionType.NotEqual: return _queryBuilder.NE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.Equal: return UntypedQuery.EQ(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThan: return UntypedQuery.GT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.GreaterThanOrEqual: return UntypedQuery.GTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThan: return UntypedQuery.LT(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.LessThanOrEqual: return UntypedQuery.LTE(serializationInfo.ElementName, serializedValue);
+                    case ExpressionType.NotEqual: return UntypedQuery.NE(serializationInfo.ElementName, serializedValue);
                 }
             }
 
@@ -373,7 +371,7 @@ namespace MongoDB.Driver.Linq
                     {
                         var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ContainsAll", serializationInfo);
                         var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
-                        return _queryBuilder.All(serializationInfo.ElementName, serializedValues);
+                        return UntypedQuery.All(serializationInfo.ElementName, serializedValues);
                     }
                 }
             }
@@ -393,7 +391,7 @@ namespace MongoDB.Driver.Linq
                     {
                         var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ContainsAny", serializationInfo);
                         var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, (IEnumerable)valuesExpression.Value);
-                        return _queryBuilder.In(serializationInfo.ElementName, serializedValues);
+                        return UntypedQuery.In(serializationInfo.ElementName, serializedValues);
                     }
                 }
             }
@@ -526,7 +524,7 @@ namespace MongoDB.Driver.Linq
             {
                 var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Contains", serializationInfo);
                 var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, valueExpression.Value);
-                return _queryBuilder.EQ(serializationInfo.ElementName, serializedValue);
+                return UntypedQuery.EQ(serializationInfo.ElementName, serializedValue);
             }
 
             return null;
@@ -625,7 +623,7 @@ namespace MongoDB.Driver.Linq
             if (serializationInfo != null && valuesExpression != null)
             {
                 var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, (IEnumerable)valuesExpression.Value);
-                return _queryBuilder.In(serializationInfo.ElementName, serializedValues);
+                return UntypedQuery.In(serializationInfo.ElementName, serializedValues);
             }
             return null;
         }
@@ -675,7 +673,7 @@ namespace MongoDB.Driver.Linq
                                     options = (RegexOptions)optionsExpression.Value;
                                 }
                                 var regex = new Regex(pattern, options);
-                                return _queryBuilder.Matches(serializationInfo.ElementName, regex);
+                                return UntypedQuery.Matches(serializationInfo.ElementName, regex);
                             }
                         }
                     }
@@ -689,7 +687,7 @@ namespace MongoDB.Driver.Linq
                         var regex = regexExpression.Value as Regex;
                         if (regex != null)
                         {
-                            return _queryBuilder.Matches(serializationInfo.ElementName, regex);
+                            return UntypedQuery.Matches(serializationInfo.ElementName, regex);
                         }
                     }
                 }
@@ -705,9 +703,9 @@ namespace MongoDB.Driver.Linq
                 if (arguments.Length == 1)
                 {
                     var serializationInfo = _serializationInfoHelper.GetSerializationInfo(arguments[0]);
-                    return _queryBuilder.Or(
-                        _queryBuilder.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
-                        _queryBuilder.EQ(serializationInfo.ElementName, ""));
+                    return UntypedQuery.Or(
+                        UntypedQuery.Type(serializationInfo.ElementName, BsonType.Null), // this is the safe way to test for null
+                        UntypedQuery.EQ(serializationInfo.ElementName, ""));
                 }
             }
 
@@ -757,11 +755,11 @@ namespace MongoDB.Driver.Linq
                     var modulus = ToInt32(modulusExpression);
                     if (operatorType == ExpressionType.Equal)
                     {
-                        return _queryBuilder.Mod(serializationInfo.ElementName, modulus, value);
+                        return UntypedQuery.Mod(serializationInfo.ElementName, modulus, value);
                     }
                     else
                     {
-                        return _queryBuilder.Not(_queryBuilder.Mod(serializationInfo.ElementName, modulus, value));
+                        return UntypedQuery.Not(UntypedQuery.Mod(serializationInfo.ElementName, modulus, value));
                     }
                 }
             }
@@ -772,12 +770,12 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildNotQuery(UnaryExpression unaryExpression)
         {
             var queryDocument = new QueryDocument(BuildQuery(unaryExpression.Operand).ToBsonDocument());
-            return new UntypedQueryBuilder().Not(queryDocument);
+            return UntypedQuery.Not(queryDocument);
         }
 
         private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
         {
-            return _queryBuilder.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+            return UntypedQuery.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
         }
 
         private IMongoQuery BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -922,7 +920,7 @@ namespace MongoDB.Driver.Linq
 
                 if (pattern != null)
                 {
-                    return _queryBuilder.Matches(serializationInfo.ElementName, pattern, "s");
+                    return UntypedQuery.Matches(serializationInfo.ElementName, pattern, "s");
                 }
             }
 
@@ -999,7 +997,7 @@ namespace MongoDB.Driver.Linq
             var pattern = string.Format("^.{{{0}}}{1}", index, characterClass);
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(stringExpression);
-            return _queryBuilder.Matches(serializationInfo.ElementName, pattern, "s");
+            return UntypedQuery.Matches(serializationInfo.ElementName, pattern, "s");
         }
 
         private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -1052,11 +1050,11 @@ namespace MongoDB.Driver.Linq
                 {
                     if (operatorType == ExpressionType.NotEqual)
                     {
-                        return _queryBuilder.Not(_queryBuilder.Matches(serializationInfo.ElementName, regex));
+                        return UntypedQuery.Not(UntypedQuery.Matches(serializationInfo.ElementName, regex));
                     }
                     else
                     {
-                        return _queryBuilder.Matches(serializationInfo.ElementName, regex);
+                        return UntypedQuery.Matches(serializationInfo.ElementName, regex);
                     }
                 }
             }
@@ -1103,11 +1101,11 @@ namespace MongoDB.Driver.Linq
 
                     if (operatorType == ExpressionType.Equal)
                     {
-                        return _queryBuilder.Matches(serializationInfo.ElementName, regex);
+                        return UntypedQuery.Matches(serializationInfo.ElementName, regex);
                     }
                     else
                     {
-                        return _queryBuilder.Not(_queryBuilder.Matches(serializationInfo.ElementName, regex));
+                        return UntypedQuery.Not(UntypedQuery.Matches(serializationInfo.ElementName, regex));
                     }
                 }
                 else
@@ -1128,11 +1126,11 @@ namespace MongoDB.Driver.Linq
             {
                 if (operatorType == ExpressionType.Equal)
                 {
-                    return _queryBuilder.EQ(serializationInfo.ElementName, BsonNull.Value);
+                    return UntypedQuery.EQ(serializationInfo.ElementName, BsonNull.Value);
                 }
                 else
                 {
-                    return _queryBuilder.NE(serializationInfo.ElementName, BsonNull.Value);
+                    return UntypedQuery.NE(serializationInfo.ElementName, BsonNull.Value);
                 }
             }
             else
@@ -1236,7 +1234,7 @@ namespace MongoDB.Driver.Linq
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(stringExpression);
             var options = caseInsensitive ? "is" : "s";
-            return _queryBuilder.Matches(serializationInfo.ElementName, pattern, options);
+            return UntypedQuery.Matches(serializationInfo.ElementName, pattern, options);
         }
 
         private IMongoQuery BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -1288,18 +1286,18 @@ namespace MongoDB.Driver.Linq
             {
                 var discriminatorArray = discriminator.AsBsonArray;
                 var queries = new IMongoQuery[discriminatorArray.Count + 1];
-                queries[0] = _queryBuilder.Size(discriminatorConvention.ElementName, discriminatorArray.Count);
+                queries[0] = UntypedQuery.Size(discriminatorConvention.ElementName, discriminatorArray.Count);
                 for (var i = 0; i < discriminatorArray.Count; i++)
                 {
-                    queries[i + 1] = _queryBuilder.EQ(string.Format("{0}.{1}", discriminatorConvention.ElementName, i), discriminatorArray[i]);
+                    queries[i + 1] = UntypedQuery.EQ(string.Format("{0}.{1}", discriminatorConvention.ElementName, i), discriminatorArray[i]);
                 }
-                return _queryBuilder.And(queries);
+                return UntypedQuery.And(queries);
             }
             else
             {
-                return _queryBuilder.And(
-                    _queryBuilder.NotExists(discriminatorConvention.ElementName + ".0"), // trick to check that element is not an array
-                    _queryBuilder.EQ(discriminatorConvention.ElementName, discriminator));
+                return UntypedQuery.And(
+                    UntypedQuery.NotExists(discriminatorConvention.ElementName + ".0"), // trick to check that element is not an array
+                    UntypedQuery.EQ(discriminatorConvention.ElementName, discriminator));
             }
         }
 
@@ -1320,7 +1318,7 @@ namespace MongoDB.Driver.Linq
                 discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
             }
 
-            return _queryBuilder.EQ(discriminatorConvention.ElementName, discriminator);
+            return UntypedQuery.EQ(discriminatorConvention.ElementName, discriminator);
         }
 
         private string GetTrimCharsPattern(Expression trimCharsExpression)
