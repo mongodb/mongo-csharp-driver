@@ -635,9 +635,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSafeModeJFalse()
         {
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(false) { J = false } };
+            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(false) { Journal = false } };
             Assert.AreEqual(false, builder.SafeMode.Enabled);
-            Assert.AreEqual(false, builder.SafeMode.J);
+            Assert.AreEqual(false, builder.SafeMode.Journal);
 
             var connectionString = "mongodb://localhost";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -651,9 +651,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSafeModeJTrue()
         {
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(false) { J = true } };
+            var builder = new MongoUrlBuilder("mongodb://localhost") { SafeMode = new SafeMode(false) { Journal = true } };
             Assert.AreEqual(true, builder.SafeMode.Enabled);
-            Assert.AreEqual(true, builder.SafeMode.J);
+            Assert.AreEqual(true, builder.SafeMode.Journal);
 
             var connectionString = "mongodb://localhost/?safe=true;journal=true";
             Assert.AreEqual(connectionString, builder.ToString());

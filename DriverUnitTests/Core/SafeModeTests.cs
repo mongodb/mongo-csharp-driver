@@ -34,7 +34,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(true);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(0, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.Zero, safeMode.WTimeout);
@@ -46,7 +46,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(true, true);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(0, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.Zero, safeMode.WTimeout);
@@ -58,7 +58,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(true, true, 2);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(2, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.Zero, safeMode.WTimeout);
@@ -70,7 +70,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(true, true, 2, TimeSpan.FromSeconds(30));
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(true, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(2, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.FromSeconds(30), safeMode.WTimeout);
@@ -82,7 +82,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(2);
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(2, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.Zero, safeMode.WTimeout);
@@ -94,7 +94,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(2, TimeSpan.FromSeconds(30));
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(2, safeMode.W);
             Assert.AreEqual(null, safeMode.WMode);
             Assert.AreEqual(TimeSpan.FromSeconds(30), safeMode.WTimeout);
@@ -113,7 +113,7 @@ namespace MongoDB.DriverUnitTests
             var safeMode = new SafeMode(true) { WMode = "majority" };
             Assert.AreEqual(true, safeMode.Enabled);
             Assert.AreEqual(false, safeMode.FSync);
-            Assert.AreEqual(false, safeMode.J);
+            Assert.AreEqual(false, safeMode.Journal);
             Assert.AreEqual(0, safeMode.W);
             Assert.AreEqual("majority", safeMode.WMode);
             Assert.AreEqual(TimeSpan.Zero, safeMode.WTimeout);
@@ -127,7 +127,7 @@ namespace MongoDB.DriverUnitTests
             var a3 = a2;
             var b = new SafeMode(false) { Enabled = true };
             var c = new SafeMode(false) { FSync = true };
-            var d = new SafeMode(false) { J = true };
+            var d = new SafeMode(false) { Journal = true };
             var e = new SafeMode(false) { W = 2 };
             var f = new SafeMode(false) { WMode = "mode" };
             var g = new SafeMode(false) { WTimeout = TimeSpan.FromMinutes(1) };

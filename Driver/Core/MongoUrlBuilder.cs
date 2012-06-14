@@ -521,7 +521,7 @@ namespace MongoDB.Driver
                             case "j":
                             case "journal":
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                                SafeMode.J = ParseBoolean(name, value);
+                                SafeMode.Journal = ParseBoolean(name, value);
                                 break;
                             case "maxidletime":
                             case "maxidletimems":
@@ -669,7 +669,7 @@ namespace MongoDB.Driver
                 {
                     query.Append("fsync=true;");
                 }
-                if (_safeMode.J)
+                if (_safeMode.Journal)
                 {
                     query.Append("journal=true;");
                 }

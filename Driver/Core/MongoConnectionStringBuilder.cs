@@ -291,7 +291,7 @@ namespace MongoDB.Driver
                     {
                         base["safe"] = "true";
                         base["fsync"] = (value.FSync) ? "true" : null;
-                        base["journal"] = (value.J) ? "true" : null;
+                        base["journal"] = (value.Journal) ? "true" : null;
                         base["w"] = (value.W != 0) ? value.W.ToString() : (value.WMode != null) ? value.WMode : null;
                         base["wtimeout"] = (value.W != 0 && value.WTimeout != TimeSpan.Zero) ? MongoUrlBuilder.FormatTimeSpan(value.WTimeout) : null;
                     }
@@ -464,7 +464,7 @@ namespace MongoDB.Driver
                     case "j":
                     case "journal":
                         if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                        _safeMode.J = Convert.ToBoolean(value);
+                        _safeMode.Journal = Convert.ToBoolean(value);
                         SafeMode = _safeMode;
                         break;
                     case "maxidletime":

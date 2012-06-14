@@ -47,6 +47,7 @@ namespace MongoDB.Driver
         private TimeSpan _socketTimeout;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
+
         // the following fields are set when Freeze is called
         private bool _isFrozen;
         private int _frozenHashCode;

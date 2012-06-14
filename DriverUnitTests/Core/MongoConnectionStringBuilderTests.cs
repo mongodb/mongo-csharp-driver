@@ -638,9 +638,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSafeModeJFalse()
         {
-            var builder = new MongoConnectionStringBuilder() { Server = __localhost, SafeMode = new SafeMode(false) { J = false } };
+            var builder = new MongoConnectionStringBuilder() { Server = __localhost, SafeMode = new SafeMode(false) { Journal = false } };
             Assert.AreEqual(false, builder.SafeMode.Enabled);
-            Assert.AreEqual(false, builder.SafeMode.J);
+            Assert.AreEqual(false, builder.SafeMode.Journal);
 
             var connectionString = "server=localhost;safe=false";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -654,9 +654,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSafeModeJTrue()
         {
-            var builder = new MongoConnectionStringBuilder() { Server = __localhost, SafeMode = new SafeMode(false) { J = true } };
+            var builder = new MongoConnectionStringBuilder() { Server = __localhost, SafeMode = new SafeMode(false) { Journal = true } };
             Assert.AreEqual(true, builder.SafeMode.Enabled);
-            Assert.AreEqual(true, builder.SafeMode.J);
+            Assert.AreEqual(true, builder.SafeMode.Journal);
 
             var connectionString = "server=localhost;safe=true;journal=true";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -1062,7 +1062,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
             Assert.AreEqual("name", builder.ReplicaSetName);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
-            Assert.AreEqual(new SafeMode(true) { FSync = true, J = true, W = 2, WTimeout = TimeSpan.FromSeconds(2) }, builder.SafeMode);
+            Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(2) }, builder.SafeMode);
             Assert.AreEqual(true, builder.SlaveOk);
             Assert.AreEqual(connectionString, builder.ToString());
         }
