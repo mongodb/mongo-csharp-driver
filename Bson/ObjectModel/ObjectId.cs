@@ -17,7 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security;
 using System.Security.Cryptography;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 
@@ -48,8 +51,18 @@ namespace MongoDB.Bson
         static ObjectId()
         {
             __staticMachine = GetMachineHash();
-            __staticPid = (short)Process.GetCurrentProcess().Id; // use low order two bytes only
             __staticIncrement = (new Random()).Next();
+
+            try
+            {
+                // we are testing for FullTrust here and, if we have it, then we use the current process' id.
+                new PermissionSet(PermissionState.Unrestricted).Demand();
+                SetPidToCurrentProcessId();
+            }
+            catch (SecurityException)
+            {
+                __staticPid = (short)0;
+            }
         }
 
         // constructors
@@ -362,6 +375,12 @@ namespace MongoDB.Bson
         private static int GetTimestampFromDateTime(DateTime timestamp)
         {
             return (int)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void SetPidToCurrentProcessId()
+        {
+            __staticPid = (short)Process.GetCurrentProcess().Id;
         }
 
         // public methods
