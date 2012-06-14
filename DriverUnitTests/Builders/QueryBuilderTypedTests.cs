@@ -29,7 +29,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
-    public class TypedQueryBuilderTests
+    public class QueryBuilderTypedTests
     {
         private class A
         {

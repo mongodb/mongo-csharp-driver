@@ -2156,7 +2156,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereAExistsFalse()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where Query.Exists("a", false).Inject()
+                        where Query.NotExists("a").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -2179,7 +2179,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereAExistsTrue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where Query.Exists("a", true).Inject()
+                        where Query.Exists("a").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -2202,7 +2202,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereAExistsTrueNot()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where !Query.Exists("a", true).Inject()
+                        where !Query.Exists("a").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -3605,7 +3605,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereLExistsFalse()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where Query.Exists("l", false).Inject()
+                        where Query.NotExists("l").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -3628,7 +3628,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereLExistsTrue()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where Query.Exists("l", true).Inject()
+                        where Query.Exists("l").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -3651,7 +3651,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestWhereLExistsTrueNot()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where !Query.Exists("l", true).Inject()
+                        where !Query.Exists("l").Inject()
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);

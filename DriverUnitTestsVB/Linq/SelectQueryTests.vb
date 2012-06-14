@@ -2039,7 +2039,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereAExistsFalse()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                           Where Query.Exists("a", False).Inject()
+                           Where Query.NotExists("a").Inject()
                            Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
@@ -2061,7 +2061,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereAExistsTrue()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                           Where Query.Exists("a", True).Inject()
+                           Where Query.Exists("a").Inject()
                            Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
@@ -2083,7 +2083,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereAExistsTrueNot()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                           Where Not Query.Exists("a", True).Inject()
+                           Where Not Query.Exists("a").Inject()
                            Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
@@ -3412,7 +3412,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereLExistsFalse()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Query.Exists("l", False).Inject()
+                            Where Query.NotExists("l").Inject()
                             Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
@@ -3434,7 +3434,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereLExistsTrue()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Query.Exists("l", True).Inject()
+                            Where Query.Exists("l").Inject()
                             Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)
@@ -3456,7 +3456,7 @@ Namespace MongoDB.DriverUnitTests.Linq
         <Test()> _
         Public Sub TestWhereLExistsTrueNot()
             Dim query__1 = From c In _collection.AsQueryable(Of C)()
-                            Where Not Query.Exists("l", True).Inject()
+                            Where Not Query.Exists("l").Inject()
                             Select c
 
             Dim translatedQuery = MongoQueryTranslator.Translate(query__1)

@@ -96,9 +96,10 @@
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
+    <Compile Include="Builders\DeprecatedQueryBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
-    <Compile Include="Builders\TypedQueryBuilderTests.cs" />
+    <Compile Include="Builders\QueryBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="Core\CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\CommandResultTests.cs" />

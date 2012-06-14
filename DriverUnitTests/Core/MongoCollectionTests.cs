@@ -1144,7 +1144,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });
                 _collection.Insert(new BsonDocument { { "X", 1 }, { "B", 2 } });
 
-                var query = Query.Exists("B", true);
+                var query = Query.Exists("B");
 
                 var map =
                     "function() {\n" +

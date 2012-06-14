@@ -27,6 +27,8 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 
+using Query = MongoDB.Driver.Builders.DeprecatedQuery;
+
 namespace MongoDB.DriverUnitTests.Jira.CSharp283
 {
     [TestFixture]
