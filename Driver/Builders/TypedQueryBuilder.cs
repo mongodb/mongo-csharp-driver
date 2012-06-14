@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Builders
     {
         // private fields
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
-        private readonly IBsonSerializer _rootSerializer;
         private readonly PredicateTranslator _predicateTranslator;
         private readonly UntypedQueryBuilder _queryBuilder;
 
@@ -44,18 +43,16 @@ namespace MongoDB.Driver.Builders
         /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
         /// </summary>
         public QueryBuilder()
-            : this(new BsonSerializationInfoHelper(), null)
+            : this(new BsonSerializationInfoHelper())
         { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
         /// </summary>
         /// <param name="serializationInfoHelper">The serialization info helper.</param>
-        /// <param name="rootSerializer">The root serializer.</param>
-        internal QueryBuilder(BsonSerializationInfoHelper serializationInfoHelper, IBsonSerializer rootSerializer)
+        internal QueryBuilder(BsonSerializationInfoHelper serializationInfoHelper)
         {
             _serializationInfoHelper = serializationInfoHelper;
-            _rootSerializer = rootSerializer;
             _predicateTranslator = new PredicateTranslator(_serializationInfoHelper);
             _queryBuilder = new UntypedQueryBuilder();
         }
@@ -111,7 +108,7 @@ namespace MongoDB.Driver.Builders
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
-            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper, itemSerializationInfo.Serializer);
+            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
             var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             return _queryBuilder.ElemMatch(serializationInfo.ElementName, elementQuery);
         }

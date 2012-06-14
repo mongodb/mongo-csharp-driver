@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Builders
             get { return null; }
         }
 
+        // public static methods
         /// <summary>
         /// Builds a query using a strongly-typed query builder.
         /// </summary>
@@ -51,19 +52,6 @@ namespace MongoDB.Driver.Builders
             return queryBuilderFunction(queryBuilder);
         }
 
-        /// <summary>
-        /// Builds a query from an expression.
-        /// </summary>
-        /// <typeparam name="TDocument">The entity type.</typeparam>
-        /// <param name="expression">The query.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Where<TDocument>(Expression<Func<TDocument, bool>> expression)
-        {
-            var builder = new QueryBuilder<TDocument>();
-            return builder.Where(expression);
-        }
-
-        // public static methods
         /// <summary>
         /// Tests that the named array element contains all of the values (see $all).
         /// </summary>
@@ -634,6 +622,18 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("javaScript");
             }
             return new QueryComplete(new BsonDocument("$where", javaScript));
+        }
+
+        /// <summary>
+        /// Builds a query from an expression.
+        /// </summary>
+        /// <typeparam name="TDocument">The entity type.</typeparam>
+        /// <param name="expression">The query.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Where<TDocument>(Expression<Func<TDocument, bool>> expression)
+        {
+            var builder = new QueryBuilder<TDocument>();
+            return builder.Where(expression);
         }
 
         /// <summary>
