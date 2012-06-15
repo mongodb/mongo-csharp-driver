@@ -55,8 +55,6 @@ namespace MongoDB.Bson
 
             try
             {
-                // we are testing for FullTrust here and, if we have it, then we use the current process' id.
-                new PermissionSet(PermissionState.Unrestricted).Demand();
                 SetPidToCurrentProcessId();
             }
             catch (SecurityException)
@@ -377,6 +375,11 @@ namespace MongoDB.Bson
             return (int)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
         }
 
+        /// <summary>
+        /// Sets the pid to current process id.  This method exists because of how CAS operates on the call stack, checking
+        /// for permissions before executing the method.  Hence, if we inlined this call, the calling method would not execute
+        /// before throwing an exception requiring the try/catch at an even higher level that we don't necessarily control.
+        /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void SetPidToCurrentProcessId()
         {
