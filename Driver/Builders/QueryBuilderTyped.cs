@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -145,24 +144,11 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, string pattern)
-        {
-            return new QueryBuilder<TDocument>().Matches(memberExpression, pattern);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="regex">The regex.</param>
         /// <returns>
         /// A query.
         /// </returns>
-        public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, Regex regex)
+        public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
         {
             return new QueryBuilder<TDocument>().Matches(memberExpression, regex);
         }
@@ -386,6 +372,15 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery All<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("All", serializationInfo);
             var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
@@ -399,7 +394,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery And(IEnumerable<IMongoQuery> queries)
         {
-            return Query.And(queries.ToArray());
+            return Query.And(queries);
         }
 
         /// <summary>
@@ -421,6 +416,15 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (elementQueryBuilderFunction == null)
+            {
+                throw new ArgumentNullException("elementQueryBuilderFunction");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
@@ -437,6 +441,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery EQ<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.EQ(serializationInfo.ElementName, serializedValue);
@@ -450,6 +459,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Exists<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Exists(serializationInfo.ElementName);
         }
@@ -463,6 +477,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery GT<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.GT(serializationInfo.ElementName, serializedValue);
@@ -477,6 +496,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery GTE<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.GTE(serializationInfo.ElementName, serializedValue);
@@ -491,9 +515,17 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery In<TValue>(Expression<Func<TDocument, TValue>> memberExpression, IEnumerable<TValue> values)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, values);
-
             return Query.In(serializationInfo.ElementName, serializedValues);
         }
 
@@ -506,6 +538,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery LT<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.LT(serializationInfo.ElementName, serializedValue);
@@ -520,23 +557,14 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery LTE<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.LTE(serializationInfo.ElementName, serializedValue);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, string pattern)
-        {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Matches(serializationInfo.ElementName, pattern);
         }
 
         /// <summary>
@@ -547,8 +575,17 @@ namespace MongoDB.Driver.Builders
         /// <returns>
         /// A query.
         /// </returns>
-        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, Regex regex)
+        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Matches(serializationInfo.ElementName, regex);
         }
@@ -562,6 +599,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, int modulus, int value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Mod(serializationInfo.ElementName, modulus, value);
         }
@@ -576,8 +618,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Near<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double x, double y)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Near(serializationInfo.ElementName, x, y);
+            return Near(memberExpression, x, y, double.MaxValue);
         }
 
         /// <summary>
@@ -591,8 +632,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Near<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double x, double y, double maxDistance)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Near(serializationInfo.ElementName, x, y, maxDistance);
+            return Near(memberExpression, x, y, maxDistance, false);
         }
 
         /// <summary>
@@ -607,6 +647,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Near<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double x, double y, double maxDistance, bool spherical)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Near(serializationInfo.ElementName, x, y, maxDistance, spherical);
         }
@@ -630,6 +675,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery NE<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             return Query.NE(serializationInfo.ElementName, serializedValue);
@@ -643,6 +693,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery NotExists<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.NotExists(serializationInfo.ElementName);
         }
@@ -656,6 +711,15 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery NotIn<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, values);
             return Query.NotIn(serializationInfo.ElementName, serializedValues);
@@ -694,6 +758,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Size<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, int size)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Size(serializationInfo.ElementName, size);
         }
@@ -707,20 +776,13 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, BsonType type)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Type(serializationInfo.ElementName, type);
-        }
-
-        /// <summary>
-        /// Tests that a JavaScript expression is true (see $where).
-        /// </summary>
-        /// <param name="javascript">The javascript.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Where(BsonJavaScript javascript)
-        {
-            return Query.Where(javascript);
         }
 
         /// <summary>
@@ -730,6 +792,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Where(Expression<Func<TDocument, bool>> expression)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException("expression");
+            }
+
             var evaluatedExpression = PartialEvaluator.Evaluate(expression.Body);
             return _predicateTranslator.BuildQuery(evaluatedExpression);
         }
@@ -745,8 +812,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery WithinCircle<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double centerX, double centerY, double radius)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.WithinCircle(serializationInfo.ElementName, centerX, centerY, radius);
+            return WithinCircle(memberExpression, centerX, centerY, radius, false);
         }
 
         /// <summary>
@@ -761,6 +827,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery WithinCircle<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double centerX, double centerY, double radius, bool spherical)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.WithinCircle(serializationInfo.ElementName, centerX, centerY, radius, spherical);
         }
@@ -774,6 +845,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery WithinPolygon<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double[,] points)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.WithinPolygon(serializationInfo.ElementName, points);
         }
@@ -790,6 +866,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery WithinRectangle<TMember>(Expression<Func<TDocument, TMember>> memberExpression, double lowerLeftX, double lowerLeftY, double upperRightX, double upperRightY)
         {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.WithinRectangle(serializationInfo.ElementName, lowerLeftX, lowerLeftY, upperRightX, upperRightY);
         }

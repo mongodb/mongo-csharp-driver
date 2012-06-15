@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
 
@@ -353,6 +352,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Not(IMongoQuery query)
         {
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
+
             var queryDocument = query.ToBsonDocument();
             if (queryDocument.ElementCount == 1)
             {
@@ -428,6 +432,15 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery NE(string name, BsonValue value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+
             return new QueryDocument(name, new BsonDocument("$ne", value));
         }
 
@@ -438,6 +451,11 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery NotExists(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
             return new QueryDocument(name, new BsonDocument("$exists", false));
         }
 
@@ -449,6 +467,15 @@ namespace MongoDB.Driver.Builders
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery NotIn(string name, IEnumerable<BsonValue> values)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
             return new QueryDocument(name, new BsonDocument("$nin", new BsonArray(values)));
         }
 

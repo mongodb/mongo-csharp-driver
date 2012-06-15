@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
+#pragma warning disable 618 // about obsolete DeprecatedQuery class
 using Query = MongoDB.Driver.Builders.DeprecatedQuery;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp137
@@ -131,3 +132,4 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137
         }
     }
 }
+#pragma warning restore 618
