@@ -55,7 +55,7 @@ namespace MongoDB.Bson
 
             try
             {
-                SetPidToCurrentProcessId();
+                __staticPid = GetCurrentProcessId();
             }
             catch (SecurityException)
             {
@@ -362,6 +362,17 @@ namespace MongoDB.Bson
         }
 
         // private static methods
+        /// <summary>
+        /// Gets the current process id.  This method exists because of how CAS operates on the call stack, checking
+        /// for permissions before executing the method.  Hence, if we inlined this call, the calling method would not execute
+        /// before throwing an exception requiring the try/catch at an even higher level that we don't necessarily control.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static short GetCurrentProcessId()
+        {
+            return (short)Process.GetCurrentProcess().Id;
+        }
+
         private static int GetMachineHash()
         {
             var hostName = Environment.MachineName; // use instead of Dns.HostName so it will work offline
@@ -373,17 +384,6 @@ namespace MongoDB.Bson
         private static int GetTimestampFromDateTime(DateTime timestamp)
         {
             return (int)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
-        }
-
-        /// <summary>
-        /// Sets the pid to current process id.  This method exists because of how CAS operates on the call stack, checking
-        /// for permissions before executing the method.  Hence, if we inlined this call, the calling method would not execute
-        /// before throwing an exception requiring the try/catch at an even higher level that we don't necessarily control.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void SetPidToCurrentProcessId()
-        {
-            __staticPid = (short)Process.GetCurrentProcess().Id;
         }
 
         // public methods
