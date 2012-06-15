@@ -193,7 +193,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for MongoDBRefs.
     /// </summary>
-    public class MongoDBRefSerializer : BsonBaseSerializer, IBsonMemberSerializationInfoProvider
+    public class MongoDBRefSerializer : BsonBaseSerializer, IBsonDocumentSerializer
     {
         // public methods
         /// <summary>

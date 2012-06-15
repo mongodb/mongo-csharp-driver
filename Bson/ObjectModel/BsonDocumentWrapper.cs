@@ -27,7 +27,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
-    // this class is a wrapper for an object that we intend to serialize as a BSON document
+    // this class is a wrapper for an object that we intend to serialize as a BsonValue
     // it is a subclass of BsonValue so that it may be used where a BsonValue is expected
     // this class is mostly used by MongoCollection and MongoCursor when supporting generic query objects
 
@@ -54,10 +54,8 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="wrappedObject">The wrapped object.</param>
         public BsonDocumentWrapper(object wrappedObject)
-            : base(BsonType.Document)
+            : this((wrappedObject == null) ? typeof(object) : wrappedObject.GetType(), wrappedObject)
         {
-            _wrappedNominalType = (wrappedObject == null) ? typeof(object) : wrappedObject.GetType();
-            _wrappedObject = wrappedObject;
         }
 
         /// <summary>
@@ -66,10 +64,8 @@ namespace MongoDB.Bson
         /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
         /// <param name="wrappedObject">The wrapped object.</param>
         public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject)
-            : base(BsonType.Document)
+            : this(wrappedNominalType, wrappedObject, false)
         {
-            _wrappedNominalType = wrappedNominalType;
-            _wrappedObject = wrappedObject;
         }
 
         /// <summary>
@@ -78,9 +74,13 @@ namespace MongoDB.Bson
         /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
         /// <param name="wrappedObject">The wrapped object.</param>
         /// <param name="isUpdateDocument">Whether the wrapped object is an update document that needs to be checked.</param>
-        internal BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject, bool isUpdateDocument)
+        public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject, bool isUpdateDocument)
             : base(BsonType.Document)
         {
+            if (wrappedNominalType == null)
+            {
+                throw new ArgumentNullException("wrappedNominalType");
+            }
             _wrappedNominalType = wrappedNominalType;
             _wrappedObject = wrappedObject;
             _isUpdateDocument = isUpdateDocument;
@@ -92,7 +92,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
         /// <param name="value">The wrapped object.</param>
-        /// <returns>A BsonDocumentWrapper or null.</returns>
+        /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create<TNominalType>(TNominalType value)
         {
             return Create(typeof(TNominalType), value);
@@ -104,7 +104,7 @@ namespace MongoDB.Bson
         /// <typeparam name="TNominalType">The nominal type of the wrapped object.</typeparam>
         /// <param name="value">The wrapped object.</param>
         /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper or null.</returns>
+        /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create<TNominalType>(TNominalType value, bool isUpdateDocument)
         {
             return Create(typeof(TNominalType), value, isUpdateDocument);
@@ -115,7 +115,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="value">The wrapped object.</param>
-        /// <returns>A BsonDocumentWrapper or null.</returns>
+        /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value)
         {
             return Create(nominalType, value, false); // isUpdateDocument = false
@@ -127,17 +127,10 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="value">The wrapped object.</param>
         /// <param name="isUpdateDocument">Whether the wrapped object is an update document.</param>
-        /// <returns>A BsonDocumentWrapper or null.</returns>
+        /// <returns>A BsonDocumentWrapper.</returns>
         public static BsonDocumentWrapper Create(Type nominalType, object value, bool isUpdateDocument)
         {
-            if (value != null)
-            {
-                return new BsonDocumentWrapper(nominalType, value, isUpdateDocument);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonDocumentWrapper(nominalType, value, isUpdateDocument);
         }
 
         /// <summary>
@@ -145,17 +138,15 @@ namespace MongoDB.Bson
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the wrapped objects.</typeparam>
         /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers or null.</returns>
+        /// <returns>A list of BsonDocumentWrappers.</returns>
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple<TNominalType>(IEnumerable<TNominalType> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                return values.Where(v => v != null).Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
+                throw new ArgumentNullException("values");
             }
-            else
-            {
-                return null;
-            }
+
+            return values.Select(v => new BsonDocumentWrapper(typeof(TNominalType), v));
         }
 
         /// <summary>
@@ -163,25 +154,19 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
         /// <param name="values">A list of wrapped objects.</param>
-        /// <returns>A list of BsonDocumentWrappers or null.</returns>
+        /// <returns>A list of BsonDocumentWrappers.</returns>
         public static IEnumerable<BsonDocumentWrapper> CreateMultiple(Type nominalType, IEnumerable values)
         {
-            if (values != null)
+            if (nominalType == null)
             {
-                var wrappers = new List<BsonDocumentWrapper>();
-                foreach (var value in values)
-                {
-                    if (value != null)
-                    {
-                        wrappers.Add(new BsonDocumentWrapper(nominalType, value));
-                    }
-                }
-                return wrappers;
+                throw new ArgumentNullException("nominalType");
             }
-            else
+            if (values == null)
             {
-                return null;
+                throw new ArgumentNullException("values");
             }
+
+            return values.Cast<object>().Select(v => new BsonDocumentWrapper(nominalType, v));
         }
 
         // public methods

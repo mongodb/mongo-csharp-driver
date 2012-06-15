@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for enumerable values.
     /// </summary>
-    public class EnumerableSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class EnumerableSerializer : BsonBaseSerializer, IBsonArraySerializer
     {
         // private static fields
         private static EnumerableSerializer __instance = new EnumerableSerializer();
@@ -198,7 +198,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Queues.
     /// </summary>
-    public class QueueSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class QueueSerializer : BsonBaseSerializer, IBsonArraySerializer
     {
         // private static fields
         private static QueueSerializer __instance = new QueueSerializer();
@@ -331,7 +331,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Stacks.
     /// </summary>
-    public class StackSerializer : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class StackSerializer : BsonBaseSerializer, IBsonArraySerializer
     {
         // private static fields
         private static StackSerializer __instance = new StackSerializer();

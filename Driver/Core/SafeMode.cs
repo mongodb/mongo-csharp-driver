@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         // private fields
         private bool _enabled;
         private bool _fsync;
-        private bool _j;
+        private bool _journal;
         private int _w;
         private string _wmode;
         private TimeSpan _wtimeout;
@@ -133,7 +133,7 @@ namespace MongoDB.Driver
             {
                 _enabled = other._enabled;
                 _fsync = other._fsync;
-                _j = other._j;
+                _journal = other._journal;
                 _w = other._w;
                 _wmode = other._wmode;
                 _wtimeout = other._wtimeout;
@@ -227,13 +227,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets whether wait for journal commit is true.
         /// </summary>
+        [Obsolete("Use Journal instead.")]
         public bool J
         {
-            get { return _j; }
+            get { return Journal; }
+            set { Journal = value; }
+        }
+
+        /// <summary>
+        /// Gets whether wait for journal commit is true.
+        /// </summary>
+        public bool Journal
+        {
+            get { return _journal; }
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                _j = value;
+                _journal = value;
                 _enabled |= value;
             }
         }
@@ -433,7 +443,7 @@ namespace MongoDB.Driver
             return
                 _enabled == rhs._enabled &&
                 _fsync == rhs._fsync &&
-                _j == rhs._j &&
+                _journal == rhs._journal &&
                 _w == rhs._w &&
                 _wmode == rhs._wmode &&
                 _wtimeout == rhs._wtimeout;
@@ -484,7 +494,7 @@ namespace MongoDB.Driver
             int hash = 17;
             hash = 37 * hash + _enabled.GetHashCode();
             hash = 37 * hash + _fsync.GetHashCode();
-            hash = 37 * hash + _j.GetHashCode();
+            hash = 37 * hash + _journal.GetHashCode();
             hash = 37 * hash + _w.GetHashCode();
             hash = 37 * hash + ((_wmode == null) ? 0 : _wmode.GetHashCode());
             hash = 37 * hash + _wtimeout.GetHashCode();
@@ -503,9 +513,9 @@ namespace MongoDB.Driver
             {
                 sb.Append(",fsync=true");
             }
-            if (_j)
+            if (_journal)
             {
-                sb.Append(",j=true");
+                sb.Append(",journal=true");
             }
             if (_w != 0 || _wmode != null)
             {
@@ -530,7 +540,7 @@ namespace MongoDB.Driver
         {
             _enabled = false;
             _fsync = false;
-            _j = false;
+            _journal = false;
             _w = 0;
             _wmode = null;
             _wtimeout = TimeSpan.Zero;

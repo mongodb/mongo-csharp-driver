@@ -533,31 +533,7 @@ namespace MongoDB.Bson.IO
                 {
                     throw new FileFormatException("String is missing null terminator.");
                 }
-
-                switch (length)
-                {
-                    // special case empty strings
-                    case 1:
-                        value = string.Empty;
-                        break;
-
-                    // special case single character strings
-                    case 2:
-                        var c1 = _chunk[_chunkOffset];
-                        if (c1 < 128)
-                        {
-                            value = __asciiStringTable[c1];
-                        }
-                        else
-                        {
-                            value = __utf8Encoding.GetString(_chunk, _chunkOffset, 1); // let GetString throw a DecoderFallbackException
-                        }
-                        break;
-
-                    default:
-                        value = __utf8Encoding.GetString(_chunk, _chunkOffset, length - 1); // don't decode the null terminator
-                        break;
-                }
+                value = DecodeUtf8String(_chunk, _chunkOffset, length - 1); // don't decode the null terminator
                 Position += length;
             }
             else
@@ -577,10 +553,26 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the reader (a null terminated string).
         /// </summary>
-        /// <returns>A String.</returns>
+        /// <returns>A string.</returns>
         public string ReadCString()
         {
+            bool found;
+            int value;
+            return ReadCString(null, out found, out value);
+        }
+
+        /// <summary>
+        /// Reads a BSON CString from the reader (a null terminated string).
+        /// </summary>
+        /// <param name="bsonTrie">An optional BsonTrie to use during decoding.</param>
+        /// <param name="found">Set to true if the string was found in the trie.</param>
+        /// <param name="value">Set to the value found in the trie; otherwise, null.</param>
+        /// <returns>A string.</returns>
+        public string ReadCString<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
+        {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            found = false;
+            value = default(TValue);
             // optimize for the case where the null terminator is on the same chunk
             int partialCount;
             if (_chunkIndex < _chunks.Count - 1)
@@ -592,44 +584,24 @@ namespace MongoDB.Bson.IO
                 partialCount = _length - _position; // populated part of last chunk
             }
 
-            if (partialCount > 0)
+            var bsonTrieNode = bsonTrie != null ? bsonTrie.Root : null;
+            var index = IndexOfNull(_chunk, _chunkOffset, partialCount, ref bsonTrieNode);
+            if (index != -1)
             {
-                var c1 = _chunk[_chunkOffset];
-
-                // special case empty strings
-                if (c1 == 0)
+                var stringLength = index - _chunkOffset;
+                string cstring;
+                if (bsonTrieNode != null && bsonTrieNode.HasValue)
                 {
-                    Position += 1;
-                    return string.Empty;
+                    cstring = bsonTrieNode.ElementName;
+                    value = bsonTrieNode.Value;
+                    found = true;
                 }
-
-                if (partialCount > 1)
+                else
                 {
-                    // special case single character strings
-                    if (_chunk[_chunkOffset + 1] == 0)
-                    {
-                        string value;
-                        if (c1 < 128)
-                        {
-                            value = __asciiStringTable[c1];
-                        }
-                        else
-                        {
-                            value = __utf8Encoding.GetString(_chunk, _chunkOffset, 1); // let GetString throw a DecoderFallbackException
-                        }
-                        Position += 2;
-                        return value;
-                    }
-
-                    var index = Array.IndexOf<byte>(_chunk, 0, _chunkOffset + 2, partialCount - 2);
-                    if (index != -1)
-                    {
-                        var stringLength = index - _chunkOffset;
-                        var value = __utf8Encoding.GetString(_chunk, _chunkOffset, stringLength);
-                        Position += stringLength + 1;
-                        return value;
-                    }
+                    cstring = DecodeUtf8String(_chunk, _chunkOffset, stringLength);
                 }
+                Position += stringLength + 1;
+                return cstring;
             }
 
             // the null terminator is not on the same chunk so keep looking starting with the next chunk
@@ -646,14 +618,25 @@ namespace MongoDB.Bson.IO
                 {
                     partialCount = _length - localPosition; // populated part of last chunk
                 }
-                var index = Array.IndexOf<byte>(localChunk, 0, 0, partialCount);
+                index = IndexOfNull(localChunk, 0, partialCount, ref bsonTrieNode);
                 if (index != -1)
                 {
                     localPosition += index;
                     var stringLength = localPosition - _position;
-                    var value = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
-                    Position += 1; // skip over null byte at end
-                    return value;
+                    string cstring;
+                    if (bsonTrieNode != null && bsonTrieNode.HasValue)
+                    {
+                        cstring = bsonTrieNode.ElementName;
+                        value = bsonTrieNode.Value;
+                        found = true;
+                        Position += stringLength + 1;
+                    }
+                    else
+                    {
+                        cstring = __utf8Encoding.GetString(ReadBytes(stringLength)); // ReadBytes advances over string
+                        Position += 1; // skip over null byte at end
+                    }
+                    return cstring;
                 }
                 localChunkIndex++;
                 localPosition += __chunkSize;
@@ -975,6 +958,54 @@ namespace MongoDB.Bson.IO
             {
                 WriteBytes(BitConverter.GetBytes((int)0)); // straddles chunk boundary
             }
+        }
+
+        // private static methods
+        private static string DecodeUtf8String(byte[] buffer, int index, int count)
+        {
+            switch (count)
+            {
+                // special case empty strings
+                case 0:
+                    return string.Empty;
+
+                // special case single character strings
+                case 1:
+                    var byte1 = buffer[index];
+                    if (byte1 < __asciiStringTable.Length)
+                    {
+                        return __asciiStringTable[byte1];
+                    }
+                    break;
+            }
+
+            return __utf8Encoding.GetString(buffer, index, count);
+        }
+
+        private static int IndexOfNull<TValue>(
+            byte[] buffer,
+            int index,
+            int count,
+            ref BsonTrieNode<TValue> bsonTrieNode)
+        {
+            for (; count > 0; index++, count--)
+            {
+                // bsonTrieNode might be null on entry or it might become null while navigating the trie
+                if (bsonTrieNode == null)
+                {
+                    return Array.IndexOf<byte>(buffer, 0, index, count);
+                }
+
+                var keyByte = buffer[index];
+                if (keyByte == 0)
+                {
+                    return index;
+                }
+
+                bsonTrieNode = bsonTrieNode.GetChild(keyByte); // might return null
+            }
+
+            return -1;
         }
 
         // private methods

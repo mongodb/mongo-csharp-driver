@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for enumerable values.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class EnumerableSerializer<T> : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class EnumerableSerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
         // constructors
         /// <summary>
@@ -188,7 +188,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for Queues.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class QueueSerializer<T> : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class QueueSerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
         // constructors
         /// <summary>
@@ -310,7 +310,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for Stacks.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class StackSerializer<T> : BsonBaseSerializer, IBsonItemSerializationInfoProvider
+    public class StackSerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
         // constructors
         /// <summary>

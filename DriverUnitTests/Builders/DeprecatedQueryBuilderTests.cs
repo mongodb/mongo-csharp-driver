@@ -24,15 +24,18 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
+#pragma warning disable 618 // about obsolete DeprecatedQuery class
+using Query = MongoDB.Driver.Builders.DeprecatedQuery;
+
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
-    public class QueryBuilderTests
+    public class DeprecatedQueryBuilderTests
     {
         [Test]
         public void TestNewSyntax()
         {
-            var query = Query.And(Query.GTE("x", 3), Query.LTE("x", 10));
+            var query = Query.GTE("x", 3).LTE(10);
             var expected = "{ \"x\" : { \"$gte\" : 3, \"$lte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -66,6 +69,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestAllParams()
+        {
+            var query = Query.All("j", 2, 4, null, 6); // null will be skipped due to functional construction semantics
+            var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestAnd()
         {
             var query = Query.And(
@@ -80,7 +91,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestAndNoArgs()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.And(); });
-            Assert.IsTrue(ex.Message.StartsWith("And cannot be called with zero queries."));
+            Assert.IsTrue(ex.Message.StartsWith("Query.And cannot be called with zero queries."));
         }
 
         [Test]
@@ -149,7 +160,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestElementMatch()
         {
-            var query = Query.ElemMatch("x",
+            var query = Query.ElemMatch("x", 
                 Query.And(
                     Query.EQ("a", 1),
                     Query.GT("b", 1)
@@ -181,7 +192,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestExists()
         {
-            var query = Query.Exists("x");
+            var query = Query.Exists("x", true);
             var expected = "{ \"x\" : { \"$exists\" : true } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -189,7 +200,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestExistsFalse()
         {
-            var query = Query.NotExists("x");
+            var query = Query.Exists("x", false);
             var expected = "{ \"x\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -205,7 +216,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGreaterThanAndLessThan()
         {
-            var query = Query.And(Query.GT("k", 10), Query.LT("k", 20));
+            var query = Query.GT("k", 10).LT(20);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -213,7 +224,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGreaterThanAndLessThanOrEqual()
         {
-            var query = Query.And(Query.GT("k", 10), Query.LTE("k", 20));
+            var query = Query.GT("k", 10).LTE(20);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -221,7 +232,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGreaterThanAndMod()
         {
-            var query = Query.And(Query.GT("k", 10), Query.Mod("k", 10, 1));
+            var query = Query.GT("k", 10).Mod(10, 1);
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$mod\" : [10, 1] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -237,7 +248,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGreaterThanOrEqualAndLessThan()
         {
-            var query = Query.And(Query.GTE("k", 10), Query.LT("k", 20));
+            var query = Query.GTE("k", 10).LT(20);
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -245,7 +256,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGreaterThanOrEqualAndLessThanOrEqual()
         {
-            var query = Query.And(Query.GTE("k", 10), Query.LTE("k", 20));
+            var query = Query.GTE("k", 10).LTE(20);
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -279,6 +290,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestInParams()
+        {
+            var query = Query.In("j", 2, 4, null, 6); // null will be skipped due to functional construction semantics
+            var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestLessThan()
         {
             var query = Query.LT("k", 10);
@@ -297,7 +316,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestLessThanOrEqualAndNotEquals()
         {
-            var query = Query.And(Query.LTE("k", 10), Query.NE("k", 5));
+            var query = Query.LTE("k", 10).NE(5);
             var expected = "{ \"k\" : { \"$lte\" : 10, \"$ne\" : 5 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -305,7 +324,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestLessThanOrEqualAndNotIn()
         {
-            var query = Query.And(Query.LTE("k", 20), Query.NotIn("k", new BsonValue[] { 7, 11 }));
+            var query = Query.LTE("k", 20).NotIn(7, 11);
             var expected = "{ \"k\" : { \"$lte\" : 20, \"$nin\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -355,10 +374,10 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.And(
                 Query.EQ("name", "bob"),
-                Query.Not(Query.Or(
+                Query.Nor(
                     Query.EQ("a", 1),
                     Query.EQ("b", 2)
-                ))
+                )
             );
             var expected = "{ \"name\" : \"bob\", \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
@@ -381,10 +400,10 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNor()
         {
-            var query = Query.Not(Query.Or(
+            var query = Query.Nor(
                 Query.EQ("a", 1),
                 Query.EQ("b", 2)
-            ));
+            );
             var expected = "{ \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -426,6 +445,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestNinParams()
+        {
+            var query = Query.NotIn("j", 2, 4, null, 6); // null will be skipped due to functional construction semantics
+            var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestOr()
         {
             var query = Query.Or(
@@ -440,7 +467,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestOrNoArgs()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => { Query.Or(); });
-            Assert.IsTrue(ex.Message.StartsWith("Or cannot be called with zero queries."));
+            Assert.IsTrue(ex.Message.StartsWith("Query.Or cannot be called with zero queries."));
         }
 
         [Test]
@@ -520,7 +547,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotAllBsonArray()
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.All("name", array));
+            var query = Query.Not("name").All(array);
             var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -532,7 +559,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
             var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.All("name", enumerable));
+            var query = Query.Not("name").All(enumerable);
             var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -543,7 +570,17 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotAllIEnumerableBsonValue()
         {
             var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.All("name", enumerable));
+            var query = Query.Not("name").All(enumerable);
+            var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotAllParams()
+        {
+            var query = Query.Not("name").All(1, 2, null, 3); // null will be skipped due to functional construction semantics
             var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -553,7 +590,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNotElemMatch()
         {
-            var query = Query.Not(Query.ElemMatch("name", Query.GT("x", 1)));
+            var query = Query.Not("name").ElemMatch(Query.GT("x", 1));
             var expected = "{ \"name\" : { \"$not\" : { \"$elemMatch\" : { \"x\" : { \"$gt\" : 1 } } } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -563,8 +600,8 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNotExists()
         {
-            var query = Query.NotExists("name");
-            var expected = "{ \"name\" : { \"$exists\" : false } }";
+            var query = Query.Not("name").Exists(false);
+            var expected = "{ \"name\" : { \"$not\" : { \"$exists\" : false } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
@@ -573,7 +610,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNotGT()
         {
-            var query = Query.Not(Query.GT("name", 1));
+            var query = Query.Not("name").GT(1);
             var expected = "{ \"name\" : { \"$not\" : { \"$gt\" : 1 } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -584,8 +621,8 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotInBsonArray()
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.In("name", array));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
+            var query = Query.Not("name").In(array);
+            var expected = "{ \"name\" : { \"$not\" : { \"$in\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
@@ -596,8 +633,8 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
             var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.In("name", enumerable));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
+            var query = Query.Not("name").In(enumerable);
+            var expected = "{ \"name\" : { \"$not\" : { \"$in\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
@@ -607,8 +644,18 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotInIEnumerableBsonValue()
         {
             var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.In("name", enumerable));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
+            var query = Query.Not("name").In(enumerable);
+            var expected = "{ \"name\" : { \"$not\" : { \"$in\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotInParams()
+        {
+            var query = Query.Not("name").In(1, 2, null, 3); // null will be skipped due to functional construction semantics
+            var expected = "{ \"name\" : { \"$not\" : { \"$in\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
@@ -618,7 +665,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotNinBsonArray()
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.NotIn("name", array));
+            var query = Query.Not("name").NotIn(array);
             var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -630,7 +677,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
             var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.NotIn("name", enumerable));
+            var query = Query.Not("name").NotIn(enumerable);
             var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -641,7 +688,17 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestNotNinIEnumerableBsonValue()
         {
             var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.NotIn("name", enumerable));
+            var query = Query.Not("name").NotIn(enumerable);
+            var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestNotNinParams()
+        {
+            var query = Query.Not("name").NotIn(1, 2, null, 3); // null will be skipped due to functional construction semantics
             var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -651,7 +708,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNotRegex()
         {
-            var query = Query.Not(Query.Matches("name", new BsonRegularExpression("acme.*corp", "i")));
+            var query = Query.Not("name").Matches(new BsonRegularExpression("acme.*corp", "i"));
             var expected = "{ \"name\" : { \"$not\" : /acme.*corp/i } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -661,7 +718,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNotSize()
         {
-            var query = Query.Not(Query.Size("name", 1));
+            var query = Query.Not("name").Size(1);
             var expected = "{ \"name\" : { \"$not\" : { \"$size\" : 1 } } }";
             JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
             var actual = query.ToJson(settings);
@@ -679,7 +736,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSizeAndAll()
         {
-            var query = Query.And(Query.Size("k", 20), Query.All("k", new BsonArray { 7, 11 }));
+            var query = Query.Size("k", 20).All(7, 11);
             var expected = "{ \"k\" : { \"$size\" : 20, \"$all\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -741,3 +798,4 @@ namespace MongoDB.DriverUnitTests.Builders
         }
     }
 }
+#pragma warning restore 618

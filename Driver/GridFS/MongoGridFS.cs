@@ -267,7 +267,7 @@ namespace MongoDB.Driver.GridFS
                 using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
                 {
                     var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
-                    for (int n = 0; n < numberOfChunks; n++)
+                    for (var n = 0L; n < numberOfChunks; n++)
                     {
                         var query = Query.And(Query.EQ("files_id", fileInfo.Id), Query.EQ("n", n));
                         var chunk = _chunks.FindOne(query);
@@ -785,11 +785,11 @@ namespace MongoDB.Driver.GridFS
                 var chunkSize = createOptions.ChunkSize == 0 ? _settings.ChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
-                var length = 0;
+                var length = 0L;
                 string md5Client = null;
                 using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
                 {
-                    for (int n = 0; true; n++)
+                    for (var n = 0L; true; n++)
                     {
                         // might have to call Stream.Read several times to get a whole chunk
                         var bytesNeeded = chunkSize;
@@ -821,7 +821,7 @@ namespace MongoDB.Driver.GridFS
                         {
                             { "_id", BsonObjectId.GenerateNewId() },
                             { "files_id", files_id },
-                            { "n", n },
+                            { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
                             { "data", new BsonBinaryData(data) }
                         };
                         _chunks.Insert(chunk, _settings.SafeMode);

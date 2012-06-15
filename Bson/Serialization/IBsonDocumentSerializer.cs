@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Contract for composite serializers that contain a number of named serializers.
     /// </summary>
-    public interface IBsonMemberSerializationInfoProvider
+    public interface IBsonDocumentSerializer : IBsonSerializer
     {
         /// <summary>
         /// Gets the serialization info for a member.

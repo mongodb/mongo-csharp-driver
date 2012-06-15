@@ -59,8 +59,8 @@ namespace MongoDB.Bson.Serialization
         private BsonMemberMap _idMemberMap;
         private readonly List<BsonMemberMap> _allMemberMaps; // includes inherited member maps
         private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
-        private List<BsonMemberMap> _declaredMemberMaps = new List<BsonMemberMap>(); // only the members declared in this class
-        private readonly Dictionary<string, int> _elementDictionary;
+        private readonly List<BsonMemberMap> _declaredMemberMaps; // only the members declared in this class
+        private readonly BsonTrie<int> _elementTrie;
         private bool _ignoreExtraElements = true;
         private bool _ignoreExtraElementsIsInherited = false;
         private BsonMemberMap _extraElementsMemberMap;
@@ -79,8 +79,9 @@ namespace MongoDB.Bson.Serialization
             _discriminator = classType.Name;
             _isAnonymous = IsAnonymousType(classType);
             _allMemberMaps = new List<BsonMemberMap>();
+            _declaredMemberMaps = new List<BsonMemberMap>();
             _allMemberMapsReadonly = _allMemberMaps.AsReadOnly();
-            _elementDictionary = new Dictionary<string, int>();
+            _elementTrie = new BsonTrie<int>();
         }
 
         // public properties
@@ -222,6 +223,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         // internal properties
+        /// <summary>
+        /// Gets the element name to member index trie.
+        /// </summary>
+        internal BsonTrie<int> ElementTrie
+        {
+            get { return _elementTrie; }
+        }
+
         /// <summary>
         /// Gets the member index of the member used to hold extra elements.
         /// </summary>
@@ -538,9 +547,9 @@ namespace MongoDB.Bson.Serialization
                         {
                             var memberMap = _allMemberMaps[memberIndex];
                             int conflictingMemberIndex;
-                            if (!_elementDictionary.TryGetValue(memberMap.ElementName, out conflictingMemberIndex))
+                            if (!_elementTrie.TryGetValue(memberMap.ElementName, out conflictingMemberIndex))
                             {
-                                _elementDictionary.Add(memberMap.ElementName, memberIndex);
+                                _elementTrie.Add(memberMap.ElementName, memberIndex);
                             }
                             else
                             {
@@ -634,7 +643,7 @@ namespace MongoDB.Bson.Serialization
 
             if (!_frozen) { ThrowNotFrozenException(); }
             int memberIndex;
-            if (!_elementDictionary.TryGetValue(elementName, out memberIndex))
+            if (!_elementTrie.TryGetValue(elementName, out memberIndex))
             {
                 return null;
             }
@@ -1037,27 +1046,6 @@ namespace MongoDB.Bson.Serialization
             return discriminatorConvention;
         }
 
-        /// <summary>
-        /// Gets the member map for a BSON element.
-        /// </summary>
-        /// <param name="elementName">The name of the element.</param>
-        /// <returns>The member map.</returns>
-        internal int GetMemberMapIndexForElement(string elementName)
-        {
-            if (elementName == null)
-            {
-                throw new ArgumentNullException("elementName");
-            }
-
-            if (!_frozen) { ThrowNotFrozenException(); }
-            int memberMapIndex;
-            if (!_elementDictionary.TryGetValue(elementName, out memberMapIndex))
-            {
-                return -1;
-            }
-            return memberMapIndex;
-        }
-
         // private methods
         private void AutoMapClass()
         {
@@ -1075,20 +1063,34 @@ namespace MongoDB.Bson.Serialization
         {
             // only auto map properties declared in this class (and not in base classes)
             var hasOrderedElements = false;
+            var hasUnorderedElements = false;
             foreach (var memberInfo in FindMembers())
             {
                 var memberMap = AutoMapMember(memberInfo);
-                hasOrderedElements = hasOrderedElements || memberMap.Order != int.MaxValue;
+                if (memberMap.Order != int.MaxValue)
+                {
+                    hasOrderedElements |= true;
+                }
+                else
+                {
+                    hasUnorderedElements |= true;
+                }
             }
 
             if (hasOrderedElements)
             {
-                // split out the items with a value for Order and sort them separately (because Sort is unstable, see online help)
-                // and then concatenate any items with no value for Order at the end (in their original order)
-                var sorted = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order != int.MaxValue));
-                var unsorted = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
-                sorted.Sort((x, y) => x.Order.CompareTo(y.Order));
-                _declaredMemberMaps = sorted.Concat(unsorted).ToList();
+                if (hasUnorderedElements)
+                {
+                    // split out the unordered elements and add them back at the end (because Sort is unstable, see online help)
+                    var unorderedElements = new List<BsonMemberMap>(_declaredMemberMaps.Where(pm => pm.Order == int.MaxValue));
+                    _declaredMemberMaps.RemoveAll(m => m.Order == int.MaxValue);
+                    _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
+                    _declaredMemberMaps.AddRange(unorderedElements);
+                }
+                else
+                {
+                    _declaredMemberMaps.Sort((x, y) => x.Order.CompareTo(y.Order));
+                }
             }
         }
 

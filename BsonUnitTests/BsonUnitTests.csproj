@@ -148,6 +148,8 @@
     <Compile Include="Jira\CSharp446Tests.cs" />
     <Compile Include="Jira\CSharp452Tests.cs" />
     <Compile Include="Jira\CSharp460Tests.cs" />
+    <Compile Include="Jira\CSharp467Tests.cs" />
+    <Compile Include="Jira\CSharp479Tests.cs" />
     <Compile Include="Jira\CSharp70Tests.cs" />
     <Compile Include="Jira\CSharp71Tests.cs" />
     <Compile Include="Jira\CSharp74Tests.cs" />
@@ -158,6 +160,7 @@
     <Compile Include="ObjectModel\BsonArrayTests.cs" />
     <Compile Include="ObjectModel\BsonBinaryDataTests.cs" />
     <Compile Include="ObjectModel\BsonDocumentTests.cs" />
+    <Compile Include="ObjectModel\BsonDocumentWrapperTests.cs" />
     <Compile Include="ObjectModel\BsonElementTests.cs" />
     <Compile Include="ObjectModel\BsonEqualsTests.cs" />
     <Compile Include="IO\JsonWriterTests.cs" />

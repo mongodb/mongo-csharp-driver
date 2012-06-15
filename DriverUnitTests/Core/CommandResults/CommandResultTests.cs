@@ -41,7 +41,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
         [Test]
         public void TestOkMissing()
         {
-            var command = new CommandDocument("invalid", true);
+            var command = new CommandDocument("invalid", 1);
             var document = new BsonDocument();
             var result = new CommandResult(command, document);
             try

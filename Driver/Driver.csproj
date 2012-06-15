@@ -89,10 +89,10 @@
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
+    <Compile Include="Builders\DeprecatedQueryBuilder.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
-    <Compile Include="Builders\UntypedQueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
-    <Compile Include="Builders\TypedQueryBuilder.cs" />
+    <Compile Include="Builders\QueryBuilderTyped.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
     <Compile Include="Core\CommandResults\CommandResult.cs" />

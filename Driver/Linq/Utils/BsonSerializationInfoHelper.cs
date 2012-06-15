@@ -56,10 +56,10 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>The item BsonSerializationInfo for the expression.</returns>
         public BsonSerializationInfo GetItemSerializationInfo(string methodName, BsonSerializationInfo serializationInfo)
         {
-            var itemSerializationInfoProvider = serializationInfo.Serializer as IBsonItemSerializationInfoProvider;
-            if (itemSerializationInfoProvider != null)
+            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+            if (arraySerializer != null)
             {
-                var itemSerializationInfo = itemSerializationInfoProvider.GetItemSerializationInfo();
+                var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                 if (itemSerializationInfo != null)
                 {
                     return itemSerializationInfo;
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Utils
             string message = string.Format("{0} requires that the serializer specified for {1} support items by implementing {2} and returning a non-null result. {3} is the current serializer.",
                 methodName,
                 serializationInfo.ElementName,
-                typeof(IBsonItemSerializationInfoProvider),
+                typeof(IBsonArraySerializer),
                 serializationInfo.Serializer.GetType());
             throw new NotSupportedException(message);
         }

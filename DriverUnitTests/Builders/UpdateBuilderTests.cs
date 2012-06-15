@@ -92,9 +92,21 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAddToSetEachWrapped()
         {
-            var update = Update.AddToSetEachWrapped("name", _a, _b);
-            var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } } }";
+            var update = Update.AddToSetEachWrapped("name", _a, _b, null);
+            var expected = "{ \"$addToSet\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }, null] } } }";
             Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestAddToSetEachWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetEachWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestAddToSetEachWrappedNullValues()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetEachWrapped<C>("name", null); });
         }
 
         [Test]
@@ -102,6 +114,20 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.AddToSetWrapped("name", _a);
             var expected = "{ \"$addToSet\" : { \"name\" : { \"X\" : 1 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestAddToSetWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestAddToSetWrappedNullValue()
+        {
+            var update = Update.AddToSetWrapped<C>("name", null);
+            var expected = "{ \"$addToSet\" : { \"name\" : null } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -349,9 +375,21 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestPullAllWrapped()
         {
-            var update = Update.PullAllWrapped("name", _a, _b);
-            var expected = "{ \"$pullAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
+            var update = Update.PullAllWrapped("name", _a, _b, null);
+            var expected = "{ \"$pullAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }, null] } }";
             Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPullAllWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullAllWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestPullAllWrappedNullValues()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullAllWrapped<C>("name", null); });
         }
 
         [Test]
@@ -359,6 +397,20 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.PullWrapped("name", _a);
             var expected = "{ \"$pull\" : { \"name\" : { \"X\" : 1 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPullWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestPullWrappedNullValue()
+        {
+            var update = Update.PullWrapped<C>("name", null);
+            var expected = "{ \"$pull\" : { \"name\" : null } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -395,6 +447,26 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPushAllWrapped()
+        {
+            var update = Update.PushAllWrapped("name", _a, _b, null);
+            var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }, null] } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushAllWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushAllWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestPushAllWrappedNullValue()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushAllWrapped<C>("name", null); });
+        }
+
+        [Test]
         public void TestPushWrapped()
         {
             var update = Update.PushWrapped("name", _a);
@@ -403,18 +475,24 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        public void TestRename()
+        public void TestPushWrappedNullName()
         {
-            var update = Update.Rename("old", "new");
-            var expected = "{ '$rename' : { 'old' : 'new' } }".Replace("'", "\"");
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestPushWrappedNulLValue()
+        {
+            var update = Update.PushWrapped<C>("name", null);
+            var expected = "{ \"$push\" : { \"name\" : null } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
         [Test]
-        public void TestPushAllWrapped()
+        public void TestRename()
         {
-            var update = Update.PushAllWrapped("name", _a, _b);
-            var expected = "{ \"$pushAll\" : { \"name\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } }";
+            var update = Update.Rename("old", "new");
+            var expected = "{ '$rename' : { 'old' : 'new' } }".Replace("'", "\"");
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -455,8 +533,22 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSetWrapped()
         {
-            var update = Update.SetWrapped("name", _a);
+            var update = Update.SetWrapped<C>("name", _a);
             var expected = "{ \"$set\" : { \"name\" : { \"X\" : 1 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestSetWrappedNullName()
+        {
+            Assert.Throws<ArgumentNullException>(() => { var update = Update.SetWrapped(null, _a); });
+        }
+
+        [Test]
+        public void TestSetWrappedNullValue()
+        {
+            var update = Update.SetWrapped<C>("name", null);
+            var expected = "{ \"$set\" : { \"name\" : null } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

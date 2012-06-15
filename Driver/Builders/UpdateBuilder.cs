@@ -623,7 +623,6 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder AddToSetWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = (BsonValue)BsonDocumentWrapper.Create(value); // the cast to BsonValue is required
             return AddToSet(name, wrappedValue);
         }
@@ -943,7 +942,6 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PullWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create(value);
             BsonElement element;
             if (_document.TryGetElement("$pull", out element))
@@ -1075,7 +1073,6 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder PushWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (_document.TryGetElement("$push", out element))
@@ -1143,7 +1140,6 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder SetWrapped<T>(string name, T value)
         {
             if (name == null) { throw new ArgumentNullException("name"); }
-            if (value == null) { throw new ArgumentNullException("value"); }
             var wrappedValue = BsonDocumentWrapper.Create<T>(value);
             BsonElement element;
             if (_document.TryGetElement("$set", out element))
@@ -1840,7 +1836,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("Pull", serializationInfo);
-            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper, itemSerializationInfo.Serializer);
+            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
             var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             _updateBuilder = _updateBuilder.Pull(serializationInfo.ElementName, elementQuery);
             return this;

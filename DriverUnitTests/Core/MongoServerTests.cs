@@ -45,7 +45,34 @@ namespace MongoDB.DriverUnitTests
             _isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
         }
 
-        // TODO: more tests for MongoServer
+        [Test]
+        public void TestArbiters()
+        {
+            Assert.AreEqual(0, _server.Arbiters.Length);
+        }
+
+        [Test]
+        public void TestBuildInfo()
+        {
+            var versionZero = new Version(0, 0, 0, 0);
+            var buildInfo = _server.BuildInfo;
+            Assert.IsTrue(buildInfo.Bits == 32 || buildInfo.Bits == 64);
+            Assert.AreNotEqual(versionZero, buildInfo.Version);
+        }
+
+        [Test]
+        public void TestCreateMongoServerSettings()
+        {
+            var settings = new MongoServerSettings
+            {
+                Server = new MongoServerAddress("localhost"),
+                SafeMode = SafeMode.True
+            };
+            var server1 = MongoServer.Create(settings);
+            var server2 = MongoServer.Create(settings);
+            Assert.AreSame(server1, server2);
+            Assert.AreEqual(settings, server1.Settings);
+        }
 
         [Test]
         public void TestCreateNoArgs()
@@ -86,6 +113,18 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFetchDBRef()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 2 } });
+            var dbRef = new MongoDBRef(_database.Name, _collection.Name, 1);
+            var document = _server.FetchDBRef(dbRef);
+            Assert.AreEqual(2, document.ElementCount);
+            Assert.AreEqual(1, document["_id"].AsInt32);
+            Assert.AreEqual(2, document["x"].AsInt32);
+        }
+
+        [Test]
         public void TestGetAllServers()
         {
             var snapshot1 = MongoServer.GetAllServers();
@@ -101,15 +140,37 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestPing()
+        public void TestGetDatabase()
         {
-            _server.Ping();
+            var settings = new MongoDatabaseSettings(_server, "test") { SlaveOk = true };
+            var database1 = _server.GetDatabase(settings);
+            var database2 = _server.GetDatabase(settings);
+            Assert.AreSame(database1, database2);
+            Assert.AreEqual("test", database1.Name);
+            Assert.AreEqual(true, database1.Settings.SlaveOk);
         }
 
         [Test]
         public void TestGetDatabaseNames()
         {
             var databaseNames = _server.GetDatabaseNames();
+        }
+
+        [Test]
+        public void TestInstance()
+        {
+            var instance = _server.Instance;
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.IsPrimary);
+        }
+
+        [Test]
+        public void TestInstances()
+        {
+            var instances = _server.Instances;
+            Assert.IsNotNull(instances);
+            Assert.AreEqual(1, instances.Length);
+            Assert.IsTrue(instances[0].IsPrimary);
         }
 
         [Test]
@@ -123,6 +184,26 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestPassives()
+        {
+            Assert.AreEqual(0, _server.Passives.Length);
+        }
+
+        [Test]
+        public void TestPing()
+        {
+            _server.Ping();
+        }
+
+        [Test]
+        public void TestPrimary()
+        {
+            var instance = _server.Primary;
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.IsPrimary);
+        }
+
+        [Test]
         public void TestReconnect()
         {
             _server.Reconnect();
@@ -130,49 +211,80 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestReplicaSetName()
+        {
+            Assert.IsNull(_server.ReplicaSetName);
+        }
+
+        [Test]
         public void TestRequestStart()
         {
+            Assert.AreEqual(0, _server.RequestNestingLevel);
             using (_server.RequestStart(_database))
             {
+                Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+            Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
         [Test]
         public void TestRequestStartPrimary()
         {
+            Assert.AreEqual(0, _server.RequestNestingLevel);
             using (_server.RequestStart(_database, _server.Primary))
             {
+                Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+            Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
         [Test]
         public void TestRequestStartPrimaryNested()
         {
+            Assert.AreEqual(0, _server.RequestNestingLevel);
             using (_server.RequestStart(_database, _server.Primary))
             {
+                Assert.AreEqual(1, _server.RequestNestingLevel);
                 using (_server.RequestStart(_database, _server.Primary))
                 {
+                    Assert.AreEqual(2, _server.RequestNestingLevel);
                 }
+                Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+            Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
         [Test]
         public void TestRequestStartSlaveOk()
         {
+            Assert.AreEqual(0, _server.RequestNestingLevel);
             using (_server.RequestStart(_database, true))
             {
+                Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+            Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
         [Test]
         public void TestRequestStartSlaveOkNested()
         {
+            Assert.AreEqual(0, _server.RequestNestingLevel);
             using (_server.RequestStart(_database, false))
             {
+                Assert.AreEqual(1, _server.RequestNestingLevel);
                 using (_server.RequestStart(_database, true))
                 {
+                    Assert.AreEqual(2, _server.RequestNestingLevel);
                 }
+                Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+            Assert.AreEqual(0, _server.RequestNestingLevel);
+        }
+
+        [Test]
+        public void TestSecondaries()
+        {
+            Assert.AreEqual(0, _server.Secondaries.Length);
         }
 
         [Test]
