@@ -20,7 +20,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Security.Permissions;
 using System.Text;
 using System.Threading;
 
@@ -55,11 +54,11 @@ namespace MongoDB.Bson
 
             try
             {
-                __staticPid = GetCurrentProcessId();
+                __staticPid = (short)GetCurrentProcessId(); // use low order two bytes only
             }
             catch (SecurityException)
             {
-                __staticPid = (short)0;
+                __staticPid = 0;
             }
         }
 
@@ -368,9 +367,9 @@ namespace MongoDB.Bson
         /// before throwing an exception requiring the try/catch at an even higher level that we don't necessarily control.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static short GetCurrentProcessId()
+        private static int GetCurrentProcessId()
         {
-            return (short)Process.GetCurrentProcess().Id;
+            return Process.GetCurrentProcess().Id;
         }
 
         private static int GetMachineHash()
