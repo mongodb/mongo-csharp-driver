@@ -920,7 +920,7 @@ namespace MongoDB.Driver.Linq
 
                 if (pattern != null)
                 {
-                    return Query.Matches(serializationInfo.ElementName, pattern, "s");
+                    return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
                 }
             }
 
@@ -997,7 +997,7 @@ namespace MongoDB.Driver.Linq
             var pattern = string.Format("^.{{{0}}}{1}", index, characterClass);
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(stringExpression);
-            return Query.Matches(serializationInfo.ElementName, pattern, "s");
+            return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, "s"));
         }
 
         private IMongoQuery BuildStringLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
@@ -1234,7 +1234,7 @@ namespace MongoDB.Driver.Linq
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(stringExpression);
             var options = caseInsensitive ? "is" : "s";
-            return Query.Matches(serializationInfo.ElementName, pattern, options);
+            return Query.Matches(serializationInfo.ElementName, new BsonRegularExpression(pattern, options));
         }
 
         private IMongoQuery BuildTypeComparisonQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)

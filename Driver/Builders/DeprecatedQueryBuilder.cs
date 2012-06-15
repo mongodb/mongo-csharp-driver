@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for creating queries.
     /// </summary>
+    [Obsolete("There are 2 new classes used for building queries.  MongoDB.Driver.Builders.Query and MongoDB.Driver.Builders.Query<T>")]
     public static class DeprecatedQuery
     {
         // public static properties
@@ -772,6 +773,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating queries.
     /// </summary>
     [Serializable]
+    [Obsolete("This class has been replaced by MongoDB.Driver.Builders.Query")]
     public abstract class DeprecatedQueryBuilder : BuilderBase
     {
         // private fields
@@ -826,6 +828,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating queries.
     /// </summary>
     [Serializable]
+    [Obsolete("This class has been replaced by MongoDB.Driver.Builders.Query")]
     public class QueryComplete : DeprecatedQueryBuilder, IMongoQuery
     {
         // constructors
@@ -843,6 +846,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating queries.
     /// </summary>
     [Serializable]
+    [Obsolete("This class has been replaced by MongoDB.Driver.Builders.Query")]
     public class QueryConditionList : QueryComplete
     {
         // private fields
@@ -1247,6 +1251,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for creating queries.
     /// </summary>
+    [Obsolete("This class has been replaced by MongoDB.Driver.Builders.Query")]
     public class QueryNot
     {
         // private fields
@@ -1537,6 +1542,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating queries.
     /// </summary>
     [Serializable]
+    [Obsolete("This class has been replaced by MongoDB.Driver.Builders.Query")]
     public class QueryNotConditionList : QueryComplete
     {
         // private fields

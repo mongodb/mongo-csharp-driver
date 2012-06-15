@@ -23,6 +23,9 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Builders
 {
+    /// <summary>
+    /// A builder for creating queries.
+    /// </summary>
     public static class Query
     {
         // public static properties
@@ -275,71 +278,6 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="name">The name of the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Matches(string name, string pattern)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (pattern == null)
-            {
-                throw new ArgumentNullException("pattern");
-            }
-
-            return new QueryDocument(name, new BsonRegularExpression(pattern));
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="name">The name of the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Matches(string name, string pattern, string options)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (pattern == null)
-            {
-                throw new ArgumentNullException("pattern");
-            }
-            if (options == null)
-            {
-                throw new ArgumentNullException("options");
-            }
-
-            return new QueryDocument(name, new BsonRegularExpression(pattern, options));
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="name">The name of the element to test.</param>
-        /// <param name="regex">The regex.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Matches(string name, Regex regex)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (regex == null)
-            {
-                throw new ArgumentNullException("regex");
-            }
-
-            return new QueryDocument(name, new BsonRegularExpression(regex));
-        }
-
-        /// <summary>
         /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -560,7 +498,7 @@ namespace MongoDB.Driver.Builders
             switch (queryArray.Count)
             {
                 case 0:
-                    return new QueryComplete(new QueryDocument()); // all queries were empty queries so just return an empty query
+                    return new QueryDocument(); // all queries were empty so just return an empty query
                 case 1:
                     return new QueryDocument(queryArray[0].AsBsonDocument);
                 default:

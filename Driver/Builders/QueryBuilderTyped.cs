@@ -47,26 +47,6 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Tests that all the queries are true (see $and in newer versions of the server).
-        /// </summary>
-        /// <param name="queries">A list of subqueries.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery And(IEnumerable<IMongoQuery> queries)
-        {
-            return new QueryBuilder<TDocument>().And(queries);
-        }
-
-        /// <summary>
-        /// Tests that all the queries are true (see $and in newer versions of the server).
-        /// </summary>
-        /// <param name="queries">A list of subqueries.</param>
-        /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery And(params IMongoQuery[] queries)
-        {
-            return new QueryBuilder<TDocument>().And(queries);
-        }
-
-        /// <summary>
         /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
@@ -165,19 +145,6 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="regex">The regex.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
-        {
-            return new QueryBuilder<TDocument>().Matches(memberExpression, regex);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="pattern">The pattern.</param>
         /// <returns>
         /// A query.
@@ -185,20 +152,6 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, string pattern)
         {
             return new QueryBuilder<TDocument>().Matches(memberExpression, pattern);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, string pattern, string options)
-        {
-            return new QueryBuilder<TDocument>().Matches(memberExpression, pattern, options);
         }
 
         /// <summary>
@@ -269,16 +222,6 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Tests that the inverse of the query is true (see $not).
-        /// </summary>
-        /// <param name="query">The query.</param>
-        /// <returns></returns>
-        public static IMongoQuery Not(IMongoQuery query)
-        {
-            return new QueryBuilder<TDocument>().Not(query);
-        }
-
-        /// <summary>
         /// Tests that an element does not equal the value (see $ne).
         /// </summary>
         /// <typeparam name="TMember"></typeparam>
@@ -314,30 +257,6 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Tests that at least one of the subqueries is true (see $or).
-        /// </summary>
-        /// <param name="queries">The subqueries.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Or(IEnumerable<IMongoQuery> queries)
-        {
-            return new QueryBuilder<TDocument>().Or(queries);
-        }
-
-        /// <summary>
-        /// Tests that at least one of the subqueries is true (see $or).
-        /// </summary>
-        /// <param name="queries">The subqueries.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Or(params IMongoQuery[] queries)
-        {
-            return new QueryBuilder<TDocument>().Or(queries);
-        }
-
-        /// <summary>
         /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
@@ -359,18 +278,6 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, BsonType type)
         {
             return new QueryBuilder<TDocument>().Type(memberExpression, type);
-        }
-
-        /// <summary>
-        /// Tests that a JavaScript expression is true (see $where).
-        /// </summary>
-        /// <param name="javascript">The javascript.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public static IMongoQuery Where(BsonJavaScript javascript)
-        {
-            return new QueryBuilder<TDocument>().Where(javascript);
         }
 
         /// <summary>
@@ -622,20 +529,6 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="regex">The regex.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
-        {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Matches(serializationInfo.ElementName, regex);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="pattern">The pattern.</param>
         /// <returns>
         /// A query.
@@ -644,21 +537,6 @@ namespace MongoDB.Driver.Builders
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Matches(serializationInfo.ElementName, pattern);
-        }
-
-        /// <summary>
-        /// Tests that the value of the named element matches a regular expression (see $regex).
-        /// </summary>
-        /// <param name="memberExpression">The member expression representing the element to test.</param>
-        /// <param name="pattern">The pattern.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
-        public IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, string pattern, string options)
-        {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Matches(serializationInfo.ElementName, pattern, options);
         }
 
         /// <summary>
