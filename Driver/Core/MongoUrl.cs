@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using MongoDB.Bson;
 using MongoDB.Driver.Internal;
@@ -281,7 +282,10 @@ namespace MongoDB.Driver
         /// </summary>
         public static void ClearCache()
         {
-            __cache.Clear();
+            // Replace cache with new empty one. GC will remove old cache when not referenced.
+            // Exchange is atomic: Any thread accessing the cache will either have the old reference or the new one.
+            var newEmptyCache = new Dictionary<string, MongoUrl>();
+            Interlocked.Exchange(ref __cache, newEmptyCache);
         }
 
         /// <summary>
@@ -292,28 +296,31 @@ namespace MongoDB.Driver
         public static MongoUrl Create(string url)
         {
             // cache previously seen urls to avoid repeated parsing
-            lock (__staticLock)
+            MongoUrl mongoUrl;
+            if (!__cache.TryGetValue(url, out mongoUrl))
             {
-                MongoUrl mongoUrl;
-                if (!__cache.TryGetValue(url, out mongoUrl))
+                lock (__staticLock)
                 {
-                    mongoUrl = new MongoUrl(url);
-                    var canonicalUrl = mongoUrl.ToString();
-                    if (canonicalUrl != url)
+                    if (!__cache.TryGetValue(url, out mongoUrl))
                     {
-                        if (__cache.ContainsKey(canonicalUrl))
+                        mongoUrl = new MongoUrl(url);
+                        var canonicalUrl = mongoUrl.ToString();
+                        if (canonicalUrl != url)
                         {
-                            mongoUrl = __cache[canonicalUrl]; // use existing MongoUrl
+                            if (__cache.ContainsKey(canonicalUrl))
+                            {
+                                mongoUrl = __cache[canonicalUrl]; // use existing MongoUrl
+                            }
+                            else
+                            {
+                                __cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            }
                         }
-                        else
-                        {
-                            __cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
-                        }
+                        __cache[url] = mongoUrl;
                     }
-                    __cache[url] = mongoUrl;
                 }
-                return mongoUrl;
             }
+            return mongoUrl;
         }
 
         // public methods
