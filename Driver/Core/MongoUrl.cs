@@ -297,26 +297,29 @@ namespace MongoDB.Driver
         {
             // cache previously seen urls to avoid repeated parsing
             MongoUrl mongoUrl;
-            if (!__cache.TryGetValue(url, out mongoUrl))
+            // get ref to current dictionary instance.
+            var cacheRef = __cache;
+
+            if (!cacheRef.TryGetValue(url, out mongoUrl))
             {
                 lock (__staticLock)
                 {
-                    if (!__cache.TryGetValue(url, out mongoUrl))
+                    if (!cacheRef.TryGetValue(url, out mongoUrl))
                     {
                         mongoUrl = new MongoUrl(url);
                         var canonicalUrl = mongoUrl.ToString();
                         if (canonicalUrl != url)
                         {
-                            if (__cache.ContainsKey(canonicalUrl))
+                            if (cacheRef.ContainsKey(canonicalUrl))
                             {
-                                mongoUrl = __cache[canonicalUrl]; // use existing MongoUrl
+                                mongoUrl = cacheRef[canonicalUrl]; // use existing MongoUrl
                             }
                             else
                             {
-                                __cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                                cacheRef[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
                             }
                         }
-                        __cache[url] = mongoUrl;
+                        cacheRef[url] = mongoUrl;
                     }
                 }
             }
