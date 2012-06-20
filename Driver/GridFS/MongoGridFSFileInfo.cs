@@ -470,7 +470,6 @@ namespace MongoDB.Driver.GridFS
             }
             else
             {
-                _gridFS.EnsureIndexes();
                 cursor = _gridFS.Files.Find(Query.EQ("filename", _name)).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();

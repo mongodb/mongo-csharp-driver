@@ -142,7 +142,6 @@ namespace MongoDB.Driver.GridFS
                     message = string.Format("Invalid FileMode {0}.", mode);
                     throw new ArgumentException(message, "mode");
             }
-            _gridFS.EnsureIndexes();
         }
 
         // public properties
@@ -554,12 +553,16 @@ namespace MongoDB.Driver.GridFS
 
         private void OpenAppend()
         {
+            _gridFS.EnsureIndexes();
+
             _length = _fileInfo.Length;
             _position = _fileInfo.Length;
         }
 
         private void OpenCreate()
         {
+            _gridFS.EnsureIndexes();
+
             _fileIsDirty = true;
             if (_fileInfo.Id == null)
             {
@@ -591,6 +594,8 @@ namespace MongoDB.Driver.GridFS
 
         private void OpenTruncate()
         {
+            _gridFS.EnsureIndexes();
+
             _fileIsDirty = true;
             // existing chunks will be overwritten as needed and extra chunks will be removed on Close
             _length = 0;
