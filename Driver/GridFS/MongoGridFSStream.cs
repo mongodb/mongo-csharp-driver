@@ -110,6 +110,7 @@ namespace MongoDB.Driver.GridFS
                     if (exists)
                     {
                         OpenExisting();
+                        return; // to enable read-only access, make sure ensureIndex not is called. 
                     }
                     else
                     {
@@ -121,6 +122,7 @@ namespace MongoDB.Driver.GridFS
                     if (exists)
                     {
                         OpenExisting();
+                        return; // to enable read-only access, make sure ensureIndex not is called.
                     }
                     else
                     {
