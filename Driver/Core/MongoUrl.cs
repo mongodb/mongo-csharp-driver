@@ -15,13 +15,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -49,6 +44,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static object __staticLock = new object();
+
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
@@ -283,9 +279,10 @@ namespace MongoDB.Driver
         public static void ClearCache()
         {
             // Replace cache with new empty one. GC will remove old cache when not referenced.
-            // Exchange is atomic: Any thread accessing the cache will either have the old reference or the new one.
-            var newEmptyCache = new Dictionary<string, MongoUrl>();
-            Interlocked.Exchange(ref __cache, newEmptyCache);
+            lock(__staticLock)
+            {
+                __cache = new Dictionary<string, MongoUrl>();
+            }
         }
 
         /// <summary>
@@ -304,6 +301,8 @@ namespace MongoDB.Driver
             {
                 lock (__staticLock)
                 {
+                    // re-grab the current cache ref. We got lock, but another thread may have modified before we entered lock.
+                    cacheRef = __cache;
                     if (!cacheRef.TryGetValue(url, out mongoUrl))
                     {
                         mongoUrl = new MongoUrl(url);
@@ -319,7 +318,14 @@ namespace MongoDB.Driver
                                 cacheRef[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
                             }
                         }
-                        cacheRef[url] = mongoUrl;
+                        // copy old dictionary values to new one. Can't guarantee concurrent write while unlocked reader may be accessing cachRef
+                        Dictionary<string, MongoUrl> updatedCache = new Dictionary<string, MongoUrl>(cacheRef.Count+1);
+                        updatedCache[url] = mongoUrl;
+                        foreach (var entry in cacheRef)
+                        {
+                            updatedCache[entry.Key] = entry.Value;
+                        }
+                        __cache = updatedCache;
                     }
                 }
             }

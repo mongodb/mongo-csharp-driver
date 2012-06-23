@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -526,10 +525,9 @@ namespace MongoDB.DriverUnitTests
             var t2 = MongoUrl.Create("mongodb://host2");
             var cache2 = getCacheReference(t2);
 
-
-            Assert.AreSame(cache1, cache2);
-            Assert.AreEqual(2, cache1.Count);
-            Assert.AreEqual(2, cache2.Count);
+            Assert.AreNotSame(cache1, cache2, "Cache internal dictionary is replaced upon insertion to allow lockless reads");
+            Assert.AreEqual(1, cache1.Count, "Cache dictionary should have 1 item after the first insertion");
+            Assert.AreEqual(2, cache2.Count, "Cache dictionary shoudl have 2 items after the second insertion");
         }
 
         [Test]
@@ -537,11 +535,11 @@ namespace MongoDB.DriverUnitTests
         {
             var target = MongoUrl.Create("mongodb://host1");
             var cache1 = getCacheReference(target);
-           
+
             MongoUrl.ClearCache();
-            
+
             var cache2 = getCacheReference(target);
-            Assert.AreNotSame(cache1, cache2,"The 2 cache references shoudl refer to different object since CacheClear() exchanges the old ref to a new empty dictionary");
+            Assert.AreNotSame(cache1, cache2, "The 2 cache references shoudl refer to different object since CacheClear() exchanges the old ref to a new empty dictionary");
         }
 
 
