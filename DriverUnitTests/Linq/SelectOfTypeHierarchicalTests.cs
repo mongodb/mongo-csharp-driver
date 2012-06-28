@@ -49,7 +49,7 @@ namespace MongoDB.DriverUnitTests.Linq
 
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<B> _collection;
+        private IMongoCollection<B> _collection;
 
         [TestFixtureSetUp]
         public void Setup()

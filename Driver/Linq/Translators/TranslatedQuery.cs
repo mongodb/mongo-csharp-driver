@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq
     public abstract class TranslatedQuery
     {
         // private fields
-        private MongoCollection _collection;
+        private IMongoCollection _collection;
         private Type _documentType;
 
         // constructors
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="documentType">The document type being queried.</param>
-        protected TranslatedQuery(MongoCollection collection, Type documentType)
+        protected TranslatedQuery(IMongoCollection collection, Type documentType)
         {
             _collection = collection;
             _documentType = documentType;
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets the collection being queried.
         /// </summary>
-        public MongoCollection Collection
+        public IMongoCollection Collection
         {
             get { return _collection; }
         }

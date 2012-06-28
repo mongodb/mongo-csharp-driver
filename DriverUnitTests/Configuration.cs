@@ -33,7 +33,7 @@ namespace MongoDB.DriverUnitTests
         // private static fields
         private static MongoServer __testServer;
         private static MongoDatabase __testDatabase;
-        private static MongoCollection<BsonDocument> __testCollection;
+        private static IMongoCollection<BsonDocument> __testCollection;
 
         // static constructor
         static Configuration()
@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests
             }
 
             __testServer = MongoServer.Create(serverSettings);
-            __testDatabase = __testServer["csharpdriverunittests"];
+            __testDatabase = __testServer.InternalGetDatabase("csharpdriverunittests");
             __testCollection = __testDatabase["testcollection"];
         }
 
@@ -56,7 +56,7 @@ namespace MongoDB.DriverUnitTests
         /// <summary>
         /// Gets the test collection.
         /// </summary>
-        public static MongoCollection<BsonDocument> TestCollection
+        public static IMongoCollection<BsonDocument> TestCollection
         {
             get { return __testCollection; }
         }
@@ -83,7 +83,7 @@ namespace MongoDB.DriverUnitTests
         /// </summary>
         /// <typeparam name="T">The default document type.</typeparam>
         /// <returns>The collection.</returns>
-        public static MongoCollection<T> GetTestCollection<T>()
+        public static IMongoCollection<T> GetTestCollection<T>()
         {
             return __testDatabase.GetCollection<T>(__testCollection.Name);
         }

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="T">The type of the returned documents.</typeparam>
         /// <param name="collection">The name of the collection.</param>
         /// <returns>An instance of IQueryable{{T}} for a MongoCollection.</returns>
-        public static IQueryable<T> AsQueryable<T>(this MongoCollection collection)
+        public static IQueryable<T> AsQueryable<T>(this IMongoCollection collection)
         {
             var provider = new MongoQueryProvider(collection);
             return new MongoQueryable<T>(provider);
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq
         /// <typeparam name="T">The type of the returned documents.</typeparam>
         /// <param name="collection">The name of the collection.</param>
         /// <returns>An instance of IQueryable{{T}} for a MongoCollection.</returns>
-        public static IQueryable<T> AsQueryable<T>(this MongoCollection<T> collection)
+        public static IQueryable<T> AsQueryable<T>(this IMongoCollection<T> collection)
         {
             var provider = new MongoQueryProvider(collection);
             return new MongoQueryable<T>(provider);

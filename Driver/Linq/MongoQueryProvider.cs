@@ -30,14 +30,14 @@ namespace MongoDB.Driver.Linq
     public class MongoQueryProvider : IQueryProvider
     {
         // private fields
-        private MongoCollection _collection;
+        private IMongoCollection _collection;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoQueryProvider class.
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
-        public MongoQueryProvider(MongoCollection collection)
+        public MongoQueryProvider(IMongoCollection collection)
         {
             if (collection == null)
             {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets the Collection.
         /// </summary>
-        public MongoCollection Collection
+        public IMongoCollection Collection
         {
             get { return _collection; }
         }

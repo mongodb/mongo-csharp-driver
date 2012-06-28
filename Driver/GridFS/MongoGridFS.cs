@@ -33,8 +33,8 @@ namespace MongoDB.Driver.GridFS
         // private fields
         private MongoDatabase _database;
         private MongoGridFSSettings _settings;
-        private MongoCollection<BsonDocument> _chunks;
-        private MongoCollection<BsonDocument> _files;
+        private IMongoCollection<BsonDocument> _chunks;
+        private IMongoCollection<BsonDocument> _files;
 
         // constructors
         /// <summary>
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets the chunks collection.
         /// </summary>
-        public MongoCollection<BsonDocument> Chunks
+        public IMongoCollection<BsonDocument> Chunks
         {
             get { return _chunks; }
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets the files collection.
         /// </summary>
-        public MongoCollection<BsonDocument> Files
+        public IMongoCollection<BsonDocument> Files
         {
             get { return _files; }
         }
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         /// <param name="query">A query.</param>
         /// <returns>The matching GridFS files.</returns>
-        public MongoCursor<MongoGridFSFileInfo> Find(IMongoQuery query)
+        public IMongoCursor<MongoGridFSFileInfo> Find(IMongoQuery query)
         {
             var serializationOptions = new MongoGridFSFileInfo.SerializationOptions { GridFS = this };
             return _files.FindAs<MongoGridFSFileInfo>(query).SetSerializationOptions(serializationOptions);
@@ -500,7 +500,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         /// <param name="remoteFileName">The remote file name.</param>
         /// <returns>The matching GridFS files.</returns>
-        public MongoCursor<MongoGridFSFileInfo> Find(string remoteFileName)
+        public IMongoCursor<MongoGridFSFileInfo> Find(string remoteFileName)
         {
             return Find(Query.EQ("filename", remoteFileName));
         }
@@ -509,7 +509,7 @@ namespace MongoDB.Driver.GridFS
         /// Finds all GridFS files.
         /// </summary>
         /// <returns>The matching GridFS files.</returns>
-        public MongoCursor<MongoGridFSFileInfo> FindAll()
+        public IMongoCursor<MongoGridFSFileInfo> FindAll()
         {
             return Find(Query.Null);
         }

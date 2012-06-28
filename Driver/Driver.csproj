@@ -106,9 +106,12 @@
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Core\ConnectWaitFor.cs" />
     <Compile Include="Core\EvalFlags.cs" />
+    <Compile Include="Core\Interfaces\IMongoCollection.cs" />
+    <Compile Include="Core\Interfaces\IMongoCursor.cs" />
     <Compile Include="Core\InsertFlags.cs" />
     <Compile Include="Core\Interfaces\IMongoCollectionOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoCommand.cs" />
+    <Compile Include="Core\Interfaces\IMongoDatabase.cs" />
     <Compile Include="Core\Interfaces\IMongoFields.cs" />
     <Compile Include="Core\Interfaces\IMongoGeoHaystackSearchOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoGeoNearOptions.cs" />
@@ -118,6 +121,7 @@
     <Compile Include="Core\Interfaces\IMongoMapReduceOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoQuery.cs" />
     <Compile Include="Core\Interfaces\IMongoScope.cs" />
+    <Compile Include="Core\Interfaces\IMongoServer.cs" />
     <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
     <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
     <Compile Include="Core\MongoCollectionSettings.cs" />

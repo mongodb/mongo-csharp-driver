@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Internal
         // constructors
         internal MongoConnectionPool(MongoServerInstance serverInstance)
         {
-            _server = serverInstance.Server;
+            _server = serverInstance.InternalServer;
             _serverInstance = serverInstance;
             _poolSize = 0;
 

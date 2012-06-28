@@ -207,14 +207,14 @@ namespace MongoDB.Driver
             if (_serverInstance == null)
             {
                 // first time we need a connection let Server.AcquireConnection pick the server instance
-                var connection = _cursor.Server.AcquireConnection(_cursor.Database, _cursor.SlaveOk);
+                var connection = _cursor.InternalServer.AcquireConnection(_cursor.InternalDatabase, _cursor.SlaveOk);
                 _serverInstance = connection.ServerInstance;
                 return connection;
             }
             else
             {
                 // all subsequent requests for the same cursor must go to the same server instance
-                return _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
+                return _cursor.InternalServer.AcquireConnection(_cursor.InternalDatabase, _serverInstance);
             }
         }
 
@@ -247,7 +247,7 @@ namespace MongoDB.Driver
                     numberToReturn = _cursor.BatchSize;
                 }
 
-                var writerSettings = _cursor.Collection.GetWriterSettings(connection);
+                var writerSettings = _cursor.InternalCollection.GetWriterSettings(connection);
                 using (var message = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _cursor.Flags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields))
                 {
                     return GetReply(connection, message);
@@ -255,7 +255,7 @@ namespace MongoDB.Driver
             }
             finally
             {
-                _cursor.Server.ReleaseConnection(connection);
+                _cursor.InternalServer.ReleaseConnection(connection);
             }
         }
 
@@ -285,13 +285,13 @@ namespace MongoDB.Driver
             }
             finally
             {
-                _cursor.Server.ReleaseConnection(connection);
+                _cursor.InternalServer.ReleaseConnection(connection);
             }
         }
 
         private MongoReplyMessage<TDocument> GetReply(MongoConnection connection, MongoRequestMessage message)
         {
-            var readerSettings = _cursor.Collection.GetReaderSettings(connection);
+            var readerSettings = _cursor.InternalCollection.GetReaderSettings(connection);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.SerializationOptions);
             _responseFlags = reply.ResponseFlags;
@@ -307,7 +307,7 @@ namespace MongoDB.Driver
                 {
                     if (_serverInstance != null && _serverInstance.State == MongoServerState.Connected)
                     {
-                        var connection = _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
+                        var connection = _cursor.InternalServer.AcquireConnection(_cursor.InternalDatabase, _serverInstance);
                         try
                         {
                             using (var message = new MongoKillCursorsMessage(_openCursorId))
@@ -317,7 +317,7 @@ namespace MongoDB.Driver
                         }
                         finally
                         {
-                            _cursor.Server.ReleaseConnection(connection);
+                            _cursor.InternalServer.ReleaseConnection(connection);
                         }
                     }
                 }

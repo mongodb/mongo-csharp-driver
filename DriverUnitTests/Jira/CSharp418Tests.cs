@@ -41,7 +41,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp418
 
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<D> _collection;
+        private IMongoCollection<D> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()

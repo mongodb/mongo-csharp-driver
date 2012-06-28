@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
 
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<BsonDocument> _collection;
+        private IMongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
@@ -49,7 +49,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         // TODO: more tests for MongoCollection
-
         [Test]
         public void TestConstructorArgumentChecking()
         {

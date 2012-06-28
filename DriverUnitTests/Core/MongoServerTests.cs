@@ -29,7 +29,7 @@ namespace MongoDB.DriverUnitTests
     {
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<BsonDocument> _collection;
+        private IMongoCollection _collection;
         private bool _isMasterSlavePair;
 
         [TestFixtureSetUp]

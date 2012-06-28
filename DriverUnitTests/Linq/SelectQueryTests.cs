@@ -131,8 +131,8 @@ namespace MongoDB.DriverUnitTests.Linq
 
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<C> _collection;
-        private MongoCollection<SystemProfileInfo> _systemProfileCollection;
+        private IMongoCollection<C> _collection;
+        private IMongoCollection<SystemProfileInfo> _systemProfileCollection;
 
         private ObjectId _id1 = ObjectId.GenerateNewId();
         private ObjectId _id2 = ObjectId.GenerateNewId();

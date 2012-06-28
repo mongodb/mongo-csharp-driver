@@ -91,7 +91,7 @@ namespace MongoDB.DriverUnitTests.Samples
 
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoCollection<A> _collection;
+        private IMongoCollection<A> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()

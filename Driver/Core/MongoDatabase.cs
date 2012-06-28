@@ -30,15 +30,14 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB database and the settings used to access it. This class is thread-safe.
     /// </summary>
-    public class MongoDatabase
+    public class MongoDatabase : IMongoDatabase
     {
         // private fields
         private object _databaseLock = new object();
-        private MongoServer _server;
         private MongoDatabaseSettings _settings;
         private string _name;
         private Dictionary<MongoCollectionSettings, MongoCollection> _collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
-        private MongoCollection<BsonDocument> _commandCollection;
+        private IMongoCollection<BsonDocument> _commandCollection;
         private MongoGridFS _gridFS;
 
         // constructors
@@ -64,7 +63,7 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException(message);
             }
 
-            _server = server;
+            InternalServer = server;
             _settings = settings.FrozenCopy();
             _name = settings.DatabaseName;
 
@@ -114,7 +113,7 @@ namespace MongoDB.Driver
                 throw new ArgumentException("Database name is missing.");
             }
             var server = MongoServer.Create(serverSettings);
-            return server.GetDatabase(databaseName);
+            return server.InternalGetDatabase(databaseName);
         }
 
         /// <summary>
@@ -174,7 +173,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command collection for this database.
         /// </summary>
-        public virtual MongoCollection<BsonDocument> CommandCollection
+        public virtual IMongoCollection<BsonDocument> CommandCollection
         {
             get { return _commandCollection; }
         }
@@ -217,10 +216,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server that contains this database.
         /// </summary>
-        public virtual MongoServer Server
+        public virtual IMongoServer Server
         {
-            get { return _server; }
+            get { return InternalServer; }
         }
+
+        internal MongoServer InternalServer { get; private set; }
 
         /// <summary>
         /// Gets the settings being used to access this database.
@@ -237,7 +238,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> this[string collectionName]
+        public virtual IMongoCollection<BsonDocument> this[string collectionName]
         {
             get { return GetCollection(collectionName); }
         }
@@ -249,7 +250,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode]
+        public virtual IMongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode]
         {
             get { return GetCollection(collectionName, safeMode); }
         }
@@ -365,7 +366,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name, _settings.Credentials);
+            InternalServer.DropDatabase(_name, _settings.Credentials);
         }
 
         /// <summary>
@@ -379,7 +380,7 @@ namespace MongoDB.Driver
             {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommand(command);
-                _server.IndexCache.Reset(_name, collectionName);
+                InternalServer.IndexCache.Reset(_name, collectionName);
                 return result;
             }
             catch (MongoCommandException ex)
@@ -453,7 +454,7 @@ namespace MongoDB.Driver
         {
             if (dbRef.DatabaseName != null && dbRef.DatabaseName != _name)
             {
-                return _server.FetchDBRefAs(documentType, dbRef);
+                return InternalServer.FetchDBRefAs(documentType, dbRef);
             }
 
             var collection = GetCollection(dbRef.CollectionName);
@@ -509,7 +510,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        public virtual IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             MongoCollectionSettings<TDefaultDocument> collectionSettings)
         {
             lock (_databaseLock)
@@ -531,7 +532,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
+        public virtual IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
         {
             var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
             return GetCollection(collectionSettings);
@@ -545,7 +546,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        public virtual IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
             SafeMode safeMode)
         {
@@ -562,7 +563,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
+        public virtual IMongoCollection GetCollection(MongoCollectionSettings collectionSettings)
         {
             lock (_databaseLock)
             {
@@ -585,7 +586,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName)
+        public virtual IMongoCollection<BsonDocument> GetCollection(string collectionName)
         {
             var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName);
             return GetCollection(collectionSettings);
@@ -598,7 +599,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode)
+        public virtual IMongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode)
         {
             var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName)
             {
@@ -614,7 +615,7 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type.</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName)
+        public virtual IMongoCollection GetCollection(Type defaultDocumentType, string collectionName)
         {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
             return GetCollection(collectionSettings);
@@ -628,7 +629,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(
+        public virtual IMongoCollection GetCollection(
             Type defaultDocumentType,
             string collectionName,
             SafeMode safeMode)
@@ -700,7 +701,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="query">A query to select which documents to return.</param>
         /// <returns>A cursor.</returns>
-        public MongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
+        public IMongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
         {
             var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
             var collection = GetCollection<SystemProfileInfo>(collectionSettings);
@@ -722,9 +723,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the sister database.</param>
         /// <returns>An instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetSisterDatabase(string databaseName)
+        public virtual IMongoDatabase GetSisterDatabase(string databaseName)
         {
-            return _server.GetDatabase(databaseName);
+            return InternalServer.GetDatabase(databaseName);
         }
 
         /// <summary>
@@ -812,7 +813,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
         {
-            var adminCredentials = _server.Settings.GetCredentials("admin");
+            var adminCredentials = InternalServer.Settings.GetCredentials("admin");
             return RenameCollection(oldCollectionName, newCollectionName, dropTarget, adminCredentials);
         }
 
@@ -850,7 +851,7 @@ namespace MongoDB.Driver
                 { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            var adminDatabase = _server.GetDatabase("admin", adminCredentials);
+            var adminDatabase = InternalServer.GetDatabase("admin", adminCredentials);
             return adminDatabase.RunCommand(command);
         }
 
@@ -872,7 +873,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
-            _server.RequestDone();
+            InternalServer.RequestDone();
         }
 
         /// <summary>
@@ -895,7 +896,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(bool slaveOk)
         {
-            return _server.RequestStart(this, slaveOk);
+            return InternalServer.RequestStart(this, slaveOk);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -907,7 +908,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void ResetIndexCache()
         {
-            _server.IndexCache.Reset(this);
+            InternalServer.IndexCache.Reset(this);
         }
 
         /// <summary>
@@ -976,7 +977,7 @@ namespace MongoDB.Driver
                 if (commandResult.ErrorMessage == "not master")
                 {
                     // TODO: figure out which instance gave the error and set its state to Unknown
-                    _server.Disconnect();
+                    InternalServer.Disconnect();
                 }
                 throw new MongoCommandException(commandResult);
             }
