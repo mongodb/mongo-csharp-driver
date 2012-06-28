@@ -36,7 +36,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestFixtureSetUp()
         {
             _server = MongoServer.Create();
-            _database = _server["test"];
+            _database = _server.InternalGetDatabase("test");
             _gridFS = _database.GridFS;
         }
 

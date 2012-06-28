@@ -160,7 +160,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    outputDatabase = _inputDatabase.Server[outputDatabaseName];
+                    outputDatabase = _inputDatabase.InernalServer.InternalGetDatabase(outputDatabaseName);
                 }
                 return outputDatabase[CollectionName].FindAll();
             }
@@ -197,7 +197,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    outputDatabase = _inputDatabase.Server[outputDatabaseName];
+                    outputDatabase = _inputDatabase.InernalServer.InternalGetDatabase(outputDatabaseName);
                 }
                 return outputDatabase[CollectionName].FindAllAs(documentType).Cast<object>();
             }

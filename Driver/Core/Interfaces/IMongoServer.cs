@@ -88,7 +88,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase this[string databaseName] { get; }
+        IMongoDatabase this[string databaseName] { get; }
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -97,7 +97,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase this[string databaseName, MongoCredentials credentials] { get; }
+        IMongoDatabase this[string databaseName, MongoCredentials credentials] { get; }
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -105,7 +105,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase this[MongoDatabaseSettings databaseSettings] { get; }
+        IMongoDatabase this[MongoDatabaseSettings databaseSettings] { get; }
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -115,7 +115,7 @@ namespace MongoDB.Driver
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase this[string databaseName, MongoCredentials credentials, SafeMode safeMode] { get; }
+        IMongoDatabase this[string databaseName, MongoCredentials credentials, SafeMode safeMode] { get; }
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -124,7 +124,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase this[string databaseName, SafeMode safeMode] { get; }
+        IMongoDatabase this[string databaseName, SafeMode safeMode] { get; }
 
         /// <summary>
         /// Connects to the server. Normally there is no need to call this method as
@@ -234,7 +234,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings);
+        IMongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings);
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -242,7 +242,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase GetDatabase(string databaseName);
+        IMongoDatabase GetDatabase(string databaseName);
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -251,7 +251,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials);
+        IMongoDatabase GetDatabase(string databaseName, MongoCredentials credentials);
 
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance
@@ -261,7 +261,7 @@ namespace MongoDB.Driver
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase GetDatabase(
+        IMongoDatabase GetDatabase(
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode);
@@ -273,7 +273,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        MongoDatabase GetDatabase(string databaseName, SafeMode safeMode);
+        IMongoDatabase GetDatabase(string databaseName, SafeMode safeMode);
 
         /// <summary>
         /// Gets the names of the databases on this server.

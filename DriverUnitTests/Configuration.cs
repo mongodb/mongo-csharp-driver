@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests
             }
 
             __testServer = MongoServer.Create(serverSettings);
-            __testDatabase = __testServer["csharpdriverunittests"];
+            __testDatabase = __testServer.InternalGetDatabase("csharpdriverunittests");
             __testCollection = __testDatabase["testcollection"];
         }
 

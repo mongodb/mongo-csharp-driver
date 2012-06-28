@@ -463,7 +463,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public void Refresh()
         {
-            MongoCursor<BsonDocument> cursor;
+            IMongoCursor<BsonDocument> cursor;
             if (_id != null)
             {
                 cursor = _gridFS.Files.Find(Query.EQ("_id", _id));

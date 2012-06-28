@@ -49,7 +49,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
             var serverSettings = Configuration.TestServer.Settings.Clone();
             serverSettings.SafeMode = SafeMode.False;
             _server = MongoServer.Create(serverSettings); // not safe=true
-            _database = _server[Configuration.TestDatabase.Name];
+            _database = _server.InternalGetDatabase(Configuration.TestDatabase.Name);
             _collection = _database.GetCollection<C>(Configuration.TestCollection.Name);
         }
 

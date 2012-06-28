@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         /// <param name="database">The database that contains the collection (some collection settings will be inherited from the database settings).</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
-        protected MongoCollectionSettings(MongoDatabase database, string collectionName, Type defaultDocumentType)
+        protected MongoCollectionSettings(IMongoDatabase database, string collectionName, Type defaultDocumentType)
         {
             var databaseSettings = database.Settings;
             _collectionName = collectionName;
@@ -282,7 +282,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="database">The database to inherit settings from.</param>
         /// <param name="collectionName">The name of the collection.</param>
-        public MongoCollectionSettings(MongoDatabase database, string collectionName)
+        public MongoCollectionSettings(IMongoDatabase database, string collectionName)
             : base(database, collectionName, typeof(TDefaultDocument))
         {
         }

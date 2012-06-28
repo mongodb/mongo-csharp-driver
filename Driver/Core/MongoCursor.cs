@@ -30,10 +30,9 @@ namespace MongoDB.Driver
     /// An object that can be enumerated to fetch the results of a query. The query is not sent
     /// to the server until you begin enumerating the results.
     /// </summary>
-    public abstract class MongoCursor : IEnumerable
+    public abstract class MongoCursor : IMongoCursor
     {
         // private fields
-        private MongoDatabase _database;
         private MongoCollection _collection;
         private IMongoQuery _query;
         private IMongoFields _fields;
@@ -54,8 +53,8 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         protected MongoCursor(MongoCollection collection, IMongoQuery query)
         {
-            MongoServer = collection.Database.MongoServer;
-            _database = collection.Database;
+            InternalServer = collection.Database.InernalServer;
+            InternalDatabase = collection.Database;
             _collection = collection;
             _query = query;
             _slaveOk = collection.Settings.SlaveOk;
@@ -67,18 +66,20 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual IMongoServer Server
         {
-            get { return MongoServer; }
+            get { return InternalServer; }
         }
 
-        internal MongoServer MongoServer { get; private set; }
+        internal MongoServer InternalServer { get; private set; }
 
         /// <summary>
         /// Gets the database that constains the collection that is being queried.
         /// </summary>
-        public virtual MongoDatabase Database
+        public virtual IMongoDatabase Database
         {
-            get { return _database; }
+            get { return InternalDatabase; }
         }
+
+        internal MongoDatabase InternalDatabase { get; private set; }
 
         /// <summary>
         /// Gets the collection that is being queried.
@@ -231,7 +232,12 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
         /// <returns>A clone of the cursor.</returns>
-        public virtual MongoCursor<TDocument> Clone<TDocument>()
+        public virtual IMongoCursor<TDocument> Clone<TDocument>()
+        {
+            return (IMongoCursor<TDocument>)Clone(typeof(TDocument));
+        }
+
+        internal MongoCursor<TDocument> InternalClone<TDocument>()
         {
             return (MongoCursor<TDocument>)Clone(typeof(TDocument));
         }
@@ -241,7 +247,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documentType">The type of the documents returned.</param>
         /// <returns>A clone of the cursor.</returns>
-        public virtual MongoCursor Clone(Type documentType)
+        public virtual IMongoCursor Clone(Type documentType)
         {
             var clone = Create(documentType, _collection, _query);
             clone._options = _options == null ? null : (BsonDocument)_options.Clone();
@@ -267,7 +273,7 @@ namespace MongoDB.Driver
                 { "count", _collection.Name },
                 { "query", BsonDocumentWrapper.Create(_query), _query != null } // query is optional
             };
-            var result = _database.RunCommand(command);
+            var result = InternalDatabase.RunCommand(command);
             return result.Response["n"].ToInt64();
         }
 
@@ -288,7 +294,7 @@ namespace MongoDB.Driver
         public virtual BsonDocument Explain(bool verbose)
         {
             _isFrozen = true;
-            var clone = Clone<BsonDocument>();
+            var clone = InternalClone<BsonDocument>();
             clone.SetOption("$explain", true);
             clone._limit = -clone._limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
@@ -323,7 +329,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="batchSize">The number of documents in each batch.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetBatchSize(int batchSize)
+        public virtual IMongoCursor SetBatchSize(int batchSize)
         {
             if (_isFrozen) { ThrowFrozen(); }
             if (batchSize < 0) { throw new ArgumentException("BatchSize cannot be negative."); }
@@ -336,7 +342,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetFields(IMongoFields fields)
+        public virtual IMongoCursor SetFields(IMongoFields fields)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _fields = fields;
@@ -348,7 +354,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetFields(params string[] fields)
+        public virtual IMongoCursor SetFields(params string[] fields)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _fields = Builders.Fields.Include(fields);
@@ -360,7 +366,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="flags">The query flags.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetFlags(QueryFlags flags)
+        public virtual IMongoCursor SetFlags(QueryFlags flags)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _flags = flags;
@@ -372,7 +378,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="hint">The index hint.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetHint(BsonDocument hint)
+        public virtual IMongoCursor SetHint(BsonDocument hint)
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$hint", hint);
@@ -384,7 +390,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="indexName">The name of the index.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetHint(string indexName)
+        public virtual IMongoCursor SetHint(string indexName)
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$hint", indexName);
@@ -396,7 +402,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit on the number of documents to be returned.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetLimit(int limit)
+        public virtual IMongoCursor SetLimit(int limit)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _limit = limit;
@@ -409,7 +415,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="max">The max value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetMax(BsonDocument max)
+        public virtual IMongoCursor SetMax(BsonDocument max)
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$max", max);
@@ -421,7 +427,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="maxScan">The maximum number of documents to scan.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetMaxScan(int maxScan)
+        public virtual IMongoCursor SetMaxScan(int maxScan)
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$maxscan", maxScan);
@@ -434,7 +440,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="min">The min value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetMin(BsonDocument min)
+        public virtual IMongoCursor SetMin(BsonDocument min)
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$min", min);
@@ -447,7 +453,7 @@ namespace MongoDB.Driver
         /// <param name="name">The name of the option.</param>
         /// <param name="value">The value of the option.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetOption(string name, BsonValue value)
+        public virtual IMongoCursor SetOption(string name, BsonValue value)
         {
             if (_isFrozen) { ThrowFrozen(); }
             if (_options == null) { _options = new BsonDocument(); }
@@ -460,7 +466,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetOptions(BsonDocument options)
+        public virtual IMongoCursor SetOptions(BsonDocument options)
         {
             if (_isFrozen) { ThrowFrozen(); }
             if (options != null)
@@ -476,7 +482,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="serializationOptions">The serialization options.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSerializationOptions(IBsonSerializationOptions serializationOptions)
+        public virtual IMongoCursor SetSerializationOptions(IBsonSerializationOptions serializationOptions)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _serializationOptions = serializationOptions;
@@ -487,7 +493,7 @@ namespace MongoDB.Driver
         /// Sets the $showDiskLoc option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetShowDiskLoc()
+        public virtual IMongoCursor SetShowDiskLoc()
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$showDiskLoc", true);
@@ -499,7 +505,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSkip(int skip)
+        public virtual IMongoCursor SetSkip(int skip)
         {
             if (_isFrozen) { ThrowFrozen(); }
             if (skip < 0) { throw new ArgumentException("Skip cannot be negative."); }
@@ -512,7 +518,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSlaveOk(bool slaveOk)
+        public virtual IMongoCursor SetSlaveOk(bool slaveOk)
         {
             if (_isFrozen) { ThrowFrozen(); }
             _slaveOk = slaveOk;
@@ -523,7 +529,7 @@ namespace MongoDB.Driver
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSnapshot()
+        public virtual IMongoCursor SetSnapshot()
         {
             if (_isFrozen) { ThrowFrozen(); }
             SetOption("$snapshot", true);
@@ -535,7 +541,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sortBy">The sort order.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSortOrder(IMongoSortBy sortBy)
+        public virtual IMongoCursor SetSortOrder(IMongoSortBy sortBy)
         {
             if (sortBy == null)
             {
@@ -551,7 +557,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The names of the fields to sort by.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public virtual MongoCursor SetSortOrder(params string[] keys)
+        public virtual IMongoCursor SetSortOrder(params string[] keys)
         {
             if (_isFrozen) { ThrowFrozen(); }
             return SetSortOrder(SortBy.Ascending(keys));
@@ -571,7 +577,7 @@ namespace MongoDB.Driver
                 { "limit", _limit, _limit != 0 },
                 { "skip", _skip, _skip != 0 }
             };
-            var result = _database.RunCommand(command);
+            var result = InternalDatabase.RunCommand(command);
             return result.Response["n"].ToInt64();
         }
 
@@ -601,7 +607,7 @@ namespace MongoDB.Driver
     /// to the server until you begin enumerating the results.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
-    public class MongoCursor<TDocument> : MongoCursor, IEnumerable<TDocument>
+    public class MongoCursor<TDocument> : MongoCursor, IMongoCursor<TDocument>
     {
         // constructors
         /// <summary>
@@ -613,7 +619,7 @@ namespace MongoDB.Driver
             : base(collection, query)
         {
         }
-
+        
         // public methods
         /// <summary>
         /// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
@@ -631,7 +637,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="batchSize">The number of documents in each batch.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetBatchSize(int batchSize)
+        public new virtual IMongoCursor<TDocument> SetBatchSize(int batchSize)
         {
             return (MongoCursor<TDocument>)base.SetBatchSize(batchSize);
         }
@@ -641,7 +647,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetFields(IMongoFields fields)
+        public new virtual IMongoCursor<TDocument> SetFields(IMongoFields fields)
         {
             return (MongoCursor<TDocument>)base.SetFields(fields);
         }
@@ -651,7 +657,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fields">The fields that will be returned from the server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetFields(params string[] fields)
+        public new virtual IMongoCursor<TDocument> SetFields(params string[] fields)
         {
             return (MongoCursor<TDocument>)base.SetFields(fields);
         }
@@ -661,7 +667,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="flags">The query flags.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetFlags(QueryFlags flags)
+        public new virtual IMongoCursor<TDocument> SetFlags(QueryFlags flags)
         {
             return (MongoCursor<TDocument>)base.SetFlags(flags);
         }
@@ -671,7 +677,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="hint">The index hint.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetHint(BsonDocument hint)
+        public new virtual IMongoCursor<TDocument> SetHint(BsonDocument hint)
         {
             return (MongoCursor<TDocument>)base.SetHint(hint);
         }
@@ -681,7 +687,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="indexName">The name of the index.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetHint(string indexName)
+        public new virtual IMongoCursor<TDocument> SetHint(string indexName)
         {
             return (MongoCursor<TDocument>)base.SetHint(indexName);
         }
@@ -691,7 +697,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit on the number of documents to be returned.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetLimit(int limit)
+        public new virtual IMongoCursor<TDocument> SetLimit(int limit)
         {
             return (MongoCursor<TDocument>)base.SetLimit(limit);
         }
@@ -702,7 +708,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="max">The max value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetMax(BsonDocument max)
+        public new virtual IMongoCursor<TDocument> SetMax(BsonDocument max)
         {
             return (MongoCursor<TDocument>)base.SetMax(max);
         }
@@ -712,7 +718,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="maxScan">The maximum number of documents to scan.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetMaxScan(int maxScan)
+        public new virtual IMongoCursor<TDocument> SetMaxScan(int maxScan)
         {
             return (MongoCursor<TDocument>)base.SetMaxScan(maxScan);
         }
@@ -723,7 +729,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="min">The min value.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetMin(BsonDocument min)
+        public new virtual IMongoCursor<TDocument> SetMin(BsonDocument min)
         {
             return (MongoCursor<TDocument>)base.SetMin(min);
         }
@@ -734,7 +740,7 @@ namespace MongoDB.Driver
         /// <param name="name">The name of the option.</param>
         /// <param name="value">The value of the option.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetOption(string name, BsonValue value)
+        public new virtual IMongoCursor<TDocument> SetOption(string name, BsonValue value)
         {
             return (MongoCursor<TDocument>)base.SetOption(name, value);
         }
@@ -744,7 +750,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="options">The options.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetOptions(BsonDocument options)
+        public new virtual IMongoCursor<TDocument> SetOptions(BsonDocument options)
         {
             return (MongoCursor<TDocument>)base.SetOptions(options);
         }
@@ -754,7 +760,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="serializationOptions">The serialization options.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSerializationOptions(
+        public new virtual IMongoCursor<TDocument> SetSerializationOptions(
             IBsonSerializationOptions serializationOptions)
         {
             return (MongoCursor<TDocument>)base.SetSerializationOptions(serializationOptions);
@@ -764,7 +770,7 @@ namespace MongoDB.Driver
         /// Sets the $showDiskLoc option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetShowDiskLoc()
+        public new virtual IMongoCursor<TDocument> SetShowDiskLoc()
         {
             return (MongoCursor<TDocument>)base.SetShowDiskLoc();
         }
@@ -774,7 +780,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSkip(int skip)
+        public new virtual IMongoCursor<TDocument> SetSkip(int skip)
         {
             return (MongoCursor<TDocument>)base.SetSkip(skip);
         }
@@ -784,7 +790,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSlaveOk(bool slaveOk)
+        public new virtual IMongoCursor<TDocument> SetSlaveOk(bool slaveOk)
         {
             return (MongoCursor<TDocument>)base.SetSlaveOk(slaveOk);
         }
@@ -793,7 +799,7 @@ namespace MongoDB.Driver
         /// Sets the $snapshot option.
         /// </summary>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSnapshot()
+        public new virtual IMongoCursor<TDocument> SetSnapshot()
         {
             return (MongoCursor<TDocument>)base.SetSnapshot();
         }
@@ -803,7 +809,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sortBy">The sort order.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSortOrder(IMongoSortBy sortBy)
+        public new virtual IMongoCursor<TDocument> SetSortOrder(IMongoSortBy sortBy)
         {
             return (MongoCursor<TDocument>)base.SetSortOrder(sortBy);
         }
@@ -813,7 +819,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The names of the fields to sort by.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
-        public new virtual MongoCursor<TDocument> SetSortOrder(params string[] keys)
+        public new virtual IMongoCursor<TDocument> SetSortOrder(params string[] keys)
         {
             return (MongoCursor<TDocument>)base.SetSortOrder(keys);
         }

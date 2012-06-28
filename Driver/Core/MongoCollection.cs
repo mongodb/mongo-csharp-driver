@@ -63,7 +63,7 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("settings", message);
             }
 
-            _server = database.MongoServer;
+            _server = database.InernalServer;
             _database = database;
             _settings = settings.FrozenCopy();
             _name = settings.CollectionName;
@@ -333,7 +333,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The nominal type of the documents.</typeparam>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDocument> FindAllAs<TDocument>()
+        public virtual IMongoCursor<TDocument> FindAllAs<TDocument>()
         {
             return FindAs<TDocument>(Query.Null);
         }
@@ -343,7 +343,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documentType">The nominal type of the documents.</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor FindAllAs(Type documentType)
+        public virtual IMongoCursor FindAllAs(Type documentType)
         {
             return FindAs(documentType, Query.Null);
         }
@@ -489,7 +489,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
+        public virtual IMongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
             return new MongoCursor<TDocument>(this, query);
         }
@@ -500,7 +500,7 @@ namespace MongoDB.Driver
         /// <param name="documentType">The nominal type of the documents.</param>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
+        public virtual IMongoCursor FindAs(Type documentType, IMongoQuery query)
         {
             return MongoCursor.Create(documentType, this, query);
         }
@@ -1670,7 +1670,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDefaultDocument> Find(IMongoQuery query)
+        public virtual IMongoCursor<TDefaultDocument> Find(IMongoQuery query)
         {
             return FindAs<TDefaultDocument>(query);
         }
@@ -1679,7 +1679,7 @@ namespace MongoDB.Driver
         /// Returns a cursor that can be used to find all documents in this collection as TDefaultDocuments.
         /// </summary>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
-        public virtual MongoCursor<TDefaultDocument> FindAll()
+        public virtual IMongoCursor<TDefaultDocument> FindAll()
         {
             return FindAllAs<TDefaultDocument>();
         }

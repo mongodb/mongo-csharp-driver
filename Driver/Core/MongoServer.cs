@@ -442,7 +442,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase this[string databaseName]
+        public virtual IMongoDatabase this[string databaseName]
         {
             get { return GetDatabase(databaseName); }
         }
@@ -454,7 +454,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase this[string databaseName, MongoCredentials credentials]
+        public virtual IMongoDatabase this[string databaseName, MongoCredentials credentials]
         {
             get { return GetDatabase(databaseName, credentials); }
         }
@@ -465,7 +465,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase this[MongoDatabaseSettings databaseSettings]
+        public virtual IMongoDatabase this[MongoDatabaseSettings databaseSettings]
         {
             get { return GetDatabase(databaseSettings); }
         }
@@ -478,7 +478,7 @@ namespace MongoDB.Driver
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase this[string databaseName, MongoCredentials credentials, SafeMode safeMode]
+        public virtual IMongoDatabase this[string databaseName, MongoCredentials credentials, SafeMode safeMode]
         {
             get { return GetDatabase(databaseName, credentials, safeMode); }
         }
@@ -490,7 +490,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase this[string databaseName, SafeMode safeMode]
+        public virtual IMongoDatabase this[string databaseName, SafeMode safeMode]
         {
             get { return GetDatabase(databaseName, safeMode); }
         }
@@ -742,7 +742,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName, MongoCredentials credentials)
         {
-            MongoDatabase database = GetDatabase(databaseName, credentials);
+            MongoDatabase database = InternalGetDatabase(databaseName, credentials);
             var command = new CommandDocument("dropDatabase", 1);
             var result = database.RunCommand(command);
             _indexCache.Reset(databaseName);
@@ -793,7 +793,12 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings)
+        public virtual IMongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings)
+        {
+            return InternalGetDatabase(databaseSettings);
+        }
+
+        internal MongoDatabase InternalGetDatabase(MongoDatabaseSettings databaseSettings)
         {
             lock (_serverLock)
             {
@@ -813,10 +818,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(string databaseName)
+        public virtual IMongoDatabase GetDatabase(string databaseName)
+        {
+            return InternalGetDatabase(databaseName);
+        }
+
+        internal MongoDatabase InternalGetDatabase(string databaseName)
         {
             var databaseSettings = new MongoDatabaseSettings(this, databaseName);
-            return GetDatabase(databaseSettings);
+            return InternalGetDatabase(databaseSettings);
         }
 
         /// <summary>
@@ -826,13 +836,18 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials)
+        public virtual IMongoDatabase GetDatabase(string databaseName, MongoCredentials credentials)
+        {
+            return InternalGetDatabase(databaseName, credentials);
+        }
+
+        internal MongoDatabase InternalGetDatabase(string databaseName, MongoCredentials credentials)
         {
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
                 Credentials = credentials
             };
-            return GetDatabase(databaseSettings);
+            return InternalGetDatabase(databaseSettings);
         }
 
         /// <summary>
@@ -843,7 +858,15 @@ namespace MongoDB.Driver
         /// <param name="credentials">The credentials to use with this database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(
+        public virtual IMongoDatabase GetDatabase(
+            string databaseName,
+            MongoCredentials credentials,
+            SafeMode safeMode)
+        {
+            return InternalGetDatabase(databaseName, credentials, safeMode);
+        }
+
+        internal MongoDatabase InternalGetDatabase(
             string databaseName,
             MongoCredentials credentials,
             SafeMode safeMode)
@@ -853,7 +876,7 @@ namespace MongoDB.Driver
                 Credentials = credentials,
                 SafeMode = safeMode
             };
-            return GetDatabase(databaseSettings);
+            return InternalGetDatabase(databaseSettings);
         }
 
         /// <summary>
@@ -863,13 +886,18 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="safeMode">The safe mode to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(string databaseName, SafeMode safeMode)
+        public virtual IMongoDatabase GetDatabase(string databaseName, SafeMode safeMode)
+        {
+            return InternalGetDatabase(databaseName, safeMode);
+        }
+
+        internal MongoDatabase InternalGetDatabase(string databaseName, SafeMode safeMode)
         {
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
                 SafeMode = safeMode
             };
-            return GetDatabase(databaseSettings);
+            return InternalGetDatabase(databaseSettings);
         }
 
         /// <summary>
