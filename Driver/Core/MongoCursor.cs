@@ -53,8 +53,8 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         protected MongoCursor(MongoCollection collection, IMongoQuery query)
         {
-            InternalServer = collection.Database.InernalServer;
-            InternalDatabase = collection.Database;
+            InternalServer = collection.InternalDatabase.InternalServer;
+            InternalDatabase = collection.InternalDatabase;
             _collection = collection;
             _query = query;
             _slaveOk = collection.Settings.SlaveOk;
@@ -84,7 +84,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the collection that is being queried.
         /// </summary>
-        public virtual MongoCollection Collection
+        public virtual IMongoCollection Collection
+        {
+            get { return _collection; }
+        }
+
+        internal MongoCollection InternalCollection
         {
             get { return _collection; }
         }
@@ -581,6 +586,11 @@ namespace MongoDB.Driver
             return result.Response["n"].ToInt64();
         }
 
+        //public IEnumerator GetEnumerator()
+        //{
+        //    return IEnumerableGetEnumerator();
+        //}
+
         // protected methods
         /// <summary>
         /// Gets the non-generic enumerator.
@@ -595,8 +605,7 @@ namespace MongoDB.Driver
             throw new InvalidOperationException("A MongoCursor object cannot be modified once it has been frozen.");
         }
 
-        // explicit interface implementations
-        IEnumerator IEnumerable.GetEnumerator()
+        public IEnumerator GetEnumerator()
         {
             return IEnumerableGetEnumerator();
         }
@@ -619,14 +628,14 @@ namespace MongoDB.Driver
             : base(collection, query)
         {
         }
-        
-        // public methods
+
+       // public methods
         /// <summary>
         /// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
         /// to enumerate the cursor (foreach will call GetEnumerator for you).
         /// </summary>
         /// <returns>An enumerator that can be used to iterate over the cursor.</returns>
-        public virtual IEnumerator<TDocument> GetEnumerator()
+        public new virtual IEnumerator<TDocument> GetEnumerator()
         {
             IsFrozen = true;
             return new MongoCursorEnumerator<TDocument>(this);

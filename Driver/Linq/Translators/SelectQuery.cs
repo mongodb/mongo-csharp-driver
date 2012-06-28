@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="collection">The collection being queried.</param>
         /// <param name="documentType">The document type.</param>
-        public SelectQuery(MongoCollection collection, Type documentType)
+        public SelectQuery(IMongoCollection collection, Type documentType)
             : base(collection, documentType)
         {
             _serializationInfoHelper = new BsonSerializationInfoHelper();

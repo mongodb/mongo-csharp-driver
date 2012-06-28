@@ -33,8 +33,8 @@ namespace MongoDB.Driver.GridFS
         // private fields
         private MongoDatabase _database;
         private MongoGridFSSettings _settings;
-        private MongoCollection<BsonDocument> _chunks;
-        private MongoCollection<BsonDocument> _files;
+        private IMongoCollection<BsonDocument> _chunks;
+        private IMongoCollection<BsonDocument> _files;
 
         // constructors
         /// <summary>
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets the chunks collection.
         /// </summary>
-        public MongoCollection<BsonDocument> Chunks
+        public IMongoCollection<BsonDocument> Chunks
         {
             get { return _chunks; }
         }
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets the files collection.
         /// </summary>
-        public MongoCollection<BsonDocument> Files
+        public IMongoCollection<BsonDocument> Files
         {
             get { return _files; }
         }

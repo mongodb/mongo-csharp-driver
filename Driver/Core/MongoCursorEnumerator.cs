@@ -247,7 +247,7 @@ namespace MongoDB.Driver
                     numberToReturn = _cursor.BatchSize;
                 }
 
-                var writerSettings = _cursor.Collection.GetWriterSettings(connection);
+                var writerSettings = _cursor.InternalCollection.GetWriterSettings(connection);
                 using (var message = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _cursor.Flags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields))
                 {
                     return GetReply(connection, message);
@@ -291,7 +291,7 @@ namespace MongoDB.Driver
 
         private MongoReplyMessage<TDocument> GetReply(MongoConnection connection, MongoRequestMessage message)
         {
-            var readerSettings = _cursor.Collection.GetReaderSettings(connection);
+            var readerSettings = _cursor.InternalCollection.GetReaderSettings(connection);
             connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.SerializationOptions);
             _responseFlags = reply.ResponseFlags;

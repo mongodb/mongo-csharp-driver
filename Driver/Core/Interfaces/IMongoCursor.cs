@@ -25,7 +25,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the collection that is being queried.
         /// </summary>
-        MongoCollection Collection { get; }
+        IMongoCollection Collection { get; }
 
         /// <summary>
         /// Gets the query that will be sent to the server.
@@ -258,12 +258,12 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
     public interface IMongoCursor<TDocument> : IMongoCursor, IEnumerable<TDocument>
     {
-        /// <summary>
-        /// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
-        /// to enumerate the cursor (foreach will call GetEnumerator for you).
-        /// </summary>
-        /// <returns>An enumerator that can be used to iterate over the cursor.</returns>
-        new IEnumerator<TDocument> GetEnumerator();
+        ///// <summary>
+        ///// Returns an enumerator that can be used to enumerate the cursor. Normally you will use the foreach statement
+        ///// to enumerate the cursor (foreach will call GetEnumerator for you).
+        ///// </summary>
+        ///// <returns>An enumerator that can be used to iterate over the cursor.</returns>
+        //new IEnumerator<TDocument> GetEnumerator();
 
         /// <summary>
         /// Sets the batch size (the number of documents returned per batch).

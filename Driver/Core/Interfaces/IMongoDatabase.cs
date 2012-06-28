@@ -13,7 +13,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command collection for this database.
         /// </summary>
-        MongoCollection<BsonDocument> CommandCollection { get; }
+        IMongoCollection<BsonDocument> CommandCollection { get; }
 
         /// <summary>
         /// Gets the credentials being used to access this database.
@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<BsonDocument> this[string collectionName] { get; }
+        IMongoCollection<BsonDocument> this[string collectionName] { get; }
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode] { get; }
+        IMongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode] { get; }
 
         /// <summary>
         /// Adds a user to this database.
@@ -194,7 +194,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             MongoCollectionSettings<TDefaultDocument> collectionSettings);
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName);
+        IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName);
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -214,7 +214,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+        IMongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
             SafeMode safeMode);
 
@@ -224,7 +224,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection GetCollection(MongoCollectionSettings collectionSettings);
+        IMongoCollection GetCollection(MongoCollectionSettings collectionSettings);
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -232,7 +232,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<BsonDocument> GetCollection(string collectionName);
+        IMongoCollection<BsonDocument> GetCollection(string collectionName);
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -241,7 +241,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode);
+        IMongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode);
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -250,7 +250,7 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type.</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection GetCollection(Type defaultDocumentType, string collectionName);
+        IMongoCollection GetCollection(Type defaultDocumentType, string collectionName);
 
         /// <summary>
         /// Gets a MongoCollection instance representing a collection on this database
@@ -260,7 +260,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        MongoCollection GetCollection(
+        IMongoCollection GetCollection(
             Type defaultDocumentType,
             string collectionName,
             SafeMode safeMode);

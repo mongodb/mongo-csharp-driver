@@ -60,7 +60,7 @@ namespace MongoDB.Driver
         // constructors
         internal MongoServerInstance(MongoServer server, MongoServerAddress address)
         {
-            MongoServer = server;
+            InternalServer = server;
             _address = address;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             _maxDocumentSize = MongoDefaults.MaxDocumentSize;
@@ -184,7 +184,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IMongoServer Server
         {
-            get { return MongoServer; }
+            get { return InternalServer; }
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace MongoDB.Driver
             get { return _state; }
         }
 
-        internal MongoServer MongoServer { get; private set; }
+        internal MongoServer InternalServer { get; private set; }
 
         // public methods
         /// <summary>
@@ -209,7 +209,7 @@ namespace MongoDB.Driver
             var ipEndPoint = _ipEndPoint;
             if (ipEndPoint == null)
             {
-                ipEndPoint = _address.ToIPEndPoint(MongoServer.Settings.AddressFamily);
+                ipEndPoint = _address.ToIPEndPoint(InternalServer.Settings.AddressFamily);
                 _ipEndPoint = ipEndPoint;
             }
             return ipEndPoint;
@@ -471,7 +471,7 @@ namespace MongoDB.Driver
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
 
                 // if this is the primary of a replica set check to see if any instances have been added or removed
-                if (isPrimary && MongoServer.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
+                if (isPrimary && InternalServer.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
                 {
                     var instanceAddresses = new List<MongoServerAddress>();
                     if (isMasterResult.Response.Contains("hosts"))
@@ -498,7 +498,7 @@ namespace MongoDB.Driver
                             instanceAddresses.Add(address);
                         }
                     }
-                    MongoServer.VerifyInstances(instanceAddresses);
+                    InternalServer.VerifyInstances(instanceAddresses);
                 }
 
                 ok = true;

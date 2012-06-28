@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="collection">The collection that contains the index.</param>
         /// <param name="indexName">The name of the index.</param>
-        public void Add(MongoCollection collection, string indexName)
+        public void Add(IMongoCollection collection, string indexName)
         {
             lock (_syncRoot)
             {
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Internal
         /// <param name="collection">The collection that contains the index.</param>
         /// <param name="indexName">The name of the index.</param>
         /// <returns>True if the cache contains the named index.</returns>
-        public bool Contains(MongoCollection collection, string indexName)
+        public bool Contains(IMongoCollection collection, string indexName)
         {
             lock (_syncRoot)
             {
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="collection">The collection that contains the index.</param>
         /// <param name="indexName">The name of the index.</param>
-        public void Remove(MongoCollection collection, string indexName)
+        public void Remove(IMongoCollection collection, string indexName)
         {
             lock (_syncRoot)
             {
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Internal
         /// Resets part of the cache by removing all indexes for a collection.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        public void Reset(MongoCollection collection)
+        public void Reset(IMongoCollection collection)
         {
             Reset(collection.Database.Name, collection.Name);
         }
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Internal
         /// Resets part of the cache by removing all indexes for a database.
         /// </summary>
         /// <param name="database">The database.</param>
-        public void Reset(MongoDatabase database)
+        public void Reset(IMongoDatabase database)
         {
             Reset(database.Name);
         }

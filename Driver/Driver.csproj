@@ -106,6 +106,7 @@
     <Compile Include="Core\CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Core\ConnectWaitFor.cs" />
     <Compile Include="Core\EvalFlags.cs" />
+    <Compile Include="Core\Interfaces\IMongoCollection.cs" />
     <Compile Include="Core\Interfaces\IMongoCursor.cs" />
     <Compile Include="Core\InsertFlags.cs" />
     <Compile Include="Core\Interfaces\IMongoCollectionOptions.cs" />
