@@ -30,7 +30,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB server (either a single instance or a replica set) and the settings used to access it. This class is thread-safe.
     /// </summary>
-    public class MongoServer
+    public class MongoServer : IMongoServer
     {
         // private static fields
         private static object __staticLock = new object();

@@ -207,14 +207,14 @@ namespace MongoDB.Driver
             if (_serverInstance == null)
             {
                 // first time we need a connection let Server.AcquireConnection pick the server instance
-                var connection = _cursor.Server.AcquireConnection(_cursor.Database, _cursor.SlaveOk);
+                var connection = _cursor.MongoServer.AcquireConnection(_cursor.Database, _cursor.SlaveOk);
                 _serverInstance = connection.ServerInstance;
                 return connection;
             }
             else
             {
                 // all subsequent requests for the same cursor must go to the same server instance
-                return _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
+                return _cursor.MongoServer.AcquireConnection(_cursor.Database, _serverInstance);
             }
         }
 
@@ -255,7 +255,7 @@ namespace MongoDB.Driver
             }
             finally
             {
-                _cursor.Server.ReleaseConnection(connection);
+                _cursor.MongoServer.ReleaseConnection(connection);
             }
         }
 
@@ -285,7 +285,7 @@ namespace MongoDB.Driver
             }
             finally
             {
-                _cursor.Server.ReleaseConnection(connection);
+                _cursor.MongoServer.ReleaseConnection(connection);
             }
         }
 
@@ -307,7 +307,7 @@ namespace MongoDB.Driver
                 {
                     if (_serverInstance != null && _serverInstance.State == MongoServerState.Connected)
                     {
-                        var connection = _cursor.Server.AcquireConnection(_cursor.Database, _serverInstance);
+                        var connection = _cursor.MongoServer.AcquireConnection(_cursor.Database, _serverInstance);
                         try
                         {
                             using (var message = new MongoKillCursorsMessage(_openCursorId))
@@ -317,7 +317,7 @@ namespace MongoDB.Driver
                         }
                         finally
                         {
-                            _cursor.Server.ReleaseConnection(connection);
+                            _cursor.MongoServer.ReleaseConnection(connection);
                         }
                     }
                 }

@@ -63,7 +63,7 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException("settings", message);
             }
 
-            _server = database.Server;
+            _server = database.MongoServer;
             _database = database;
             _settings = settings.FrozenCopy();
             _name = settings.CollectionName;

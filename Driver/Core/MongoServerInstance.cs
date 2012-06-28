@@ -55,13 +55,12 @@ namespace MongoDB.Driver
         private int _maxDocumentSize;
         private int _maxMessageLength;
         private int _sequentialId;
-        private MongoServer _server;
         private MongoServerState _state; // always use property to set value so event gets raised
 
         // constructors
         internal MongoServerInstance(MongoServer server, MongoServerAddress address)
         {
-            _server = server;
+            MongoServer = server;
             _address = address;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             _maxDocumentSize = MongoDefaults.MaxDocumentSize;
@@ -183,9 +182,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server for this server instance.
         /// </summary>
-        public MongoServer Server
+        public IMongoServer Server
         {
-            get { return _server; }
+            get { return MongoServer; }
         }
 
         /// <summary>
@@ -195,6 +194,8 @@ namespace MongoDB.Driver
         {
             get { return _state; }
         }
+
+        internal MongoServer MongoServer { get; private set; }
 
         // public methods
         /// <summary>
@@ -208,7 +209,7 @@ namespace MongoDB.Driver
             var ipEndPoint = _ipEndPoint;
             if (ipEndPoint == null)
             {
-                ipEndPoint = _address.ToIPEndPoint(_server.Settings.AddressFamily);
+                ipEndPoint = _address.ToIPEndPoint(MongoServer.Settings.AddressFamily);
                 _ipEndPoint = ipEndPoint;
             }
             return ipEndPoint;
@@ -470,7 +471,7 @@ namespace MongoDB.Driver
                 this.SetState(MongoServerState.Connected, isPrimary, isSecondary, isPassive, isArbiter);
 
                 // if this is the primary of a replica set check to see if any instances have been added or removed
-                if (isPrimary && _server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
+                if (isPrimary && MongoServer.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
                 {
                     var instanceAddresses = new List<MongoServerAddress>();
                     if (isMasterResult.Response.Contains("hosts"))
@@ -497,7 +498,7 @@ namespace MongoDB.Driver
                             instanceAddresses.Add(address);
                         }
                     }
-                    _server.VerifyInstances(instanceAddresses);
+                    MongoServer.VerifyInstances(instanceAddresses);
                 }
 
                 ok = true;

@@ -118,6 +118,7 @@
     <Compile Include="Core\Interfaces\IMongoMapReduceOptions.cs" />
     <Compile Include="Core\Interfaces\IMongoQuery.cs" />
     <Compile Include="Core\Interfaces\IMongoScope.cs" />
+    <Compile Include="Core\Interfaces\IMongoServer.cs" />
     <Compile Include="Core\Interfaces\IMongoSortBy.cs" />
     <Compile Include="Core\Interfaces\IMongoUpdate.cs" />
     <Compile Include="Core\MongoCollectionSettings.cs" />

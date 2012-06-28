@@ -34,7 +34,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private object _databaseLock = new object();
-        private MongoServer _server;
         private MongoDatabaseSettings _settings;
         private string _name;
         private Dictionary<MongoCollectionSettings, MongoCollection> _collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
@@ -64,7 +63,7 @@ namespace MongoDB.Driver
                 throw new ArgumentOutOfRangeException(message);
             }
 
-            _server = server;
+            MongoServer = server;
             _settings = settings.FrozenCopy();
             _name = settings.DatabaseName;
 
@@ -217,10 +216,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server that contains this database.
         /// </summary>
-        public virtual MongoServer Server
+        public virtual IMongoServer Server
         {
-            get { return _server; }
+            get { return MongoServer; }
         }
+
+        internal MongoServer MongoServer { get; private set; }
 
         /// <summary>
         /// Gets the settings being used to access this database.
@@ -365,7 +366,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name, _settings.Credentials);
+            MongoServer.DropDatabase(_name, _settings.Credentials);
         }
 
         /// <summary>
@@ -379,7 +380,7 @@ namespace MongoDB.Driver
             {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommand(command);
-                _server.IndexCache.Reset(_name, collectionName);
+                MongoServer.IndexCache.Reset(_name, collectionName);
                 return result;
             }
             catch (MongoCommandException ex)
@@ -453,7 +454,7 @@ namespace MongoDB.Driver
         {
             if (dbRef.DatabaseName != null && dbRef.DatabaseName != _name)
             {
-                return _server.FetchDBRefAs(documentType, dbRef);
+                return MongoServer.FetchDBRefAs(documentType, dbRef);
             }
 
             var collection = GetCollection(dbRef.CollectionName);
@@ -724,7 +725,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetSisterDatabase(string databaseName)
         {
-            return _server.GetDatabase(databaseName);
+            return MongoServer.GetDatabase(databaseName);
         }
 
         /// <summary>
@@ -812,7 +813,7 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
         {
-            var adminCredentials = _server.Settings.GetCredentials("admin");
+            var adminCredentials = MongoServer.Settings.GetCredentials("admin");
             return RenameCollection(oldCollectionName, newCollectionName, dropTarget, adminCredentials);
         }
 
@@ -850,7 +851,7 @@ namespace MongoDB.Driver
                 { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            var adminDatabase = _server.GetDatabase("admin", adminCredentials);
+            var adminDatabase = MongoServer.GetDatabase("admin", adminCredentials);
             return adminDatabase.RunCommand(command);
         }
 
@@ -872,7 +873,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void RequestDone()
         {
-            _server.RequestDone();
+            MongoServer.RequestDone();
         }
 
         /// <summary>
@@ -895,7 +896,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(bool slaveOk)
         {
-            return _server.RequestStart(this, slaveOk);
+            return MongoServer.RequestStart(this, slaveOk);
         }
 
         // TODO: mongo shell has ResetError at the database level
@@ -907,7 +908,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void ResetIndexCache()
         {
-            _server.IndexCache.Reset(this);
+            MongoServer.IndexCache.Reset(this);
         }
 
         /// <summary>
@@ -976,7 +977,7 @@ namespace MongoDB.Driver
                 if (commandResult.ErrorMessage == "not master")
                 {
                     // TODO: figure out which instance gave the error and set its state to Unknown
-                    _server.Disconnect();
+                    MongoServer.Disconnect();
                 }
                 throw new MongoCommandException(commandResult);
             }

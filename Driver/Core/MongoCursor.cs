@@ -33,7 +33,6 @@ namespace MongoDB.Driver
     public abstract class MongoCursor : IEnumerable
     {
         // private fields
-        private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection _collection;
         private IMongoQuery _query;
@@ -55,7 +54,7 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         protected MongoCursor(MongoCollection collection, IMongoQuery query)
         {
-            _server = collection.Database.Server;
+            MongoServer = collection.Database.MongoServer;
             _database = collection.Database;
             _collection = collection;
             _query = query;
@@ -66,10 +65,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server that the query will be sent to.
         /// </summary>
-        public virtual MongoServer Server
+        public virtual IMongoServer Server
         {
-            get { return _server; }
+            get { return MongoServer; }
         }
+
+        internal MongoServer MongoServer { get; private set; }
 
         /// <summary>
         /// Gets the database that constains the collection that is being queried.
