@@ -60,8 +60,9 @@ namespace MongoDB.Driver.Linq
 
             switch (expression.NodeType)
             {
+                case ExpressionType.And:
                 case ExpressionType.AndAlso:
-                    query = BuildAndAlsoQuery((BinaryExpression)expression);
+                    query = BuildAndQuery((BinaryExpression)expression);
                     break;
                 case ExpressionType.ArrayIndex:
                     query = BuildBooleanQuery(expression);
@@ -86,8 +87,9 @@ namespace MongoDB.Driver.Linq
                 case ExpressionType.Not:
                     query = BuildNotQuery((UnaryExpression)expression);
                     break;
+                case ExpressionType.Or:
                 case ExpressionType.OrElse:
-                    query = BuildOrElseQuery((BinaryExpression)expression);
+                    query = BuildOrQuery((BinaryExpression)expression);
                     break;
                 case ExpressionType.TypeIs:
                     query = BuildTypeIsQuery((TypeBinaryExpression)expression);
@@ -104,7 +106,7 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
-        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildAndQuery(BinaryExpression binaryExpression)
         {
             return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
         }
@@ -773,7 +775,7 @@ namespace MongoDB.Driver.Linq
             return Query.Not(queryDocument);
         }
 
-        private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildOrQuery(BinaryExpression binaryExpression)
         {
             return Query.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
         }
