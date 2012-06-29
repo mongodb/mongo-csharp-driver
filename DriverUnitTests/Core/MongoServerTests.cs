@@ -288,6 +288,12 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestVerifyState()
+        {
+            _server.VerifyState();
+        }
+
+        [Test]
         public void TestVersion()
         {
             var versionZero = new Version(0, 0, 0, 0);

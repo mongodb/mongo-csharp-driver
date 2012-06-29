@@ -1152,9 +1152,19 @@ namespace MongoDB.Driver
         {
             lock (_serverLock)
             {
-                foreach (var instance in _instances)
+                var instances = Instances; // create a copy that we can safely iterate over
+                foreach (var instance in instances)
                 {
-                    instance.VerifyState();
+                    bool isInstanceStillValid;
+                    lock (_stateLock)
+                    {
+                        isInstanceStillValid = _instances.Contains(instance);
+                    }
+
+                    if (isInstanceStillValid)
+                    {
+                        instance.VerifyState();
+                    }
                 }
             }
         }
@@ -1421,9 +1431,16 @@ namespace MongoDB.Driver
         {
             lock (_serverLock)
             {
-                foreach (var instance in _instances)
+                var instances = Instances; // create a copy that we can safely iterate over
+                foreach (var instance in instances)
                 {
-                    if (instance.State == MongoServerState.Unknown)
+                    bool isInstanceStillValid;
+                    lock (_stateLock)
+                    {
+                        isInstanceStillValid = _instances.Contains(instance);
+                    }
+
+                    if (isInstanceStillValid && instance.State == MongoServerState.Unknown)
                     {
                         instance.VerifyState();
                     }
