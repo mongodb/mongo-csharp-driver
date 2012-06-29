@@ -1,0 +1,71 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bson", "Bson\Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsonUnitTests", "BsonUnitTests\BsonUnitTests.csproj", "{10A5FAC2-E26F-4726-B888-26D5B849F805}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverUnitTests", "DriverUnitTests\DriverUnitTests.csproj", "{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00502D63-7789-410D-B6BE-5F16327FF810}"
+	ProjectSection(SolutionItems) = preProject
+		CodeAnalysisRuleSet.ruleset = CodeAnalysisRuleSet.ruleset
+		CustomDictionary.xml = CustomDictionary.xml
+		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
+		README.md = README.md
+		uuidhelpers.js = uuidhelpers.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release Notes", "{AA4F6FD3-8844-4DF1-9944-0364C934B3F7}"
+	ProjectSection(SolutionItems) = preProject
+		Release Notes\Change Log v1.4-Bson.txt = Release Notes\Change Log v1.4-Bson.txt
+		Release Notes\Change Log v1.4-Driver.txt = Release Notes\Change Log v1.4-Driver.txt
+		Release Notes\Change Log v1.4.1-Bson.txt = Release Notes\Change Log v1.4.1-Bson.txt
+		Release Notes\Change Log v1.4.1-Driver.txt = Release Notes\Change Log v1.4.1-Driver.txt
+		Release Notes\Change Log v1.4.2-Bson.txt = Release Notes\Change Log v1.4.2-Bson.txt
+		Release Notes\Change Log v1.4.2-Driver.txt = Release Notes\Change Log v1.4.2-Driver.txt
+		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
+		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
+		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
+		Release Notes\Release Notes v1.0.txt = Release Notes\Release Notes v1.0.txt
+		Release Notes\Release Notes v1.1.txt = Release Notes\Release Notes v1.1.txt
+		Release Notes\Release Notes v1.2.txt = Release Notes\Release Notes v1.2.txt
+		Release Notes\Release Notes v1.3.1.txt = Release Notes\Release Notes v1.3.1.txt
+		Release Notes\Release Notes v1.3.txt = Release Notes\Release Notes v1.3.txt
+		Release Notes\Release Notes v1.4.1.md = Release Notes\Release Notes v1.4.1.md
+		Release Notes\Release Notes v1.4.2.md = Release Notes\Release Notes v1.4.2.md
+		Release Notes\Release Notes v1.4.md = Release Notes\Release Notes v1.4.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A5FAC2-E26F-4726-B888-26D5B849F805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A5FAC2-E26F-4726-B888-26D5B849F805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A5FAC2-E26F-4726-B888-26D5B849F805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A5FAC2-E26F-4726-B888-26D5B849F805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE5166CD-76B0-4911-BD80-CED9521F37A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AA4F6FD3-8844-4DF1-9944-0364C934B3F7} = {00502D63-7789-410D-B6BE-5F16327FF810}
+	EndGlobalSection
+EndGlobal
