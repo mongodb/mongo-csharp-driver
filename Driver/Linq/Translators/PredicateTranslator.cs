@@ -61,8 +61,10 @@ namespace MongoDB.Driver.Linq
             switch (expression.NodeType)
             {
                 case ExpressionType.And:
-                case ExpressionType.AndAlso:
                     query = BuildAndQuery((BinaryExpression)expression);
+                    break;
+                case ExpressionType.AndAlso:
+                    query = BuildAndAlsoQuery((BinaryExpression)expression);
                     break;
                 case ExpressionType.ArrayIndex:
                     query = BuildBooleanQuery(expression);
@@ -88,8 +90,10 @@ namespace MongoDB.Driver.Linq
                     query = BuildNotQuery((UnaryExpression)expression);
                     break;
                 case ExpressionType.Or:
-                case ExpressionType.OrElse:
                     query = BuildOrQuery((BinaryExpression)expression);
+                    break;
+                case ExpressionType.OrElse:
+                    query = BuildOrElseQuery((BinaryExpression)expression);
                     break;
                 case ExpressionType.TypeIs:
                     query = BuildTypeIsQuery((TypeBinaryExpression)expression);
@@ -106,9 +110,19 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
-        private IMongoQuery BuildAndQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildAndAlsoQuery(BinaryExpression binaryExpression)
         {
             return Query.And(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+        }
+
+        private IMongoQuery BuildAndQuery(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.Left.Type == typeof(bool) && binaryExpression.Right.Type == typeof(bool))
+            {
+                return BuildAndAlsoQuery(binaryExpression);
+            }
+
+            return null;
         }
 
         private IMongoQuery BuildAnyQuery(MethodCallExpression methodCallExpression)
@@ -775,9 +789,19 @@ namespace MongoDB.Driver.Linq
             return Query.Not(queryDocument);
         }
 
-        private IMongoQuery BuildOrQuery(BinaryExpression binaryExpression)
+        private IMongoQuery BuildOrElseQuery(BinaryExpression binaryExpression)
         {
             return Query.Or(BuildQuery(binaryExpression.Left), BuildQuery(binaryExpression.Right));
+        }
+
+        private IMongoQuery BuildOrQuery(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.Left.Type == typeof(bool) && binaryExpression.Right.Type == typeof(bool))
+            {
+                return BuildOrElseQuery(binaryExpression);
+            }
+
+            return null;
         }
 
         private IMongoQuery BuildStringIndexOfQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
