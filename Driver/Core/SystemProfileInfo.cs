@@ -448,7 +448,8 @@ namespace MongoDB.Driver
                             profileInfo.User = bsonReader.ReadString();
                             break;
                         default:
-                            break; // ignore unknown elements
+                            bsonReader.SkipValue(); // ignore unknown elements
+                            break;
                     }
                 }
                 bsonReader.ReadEndDocument();
