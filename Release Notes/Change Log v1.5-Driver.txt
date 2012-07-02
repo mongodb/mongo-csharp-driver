@@ -1,0 +1,142 @@
+C# driver changes from 1.4.2 to 1.5
+
+DeprecatedQueryBuilder.cs
+    used to be called QueryBuilder.cs
+    holds the now deprecated old Query builder
+
+FieldsBuilder.cs
+    added new typed Fields<TDocument> builder
+
+GeoHaystackSearchOptionsBuilder.cs
+    added new typed GeoHaystackSearchOptions<TDocument> builder
+
+GroupByBuilder.cs
+    added new typed GroupBy<TDocument> builder
+
+IndexKeysBuilder.cs
+    added new typed IndexKeys<TDocument> builder
+
+QueryBuilder.cs
+    contains the new simpler untyped Query builder
+
+QueryBuilderTyped.cs
+    contains the new typed Query<TDocument> builder
+
+SortByBuilder.cs
+    added new typed SortBy<TDocument> builder
+
+UpdateBuilder.cs
+    AddToSetWrapped value parameter now wraps C# null
+    PullWrapped value parameter now wraps C# null
+    PushWrapped value parameter now wraps C# null
+    SetWrapped value parameter now wraps C# null
+    added new typed Update<TDocument> builder
+
+MongoCollection.cs
+    some changes because BsonDocumentWrapper no longer ignores C# null
+    InsertBatch changed to use new IBsonIdProvider interface
+    Save changed to use new IBsonIdProvider interface
+
+MongoConnectionStringBuilder.cs
+    added support for new journal and uuidRepresentation options (j and guids still supported for backward compatibility)
+    fixed some bugs
+
+MongoCollection.cs
+    some changes because BsonDocumentWrapper no longer ignores C# null
+
+MongoDatabase.cs
+    RunCommandAs now uses { name : 1 } instead of { name : true } for better compatibility with server
+
+MongoDBRef.cs
+    implements new IBsonDocumentSerializer interface
+
+MongoServer.cs
+    VerifyState now iterates over a copy of the instances collection because collection can change while verifying states
+    VerifyUnknownStates now iterates over a copy of the instances collection because collection can change while verifying unknown states
+
+MongoUrlBuilder.cs
+    added support for new journal and uuidRepresentation options (j and guids still supported for backward compatibility)
+
+SafeMode.cs
+    renamed J property Journal to match connection string option (J still supported for backward compatibility)
+
+SystemProfileInfo.cs
+    implements the new IBsonDocumentSerializer interface
+    fixed a bug in Deserialize (values for unknown fields weren't being skipped properly)
+
+MongoGridFS.cs
+    EnsureIndexes is now only called for write operations, so read-only users can download GridFS files without getting an exception
+    several methods changed to use long instead of int for some variables to support GridFS files larger than 2GB
+
+MongoGridFSFileInfo.cs
+    EnsureIndexes is now only called for write operations, so read-only users can download GridFS files without getting an exception
+
+MongoGridFSStream.cs
+    EnsureIndexes is now only called for write operations, so read-only users can download GridFS files without getting an exception
+    several methods changed to use long instead of int for some variables to support GridFS files larger than 2GB
+
+ExpressionFormatter.cs
+    VisitConstant now identifies Nullable<T> constants with a cast
+    many places that were using type.Name now use FriendlyTypeName(type) to ensure consistent type names
+    FriendlyTypeName uses a consistent platform neutral name for anonymous types to facilitate cross platform testing
+    VisitValue now handles nulls
+
+ExpressionNormalizer.cs
+    new class that changes expressions into a normalized form
+    initially introduced to handle differences between VB.NET and C# LINQ queries
+    also transforms expressions so constant is always on the right
+
+ExpressionParameterFinder.cs
+    removed because it is no longer used
+
+ExpressionVisitorGeneric.cs
+    a variant of ExpressionVisitor that returns a result instead of a modified Expression
+
+MongoQueryTranslator.cs
+    Translate now calls ExpressionNormalizer.Normalize before translating the expression
+
+PartialEvaluator.cs
+    moved functionality of CanBeEvaluatedLocally method here from MongoQueryProvider
+
+PredicateTranslator.cs
+    new class that contains all the BuildQuery methods moved here from SelectQuery
+    added support for & and | operators in LINQ queries (as long as arguments are bools)
+    added support for Any<T>(source, predicate) in LINQ queries
+    new BuildBooleanQuery to build always true and always false queries ({ } and { _id : { $type : -1 } } respectively)
+    added support for true and false constants in LINQ queries
+    added support for using ToLower/ToUpper to do case insensitive LINQ queries
+    added support for nullable enums in LINQ queries
+    added support for ContainsKey in LINQ queries
+    added support for Contains as another way of expressing In in LINQ queries (In is propietary, Contains is not)
+    added support for type comparisons in LINQ queries (== and != only of course)
+    moved bulk of BuildNotQuery logic to new Query.Not builder method
+
+SelectQuery.cs
+    moved BuildQuery and all helper methods to PredicateTranslator
+    moved all SerializationInfo helper methods to BsonSerializationInfoFinder or BsonSerializationInfoHelper
+    added support for projections after OfType in LINQ queries
+
+BsonSerializationInfoFinder.cs
+    new home for the GetSerializationInfo method that used to be in SelectQuery
+    reimplemented GetSerializationInfo and related helper methods as an ExpressionVisitor
+
+BsonSerializationInfoHelper.cs
+    new home for some of the SerializationInfo methods that used to be in SelectQuery
+
+TypeHelper.cs
+    changed namespace
+
+MongoQueryProvider.cs
+    moved CanBeEvaluatedLocally functionality to method of the same name in PartialEvaluator
+
+DriverSetup
+    project removed (see new Installer project)
+
+Installer
+    new WIX based installer
+
+CSharpDriver-Mono.sln
+    new solution that is the same as CSharpDriver-2010.sln but without the VB unit tests project
+
+CSharpDriverSetup-2010.sln
+    replaced DriverSetup project with new WIX based Installer project

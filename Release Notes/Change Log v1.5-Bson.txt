@@ -1,0 +1,200 @@
+BSON library changes from 1.4.2 to 1.5
+
+BsonBinaryReader.cs
+    ReadBsonType now navigates a trie and returns a value from it while reading the element name
+
+BsonBuffer.cs
+    added a static field for an ASCII table
+    added a static field for a UTF8Encoding instance (constructed to throw exceptions on invalid bytes)
+    ReadString uses new DecodeUtf8String helper method
+    ReadCString now navigates a trie and returns a value from it while reading the string
+    new IndexOfNull helper method navigates a trie while scanning for the null byte
+
+BsonDocumentReader.cs
+    ReadBsonType now navigates a trie and returns a value from it while reading the element name
+
+BsonReader.cs
+    ReadBsonType now navigates a trie and returns a value from it while reading the element name
+
+BsonTrie.cs
+    new class that implements the trie used by BsonReader and its subclasses
+
+JsonReader.cs
+    ReadBsonType now navigates a trie and returns a value from it while reading the element name
+
+BsonDocumentWrapper.cs
+    refactored constructors to delegate construction to one main constructor
+    C# null is now wrapped instead of ignored
+
+BsonValue.cs
+    IConvertible.ToString now knows how to convert BsonObjectId to string
+    IConvertible.ToType now knows how to convert BsonObjectId to string
+
+ObjectId.cs
+    use zero for Pid when medium trust prohibits getting the actual PID
+    TryParse returns false instead of throwing an exception when string argument is null
+
+BsonDefaultAttribute.cs
+BsonDiscriminatorAttribute.cs
+BsonElementAttribute.cs
+BsonExtraElementsAttribute.cs
+BsonIdAttribute.cs
+BsonIgnoreIfDefaultAttribute.cs
+BsonIgnoreIfNullAttribute.cs
+BsonRequiredAttribute.cs
+    now only derives from Attribute instead of from BsonSerializationOptionsAttribute
+    implements the Apply method from the new IBsonMemberMapModifier interface
+
+BsonDiscriminatorAttribute.cs
+BsonIgnoreExtraElementsAttribute.cs
+BsonKnownTypesAttribute.cs
+    now only derives from Attribute instead of from BsonSerializationOptionsAttribute
+    implements the Apply method from the new IBsonClassMapModifier interface
+
+BsonIgnoreAttribute.cs
+    now only derives from Attribute instead of from BsonSerializationOptionsAttribute
+
+BsonSerializationOptionsAttribute.cs
+    the class is not new but it is used in a different way
+    it is no longer the base class for all other serialization attributes
+    it is now only the base class for attributes which supply serialization options
+
+DiscriminatorConvention.cs
+    only call Type.IsAssignable if initial fast check is inconclusive
+
+ArraySerializationOptions.cs
+    ApplyAttribute changed slightly as required by new IBsonArraySerializer interface
+
+DictionarySerializationOptions.cs
+    added KeyValuePairSerializationOptions
+    deprecated ItemSerializationOptions (use KeyValuePairSerializationOptions instead)
+    changed ApplyAttribute to support new KeyValuePairSerializationOptions
+
+KeyValuePairSerializationOptions.cs
+    new class
+    has Representation property that controls the representation used for key/value pairs
+    has KeySerializationOptions property with serialization options for the key
+    has ValueSerializationOptions property with serialization options for the value
+
+ArraySerializer.cs
+    implements the new IBsonArraySerializer interface
+    Deserialize now passes item serialization options down when deserializing the items
+
+BsonBaseSerializer.cs
+    no longer implements GetDocumentId/SetDocumentId (they were moved to the new IBsonIdProvider interface)
+    no longer implements GetItemSerializationInfo (it was moved to the new IBsonArraySerializer interface)
+    no longer implements GetMemberSerializationInfo (it was moved to the new IBsonDocumentSerializer interface)
+    only call Type.IsAssignable if initial fast check is inconclusive
+
+BsonIBsonSerializableSerializer.cs
+    implements the new IBsonIdProvider interface
+    no longer implements GetItemSerializationInfo (it was moved to the new IBsonArraySerializer interface)
+    no longer implements GetMemberSerializationInfo (it was moved to the new IBsonDocumentSerializer interface)
+
+BsonValue.cs
+    BsonDocumentSerializer implements the new IBsonIdProvider interface
+
+CollectionGenericSerializers.cs
+    the various serializers implement the new IBsonArraySerializer interface
+    Deserialize now passes item serialization options down when deserializing the items
+    Deserialize now calls CreateInstance helper method because the serializer now is used with any type that implements IEnumerable<T>
+
+CollectionSerializers.cs
+    the various serializers implement the new IBsonArraySerializer interface
+    Deserialize now passed item serialization options down when deserializing the items
+    Deserialize now calls CreateInstance helper method because the serializer now is used with any type that implements IEnumerable
+
+DictionaryGenericSerializer.cs
+    changed to use the new KeyValuePairSerializer
+    Deserialize now passes the key value pair serialization options down when deserializing the key value pairs
+    no longer implements GetItemSerializationInfo (which only applies to arrays)
+    CreateInstance was modified since this serializer is now used with any type that implements IDictionary<TKey, TValue>
+
+DictionarySerializer.cs
+    changed to use the new KeyValuePairSerializer
+    Deserialize now passes the key value pair serialization options down when deserializing the key value pairs
+    no longer implements GetItemSerializationInfo (which only applies to arrays)
+    CreateInstance was modified since this serializer is now used with any type that implements IDictionary
+
+KeyValuePairSerializer.cs
+    new class
+
+ObjectSerializer.cs
+    no longer implements GetDocumentId/SetDocumentId (they were moved to the new IBsonIdProvider interface)
+    no longer implements GetItemSerializationInfo (it was moved to the new IBsonArraySerializer interface)
+    no longer implements GetMemberSerializationInfo (it was moved to the new IBsonDocumentSerializer interface)
+
+BsonClassMap.cs
+    now caches the discriminator convention so LookupDiscriminatorConvention is only called once
+    now caches a read-only copy of the allMemberMaps list
+    Freeze now builds a trie of all the element names (used during deserialization)
+    GetMemberMapForElement now consults the trie instead of a dictionary
+    SetCreator can be called to inject an object instance creator delegate
+    new AddKnownType method is called during AutoMapping of a class
+    AutoMapClass handling of attributes is much simpler thanks to the new IBsonClassMapModifier interface
+    AutoMapMembers handles mix of ordered and unordered members more efficiently
+    AutoMapMember handling of attributes is much simpler thanks to the new IBsonMemberMapModifier interface
+
+BsonClassMapSerializationProvider.cs
+    a new IBsonSerializationProvider just for BsonClassMap based serializers
+    this functionality used to be part of BsonDefaultSerializer (now called BsonDefaultSerializationProvider)
+
+BsonClassMapSerializer
+    class is now internal
+    class now implements IBsonIdProvider and IBsonDocumentSerializer
+    Deserialize has much more efficient detection of missing elements
+    no longer implements GetItemSerializationInfo (it was moved to the new IBsonArraySerializer interface)
+    FastMemberMapHelper nested class hosts new GetLeastSignificantBit helper method
+
+BsonDefaultSerializationProvider.cs
+    used to be called BsonDefaultSerializer
+    methods that weren't strictly related to being a serialization provider have been moved elsewhere
+    moved EnsureKnownTypesAreRegister method to BsonSerializer
+    moved IsTypeDiscriminated method to BsonSerializer
+    moved LookupActualType method to BsonSerializer
+    moved LookupDiscriminatorConvention to BsonSerializer
+    moved RegisterDiscriminator to BsonSerializer
+    moved RegisterDiscriminatorConvention to BsonSerializer
+    now chooses DictionaryGenericSerializer for any class that implements IDictionary<TKey, TValue>
+    now chooses DictionarySerializer for any class that implements IDictionary
+    now chooses CollectionGenericSerializer for any class that implements IEnumerable<T>
+    now chooses CollectionSerializer for any class that implements IEnumerable
+    no longer handles BsonClassMap based serializers (see BsonClassMapSerializationProvider)
+
+BsonDefaultSerializer.cs
+    was renamed BsonDefaultSerializationProvider
+
+BsonMemberMap.cs
+    now caches the discriminator convention
+    now caches the serializer
+    now only applies a default value if one was actually provided
+
+BsonSerializer.cs
+    moved EnsureKnownTypesAreRegister method here from BsonDefaultSerializer
+    moved IsTypeDiscriminated method here from BsonDefaultSerializer
+    moved LookupActualType method here from BsonDefaultSerializer
+    moved LookupDiscriminatorConvention method here from BsonDefaultSerializer
+    moved RegisterDiscriminator method here from BsonDefaultSerializer
+    moved RegisterDiscriminatorConvention method here from BsonDefaultSerializer
+    LookupSerializer doesn't need to do a lookup if type implements IBsonSerializable
+    RegisterSerializer doesn't allow you to register a serializer for a type that implements IBsonSerializable (we always assumed you wouldn't but now we enforce it)
+    RegisterSerializer doesn't let you change the serializer for a type (i.e., once you register a serializer for a type it can't be changed)
+    RegisterDefaultSerializationProviders now has to register two providers (there's the new BsonClassMapSerializationProvider)
+
+IBsonArraySerializer.cs
+    new interface for serializers that serialize values as arrays
+    the GetItemSerializationInfo method was moved here from IBsonSerializer
+    
+IBsonClassMapModifier.cs
+    new interface implemented by serialization attributes that apply to classes
+    
+IBsonDocumentSerializer.cs
+    new interface for serializers that serialize values as documents
+    the GetMemberSerializationInfo method was moved here from IBsonSerializer
+    
+IBsonIdProvider.cs
+    new interface for serializers that serialize values as documents that contain an _id
+    the GetDocumentId/SetDocumentId methods were moved here from IBsonSerializer
+    
+IBsonMemberMapModifier.cs
+    new interface implemented by serialization attributes that apply to members
