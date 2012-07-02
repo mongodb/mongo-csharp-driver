@@ -20,7 +20,9 @@ Breaking changes
 - ObjectId.TryParse will now return false instead of throwing an exception when argument is null
 - BsonDocumentWrapper no longer ignores null, but wrather wraps it with a BsonNull.Value.  Any code relying on BsonDocumentWrapper ignoring null will need to be evaluated.
 - Custom collection/dictionary classes are now serialized by a collection/dictionary serializer instead of the class map serializer.  This means that the items will be serialized instead of the properties and fields.  Any code relying on the old behaviour will need to use BsonClassMap.RegisterClassMap with their custom collection/dictionary to preserve the old behaviour.
-- The static Query classed used to build queries has changed significantly.  Users of this class can either modify their code or add a using statement alias to the old version -- using Query = MongoDB.Driver.Builders.DeprecatedQueryBuilder;
+- The static Query class used to build queries has changed significantly.  Users of this class can either modify their code or add a using statement alias to the old version.  The DeprecatedQuery version will get dropped in version 2.0.
+        
+        using Query = MongoDB.Driver.Builders.DeprecatedQuery;
 
 JIRA issues resolved
 --------------------
@@ -30,11 +32,7 @@ The full list of JIRA issues resolved in this release is available at:
 https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=11900
 
 High-Level Library Changes
-====================
-
-C# null vs BsonNull.Value distinction
--------------------------------------
- (null in the .NET world, BsonNull.Value in the BsonDocument object model)
+==========================
 
 Medium Trust
 -----------
@@ -52,11 +50,11 @@ Support for Azure partial trust should work without changes.  However, the defau
 
 Custom Collection Serialization
 -------------------------------
-Classes that implement IDictionary or IDictionary<TKey, TValue> are now always serialized by a DictionarySerializer. Classes that implement IEnumerable ot IEnumerable<T> are now always serialized by a CollectionSerializer. We believe that a large majority of the time, classes implementing the collection interfaces intend for their items to be persisted rather than any properties (such as Count).  This should enable the use of custom collection classes without any extra effort on your part.
+Classes that implement IDictionary or IDictionary<TKey, TValue> are now always serialized by a DictionarySerializer. Classes that implement IEnumerable ot IEnumerable< T > are now always serialized by a CollectionSerializer. We believe that a large majority of the time, classes implementing the collection interfaces intend for their items to be persisted rather than any properties (such as Count).  This should enable the use of custom collection classes without any extra effort on your part.
 
 Query Builder
 --------------
-We have rewritten the static Query class.  The old Query class followed the odd query syntax of mongodb and was found to be somewhat unintuitive for those coming from traditional C# backgrounds and relational databases.  In addition, as we completed the new typed Query<T> static class (discussed below) to aid the building of queries for classes that are using class maps underneath, we found that the difference in the old one and the new one was too stark.
+We have rewritten the static Query class.  The old Query class followed the odd query syntax of mongodb and was found to be somewhat unintuitive for those coming from traditional C# backgrounds and relational databases.  In addition, as we completed the new typed Query< T > static class (discussed below) to aid the building of queries for classes that are using class maps underneath, we found that the difference in the old one and the new one was too stark.
 
 In the older version, a complex query would be built as follows.  
 
@@ -82,7 +80,7 @@ In version 2.0, we'll be removing the DeprecatedQuery class, so you'll need to u
 
 Typed Builders
 -------------------
-In conjunction with the new query builder, we have also included typed builders that mirror all the existing builders.  So, Query has a corresponding Query<T> class, Update has a corresponding Update<T> class, etc...  The huge benefit to this is that you can remove your "magic" strings from your code!  In addition, anyone using custom serializers with class maps has support built-in for value based comparisons.
+In conjunction with the new query builder, we have also included typed builders that mirror all the existing builders.  So, Query has a corresponding Query< T > class, Update has a corresponding Update< T > class, etc...  The huge benefit to this is that you can remove your "magic" strings from your code!  In addition, anyone using custom serializers with class maps has support built-in for value based comparisons.
 
 For instance, given that we have a Person class defined:
 
@@ -135,7 +133,7 @@ We continue to make Linq improvements.  Thanks to all who report missing feature
 
 - Nullable Enums are now supported.
 - ContainsKey on any typed impementing IDictionary or IDictionary<K,V> is now supported and will generate a query corresponding to it's serialization format.
-- Contains can now be used on any type implementing IEnumerable or IEnumerable<T> and will be serialized to it's corresponding form.  In the case of a local collection containing a field, this would generate an $in clause.
+- Contains can now be used on any type implementing IEnumerable or IEnumerable< T > and will be serialized to it's corresponding form.  In the case of a local collection containing a field, this would generate an $in clause.
 
 	    var local = new List<int> { 1, 2, 3};
 
