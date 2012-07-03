@@ -701,6 +701,15 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestFirstOrDefaultWithNoMatchAndProjectionToStruct()
+        {
+            var result = (from c in _collection.AsQueryable<C>()
+                          where c.X == 9
+                          select c.X).FirstOrDefault();
+            Assert.AreEqual(0, result);
+        }
+
+        [Test]
         public void TestFirstOrDefaultWithOneMatch()
         {
             var result = (from c in _collection.AsQueryable<C>()
