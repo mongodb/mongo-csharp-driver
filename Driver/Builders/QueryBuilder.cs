@@ -283,14 +283,23 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Mod(string name, int modulus, int value)
+        public static IMongoQuery Mod(string name, long modulus, long value)
         {
             if (name == null)
             {
                 throw new ArgumentNullException("name");
             }
 
-            var condition = new BsonDocument("$mod", new BsonArray { modulus, value });
+            BsonDocument condition;
+            if (modulus >= int.MinValue && modulus <= int.MaxValue &&
+                value >= int.MinValue && value <= int.MaxValue)
+            {
+                condition = new BsonDocument("$mod", new BsonArray { (int)modulus, (int)value });
+            }
+            else
+            {
+                condition = new BsonDocument("$mod", new BsonArray { modulus, value });
+            }
             return new QueryDocument(name, condition);
         }
 

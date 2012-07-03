@@ -41,6 +41,8 @@ Namespace MongoDB.DriverUnitTests.Linq
 
             <BsonElement("x")> _
             Public Property X() As Integer
+            <BsonElement("lx")> _
+            Public Property LX() As Long
 
             <BsonElement("y")> _
             Public Property Y() As Integer
@@ -156,6 +158,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             {
                  .Id = _id2,
                  .X = 2,
+                 .LX = 2,
                  .Y = 11,
                  .D = New D() With {.Z = 22},
                  .A = {2, 3, 4},
@@ -165,6 +168,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             {
                  .Id = _id1,
                  .X = 1,
+                 .LX = 1,
                  .Y = 11,
                  .D = New D() With {.Z = 11},
                  .S = "abc",
@@ -174,6 +178,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             {
                  .Id = _id3,
                  .X = 3,
+                 .LX = 3,
                  .Y = 33,
                  .D = New D() With {.Z = 33},
                  .B = True,
@@ -185,6 +190,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             {
                  .Id = _id5,
                  .X = 5,
+                 .LX = 5,
                  .Y = 44,
                  .D = New D() With {.Z = 55},
                 .DBRef = New MongoDBRef("db", "c", 1)
@@ -193,6 +199,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             {
                  .Id = _id4,
                  .X = 4,
+                 .LX = 4,
                  .Y = 44,
                  .D = New D() With {.Z = 44},
                  .DA = {New D() With {.Z = 333}}.ToList,
@@ -3825,6 +3832,116 @@ Namespace MongoDB.DriverUnitTests.Linq
 
             Assert.AreEqual("{ ""l.1"" : 3 }", selectQuery.BuildQuery().ToJson())
             Assert.AreEqual(1, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereLXModTwoEquals1()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.LX Mod 2 = 1
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""lx"" : { ""$mod"" : [2, 1] } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereLXModTwoEquals1Not()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where Not (c.LX Mod 2 = 1)
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""lx"" : { ""$not"" : { ""$mod"" : [2, 1] } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(2, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereLXModTwoEquals1Reversed()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where 1 = c.LX Mod 2
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""lx"" : { ""$mod"" : [2, 1] } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereLXModTwoNotEquals1()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where c.LX Mod 2 <> 1
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""lx"" : { ""$not"" : { ""$mod"" : [2, 1] } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(2, Consume(query))
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereLXModTwoNotEquals1Not()
+            Dim query = From c In _collection.AsQueryable(Of C)()
+                        Where Not (c.LX Mod 2 <> 1)
+                        Select c
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
+            Assert.AreSame(_collection, translatedQuery.Collection)
+            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
+
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.IsNull(selectQuery.OrderBy)
+            Assert.IsNull(selectQuery.Projection)
+            Assert.IsNull(selectQuery.Skip)
+            Assert.IsNull(selectQuery.Take)
+
+            Assert.AreEqual("{ ""lx"" : { ""$mod"" : [2, 1] } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(3, Consume(query))
         End Sub
 
         <Test()> _

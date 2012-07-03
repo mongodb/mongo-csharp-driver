@@ -755,11 +755,11 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            if (constantExpression.Type != typeof(int))
+            if (constantExpression.Type != typeof(int) && constantExpression.Type != typeof(long))
             {
                 return null;
             }
-            var value = ToInt32(constantExpression);
+            var value = ToInt64(constantExpression);
 
             var modBinaryExpression = variableExpression as BinaryExpression;
             if (modBinaryExpression != null && modBinaryExpression.NodeType == ExpressionType.Modulo)
@@ -768,7 +768,7 @@ namespace MongoDB.Driver.Linq
                 var modulusExpression = modBinaryExpression.Right as ConstantExpression;
                 if (modulusExpression != null)
                 {
-                    var modulus = ToInt32(modulusExpression);
+                    var modulus = ToInt64(modulusExpression);
                     if (operatorType == ExpressionType.Equal)
                     {
                         return Query.Mod(serializationInfo.ElementName, modulus, value);
@@ -1389,6 +1389,29 @@ namespace MongoDB.Driver.Linq
             }
 
             return (int)constantExpression.Value;
+        }
+
+        private long ToInt64(Expression expression)
+        {
+            if (expression.Type != typeof(int) && expression.Type != typeof(long))
+            {
+                throw new ArgumentOutOfRangeException("expression", "Expected an Expression of Type Int32 or Int64.");
+            }
+
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression == null)
+            {
+                throw new ArgumentOutOfRangeException("expression", "Expected a ConstantExpression.");
+            }
+
+            if (expression.Type == typeof(int))
+            {
+                return (long)(int)constantExpression.Value;
+            }
+            else
+            {
+                return (long)constantExpression.Value;
+            }
         }
     }
 }

@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, int modulus, int value)
+        public static IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, long modulus, long value)
         {
             return new QueryBuilder<TDocument>().Mod(memberExpression, modulus, value);
         }
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, int modulus, int value)
+        public static IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, long modulus, long value)
         {
             return new QueryBuilder<TDocument>().Mod(memberExpression, modulus, value);
         }
@@ -873,7 +873,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, int modulus, int value)
+        public IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, long modulus, long value)
         {
             if (memberExpression == null)
             {
@@ -891,7 +891,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, int modulus, int value)
+        public IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, long modulus, long value)
         {
             if (memberExpression == null)
             {
