@@ -71,27 +71,27 @@
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_BsonDll" Guid="13DA8DD9-1AD1-46BF-971A-78FA499F281D">
-        <File Id="f_BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\Bson\bin\Debug\MongoDB.Bson.dll"
+        <File Id="f_BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.dll"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_BsonPdb" Guid="AC6CE1A0-1584-42E6-B9FB-765F34A44745">
-        <File Id="f_BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\Bson\bin\Debug\MongoDB.Bson.pdb"
+        <File Id="f_BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.pdb"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_BsonXml" Guid="ED71DBCD-5A02-4AC0-88E4-C793F5FBEDA8">
-        <File Id="f_BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\Bson\bin\Debug\MongoDB.Bson.XML"
+        <File Id="f_BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.XML"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_DriverDll" Guid="0A94BBE0-6281-422D-BEE2-5831B06F2D55">
-        <File Id="f_DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\Driver\bin\Debug\MongoDB.Driver.dll"
+        <File Id="f_DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.dll"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_DriverPdb" Guid="C580837A-9EE9-4C86-97EE-0A8DCBB4794E">
-        <File Id="f_DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\Driver\bin\Debug\MongoDB.Driver.pdb"
+        <File Id="f_DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.pdb"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_DriverXml" Guid="9EBD61C3-5365-416F-B345-517B053D9784">
-        <File Id="f_DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\Driver\bin\Debug\MongoDB.Driver.XML"
+        <File Id="f_DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.XML"
               DiskId ="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>

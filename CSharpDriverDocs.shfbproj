@@ -45,7 +45,7 @@
     <FeedbackEMailAddress>craig.wilson%4010gen.com, robert%4010gen.com sridhar%4010gen.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>CSharp driver API doc</FeedbackEMailLinkText>
     <FrameworkVersion>.NET 3.5</FrameworkVersion>
-    <HelpFileVersion>1.4.2.4500</HelpFileVersion>
+    <HelpFileVersion>1.5.0.4566</HelpFileVersion>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
