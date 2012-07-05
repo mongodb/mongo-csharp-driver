@@ -104,6 +104,37 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="operations">The pipeline operations.</param>
+        /// <returns>An AggregateResult.</returns>
+        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations)
+        {
+            var pipeline = new BsonArray();
+            foreach (var operation in operations)
+            {
+                pipeline.Add(operation);
+            }
+
+            var aggregateCommand = new CommandDocument
+            {
+                { "aggregate", _name },
+                { "pipeline", pipeline }
+            };
+            return _database.RunCommandAs<AggregateResult>(aggregateCommand);
+        }
+
+        /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="operations">The pipeline operations.</param>
+        /// <returns>An AggregateResult.</returns>
+        public virtual AggregateResult Aggregate(params BsonDocument[] operations)
+        {
+            return Aggregate((IEnumerable<BsonDocument>) operations);
+        }
+
+        /// <summary>
         /// Counts the number of documents in this collection.
         /// </summary>
         /// <returns>The number of documents in this collection.</returns>

@@ -94,6 +94,7 @@
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\QueryBuilderTyped.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
+    <Compile Include="Core\CommandResults\AggregateResult.cs" />
     <Compile Include="Core\CommandResults\CollectionStatsResult.cs" />
     <Compile Include="Core\CommandResults\CommandResult.cs" />
     <Compile Include="Core\CommandResults\DatabaseStatsResult.cs" />
