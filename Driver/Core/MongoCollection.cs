@@ -1157,13 +1157,13 @@ namespace MongoDB.Driver
                         if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
                         {
                             byte[] lastDocument = message.RemoveLastDocument();
-                            var intermediateResult = connection.SendMessage(message, safeMode);
+                            var intermediateResult = connection.SendMessage(message, safeMode, _database.Name);
                             if (safeMode.Enabled) { results.Add(intermediateResult); }
                             message.ResetBatch(lastDocument);
                         }
                     }
 
-                    var finalResult = connection.SendMessage(message, safeMode);
+                    var finalResult = connection.SendMessage(message, safeMode, _database.Name);
                     if (safeMode.Enabled) { results.Add(finalResult); }
 
                     return results;
@@ -1309,7 +1309,7 @@ namespace MongoDB.Driver
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
                 {
-                    return connection.SendMessage(message, safeMode ?? _settings.SafeMode);
+                    return connection.SendMessage(message, safeMode ?? _settings.SafeMode, _database.Name);
                 }
             }
             finally
@@ -1540,7 +1540,7 @@ namespace MongoDB.Driver
                 using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update))
                 {
                     var safeMode = options.SafeMode ?? _settings.SafeMode;
-                    return connection.SendMessage(message, safeMode);
+                    return connection.SendMessage(message, safeMode, _database.Name);
                 }
             }
             finally

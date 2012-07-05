@@ -154,9 +154,7 @@ namespace MongoDB.Driver.Internal
             lock (_connectionLock)
             {
                 var nonceCommand = new CommandDocument("getnonce", 1);
-                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-
-                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand, false);
+                var commandResult = RunCommand(databaseName, QueryFlags.None, nonceCommand, false);
                 if (!commandResult.Ok)
                 {
                     throw new MongoAuthenticationException(
@@ -175,7 +173,7 @@ namespace MongoDB.Driver.Internal
                     { "key", digest }
                 };
 
-                commandResult = RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand, false);
+                commandResult = RunCommand(databaseName, QueryFlags.None, authenticateCommand, false);
                 if (!commandResult.Ok)
                 {
                     var message = string.Format("Invalid credentials for database '{0}'.", databaseName);
@@ -340,9 +338,7 @@ namespace MongoDB.Driver.Internal
             lock (_connectionLock)
             {
                 var logoutCommand = new CommandDocument("logout", 1);
-                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-
-                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, logoutCommand, false);
+                var commandResult = RunCommand(databaseName, QueryFlags.None, logoutCommand, false);
                 if (!commandResult.Ok)
                 {
                     throw new MongoAuthenticationException(
@@ -375,7 +371,7 @@ namespace MongoDB.Driver.Internal
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
         internal CommandResult RunCommand(
-            string collectionName,
+            string databaseName,
             QueryFlags queryFlags,
             CommandDocument command,
             bool throwOnError)
@@ -387,9 +383,9 @@ namespace MongoDB.Driver.Internal
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
-            using (var message = new MongoQueryMessage(writerSettings, collectionName, queryFlags, 0, 1, command, null))
+            using (var message = new MongoQueryMessage(writerSettings, databaseName + ".$cmd", queryFlags, 0, 1, command, null))
             {
-                SendMessage(message, SafeMode.False);
+                SendMessage(message, SafeMode.False, databaseName);
             }
 
             var readerSettings = new BsonBinaryReaderSettings
@@ -444,7 +440,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal SafeModeResult SendMessage(MongoRequestMessage message, SafeMode safeMode)
+        internal SafeModeResult SendMessage(MongoRequestMessage message, SafeMode safeMode, string databaseName)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -465,7 +461,7 @@ namespace MongoDB.Driver.Internal
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     // piggy back on network transmission for message
-                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, "admin.$cmd", QueryFlags.None, 0, 1, safeModeCommand, null))
+                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, databaseName + ".$cmd", QueryFlags.None, 0, 1, safeModeCommand, null))
                     {
                         getLastErrorMessage.WriteToBuffer();
                     }

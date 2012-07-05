@@ -377,7 +377,7 @@ namespace MongoDB.Driver
         internal void Ping(MongoConnection connection)
         {
             var pingCommand = new CommandDocument("ping", 1);
-            connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, pingCommand, true);
+            connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
         }
 
         internal void ReleaseConnection(MongoConnection connection)
@@ -425,7 +425,7 @@ namespace MongoDB.Driver
             try
             {
                 var isMasterCommand = new CommandDocument("ismaster", 1);
-                isMasterResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, isMasterCommand, false);
+                isMasterResult = connection.RunCommand("admin", QueryFlags.SlaveOk, isMasterCommand, false);
                 if (!isMasterResult.Ok)
                 {
                     throw new MongoCommandException(isMasterResult);
@@ -443,7 +443,7 @@ namespace MongoDB.Driver
 
                 MongoServerBuildInfo buildInfo;
                 var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                var buildInfoResult = connection.RunCommand("admin.$cmd", QueryFlags.SlaveOk, buildInfoCommand, false);
+                var buildInfoResult = connection.RunCommand("admin", QueryFlags.SlaveOk, buildInfoCommand, false);
                 if (buildInfoResult.Ok)
                 {
                     buildInfo = new MongoServerBuildInfo(
