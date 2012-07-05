@@ -555,6 +555,16 @@ namespace MongoDB.Bson.Serialization
                 IBsonSerializer serializer;
                 if (!__serializers.TryGetValue(type, out serializer))
                 {
+                    if (serializer == null)
+                    {
+                        var serializerAttributes = type.GetCustomAttributes(typeof(BsonSerializerAttribute), false); // don't inherit
+                        if (serializerAttributes.Length == 1)
+                        {
+                            var serializerAttribute = (BsonSerializerAttribute)serializerAttributes[0];
+                            serializer = serializerAttribute.CreateSerializer(type);
+                        }
+                    }
+
                     if (serializer == null && type.IsGenericType)
                     {
                         var genericTypeDefinition = type.GetGenericTypeDefinition();

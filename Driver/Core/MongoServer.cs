@@ -62,9 +62,6 @@ namespace MongoDB.Driver
             __invalidDatabaseNameChars = new HashSet<char>() { '\0', ' ', '.', '$', '/', '\\' };
             foreach (var c in Path.GetInvalidPathChars()) { __invalidDatabaseNameChars.Add(c); }
             foreach (var c in Path.GetInvalidFileNameChars()) { __invalidDatabaseNameChars.Add(c); }
-
-            BsonSerializer.RegisterSerializer(typeof(MongoDBRef), new MongoDBRefSerializer());
-            BsonSerializer.RegisterSerializer(typeof(SystemProfileInfo), new SystemProfileInfoSerializer());
         }
 
         // constructors
