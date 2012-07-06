@@ -56,7 +56,6 @@ namespace MongoDB.Bson.Serialization.Attributes
             set { _serializerType = value; }
         }
 
-
         // public methods
         /// <summary>
         /// Applies a modification to the member map.
@@ -73,7 +72,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// </summary>
         /// <param name="type">The type that a serializer should be created for.</param>
         /// <returns>A serializer for the type.</returns>
-        public IBsonSerializer CreateSerializer(Type type)
+        internal IBsonSerializer CreateSerializer(Type type)
         {
             if (type.ContainsGenericParameters)
             {
