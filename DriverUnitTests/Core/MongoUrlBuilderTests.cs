@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(null, builder.Server);
             Assert.AreEqual(null, builder.Servers);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
             Assert.AreEqual(false, builder.IPv6);
@@ -67,7 +67,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo.xyz.com", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://mongo.xyz.com";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -83,7 +83,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo.xyz.com", builder.Server.Host);
             Assert.AreEqual(12345, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://mongo.xyz.com:12345";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -158,7 +158,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://username:password@localhost";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -179,7 +179,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://usern%3Ame:p%40ssword@localhost";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -206,7 +206,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://username:password@localhost/database";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -579,7 +579,7 @@ namespace MongoDB.DriverUnitTests
             var connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name";
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?replicaSet=name").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?connect=replicaSet;replicaSet=name").ToString());
         }
 
         [Test]

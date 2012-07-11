@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
             Assert.IsNull(url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, url.ConnectTimeout);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, url.GuidRepresentation);
             Assert.AreEqual(false, url.IPv6);
@@ -63,7 +63,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -77,7 +77,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, url.Servers.Count());
             Assert.AreEqual("mongo.xyz.com", url.Servers.Single().Host);
             Assert.AreEqual(12345, url.Servers.Single().Port);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -93,7 +93,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(27017, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(27017, url.Servers.Skip(1).Single().Port);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -109,7 +109,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(12345, url.Servers.First().Port);
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(23456, url.Servers.Skip(1).Single().Port);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -125,7 +125,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", url.Servers.Single().Host);
             Assert.AreEqual(27017, url.Servers.Single().Port);
             Assert.AreEqual("database", url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -143,7 +143,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(27017, url.Servers.Skip(1).Single().Port);
             Assert.AreEqual("database", url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -161,7 +161,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", url.Servers.Skip(1).Single().Host);
             Assert.AreEqual(23456, url.Servers.Skip(1).Single().Port);
             Assert.AreEqual("database", url.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(connectionString, url.ToString());
         }
@@ -291,9 +291,9 @@ namespace MongoDB.DriverUnitTests
         {
             string connectionString = "mongodb://localhost/?replicaSet=name";
             MongoUrl url = new MongoUrl(connectionString);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, url.ConnectionMode);
             Assert.AreEqual("name", url.ReplicaSetName);
-            Assert.AreEqual("mongodb://localhost/?connect=replicaSet;replicaSet=name", url.ToString()); // connect=replicaSet added
+            Assert.AreEqual("mongodb://localhost/?replicaSet=name", url.ToString());
         }
 
         [Test]

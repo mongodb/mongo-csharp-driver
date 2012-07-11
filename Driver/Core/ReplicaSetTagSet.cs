@@ -215,19 +215,15 @@ namespace MongoDB.Driver
         public bool MatchesInstance(MongoServerInstance instance)
         {
             // an empty tag set matches anything
-            if (_tags.Count == 0)
+            if (instance.Type != MongoServerInstanceType.ReplicaSetMember || _tags.Count == 0)
             {
                 return true;
             }
 
-            if (instance.TagSet == null)
-            {
-                return false;
-            }
-
+            var tagSet = instance.ReplicaSetInformation.TagSet;
             foreach (var tag in _tags)
             {
-                if (!instance.TagSet.Contains(tag))
+                if (!tagSet.Contains(tag))
                 {
                     return false;
                 }

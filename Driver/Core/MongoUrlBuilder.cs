@@ -186,11 +186,7 @@ namespace MongoDB.Driver
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
-            set
-            {
-                _replicaSetName = value;
-                _connectionMode = ConnectionMode.ReplicaSet;
-            }
+            set { _replicaSetName = value; }
         }
 
         /// <summary>
@@ -217,11 +213,7 @@ namespace MongoDB.Driver
         public IEnumerable<MongoServerAddress> Servers
         {
             get { return _servers; }
-            set
-            {
-                _servers = value;
-                _connectionMode = (_servers.Count() <= 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet;
-            }
+            set { _servers = value; }
         }
 
         /// <summary>
@@ -469,14 +461,6 @@ namespace MongoDB.Driver
                         var address = MongoServerAddress.Parse(server);
                         addresses.Add(address);
                     }
-                    if (addresses.Count == 1)
-                    {
-                        _connectionMode = ConnectionMode.Direct;
-                    }
-                    else if (addresses.Count > 1)
-                    {
-                        _connectionMode = ConnectionMode.ReplicaSet;
-                    }
                     _servers = addresses;
                 }
                 else
@@ -539,7 +523,6 @@ namespace MongoDB.Driver
                                 break;
                             case "replicaset":
                                 _replicaSetName = value;
-                                _connectionMode = ConnectionMode.ReplicaSet;
                                 break;
                             case "safe":
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
@@ -746,7 +729,7 @@ namespace MongoDB.Driver
         // private methods
         private void ResetValues()
         {
-            _connectionMode = ConnectionMode.Direct;
+            _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _defaultCredentials = null;

@@ -35,8 +35,7 @@ namespace MongoDB.Driver.Internal
         private List<MongoConnection> _availableConnections = new List<MongoConnection>();
         private int _generationId; // whenever the pool is cleared the generationId is incremented
         private int _waitQueueSize;
-        private Timer _timer;
-        private bool _inTimerCallback;
+        private bool _inMaintainPoolSize;
         private bool _inEnsureMinConnectionPoolSizeWorkItem;
         private int _connectionsRemovedSinceLastTimerTick;
 
@@ -46,10 +45,6 @@ namespace MongoDB.Driver.Internal
             _server = serverInstance.Server;
             _serverInstance = serverInstance;
             _poolSize = 0;
-
-            var dueTime = TimeSpan.FromSeconds(0);
-            var period = TimeSpan.FromSeconds(10);
-            _timer = new Timer(TimerCallback, null, dueTime, period);
         }
 
         // public properties
@@ -181,7 +176,116 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal void EnsureMinConnectionPoolSizeWorkItem(object state)
+        internal void MaintainPoolSize()
+        {
+            if (_inMaintainPoolSize)
+            {
+                return;
+            }
+
+            _inMaintainPoolSize = true;
+            try
+            {
+                MongoConnection connectionToRemove = null;
+                lock (_connectionPoolLock)
+                {
+                    // only remove one connection per timer tick to avoid reconnection storms
+                    if (_connectionsRemovedSinceLastTimerTick == 0)
+                    {
+                        MongoConnection oldestConnection = null;
+                        MongoConnection lruConnection = null;
+                        foreach (var connection in _availableConnections)
+                        {
+                            if (oldestConnection == null || connection.CreatedAt < oldestConnection.CreatedAt)
+                            {
+                                oldestConnection = connection;
+                            }
+                            if (lruConnection == null || connection.LastUsedAt < lruConnection.LastUsedAt)
+                            {
+                                lruConnection = connection;
+                            }
+                        }
+
+                        // remove old connections before idle connections
+                        var now = DateTime.UtcNow;
+                        if (oldestConnection != null && now > oldestConnection.CreatedAt + _server.Settings.MaxConnectionLifeTime)
+                        {
+                            connectionToRemove = oldestConnection;
+                        }
+                        else if (_poolSize > _server.Settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + _server.Settings.MaxConnectionIdleTime)
+                        {
+                            connectionToRemove = lruConnection;
+                        }
+                    }
+                    _connectionsRemovedSinceLastTimerTick = 0;
+                }
+
+                // remove connection (if any) outside of lock
+                if (connectionToRemove != null)
+                {
+                    RemoveConnection(connectionToRemove);
+                }
+
+                if (_poolSize < _server.Settings.MinConnectionPoolSize)
+                {
+                    ThreadPool.QueueUserWorkItem(EnsureMinConnectionPoolSizeWorkItem, _generationId);
+                }
+            }
+            finally
+            {
+                _inMaintainPoolSize = false;
+            }
+        }
+
+        internal void ReleaseConnection(MongoConnection connection)
+        {
+            if (connection.ConnectionPool != this)
+            {
+                throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
+            }
+
+            // if the connection is no longer open remove it from the pool
+            if (connection.State != MongoConnectionState.Open)
+            {
+                RemoveConnection(connection);
+                return;
+            }
+
+            // don't put connections that have reached their maximum lifetime back in the pool
+            // but only remove one connection at most per timer tick to avoid connection storms
+            if (_connectionsRemovedSinceLastTimerTick == 0)
+            {
+                if (DateTime.UtcNow - connection.CreatedAt > _server.Settings.MaxConnectionLifeTime)
+                {
+                    RemoveConnection(connection);
+                    return;
+                }
+            }
+
+            var connectionIsFromAnotherGeneration = false;
+            lock (_connectionPoolLock)
+            {
+                if (connection.GenerationId == _generationId)
+                {
+                    connection.LastUsedAt = DateTime.UtcNow;
+                    _availableConnections.Add(connection);
+                    Monitor.Pulse(_connectionPoolLock);
+                }
+                else
+                {
+                    connectionIsFromAnotherGeneration = true;
+                }
+            }
+
+            // if connection is from another generation of the pool just close it
+            if (connectionIsFromAnotherGeneration)
+            {
+                connection.Close();
+            }
+        }
+
+        // private methods
+        private void EnsureMinConnectionPoolSizeWorkItem(object state)
         {
             // make sure only one instance of EnsureMinConnectionPoolSizeWorkItem is running at a time
             if (_inEnsureMinConnectionPoolSizeWorkItem)
@@ -251,54 +355,6 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal void ReleaseConnection(MongoConnection connection)
-        {
-            if (connection.ConnectionPool != this)
-            {
-                throw new ArgumentException("The connection being released does not belong to this connection pool.", "connection");
-            }
-
-            // if the connection is no longer open remove it from the pool
-            if (connection.State != MongoConnectionState.Open)
-            {
-                RemoveConnection(connection);
-                return;
-            }
-
-            // don't put connections that have reached their maximum lifetime back in the pool
-            // but only remove one connection at most per timer tick to avoid connection storms
-            if (_connectionsRemovedSinceLastTimerTick == 0)
-            {
-                if (DateTime.UtcNow - connection.CreatedAt > _server.Settings.MaxConnectionLifeTime)
-                {
-                    RemoveConnection(connection);
-                    return;
-                }
-            }
-
-            var connectionIsFromAnotherGeneration = false;
-            lock (_connectionPoolLock)
-            {
-                if (connection.GenerationId == _generationId)
-                {
-                    connection.LastUsedAt = DateTime.UtcNow;
-                    _availableConnections.Add(connection);
-                    Monitor.Pulse(_connectionPoolLock);
-                }
-                else
-                {
-                    connectionIsFromAnotherGeneration = true;
-                }
-            }
-
-            // if connection is from another generation of the pool just close it
-            if (connectionIsFromAnotherGeneration)
-            {
-                connection.Close();
-            }
-        }
-
-        // private methods
         private void RemoveConnection(MongoConnection connection)
         {
             lock (_connectionPoolLock)
@@ -315,92 +371,6 @@ namespace MongoDB.Driver.Internal
 
             // close connection outside of lock
             connection.Close();
-        }
-
-        private void TimerCallback(object state)
-        {
-            // make sure only one instance of TimerCallback is running at a time
-            if (_inTimerCallback)
-            {
-                // Console.WriteLine("MongoConnectionPool[{0}] TimerCallback skipped because previous callback has not completed.", serverInstance.SequentialId);
-                return;
-            }
-
-            // Console.WriteLine("MongoConnectionPool[{0}]: TimerCallback called.", serverInstance.SequentialId);
-            _inTimerCallback = true;
-            try
-            {
-                var server = _serverInstance.Server;
-                if (server.State == MongoServerState.Disconnected || server.State == MongoServerState.Disconnecting)
-                {
-                    return;
-                }
-
-                // on every timer callback verify the state of the server instance because it might have changed
-                // we do this even if this one instance is currently Disconnected so we can discover when a disconnected instance comes back online
-                _serverInstance.VerifyState();
-
-                // note: the state could have changed to Disconnected when VerifyState was called
-                if (_serverInstance.State == MongoServerState.Disconnected)
-                {
-                    return;
-                }
-
-                MongoConnection connectionToRemove = null;
-                lock (_connectionPoolLock)
-                {
-                    // only remove one connection per timer tick to avoid reconnection storms
-                    if (_connectionsRemovedSinceLastTimerTick == 0)
-                    {
-                        MongoConnection oldestConnection = null;
-                        MongoConnection lruConnection = null;
-                        foreach (var connection in _availableConnections)
-                        {
-                            if (oldestConnection == null || connection.CreatedAt < oldestConnection.CreatedAt)
-                            {
-                                oldestConnection = connection;
-                            }
-                            if (lruConnection == null || connection.LastUsedAt < lruConnection.LastUsedAt)
-                            {
-                                lruConnection = connection;
-                            }
-                        }
-
-                        // remove old connections before idle connections
-                        var now = DateTime.UtcNow;
-                        if (oldestConnection != null && now > oldestConnection.CreatedAt + server.Settings.MaxConnectionLifeTime)
-                        {
-                            connectionToRemove = oldestConnection;
-                        }
-                        else if (_poolSize > server.Settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + server.Settings.MaxConnectionIdleTime)
-                        {
-                            connectionToRemove = lruConnection;
-                        }
-                    }
-                    _connectionsRemovedSinceLastTimerTick = 0;
-                }
-
-                // remove connection (if any) outside of lock
-                if (connectionToRemove != null)
-                {
-                    RemoveConnection(connectionToRemove);
-                }
-
-                if (_poolSize < server.Settings.MinConnectionPoolSize)
-                {
-                    ThreadPool.QueueUserWorkItem(EnsureMinConnectionPoolSizeWorkItem, _generationId);
-                }
-            }
-            catch
-            {
-                // don't let any unhandled exceptions leave TimerCallback
-                // server state will already have been change by earlier exception handling
-                // TODO: log exception?
-            }
-            finally
-            {
-                _inTimerCallback = false;
-            }
         }
     }
 }

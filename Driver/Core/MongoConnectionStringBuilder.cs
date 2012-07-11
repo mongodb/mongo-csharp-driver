@@ -329,7 +329,6 @@ namespace MongoDB.Driver
             {
                 _servers = value;
                 base["server"] = GetServersString();
-                _connectionMode = (value.Count() == 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet; // assign to field not to property
             }
         }
 
@@ -607,7 +606,7 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            _connectionMode = ConnectionMode.Direct;
+            _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;

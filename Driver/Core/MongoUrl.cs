@@ -31,13 +31,21 @@ namespace MongoDB.Driver
     public enum ConnectionMode
     {
         /// <summary>
+        /// Automatically determine how to connect.
+        /// </summary>
+        Automatic,
+        /// <summary>
         /// Connect directly to a server.
         /// </summary>
         Direct,
         /// <summary>
         /// Connect to a replica set.
         /// </summary>
-        ReplicaSet
+        ReplicaSet,
+        /// <summary>
+        /// Connect to one or more shard routers.
+        /// </summary>
+        ShardRouter
     }
 
     /// <summary>

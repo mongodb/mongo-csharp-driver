@@ -14,16 +14,21 @@
 */
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
+
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using System.Diagnostics;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
+    /// The type of the server.
     /// </summary>
     internal enum MongoServerInstanceType
     {
@@ -77,10 +82,18 @@ namespace MongoDB.Driver
         private bool _isSecondary;
         private int _maxDocumentSize;
         private int _maxMessageLength;
+<<<<<<< HEAD
+        private TimeSpan _pingTime = TimeSpan.Zero; // TODO: update ping time periodically
+        private int _sequentialId;
+        private MongoServer _server;
+        private MongoServerState _state; // always use property to set value so event gets raised
+        private ReplicaSetTagSet _tagSet; // TODO: read tags from replica set config
+=======
         private ReplicaSetInformation _replicaSetInformation;
         private int _sequentialId;
         private MongoServerState _state;
         private MongoServerInstanceType _type;
+>>>>>>> CSHARP-500: Refactored connection logic to address resolvable
 
         // constructors
         /// <summary>
@@ -294,6 +307,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the most recent ping time.
+        /// </summary>
+        public TimeSpan PingTime
+        {
+            get { return _pingTime; }
+        }
+
+        /// <summary>
         /// Gets the unique sequential Id for this server instance.
         /// </summary>
         public int SequentialId
@@ -323,6 +344,14 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets the tag set for the replica set member.
+        /// </summary>
+        public ReplicaSetTagSet TagSet
+        {
+            get { return _tagSet; }
+        }
+
         // public methods
         /// <summary>
         /// Gets the IP end point of this server instance.
@@ -346,7 +375,6 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            // use a new connection instead of one from the connection pool
             var connection = new MongoConnection(this);
             try
             {
@@ -432,16 +460,20 @@ namespace MongoDB.Driver
             return connection;
         }
 
+<<<<<<< HEAD
+=======
         /// <summary>
         /// Connects this instance.
         /// </summary>
+>>>>>>> CSHARP-500: Refactored connection logic to address resolvable
         internal void Connect()
         {
-            // Console.WriteLine("MongoServerInstance[{0}]: Connect() called.", sequentialId);
             lock (_serverInstanceLock)
             {
                 if (_state != MongoServerState.Connected)
                 {
+                    // note: don't check that state is Disconnected here
+                    // when reconnecting to a replica set state can transition from Connected -> Connecting -> Connected
                     SetState(MongoServerState.Connecting);
                     _connectException = null;
                     try
@@ -548,7 +580,7 @@ namespace MongoDB.Driver
             }
         }
 
-        internal void StateVerificationTimerCallback()
+        private void StateVerificationTimerCallback()
         {
             if (_inStateVerification)
             {
@@ -606,9 +638,8 @@ namespace MongoDB.Driver
                 MongoServerInstanceType type = MongoServerInstanceType.StandAlone;
                 if (isMasterResult.ReplicaSetName != null)
                 {
-                    var tagSet = new ReplicaSetTagSet();
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
-                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, tagSet);
+                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers);
                     type = MongoServerInstanceType.ReplicaSetMember;
                 }
                 else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")
@@ -658,26 +689,28 @@ namespace MongoDB.Driver
             ReplicaSetInformation replicaSetInformation)
         {
             bool changed = false;
-            bool replicaSetInformationIsDifferent = false;
-            if ((_replicaSetInformation == null && replicaSetInformation != null) || (_replicaSetInformation != replicaSetInformation))
+            lock (_serverInstanceLock)
             {
-                replicaSetInformationIsDifferent = true;
-            }
-            if (_state != state || _type != type || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
-            {
-                changed = true;
-                _state = state;
-                _type = type;
-                if (_replicaSetInformation != replicaSetInformation)
+                bool replicaSetInformationIsDifferent = false;
+                if ((_replicaSetInformation == null && replicaSetInformation != null) || (_replicaSetInformation != replicaSetInformation))
                 {
-                    _replicaSetInformation = replicaSetInformation;
+                    replicaSetInformationIsDifferent = true;
                 }
-                _isPrimary = isPrimary;
-                _isSecondary = isSecondary;
-                _isPassive = isPassive;
-                _isArbiter = isArbiter;
+                if (_state != state || _type != type || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
+                {
+                    changed = true;
+                    _state = state;
+                    _type = type;
+                    if (_replicaSetInformation != replicaSetInformation)
+                    {
+                        _replicaSetInformation = replicaSetInformation;
+                    }
+                    _isPrimary = isPrimary;
+                    _isSecondary = isSecondary;
+                    _isPassive = isPassive;
+                    _isArbiter = isArbiter;
+                }
             }
-
             if (changed)
             {
                 OnStateChanged();

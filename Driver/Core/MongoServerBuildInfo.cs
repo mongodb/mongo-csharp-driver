@@ -113,5 +113,17 @@ namespace MongoDB.Driver
             }
             return new Version(0, 0, 0, 0);
         }
+
+        // public static methods
+        public static MongoServerBuildInfo FromCommandResult(CommandResult result)
+        {
+            var document = result.Response;
+            return new MongoServerBuildInfo(
+                document["bits"].ToInt32(),
+                document["gitVersion"].AsString,
+                document["sysInfo"].AsString,
+                document["version"].AsString
+            );
+        }
     }
 }

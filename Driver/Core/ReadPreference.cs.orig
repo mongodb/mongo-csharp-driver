@@ -350,7 +350,11 @@ namespace MongoDB.Driver
                 var someSetMatches = false;
                 foreach (var tagSet in _tagSets)
                 {
+<<<<<<< HEAD
                     if (tagSet.MatchesInstance(instance))
+=======
+                    if (tagSet.Matches(instance.ReplicaSetInformation.TagSet))
+>>>>>>> refactored connection logic and implemented mongos failover and load balancing.
                     {
                         someSetMatches = true;
                         break;
