@@ -73,6 +73,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the ReadPreference class.
         /// </summary>
+        public ReadPreference()
+        {
+            _readPreferenceMode = ReadPreferenceMode.Primary;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ReadPreference class.
+        /// </summary>
         /// <param name="readPreference">A read preference</param>
         public ReadPreference(ReadPreference readPreference)
         {
@@ -160,9 +168,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the tag sets.
         /// </summary>
-        public ReadOnlyCollection<ReplicaSetTagSet> TagSets
+        public IEnumerable<ReplicaSetTagSet> TagSets
         {
             get { return _tagSetsReadOnly; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozenException(); }
+                _tagSets = new List<ReplicaSetTagSet>(value);
+                _tagSetsReadOnly = _tagSets.AsReadOnly();
+            }
         }
 
         // public operators

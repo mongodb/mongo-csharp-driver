@@ -120,6 +120,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Adds a tag to the list.
+        /// </summary>
+        /// <param name="name">The name of the tag.</param>
+        /// <param name="value">The value of the tag.</param>
+        /// <returns>The ReplicaSetTagSet so calls to Add can be chained.</returns>
+        public ReplicaSetTagSet Add(string name, string value)
+        {
+            if (_isFrozen) { ThrowFrozenException(); }
+            _tags.Add(new ReplicaSetTag(name, value));
+            return this;
+        }
+
+        /// <summary>
         /// Creates a clone of the ReplicaSetTagSet.
         /// </summary>
         /// <returns>A clone of the ReplicaSetTagSet.</returns>
