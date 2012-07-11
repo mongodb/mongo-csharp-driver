@@ -39,7 +39,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
         public void TestFixtureSetup()
         {
             var serverSettings = Configuration.TestServer.Settings.Clone();
-            serverSettings.SlaveOk = true;
+            serverSettings.ReadPreference = ReadPreference.SecondaryPreferred;
             _server = MongoServer.Create(serverSettings); // slaveOk=true
             _database = Configuration.TestDatabase;
             _database.GridFS.Files.Drop();

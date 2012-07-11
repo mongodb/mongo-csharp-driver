@@ -49,7 +49,6 @@ namespace MongoDB.Driver
         private List<MongoServerInstance> _instances = new List<MongoServerInstance>();
         private MongoServerInstance _primary;
         private string _replicaSetName;
-        private int _loadBalancingInstanceIndex; // used to distribute reads across secondaries in round robin fashion
         private Dictionary<MongoDatabaseSettings, MongoDatabase> _databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private IndexCache _indexCache = new IndexCache();
@@ -562,7 +561,18 @@ namespace MongoDB.Driver
         /// <param name="timeout">How long to wait before timing out.</param>
         public virtual void Connect(TimeSpan timeout)
         {
-            var waitFor = _settings.SlaveOk ? ConnectWaitFor.AnySlaveOk : ConnectWaitFor.Primary;
+            ConnectWaitFor waitFor;
+            switch (_settings.ReadPreference.ReadPreferenceMode)
+            {
+                case ReadPreferenceMode.Nearest:
+                case ReadPreferenceMode.Secondary:
+                case ReadPreferenceMode.SecondaryPreferred:
+                    waitFor = ConnectWaitFor.AnySlaveOk;
+                    break;
+                default:
+                    waitFor = ConnectWaitFor.Primary;
+                    break;
+            }
             Connect(timeout, waitFor);
         }
 
@@ -1025,7 +1035,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase)
         {
-            return RequestStart(initialDatabase, false); // not slaveOk
+            return RequestStart(initialDatabase, ReadPreference.Primary);
         }
 
         /// <summary>
@@ -1034,9 +1044,24 @@ namespace MongoDB.Driver
         /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
         /// </summary>
         /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
+        /// <param name="slaveOk">Whether a secondary is acceptable.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase, bool slaveOk)
+        {
+            var readPreference = ReadPreference.FromSlaveOk(slaveOk);
+            return RequestStart(initialDatabase, readPreference);
+        }
+
+        /// <summary>
+        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
+        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
+        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
+        /// </summary>
+        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, ReadPreference readPreference)
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
 
@@ -1045,9 +1070,9 @@ namespace MongoDB.Driver
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
-                    if (!slaveOk && request.SlaveOk)
+                    if (!readPreference.IsMatch(request.Connection.ServerInstance))
                     {
-                        throw new InvalidOperationException("A nested call to RequestStart with slaveOk false is not allowed when the original call to RequestStart was made with slaveOk true.");
+                        throw new InvalidOperationException("A nested call to RequestStart was made and the current instance does not match the nested read preference.");
                     }
                     request.NestingLevel++;
                     return new RequestStartResult(this);
@@ -1055,12 +1080,12 @@ namespace MongoDB.Driver
 
             }
 
-            var serverInstance = ChooseServerInstance(slaveOk);
+            var serverInstance = ChooseServerInstance(readPreference);
             var connection = serverInstance.AcquireConnection(initialDatabase);
 
             lock (_serverLock)
             {
-                var request = new Request(connection, slaveOk);
+                var request = new Request(connection);
                 _requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
@@ -1093,11 +1118,10 @@ namespace MongoDB.Driver
             }
 
             var connection = serverInstance.AcquireConnection(initialDatabase);
-            var slaveOk = serverInstance.IsSecondary;
 
             lock (_serverLock)
             {
-                var request = new Request(connection, slaveOk);
+                var request = new Request(connection);
                 _requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
@@ -1167,7 +1191,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal MongoConnection AcquireConnection(MongoDatabase database, bool slaveOk)
+        internal MongoConnection AcquireConnection(MongoDatabase database, ReadPreference readPreference)
         {
             MongoConnection requestConnection = null;
             lock (_serverLock)
@@ -1177,9 +1201,9 @@ namespace MongoDB.Driver
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
-                    if (!slaveOk && request.SlaveOk)
+                    if (!readPreference.IsMatch(request.Connection.ServerInstance))
                     {
-                        throw new InvalidOperationException("A call to AcquireConnection with slaveOk false is not allowed when the current RequestStart was made with slaveOk true.");
+                        throw new InvalidOperationException("The thread is in a RequestStart and the current server instance is not a match for the supplied read preference.");
                     }
                     requestConnection = request.Connection;
                 }
@@ -1192,7 +1216,7 @@ namespace MongoDB.Driver
                 return requestConnection;
             }
 
-            var serverInstance = ChooseServerInstance(slaveOk);
+            var serverInstance = ChooseServerInstance(readPreference);
             return serverInstance.AcquireConnection(database);
         }
 
@@ -1243,53 +1267,21 @@ namespace MongoDB.Driver
             }
         }
 
-        internal MongoServerInstance ChooseServerInstance(bool slaveOk)
+        internal MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
+            // TODO: implement read preference properly
+            var slaveOk = readPreference.ToSlaveOk();
+
             lock (_serverLock)
             {
                 // first try to choose an instance given the current state
                 // and only try to verify state or connect if necessary
                 for (int attempt = 1; attempt <= 2; attempt++)
                 {
-                    if (_settings.ConnectionMode == ConnectionMode.ReplicaSet)
+                    var instance = readPreference.ChooseServerInstance(_instances);
+                    if (instance != null)
                     {
-                        if (slaveOk)
-                        {
-                            // round robin the connected secondaries, fall back to primary if no secondary found
-                            lock (_stateLock)
-                            {
-                                for (int i = 0; i < _instances.Count; i++)
-                                {
-                                    // round robin (use if statement instead of mod because instances.Count can change
-                                    if (++_loadBalancingInstanceIndex >= _instances.Count)
-                                    {
-                                        _loadBalancingInstanceIndex = 0;
-                                    }
-                                    var instance = _instances[_loadBalancingInstanceIndex];
-                                    // don't check for IsPassive because IsSecondary is also true for passives (and only true if not in recovery mode)
-                                    if (instance.State == MongoServerState.Connected && instance.IsSecondary)
-                                    {
-                                        return instance;
-                                    }
-                                }
-                            }
-                        }
-
-                        lock (_stateLock)
-                        {
-                            if (_primary != null && _primary.State == MongoServerState.Connected)
-                            {
-                                return _primary;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var instance = Instance;
-                        if (instance.State == MongoServerState.Connected)
-                        {
-                            return instance;
-                        }
+                        return instance;
                     }
 
                     if (attempt == 1)
@@ -1450,14 +1442,12 @@ namespace MongoDB.Driver
         {
             // private fields
             private MongoConnection _connection;
-            private bool _slaveOk;
             private int _nestingLevel;
 
             // constructors
-            public Request(MongoConnection connection, bool slaveOk)
+            public Request(MongoConnection connection)
             {
                 _connection = connection;
-                _slaveOk = slaveOk;
                 _nestingLevel = 1;
             }
 
@@ -1471,12 +1461,6 @@ namespace MongoDB.Driver
             {
                 get { return _nestingLevel; }
                 set { _nestingLevel = value; }
-            }
-
-            public bool SlaveOk
-            {
-                get { return _slaveOk; }
-                internal set { _slaveOk = value; }
             }
         }
 

@@ -54,9 +54,11 @@ namespace MongoDB.Driver
         private bool _isSecondary;
         private int _maxDocumentSize;
         private int _maxMessageLength;
+        private TimeSpan _pingTime = TimeSpan.Zero; // TODO: update ping time periodically
         private int _sequentialId;
         private MongoServer _server;
         private MongoServerState _state; // always use property to set value so event gets raised
+        private ReplicaSetTagSet _tagSet; // TODO: read tags from replica set config
 
         // constructors
         internal MongoServerInstance(MongoServer server, MongoServerAddress address)
@@ -173,6 +175,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the most recent ping time.
+        /// </summary>
+        public TimeSpan PingTime
+        {
+            get { return _pingTime; }
+        }
+
+        /// <summary>
         /// Gets the unique sequential Id for this server instance.
         /// </summary>
         public int SequentialId
@@ -194,6 +204,14 @@ namespace MongoDB.Driver
         public MongoServerState State
         {
             get { return _state; }
+        }
+
+        /// <summary>
+        /// Gets the tag set for the replica set member.
+        /// </summary>
+        public ReplicaSetTagSet TagSet
+        {
+            get { return _tagSet; }
         }
 
         // public methods
@@ -305,7 +323,7 @@ namespace MongoDB.Driver
             return connection;
         }
 
-        internal void Connect(bool slaveOk)
+        internal void Connect()
         {
             // Console.WriteLine("MongoServerInstance[{0}]: Connect(slaveOk={1}) called.", sequentialId, slaveOk);
             lock (_serverInstanceLock)
@@ -323,10 +341,6 @@ namespace MongoDB.Driver
                         try
                         {
                             VerifyState(connection);
-                            if (!_isPrimary && !slaveOk)
-                            {
-                                throw new MongoConnectionException("Server is not a primary and SlaveOk is false.");
-                            }
                         }
                         finally
                         {

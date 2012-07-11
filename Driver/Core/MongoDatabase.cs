@@ -72,11 +72,6 @@ namespace MongoDB.Driver
             {
                 AssignIdOnInsert = false
             };
-            if (server.Settings.ConnectionMode == ConnectionMode.ReplicaSet)
-            {
-                // make sure commands get routed to the primary server by using slaveOk false
-                commandCollectionSettings.SlaveOk = false;
-            }
             _commandCollection = GetCollection(commandCollectionSettings);
         }
 
@@ -702,7 +697,7 @@ namespace MongoDB.Driver
         /// <returns>A cursor.</returns>
         public MongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
         {
-            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { SlaveOk = false };
+            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { ReadPreference = ReadPreference.Primary };
             var collection = GetCollection<SystemProfileInfo>(collectionSettings);
             return collection.Find(query);
         }
@@ -883,7 +878,7 @@ namespace MongoDB.Driver
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
         public virtual IDisposable RequestStart()
         {
-            return RequestStart(false); // not slaveOk
+            return RequestStart(ReadPreference.Primary);
         }
 
         /// <summary>
@@ -893,9 +888,22 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
         public virtual IDisposable RequestStart(bool slaveOk)
         {
-            return _server.RequestStart(this, slaveOk);
+            return _server.RequestStart(this, ReadPreference.FromSlaveOk(slaveOk));
+        }
+
+        /// <summary>
+        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
+        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
+        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
+        public virtual IDisposable RequestStart(ReadPreference readPreference)
+        {
+            return _server.RequestStart(this, readPreference);
         }
 
         // TODO: mongo shell has ResetError at the database level

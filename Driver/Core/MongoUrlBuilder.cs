@@ -605,9 +605,10 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings()
         {
+            var readPreference = ReadPreference.FromSlaveOk(_slaveOk);
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, _defaultCredentials, _guidRepresentation, _ipv6,
-                _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, _replicaSetName,
-                _safeMode ?? MongoDefaults.SafeMode, _servers, _slaveOk, _socketTimeout, ComputedWaitQueueSize, _waitQueueTimeout);
+                _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
+                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, ComputedWaitQueueSize, _waitQueueTimeout);
         }
 
         /// <summary>

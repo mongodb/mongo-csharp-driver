@@ -522,7 +522,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
-            return new MongoCursor<TDocument>(this, query);
+            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -533,7 +533,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
         {
-            return MongoCursor.Create(documentType, this, query);
+            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -1114,7 +1114,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var safeMode = options.SafeMode ?? _settings.SafeMode;
@@ -1303,7 +1303,7 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(IMongoQuery query, RemoveFlags flags, SafeMode safeMode)
         {
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);
@@ -1533,7 +1533,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);

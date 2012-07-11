@@ -133,6 +133,9 @@
     <Compile Include="Core\MongoUrlBuilder.cs" />
     <Compile Include="Core\MongoUser.cs" />
     <Compile Include="Core\ProfilingLevel.cs" />
+    <Compile Include="Core\ReadPreference.cs" />
+    <Compile Include="Core\ReplicaSetTag.cs" />
+    <Compile Include="Core\ReplicaSetTagSet.cs" />
     <Compile Include="Core\SystemProfileInfo.cs" />
     <Compile Include="Core\Wrappers\BaseWrapper.cs" />
     <Compile Include="Core\Wrappers\CollectionOptionsDocument.cs" />

@@ -32,8 +32,8 @@ namespace MongoDB.Driver
         private bool _assignIdOnInsert;
         private Type _defaultDocumentType;
         private GuidRepresentation _guidRepresentation;
+        private ReadPreference _readPreference;
         private SafeMode _safeMode;
-        private bool _slaveOk;
 
         // private fields
         // the following fields are set when Freeze is called
@@ -55,8 +55,8 @@ namespace MongoDB.Driver
             _assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
             _defaultDocumentType = defaultDocumentType;
             _guidRepresentation = databaseSettings.GuidRepresentation;
+            _readPreference = databaseSettings.ReadPreference;
             _safeMode = databaseSettings.SafeMode;
-            _slaveOk = databaseSettings.SlaveOk;
         }
 
         /// <summary>
@@ -66,22 +66,22 @@ namespace MongoDB.Driver
         /// <param name="assignIdOnInsert">Whether to automatically assign a value to an empty document Id on insert.</param>
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
         /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="safeMode">The SafeMode to use with this collection.</param>
-        /// <param name="slaveOk">Whether to route reads to secondaries for this collection.</param>
         protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             Type defaultDocumentType,
             GuidRepresentation guidRepresentation,
-            SafeMode safeMode,
-            bool slaveOk)
+            ReadPreference readPreference,
+            SafeMode safeMode)
         {
             _collectionName = collectionName;
             _assignIdOnInsert = assignIdOnInsert;
             _defaultDocumentType = defaultDocumentType;
             _guidRepresentation = guidRepresentation;
+            _readPreference = readPreference;
             _safeMode = safeMode;
-            _slaveOk = slaveOk;
         }
 
         // public properties
@@ -136,6 +136,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read preference to use.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _readPreference = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
         public SafeMode SafeMode
@@ -151,13 +164,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+            get
+            {
+                return _readPreference.ToSlaveOk();
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _slaveOk = value;
+                _readPreference = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -193,8 +210,8 @@ namespace MongoDB.Driver
                         _assignIdOnInsert == rhs._assignIdOnInsert &&
                         _defaultDocumentType == rhs._defaultDocumentType &&
                         _guidRepresentation == rhs._guidRepresentation &&
-                        _safeMode == rhs._safeMode &&
-                        _slaveOk == rhs._slaveOk;
+                        _readPreference == rhs._readPreference &&
+                        _safeMode == rhs._safeMode;
                 }
             }
         }
@@ -207,6 +224,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                _readPreference = _readPreference.FrozenCopy();
                 _safeMode = _safeMode.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
@@ -248,8 +266,8 @@ namespace MongoDB.Driver
             hash = 37 * hash + _assignIdOnInsert.GetHashCode();
             hash = 37 * hash + ((_defaultDocumentType == null) ? 0 : _defaultDocumentType.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + _readPreference.GetHashCode();
             hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
-            hash = 37 * hash + _slaveOk.GetHashCode();
             return hash;
         }
 
@@ -265,8 +283,8 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};SafeMode={4};SlaveOk={5}",
-                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _safeMode, _slaveOk);
+                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};ReadPreference={4};SafeMode={5}",
+                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _readPreference, _safeMode);
         }
     }
 
@@ -293,15 +311,15 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="safeMode">The safe mode to use.</param>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         private MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             GuidRepresentation guidRepresentation,
-            SafeMode safeMode,
-            bool slaveOk)
-            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, safeMode, slaveOk)
+            ReadPreference readPreference,
+            SafeMode safeMode)
+            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, readPreference, safeMode)
         {
         }
 
@@ -312,7 +330,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public override MongoCollectionSettings Clone()
         {
-            return new MongoCollectionSettings<TDefaultDocument>(CollectionName, AssignIdOnInsert, GuidRepresentation, SafeMode, SlaveOk);
+            return new MongoCollectionSettings<TDefaultDocument>(CollectionName, AssignIdOnInsert, GuidRepresentation, ReadPreference, SafeMode);
         }
     }
 }

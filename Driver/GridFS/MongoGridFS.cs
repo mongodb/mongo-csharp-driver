@@ -259,7 +259,7 @@ namespace MongoDB.Driver.GridFS
                 throw new MongoGridFSException("VerifyMD5 is true and file being downloaded has no MD5 hash.");
             }
 
-            using (_database.RequestStart(_database.Settings.SlaveOk))
+            using (_database.RequestStart(_database.Settings.ReadPreference))
             {
                 string md5Client = null;
                 using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
@@ -756,7 +756,7 @@ namespace MongoDB.Driver.GridFS
             string remoteFileName,
             MongoGridFSCreateOptions createOptions)
         {
-            using (_database.RequestStart(false)) // not slaveOk
+            using (_database.RequestStart(ReadPreference.Primary))
             {
                 EnsureIndexes();
 

@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Internal
                     {
                         serverInstance.Address = address;
                     }
-                    serverInstance.Connect(_server.Settings.SlaveOk); // TODO: what about timeout?
+                    serverInstance.Connect(); // TODO: what about timeout?
                     return;
                 }
                 catch (Exception ex)

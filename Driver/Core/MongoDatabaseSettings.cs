@@ -31,8 +31,8 @@ namespace MongoDB.Driver
         private string _databaseName;
         private MongoCredentials _credentials;
         private GuidRepresentation _guidRepresentation;
+        private ReadPreference _readPreference;
         private SafeMode _safeMode;
-        private bool _slaveOk;
         // the following fields are set when Freeze is called
         private bool _isFrozen;
         private int _frozenHashCode;
@@ -50,8 +50,8 @@ namespace MongoDB.Driver
             _databaseName = databaseName;
             _credentials = serverSettings.GetCredentials(databaseName);
             _guidRepresentation = serverSettings.GuidRepresentation;
+            _readPreference = serverSettings.ReadPreference;
             _safeMode = serverSettings.SafeMode;
-            _slaveOk = serverSettings.SlaveOk;
         }
 
         /// <summary>
@@ -60,14 +60,14 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="credentials">The credentials to access the database.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <param name="safeMode">The safe mode to use.</param>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
             GuidRepresentation guidRepresentation,
-            SafeMode safeMode,
-            bool slaveOk)
+            ReadPreference readPreference,
+            SafeMode safeMode)
         {
             if (databaseName == "admin" && credentials != null && !credentials.Admin)
             {
@@ -76,8 +76,8 @@ namespace MongoDB.Driver
             _databaseName = databaseName;
             _credentials = credentials;
             _guidRepresentation = guidRepresentation;
+            _readPreference = readPreference;
             _safeMode = safeMode;
-            _slaveOk = slaveOk;
         }
 
         // public properties
@@ -124,6 +124,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read preference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _readPreference = value;
+            }
+        }
+  
+        /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
         public SafeMode SafeMode
@@ -137,15 +150,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
+        /// Gets or sets whether queries can be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+            get
+            {
+                return _readPreference.ToSlaveOk();
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _slaveOk = value;
+                _readPreference = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -156,7 +173,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public MongoDatabaseSettings Clone()
         {
-            return new MongoDatabaseSettings(_databaseName, _credentials, _guidRepresentation, _safeMode, _slaveOk);
+            return new MongoDatabaseSettings(_databaseName, _credentials, _guidRepresentation, _readPreference, _safeMode);
         }
 
         /// <summary>
@@ -183,8 +200,8 @@ namespace MongoDB.Driver
                         _databaseName == rhs._databaseName &&
                         _credentials == rhs._credentials &&
                         _guidRepresentation == rhs._guidRepresentation &&
-                        _safeMode == rhs._safeMode &&
-                        _slaveOk == rhs._slaveOk;
+                        _readPreference == rhs._readPreference &&
+                        _safeMode == rhs._safeMode;
                 }
             }
         }
@@ -197,6 +214,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                _readPreference = _readPreference.FrozenCopy();
                 _safeMode = _safeMode.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
@@ -237,8 +255,8 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
             hash = 37 * hash + ((_credentials == null) ? 0 : _credentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + _readPreference.GetHashCode();
             hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
-            hash = 37 * hash + _slaveOk.GetHashCode();
             return hash;
         }
 
@@ -254,8 +272,8 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "DatabaseName={0};Credentials={1};GuidRepresentation={2};SafeMode={3};SlaveOk={4}",
-                _databaseName, _credentials, _guidRepresentation, _safeMode, _slaveOk);
+                "DatabaseName={0};Credentials={1};GuidRepresentation={2};ReadPreference={3};SafeMode={4}",
+                _databaseName, _credentials, _guidRepresentation, _readPreference, _safeMode);
         }
     }
 }

@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         private IMongoFields _fields;
         private BsonDocument _options;
         private QueryFlags _flags;
-        private bool _slaveOk;
+        private ReadPreference _readPreference;
         private int _skip;
         private int _limit; // number of documents to return (enforced by cursor)
         private int _batchSize; // number of documents to return in each reply
@@ -53,13 +53,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="query">The query.</param>
-        protected MongoCursor(MongoCollection collection, IMongoQuery query)
+        /// <param name="readPreference">The read preference.</param>
+        protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
         {
             _server = collection.Database.Server;
             _database = collection.Database;
             _collection = collection;
             _query = query;
-            _slaveOk = collection.Settings.SlaveOk;
+            _readPreference = readPreference;
         }
 
         // public properties
@@ -126,7 +127,17 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual QueryFlags Flags
         {
-            get { return _flags | (_slaveOk ? QueryFlags.SlaveOk : 0); }
+            get
+            {
+                if (_readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
+                {
+                    return _flags;
+                }
+                else
+                {
+                    return _flags | QueryFlags.SlaveOk;
+                }
+            }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
@@ -135,15 +146,32 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether the query should be sent to a secondary server.
+        /// Gets or sets the read preference.
         /// </summary>
-        public virtual bool SlaveOk
+        public virtual ReadPreference ReadPreference
         {
-            get { return _slaveOk || ((_flags & QueryFlags.SlaveOk) != 0); }
+            get { return _readPreference; }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
-                _slaveOk = value;
+                _readPreference = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the query can be sent to a secondary server.
+        /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
+        public virtual bool SlaveOk
+        {
+            get
+            {
+                return _readPreference.ToSlaveOk();
+            }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _readPreference = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -215,13 +243,14 @@ namespace MongoDB.Driver
         /// <param name="documentType">The type of the returned documents.</param>
         /// <param name="collection">The collection to query.</param>
         /// <param name="query">A query.</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <returns>A cursor.</returns>
-        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query)
+        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery) });
-            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query });
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference) });
+            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference });
         }
 
         // public methods
@@ -242,10 +271,9 @@ namespace MongoDB.Driver
         /// <returns>A clone of the cursor.</returns>
         public virtual MongoCursor Clone(Type documentType)
         {
-            var clone = Create(documentType, _collection, _query);
+            var clone = Create(documentType, _collection, _query, _readPreference);
             clone._options = _options == null ? null : (BsonDocument)_options.Clone();
             clone._flags = _flags;
-            clone._slaveOk = _slaveOk;
             clone._skip = _skip;
             clone._limit = _limit;
             clone._batchSize = _batchSize;
@@ -471,6 +499,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Sets the read preference.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetReadPreference(ReadPreference readPreference)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            _readPreference = readPreference;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the serialization options (only needed in rare cases).
         /// </summary>
         /// <param name="serializationOptions">The serialization options.</param>
@@ -509,12 +549,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Sets whether the query should be sent to a secondary server.
         /// </summary>
-        /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
+        /// <param name="slaveOk">Whether the query can be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("Use SetReadPreference instead.")]
         public virtual MongoCursor SetSlaveOk(bool slaveOk)
         {
             if (_isFrozen) { ThrowFrozen(); }
-            _slaveOk = slaveOk;
+            _readPreference = ReadPreference.FromSlaveOk(slaveOk);
             return this;
         }
 
@@ -608,8 +649,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="query">The query.</param>
-        public MongoCursor(MongoCollection collection, IMongoQuery query)
-            : base(collection, query)
+        /// <param name="readPreference">The read preference.</param>
+        public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
+            : base(collection, query, readPreference)
         {
         }
 
@@ -749,6 +791,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Sets the read preference.
+        /// </summary>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetReadPreference(ReadPreference readPreference)
+        {
+            return (MongoCursor<TDocument>)base.SetReadPreference(readPreference);
+        }
+
+        /// <summary>
         /// Sets the serialization options (only needed in rare cases).
         /// </summary>
         /// <param name="serializationOptions">The serialization options.</param>
@@ -783,9 +835,12 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="slaveOk">Whether the query should be sent to a secondary server.</param>
         /// <returns>The cursor (so you can chain method calls to it).</returns>
+        [Obsolete("Use SetReadPreference instead.")]
         public new virtual MongoCursor<TDocument> SetSlaveOk(bool slaveOk)
         {
+#pragma warning disable 618
             return (MongoCursor<TDocument>)base.SetSlaveOk(slaveOk);
+#pragma warning restore 618
         }
 
         /// <summary>

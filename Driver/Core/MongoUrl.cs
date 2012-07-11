@@ -52,6 +52,7 @@ namespace MongoDB.Driver
 
         // private fields
         private MongoServerSettings _serverSettings;
+        private bool _slaveOk;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
         private string _databaseName;
@@ -66,6 +67,7 @@ namespace MongoDB.Driver
         {
             var builder = new MongoUrlBuilder(url); // parses url
             _serverSettings = builder.ToServerSettings().FrozenCopy();
+            _slaveOk = builder.SlaveOk;
             _waitQueueMultiple = builder.WaitQueueMultiple;
             _waitQueueSize = builder.WaitQueueSize;
             _databaseName = builder.DatabaseName;
@@ -208,7 +210,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool SlaveOk
         {
-            get { return _serverSettings.SlaveOk; }
+            get { return _slaveOk; }
         }
 
         /// <summary>

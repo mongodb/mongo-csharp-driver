@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Internal
             var response = new ConnectResponse { ServerInstance = serverInstance };
             try
             {
-                serverInstance.Connect(true); // slaveOk
+                serverInstance.Connect();
                 response.IsMasterResult = serverInstance.IsMasterResult;
             }
             catch (Exception ex)
