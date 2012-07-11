@@ -138,7 +138,7 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        public int GetHashCodeHelper()
+        private int GetHashCodeHelper()
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;

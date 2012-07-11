@@ -312,7 +312,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="instance">The server instance.</param>
         /// <returns>True if the server instance matches the read preferences.</returns>
-        public bool IsMatch(MongoServerInstance instance)
+        public bool MatchesInstance(MongoServerInstance instance)
         {
             switch (_readPreferenceMode)
             {
@@ -336,7 +336,7 @@ namespace MongoDB.Driver
                 var someSetMatches = false;
                 foreach (var tagSet in _tagSets)
                 {
-                    if (tagSet.Matches(instance.TagSet))
+                    if (tagSet.MatchesInstance(instance))
                     {
                         someSetMatches = true;
                         break;
@@ -369,29 +369,70 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal MongoServerInstance ChooseServerInstance(IEnumerable<MongoServerInstance> instances)
+        internal MongoServerInstance ChooseServerInstance(IEnumerable<MongoServerInstance> connectedInstancesByPingTime)
         {
-            var matchingInstances = instances.Where(i => i.State == MongoServerState.Connected && IsMatch(i)).ToList();
+            // tags are not evaluated for a primary
+            if (_readPreferenceMode == ReadPreferenceMode.Primary || _readPreferenceMode == ReadPreferenceMode.PrimaryPreferred)
+            {
+                foreach (var instance in connectedInstancesByPingTime)
+                {
+                    if (instance.IsPrimary)
+                    {
+                        return instance;
+                    }
+                }
+                if (_readPreferenceMode == ReadPreferenceMode.Primary)
+                {
+                    return null;
+                }
+            }
+
+            List<MongoServerInstance> matchingInstances = new List<MongoServerInstance>();
+            TimeSpan maxPingTime = TimeSpan.MaxValue;
+            foreach (var instance in connectedInstancesByPingTime)
+            {
+                if (instance.PingTime > maxPingTime)
+                {
+                    break; // any subsequent instances will also exceed maxPingTime
+                }
+                if (MatchesInstance(instance))
+                {
+                    if (maxPingTime == TimeSpan.MaxValue)
+                    {
+                        var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
+                        maxPingTime = instance.PingTime + secondaryAcceptableLatency;
+                    }
+                    matchingInstances.Add(instance);
+                }
+            }
+
             if (matchingInstances.Count == 0)
             {
                 return null;
             }
 
-            if (_readPreferenceMode == Driver.ReadPreferenceMode.PrimaryPreferred)
+            if (_readPreferenceMode == ReadPreferenceMode.SecondaryPreferred)
             {
-                var primary = matchingInstances.Where(i => i.IsPrimary).FirstOrDefault();
+                MongoServerInstance primary = null;
+                foreach (var instance in matchingInstances)
+                {
+                    if (instance.IsPrimary)
+                    {
+                        primary = instance;
+                        break;
+                    }
+                }
+
                 if (primary != null)
                 {
-                    return primary;
-                }
-            }
-
-            if (_readPreferenceMode == Driver.ReadPreferenceMode.SecondaryPreferred)
-            {
-                var secondary = matchingInstances.Where(i => i.IsSecondary).FirstOrDefault();
-                if (secondary != null)
-                {
-                    return secondary;
+                    if (matchingInstances.Count == 1)
+                    {
+                        return primary;
+                    }
+                    else
+                    {
+                        matchingInstances.Remove(primary);
+                    }
                 }
             }
 
@@ -402,15 +443,12 @@ namespace MongoDB.Driver
                 case 1:
                     return matchingInstances[0];
                 default:
-                    var minPingTime = matchingInstances.Select(i => i.PingTime).Min();
-                    var secondaryAcceptableDelay = TimeSpan.FromMilliseconds(15); // TODO: make configurable
-                    var nearbyInstances = matchingInstances.Where(i => i.PingTime <= minPingTime + secondaryAcceptableDelay).ToArray();
                     int randomIndex;
                     lock (_randomLock)
                     {
-                        randomIndex = _random.Next(nearbyInstances.Length);
+                        randomIndex = _random.Next(matchingInstances.Count);
                     }
-                    return nearbyInstances[randomIndex]; // random load balancing
+                    return matchingInstances[randomIndex]; // random load balancing
             }
         }
 

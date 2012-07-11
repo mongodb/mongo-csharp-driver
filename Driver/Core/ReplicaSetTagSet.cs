@@ -195,11 +195,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Tests whether this tag set matches another tag set.
+        /// Tests whether this tag set matches a server instance.
         /// </summary>
-        /// <param name="otherSet">The other tag set.</param>
-        /// <returns>True if every tag in this tag set is also in the other tag set; otherwise, false.</returns>
-        public bool Matches(ReplicaSetTagSet otherSet)
+        /// <param name="instance">The server instance.</param>
+        /// <returns>True if every tag in this tag set is also in the server instance tag set; otherwise, false.</returns>
+        public bool MatchesInstance(MongoServerInstance instance)
         {
             // an empty tag set matches anything
             if (_tags.Count == 0)
@@ -207,14 +207,14 @@ namespace MongoDB.Driver
                 return true;
             }
 
-            if (otherSet == null)
+            if (instance.TagSet == null)
             {
                 return false;
             }
 
             foreach (var tag in _tags)
             {
-                if (!otherSet.Contains(tag))
+                if (!instance.TagSet.Contains(tag))
                 {
                     return false;
                 }

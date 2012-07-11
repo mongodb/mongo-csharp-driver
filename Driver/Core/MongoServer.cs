@@ -1070,7 +1070,7 @@ namespace MongoDB.Driver
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
-                    if (!readPreference.IsMatch(request.Connection.ServerInstance))
+                    if (!readPreference.MatchesInstance(request.Connection.ServerInstance))
                     {
                         throw new InvalidOperationException("A nested call to RequestStart was made and the current instance does not match the nested read preference.");
                     }
@@ -1201,7 +1201,7 @@ namespace MongoDB.Driver
                 Request request;
                 if (_requests.TryGetValue(threadId, out request))
                 {
-                    if (!readPreference.IsMatch(request.Connection.ServerInstance))
+                    if (!readPreference.MatchesInstance(request.Connection.ServerInstance))
                     {
                         throw new InvalidOperationException("The thread is in a RequestStart and the current server instance is not a match for the supplied read preference.");
                     }
@@ -1278,7 +1278,15 @@ namespace MongoDB.Driver
                 // and only try to verify state or connect if necessary
                 for (int attempt = 1; attempt <= 2; attempt++)
                 {
-                    var instance = readPreference.ChooseServerInstance(_instances);
+                    // TODO: keep a list of connected instances sorted by PingTime so we don't have to calculate this every time
+                    IEnumerable<MongoServerInstance> connectedInstancesByPingTime;
+                    lock (_stateLock)
+                    {
+                        connectedInstancesByPingTime = _instances.Where(i => i.State == MongoServerState.Connected);
+                    }
+                    connectedInstancesByPingTime = connectedInstancesByPingTime.OrderBy(i => i.PingTime);
+
+                    var instance = readPreference.ChooseServerInstance(connectedInstancesByPingTime);
                     if (instance != null)
                     {
                         return instance;
