@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Internal
     /// <summary>
     /// A proxy that dynamically discovers the type of server it is connecting to.
     /// </summary>
-    internal class DiscoveringMongoServerProxy : IMongoServerProxy
+    internal sealed class DiscoveringMongoServerProxy : IMongoServerProxy
     {
         private readonly MongoServer _server;
         private readonly List<MongoServerInstance> _instances;

@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Internal
             {
                 if (_instances.Count == 0)
                 {
-                    throw new MongoException("No server is available for choosing.");
+                    return null;
                 }
 
                 return readPreference.ChooseServerInstance(_instances);

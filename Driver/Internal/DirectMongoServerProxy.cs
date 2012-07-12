@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Internal
     /// <summary>
     /// Connects directly to a specified instance, failing over to other addresses as necessary.
     /// </summary>
-    internal class DirectMongoServerProxy : IMongoServerProxy
+    internal sealed class DirectMongoServerProxy : IMongoServerProxy
     {
         // private fields
         private readonly object _stateLock = new object();
