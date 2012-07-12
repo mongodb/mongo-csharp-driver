@@ -47,6 +47,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="instance">The instance.</param>
+        /// <param name="connectionAttempt">The connection attempt.</param>
         public DirectMongoServerProxy(MongoServer server, MongoServerInstance instance, int connectionAttempt)
         {
             _server = server;
@@ -103,8 +104,8 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Chooses the server instance.
         /// </summary>
-        /// <param name="slaveOk">if set to <c>true</c> [slave ok].</param>
-        /// <returns></returns>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A MongoServerInstance.</returns>
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
             if (_instance.State != MongoServerState.Connected)

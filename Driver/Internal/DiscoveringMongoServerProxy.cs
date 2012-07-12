@@ -127,8 +127,8 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Chooses the server instance.
         /// </summary>
-        /// <param name="slaveOk">if set to <c>true</c> [slave ok].</param>
-        /// <returns></returns>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns>A MongoServerInstance</returns>
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
             EnsureInstanceManager(_server.Settings.ConnectTimeout);

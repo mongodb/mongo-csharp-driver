@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq
         /// Builds an IMongoQuery from an expression.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        /// <returns></returns>
+        /// <returns>An IMongoQuery.</returns>
         public IMongoQuery BuildQuery(Expression expression)
         {
             IMongoQuery query = null;

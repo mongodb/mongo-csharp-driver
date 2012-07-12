@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Internal
         /// Chooses the server instance based on the read preference.
         /// </summary>
         /// <param name="readPreference">The read preference.</param>
-        /// <returns></returns>
+        /// <returns>A MongoServerInstance.</returns>
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
             lock (_lock)

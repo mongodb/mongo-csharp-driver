@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// Gets the serialization info for the given expression.
         /// </summary>
         /// <param name="node">The expression.</param>
-        /// <returns></returns>
+        /// <returns>The serialization info.</returns>
         public BsonSerializationInfo GetSerializationInfo(Expression node)
         {
             return BsonSerializationInfoFinder.GetSerializationInfo(node, _serializationInfoCache);

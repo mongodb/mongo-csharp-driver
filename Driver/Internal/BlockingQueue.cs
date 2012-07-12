@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Dequeues one item from the queue.  Will block until the item is available.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The first item in the queue.</returns>
         public T Dequeue()
         {
             lock (_syncRoot)

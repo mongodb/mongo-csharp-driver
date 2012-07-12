@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="currentState">State of the current.</param>
         /// <param name="instances">The instances.</param>
-        /// <returns></returns>
+        /// <returns>The server state.</returns>
         protected override MongoServerState DetermineServerState(MongoServerState currentState, IEnumerable<MongoServerInstance> instances)
         {
             if (!instances.Any())

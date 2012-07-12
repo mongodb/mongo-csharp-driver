@@ -115,6 +115,11 @@ namespace MongoDB.Driver
         }
 
         // public static methods
+        /// <summary>
+        /// Creates a new instance of MongoServerBuildInfo initialized from the result of a buildinfo command.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public static MongoServerBuildInfo FromCommandResult(CommandResult result)
         {
             var document = result.Response;

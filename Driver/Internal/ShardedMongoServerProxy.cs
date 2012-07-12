@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="instances">The instances.</param>
+        /// <param name="stateChangedQueue">The state changed queue.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
         public ShardedMongoServerProxy(MongoServer server, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
             : base(server, instances, stateChangedQueue, connectionAttempt)
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="connectedInstances">The connected instances.</param>
         /// <param name="readPreference">The read preference.</param>
-        /// <returns></returns>
+        /// <returns>A MongoServerInstance.</returns>
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
             return connectedInstances.ChooseServerInstance(ReadPreference.Primary);
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="currentState">State of the current.</param>
         /// <param name="instances">The instances.</param>
-        /// <returns></returns>
+        /// <returns>The server state.</returns>
         protected override MongoServerState DetermineServerState(MongoServerState currentState, IEnumerable<MongoServerInstance> instances)
         {
             if (!instances.Any())

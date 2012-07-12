@@ -397,7 +397,7 @@ namespace MongoDB.Driver
         /// Acquires the connection.
         /// </summary>
         /// <param name="database">The database.</param>
-        /// <returns></returns>
+        /// <returns>A MongoConnection.</returns>
         internal MongoConnection AcquireConnection(MongoDatabase database)
         {
             MongoConnection connection;

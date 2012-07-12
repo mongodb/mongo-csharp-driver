@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Internal
         /// <param name="name">The name.</param>
         /// <param name="primary">The primary.</param>
         /// <param name="members">The members.</param>
+        /// <param name="tagSet">The tag set.</param>
         public ReplicaSetInformation(string name, MongoServerAddress primary, IEnumerable<MongoServerAddress> members, ReplicaSetTagSet tagSet)
         {
             if (name == null)

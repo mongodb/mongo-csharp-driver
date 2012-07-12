@@ -954,7 +954,7 @@ namespace MongoDB.Driver.Builders
         /// Tests that the inverse of the query is true (see $not).
         /// </summary>
         /// <param name="query">The query.</param>
-        /// <returns></returns>
+        /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Not(IMongoQuery query)
         {
             return Query.Not(query);

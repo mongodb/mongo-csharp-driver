@@ -84,7 +84,7 @@ namespace MongoDB.Bson.IO
         /// When this method returns, contains the value associated with the specified element name, if the key is found;
         /// otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
         /// </param>
-        /// <returns></returns>
+        /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
             var keyBytes = __utf8Encoding.GetBytes(elementName);

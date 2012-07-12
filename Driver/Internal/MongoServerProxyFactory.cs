@@ -27,10 +27,10 @@ namespace MongoDB.Driver.Internal
     {
         // public methods
         /// <summary>
-        /// Creates this instance.
+        /// Creates an IMongoServerProxy of some type that depends on the server settings.
         /// </summary>
         /// <param name="server">The server.</param>
-        /// <returns></returns>
+        /// <returns>An IMongoServerProxy.</returns>
         public IMongoServerProxy Create(MongoServer server)
         {
             var connectionMode = server.Settings.ConnectionMode;

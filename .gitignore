@@ -32,3 +32,7 @@ Help
 
 # NCrunch artifacts
 *.ncrunch*
+
+# Merge tool artifacts
+*.cs.orig
+*.vb.orig
