@@ -46,6 +46,23 @@ namespace MongoDB.Driver.Internal
         { }
 
         // protected methods
+        /// <summary>
+        /// Chooses the server instance.
+        /// </summary>
+        /// <param name="connectedInstances">The connected instances.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns></returns>
+        protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
+        {
+            return connectedInstances.ChooseServerInstance(ReadPreference.Primary);
+        }
+
+        /// <summary>
+        /// Determines the state of the server.
+        /// </summary>
+        /// <param name="currentState">State of the current.</param>
+        /// <param name="instances">The instances.</param>
+        /// <returns></returns>
         protected override MongoServerState DetermineServerState(MongoServerState currentState, IEnumerable<MongoServerInstance> instances)
         {
             if (!instances.Any())

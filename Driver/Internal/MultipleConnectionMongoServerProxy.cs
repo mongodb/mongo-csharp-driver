@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Internal
             {
                 lock (_lock)
                 {
-                    var instance = _connectedInstances.ChooseServerInstance(readPreference);
+                    var instance = ChooseServerInstance(_connectedInstances, readPreference);
                     if (instance != null)
                     {
                         return instance;
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Internal
             {
                 while (DateTime.UtcNow < timeoutAt)
                 {
-                    if (_connectedInstances.ChooseServerInstance(readPreference) != null)
+                    if (ChooseServerInstance(_connectedInstances, readPreference) != null)
                     {
                         return;
                     }
@@ -286,6 +286,14 @@ namespace MongoDB.Driver.Internal
         }
 
         // protected methods
+        /// <summary>
+        /// Chooses the server instance.
+        /// </summary>
+        /// <param name="connectedInstances">The connected instances.</param>
+        /// <param name="readPreference">The read preference.</param>
+        /// <returns></returns>
+        protected abstract MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference);
+
         /// <summary>
         /// Determines the state of the server.
         /// </summary>

@@ -68,6 +68,11 @@ namespace MongoDB.Driver.Internal
         }
 
         // protected methods
+        protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
+        {
+            return connectedInstances.ChooseServerInstance(readPreference);
+        }
+
         /// <summary>
         /// Determines the state of the server.
         /// </summary>
