@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq
         private Expression _skip;
         private Expression _take;
         private Func<IEnumerable, object> _elementSelector; // used for First, Last, etc...
-        private bool _distinct;
+        private LambdaExpression _distinct;
 
         // constructors
         /// <summary>
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq
         {
             var query = BuildQuery();
 
-            if (_distinct)
+            if (_distinct != null)
             {
                 return ExecuteDistinct(query);
             }
@@ -297,12 +297,8 @@ namespace MongoDB.Driver.Linq
             {
                 throw new NotSupportedException("Distinct cannot be used with Skip or Take.");
             }
-            if (_projection == null)
-            {
-                throw new NotSupportedException("Distinct must be used with Select to identify the field whose distinct values are to be found.");
-            }
 
-            var keyExpression = _projection.Body;
+            var keyExpression = _distinct.Body;
             BsonSerializationInfo serializationInfo;
             try
             {
@@ -417,7 +413,14 @@ namespace MongoDB.Driver.Linq
                 throw new NotSupportedException(message);
             }
 
-            _distinct = true;
+            if (_projection == null)
+            {
+                var message = "Distinct must be used with Select to identify the field whose distinct values are to be found.";
+                throw new NotSupportedException(message);
+            }
+
+            _distinct = _projection;
+            _projection = null;
         }
 
         private void TranslateElementAt(MethodCallExpression methodCallExpression)
@@ -600,6 +603,12 @@ namespace MongoDB.Driver.Linq
 
             var source = methodCallExpression.Arguments[0];
             Translate(source);
+
+            if (_distinct != null)
+            {
+                var message = "No further operators may follow Distinct in a LINQ query.";
+                throw new NotSupportedException(message);
+            }
 
             var methodName = methodCallExpression.Method.Name;
             switch (methodName)
