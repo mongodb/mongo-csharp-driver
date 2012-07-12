@@ -153,6 +153,14 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
+        /// Gets whether the read preference has been frozen to prevent further changes.
+        /// </summary>
+        public bool IsFrozen
+        {
+            get { return _isFrozen; }
+        }
+
+        /// <summary>
         /// Gets the read preference mode.
         /// </summary>
         public ReadPreferenceMode ReadPreferenceMode
@@ -281,6 +289,7 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
+                if (_tagSets != null) { _tagSets.ForEach(s => s.Freeze()); }
                 _frozenHashCode = GetHashCode();
                 _isFrozen = true;
             }

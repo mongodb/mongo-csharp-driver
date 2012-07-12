@@ -208,6 +208,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets whether the tag set has been frozen to prevent further changes.
+        /// </summary>
+        public bool IsFrozen
+        {
+            get { return _isFrozen; }
+        }
+
+        /// <summary>
         /// Tests whether this tag set matches a server instance.
         /// </summary>
         /// <param name="instance">The server instance.</param>

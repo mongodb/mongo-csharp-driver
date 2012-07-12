@@ -16,11 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The result of an isMaster command.
+    /// Represents the result of an isMaster command.
     /// </summary>
     [Serializable]
     public class IsMasterResult : CommandResult
@@ -43,10 +44,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether the server is an arbiter.
+        /// Gets whether the server is an arbiter.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if the server is an arbiter; otherwise, <c>false</c>.
+        ///   <c>true</c> if the server is an arbiter; otherwise, <c>false.</c>.
         /// </value>
         public bool IsArbiterOnly
         {
@@ -54,21 +55,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether the server is master.
+        /// Gets whether the server is the primary.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if the server is master; otherwise, <c>false</c>.
+        ///   <c>true</c> if the server is the primary; otherwise, <c>false</c>.
         /// </value>
-        public bool IsMaster
+        public bool IsPrimary
         {
             get { return Response["ismaster", false].ToBoolean(); }
         }
 
         /// <summary>
-        /// Gets a value indicating whether the server is passive.
+        /// Gets whether the server is a passive member.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if the server is passive; otherwise, <c>false</c>.
+        ///   <c>true</c> if the server is a passive member; otherwise, <c>false</c>.
         /// </value>
         public bool IsPassive
         {
@@ -77,7 +78,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether the server is secondary.
+        /// Gets whether the server is secondary.
         /// </summary>
         /// <value>
         ///   <c>true</c> if the server is secondary; otherwise, <c>false</c>.
@@ -168,10 +169,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the name of the set.
+        /// Gets the name of the replica set.
         /// </summary>
         /// <value>
-        /// The name of the set.
+        /// The name of the replica set.
         /// </value>
         public string ReplicaSetName
         {

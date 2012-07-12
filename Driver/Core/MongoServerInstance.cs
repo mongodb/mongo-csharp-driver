@@ -624,7 +624,7 @@ namespace MongoDB.Driver
                     _buildInfo = buildInfo;
                     this.SetState(MongoServerState.Connected,
                         type,
-                        isMasterResult.IsMaster,
+                        isMasterResult.IsPrimary,
                         isMasterResult.IsSecondary,
                         isMasterResult.IsPassive,
                         isMasterResult.IsArbiterOnly,

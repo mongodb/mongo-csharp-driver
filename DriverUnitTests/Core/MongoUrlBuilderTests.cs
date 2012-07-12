@@ -109,7 +109,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://mongo1.xyz.com,mongo2.xyz.com";
@@ -136,7 +136,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(23456, servers[1].Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://mongo1.xyz.com:12345,mongo2.xyz.com:23456";
@@ -235,7 +235,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://username:password@mongo1.xyz.com,mongo2.xyz.com/database";
@@ -265,7 +265,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(23456, servers[1].Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://username:password@mongo1.xyz.com:12345,mongo2.xyz.com:23456/database";
@@ -573,13 +573,12 @@ namespace MongoDB.DriverUnitTests
         public void TestReplicaSetName()
         {
             var builder = new MongoUrlBuilder("mongodb://localhost") { ReplicaSetName = "name" };
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual("name", builder.ReplicaSetName);
 
-            var connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name";
+            var connectionString = "mongodb://localhost/?replicaSet=name";
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?connect=replicaSet;replicaSet=name").ToString());
         }
 
         [Test]

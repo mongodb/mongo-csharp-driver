@@ -263,7 +263,6 @@ namespace MongoDB.Driver
             get { return _replicaSetName; }
             set
             {
-                ConnectionMode = ConnectionMode.ReplicaSet;
                 base["replicaSet"] = _replicaSetName = value;
             }
         }
@@ -485,7 +484,6 @@ namespace MongoDB.Driver
                         break;
                     case "replicaset":
                         ReplicaSetName = (string)value;
-                        ConnectionMode = ConnectionMode.ReplicaSet;
                         break;
                     case "safe":
                         if (_safeMode == null) { _safeMode = new SafeMode(false); }
