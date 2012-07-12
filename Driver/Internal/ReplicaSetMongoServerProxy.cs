@@ -34,7 +34,6 @@ namespace MongoDB.Driver.Internal
         private readonly BlockingQueue<MongoServerInstance> _stateChangeQueue;
         private readonly Thread _stateChangeThread;
         private int _connectionAttempt;
-        private MongoServerInstance _primary;
         private string _replicaSetName;
         private MongoServerState _state;
 
@@ -95,14 +94,13 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                lock (_lock)
+                var instance = _connectedInstances.ChooseServerInstance(ReadPreference.Primary);
+                if (instance == null)
                 {
-                    if (_primary != null)
-                    {
-                        return _primary.BuildInfo;
-                    }
                     return null;
                 }
+
+                return instance.BuildInfo;
             }
         }
 
@@ -169,7 +167,7 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Chooses the server instance.
         /// </summary>
-        /// <param name="slaveOk">if set to <c>true</c> [slave ok].</param>
+        /// <param name="readPreference">The read preference.</param>
         /// <returns></returns>
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
@@ -200,7 +198,7 @@ namespace MongoDB.Driver.Internal
         /// Connects to the instances respecting the timeout and waitFor parameters.
         /// </summary>
         /// <param name="timeout">The timeout.</param>
-        /// <param name="waitFor">The wait for.</param>
+        /// <param name="readPreference">The read preference.</param>
         public void Connect(TimeSpan timeout, ReadPreference readPreference)
         {
             var timeoutAt = DateTime.UtcNow + timeout;
@@ -229,7 +227,7 @@ namespace MongoDB.Driver.Internal
                         throw new MongoConnectionException(string.Format(message, _replicaSetName));
                     }
 
-                    if (_state == MongoServerState.Connecting)
+                    if (_stateChangeQueue.Count > 0)
                     {
                         Monitor.Wait(_lock, TimeSpan.FromMilliseconds(20));
                         continue;
@@ -306,12 +304,6 @@ namespace MongoDB.Driver.Internal
             List<MongoServerInstance> instances;
             lock (_lock)
             {
-                // if we are disconnected or disconnecting, then our state is correct...
-                if (_state == MongoServerState.Disconnected || _state == MongoServerState.Disconnecting)
-                {
-                    return;
-                }
-
                 instances = _instances.ToList();
             }
 
@@ -374,6 +366,11 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
+                if (_instances.Count == 0)
+                {
+                    return MongoServerState.Disconnected;
+                }
+
                 // the order of the tests is significant
                 // and resolves ambiguities when more than one state might match
                 if (_state == MongoServerState.Disconnecting)
@@ -425,11 +422,6 @@ namespace MongoDB.Driver.Internal
                 if (!_connectedInstances.Contains(instance))
                 {
                     _connectedInstances.Add(instance);
-                }
-
-                if (_primary != instance)
-                {
-                    _primary = instance;
                 }
 
                 if (_replicaSetName == null)
@@ -527,11 +519,6 @@ namespace MongoDB.Driver.Internal
                     else
                     {
                         _connectedInstances.Remove(instance);
-
-                        if (_primary == instance)
-                        {
-                            _primary = null;
-                        }
                     }
 
                     SetState(DetermineServerState());

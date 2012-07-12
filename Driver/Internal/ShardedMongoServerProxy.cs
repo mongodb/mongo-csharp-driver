@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Internal
                         throw new MongoConnectionException("There were no mongos servers available. Ensure that the hosts listed in the connection string are available are are mongos'.");
                     }
 
-                    if (_state == MongoServerState.Connecting)
+                    if (_stateChangeQueue.Count > 0)
                     {
                         Monitor.Wait(_lock, TimeSpan.FromMilliseconds(20));
                         continue;
@@ -226,11 +226,6 @@ namespace MongoDB.Driver.Internal
                 instances = _instances.ToList();
             }
 
-            if (instances.Count == 0)
-            {
-                return;
-            }
-
             foreach (var instance in instances)
             {
                 instance.Ping();
@@ -245,12 +240,6 @@ namespace MongoDB.Driver.Internal
             List<MongoServerInstance> instances;
             lock (_lock)
             {
-                // if we are disconnected or disconnecting, then our state is correct...
-                if (_state == MongoServerState.Disconnected || _state == MongoServerState.Disconnecting)
-                {
-                    return;
-                }
-
                 instances = _instances.ToList();
             }
 

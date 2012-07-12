@@ -40,20 +40,13 @@ namespace MongoDB.Driver
         private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
-        private readonly IMongoServerProxy _serverProxy;
         private readonly object _serverLock = new object();
+        private readonly IMongoServerProxy _serverProxy;
         private readonly MongoServerSettings _settings;
         private readonly Dictionary<MongoDatabaseSettings, MongoDatabase> _databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private readonly Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private readonly IndexCache _indexCache = new IndexCache();
-
         private int _sequentialId;
-        private MongoServerState _state = MongoServerState.Disconnected;
-        private object _stateLock = new object(); // synchronize state changes
-        private int _connectionAttempt;
-        private List<MongoServerInstance> _instances = new List<MongoServerInstance>();
-        private MongoServerInstance _primary;
-        private string _replicaSetName;
 
         // static constructor
         static MongoServer()

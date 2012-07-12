@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         }
 
         // internal properties
-        internal TimeSpan PingTime
+        internal TimeSpan AveragePingTime
         {
             get { return _pingTimeAggregator.Average; }
         }
@@ -363,14 +363,8 @@ namespace MongoDB.Driver
         /// </summary>
         public void VerifyState()
         {
-            MongoServerState previousState;
-            lock (_serverInstanceLock)
+            if (!ShouldVerifyState())
             {
-                previousState = _state;
-            }
-            if (previousState != MongoServerState.Unknown && previousState != MongoServerState.Connected)
-            {
-                // known state will not change based on asking the server
                 return;
             }
 
@@ -380,16 +374,13 @@ namespace MongoDB.Driver
             {
                 try
                 {
-                    VerifyState(connection);
+                    Ping(connection);
+                    LookupServerInformation(connection);
                 }
                 catch
                 {
                     // ignore exceptions (if any occured state will already be set to Disconnected)
                     // Console.WriteLine("MongoServerInstance[{0}]: VerifyState failed: {1}.", sequentialId, ex.Message);
-                }
-                if (_state != previousState && _state == MongoServerState.Disconnected)
-                {
-                    _connectionPool.Clear();
                 }
             }
             finally
@@ -449,7 +440,8 @@ namespace MongoDB.Driver
                         var connection = _connectionPool.AcquireConnection(null);
                         try
                         {
-                            VerifyState(connection);
+                            Ping(connection);
+                            LookupServerInformation(connection);
                         }
                         finally
                         {
@@ -511,66 +503,14 @@ namespace MongoDB.Driver
         /// <param name="state">The state.</param>
         internal void SetState(MongoServerState state)
         {
-            lock (_serverInstanceLock)
+            lock(_serverInstanceLock)
             {
-                if (_state != state)
-                {
-                    _state = state;
-                    OnStateChanged();
-                }
+                SetState(state, _type, _isPrimary, _isSecondary, _isPassive, _isArbiter, _replicaSetInformation);
             }
         }
 
         // private methods
-        private void OnStateChanged()
-        {
-            if (StateChanged != null)
-            {
-                try { StateChanged(this, null); }
-                catch { } // ignore exceptions
-            }
-        }
-
-        private void Ping(MongoConnection connection)
-        {
-            try
-            {
-                Stopwatch stopwatch = Stopwatch.StartNew();
-                var pingCommand = new CommandDocument("ping", 1);
-                connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
-                stopwatch.Stop();
-                _pingTimeAggregator.Include(stopwatch.Elapsed);
-            }
-            catch
-            {
-                _pingTimeAggregator.Clear();
-                throw;
-            }
-        }
-
-        internal void StateVerificationTimerCallback()
-        {
-            if (_inStateVerification)
-            {
-                return;
-            }
-
-            _inStateVerification = true;
-            var connection = new MongoConnection(this);
-            try
-            {
-                Ping(connection);
-                VerifyState(connection);
-                ThreadPool.QueueUserWorkItem(o => _connectionPool.MaintainPoolSize());
-            }
-            catch { }
-            finally
-            {
-                _inStateVerification = false;
-            }
-        }
-
-        private void VerifyState(MongoConnection connection)
+        private void LookupServerInformation(MongoConnection connection)
         {
             IsMasterResult isMasterResult = null;
             bool ok = false;
@@ -648,6 +588,61 @@ namespace MongoDB.Driver
             }
         }
 
+        private void OnStateChanged()
+        {
+            if (StateChanged != null)
+            {
+                try { StateChanged(this, null); }
+                catch { } // ignore exceptions
+            }
+        }
+
+        private void Ping(MongoConnection connection)
+        {
+            try
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                var pingCommand = new CommandDocument("ping", 1);
+                connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
+                stopwatch.Stop();
+                _pingTimeAggregator.Include(stopwatch.Elapsed);
+            }
+            catch
+            {
+                _pingTimeAggregator.Clear();
+                SetState(MongoServerState.Disconnected);
+                throw;
+            }
+        }
+
+        internal void StateVerificationTimerCallback()
+        {
+            if (_inStateVerification)
+            {
+                return;
+            }
+
+            _inStateVerification = true;
+            try
+            {
+                if (!ShouldVerifyState())
+                {
+                    return;
+                }
+
+                var connection = new MongoConnection(this);
+
+                Ping(connection);
+                LookupServerInformation(connection);
+                ThreadPool.QueueUserWorkItem(o => _connectionPool.MaintainPoolSize());
+            }
+            catch { }
+            finally
+            {
+                _inStateVerification = false;
+            }
+        }
+
         private void SetState(
             MongoServerState state,
             MongoServerInstanceType type,
@@ -657,31 +652,48 @@ namespace MongoDB.Driver
             bool isArbiter,
             ReplicaSetInformation replicaSetInformation)
         {
-            bool changed = false;
-            bool replicaSetInformationIsDifferent = false;
-            if ((_replicaSetInformation == null && replicaSetInformation != null) || (_replicaSetInformation != replicaSetInformation))
+            lock (_serverInstanceLock)
             {
-                replicaSetInformationIsDifferent = true;
-            }
-            if (_state != state || _type != type || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
-            {
-                changed = true;
-                _state = state;
-                _type = type;
-                if (_replicaSetInformation != replicaSetInformation)
+                bool changed = false;
+                bool replicaSetInformationIsDifferent = false;
+                if ((_replicaSetInformation == null && replicaSetInformation != null) || (_replicaSetInformation != replicaSetInformation))
                 {
-                    _replicaSetInformation = replicaSetInformation;
+                    replicaSetInformationIsDifferent = true;
                 }
-                _isPrimary = isPrimary;
-                _isSecondary = isSecondary;
-                _isPassive = isPassive;
-                _isArbiter = isArbiter;
-            }
+                if (_state != state || _type != type || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
+                {
+                    changed = true;
+                    _state = state;
+                    _type = type;
+                    if (_replicaSetInformation != replicaSetInformation)
+                    {
+                        _replicaSetInformation = replicaSetInformation;
+                    }
+                    _isPrimary = isPrimary;
+                    _isSecondary = isSecondary;
+                    _isPassive = isPassive;
+                    _isArbiter = isArbiter;
+                }
 
-            if (changed)
-            {
-                OnStateChanged();
+                if (changed)
+                {
+                    if (_state == MongoServerState.Disconnected)
+                    {
+                        _connectionPool.Clear();
+                    }
+                    OnStateChanged();
+                }
             }
+        }
+
+        private bool ShouldVerifyState()
+        {
+            MongoServerState currentState;
+            lock (_serverInstanceLock)
+            {
+                currentState = _state;
+            }
+            return currentState == MongoServerState.Unknown || currentState == MongoServerState.Connected;
         }
     }
 }

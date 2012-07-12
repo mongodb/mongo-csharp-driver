@@ -25,11 +25,16 @@ namespace MongoDB.Driver.Internal
     /// </summary>
     internal class PingTimeAggregator
     {
+        // constants
+        private const int MAX_COUNT = 5;
+
         // private fields
         private readonly object _lock = new object();
         private readonly int _maxCount;
-        private readonly LinkedList<TimeSpan> _timespans;
+        private readonly TimeSpan[] _pingTimes;
         private TimeSpan _average;
+        private int _currentTotal;
+        private int _currentIndex;
 
         // constructors
         /// <summary>
@@ -39,7 +44,7 @@ namespace MongoDB.Driver.Internal
         public PingTimeAggregator(int maxCount)
         {
             _maxCount = maxCount;
-            _timespans = new LinkedList<TimeSpan>();
+            _pingTimes = new TimeSpan[5];
             _average = TimeSpan.MaxValue;
         }
 
@@ -66,7 +71,8 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
-                _timespans.Clear();
+                _currentIndex = 0;
+                _currentTotal = 0;
                 _average = TimeSpan.MaxValue;
             }
         }
@@ -79,13 +85,17 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
-                _timespans.AddLast(pingTime);
-                if (_timespans.Count >= _maxCount)
+                _pingTimes[_currentIndex++] = pingTime;
+                if (_currentIndex >= MAX_COUNT)
                 {
-                    _timespans.RemoveFirst();
+                    _currentIndex = 0;
+                }
+                if (_currentTotal < MAX_COUNT)
+                {
+                    _currentTotal++;
                 }
 
-                _average = new TimeSpan((long)_timespans.Average(x => x.Ticks));
+                _average = new TimeSpan((long)_pingTimes.Take(_currentTotal).Average(x => x.Ticks));
             }
         }
     }

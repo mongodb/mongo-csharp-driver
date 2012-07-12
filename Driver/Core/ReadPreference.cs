@@ -414,7 +414,7 @@ namespace MongoDB.Driver
             TimeSpan maxPingTime = TimeSpan.MaxValue;
             foreach (var instance in connectedInstancesByPingTime)
             {
-                if (instance.PingTime > maxPingTime)
+                if (instance.AveragePingTime > maxPingTime)
                 {
                     break; // any subsequent instances will also exceed maxPingTime
                 }
@@ -423,7 +423,14 @@ namespace MongoDB.Driver
                     if (maxPingTime == TimeSpan.MaxValue)
                     {
                         var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
-                        maxPingTime = instance.PingTime + secondaryAcceptableLatency;
+                        try
+                        {
+                            maxPingTime = instance.AveragePingTime + secondaryAcceptableLatency;
+                        }
+                        catch (OverflowException)
+                        {
+                            maxPingTime = TimeSpan.MaxValue;
+                        }
                     }
                     matchingInstances.Add(instance);
                 }

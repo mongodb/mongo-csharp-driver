@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Internal
         private readonly object _lock = new object();
         private readonly Timer _timer;
         private List<MongoServerInstance> _instances;
-        private int _currentIndex;
 
         // public properties
         /// <summary>
@@ -113,10 +112,6 @@ namespace MongoDB.Driver.Internal
             lock (_lock)
             {
                 _instances.Remove(instance);
-                if (_currentIndex >= _instances.Count)
-                {
-                    _currentIndex = 0;
-                }
             }
         }
 
@@ -133,7 +128,7 @@ namespace MongoDB.Driver.Internal
                     return;
                 }
 
-                _instances.Sort((x, y) => x.PingTime.CompareTo(y.PingTime));
+                _instances.Sort((x, y) => x.AveragePingTime.CompareTo(y.AveragePingTime));
             }
         }
     }
