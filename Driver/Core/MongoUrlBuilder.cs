@@ -44,10 +44,11 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private ReadPreference _readPreference;
         private string _replicaSetName;
         private SafeMode _safeMode;
         private IEnumerable<MongoServerAddress> _servers;
-        private bool _slaveOk;
+        private bool? _slaveOk;
         private TimeSpan _socketTimeout;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
@@ -181,6 +182,36 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read preference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get
+            {
+                if (_readPreference != null)
+                {
+                    return _readPreference;
+                }
+                else if (_slaveOk.HasValue)
+                {
+                    return ReadPreference.FromSlaveOk(_slaveOk.Value);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (_slaveOk.HasValue)
+                {
+                    throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
+                }
+                _readPreference = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the name of the replica set.
         /// </summary>
         public string ReplicaSetName
@@ -219,10 +250,32 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
-            set { _slaveOk = value; }
+            get
+            {
+                if (_slaveOk.HasValue)
+                {
+                    return _slaveOk.Value;
+                }
+                else if (_readPreference != null)
+                {
+                    return _readPreference.ToSlaveOk();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                if (_readPreference != null)
+                {
+                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
+                }
+                _slaveOk = value;
+            }
         }
 
         /// <summary>
@@ -346,6 +399,33 @@ namespace MongoDB.Driver
             {
                 throw new FormatException(FormatMessage(name, s));
             }
+        }
+
+        internal static ReadPreferenceMode ParseReadPreferenceMode(string name, string s)
+        {
+            try
+            {
+                return (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), s, true); // ignoreCase
+            }
+            catch (ArgumentException)
+            {
+                throw new FormatException(FormatMessage(name, s));
+            }
+        }
+
+        internal static ReplicaSetTagSet ParseReplicaSetTagSet(string name, string s)
+        {
+            var tagSet = new ReplicaSetTagSet();
+            foreach (var tag in s.Split(','))
+            {
+                var parts = tag.Split(':');
+                if (parts.Length != 2)
+                {
+                    throw new FormatException(FormatMessage(name, s));
+                }
+                tagSet.Add(new ReplicaSetTag(parts[0].Trim(), parts[1].Trim()));
+            }
+            return tagSet;
         }
 
         internal static TimeSpan ParseTimeSpan(string name, string s)
@@ -521,6 +601,14 @@ namespace MongoDB.Driver
                             case "minpoolsize":
                                 _minConnectionPoolSize = ParseInt32(name, value);
                                 break;
+                            case "readpreference":
+                                if (_readPreference == null) { _readPreference = new ReadPreference(); }
+                                _readPreference.ReadPreferenceMode = ParseReadPreferenceMode(name, value);
+                                break;
+                            case "readpreferencetags":
+                                if (_readPreference == null) { _readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Primary }; }
+                                _readPreference.AddTagSet(ParseReplicaSetTagSet(name, value));
+                                break;
                             case "replicaset":
                                 _replicaSetName = value;
                                 break;
@@ -588,7 +676,7 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerSettings.</returns>
         public MongoServerSettings ToServerSettings()
         {
-            var readPreference = ReadPreference.FromSlaveOk(_slaveOk);
+            var readPreference = ReadPreference ?? ReadPreference.Primary;
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, _defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
                 _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, ComputedWaitQueueSize, _waitQueueTimeout);
@@ -642,9 +730,20 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("replicaSet={0};", _replicaSetName);
             }
-            if (_slaveOk)
+            if (_slaveOk.HasValue)
             {
-                query.AppendFormat("slaveOk=true;");
+                query.AppendFormat("slaveOk={0};", _slaveOk.Value ? "true" : "false"); // note: bool.ToString() returns "True" and "False"
+            }
+            if (_readPreference != null)
+            {
+                query.AppendFormat("readPreference={0};", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
+                if (_readPreference.TagSets != null)
+                {
+                    foreach (var tagSet in _readPreference.TagSets)
+                    {
+                        query.AppendFormat("readPreferenceTags={0};", string.Join(",", tagSet.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
+                    }
+                }
             }
             if (_safeMode != null && _safeMode.Enabled)
             {
@@ -739,10 +838,11 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readPreference = null;
             _replicaSetName = null;
             _safeMode = null;
             _servers = null;
-            _slaveOk = false;
+            _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;

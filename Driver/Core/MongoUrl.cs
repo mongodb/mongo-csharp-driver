@@ -60,7 +60,6 @@ namespace MongoDB.Driver
 
         // private fields
         private MongoServerSettings _serverSettings;
-        private bool _slaveOk;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
         private string _databaseName;
@@ -75,7 +74,6 @@ namespace MongoDB.Driver
         {
             var builder = new MongoUrlBuilder(url); // parses url
             _serverSettings = builder.ToServerSettings().FrozenCopy();
-            _slaveOk = builder.SlaveOk;
             _waitQueueMultiple = builder.WaitQueueMultiple;
             _waitQueueSize = builder.WaitQueueSize;
             _databaseName = builder.DatabaseName;
@@ -182,6 +180,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the read preference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _serverSettings.ReadPreference; }
+        }
+
+        /// <summary>
         /// Gets the name of the replica set.
         /// </summary>
         public string ReplicaSetName
@@ -214,11 +220,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether queries should be sent to secondary servers.
+        /// Gets whether queries can be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+#pragma warning disable 618
+            get { return _serverSettings.SlaveOk; }
+#pragma warning restore
         }
 
         /// <summary>
