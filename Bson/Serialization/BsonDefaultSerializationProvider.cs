@@ -239,7 +239,10 @@ namespace MongoDB.Bson.Serialization
                 if (readOnlyCollectionType.IsAssignableFrom(type))
                 {
                     genericSerializerDefinition = typeof(ReadOnlyCollectionSerializer<>);
-                    BsonSerializer.RegisterDiscriminator(type, type.Name);
+                    if (type != readOnlyCollectionType)
+                    {
+                        BsonSerializer.RegisterDiscriminator(type, type.Name);
+                    }
                 }
                 else
                 {
