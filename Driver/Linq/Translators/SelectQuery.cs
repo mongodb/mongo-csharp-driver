@@ -303,7 +303,16 @@ namespace MongoDB.Driver.Linq
             }
 
             var keyExpression = _projection.Body;
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
+            BsonSerializationInfo serializationInfo;
+            try
+            {
+                serializationInfo = _serializationInfoHelper.GetSerializationInfo(keyExpression);
+            }
+            catch
+            {
+                throw new NotSupportedException("Distinct is only supported for a single field. Projections used with Distinct must resolve to a single field in the document.");
+            }
+
             var dottedElementName = serializationInfo.ElementName;
             var source = Collection.Distinct(dottedElementName, query);
 
