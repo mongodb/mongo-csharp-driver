@@ -23,29 +23,13 @@ using System.Threading;
 namespace MongoDB.Driver.Internal
 {
     /// <summary>
-    /// Chooses the server in a round robin of those with the lowest ping times.
+    /// Maintains a sorted list of connected instances by ping time.
     /// </summary>
     internal class ConnectedInstanceCollection
     {
         // private fields
         private readonly object _lock = new object();
-        private readonly Timer _timer;
         private List<MongoServerInstance> _instances;
-
-        // public properties
-        /// <summary>
-        /// Gets the count.
-        /// </summary>
-        public int Count
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _instances.Count;
-                }
-            }
-        }
 
         // constructors
         /// <summary>
@@ -54,7 +38,6 @@ namespace MongoDB.Driver.Internal
         public ConnectedInstanceCollection()
         {
             _instances = new List<MongoServerInstance>();
-            _timer = new Timer(o => Update(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
         }
 
         // public methods
@@ -66,7 +49,16 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
-                _instances.Add(instance);
+                var index = _instances.FindIndex(x => x.AveragePingTime >= instance.AveragePingTime);
+                if (index == -1)
+                {
+                    _instances.Add(instance);
+                }
+                else
+                {
+                    _instances.Insert(index + 1, instance);
+                }
+                instance.AveragePingTimeChanged += InstanceAveragePingTimeChanged;
             }
         }
 
@@ -111,23 +103,16 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
+                instance.AveragePingTimeChanged -= InstanceAveragePingTimeChanged;
                 _instances.Remove(instance);
             }
         }
 
         // private methods
-        /// <summary>
-        /// Updates this instance.
-        /// </summary>
-        private void Update()
+        private void InstanceAveragePingTimeChanged(object sender, EventArgs e)
         {
             lock (_lock)
             {
-                if (_instances.Count == 0)
-                {
-                    return;
-                }
-
                 _instances.Sort((x, y) => x.AveragePingTime.CompareTo(y.AveragePingTime));
             }
         }

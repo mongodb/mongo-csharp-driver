@@ -59,6 +59,9 @@ namespace MongoDB.Driver
         /// </summary>
         public event EventHandler StateChanged;
 
+        //internal events
+        internal event EventHandler AveragePingTimeChanged;
+
         // private fields
         private readonly object _serverInstanceLock = new object();
         private readonly MongoServer _server;
@@ -588,6 +591,15 @@ namespace MongoDB.Driver
             }
         }
 
+        private void OnAveragePingTimeChanged()
+        {
+            if (AveragePingTimeChanged != null)
+            {
+                try { AveragePingTimeChanged(this, EventArgs.Empty); }
+                catch { } // ignore exceptions
+            }
+        }
+
         private void OnStateChanged()
         {
             if (StateChanged != null)
@@ -605,7 +617,13 @@ namespace MongoDB.Driver
                 var pingCommand = new CommandDocument("ping", 1);
                 connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
                 stopwatch.Stop();
+                var currentAverage = _pingTimeAggregator.Average;
                 _pingTimeAggregator.Include(stopwatch.Elapsed);
+                var newAverage = _pingTimeAggregator.Average;
+                if (currentAverage != newAverage)
+                {
+                    OnAveragePingTimeChanged();
+                }
             }
             catch
             {
