@@ -234,7 +234,17 @@ namespace MongoDB.Bson.Serialization
             else if (implementedGenericEnumerableInterface != null)
             {
                 var valueType = implementedGenericEnumerableInterface.GetGenericArguments()[0];
-                var genericSerializerDefinition = typeof(EnumerableSerializer<>);
+                var readOnlyCollectionType = typeof(ReadOnlyCollection<>).MakeGenericType(valueType);
+                Type genericSerializerDefinition;
+                if (readOnlyCollectionType.IsAssignableFrom(type))
+                {
+                    genericSerializerDefinition = typeof(ReadOnlyCollectionSerializer<>);
+                    BsonSerializer.RegisterDiscriminator(type, type.Name);
+                }
+                else
+                {
+                    genericSerializerDefinition = typeof(EnumerableSerializer<>);
+                }
                 var genericSerializerType = genericSerializerDefinition.MakeGenericType(valueType);
                 return (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
             }
