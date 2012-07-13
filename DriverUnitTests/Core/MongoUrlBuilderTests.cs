@@ -657,6 +657,9 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(2, builderTagSets.Length);
             var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
             var builderTagSet2Tags = builderTagSets[1].Tags.ToArray();
+            Assert.AreEqual(2, builderTagSet1Tags.Length);
+            Assert.AreEqual(new ReplicaSetTag("dc", "ny"), builderTagSet1Tags[0]);
+            Assert.AreEqual(new ReplicaSetTag("rack", "1"), builderTagSet1Tags[1]);
             Assert.AreEqual(1, builderTagSet2Tags.Length);
             Assert.AreEqual(new ReplicaSetTag("dc", "sf"), builderTagSet2Tags[0]);
 

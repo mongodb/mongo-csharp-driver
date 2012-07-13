@@ -416,14 +416,15 @@ namespace MongoDB.Driver
         internal static ReplicaSetTagSet ParseReplicaSetTagSet(string name, string s)
         {
             var tagSet = new ReplicaSetTagSet();
-            foreach (var tag in s.Split(','))
+            foreach (var tagString in s.Split(','))
             {
-                var parts = tag.Split(':');
+                var parts = tagString.Split(':');
                 if (parts.Length != 2)
                 {
                     throw new FormatException(FormatMessage(name, s));
                 }
-                tagSet.Add(new ReplicaSetTag(parts[0].Trim(), parts[1].Trim()));
+                var tag = new ReplicaSetTag(parts[0].Trim(), parts[1].Trim());
+                tagSet.Add(tag);
             }
             return tagSet;
         }
