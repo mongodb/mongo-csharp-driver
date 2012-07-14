@@ -223,7 +223,7 @@ namespace MongoDB.Driver
         public bool MatchesInstance(MongoServerInstance instance)
         {
             // an empty tag set matches anything
-            if (instance.Type != MongoServerInstanceType.ReplicaSetMember || _tags.Count == 0)
+            if (instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _tags.Count == 0)
             {
                 return true;
             }
@@ -246,7 +246,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the user.</returns>
         public override string ToString()
         {
-            return string.Join(", ", _tags.Select(t => t.ToString()).ToArray());
+            return string.Format("{{{0}}}", string.Join(", ", _tags.Select(t => t.ToString()).ToArray()));
         }
 
         // private methods

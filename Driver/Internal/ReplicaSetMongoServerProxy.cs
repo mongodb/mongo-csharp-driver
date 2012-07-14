@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Internal
         /// </returns>
         protected override bool IsValidInstance(MongoServerInstance instance)
         {
-            if (instance.Type != MongoServerInstanceType.ReplicaSetMember)
+            if (instance.InstanceType != MongoServerInstanceType.ReplicaSetMember)
             {
                 return false;
             }

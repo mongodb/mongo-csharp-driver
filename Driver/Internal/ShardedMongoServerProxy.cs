@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Internal
         /// </returns>
         protected override bool IsValidInstance(MongoServerInstance instance)
         {
-            return instance.Type == MongoServerInstanceType.ShardRouter;
+            return instance.InstanceType == MongoServerInstanceType.ShardRouter;
         }
     }
 }

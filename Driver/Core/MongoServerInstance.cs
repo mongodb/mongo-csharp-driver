@@ -83,7 +83,7 @@ namespace MongoDB.Driver
         private ReplicaSetInformation _replicaSetInformation;
         private int _sequentialId;
         private MongoServerState _state;
-        private MongoServerInstanceType _type;
+        private MongoServerInstanceType _instanceType;
 
         // constructors
         /// <summary>
@@ -99,7 +99,7 @@ namespace MongoDB.Driver
             _maxDocumentSize = MongoDefaults.MaxDocumentSize;
             _maxMessageLength = MongoDefaults.MaxMessageLength;
             _state = MongoServerState.Disconnected;
-            _type = MongoServerInstanceType.Unknown;
+            _instanceType = MongoServerInstanceType.Unknown;
             _connectionPool = new MongoConnectionPool(this);
             _pingTimeAggregator = new PingTimeAggregator(5);
             _stateVerificationTimer = new Timer(o => StateVerificationTimerCallback(), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
@@ -127,15 +127,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the type.
+        /// Gets the instance type.
         /// </summary>
-        internal MongoServerInstanceType Type
+        internal MongoServerInstanceType InstanceType
         {
             get 
             {
                 lock (_serverInstanceLock)
                 {
-                    return _type;
+                    return _instanceType;
                 }
             }
         }
@@ -508,7 +508,7 @@ namespace MongoDB.Driver
         {
             lock(_serverInstanceLock)
             {
-                SetState(state, _type, _isPrimary, _isSecondary, _isPassive, _isArbiter, _replicaSetInformation);
+                SetState(state, _instanceType, _isPrimary, _isSecondary, _isPassive, _isArbiter, _replicaSetInformation);
             }
         }
 
@@ -546,17 +546,17 @@ namespace MongoDB.Driver
                 }
 
                 ReplicaSetInformation replicaSetInformation = null;
-                MongoServerInstanceType type = MongoServerInstanceType.StandAlone;
+                MongoServerInstanceType instanceType = MongoServerInstanceType.StandAlone;
                 if (isMasterResult.ReplicaSetName != null)
                 {
                     var tagSet = new ReplicaSetTagSet();
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
                     replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, tagSet);
-                    type = MongoServerInstanceType.ReplicaSetMember;
+                    instanceType = MongoServerInstanceType.ReplicaSetMember;
                 }
                 else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")
                 {
-                    type = MongoServerInstanceType.ShardRouter;
+                    instanceType = MongoServerInstanceType.ShardRouter;
                 }
 
                 lock (_serverInstanceLock)
@@ -566,7 +566,7 @@ namespace MongoDB.Driver
                     _maxMessageLength = isMasterResult.MaxMessageLength;
                     _buildInfo = buildInfo;
                     this.SetState(MongoServerState.Connected,
-                        type,
+                        instanceType,
                         isMasterResult.IsPrimary,
                         isMasterResult.IsSecondary,
                         isMasterResult.IsPassive,
@@ -585,7 +585,7 @@ namespace MongoDB.Driver
                         _maxDocumentSize = MongoDefaults.MaxDocumentSize;
                         _maxMessageLength = MongoDefaults.MaxMessageLength;
                         _buildInfo = null;
-                        this.SetState(MongoServerState.Disconnected, _type, false, false, false, false, null);
+                        this.SetState(MongoServerState.Disconnected, _instanceType, false, false, false, false, null);
                     }
                 }
             }
@@ -663,7 +663,7 @@ namespace MongoDB.Driver
 
         private void SetState(
             MongoServerState state,
-            MongoServerInstanceType type,
+            MongoServerInstanceType instanceType,
             bool isPrimary,
             bool isSecondary,
             bool isPassive,
@@ -678,11 +678,11 @@ namespace MongoDB.Driver
                 {
                     replicaSetInformationIsDifferent = true;
                 }
-                if (_state != state || _type != type || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
+                if (_state != state || _instanceType != instanceType || replicaSetInformationIsDifferent || _isPrimary != isPrimary || _isSecondary != isSecondary || _isPassive != isPassive || _isArbiter != isArbiter)
                 {
                     changed = true;
                     _state = state;
-                    _type = type;
+                    _instanceType = instanceType;
                     if (_replicaSetInformation != replicaSetInformation)
                     {
                         _replicaSetInformation = replicaSetInformation;

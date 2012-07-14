@@ -330,14 +330,45 @@ namespace MongoDB.Driver
 
         private IMongoQuery WrapQuery()
         {
-            if (_cursor.Options == null)
+            BsonDocument formattedReadPreference = null;
+            if (_serverInstance.InstanceType == MongoServerInstanceType.ShardRouter)
+            {
+                var readPreference = _cursor.ReadPreference;
+
+                BsonArray tagSetsArray = null;
+                if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && readPreference.TagSets != null)
+                {
+                    tagSetsArray = new BsonArray();
+                    foreach (var tagSet in readPreference.TagSets)
+                    {
+                        var tagSetDocument = new BsonDocument();
+                        foreach (var tag in tagSet)
+                        {
+                            tagSetDocument.Add(tag.Name, tag.Value);
+                        }
+                        tagSetsArray.Add(tagSetDocument);
+                    }
+                }
+
+                formattedReadPreference = new BsonDocument
+                {
+                    { "mode", MongoUtils.ToCamelCase(readPreference.ReadPreferenceMode.ToString()) },
+                    { "tags", tagSetsArray, tagSetsArray != null } // optional
+                };
+            }
+
+            if (_cursor.Options == null && formattedReadPreference == null)
             {
                 return _cursor.Query;
             }
             else
             {
                 var query = (_cursor.Query == null) ? (BsonValue)new BsonDocument() : BsonDocumentWrapper.Create(_cursor.Query);
-                var wrappedQuery = new QueryDocument("$query", query);
+                var wrappedQuery = new QueryDocument
+                {
+                    { "$readPreference", formattedReadPreference, formattedReadPreference != null }, // only if sending query to a mongos
+                    { "$query", query }
+                };
                 wrappedQuery.Merge(_cursor.Options);
                 return wrappedQuery;
             }

@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Internal
                             }
 
                             if (_server.Settings.ReplicaSetName != null && 
-                                (_instance.Type != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _server.Settings.ReplicaSetName))
+                                (_instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _server.Settings.ReplicaSetName))
                             {
                                 exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' is not a member of replica set '{1}'.", address, _server.Settings.ReplicaSetName)));
                                 continue;

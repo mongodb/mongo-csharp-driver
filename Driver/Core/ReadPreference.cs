@@ -354,7 +354,7 @@ namespace MongoDB.Driver
                     throw new MongoInternalException("Invalid ReadPreferenceMode");
             }
 
-            if (_tagSets != null && instance.Type == MongoServerInstanceType.ReplicaSetMember)
+            if (_tagSets != null && instance.InstanceType == MongoServerInstanceType.ReplicaSetMember)
             {
                 var someSetMatches = false;
                 foreach (var tagSet in _tagSets)
@@ -387,7 +387,8 @@ namespace MongoDB.Driver
             }
             else
             {
-                return string.Format("{0}(tags: {1})}", _readPreferenceMode, _tagSets);
+                var tagSets = string.Format("[{0}]", string.Join(", ", _tagSets.Select(ts => ts.ToString()).ToArray()));
+                return string.Format("{0} (tags = {1})", _readPreferenceMode, tagSets);
             }
         }
 

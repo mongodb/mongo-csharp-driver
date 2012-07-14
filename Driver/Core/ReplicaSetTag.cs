@@ -134,7 +134,7 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the user.</returns>
         public override string ToString()
         {
-            return string.Format("{0}={1}", _name, _value);
+            return string.Format("{0}:{1}", _name, _value);
         }
 
         // private methods

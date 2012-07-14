@@ -308,15 +308,15 @@ namespace MongoDB.Driver.Internal
         private void CreateActualProxy(MongoServerInstance instance, BlockingQueue<MongoServerInstance> connectionQueue)
         {
             // we are already in a write lock here...
-            if (instance.Type == MongoServerInstanceType.ReplicaSetMember)
+            if (instance.InstanceType == MongoServerInstanceType.ReplicaSetMember)
             {
                 _serverProxy = new ReplicaSetMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
             }
-            else if (instance.Type == MongoServerInstanceType.ShardRouter)
+            else if (instance.InstanceType == MongoServerInstanceType.ShardRouter)
             {
                 _serverProxy = new ShardedMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
             }
-            else if (instance.Type == MongoServerInstanceType.StandAlone)
+            else if (instance.InstanceType == MongoServerInstanceType.StandAlone)
             {
                 var otherInstances = _instances.Where(x => x != instance).ToList();
                 foreach (var otherInstance in otherInstances)
