@@ -39,10 +39,11 @@ namespace MongoDB.Driver.Linq
         private Type _ofType;
         private List<OrderByClause> _orderBy;
         private LambdaExpression _projection;
-        private Expression _skip;
-        private Expression _take;
+        private int? _skip;
+        private int? _take;
         private Func<IEnumerable, object> _elementSelector; // used for First, Last, etc...
         private LambdaExpression _distinct;
+        private Expression _lastExpression;
 
         // constructors
         /// <summary>
@@ -84,7 +85,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets the Expression that defines how many documents to skip (or null if not specified).
         /// </summary>
-        public Expression Skip
+        public int? Skip
         {
             get { return _skip; }
         }
@@ -92,7 +93,7 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Gets the Expression that defines how many documents to take (or null if not specified);
         /// </summary>
-        public Expression Take
+        public int? Take
         {
             get { return _take; }
         }
@@ -154,12 +155,12 @@ namespace MongoDB.Driver.Linq
 
             if (_skip != null)
             {
-                cursor.SetSkip(ToInt32(_skip));
+                cursor.SetSkip(_skip.Value);
             }
 
             if (_take != null)
             {
-                cursor.SetLimit(ToInt32(_take));
+                cursor.SetLimit(_take.Value);
             }
 
             var projection = _projection;
@@ -284,6 +285,18 @@ namespace MongoDB.Driver.Linq
 
                 var combinedBody = Expression.AndAlso(whereBody, predicateBody);
                 _where = Expression.Lambda(combinedBody, parameter);
+            }
+        }
+
+        private void EnsurePreviousExpressionIsSkipOrTake()
+        {
+            if (_skip.HasValue || _take.HasValue)
+            {
+                var lastExpressionAsMethodCall = _lastExpression as MethodCallExpression;
+                if (lastExpressionAsMethodCall == null || (lastExpressionAsMethodCall.Method.Name != "Skip" && lastExpressionAsMethodCall.Method.Name != "Take"))
+                {
+                    throw new MongoQueryException("Skip and Take may only be used in conjunction with each other and cannot be separated by other operations.");
+                }
             }
         }
 
@@ -432,8 +445,8 @@ namespace MongoDB.Driver.Linq
 
             // ElementAt can be implemented more efficiently in terms of Skip, Limit and First
             var index = ToInt32(methodCallExpression.Arguments[1]);
-            _skip = Expression.Constant(index);
-            _take = Expression.Constant(1);
+            _skip = index;
+            _take = 1;
 
             switch (methodCallExpression.Method.Name)
             {
@@ -464,19 +477,19 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "First":
-                    _take = Expression.Constant(1);
+                    _take = 1;
                     SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
                     break;
                 case "FirstOrDefault":
-                    _take = Expression.Constant(1);
+                    _take = 1;
                     SetElementSelector(methodCallExpression, source => source.Cast<object>().FirstOrDefault());
                     break;
                 case "Single":
-                    _take = Expression.Constant(2);
+                    _take = 2;
                     SetElementSelector(methodCallExpression, source => source.Cast<object>().Single());
                     break;
                 case "SingleOrDefault":
-                    _take = Expression.Constant(2);
+                    _take = 2;
                     SetElementSelector(methodCallExpression, source => source.Cast<object>().SingleOrDefault());
                     break;
             }
@@ -506,7 +519,7 @@ namespace MongoDB.Driver.Linq
                     var oppositeDirection = (clause.Direction == OrderByDirection.Descending) ? OrderByDirection.Ascending : OrderByDirection.Descending;
                     _orderBy[i] = new OrderByClause(clause.Key, oppositeDirection);
                 }
-                _take = Expression.Constant(1);
+                _take = 1;
 
                 switch (methodCallExpression.Method.Name)
                 {
@@ -589,7 +602,7 @@ namespace MongoDB.Driver.Linq
                 _orderBy.Add(clause);
             }
 
-            _take = Expression.Constant(1);
+            _take = 1;
             SetElementSelector(methodCallExpression, source => source.Cast<object>().First());
         }
 
@@ -603,6 +616,7 @@ namespace MongoDB.Driver.Linq
 
             var source = methodCallExpression.Arguments[0];
             Translate(source);
+            _lastExpression = source;
 
             if (_distinct != null)
             {
@@ -779,7 +793,27 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            _skip = StripQuote(methodCallExpression.Arguments[1]);
+            EnsurePreviousExpressionIsSkipOrTake();
+
+            var value = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
+
+            if (_take.HasValue)
+            {
+                if (value > _take.Value)
+                {
+                    var message = string.Format("The computed value for Skip({0}) is greater than the currently available count specified by Take({1}).", value, _take);
+                    throw new MongoQueryException(message);
+                }
+
+                _take = _take.Value - value;
+            }
+
+            if (_skip.HasValue)
+            {
+                value += _skip.Value;
+            }
+
+            _skip = value;
         }
 
         private void TranslateTake(MethodCallExpression methodCallExpression)
@@ -789,7 +823,17 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            _take = StripQuote(methodCallExpression.Arguments[1]);
+            EnsurePreviousExpressionIsSkipOrTake();
+
+            var value = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
+
+            if (_take.HasValue && value > _take.Value)
+            {
+                var message = string.Format("The computed value for Take({0}) is greater than the currently available count({1}).", value, _take);
+                throw new MongoQueryException(message);
+            }
+
+            _take = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
         }
 
         private void TranslateThenBy(MethodCallExpression methodCallExpression)

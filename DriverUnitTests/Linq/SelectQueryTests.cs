@@ -1834,7 +1834,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Where);
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
-            Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Skip));
+            Assert.AreEqual(2, selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 
             Assert.IsNull(selectQuery.BuildQuery());
@@ -1897,7 +1897,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNull(selectQuery.Projection);
             Assert.IsNull(selectQuery.Skip);
-            Assert.AreEqual("2", ExpressionFormatter.ToString(selectQuery.Take));
+            Assert.AreEqual(2, selectQuery.Take);
 
             Assert.IsNull(selectQuery.BuildQuery());
             Assert.AreEqual(2, Consume(query));
