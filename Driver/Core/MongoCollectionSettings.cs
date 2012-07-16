@@ -35,7 +35,6 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private SafeMode _safeMode;
 
-        // private fields
         // the following fields are set when Freeze is called
         private bool _isFrozen;
         private int _frozenHashCode;
@@ -50,6 +49,19 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
         protected MongoCollectionSettings(MongoDatabase database, string collectionName, Type defaultDocumentType)
         {
+            if (database == null)
+            {
+                throw new ArgumentNullException("database");
+            }
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+            if (defaultDocumentType == null)
+            {
+                throw new ArgumentNullException("defaultDocumentType");
+            }
+
             var databaseSettings = database.Settings;
             _collectionName = collectionName;
             _assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
@@ -76,6 +88,23 @@ namespace MongoDB.Driver
             ReadPreference readPreference,
             SafeMode safeMode)
         {
+            if (collectionName == null)
+            {
+                throw new ArgumentNullException("collectionName");
+            }
+            if (defaultDocumentType == null)
+            {
+                throw new ArgumentNullException("defaultDocumentType");
+            }
+            if (readPreference == null)
+            {
+                throw new ArgumentNullException("readPreference");
+            }
+            if (safeMode == null)
+            {
+                throw new ArgumentNullException("safeMode");
+            }
+
             _collectionName = collectionName;
             _assignIdOnInsert = assignIdOnInsert;
             _defaultDocumentType = defaultDocumentType;
@@ -144,6 +173,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _readPreference = value;
             }
         }
@@ -157,6 +190,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _safeMode = value;
             }
         }
@@ -262,12 +299,12 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((_collectionName == null) ? 0 : _collectionName.GetHashCode());
+            hash = 37 * hash + _collectionName.GetHashCode();
             hash = 37 * hash + _assignIdOnInsert.GetHashCode();
-            hash = 37 * hash + ((_defaultDocumentType == null) ? 0 : _defaultDocumentType.GetHashCode());
+            hash = 37 * hash + _defaultDocumentType.GetHashCode();
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _safeMode.GetHashCode();
             return hash;
         }
 

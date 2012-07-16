@@ -40,7 +40,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
-            var settings = new MongoGridFSSettings
+            var settings = new MongoGridFSSettings(_database)
             {
                 ChunkSize = 16,
                 SafeMode = SafeMode.True

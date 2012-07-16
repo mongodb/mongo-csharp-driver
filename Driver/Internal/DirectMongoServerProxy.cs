@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Internal
                             _instance.Connect(); // TODO: what about timeout?
                             if (!readPreference.MatchesInstance(_instance))
                             {
-                                exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' does not match the read preference {1}.", address, _server.Settings.ReadPreference)));
+                                exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' does not match the read preference {1}.", address, readPreference)));
                                 continue;
                             }
 

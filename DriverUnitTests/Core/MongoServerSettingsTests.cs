@@ -57,6 +57,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(TimeSpan.FromSeconds(3), settings.MaxConnectionLifeTime);
             Assert.AreEqual(99, settings.MaxConnectionPoolSize);
             Assert.AreEqual(11, settings.MinConnectionPoolSize);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual("replicaname", settings.ReplicaSetName);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(4)), settings.SafeMode);
             Assert.AreEqual(new MongoServerAddress("server"), settings.Server);
@@ -79,6 +80,8 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDefaults()
         {
+            var localhost = new MongoServerAddress("localhost");
+
             var settings = new MongoServerSettings();
             Assert.AreEqual(ConnectionMode.Direct, settings.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
@@ -89,10 +92,12 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, settings.SafeMode);
-            Assert.AreEqual(null, settings.Server);
-            Assert.AreEqual(null, settings.Servers);
+            Assert.AreEqual(1, settings.Servers.Count());
+            Assert.AreEqual(localhost, settings.Server);
+            Assert.AreEqual(localhost, settings.Servers.First());
             Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);

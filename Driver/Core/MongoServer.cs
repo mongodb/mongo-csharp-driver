@@ -526,6 +526,10 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoDatabase for <paramref name="databaseName"/>.</returns>
         public virtual MongoDatabaseSettings CreateDatabaseSettings(string databaseName)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             return new MongoDatabaseSettings(this, databaseName);
         }
 
@@ -653,6 +657,10 @@ namespace MongoDB.Driver
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             var databaseSettings = new MongoDatabaseSettings(this, databaseName);
             return GetDatabase(databaseSettings);
         }
@@ -666,6 +674,10 @@ namespace MongoDB.Driver
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
                 Credentials = credentials
@@ -686,6 +698,10 @@ namespace MongoDB.Driver
             MongoCredentials credentials,
             SafeMode safeMode)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
                 Credentials = credentials,
@@ -703,6 +719,10 @@ namespace MongoDB.Driver
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName, SafeMode safeMode)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             var databaseSettings = new MongoDatabaseSettings(this, databaseName)
             {
                 SafeMode = safeMode

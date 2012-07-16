@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -43,7 +44,8 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private SafeMode _safeMode;
-        private IEnumerable<MongoServerAddress> _servers;
+        private List<MongoServerAddress> _servers;
+        private ReadOnlyCollection<MongoServerAddress> _serversReadOnly;
         private TimeSpan _socketTimeout;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
@@ -72,7 +74,8 @@ namespace MongoDB.Driver
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _safeMode = MongoDefaults.SafeMode;
-            _servers = null;
+            _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
+            _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = MongoDefaults.SocketTimeout;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
@@ -117,6 +120,19 @@ namespace MongoDB.Driver
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
+            if (servers == null)
+            {
+                throw new ArgumentNullException("servers");
+            }
+            if (readPreference == null)
+            {
+                throw new ArgumentNullException("readPreference");
+            }
+            if (safeMode == null)
+            {
+                throw new ArgumentNullException("safeMode");
+            }
+
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;
             _credentialsStore = credentialsStore ?? new MongoCredentialsStore();
@@ -130,7 +146,8 @@ namespace MongoDB.Driver
             _readPreference = readPreference;
             _replicaSetName = replicaSetName;
             _safeMode = safeMode;
-            _servers = servers;
+            _servers = new List<MongoServerAddress>(servers);
+            _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = socketTimeout;
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
@@ -180,6 +197,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _credentialsStore = value;
             }
         }
@@ -292,7 +313,11 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _readPreference = value ?? ReadPreference.Primary;
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _readPreference = value;
             }
         }
 
@@ -318,6 +343,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _safeMode = value;
             }
         }
@@ -327,11 +356,16 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerAddress Server
         {
-            get { return (_servers == null) ? null : _servers.Single(); }
+            get { return _servers.Single(); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _servers = new MongoServerAddress[] { value };
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _servers = new List<MongoServerAddress> { value };
+                _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             }
         }
 
@@ -340,11 +374,16 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return _servers; }
+            get { return _serversReadOnly; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _servers = value;
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _servers = new List<MongoServerAddress>(value);
+                _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             }
         }
 
@@ -451,7 +490,7 @@ namespace MongoDB.Driver
                         _readPreference == rhs._readPreference &&
                         _replicaSetName == rhs._replicaSetName &&
                         _safeMode == rhs._safeMode &&
-                        (_servers == null && rhs._servers == null || _servers.SequenceEqual(rhs._servers)) &&
+                        _servers.SequenceEqual(rhs._servers) &&
                         _socketTimeout == rhs._socketTimeout &&
                         _waitQueueSize == rhs._waitQueueSize &&
                         _waitQueueTimeout == rhs._waitQueueTimeout;
@@ -539,7 +578,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + _connectionMode.GetHashCode();
             hash = 37 * hash + _connectTimeout.GetHashCode();
             hash = 37 * hash + _credentialsStore.GetHashCode();
-            hash = 37 * hash + (_defaultCredentials == null ? 0 : _defaultCredentials.GetHashCode());
+            hash = 37 * hash + ((_defaultCredentials == null) ? 0 : _defaultCredentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
@@ -547,14 +586,11 @@ namespace MongoDB.Driver
             hash = 37 * hash + _maxConnectionPoolSize.GetHashCode();
             hash = 37 * hash + _minConnectionPoolSize.GetHashCode();
             hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + (_replicaSetName == null ? 0 : _replicaSetName.GetHashCode());
-            hash = 37 * hash + (_safeMode == null ? 0 : _safeMode.GetHashCode());
-            if (_servers != null)
+            hash = 37 * hash + ((_replicaSetName == null) ? 0 : _replicaSetName.GetHashCode());
+            hash = 37 * hash +  _safeMode.GetHashCode();
+            foreach (var server in _servers)
             {
-                foreach (var server in _servers)
-                {
-                    hash = 37 * hash + server.GetHashCode();
-                }
+                hash = 37 * hash + server.GetHashCode();
             }
             hash = 37 * hash + _socketTimeout.GetHashCode();
             hash = 37 * hash + _waitQueueSize.GetHashCode();
@@ -574,11 +610,6 @@ namespace MongoDB.Driver
             }
 
             var sb = new StringBuilder();
-            string serversString = null;
-            if (_servers != null)
-            {
-                serversString = string.Join(",", _servers.Select(s => s.ToString()).ToArray());
-            }
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
@@ -592,7 +623,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("SafeMode={0};", _safeMode);
-            sb.AppendFormat("Servers={0};", serversString);
+            sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);

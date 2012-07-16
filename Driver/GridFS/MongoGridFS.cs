@@ -55,8 +55,8 @@ namespace MongoDB.Driver.GridFS
         {
             _database = database;
             _settings = settings.FrozenCopy();
-            _chunks = database[settings.ChunksCollectionName, settings.SafeMode];
-            _files = database[settings.FilesCollectionName, settings.SafeMode];
+            _chunks = database.GetCollection(settings.ChunksCollectionName);
+            _files = database.GetCollection(settings.FilesCollectionName);
         }
 
         // public properties
@@ -700,7 +700,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>
@@ -712,7 +712,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>
@@ -724,7 +724,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>

@@ -33,6 +33,7 @@ namespace MongoDB.Driver
         private GuidRepresentation _guidRepresentation;
         private ReadPreference _readPreference;
         private SafeMode _safeMode;
+
         // the following fields are set when Freeze is called
         private bool _isFrozen;
         private int _frozenHashCode;
@@ -46,6 +47,15 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         public MongoDatabaseSettings(MongoServer server, string databaseName)
         {
+            if (server == null)
+            {
+                throw new ArgumentNullException("server");
+            }
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+
             var serverSettings = server.Settings;
             _databaseName = databaseName;
             _credentials = serverSettings.GetCredentials(databaseName);
@@ -69,10 +79,23 @@ namespace MongoDB.Driver
             ReadPreference readPreference,
             SafeMode safeMode)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
             if (databaseName == "admin" && credentials != null && !credentials.Admin)
             {
                 throw new ArgumentOutOfRangeException("Credentials for the admin database must have the admin flag set to true.");
             }
+            if (readPreference == null)
+            {
+                throw new ArgumentNullException("readPreference");
+            }
+            if (safeMode == null)
+            {
+                throw new ArgumentNullException("safeMode");
+            }
+
             _databaseName = databaseName;
             _credentials = credentials;
             _guidRepresentation = guidRepresentation;
@@ -132,6 +155,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _readPreference = value;
             }
         }
@@ -145,6 +172,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _safeMode = value;
             }
         }
@@ -252,11 +283,11 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + ((_databaseName == null) ? 0 : _databaseName.GetHashCode());
-            hash = 37 * hash + ((_credentials == null) ? 0 : _credentials.GetHashCode());
+            hash = 37 * hash + _databaseName.GetHashCode();
+            hash = 37 * hash + ((_credentials != null) ? _credentials.GetHashCode() : 0);
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + ((_safeMode == null) ? 0 : _safeMode.GetHashCode());
+            hash = 37 * hash + _safeMode.GetHashCode();
             return hash;
         }
 
