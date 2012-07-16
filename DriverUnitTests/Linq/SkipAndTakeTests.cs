@@ -52,6 +52,10 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestSkip()
         {
+            var s = new List<string> { "one", "two", "three" };
+
+            var list = s.Take(3).Take(5).ToList();
+
             var query = _collection.AsQueryable<C>().Skip(5);
 
             var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
@@ -94,7 +98,9 @@ namespace MongoDB.DriverUnitTests.Linq
         {
             var query = _collection.AsQueryable<C>().Skip(5).Take(20).Skip(30);
 
-            Assert.Throws(typeof(MongoQueryException), () => MongoQueryTranslator.Translate(query));
+            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.AreEqual(0, selectQuery.Take);
         }
 
         [Test]
@@ -140,7 +146,9 @@ namespace MongoDB.DriverUnitTests.Linq
         {
             var query = _collection.AsQueryable<C>().Take(20).Skip(10).Take(15);
 
-            Assert.Throws(typeof(MongoQueryException), () => MongoQueryTranslator.Translate(query));
+            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
+            Assert.AreEqual(10, selectQuery.Skip);
+            Assert.AreEqual(10, selectQuery.Take);
         }
 
         [Test]

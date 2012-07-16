@@ -290,13 +290,10 @@ namespace MongoDB.Driver.Linq
 
         private void EnsurePreviousExpressionIsSkipOrTake()
         {
-            if (_skip.HasValue || _take.HasValue)
+            var lastExpressionAsMethodCall = _lastExpression as MethodCallExpression;
+            if (lastExpressionAsMethodCall == null || (lastExpressionAsMethodCall.Method.Name != "Skip" && lastExpressionAsMethodCall.Method.Name != "Take"))
             {
-                var lastExpressionAsMethodCall = _lastExpression as MethodCallExpression;
-                if (lastExpressionAsMethodCall == null || (lastExpressionAsMethodCall.Method.Name != "Skip" && lastExpressionAsMethodCall.Method.Name != "Take"))
-                {
-                    throw new MongoQueryException("Skip and Take may only be used in conjunction with each other and cannot be separated by other operations.");
-                }
+                throw new MongoQueryException("Skip and Take may only be used in conjunction with each other and cannot be separated by other operations.");
             }
         }
 
@@ -793,7 +790,10 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            EnsurePreviousExpressionIsSkipOrTake();
+            if (_skip.HasValue || _take.HasValue)
+            {
+                EnsurePreviousExpressionIsSkipOrTake();
+            }
 
             var value = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
 
@@ -801,11 +801,14 @@ namespace MongoDB.Driver.Linq
             {
                 if (value > _take.Value)
                 {
-                    var message = string.Format("The computed value for Skip({0}) is greater than the currently available count specified by Take({1}).", value, _take);
-                    throw new MongoQueryException(message);
+                    _skip = null;
+                    _take = 0;
+                    return;
                 }
-
-                _take = _take.Value - value;
+                else
+                {
+                    _take = Math.Max(0, _take.Value - value);
+                }
             }
 
             if (_skip.HasValue)
@@ -823,17 +826,19 @@ namespace MongoDB.Driver.Linq
                 throw new ArgumentOutOfRangeException("methodCallExpression");
             }
 
-            EnsurePreviousExpressionIsSkipOrTake();
+            if (_skip.HasValue || _take.HasValue)
+            {
+                EnsurePreviousExpressionIsSkipOrTake();
+            }
 
             var value = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
 
             if (_take.HasValue && value > _take.Value)
             {
-                var message = string.Format("The computed value for Take({0}) is greater than the currently available count({1}).", value, _take);
-                throw new MongoQueryException(message);
+                value = _take.Value;
             }
 
-            _take = ToInt32(StripQuote(methodCallExpression.Arguments[1]));
+            _take = value;
         }
 
         private void TranslateThenBy(MethodCallExpression methodCallExpression)
