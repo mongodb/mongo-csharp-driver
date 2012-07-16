@@ -178,5 +178,19 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(10, selectQuery.Skip);
             Assert.AreEqual(5, selectQuery.Take);
         }
+
+        [Test]
+        public void Test0Take()
+        {
+            var query = _collection.AsQueryable<C>().Take(0).ToList();
+            Assert.AreEqual(0, query.Count);
+        }
+
+        [Test]
+        public void TestOfTypeCWith0Take()
+        {
+            var query = _collection.AsQueryable<Uri>().OfType<C>().Take(0).ToList();
+            Assert.AreEqual(0, query.Count);
+        }
     }
 }

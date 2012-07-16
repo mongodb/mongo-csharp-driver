@@ -131,6 +131,13 @@ namespace MongoDB.Driver.Linq
         /// <returns>The result of executing the translated Find query.</returns>
         public override object Execute()
         {
+            if (_take.HasValue && _take.Value == 0)
+            {
+                var type = _ofType ?? DocumentType;
+
+                return typeof(Enumerable).GetMethod("Empty").MakeGenericMethod(type).Invoke(null, null);
+            }
+
             var query = BuildQuery();
 
             if (_distinct != null)
@@ -805,10 +812,8 @@ namespace MongoDB.Driver.Linq
                     _take = 0;
                     return;
                 }
-                else
-                {
-                    _take = Math.Max(0, _take.Value - value);
-                }
+
+                _take = Math.Max(0, _take.Value - value);
             }
 
             if (_skip.HasValue)
