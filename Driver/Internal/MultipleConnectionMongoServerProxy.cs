@@ -153,11 +153,11 @@ namespace MongoDB.Driver.Internal
                     {
                         return instance;
                     }
-                }
 
-                if (attempt == 1)
-                {
-                    Connect(_server.Settings.ConnectTimeout, readPreference);
+                    if (attempt == 1)
+                    {
+                        Connect(_server.Settings.ConnectTimeout, readPreference);
+                    }
                 }
             }
 
@@ -358,35 +358,14 @@ namespace MongoDB.Driver.Internal
         protected virtual void ProcessConnectedInstanceStateChange(MongoServerInstance instance)
         { }
 
-        /// <summary>
-        /// Sets the state.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        protected void SetState(MongoServerState state)
-        {
-            lock (_lock)
-            {
-                _state = state;
-            }
-        }
-
         // private methods
         private void AddInstance(MongoServerInstance instance)
         {
             lock (_lock)
             {
                 _instances.Add(instance);
-                if (instance.State == MongoServerState.Connected)
-                {
-                    _connectedInstances.Add(instance);
-                }
-
                 instance.StateChanged += InstanceStateChanged;
-
-                if (_state != MongoServerState.Disconnected && _state != MongoServerState.Disconnecting)
-                {
-                    ConnectInstance(instance);
-                }
+                ProcessInstanceStateChange(instance);
             }
         }
 
@@ -441,13 +420,13 @@ namespace MongoDB.Driver.Internal
                     }
 
                     ProcessConnectedInstanceStateChange(instance);
-
-                    SetState(DetermineServerState(_state, _instances));
                 }
                 else
                 {
                     _connectedInstances.Remove(instance);
                 }
+
+                SetState(DetermineServerState(_state, _instances));
             }
         }
 
@@ -455,10 +434,22 @@ namespace MongoDB.Driver.Internal
         {
             while (true)
             {
+                var instancesForProcessing = new List<MongoServerInstance>();
                 var instance = _stateChangeQueue.Dequeue();
+                while (instance != null)
+                {
+                    instancesForProcessing.Add(instance);
+                    instance = _stateChangeQueue.Dequeue(TimeSpan.Zero); //don't wait, but get all the rest in the queue
+                }
+
+                var distinctInstances = instancesForProcessing.Distinct();
+
                 lock (_lock)
                 {
-                    ProcessInstanceStateChange(instance);
+                    foreach (var distinctInstance in distinctInstances)
+                    {
+                        ProcessInstanceStateChange(distinctInstance);
+                    }
                 }
             }
         }
@@ -471,6 +462,16 @@ namespace MongoDB.Driver.Internal
                 _instances.Remove(instance);
                 instance.StateChanged -= InstanceStateChanged;
                 instance.Disconnect();
+                ProcessInstanceStateChange(instance);
+            }
+        }
+
+        private void SetState(MongoServerState state)
+        {
+            lock (_lock)
+            {
+                Console.WriteLine(state);
+                _state = state;
             }
         }
 
