@@ -26,12 +26,16 @@ namespace MongoDB.Driver.Internal
     /// </summary>
     internal sealed class DiscoveringMongoServerProxy : IMongoServerProxy
     {
+        private readonly object _lock = new object();
         private readonly MongoServer _server;
         private readonly List<MongoServerInstance> _instances;
-        private readonly ReaderWriterLockSlim _lock;
-        private IMongoServerProxy _serverProxy;
-        private MongoServerState _state;
-        private int _connectionAttempt;
+
+        // volatile will ensure that our reads are not reordered such one could get placed before a write.  This 
+        // isn't strictly required for > .NET 2.0 systems, but Mono does not offer the same memory model guarantees,
+        // so we code to the ECMA standard.
+        private volatile IMongoServerProxy _serverProxy;
+        private volatile MongoServerState _state;
+        private volatile int _connectionAttempt;
 
         // constructors
         /// <summary>
@@ -54,15 +58,12 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                return WithReadLock(() =>
+                if (_serverProxy == null)
                 {
-                    if (_serverProxy == null)
-                    {
-                        return null;
-                    }
+                    return null;
+                }
 
-                    return _serverProxy.BuildInfo;
-                });
+                return _serverProxy.BuildInfo;
             }
         }
 
@@ -73,15 +74,12 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                return WithReadLock(() =>
+                if (_serverProxy == null)
                 {
-                    if (_serverProxy == null)
-                    {
-                        return _connectionAttempt;
-                    }
+                    return _connectionAttempt;
+                }
 
-                    return _serverProxy.ConnectionAttempt;
-                });
+                return _serverProxy.ConnectionAttempt;
             }
         }
 
@@ -92,15 +90,12 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                return WithReadLock(() =>
+                if (_serverProxy == null)
                 {
-                    if (_serverProxy == null)
-                    {
-                        return _instances.AsReadOnly();
-                    }
+                    return _instances.AsReadOnly();
+                }
 
-                    return _serverProxy.Instances;
-                });
+                return _serverProxy.Instances;
             }
         }
 
@@ -111,15 +106,12 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                return WithReadLock(() =>
+                if (_serverProxy == null)
                 {
-                    if (_serverProxy == null)
-                    {
-                        return _state;
-                    }
+                    return _state;
+                }
 
-                    return _serverProxy.State;
-                });
+                return _serverProxy.State;
             }
         }
 
@@ -132,7 +124,7 @@ namespace MongoDB.Driver.Internal
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
             EnsureInstanceManager(_server.Settings.ConnectTimeout);
-            return WithReadLock(() => _serverProxy.ChooseServerInstance(readPreference));
+            return _serverProxy.ChooseServerInstance(readPreference);
         }
 
         /// <summary>
@@ -144,17 +136,14 @@ namespace MongoDB.Driver.Internal
         {
             try
             {
-                WithReadLock(() =>
-                {
-                    _state = MongoServerState.Connecting;
-                });
                 EnsureInstanceManager(timeout);
             }
             catch
             {
-                WithReadLock(() => _state = MongoServerState.Disconnected);
+                _state = MongoServerState.Disconnected;
+                throw;
             }
-            WithReadLock(() => _serverProxy.Connect(timeout, readPreference));
+            _serverProxy.Connect(timeout, readPreference);
         }
 
         /// <summary>
@@ -162,13 +151,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public void Disconnect()
         {
-            WithReadLock(() =>
+            if (_serverProxy != null)
             {
-                if (_serverProxy != null)
-                {
-                    _serverProxy.Disconnect();
-                }
-            });
+                _serverProxy.Disconnect();
+            }
         }
 
         /// <summary>
@@ -176,20 +162,17 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public void Ping()
         {
-            WithReadLock(() =>
+            if (_serverProxy == null)
             {
-                if (_serverProxy == null)
+                foreach (var instance in _instances)
                 {
-                    foreach (var instance in _instances)
-                    {
-                        instance.Ping();
-                    }
+                    instance.Ping();
                 }
-                else
-                {
-                    _serverProxy.Ping();
-                }
-            });
+            }
+            else
+            {
+                _serverProxy.Ping();
+            }
         }
 
         /// <summary>
@@ -197,79 +180,34 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public void VerifyState()
         {
-            WithReadLock(() =>
+            // if we have never connected, then our state is correct...
+            if (_serverProxy == null)
             {
-                // if we have never connected, then our state is correct...
-                if (_serverProxy == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                _serverProxy.VerifyState();
-            });
+            _serverProxy.VerifyState();
         }
 
         // private methods
-        private T WithReadLock<T>(Func<T> reader)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                return reader();
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-        }
-
-        private void WithReadLock(Action action)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                action();
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-        }
-
         private void EnsureInstanceManager(TimeSpan timeout)
         {
-            _lock.EnterReadLock();
-            try
+            if (_serverProxy == null)
             {
-                if (_serverProxy != null)
+                lock (_lock)
                 {
-                    return;
+                    if (_serverProxy == null)
+                    {
+                        _connectionAttempt++;
+                        _state = MongoServerState.Connecting;
+                        Discover(timeout);
+                    }
                 }
-            }
-            finally
-            {
-                _lock.ExitReadLock();
-            }
-
-            _lock.EnterWriteLock();
-            try
-            {
-                if (_serverProxy != null)
-                {
-                    return;
-                }
-                _connectionAttempt++;
-                Discover(timeout);
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
         }
 
         private void Discover(TimeSpan timeout)
         {
-            // Note: we are already in a write lock here...
             var connectionQueue = new BlockingQueue<MongoServerInstance>();
 
             for (int i = 0; i < _instances.Count; i++)
@@ -307,28 +245,30 @@ namespace MongoDB.Driver.Internal
 
         private void CreateActualProxy(MongoServerInstance instance, BlockingQueue<MongoServerInstance> connectionQueue)
         {
-            // we are already in a write lock here...
-            if (instance.InstanceType == MongoServerInstanceType.ReplicaSetMember)
+            lock (_lock)
             {
-                _serverProxy = new ReplicaSetMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
-            }
-            else if (instance.InstanceType == MongoServerInstanceType.ShardRouter)
-            {
-                _serverProxy = new ShardedMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
-            }
-            else if (instance.InstanceType == MongoServerInstanceType.StandAlone)
-            {
-                var otherInstances = _instances.Where(x => x != instance).ToList();
-                foreach (var otherInstance in otherInstances)
+                if (instance.InstanceType == MongoServerInstanceType.ReplicaSetMember)
                 {
-                    otherInstance.Disconnect();
+                    _serverProxy = new ReplicaSetMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
                 }
+                else if (instance.InstanceType == MongoServerInstanceType.ShardRouter)
+                {
+                    _serverProxy = new ShardedMongoServerProxy(_server, _instances, connectionQueue, _connectionAttempt);
+                }
+                else if (instance.InstanceType == MongoServerInstanceType.StandAlone)
+                {
+                    var otherInstances = _instances.Where(x => x != instance).ToList();
+                    foreach (var otherInstance in otherInstances)
+                    {
+                        otherInstance.Disconnect();
+                    }
 
-                _serverProxy = new DirectMongoServerProxy(_server, instance, _connectionAttempt);
-            }
-            else
-            {
-                throw new MongoConnectionException("The type of servers in the host list could not be determined.");
+                    _serverProxy = new DirectMongoServerProxy(_server, instance, _connectionAttempt);
+                }
+                else
+                {
+                    throw new MongoConnectionException("The type of servers in the host list could not be determined.");
+                }
             }
         }
     }
