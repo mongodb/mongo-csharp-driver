@@ -146,18 +146,14 @@ namespace MongoDB.Driver.Internal
         {
             for (int attempt = 1; attempt <= 2; attempt++)
             {
-                lock (_lock)
+                var instance = ChooseServerInstance(_connectedInstances, readPreference);
+                if (instance != null)
                 {
-                    var instance = ChooseServerInstance(_connectedInstances, readPreference);
-                    if (instance != null)
-                    {
-                        return instance;
-                    }
-
-                    if (attempt == 1)
-                    {
-                        Connect(_server.Settings.ConnectTimeout, readPreference);
-                    }
+                    return instance;
+                }
+                if (attempt == 1)
+                {
+                    Connect(_server.Settings.ConnectTimeout, readPreference);
                 }
             }
 
@@ -470,7 +466,6 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
-                Console.WriteLine(state);
                 _state = state;
             }
         }
