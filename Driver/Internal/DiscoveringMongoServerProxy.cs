@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Internal
     {
         private readonly object _lock = new object();
         private readonly MongoServer _server;
-        private readonly List<MongoServerInstance> _instances;
+        private readonly ReadOnlyCollection<MongoServerInstance> _instances;
 
         // volatile will ensure that our reads are not reordered such one could get placed before a write.  This 
         // isn't strictly required for > .NET 2.0 systems, but Mono does not offer the same memory model guarantees,
@@ -44,10 +44,9 @@ namespace MongoDB.Driver.Internal
         /// <param name="server">The server.</param>
         public DiscoveringMongoServerProxy(MongoServer server)
         {
-            _lock = new ReaderWriterLockSlim();
             _state = MongoServerState.Disconnected;
             _server = server;
-            _instances = server.Settings.Servers.Select(a => new MongoServerInstance(server, a)).ToList();
+            _instances = server.Settings.Servers.Select(a => new MongoServerInstance(server, a)).ToList().AsReadOnly();
         }
 
         // public properties
@@ -92,7 +91,7 @@ namespace MongoDB.Driver.Internal
             {
                 if (_serverProxy == null)
                 {
-                    return _instances.AsReadOnly();
+                    return _instances;
                 }
 
                 return _serverProxy.Instances;
