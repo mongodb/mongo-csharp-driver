@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq.Utils
             var bsonWriter = BsonWriter.Create(bsonDocument);
             bsonWriter.WriteStartDocument();
             bsonWriter.WriteName("value");
-            serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
+            Serialize(bsonWriter, serializationInfo, value);
             bsonWriter.WriteEndDocument();
             return bsonDocument[0];
         }
@@ -120,11 +120,23 @@ namespace MongoDB.Driver.Linq.Utils
             bsonWriter.WriteStartArray();
             foreach (var value in values)
             {
-                serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
+                Serialize(bsonWriter, serializationInfo, value);
             }
             bsonWriter.WriteEndArray();
             bsonWriter.WriteEndDocument();
             return bsonDocument[0].AsBsonArray;
+        }
+
+        // private methods
+        private void Serialize(BsonWriter bsonWriter, BsonSerializationInfo serializationInfo, object value)
+        {
+            var serializer = serializationInfo.Serializer;
+            var actualType = (value == null) ? serializationInfo.NominalType : value.GetType();
+            if (actualType != serializationInfo.NominalType)
+            {
+                serializer = BsonSerializer.LookupSerializer(actualType);
+            }
+            serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
         }
     }
 }
