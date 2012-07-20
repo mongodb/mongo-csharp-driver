@@ -50,12 +50,14 @@ namespace MongoDB.Driver
         private bool _idHack;
         private string _info;
         private int _keyUpdates;
+        private BsonDocument _lockStatistics;
         private bool _moved;
         private string _namespace;
         private int _numberReturned;
         private int _numberScanned;
         private int _numberToReturn;
         private int _numberToSkip;
+        private int _numberOfYields;
         private string _op;
         private BsonDocument _query;
         private int _responseLength;
@@ -64,14 +66,6 @@ namespace MongoDB.Driver
         private BsonDocument _updateObject;
         private bool _upsert;
         private string _user;
-
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the SystemProfileInfo class.
-        /// </summary>
-        public SystemProfileInfo()
-        {
-        }
 
         // public properties
         /// <summary>
@@ -200,6 +194,12 @@ namespace MongoDB.Driver
             set { _keyUpdates = value; }
         }
 
+        public BsonDocument LockStatistics
+        {
+            get { return _lockStatistics; }
+            set { _lockStatistics = value; }
+        }
+
         /// <summary>
         /// Gets or sets whether moved was true.
         /// </summary>
@@ -252,6 +252,15 @@ namespace MongoDB.Driver
         {
             get { return _numberToSkip; }
             set { _numberToSkip = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the number of yields.
+        /// </summary>
+        public int NumberOfYields
+        {
+            get { return _numberOfYields; }
+            set { _numberOfYields = value; }
         }
 
         /// <summary>
@@ -404,6 +413,9 @@ namespace MongoDB.Driver
                         case "keyUpdates":
                             profileInfo.KeyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
+                        case "lockStatMillis":
+                            profileInfo.LockStatistics = BsonValue.ReadFrom(bsonReader).AsBsonDocument;
+                            break;
                         case "millis":
                             profileInfo.Duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
                             break;
@@ -424,6 +436,9 @@ namespace MongoDB.Driver
                             break;
                         case "ntoskip":
                             profileInfo.NumberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
+                            break;
+                        case "numYield":
+                            profileInfo.NumberOfYields = BsonValue.ReadFrom(bsonReader).ToInt32();
                             break;
                         case "op":
                             profileInfo.Op = bsonReader.ReadString();
@@ -545,6 +560,11 @@ namespace MongoDB.Driver
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
                     break;
+                case "LockStatistics":
+                    elementName = "lockStatMillis";
+                    serializer = BsonDocumentSerializer.Instance;
+                    nominalType = typeof(BsonDocument);
+                    break;
                 case "Moved":
                     elementName = "moved";
                     serializer = BooleanSerializer.Instance;
@@ -572,6 +592,11 @@ namespace MongoDB.Driver
                     break;
                 case "NumberToSkip":
                     elementName = "ntoskip";
+                    serializer = Int32Serializer.Instance;
+                    nominalType = typeof(int);
+                    break;
+                case "NumberOfYields":
+                    elementName = "numYield";
                     serializer = Int32Serializer.Instance;
                     nominalType = typeof(int);
                     break;
@@ -693,6 +718,10 @@ namespace MongoDB.Driver
                 {
                     bsonWriter.WriteInt32("nscanned", profileInfo.NumberScanned);
                 }
+                if (profileInfo.NumberOfYields != 0)
+                {
+                    bsonWriter.WriteInt32("numYield", profileInfo.NumberOfYields);
+                }
                 if (profileInfo.IdHack)
                 {
                     bsonWriter.WriteBoolean("idhack", profileInfo.IdHack);
@@ -753,6 +782,11 @@ namespace MongoDB.Driver
                 if (profileInfo.Abbreviated != null)
                 {
                     bsonWriter.WriteString("abbreviated", profileInfo.Abbreviated);
+                }
+                if (profileInfo.LockStatistics != null)
+                {
+                    bsonWriter.WriteName("lockStatMillis");
+                    profileInfo.LockStatistics.WriteTo(bsonWriter);
                 }
                 bsonWriter.WriteEndDocument();
             }
