@@ -101,6 +101,7 @@
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializerAttribute.cs" />
     <Compile Include="Serialization\BsonClassMapSerializationProvider.cs" />
+    <Compile Include="Serialization\BsonDocumentBackedClass.cs" />
     <Compile Include="Serialization\BsonDocumentBackedClassSerializer.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
