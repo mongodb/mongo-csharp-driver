@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson.IO;
+using System.Collections;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -117,6 +118,29 @@ namespace MongoDB.Bson.Serialization
                 Serialize(bsonWriter, value);
                 bsonWriter.WriteEndDocument();
                 return tempDocument[0];
+            }
+        }
+
+        /// <summary>
+        /// Serializes the values.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        public BsonArray SerializeValues(IEnumerable values)
+        {
+            var tempDocument = new BsonDocument();
+            using (var bsonWriter = BsonWriter.Create(tempDocument))
+            {
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("values");
+                bsonWriter.WriteStartArray();
+                foreach (var value in values)
+                {
+                    Serialize(bsonWriter, value);
+                }
+                bsonWriter.WriteEndArray();
+                bsonWriter.WriteEndDocument();
+                return tempDocument[0].AsBsonArray;
             }
         }
 
