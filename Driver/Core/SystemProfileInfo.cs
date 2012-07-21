@@ -36,36 +36,25 @@ namespace MongoDB.Driver
     public class SystemProfileInfo
     {
         // private fields
-        private string _abbreviated;
-        private string _client;
-        private BsonDocument _command;
-        private long _cursorId;
-        private TimeSpan _duration;
-        private string _error;
-        private string _exception;
-        private int _exceptionCode;
-        private bool _exhaust;
-        private bool _fastMod;
-        private bool _fastModInsert;
-        private bool _idHack;
-        private string _info;
-        private int _keyUpdates;
-        private BsonDocument _lockStatistics;
-        private bool _moved;
-        private string _namespace;
-        private int _numberReturned;
-        private int _numberScanned;
-        private int _numberToReturn;
-        private int _numberToSkip;
-        private int _numberOfYields;
-        private string _op;
-        private BsonDocument _query;
-        private int _responseLength;
-        private bool _scanAndOrder;
-        private DateTime _timestamp;
-        private BsonDocument _updateObject;
-        private bool _upsert;
-        private string _user;
+        private readonly BsonDocument _document;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileInfo"/> class.
+        /// </summary>
+        public SystemProfileInfo()
+        {
+            _document = new BsonDocument();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileInfo"/> class.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        internal SystemProfileInfo(BsonDocument document)
+        {
+            _document = document ?? new BsonDocument();
+        }
 
         // public properties
         /// <summary>
@@ -73,8 +62,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Abbreviated
         {
-            get { return _abbreviated; }
-            set { _abbreviated = value; }
+            get { return (string)_document.GetValue("abbreviated", null); }
+            set { _document.Set("abbreviated", value); }
         }
 
         /// <summary>
@@ -82,8 +71,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Client
         {
-            get { return _client; }
-            set { _client = value; }
+            get { return (string)_document.GetValue("client", null); }
+            set { _document.Set("client", value); }
         }
 
         /// <summary>
@@ -91,8 +80,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Command
         {
-            get { return _command; }
-            set { _command = value; }
+            get { return (BsonDocument)_document.GetValue("command", null); }
+            set { _document.Set("command", value); }
         }
 
         /// <summary>
@@ -100,8 +89,8 @@ namespace MongoDB.Driver
         /// </summary>
         public long CursorId
         {
-            get { return _cursorId; }
-            set { _cursorId = value; }
+            get { return (long)_document.GetValue("cursorid", 0L); }
+            set { _document.Set("cursorid", value); }
         }
 
         /// <summary>
@@ -109,8 +98,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Duration
         {
-            get { return _duration; }
-            set { _duration = value; }
+            get { return TimeSpan.FromMilliseconds(_document.GetValue("millis", 0).ToDouble()); }
+            set { _document.Set("millis", (double)value.Milliseconds); }
         }
 
         /// <summary>
@@ -118,8 +107,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Error
         {
-            get { return _error; }
-            set { _error = value; }
+            get { return (string)_document.GetValue("err", null); }
+            set { _document.Set("err", value); }
         }
 
         /// <summary>
@@ -127,8 +116,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Exception
         {
-            get { return _exception; }
-            set { _exception = value; }
+            get { return (string)_document.GetValue("exception", null); }
+            set { _document.Set("exception", value); }
         }
 
         /// <summary>
@@ -136,8 +125,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExceptionCode
         {
-            get { return _exceptionCode; }
-            set { _exceptionCode = value; }
+            get { return (int)_document.GetValue("exceptionCode", 0); }
+            set { _document.Set("exceptionCode", value); }
         }
 
         /// <summary>
@@ -145,8 +134,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Exhaust
         {
-            get { return _exhaust; }
-            set { _exhaust = value; }
+            get { return (bool)_document.GetValue("exhaust", false); }
+            set { _document.Set("exhaust", value); }
         }
 
         /// <summary>
@@ -154,8 +143,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastMod
         {
-            get { return _fastMod; }
-            set { _fastMod = value; }
+            get { return (bool)_document.GetValue("fastmod", false); }
+            set { _document.Set("fastmod", value); }
         }
 
         /// <summary>
@@ -163,8 +152,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastModInsert
         {
-            get { return _fastModInsert; }
-            set { _fastModInsert = value; }
+            get { return (bool)_document.GetValue("fastmodinsert", false); }
+            set { _document.Set("fastmodinsert", value); }
         }
 
         /// <summary>
@@ -172,8 +161,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IdHack
         {
-            get { return _idHack; }
-            set { _idHack = value; }
+            get { return (bool)_document.GetValue("idhack", false); }
+            set { _document.Set("idhack", value); }
         }
 
         /// <summary>
@@ -181,8 +170,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Info
         {
-            get { return _info; }
-            set { _info = value; }
+            get { return (string)_document.GetValue("info", null); }
+            set { _document.Set("info", value); }
         }
 
         /// <summary>
@@ -190,14 +179,37 @@ namespace MongoDB.Driver
         /// </summary>
         public int KeyUpdates
         {
-            get { return _keyUpdates; }
-            set { _keyUpdates = value; }
+            get { return (int)_document.GetValue("keyUpdates", 0); }
+            set { _document.Set("keyUpdates", value); }
         }
 
-        public BsonDocument LockStatistics
+        /// <summary>
+        /// Gets or sets the lock statistics.
+        /// </summary>
+        /// <value>
+        /// The lock statistics.
+        /// </value>
+        public SystemProfileLockStatistics LockStatistics
         {
-            get { return _lockStatistics; }
-            set { _lockStatistics = value; }
+            get
+            {
+                BsonValue value;
+                if (!_document.TryGetValue("lockStatMillis", out value))
+                {
+                    return null;
+                }
+
+                return new SystemProfileLockStatistics(_document.GetValue("lockStatMillis").AsBsonDocument);
+            }
+            set
+            {
+                BsonDocument lockStatsDocument = null;
+                if (value != null)
+                {
+                    lockStatsDocument = value.Raw;
+                }
+                _document.Set("lockStatMillis", lockStatsDocument);
+            }
         }
 
         /// <summary>
@@ -205,8 +217,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Moved
         {
-            get { return _moved; }
-            set { _moved = value; }
+            get { return (bool)_document.GetValue("moved", false); }
+            set { _document.Set("moved", value); }
         }
 
         /// <summary>
@@ -214,8 +226,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return _namespace; }
-            set { _namespace = value; }
+            get { return (string)_document.GetValue("ns", null); }
+            set { _document.Set("ns", value); }
         }
 
         /// <summary>
@@ -223,8 +235,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberReturned
         {
-            get { return _numberReturned; }
-            set { _numberReturned = value; }
+            get { return (int)_document.GetValue("nreturned", 0); }
+            set { _document.Set("nreturned", value); }
         }
 
         /// <summary>
@@ -232,8 +244,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberScanned
         {
-            get { return _numberScanned; }
-            set { _numberScanned = value; }
+            get { return (int)_document.GetValue("nscanned", 0); }
+            set { _document.Set("nscanned", value); }
         }
 
         /// <summary>
@@ -241,8 +253,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToReturn
         {
-            get { return _numberToReturn; }
-            set { _numberToReturn = value; }
+            get { return (int)_document.GetValue("ntoreturn", 0); }
+            set { _document.Set("ntoreturn", value); }
         }
 
         /// <summary>
@@ -250,8 +262,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToSkip
         {
-            get { return _numberToSkip; }
-            set { _numberToSkip = value; }
+            get { return (int)_document.GetValue("ntoskip", 0); }
+            set { _document.Set("ntoskip", value); }
         }
 
         /// <summary>
@@ -259,8 +271,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberOfYields
         {
-            get { return _numberOfYields; }
-            set { _numberOfYields = value; }
+            get { return (int)_document.GetValue("numYield", 0); }
+            set { _document.Set("numYield", value); }
         }
 
         /// <summary>
@@ -268,8 +280,8 @@ namespace MongoDB.Driver
         /// </summary>
         public string Op
         {
-            get { return _op; }
-            set { _op = value; }
+            get { return (string)_document.GetValue("op", null); }
+            set { _document.Set("op", value); }
         }
 
         /// <summary>
@@ -277,8 +289,16 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Query
         {
-            get { return _query; }
-            set { _query = value; }
+            get { return (BsonDocument)_document.GetValue("query", null); }
+            set { _document.Set("query", value); }
+        }
+
+        /// <summary>
+        /// Gets the raw document.
+        /// </summary>
+        public BsonDocument Raw
+        {
+            get { return _document; }
         }
 
         /// <summary>
@@ -286,8 +306,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int ResponseLength
         {
-            get { return _responseLength; }
-            set { _responseLength = value; }
+            get { return (int)_document.GetValue("responseLength", 0); }
+            set { _document.Set("responseLength", value); }
         }
 
         /// <summary>
@@ -295,8 +315,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool ScanAndOrder
         {
-            get { return _scanAndOrder; }
-            set { _scanAndOrder = value; }
+            get { return (bool)_document.GetValue("scanAndOrder", false); }
+            set { _document.Set("scanAndOrder", value); }
         }
 
         /// <summary>
@@ -304,8 +324,8 @@ namespace MongoDB.Driver
         /// </summary>
         public DateTime Timestamp
         {
-            get { return _timestamp; }
-            set { _timestamp = value; }
+            get { return (DateTime)_document.GetValue("ts", DateTime.MinValue); }
+            set { _document.Set("ts", value); }
         }
 
         /// <summary>
@@ -313,8 +333,8 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument UpdateObject
         {
-            get { return _updateObject; }
-            set { _updateObject = value; }
+            get { return (BsonDocument)_document.GetValue("updateobj", null); }
+            set { _document.Set("updateobj", value); }
         }
 
         /// <summary>
@@ -322,8 +342,8 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Upsert
         {
-            get { return _upsert; }
-            set { _upsert = value; }
+            get { return (bool)_document.GetValue("upsert", false); }
+            set { _document.Set("upsert", value); }
         }
 
         /// <summary>
@@ -331,465 +351,311 @@ namespace MongoDB.Driver
         /// </summary>
         public string User
         {
-            get { return _user; }
-            set { _user = value; }
+            get { return (string)_document.GetValue("user", null); }
+            set { _document.Set("user", value); }
+        }
+    }
+
+    /// <summary>
+    /// Statistics about locks for a system.profile document.
+    /// </summary>
+    [Serializable]
+    [BsonSerializer(typeof(SystemProfileLockStatisticsSerializer))]
+    public class SystemProfileLockStatistics
+    {
+        // private fields
+        private readonly BsonDocument _document;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileLockStatistics"/> class.
+        /// </summary>
+        public SystemProfileLockStatistics()
+        {
+            _document = new BsonDocument();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileLockStatistics"/> class.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        internal SystemProfileLockStatistics(BsonDocument document)
+        {
+            _document = document;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the raw.
+        /// </summary>
+        public BsonDocument Raw
+        {
+            get { return _document; }
+        }
+
+        /// <summary>
+        /// Gets or sets the time acquiring.
+        /// </summary>
+        public SystemProfileReadWriteLockStatistics TimeAcquiring
+        {
+            get { return GetReadWriteStatistics("timeAcquiring"); }
+            set { SetReadWriteStatistics("timeAcquiring", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the time locked.
+        /// </summary>
+        public SystemProfileReadWriteLockStatistics TimeLocked
+        {
+            get { return GetReadWriteStatistics("timeLocked"); }
+            set { SetReadWriteStatistics("timeLocked", value); }
+        }
+
+        // private methods
+        private SystemProfileReadWriteLockStatistics GetReadWriteStatistics(string name)
+        {
+            BsonValue doc;
+            if (!_document.TryGetValue(name, out doc))
+            {
+                return null;
+            }
+
+            return new SystemProfileReadWriteLockStatistics(doc.AsBsonDocument);
+        }
+
+        private void SetReadWriteStatistics(string name, SystemProfileReadWriteLockStatistics value)
+        {
+            BsonDocument doc = null;
+            if (value != null)
+            {
+                doc = value.Raw;
+            }
+            _document.Set(name, doc);
+        }
+    }
+
+    /// <summary>
+    /// Statistics about system.profile read and write time spent in locks.
+    /// </summary>
+    [Serializable]
+    [BsonSerializer(typeof(SystemProfileReadWriteLockStatisticsSerializer))]
+    public class SystemProfileReadWriteLockStatistics
+    {
+        // private fields
+        private readonly BsonDocument _document;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileReadWriteLockStatistics"/> class.
+        /// </summary>
+        public SystemProfileReadWriteLockStatistics()
+        {
+            _document = new BsonDocument();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileReadWriteLockStatistics"/> class.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        internal SystemProfileReadWriteLockStatistics(BsonDocument document)
+        {
+            _document = document;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the raw document underneath the lock statistics.
+        /// </summary>
+        public BsonDocument Raw
+        {
+            get { return _document; }
+        }
+
+        /// <summary>
+        /// Gets or sets the time spent for a read.
+        /// </summary>
+        public TimeSpan Read
+        {
+            get { return GetTimeSpan("r"); }
+            set { SetTimeSpan("r", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the time spent for a write.
+        /// </summary>
+        public TimeSpan Write
+        {
+            get { return GetTimeSpan("w"); }
+            set { SetTimeSpan("w", value); }
+        }
+
+        // private methods
+        private TimeSpan GetTimeSpan(string name)
+        {
+            return TimeSpan.FromMilliseconds(_document.GetValue("r", 0).ToDouble());
+        }
+
+        private void SetTimeSpan(string name, TimeSpan value)
+        {
+            _document.Set(name, BsonInt64.Create(value.Milliseconds));
         }
     }
 
     /// <summary>
     /// Represents a serializer for SystemProfileInfo.
     /// </summary>
-    public class SystemProfileInfoSerializer : BsonBaseSerializer, IBsonDocumentSerializer
+    public class SystemProfileInfoSerializer : BsonDocumentBackedClassSerializer<SystemProfileInfo>
     {
-        // public methods
+        // public static fields
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Singleton instance.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public static SystemProfileInfoSerializer Instance = new SystemProfileInfoSerializer();
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileInfoSerializer"/> class.
+        /// </summary>
+        public SystemProfileInfoSerializer()
         {
-            VerifyTypes(nominalType, actualType, typeof(SystemProfileInfo));
+            RegisterMember("Abbreviated", "abbreviated", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Client", "client", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Command", "command", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
+            RegisterMember("CursorId", "cursorid", Int64Serializer.Instance, typeof(long), null);
+            RegisterMember("Duration", "millis", TimeSpanSerializer.Instance, typeof(TimeSpan), new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds));
+            RegisterMember("Error", "err", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Exception", "exception", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("ExceptionCode", "exceptionCode", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("Exhaust", "exhaust", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("FastMod", "fastmod", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("FastModInsert", "fastmodinsert", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("IdHack", "idhack", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("Info", "info", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("KeyUpdates", "keyUpdates", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("LockStatistics", "lockStatMillis", SystemProfileLockStatisticsSerializer.Instance, typeof(SystemProfileLockStatistics), null);
+            RegisterMember("Moved", "moved", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("Namespace", "ns", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("NumberReturned", "nreturned", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("NumberScanned", "nscanned", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("NumberToReturn", "ntoreturn", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("NumberToSkip", "ntoskip", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("NumberOfYields", "numYield", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("Op", "op", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Query", "query", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
+            RegisterMember("ResponseLength", "responseLength", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("ScanAndOrder", "scanAndOrder", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("Timestamp", "ts", DateTimeSerializer.Instance, typeof(DateTime), null);
+            RegisterMember("UpdateObject", "updateobj", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
+            RegisterMember("Upsert", "upsert", BooleanSerializer.Instance, typeof(bool), null);
+            RegisterMember("User", "user", StringSerializer.Instance, typeof(string), null);
+        }
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var profileInfo = new SystemProfileInfo();
-
-                bsonReader.ReadStartDocument();
-                BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
-                {
-                    var name = bsonReader.ReadName();
-                    switch (name)
-                    {
-                        case "abbreviated":
-                            profileInfo.Abbreviated = bsonReader.ReadString();
-                            break;
-                        case "client":
-                            profileInfo.Client = bsonReader.ReadString();
-                            break;
-                        case "command":
-                            profileInfo.Command = BsonDocument.ReadFrom(bsonReader);
-                            break;
-                        case "cursorid":
-                            profileInfo.CursorId = BsonValue.ReadFrom(bsonReader).ToInt64();
-                            break;
-                        case "err":
-                            profileInfo.Error = bsonReader.ReadString();
-                            break;
-                        case "exception":
-                            profileInfo.Exception = bsonReader.ReadString();
-                            break;
-                        case "exceptionCode":
-                            profileInfo.ExceptionCode = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "exhaust":
-                            profileInfo.Exhaust = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "fastmod":
-                            profileInfo.FastMod = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "fastmodinsert":
-                            profileInfo.FastModInsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "idhack":
-                            profileInfo.IdHack = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "info":
-                            profileInfo.Info = bsonReader.ReadString();
-                            break;
-                        case "keyUpdates":
-                            profileInfo.KeyUpdates = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "lockStatMillis":
-                            profileInfo.LockStatistics = BsonValue.ReadFrom(bsonReader).AsBsonDocument;
-                            break;
-                        case "millis":
-                            profileInfo.Duration = TimeSpan.FromMilliseconds(BsonValue.ReadFrom(bsonReader).ToDouble());
-                            break;
-                        case "moved":
-                            profileInfo.Moved = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "nreturned":
-                            profileInfo.NumberReturned = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "ns":
-                            profileInfo.Namespace = bsonReader.ReadString();
-                            break;
-                        case "nscanned":
-                            profileInfo.NumberScanned = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "ntoreturn":
-                            profileInfo.NumberToReturn = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "ntoskip":
-                            profileInfo.NumberToSkip = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "numYield":
-                            profileInfo.NumberOfYields = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "op":
-                            profileInfo.Op = bsonReader.ReadString();
-                            break;
-                        case "query":
-                            profileInfo.Query = BsonDocument.ReadFrom(bsonReader);
-                            break;
-                        case "responseLength":
-                            profileInfo.ResponseLength = BsonValue.ReadFrom(bsonReader).ToInt32();
-                            break;
-                        case "scanAndOrder":
-                            profileInfo.ScanAndOrder = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "ts":
-                            profileInfo.Timestamp = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(bsonReader.ReadDateTime());
-                            break;
-                        case "updateobj":
-                            profileInfo.UpdateObject = BsonDocument.ReadFrom(bsonReader);
-                            break;
-                        case "upsert":
-                            profileInfo.Upsert = BsonValue.ReadFrom(bsonReader).ToBoolean();
-                            break;
-                        case "user":
-                            profileInfo.User = bsonReader.ReadString();
-                            break;
-                        default:
-                            bsonReader.SkipValue(); // ignore unknown elements
-                            break;
-                    }
-                }
-                bsonReader.ReadEndDocument();
-
-                return profileInfo;
-            }
+        // protected methods
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <returns></returns>
+        protected override SystemProfileInfo CreateInstance(BsonDocument document)
+        {
+            return new SystemProfileInfo(document);
         }
 
         /// <summary>
-        /// Gets the serialization info for a member.
+        /// Gets the backing document.
         /// </summary>
-        /// <param name="memberName">The member name.</param>
-        /// <returns>The serialization info for the member.</returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        /// <param name="instance">The instance.</param>
+        /// <returns></returns>
+        protected override BsonDocument GetBackingDocument(SystemProfileInfo instance)
         {
-            string elementName;
-            IBsonSerializer serializer;
-            Type nominalType;
-            IBsonSerializationOptions serializationOptions = null;
+            return instance.Raw;
+        }
+    }
 
-            switch (memberName)
-            {
-                case "Abbreviated":
-                    elementName = "abbreviated";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "Client":
-                    elementName = "client";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "Command":
-                    elementName = "command";
-                    serializer = BsonDocumentSerializer.Instance;
-                    nominalType = typeof(BsonDocument);
-                    break;
-                case "CursorId":
-                    elementName = "cursorid";
-                    serializer = Int64Serializer.Instance;
-                    nominalType = typeof(long);
-                    break;
-                case "Duration":
-                    elementName = "millis";
-                    serializer = TimeSpanSerializer.Instance;
-                    nominalType = typeof(TimeSpan);
-                    serializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
-                    break;
-                case "Error":
-                    elementName = "err";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "Exception":
-                    elementName = "exception";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "ExceptionCode":
-                    elementName = "exceptionCode";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "Exhaust":
-                    elementName = "exhaust";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "FastMod":
-                    elementName = "fastmod";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "FastModInsert":
-                    elementName = "fastmodinsert";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "IdHack":
-                    elementName = "idhack";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "Info":
-                    elementName = "info";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "KeyUpdates":
-                    elementName = "keyUpdates";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "LockStatistics":
-                    elementName = "lockStatMillis";
-                    serializer = BsonDocumentSerializer.Instance;
-                    nominalType = typeof(BsonDocument);
-                    break;
-                case "Moved":
-                    elementName = "moved";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "Namespace":
-                    elementName = "ns";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "NumberReturned":
-                    elementName = "nreturned";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "NumberScanned":
-                    elementName = "nscanned";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "NumberToReturn":
-                    elementName = "ntoreturn";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "NumberToSkip":
-                    elementName = "ntoskip";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "NumberOfYields":
-                    elementName = "numYield";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "Op":
-                    elementName = "op";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                case "Query":
-                    elementName = "query";
-                    serializer = BsonDocumentSerializer.Instance;
-                    nominalType = typeof(BsonDocument);
-                    break;
-                case "ResponseLength":
-                    elementName = "responseLength";
-                    serializer = Int32Serializer.Instance;
-                    nominalType = typeof(int);
-                    break;
-                case "ScanAndOrder":
-                    elementName = "scanAndOrder";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "Timestamp":
-                    elementName = "ts";
-                    serializer = DateTimeSerializer.Instance;
-                    nominalType = typeof(DateTime);
-                    break;
-                case "UpdateObject":
-                    elementName = "updateobj";
-                    serializer = BsonDocumentSerializer.Instance;
-                    nominalType = typeof(BsonDocument);
-                    break;
-                case "Upsert":
-                    elementName = "upsert";
-                    serializer = BooleanSerializer.Instance;
-                    nominalType = typeof(bool);
-                    break;
-                case "User":
-                    elementName = "user";
-                    serializer = StringSerializer.Instance;
-                    nominalType = typeof(string);
-                    break;
-                default:
-                    var message = string.Format("{0} is not a member of SystemProfileInfo.", memberName);
-                    throw new ArgumentOutOfRangeException("memberName", message);
-            }
+    /// <summary>
+    /// Serializer for SystemProfileLockStatistics
+    /// </summary>
+    public class SystemProfileLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileLockStatistics>
+    {
+        // public static fields
+        /// <summary>
+        /// Singleton instance.
+        /// </summary>
+        public static SystemProfileLockStatisticsSerializer Instance = new SystemProfileLockStatisticsSerializer();
 
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileLockStatisticsSerializer"/> class.
+        /// </summary>
+        public SystemProfileLockStatisticsSerializer()
+        {
+            RegisterMember("TimeAcquiring", "timeAcquiring", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeLocked", "timeLocked", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+        }
+
+        // protected methods
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <returns></returns>
+        protected override SystemProfileLockStatistics CreateInstance(BsonDocument document)
+        {
+            return new SystemProfileLockStatistics(document);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Gets the backing document.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        /// <param name="instance">The instance.</param>
+        /// <returns></returns>
+        protected override BsonDocument GetBackingDocument(SystemProfileLockStatistics instance)
         {
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var profileInfo = (SystemProfileInfo)value;
+            return instance.Raw;
+        }
+    }
 
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteDateTime("ts", BsonUtils.ToMillisecondsSinceEpoch(profileInfo.Timestamp));
-                if (profileInfo.Info != null)
-                {
-                    bsonWriter.WriteString("info", profileInfo.Info);
-                }
-                if (profileInfo.Op != null)
-                {
-                    bsonWriter.WriteString("op", profileInfo.Op);
-                }
-                if (profileInfo.Namespace != null)
-                {
-                    bsonWriter.WriteString("ns", profileInfo.Namespace);
-                }
-                if (profileInfo.Command != null)
-                {
-                    bsonWriter.WriteName("command");
-                    profileInfo.Command.WriteTo(bsonWriter);
-                }
-                if (profileInfo.Query != null)
-                {
-                    bsonWriter.WriteName("query");
-                    profileInfo.Query.WriteTo(bsonWriter);
-                }
-                if (profileInfo.UpdateObject != null)
-                {
-                    bsonWriter.WriteName("updateobj");
-                    profileInfo.UpdateObject.WriteTo(bsonWriter);
-                }
-                if (profileInfo.CursorId != 0)
-                {
-                    bsonWriter.WriteInt64("cursorid", profileInfo.CursorId);
-                }
-                if (profileInfo.NumberToReturn != 0)
-                {
-                    bsonWriter.WriteInt32("ntoreturn", profileInfo.NumberToReturn);
-                }
-                if (profileInfo.NumberToSkip != 0)
-                {
-                    bsonWriter.WriteInt32("ntoskip", profileInfo.NumberToSkip);
-                }
-                if (profileInfo.Exhaust)
-                {
-                    bsonWriter.WriteBoolean("exhaust", profileInfo.Exhaust);
-                }
-                if (profileInfo.NumberScanned != 0)
-                {
-                    bsonWriter.WriteInt32("nscanned", profileInfo.NumberScanned);
-                }
-                if (profileInfo.NumberOfYields != 0)
-                {
-                    bsonWriter.WriteInt32("numYield", profileInfo.NumberOfYields);
-                }
-                if (profileInfo.IdHack)
-                {
-                    bsonWriter.WriteBoolean("idhack", profileInfo.IdHack);
-                }
-                if (profileInfo.ScanAndOrder)
-                {
-                    bsonWriter.WriteBoolean("scanAndOrder", profileInfo.ScanAndOrder);
-                }
-                if (profileInfo.Moved)
-                {
-                    bsonWriter.WriteBoolean("moved", profileInfo.Moved);
-                }
-                if (profileInfo.FastMod)
-                {
-                    bsonWriter.WriteBoolean("fastmod", profileInfo.FastMod);
-                }
-                if (profileInfo.FastModInsert)
-                {
-                    bsonWriter.WriteBoolean("fastmodinsert", profileInfo.FastModInsert);
-                }
-                if (profileInfo.Upsert)
-                {
-                    bsonWriter.WriteBoolean("upsert", profileInfo.Upsert);
-                }
-                if (profileInfo.KeyUpdates != 0)
-                {
-                    bsonWriter.WriteInt32("keyUpdates", profileInfo.KeyUpdates);
-                }
-                if (profileInfo.Exception != null)
-                {
-                    bsonWriter.WriteString("exception", profileInfo.Exception);
-                }
-                if (profileInfo.ExceptionCode != 0)
-                {
-                    bsonWriter.WriteInt32("exceptionCode", profileInfo.ExceptionCode);
-                }
-                if (profileInfo.NumberReturned != 0)
-                {
-                    bsonWriter.WriteInt32("nreturned", profileInfo.NumberReturned);
-                }
-                if (profileInfo.ResponseLength != 0)
-                {
-                    bsonWriter.WriteInt32("responseLength", profileInfo.ResponseLength);
-                }
-                bsonWriter.WriteDouble("millis", profileInfo.Duration.TotalMilliseconds);
-                if (profileInfo.Client != null)
-                {
-                    bsonWriter.WriteString("client", profileInfo.Client);
-                }
-                if (profileInfo.User != null)
-                {
-                    bsonWriter.WriteString("user", profileInfo.User);
-                }
-                if (profileInfo.Error != null)
-                {
-                    bsonWriter.WriteString("err", profileInfo.Error);
-                }
-                if (profileInfo.Abbreviated != null)
-                {
-                    bsonWriter.WriteString("abbreviated", profileInfo.Abbreviated);
-                }
-                if (profileInfo.LockStatistics != null)
-                {
-                    bsonWriter.WriteName("lockStatMillis");
-                    profileInfo.LockStatistics.WriteTo(bsonWriter);
-                }
-                bsonWriter.WriteEndDocument();
-            }
+    /// <summary>
+    /// Serializer for SystemProfileReadWriteLockStatistics
+    /// </summary>
+    public class SystemProfileReadWriteLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileReadWriteLockStatistics>
+    {
+        //public static fields
+        /// <summary>
+        /// Singleton instance.
+        /// </summary>
+        public static readonly SystemProfileReadWriteLockStatisticsSerializer Instance = new SystemProfileReadWriteLockStatisticsSerializer();
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemProfileReadWriteLockStatisticsSerializer"/> class.
+        /// </summary>
+        public SystemProfileReadWriteLockStatisticsSerializer()
+        { 
+            var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
+            RegisterMember("Read", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("Write", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+        }
+
+        // protected methods
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <param name="document">The document.</param>
+        /// <returns></returns>
+        protected override SystemProfileReadWriteLockStatistics CreateInstance(BsonDocument document)
+        {
+            return new SystemProfileReadWriteLockStatistics(document);
+        }
+
+        /// <summary>
+        /// Gets the backing document.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns></returns>
+        protected override BsonDocument GetBackingDocument(SystemProfileReadWriteLockStatistics instance)
+        {
+            return instance.Raw;
         }
     }
 }

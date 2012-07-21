@@ -60,7 +60,19 @@ namespace MongoDB.DriverUnitTests
                 IdHack = true,
                 Info = "info",
                 KeyUpdates = 4,
-                LockStatistics = new BsonDocument().Add("timeLocked", new BsonDocument("r", 11L).Add("w", 12L)).Add("timeAcquiring", new BsonDocument("r",12L).Add("w", 12L)),
+                LockStatistics = new SystemProfileLockStatistics
+                {
+                    TimeAcquiring = new SystemProfileReadWriteLockStatistics
+                    {
+                        Read = TimeSpan.FromMilliseconds(10),
+                        Write = TimeSpan.FromMilliseconds(20)
+                    },
+                    TimeLocked = new SystemProfileReadWriteLockStatistics
+                    {
+                        Read = TimeSpan.FromMilliseconds(5),
+                        Write = TimeSpan.FromMilliseconds(30)
+                    }
+                },
                 Moved = true,
                 Namespace = "ns",
                 NumberReturned = 5,
@@ -93,7 +105,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(info.IdHack, rehydrated.IdHack);
             Assert.AreEqual(info.Info, rehydrated.Info);
             Assert.AreEqual(info.KeyUpdates, rehydrated.KeyUpdates);
-            Assert.AreEqual(info.LockStatistics, rehydrated.LockStatistics);
+            Assert.AreEqual(info.LockStatistics.Raw, rehydrated.LockStatistics.Raw);
             Assert.AreEqual(info.Moved, rehydrated.Moved);
             Assert.AreEqual(info.Namespace, rehydrated.Namespace);
             Assert.AreEqual(info.NumberReturned, rehydrated.NumberReturned);
