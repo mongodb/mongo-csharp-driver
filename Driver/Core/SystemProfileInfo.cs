@@ -181,9 +181,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the lock statistics.
         /// </summary>
-        /// <value>
-        /// The lock statistics.
-        /// </value>
         public SystemProfileLockStatistics LockStatistics
         {
             get { return GetValue<SystemProfileLockStatistics>("LockStatistics", null); }
@@ -352,9 +349,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="SystemProfileLockStatistics"/> class.
         /// </summary>
-        /// <param name="document">The document.</param>
-        internal SystemProfileLockStatistics(BsonDocument document)
-            : base(document, SystemProfileLockStatisticsSerializer.Instance)
+        /// <param name="backingDocument">The backing document.</param>
+        internal SystemProfileLockStatistics(BsonDocument backingDocument)
+            : base(backingDocument, SystemProfileLockStatisticsSerializer.Instance)
         { }
 
         // public properties
@@ -403,9 +400,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="SystemProfileReadWriteLockStatistics"/> class.
         /// </summary>
-        /// <param name="document">The document.</param>
-        internal SystemProfileReadWriteLockStatistics(BsonDocument document)
-            : base(document, SystemProfileReadWriteLockStatisticsSerializer.Instance)
+        /// <param name="backingDocument">The backing document.</param>
+        internal SystemProfileReadWriteLockStatistics(BsonDocument backingDocument)
+            : base(backingDocument, SystemProfileReadWriteLockStatisticsSerializer.Instance)
         { }
 
         // public properties
@@ -441,11 +438,11 @@ namespace MongoDB.Driver
     /// </summary>
     public class SystemProfileInfoSerializer : BsonDocumentBackedClassSerializer<SystemProfileInfo>
     {
-        // public static fields
+        // private static fields
         /// <summary>
         /// Singleton instance.
         /// </summary>
-        public static SystemProfileInfoSerializer Instance = new SystemProfileInfoSerializer();
+        private static readonly SystemProfileInfoSerializer __instance = new SystemProfileInfoSerializer();
 
         // constructors
         /// <summary>
@@ -485,15 +482,24 @@ namespace MongoDB.Driver
             RegisterMember("User", "user", StringSerializer.Instance, typeof(string), null);
         }
 
+        // public static properties
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        public static SystemProfileInfoSerializer Instance
+        {
+            get { return __instance; }
+        }
+
         // protected methods
         /// <summary>
         /// Creates the instance.
         /// </summary>
-        /// <param name="document">The document.</param>
+        /// <param name="backingDocument">The backing document.</param>
         /// <returns></returns>
-        protected override SystemProfileInfo CreateInstance(BsonDocument document)
+        protected override SystemProfileInfo CreateInstance(BsonDocument backingDocument)
         {
-            return new SystemProfileInfo(document);
+            return new SystemProfileInfo(backingDocument);
         }
     }
 
@@ -502,11 +508,11 @@ namespace MongoDB.Driver
     /// </summary>
     public class SystemProfileLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileLockStatistics>
     {
-        // public static fields
+        // private static fields
         /// <summary>
         /// Singleton instance.
         /// </summary>
-        public static SystemProfileLockStatisticsSerializer Instance = new SystemProfileLockStatisticsSerializer();
+        private static readonly SystemProfileLockStatisticsSerializer __instance = new SystemProfileLockStatisticsSerializer();
 
         // constructors
         /// <summary>
@@ -516,6 +522,15 @@ namespace MongoDB.Driver
         {
             RegisterMember("TimeAcquiring", "timeAcquiring", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
             RegisterMember("TimeLocked", "timeLocked", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+        }
+
+        // public static properties
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        public static SystemProfileLockStatisticsSerializer Instance
+        {
+            get { return __instance; }
         }
 
         // protected methods
@@ -535,11 +550,11 @@ namespace MongoDB.Driver
     /// </summary>
     public class SystemProfileReadWriteLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileReadWriteLockStatistics>
     {
-        //public static fields
+        // private static fields
         /// <summary>
         /// Singleton instance.
         /// </summary>
-        public static readonly SystemProfileReadWriteLockStatisticsSerializer Instance = new SystemProfileReadWriteLockStatisticsSerializer();
+        private static readonly SystemProfileReadWriteLockStatisticsSerializer __instance = new SystemProfileReadWriteLockStatisticsSerializer();
 
         // constructors
         /// <summary>
@@ -550,6 +565,15 @@ namespace MongoDB.Driver
             var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
             RegisterMember("Read", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
             RegisterMember("Write", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+        }
+
+        // public static properties
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        public static SystemProfileReadWriteLockStatisticsSerializer Instance
+        {
+            get { return __instance; }
         }
 
         // protected methods

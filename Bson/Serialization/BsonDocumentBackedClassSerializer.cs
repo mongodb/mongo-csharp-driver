@@ -27,8 +27,10 @@ namespace MongoDB.Bson.Serialization
     public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer, IBsonDocumentSerializer
         where TClass : BsonDocumentBackedClass
     {
+        // private fields
         private readonly Dictionary<string, BsonSerializationInfo> _memberSerializationInfo;
 
+        // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="BsonDocumentBackedClassSerializer&lt;TClass&gt;"/> class.
         /// </summary>
@@ -50,8 +52,8 @@ namespace MongoDB.Bson.Serialization
         {
             VerifyTypes(nominalType, actualType, typeof(TClass));
 
-            var document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), typeof(BsonDocument), options);
-            return CreateInstance(document);
+            var backingDocument = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), typeof(BsonDocument), options);
+            return CreateInstance(backingDocument);
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 var backedClassInstance = (BsonDocumentBackedClass)value;
-                backedClassInstance.BackingDocument.WriteTo(bsonWriter);
+                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), backedClassInstance.BackingDocument, options);
             }
         }
 
