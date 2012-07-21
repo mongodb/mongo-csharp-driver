@@ -15,15 +15,16 @@
 
 using System;
 using System.Collections.Generic;
+
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Used in conjuection with a BsonDocumentBackedClass, represented by the generic parameter TClass.
+    /// Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).
     /// </summary>
-    /// <typeparam name="TClass"></typeparam>
+    /// <typeparam name="TClass">The subclass of BsonDocumentBackedClass.</typeparam>
     public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer, IBsonDocumentSerializer
         where TClass : BsonDocumentBackedClass
     {
@@ -90,19 +91,19 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
-                var backedClassInstance = (BsonDocumentBackedClass)value;
-                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), backedClassInstance.BackingDocument, options);
+                var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
+                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), backingDocument, options);
             }
         }
 
         // protected methods
         /// <summary>
-        /// Registers the member.
+        /// Registers a member.
         /// </summary>
-        /// <param name="memberName">Name of the member.</param>
-        /// <param name="elementName">Name of the element.</param>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="elementName">The element name.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">Type of the nominal.</param>
+        /// <param name="nominalType">The nominal type.</param>
         /// <param name="serializationOptions">The serialization options.</param>
         protected void RegisterMember(string memberName, string elementName, IBsonSerializer serializer, Type nominalType, IBsonSerializationOptions serializationOptions)
         {
@@ -130,8 +131,8 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Creates the instance.
         /// </summary>
-        /// <param name="document">The document.</param>
-        /// <returns></returns>
-        protected abstract TClass CreateInstance(BsonDocument document);
+        /// <param name="backingDocument">The backing document.</param>
+        /// <returns>An instance of TClass.</returns>
+        protected abstract TClass CreateInstance(BsonDocument backingDocument);
     }
 }

@@ -14,11 +14,12 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using MongoDB.Bson.IO;
-using System.Collections;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -86,21 +87,17 @@ namespace MongoDB.Bson.Serialization
         /// Deserializes the value.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <returns></returns>
+        /// <returns>The deserialized value.</returns>
         public object DeserializeValue(BsonValue value)
         {
-            var tempDocument = new BsonDocument();
-            tempDocument.Add("temp", value);
-            using (var buffer = new BsonBuffer())
+            var tempDocument = new BsonDocument("value", value);
+            using (var reader = BsonReader.Create(tempDocument))
             {
-                tempDocument.WriteTo(buffer);
-                buffer.Position = 0;
-                using (var reader = BsonReader.Create(buffer))
-                {
-                    reader.ReadStartDocument();
-                    reader.ReadName("temp");
-                    return _serializer.Deserialize(reader, _nominalType, _serializationOptions);
-                }
+                reader.ReadStartDocument();
+                reader.ReadName("value");
+                var deserializedValue = _serializer.Deserialize(reader, _nominalType, _serializationOptions);
+                reader.ReadEndDocument();
+                return deserializedValue;
             }
         }
 
@@ -108,6 +105,7 @@ namespace MongoDB.Bson.Serialization
         /// Serializes the value.
         /// </summary>
         /// <param name="value">The value.</param>
+        /// <returns>The serialized value.</returns>
         public BsonValue SerializeValue(object value)
         {
             var tempDocument = new BsonDocument();
@@ -125,7 +123,7 @@ namespace MongoDB.Bson.Serialization
         /// Serializes the values.
         /// </summary>
         /// <param name="values">The values.</param>
-        /// <returns></returns>
+        /// <returns>The serialized values.</returns>
         public BsonArray SerializeValues(IEnumerable values)
         {
             var tempDocument = new BsonDocument();

@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -69,9 +68,9 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the value from the backing document.
         /// </summary>
-        /// <param name="memberName">Name of the member.</param>
+        /// <param name="memberName">The member name.</param>
         /// <param name="defaultValue">The default value.</param>
-        /// <returns></returns>
+        /// <returns>The value.</returns>
         protected T GetValue<T>(string memberName, T defaultValue)
         {
             var info = _serializer.GetMemberSerializationInfo(memberName);
@@ -88,7 +87,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Sets the value in the backing document.
         /// </summary>
-        /// <param name="memberName">Name of the member.</param>
+        /// <param name="memberName">The member name.</param>
         /// <param name="value">The value.</param>
         protected void SetValue(string memberName, object value)
         {

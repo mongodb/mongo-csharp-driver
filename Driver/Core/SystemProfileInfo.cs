@@ -46,9 +46,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="SystemProfileInfo"/> class.
         /// </summary>
-        /// <param name="document">The document.</param>
-        internal SystemProfileInfo(BsonDocument document)
-            : base(document, SystemProfileInfoSerializer.Instance)
+        /// <param name="backingDocument">The backing document.</param>
+        internal SystemProfileInfo(BsonDocument backingDocument)
+            : base(backingDocument, SystemProfileInfoSerializer.Instance)
         { }
 
         // public properties
@@ -271,7 +271,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the raw document.
         /// </summary>
-        public BsonDocument Raw
+        public BsonDocument RawDocument
         {
             get { return BackingDocument; }
         }
@@ -356,9 +356,9 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets the raw.
+        /// Gets the raw document.
         /// </summary>
-        public BsonDocument Raw
+        public BsonDocument RawDocument
         {
             get { return BackingDocument; }
         }
@@ -407,9 +407,9 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets the raw document underneath the lock statistics.
+        /// Gets the raw document.
         /// </summary>
-        public BsonDocument Raw
+        public BsonDocument RawDocument
         {
             get { return BackingDocument; }
         }
@@ -439,9 +439,6 @@ namespace MongoDB.Driver
     public class SystemProfileInfoSerializer : BsonDocumentBackedClassSerializer<SystemProfileInfo>
     {
         // private static fields
-        /// <summary>
-        /// Singleton instance.
-        /// </summary>
         private static readonly SystemProfileInfoSerializer __instance = new SystemProfileInfoSerializer();
 
         // constructors
@@ -509,9 +506,6 @@ namespace MongoDB.Driver
     public class SystemProfileLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileLockStatistics>
     {
         // private static fields
-        /// <summary>
-        /// Singleton instance.
-        /// </summary>
         private static readonly SystemProfileLockStatisticsSerializer __instance = new SystemProfileLockStatisticsSerializer();
 
         // constructors
@@ -537,11 +531,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates the instance.
         /// </summary>
-        /// <param name="document">The document.</param>
+        /// <param name="backingDocument">The backing document.</param>
         /// <returns></returns>
-        protected override SystemProfileLockStatistics CreateInstance(BsonDocument document)
+        protected override SystemProfileLockStatistics CreateInstance(BsonDocument backingDocument)
         {
-            return new SystemProfileLockStatistics(document);
+            return new SystemProfileLockStatistics(backingDocument);
         }
     }
 
@@ -551,9 +545,6 @@ namespace MongoDB.Driver
     public class SystemProfileReadWriteLockStatisticsSerializer : BsonDocumentBackedClassSerializer<SystemProfileReadWriteLockStatistics>
     {
         // private static fields
-        /// <summary>
-        /// Singleton instance.
-        /// </summary>
         private static readonly SystemProfileReadWriteLockStatisticsSerializer __instance = new SystemProfileReadWriteLockStatisticsSerializer();
 
         // constructors
@@ -580,11 +571,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates the instance.
         /// </summary>
-        /// <param name="document">The document.</param>
+        /// <param name="backingDocument">The backing document.</param>
         /// <returns></returns>
-        protected override SystemProfileReadWriteLockStatistics CreateInstance(BsonDocument document)
+        protected override SystemProfileReadWriteLockStatistics CreateInstance(BsonDocument backingDocument)
         {
-            return new SystemProfileReadWriteLockStatistics(document);
+            return new SystemProfileReadWriteLockStatistics(backingDocument);
         }
     }
 }

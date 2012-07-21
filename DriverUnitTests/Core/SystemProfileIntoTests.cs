@@ -105,7 +105,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(info.IdHack, rehydrated.IdHack);
             Assert.AreEqual(info.Info, rehydrated.Info);
             Assert.AreEqual(info.KeyUpdates, rehydrated.KeyUpdates);
-            Assert.AreEqual(info.LockStatistics.Raw, rehydrated.LockStatistics.Raw);
+            Assert.AreEqual(info.LockStatistics.RawDocument, rehydrated.LockStatistics.RawDocument);
             Assert.AreEqual(info.Moved, rehydrated.Moved);
             Assert.AreEqual(info.Namespace, rehydrated.Namespace);
             Assert.AreEqual(info.NumberReturned, rehydrated.NumberReturned);
