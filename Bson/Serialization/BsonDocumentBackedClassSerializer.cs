@@ -20,10 +20,18 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
-    public abstract class BsonDocumentBackedClassSerializer<T> : BsonBaseSerializer, IBsonDocumentSerializer
+    /// <summary>
+    /// Used in conjuection with a BsonDocumentBackedClass, represented by the generic parameter TClass.
+    /// </summary>
+    /// <typeparam name="TClass"></typeparam>
+    public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer, IBsonDocumentSerializer
+        where TClass : BsonDocumentBackedClass
     {
         private readonly Dictionary<string, BsonSerializationInfo> _memberSerializationInfo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BsonDocumentBackedClassSerializer&lt;TClass&gt;"/> class.
+        /// </summary>
         protected BsonDocumentBackedClassSerializer()
         {
             _memberSerializationInfo = new Dictionary<string, BsonSerializationInfo>();
@@ -40,7 +48,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An object.</returns>
         public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
         {
-            VerifyTypes(nominalType, actualType, typeof(T));
+            VerifyTypes(nominalType, actualType, typeof(TClass));
 
             var document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), typeof(BsonDocument), options);
             return CreateInstance(document);
@@ -58,7 +66,7 @@ namespace MongoDB.Bson.Serialization
             BsonSerializationInfo info;
             if (!_memberSerializationInfo.TryGetValue(memberName, out info))
             {
-                var message = string.Format("{0} is not a member of {1}.", memberName, typeof(T));
+                var message = string.Format("{0} is not a member of {1}.", memberName, typeof(TClass));
                 throw new ArgumentOutOfRangeException("memberName", message);
             }
 
@@ -80,12 +88,20 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
-                var backingDocument = GetBackingDocument((T)value);
-                backingDocument.WriteTo(bsonWriter);
+                var backedClassInstance = (BsonDocumentBackedClass)value;
+                backedClassInstance.BackingDocument.WriteTo(bsonWriter);
             }
         }
 
         // protected methods
+        /// <summary>
+        /// Registers the member.
+        /// </summary>
+        /// <param name="memberName">Name of the member.</param>
+        /// <param name="elementName">Name of the element.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="nominalType">Type of the nominal.</param>
+        /// <param name="serializationOptions">The serialization options.</param>
         protected void RegisterMember(string memberName, string elementName, IBsonSerializer serializer, Type nominalType, IBsonSerializationOptions serializationOptions)
         {
             if (memberName == null)
@@ -114,13 +130,6 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="document">The document.</param>
         /// <returns></returns>
-        protected abstract T CreateInstance(BsonDocument document);
-
-        /// <summary>
-        /// Gets the backing document.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns></returns>
-        protected abstract BsonDocument GetBackingDocument(T instance);
+        protected abstract TClass CreateInstance(BsonDocument document);
     }
 }

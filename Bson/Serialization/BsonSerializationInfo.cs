@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -78,6 +79,57 @@ namespace MongoDB.Bson.Serialization
         public IBsonSerializationOptions SerializationOptions
         {
             get { return _serializationOptions; }
+        }
+
+        /// <summary>
+        /// Deserializes the value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public object DeserializeValue(BsonValue value)
+        {
+            var tempDocument = new BsonDocument();
+            tempDocument.Add("temp", value);
+            using (var buffer = new BsonBuffer())
+            {
+                tempDocument.WriteTo(buffer);
+                buffer.Position = 0;
+                using (var reader = BsonReader.Create(buffer))
+                {
+                    reader.ReadStartDocument();
+                    reader.ReadName("temp");
+                    return _serializer.Deserialize(reader, _nominalType, _serializationOptions);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Serializes the value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public BsonValue SerializeValue(object value)
+        {
+            var tempDocument = new BsonDocument();
+            using (var bsonWriter = BsonWriter.Create(tempDocument))
+            {
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("value");
+                Serialize(bsonWriter, value);
+                bsonWriter.WriteEndDocument();
+                return tempDocument[0];
+            }
+        }
+
+        // private methods
+        private void Serialize(BsonWriter bsonWriter, object value)
+        {
+            var serializer = _serializer;
+            var actualType = (value == null) ? _nominalType : value.GetType();
+            if (actualType != _nominalType)
+            {
+                serializer = BsonSerializer.LookupSerializer(actualType);
+            }
+            serializer.Serialize(bsonWriter, _nominalType, value, _serializationOptions);
         }
     }
 }

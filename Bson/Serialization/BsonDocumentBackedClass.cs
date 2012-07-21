@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -55,46 +56,33 @@ namespace MongoDB.Bson.Serialization
             _serializer = serializer;
         }
 
-        // protected properties
-        protected BsonDocument BackingDocument
+        // protected internal properties
+        /// <summary>
+        /// Gets the backing document.
+        /// </summary>
+        protected internal BsonDocument BackingDocument
         {
             get { return _backingDocument; }
         }
 
         // protected methods
         /// <summary>
-        /// Gets the value.
-        /// </summary>
-        /// <param name="memberName">Name of the member.</param>
-        /// <returns></returns>
-        protected BsonValue GetValue(string memberName)
-        {
-            var info = _serializer.GetMemberSerializationInfo(memberName);
-            return _backingDocument.GetValue(info.ElementName);
-        }
-
-        /// <summary>
         /// Gets the value from the backing document.
         /// </summary>
         /// <param name="memberName">Name of the member.</param>
         /// <param name="defaultValue">The default value.</param>
         /// <returns></returns>
-        protected BsonValue GetValue(string memberName, BsonValue defaultValue)
+        protected T GetValue<T>(string memberName, T defaultValue)
         {
             var info = _serializer.GetMemberSerializationInfo(memberName);
-            return _backingDocument.GetValue(info.ElementName, defaultValue);
-        }
 
-        /// <summary>
-        /// Tries to get a value from the backing document.
-        /// </summary>
-        /// <param name="memberName">Name of the member.</param>
-        /// <param name="value">The value.</param>
-        /// <returns></returns>
-        protected bool TryGetValue(string memberName, out BsonValue value)
-        {
-            var info = _serializer.GetMemberSerializationInfo(memberName);
-            return _backingDocument.TryGetValue(info.ElementName, out value);
+            BsonValue bsonValue;
+            if (!_backingDocument.TryGetValue(info.ElementName, out bsonValue))
+            {
+                return defaultValue;
+            }
+
+            return (T)info.DeserializeValue(bsonValue);
         }
 
         /// <summary>
@@ -102,10 +90,11 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="memberName">Name of the member.</param>
         /// <param name="value">The value.</param>
-        protected void SetValue(string memberName, BsonValue value)
+        protected void SetValue(string memberName, object value)
         {
             var info = _serializer.GetMemberSerializationInfo(memberName);
-            _backingDocument.Set(info.ElementName, value);
+            var bsonValue = info.SerializeValue(value);
+            _backingDocument.Set(info.ElementName, bsonValue);
         }
     }
 }

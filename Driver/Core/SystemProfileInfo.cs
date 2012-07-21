@@ -57,7 +57,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Abbreviated
         {
-            get { return (string)GetValue("Abbreviated", null); }
+            get { return GetValue<string>("Abbreviated", null); }
             set { SetValue("Abbreviated", value); }
         }
 
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Client
         {
-            get { return (string)GetValue("Client", null); }
+            get { return GetValue<string>("Client", null); }
             set { SetValue("Client", value); }
         }
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Command
         {
-            get { return (BsonDocument)GetValue("Command", null); }
+            get { return GetValue<BsonDocument>("Command", null); }
             set { SetValue("Command", value); }
         }
 
@@ -93,8 +93,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Duration
         {
-            get { return TimeSpan.FromMilliseconds(GetValue("Duration", 0).ToDouble()); }
-            set { SetValue("Duration", (double)value.Milliseconds); }
+            get { return GetValue<TimeSpan>("Duration", TimeSpan.Zero); }
+            set { SetValue("Duration", value); }
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Error
         {
-            get { return (string)GetValue("Error", null); }
+            get { return GetValue<string>("Error", null); }
             set { SetValue("Error", value); }
         }
 
@@ -111,7 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Exception
         {
-            get { return (string)GetValue("Exception", null); }
+            get { return GetValue<string>("Exception", null); }
             set { SetValue("Exception", value); }
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExceptionCode
         {
-            get { return (int)GetValue("ExceptionCode", 0); }
+            get { return GetValue<int>("ExceptionCode", 0); }
             set { SetValue("ExceptionCode", value); }
         }
 
@@ -129,7 +129,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Exhaust
         {
-            get { return (bool)GetValue("Exhaust", false); }
+            get { return GetValue<bool>("Exhaust", false); }
             set { SetValue("Exhaust", value); }
         }
 
@@ -138,7 +138,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastMod
         {
-            get { return (bool)GetValue("FastMod", false); }
+            get { return GetValue<bool>("FastMod", false); }
             set { SetValue("FastMod", value); }
         }
 
@@ -147,7 +147,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool FastModInsert
         {
-            get { return (bool)GetValue("FastModInsert", false); }
+            get { return GetValue<bool>("FastModInsert", false); }
             set { SetValue("FastModInsert", value); }
         }
 
@@ -156,7 +156,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IdHack
         {
-            get { return (bool)GetValue("IdHack", false); }
+            get { return GetValue<bool>("IdHack", false); }
             set { SetValue("IdHack", value); }
         }
 
@@ -165,7 +165,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Info
         {
-            get { return (string)GetValue("Info", null); }
+            get { return GetValue<string>("Info", null); }
             set { SetValue("Info", value); }
         }
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int KeyUpdates
         {
-            get { return (int)GetValue("KeyUpdates", 0); }
+            get { return GetValue<int>("KeyUpdates", 0); }
             set { SetValue("KeyUpdates", value); }
         }
 
@@ -186,25 +186,8 @@ namespace MongoDB.Driver
         /// </value>
         public SystemProfileLockStatistics LockStatistics
         {
-            get
-            {
-                BsonValue value;
-                if (!TryGetValue("LockStatistics", out value))
-                {
-                    return null;
-                }
-
-                return new SystemProfileLockStatistics(GetValue("LockStatistics").AsBsonDocument);
-            }
-            set
-            {
-                BsonDocument lockStatsDocument = null;
-                if (value != null)
-                {
-                    lockStatsDocument = value.Raw;
-                }
-                SetValue("LockStatistics", lockStatsDocument);
-            }
+            get { return GetValue<SystemProfileLockStatistics>("LockStatistics", null); }
+            set { SetValue("LockStatistics", value); }
         }
 
         /// <summary>
@@ -212,7 +195,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Moved
         {
-            get { return (bool)GetValue("Moved", false); }
+            get { return GetValue<bool>("Moved", false); }
             set { SetValue("Moved", value); }
         }
 
@@ -221,7 +204,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Namespace
         {
-            get { return (string)GetValue("Namespace", null); }
+            get { return GetValue<string>("Namespace", null); }
             set { SetValue("Namespace", value); }
         }
 
@@ -230,7 +213,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberReturned
         {
-            get { return (int)GetValue("NumberReturned", 0); }
+            get { return GetValue<int>("NumberReturned", 0); }
             set { SetValue("NumberReturned", value); }
         }
 
@@ -239,7 +222,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberScanned
         {
-            get { return (int)GetValue("NumberScanned", 0); }
+            get { return GetValue<int>("NumberScanned", 0); }
             set { SetValue("NumberScanned", value); }
         }
 
@@ -248,7 +231,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToReturn
         {
-            get { return (int)GetValue("NumberToReturn", 0); }
+            get { return GetValue<int>("NumberToReturn", 0); }
             set { SetValue("NumberToReturn", value); }
         }
 
@@ -257,7 +240,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToSkip
         {
-            get { return (int)GetValue("NumberToSkip", 0); }
+            get { return GetValue<int>("NumberToSkip", 0); }
             set { SetValue("NumberToSkip", value); }
         }
 
@@ -266,7 +249,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberOfYields
         {
-            get { return (int)GetValue("NumberOfYields", 0); }
+            get { return GetValue<int>("NumberOfYields", 0); }
             set { SetValue("NumberOfYields", value); }
         }
 
@@ -275,7 +258,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string Op
         {
-            get { return (string)GetValue("Op", null); }
+            get { return GetValue<string>("Op", null); }
             set { SetValue("Op", value); }
         }
 
@@ -284,7 +267,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument Query
         {
-            get { return (BsonDocument)GetValue("Query", null); }
+            get { return GetValue<BsonDocument>("Query", null); }
             set { SetValue("Query", value); }
         }
 
@@ -301,7 +284,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ResponseLength
         {
-            get { return (int)GetValue("ResponseLength", 0); }
+            get { return GetValue<int>("ResponseLength", 0); }
             set { SetValue("ResponseLength", value); }
         }
 
@@ -310,7 +293,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool ScanAndOrder
         {
-            get { return (bool)GetValue("ScanAndOrder", false); }
+            get { return GetValue<bool>("ScanAndOrder", false); }
             set { SetValue("ScanAndOrder", value); }
         }
 
@@ -319,7 +302,7 @@ namespace MongoDB.Driver
         /// </summary>
         public DateTime Timestamp
         {
-            get { return (DateTime)GetValue("Timestamp", DateTime.MinValue); }
+            get { return GetValue<DateTime>("Timestamp", DateTime.MinValue); }
             set { SetValue("Timestamp", value); }
         }
 
@@ -328,7 +311,7 @@ namespace MongoDB.Driver
         /// </summary>
         public BsonDocument UpdateObject
         {
-            get { return (BsonDocument)GetValue("UpdateObject", null); }
+            get { return GetValue<BsonDocument>("UpdateObject", null); }
             set { SetValue("UpdateObject", value); }
         }
 
@@ -337,7 +320,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Upsert
         {
-            get { return (bool)GetValue("Upsert", false); }
+            get { return GetValue<bool>("Upsert", false); }
             set { SetValue("Upsert", value); }
         }
 
@@ -346,7 +329,7 @@ namespace MongoDB.Driver
         /// </summary>
         public string User
         {
-            get { return (string)GetValue("User", null); }
+            get { return GetValue<string>("User", null); }
             set { SetValue("User", value); }
         }
     }
@@ -388,8 +371,8 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileReadWriteLockStatistics TimeAcquiring
         {
-            get { return GetReadWriteStatistics("TimeAcquiring"); }
-            set { SetReadWriteStatistics("TimeAcquiring", value); }
+            get { return GetValue<SystemProfileReadWriteLockStatistics>("TimeAcquiring", null); }
+            set { SetValue("TimeAcquiring", value); }
         }
 
         /// <summary>
@@ -397,30 +380,8 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileReadWriteLockStatistics TimeLocked
         {
-            get { return GetReadWriteStatistics("TimeLocked"); }
-            set { SetReadWriteStatistics("TimeLocked", value); }
-        }
-
-        // private methods
-        private SystemProfileReadWriteLockStatistics GetReadWriteStatistics(string name)
-        {
-            BsonValue doc;
-            if (!TryGetValue(name, out doc))
-            {
-                return null;
-            }
-
-            return new SystemProfileReadWriteLockStatistics(doc.AsBsonDocument);
-        }
-
-        private void SetReadWriteStatistics(string name, SystemProfileReadWriteLockStatistics value)
-        {
-            BsonDocument doc = null;
-            if (value != null)
-            {
-                doc = value.Raw;
-            }
-            SetValue(name, doc);
+            get { return GetValue<SystemProfileReadWriteLockStatistics>("TimeLocked", null); }
+            set { SetValue("TimeLocked", value); }
         }
     }
 
@@ -461,8 +422,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Read
         {
-            get { return GetTimeSpan("Read"); }
-            set { SetTimeSpan("Read", value); }
+            get { return GetValue("Read", TimeSpan.Zero); }
+            set { SetValue("Read", value); }
         }
 
         /// <summary>
@@ -470,19 +431,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan Write
         {
-            get { return GetTimeSpan("Write"); }
-            set { SetTimeSpan("Write", value); }
-        }
-
-        // private methods
-        private TimeSpan GetTimeSpan(string name)
-        {
-            return TimeSpan.FromMilliseconds(GetValue(name, 0).ToDouble());
-        }
-
-        private void SetTimeSpan(string name, TimeSpan value)
-        {
-            SetValue(name, BsonInt64.Create(value.Milliseconds));
+            get { return GetValue("Write", TimeSpan.Zero); }
+            set { SetValue("Write", value); }
         }
     }
 
@@ -545,16 +495,6 @@ namespace MongoDB.Driver
         {
             return new SystemProfileInfo(document);
         }
-
-        /// <summary>
-        /// Gets the backing document.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns></returns>
-        protected override BsonDocument GetBackingDocument(SystemProfileInfo instance)
-        {
-            return instance.Raw;
-        }
     }
 
     /// <summary>
@@ -587,16 +527,6 @@ namespace MongoDB.Driver
         protected override SystemProfileLockStatistics CreateInstance(BsonDocument document)
         {
             return new SystemProfileLockStatistics(document);
-        }
-
-        /// <summary>
-        /// Gets the backing document.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns></returns>
-        protected override BsonDocument GetBackingDocument(SystemProfileLockStatistics instance)
-        {
-            return instance.Raw;
         }
     }
 
@@ -631,16 +561,6 @@ namespace MongoDB.Driver
         protected override SystemProfileReadWriteLockStatistics CreateInstance(BsonDocument document)
         {
             return new SystemProfileReadWriteLockStatistics(document);
-        }
-
-        /// <summary>
-        /// Gets the backing document.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns></returns>
-        protected override BsonDocument GetBackingDocument(SystemProfileReadWriteLockStatistics instance)
-        {
-            return instance.Raw;
         }
     }
 }
