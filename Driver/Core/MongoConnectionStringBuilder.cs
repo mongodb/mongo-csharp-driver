@@ -41,6 +41,7 @@ namespace MongoDB.Driver
             { "database", "database" },
             { "fsync", "fsync" },
             { "guids", "uuidRepresentation" },
+            { "ipv6", "ipv6" },
             { "j", "journal" },
             { "journal", "journal" },
             { "maxidletime", "maxIdleTime" },
@@ -59,6 +60,8 @@ namespace MongoDB.Driver
             { "slaveok", "slaveOk" },
             { "sockettimeout", "socketTimeout" },
             { "sockettimeoutms", "socketTimeout" },
+            { "ssl", "ssl" },
+            { "sslverifycertificate", "sslVerifyCertificate" },
             { "username", "username" },
             { "uuidrepresentation", "uuidRepresentation" },
             { "w", "w" },
@@ -89,6 +92,8 @@ namespace MongoDB.Driver
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
         private string _username;
+        private bool _useSsl;
+        private bool _verifySslCertificate;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
@@ -440,6 +445,32 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                _useSsl = value;
+                base["ssl"] = XmlConvert.ToString(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _verifySslCertificate; }
+            set
+            {
+                _verifySslCertificate = value;
+                base["sslVerifyCertificate"] = XmlConvert.ToString(value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
         public double WaitQueueMultiple
@@ -599,6 +630,12 @@ namespace MongoDB.Driver
                     case "sockettimeoutms":
                         SocketTimeout = ToTimeSpan(keyword, value);
                         break;
+                    case "ssl":
+                        UseSsl = Convert.ToBoolean(value);
+                        break;
+                    case "sslverifycertificate":
+                        VerifySslCertificate = Convert.ToBoolean(value);
+                        break;
                     case "username":
                         Username = (string)value;
                         break;
@@ -667,7 +704,7 @@ namespace MongoDB.Driver
             var readPreference = ReadPreference ?? ReadPreference.Primary;
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
-                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, ComputedWaitQueueSize,_waitQueueTimeout);
+                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate, ComputedWaitQueueSize, _waitQueueTimeout);
         }
 
         // private methods
@@ -740,6 +777,8 @@ namespace MongoDB.Driver
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
+            _useSsl = false;
+            _verifySslCertificate = true;
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;

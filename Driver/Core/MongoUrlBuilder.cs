@@ -50,6 +50,8 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
+        private bool _useSsl;
+        private bool _verifySslCertificate;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
@@ -285,6 +287,24 @@ namespace MongoDB.Driver
         {
             get { return _socketTimeout; }
             set { _socketTimeout = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set { _useSsl = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _verifySslCertificate; }
+            set { _verifySslCertificate = value; }
         }
 
         /// <summary>
@@ -624,6 +644,12 @@ namespace MongoDB.Driver
                             case "sockettimeoutms":
                                 _socketTimeout = ParseTimeSpan(name, value);
                                 break;
+                            case "ssl":
+                                _useSsl = ParseBoolean(name, value);
+                                break;
+                            case "sslverifycertificate":
+                                _verifySslCertificate = ParseBoolean(name, value);
+                                break;
                             case "w":
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
                                 try
@@ -680,7 +706,7 @@ namespace MongoDB.Driver
             var readPreference = ReadPreference ?? ReadPreference.Primary;
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, _defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
-                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, ComputedWaitQueueSize, _waitQueueTimeout);
+                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate, ComputedWaitQueueSize, _waitQueueTimeout);
         }
 
         /// <summary>
@@ -721,6 +747,14 @@ namespace MongoDB.Driver
             if (_ipv6)
             {
                 query.AppendFormat("ipv6=true;");
+            }
+            if (_useSsl)
+            {
+                query.AppendFormat("ssl=true;");
+                if (!_verifySslCertificate)
+                {
+                    query.AppendFormat("sslVerifyCertificate=false;");
+                }
             }
             if (_connectionMode == ConnectionMode.Direct && _servers != null && _servers.Count() != 1 ||
                 _connectionMode == ConnectionMode.ReplicaSet && (_servers == null || _servers.Count() == 1))
@@ -845,6 +879,8 @@ namespace MongoDB.Driver
             _servers = null;
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _useSsl = false;
+            _verifySslCertificate = true;
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;

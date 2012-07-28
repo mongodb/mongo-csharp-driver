@@ -247,6 +247,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _serverSettings.UseSsl; }
+        }
+
+        /// <summary>
+        /// Gets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _serverSettings.VerifySslCertificate; }
+        }
+
+        /// <summary>
         /// Gets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
         public double WaitQueueMultiple

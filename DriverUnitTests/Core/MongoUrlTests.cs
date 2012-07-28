@@ -50,6 +50,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(false, url.SlaveOk);
 #pragma warning restore
             Assert.AreEqual(MongoDefaults.SocketTimeout, url.SocketTimeout);
+            Assert.AreEqual(false, url.UseSsl);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, url.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, url.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, url.WaitQueueTimeout);
@@ -407,6 +408,26 @@ namespace MongoDB.DriverUnitTests
             string connectionString = "mongodb://localhost/?socketTimeout=123ms";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.AreEqual(TimeSpan.FromMilliseconds(123), url.SocketTimeout);
+            Assert.AreEqual(connectionString, url.ToString());
+        }
+
+        [Test]
+        public void TestSsl()
+        {
+            string connectionString = "mongodb://localhost/?ssl=true";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(true, url.UseSsl);
+            Assert.AreEqual(true, url.VerifySslCertificate);
+            Assert.AreEqual(connectionString, url.ToString());
+        }
+
+        [Test]
+        public void TestSslDontVerifyCertificate()
+        {
+            string connectionString = "mongodb://localhost/?ssl=true;sslVerifyCertificate=false";
+            MongoUrl url = new MongoUrl(connectionString);
+            Assert.AreEqual(true, url.UseSsl);
+            Assert.AreEqual(false, url.VerifySslCertificate);
             Assert.AreEqual(connectionString, url.ToString());
         }
 

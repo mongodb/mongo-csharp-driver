@@ -47,6 +47,8 @@ namespace MongoDB.Driver
         private List<MongoServerAddress> _servers;
         private ReadOnlyCollection<MongoServerAddress> _serversReadOnly;
         private TimeSpan _socketTimeout;
+        private bool _useSsl;
+        private bool _verifySslCertificate;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
 
@@ -77,6 +79,8 @@ namespace MongoDB.Driver
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _useSsl = false;
+            _verifySslCertificate = true;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
         }
@@ -99,6 +103,8 @@ namespace MongoDB.Driver
         /// <param name="safeMode">The safe mode.</param>
         /// <param name="servers">The server addresses (normally one unless it is the seed list for connecting to a replica set).</param>
         /// <param name="socketTimeout">The socket timeout.</param>
+        /// <param name="useSsl">Whether to use SSL.</param>
+        /// <param name="verifySslCertificate">Whether to verify an SSL certificate.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
         public MongoServerSettings(
@@ -117,6 +123,8 @@ namespace MongoDB.Driver
             SafeMode safeMode,
             IEnumerable<MongoServerAddress> servers,
             TimeSpan socketTimeout,
+            bool useSsl,
+            bool verifySslCertificate,
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
@@ -149,6 +157,8 @@ namespace MongoDB.Driver
             _servers = new List<MongoServerAddress>(servers);
             _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = socketTimeout;
+            _useSsl = useSsl;
+            _verifySslCertificate = verifySslCertificate;
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
         }
@@ -418,6 +428,32 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _useSsl = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _verifySslCertificate; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _verifySslCertificate = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the wait queue size.
         /// </summary>
         public int WaitQueueSize
@@ -452,7 +488,7 @@ namespace MongoDB.Driver
         {
             return new MongoServerSettings(_connectionMode, _connectTimeout, _credentialsStore.Clone(), _defaultCredentials,
                 _guidRepresentation, _ipv6, _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize,
-                _minConnectionPoolSize, _readPreference, _replicaSetName, _safeMode, _servers, _socketTimeout,
+                _minConnectionPoolSize, _readPreference, _replicaSetName, _safeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate,
                 _waitQueueSize, _waitQueueTimeout);
         }
 
@@ -492,6 +528,8 @@ namespace MongoDB.Driver
                         _safeMode == rhs._safeMode &&
                         _servers.SequenceEqual(rhs._servers) &&
                         _socketTimeout == rhs._socketTimeout &&
+                        _useSsl == rhs._useSsl &&
+                        _verifySslCertificate == rhs._verifySslCertificate &&
                         _waitQueueSize == rhs._waitQueueSize &&
                         _waitQueueTimeout == rhs._waitQueueTimeout;
                 }
@@ -593,6 +631,8 @@ namespace MongoDB.Driver
                 hash = 37 * hash + server.GetHashCode();
             }
             hash = 37 * hash + _socketTimeout.GetHashCode();
+            hash = 37 * hash + _useSsl.GetHashCode();
+            hash = 37 * hash + _verifySslCertificate.GetHashCode();
             hash = 37 * hash + _waitQueueSize.GetHashCode();
             hash = 37 * hash + _waitQueueTimeout.GetHashCode();
             return hash;
@@ -625,6 +665,8 @@ namespace MongoDB.Driver
             sb.AppendFormat("SafeMode={0};", _safeMode);
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            sb.AppendFormat("Ssl={0};", _useSsl);
+            sb.AppendFormat("SslVerifyCertificate={0};", _verifySslCertificate);
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
             return sb.ToString();

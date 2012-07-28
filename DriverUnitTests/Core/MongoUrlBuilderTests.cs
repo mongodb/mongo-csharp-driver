@@ -52,6 +52,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(false, builder.SlaveOk);
 #pragma warning restore
             Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+            Assert.AreEqual(false, builder.UseSsl);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
@@ -1054,6 +1055,42 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeout=3723s").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeout=01:02:03").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeoutMS=3723000").ToString());
+        }
+
+        [Test]
+        public void TestSslFalse()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = false };
+            Assert.AreEqual(false, builder.UseSsl);
+
+            var connectionString = "mongodb://localhost";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?ssl=false").ToString());
+        }
+
+        [Test]
+        public void TestSslTrue()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = true };
+            Assert.AreEqual(true, builder.UseSsl);
+            Assert.AreEqual(true, builder.VerifySslCertificate);
+
+            var connectionString = "mongodb://localhost/?ssl=true";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestSslTrueDontVerifyCertificate()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = true, VerifySslCertificate = false };
+            Assert.AreEqual(true, builder.UseSsl);
+            Assert.AreEqual(false, builder.VerifySslCertificate);
+
+            var connectionString = "mongodb://localhost/?ssl=true;sslVerifyCertificate=false";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]

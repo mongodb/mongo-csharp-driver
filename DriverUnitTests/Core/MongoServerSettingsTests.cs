@@ -45,6 +45,7 @@ namespace MongoDB.DriverUnitTests
             settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(4));
             settings.Server = new MongoServerAddress("server");
             settings.SocketTimeout = TimeSpan.FromSeconds(5);
+            settings.UseSsl = true;
             settings.WaitQueueSize = 55;
             settings.WaitQueueTimeout = TimeSpan.FromSeconds(6);
 
@@ -63,6 +64,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(new MongoServerAddress("server"), settings.Server);
             Assert.IsTrue((new[] { new MongoServerAddress("server") }).SequenceEqual(settings.Servers));
             Assert.AreEqual(TimeSpan.FromSeconds(5), settings.SocketTimeout);
+            Assert.AreEqual(true, settings.UseSsl);
             Assert.AreEqual(55, settings.WaitQueueSize);
             Assert.AreEqual(TimeSpan.FromSeconds(6), settings.WaitQueueTimeout);
 
@@ -99,6 +101,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(localhost, settings.Server);
             Assert.AreEqual(localhost, settings.Servers.First());
             Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(false, settings.UseSsl);
             Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
 

@@ -18,7 +18,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 using MongoDB.Bson;
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Internal
         private int _generationId; // the generationId of the connection pool at the time this connection was created
         private MongoConnectionState _state;
         private TcpClient _tcpClient;
+        private Stream _stream; // either a NetworkStream or an SslStream wrapping a NetworkStream
         private DateTime _createdAt;
         private DateTime _lastUsedAt; // set every time the connection is Released
         private int _messageCounter;
@@ -287,6 +290,11 @@ namespace MongoDB.Driver.Internal
             {
                 if (_state != MongoConnectionState.Closed)
                 {
+                    if (_stream != null)
+                    {
+                        try { _stream.Close(); } catch { } // ignore exceptions
+                        _stream = null;
+                    }
                     if (_tcpClient != null)
                     {
                         if (_tcpClient.Connected)
@@ -364,7 +372,36 @@ namespace MongoDB.Driver.Internal
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
             tcpClient.Connect(ipEndPoint);
 
+            var stream = (Stream)tcpClient.GetStream();
+            if (_serverInstance.Server.Settings.UseSsl)
+            {
+                SslStream sslStream;
+                if (_serverInstance.Server.Settings.VerifySslCertificate)
+                {
+                    sslStream = new SslStream(stream, false); // don't leave inner stream open
+                }
+                else
+                {
+                    sslStream = new SslStream(stream, false, AcceptAnyCertificate, null); // don't leave inner stream open
+                }
+
+                try
+                {
+                    sslStream.AuthenticateAsClient(_serverInstance.Address.Host);
+                }
+                catch
+                {
+                    try { stream.Close(); }
+                    catch { } // ignore exceptions
+                    try { tcpClient.Close(); }
+                    catch { } // ignore exceptions
+                    throw;
+                }
+                stream = sslStream;
+            }
+
             _tcpClient = tcpClient;
+            _stream = stream;
             _state = MongoConnectionState.Open;
         }
 
@@ -518,13 +555,23 @@ namespace MongoDB.Driver.Internal
         }
 
         // private methods
-        private NetworkStream GetNetworkStream()
+        private bool AcceptAnyCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors
+        )
+        {
+            return true;
+        }
+
+        private Stream GetNetworkStream()
         {
             if (_state == MongoConnectionState.Initial)
             {
                 Open();
             }
-            return _tcpClient.GetStream();
+            return _stream;
         }
 
         private void HandleException(Exception ex)
