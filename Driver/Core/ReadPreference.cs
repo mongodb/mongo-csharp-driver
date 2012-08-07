@@ -85,8 +85,11 @@ namespace MongoDB.Driver
         public ReadPreference(ReadPreference readPreference)
         {
             _readPreferenceMode = readPreference._readPreferenceMode;
-            _tagSets = new List<ReplicaSetTagSet>(readPreference._tagSets);
-            _tagSetsReadOnly = _tagSets.AsReadOnly();
+            if (readPreference._tagSets != null)
+            {
+                _tagSets = new List<ReplicaSetTagSet>(readPreference._tagSets);
+                _tagSetsReadOnly = _tagSets.AsReadOnly();
+            }
         }
 
         /// <summary>
