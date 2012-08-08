@@ -118,17 +118,7 @@ namespace MongoDB.Driver.Internal
 
             if (_instance.State == MongoServerState.Connected)
             {
-                if (readPreference.MatchesInstance(_instance))
-                {
-                    return _instance;
-                }
-                else
-                {
-                    string message = string.Format("Server {0} does not meet the criteria of the specified read preference {1}.",
-                        _instance.Address,
-                        readPreference);
-                    throw new MongoConnectionException(message);
-                }
+                return _instance;
             }
 
             throw new MongoConnectionException(string.Format("Unable to connect to the server {0}.", _instance.Address));
@@ -145,45 +135,44 @@ namespace MongoDB.Driver.Internal
             {
                 lock (_stateLock)
                 {
-                    _connectionAttempt++;
-                    var exceptions = new List<Exception>();
-                    foreach (var address in _server.Settings.Servers)
+                    if (_instance.State != MongoServerState.Connected)
                     {
-                        try
+                        _connectionAttempt++;
+                        var exceptions = new List<Exception>();
+                        foreach (var address in _server.Settings.Servers)
                         {
-                            _instance.Address = address;
-                            _instance.Connect(); // TODO: what about timeout?
-                            if (!readPreference.MatchesInstance(_instance))
+                            try
                             {
-                                exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' does not match the read preference {1}.", address, readPreference)));
-                                continue;
-                            }
+                                _instance.Address = address;
+                                _instance.Connect(); // TODO: what about timeout?
 
-                            if (_server.Settings.ReplicaSetName != null && 
-                                (_instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _server.Settings.ReplicaSetName))
-                            {
-                                exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' is not a member of replica set '{1}'.", address, _server.Settings.ReplicaSetName)));
-                                continue;
-                            }
+                                if (_server.Settings.ReplicaSetName != null &&
+                                    (_instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _server.Settings.ReplicaSetName))
+                                {
+                                    exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' is not a member of replica set '{1}'.", address, _server.Settings.ReplicaSetName)));
+                                    _instance.Disconnect();
+                                    continue;
+                                }
 
-                            if (_instance.IsMasterResult.MyAddress != null)
-                            {
-                                _instance.Address = _instance.IsMasterResult.MyAddress;
+                                if (_instance.IsMasterResult.MyAddress != null)
+                                {
+                                    _instance.Address = _instance.IsMasterResult.MyAddress;
+                                }
+                                return;
                             }
-                            return;
+                            catch (Exception ex)
+                            {
+                                exceptions.Add(ex);
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            exceptions.Add(ex);
-                        }
+
+                        var firstAddress = _server.Settings.Servers.First();
+                        var firstException = exceptions.First();
+                        var message = string.Format("Unable to connect to server {0}: {1}.", firstAddress, firstException.Message);
+                        var connectionException = new MongoConnectionException(message, firstException);
+                        connectionException.Data.Add("InnerExceptions", exceptions); // useful when there is more than one
+                        throw connectionException;
                     }
-
-                    var firstAddress = _server.Settings.Servers.First();
-                    var firstException = exceptions.First();
-                    var message = string.Format("Unable to connect to server {0}: {1}.", firstAddress, firstException.Message);
-                    var connectionException = new MongoConnectionException(message, firstException);
-                    connectionException.Data.Add("InnerExceptions", exceptions); // useful when there is more than one
-                    throw connectionException;
                 }
             }
         }
