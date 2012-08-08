@@ -106,6 +106,7 @@
     <Compile Include="Core\CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="Core\CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="Core\CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="Core\ReadPreferenceTests.cs" />
     <Compile Include="Core\MongoCollectionSettingsTests.cs" />
     <Compile Include="Core\MongoCollectionTests.cs" />
     <Compile Include="Core\MongoConnectionStringBuilderTests.cs" />
