@@ -537,6 +537,38 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that all the queries are true (see $and in newer versions of the server).
+        /// </summary>
+        /// <param name="queryParts">One or more lambda expressions which recieve a strongly typed QueryBuilder as a parameter, and which are expected to return a IMongoQuery object</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery And(IEnumerable<Func<QueryBuilder<TDocument>, IMongoQuery>> queryParts)
+        {
+            if (queryParts == null)
+            {
+                throw new ArgumentNullException("queryParts");
+            }
+
+            var queries = queryParts.Select(p => p.Invoke(this));
+            return Query.And(queries);
+        }
+
+        /// <summary>
+        /// Tests that all the queries are true (see $and in newer versions of the server).
+        /// </summary>
+        /// <param name="queryParts">One or more lambda expressions which recieve a strongly typed QueryBuilder as a parameter, and which are expected to return a IMongoQuery object</param>
+        /// <returns>The resulting And query.</returns>
+        public IMongoQuery And(params Func<QueryBuilder<TDocument>, IMongoQuery>[] queryParts)
+        {
+            if (queryParts == null)
+            {
+                throw new ArgumentNullException("queryParts");
+            }
+
+            var queries = queryParts.Select(p => p.Invoke(this));
+            return And(queries);
+        }
+
+        /// <summary>
         /// Tests that at least one item of the named array element matches a query (see $elemMatch).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
