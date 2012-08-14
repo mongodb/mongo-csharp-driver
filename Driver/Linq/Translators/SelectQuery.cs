@@ -188,10 +188,11 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            IEnumerable enumerable;
+            IProjector projector;
             if (projection == null)
             {
-                enumerable = cursor;
+                var projectorType = typeof(IdentityProjector<>).MakeGenericType(DocumentType);
+                projector = (IProjector)Activator.CreateInstance(projectorType, cursor);
             }
             else
             {
@@ -201,17 +202,16 @@ namespace MongoDB.Driver.Linq
                 var resultType = delegateType.GetGenericArguments()[1];
                 var projectorType = typeof(Projector<,>).MakeGenericType(sourceType, resultType);
                 var compiledProjection = projection.Compile();
-                var projector = Activator.CreateInstance(projectorType, cursor, compiledProjection);
-                enumerable = (IEnumerable)projector;
+                projector = (IProjector)Activator.CreateInstance(projectorType, cursor, compiledProjection);
             }
 
             if (_elementSelector != null)
             {
-                return _elementSelector(enumerable);
+                return _elementSelector(projector);
             }
             else
             {
-                return enumerable;
+                return projector;
             }
         }
 
@@ -388,7 +388,7 @@ namespace MongoDB.Driver.Linq
             _projection = null;
 
             // note: recall that cursor method Size respects Skip and Limit while Count does not
-            SetElementSelector(methodCallExpression, source => ((int)((MongoCursor)source).Size()) > 0);
+            SetElementSelector(methodCallExpression, source => ((int)((IProjector)source).Cursor.Size()) > 0);
         }
 
         private void TranslateCount(MethodCallExpression methodCallExpression)
@@ -413,10 +413,10 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "Count":
-                    SetElementSelector(methodCallExpression, source => (int)((MongoCursor)source).Size());
+                    SetElementSelector(methodCallExpression, source => (int)((IProjector)source).Cursor.Size());
                     break;
                 case "LongCount":
-                    SetElementSelector(methodCallExpression, source => ((MongoCursor)source).Size());
+                    SetElementSelector(methodCallExpression, source => ((IProjector)source).Cursor.Size());
                     break;
             }
         }

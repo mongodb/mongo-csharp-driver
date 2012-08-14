@@ -128,6 +128,7 @@
     <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
     <Compile Include="GridFS\MongoGridFSStreamTests.cs" />
     <Compile Include="GridFS\MongoGridFSTests.cs" />
+    <Compile Include="Jira\CSharp538Tests.cs" />
     <Compile Include="Jira\CSharp532Tests.cs" />
     <Compile Include="Jira\CSharp475Tests.cs" />
     <Compile Include="Jira\CSharp101Tests.cs" />
