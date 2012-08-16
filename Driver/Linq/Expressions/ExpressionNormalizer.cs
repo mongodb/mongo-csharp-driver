@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Linq
         {
             node = EnsureConstantIsOnRight(node);
 
+            // VB lifts comparisons of Nullable<T> values and C# does not, so unlift them
             if (node.Type == typeof(Nullable<bool>))
             {
                 switch (node.NodeType)
@@ -75,9 +76,9 @@ namespace MongoDB.Driver.Linq
                             node.NodeType,
                             node.Left,
                             node.Right,
-                            false,
-                            null,
-                            null);
+                            false, // liftToNull
+                            null, // method
+                            null); // conversion
                         break;
                 }
             }
