@@ -165,10 +165,11 @@ namespace MongoDB.Driver.Internal
         {
             Interlocked.CompareExchange(ref _replicaSetName, instance.ReplicaSetInformation.Name, null);
 
-            if (instance.ReplicaSetInformation.Members.Any())
+            var members = instance.ReplicaSetInformation.Members;
+            if (members.Any())
             {
                 // remove instances the primary doesn't know about and add instances we don't know about
-                MakeInstancesMatchAddresses(instance.ReplicaSetInformation.Members);
+                MakeInstancesMatchAddresses(members);
             }
         }
 

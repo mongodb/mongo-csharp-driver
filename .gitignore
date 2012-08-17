@@ -7,6 +7,7 @@ obj
 *.csproj.VisualState.xml
 *.vbproj.VisualState.xml
 *.cache
+TestResults
 
 # MonoDevelop artifacts
 *.pidb

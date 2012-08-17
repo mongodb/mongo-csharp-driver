@@ -28,8 +28,9 @@ namespace MongoDB.Driver.Internal
     internal class ConnectedInstanceCollection
     {
         // private fields
-        private readonly object _lock = new object();
-        private List<MongoServerInstance> _instances;
+        private readonly object _connectedInstancesLock = new object();
+        private Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>> _instanceLookup;
+        private LinkedList<InstanceWithPingTime> _instances;
 
         // constructors
         /// <summary>
@@ -37,43 +38,20 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public ConnectedInstanceCollection()
         {
-            _instances = new List<MongoServerInstance>();
+            _instances = new LinkedList<InstanceWithPingTime>();
+            _instanceLookup = new Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>>();
         }
 
         // public methods
         /// <summary>
-        /// Adds the specified instance.
+        /// Clears all the instances.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        public void Add(MongoServerInstance instance)
+        public void Clear()
         {
-            lock (_lock)
+            lock (_connectedInstancesLock)
             {
-                var index = _instances.FindIndex(x => x.AveragePingTime >= instance.AveragePingTime);
-                if (index == -1)
-                {
-                    _instances.Add(instance);
-                }
-                else
-                {
-                    _instances.Insert(index + 1, instance);
-                }
-                instance.AveragePingTimeChanged += InstanceAveragePingTimeChanged;
-            }
-        }
-
-        /// <summary>
-        /// Indicates if the instance exists in the chooser.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        ///   <c>true</c> if [contains] [the specified instance]; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Contains(MongoServerInstance instance)
-        {
-            lock (_lock)
-            {
-                return _instances.Contains(instance);
+                _instances.Clear();
+                _instanceLookup.Clear();
             }
         }
 
@@ -84,14 +62,59 @@ namespace MongoDB.Driver.Internal
         /// <returns>A MongoServerInstance.</returns>
         public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
         {
-            lock (_lock)
+            List<MongoServerInstance> instances;
+            lock (_connectedInstancesLock)
             {
                 if (_instances.Count == 0)
                 {
                     return null;
                 }
 
-                return readPreference.ChooseServerInstance(_instances);
+                // We realize we are making extra instances of a list. It is to increase
+                // concurrency related to ChooseServerInstance.
+                instances = _instances.Select(x => x.Instance).ToList();
+            }
+
+            return readPreference.ChooseServerInstance(instances);
+        }
+
+        /// <summary>
+        /// Ensures that the instance is in the collection.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        public void EnsureContains(MongoServerInstance instance)
+        {
+            lock (_connectedInstancesLock)
+            {
+                if (_instanceLookup.ContainsKey(instance))
+                {
+                    return;
+                }
+
+                var node = new LinkedListNode<InstanceWithPingTime>(new InstanceWithPingTime
+                {
+                    Instance = instance,
+                    CachedAveragePingTime = instance.AveragePingTime
+                });
+
+                if (_instances.Count == 0 || _instances.First.Value.CachedAveragePingTime > node.Value.CachedAveragePingTime)
+                {
+                    _instances.AddFirst(node);
+                }
+                else
+                {
+                    var current = _instances.First;
+
+                    while (current.Next != null && node.Value.CachedAveragePingTime > current.Next.Value.CachedAveragePingTime)
+                    {
+                        current = current.Next;
+                    }
+
+                    _instances.AddAfter(current, node);
+                }
+
+                _instanceLookup.Add(instance, node);
+                instance.AveragePingTimeChanged += InstanceAveragePingTimeChanged;
             }
         }
 
@@ -101,20 +124,81 @@ namespace MongoDB.Driver.Internal
         /// <param name="instance">The instance.</param>
         public void Remove(MongoServerInstance instance)
         {
-            lock (_lock)
+            lock (_connectedInstancesLock)
             {
+                LinkedListNode<InstanceWithPingTime> node;
+                if (!_instanceLookup.TryGetValue(instance, out node))
+                {
+                    return;
+                }
+
                 instance.AveragePingTimeChanged -= InstanceAveragePingTimeChanged;
-                _instances.Remove(instance);
+                _instanceLookup.Remove(instance);
+                _instances.Remove(node);
             }
         }
 
         // private methods
         private void InstanceAveragePingTimeChanged(object sender, EventArgs e)
         {
-            lock (_lock)
+            var instance = (MongoServerInstance)sender;
+            lock (_connectedInstancesLock)
             {
-                _instances.Sort((x, y) => x.AveragePingTime.CompareTo(y.AveragePingTime));
+                LinkedListNode<InstanceWithPingTime> node;
+                if (!_instanceLookup.TryGetValue(instance, out node))
+                {
+                    instance.AveragePingTimeChanged -= InstanceAveragePingTimeChanged;
+                    return;
+                }
+
+                var cachedAveragePingTime = node.Value.CachedAveragePingTime;
+                var newPingTime = instance.AveragePingTime;
+                node.Value.CachedAveragePingTime = instance.AveragePingTime;
+                if (newPingTime < cachedAveragePingTime)
+                {
+                    var current = node.Previous;
+
+                    if (current == null || current.Value.CachedAveragePingTime < newPingTime)
+                    {
+                        return;
+                    }
+
+                    _instances.Remove(node);
+
+                    while (current.Previous != null && newPingTime < current.Previous.Value.CachedAveragePingTime)
+                    {
+                        current = current.Previous;
+                    }
+
+                    _instances.AddBefore(current, node);
+                }
+                else if (newPingTime > cachedAveragePingTime)
+                {
+                    var current = node.Next;
+
+                    if (current == null || current.Value.CachedAveragePingTime > newPingTime)
+                    {
+                        return;
+                    }
+
+                    _instances.Remove(node);
+
+                    while (current.Next != null && newPingTime > current.Next.Value.CachedAveragePingTime)
+                    {
+                        current = current.Next;
+                    }
+
+                    _instances.AddAfter(current, node);
+                }
             }
+        }
+
+        // When dealing with an always sorted linked list, we need to maintain a cached version of the ping time 
+        // to compare against because a MongoServerInstance's could change on it's own making the sorting of the list incorrect.
+        private class InstanceWithPingTime
+        {
+            public MongoServerInstance Instance;
+            public TimeSpan CachedAveragePingTime;
         }
     }
 }

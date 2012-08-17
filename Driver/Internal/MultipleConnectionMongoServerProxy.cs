@@ -31,9 +31,8 @@ namespace MongoDB.Driver.Internal
         private readonly ConnectedInstanceCollection _connectedInstances;
         private readonly List<MongoServerInstance> _instances;
         private readonly MongoServer _server;
-        private readonly BlockingQueue<MongoServerInstance> _stateChangeQueue;
-        private readonly Thread _stateChangeThread;
         private int _connectionAttempt;
+        private int _outstandingInstanceConnections;
         private MongoServerState _state;
 
         /// <summary>
@@ -43,15 +42,10 @@ namespace MongoDB.Driver.Internal
         protected MultipleConnectionMongoServerProxy(MongoServer server)
         {
             _server = server;
-            _instances = new List<MongoServerInstance>();
             _connectedInstances = new ConnectedInstanceCollection();
-            _stateChangeQueue = new BlockingQueue<MongoServerInstance>();
+            _instances = new List<MongoServerInstance>();
 
             MakeInstancesMatchAddresses(server.Settings.Servers);
-
-            _stateChangeThread = new Thread(ProcessStateChanges);
-            _stateChangeThread.IsBackground = true;
-            _stateChangeThread.Start();
         }
 
         /// <summary>
@@ -59,24 +53,35 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="instances">The instances.</param>
-        /// <param name="stateChangedQueue">The state change queue.</param>
+        /// <param name="connectionQueue">The state change queue.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
-        protected MultipleConnectionMongoServerProxy(MongoServer server, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
+        protected MultipleConnectionMongoServerProxy(MongoServer server, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> connectionQueue, int connectionAttempt)
         {
             _server = server;
-            _instances = new List<MongoServerInstance>();
             _connectedInstances = new ConnectedInstanceCollection();
             _connectionAttempt = connectionAttempt;
-            _stateChangeQueue = stateChangedQueue;
 
+            // This constructor is used when the instances are already connecting, so 
+            // we set this value here to reflect that.
+            _state = MongoServerState.Connecting;
+
+            _outstandingInstanceConnections = connectionQueue.Count;
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                while (connectionQueue.Count > 0)
+                {
+                    var instance = connectionQueue.Dequeue();
+                    Interlocked.Decrement(ref _outstandingInstanceConnections);
+                }
+            });
+
+            // It's important to have our own copy of this list because it might get modified during iteration. 
+            _instances = instances.ToList();
             foreach (var instance in instances)
             {
-                AddInstance(instance);
+                instance.StateChanged += InstanceStateChanged;
+                ProcessInstanceStateChange(instance);
             }
-
-            _stateChangeThread = new Thread(ProcessStateChanges);
-            _stateChangeThread.IsBackground = true;
-            _stateChangeThread.Start();
         }
 
         // public methods
@@ -85,10 +90,10 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public MongoServerBuildInfo BuildInfo
         {
-            get 
+            get
             {
                 var instance = _connectedInstances.ChooseServerInstance(ReadPreference.Primary);
-                return instance == null 
+                return instance == null
                     ? null
                     : instance.BuildInfo;
             }
@@ -101,10 +106,7 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                lock (_lock)
-                {
-                    return _connectionAttempt;
-                }
+                return Interlocked.CompareExchange(ref _connectionAttempt, 0, 0);
             }
         }
 
@@ -168,30 +170,33 @@ namespace MongoDB.Driver.Internal
         public void Connect(TimeSpan timeout, ReadPreference readPreference)
         {
             var timeoutAt = DateTime.UtcNow + timeout;
-            lock (_lock)
+            while (DateTime.UtcNow < timeoutAt)
             {
-                while (DateTime.UtcNow < timeoutAt)
+                if (ChooseServerInstance(_connectedInstances, readPreference) != null)
                 {
-                    if (ChooseServerInstance(_connectedInstances, readPreference) != null)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    if (_instances.Count == 0)
+                if (Interlocked.CompareExchange(ref _outstandingInstanceConnections, 0, 0) > 0)
+                {
+                    Thread.Sleep(TimeSpan.FromMilliseconds(20));
+                    continue;
+                }
+
+                lock (_lock)
+                {
+                    // if we are already fully connected and an instance still isn't chosen,
+                    // then one simply doesn't exist, so we'll break immediately and throw a
+                    // connection exception.
+                    if (_state == MongoServerState.Connected)
                     {
-                        Monitor.PulseAll(_lock);
                         break;
                     }
 
-                    if (_stateChangeQueue.Count > 0)
-                    {
-                        Monitor.Wait(_lock, TimeSpan.FromMilliseconds(20));
-                        continue;
-                    }
-
                     SetState(MongoServerState.Connecting);
-                    _connectionAttempt++;
-                    foreach (var instance in _instances.Where(x => x.State == MongoServerState.Disconnected || x.State == MongoServerState.Unknown))
+                    Interlocked.Increment(ref _connectionAttempt);
+
+                    foreach (var instance in _instances)
                     {
                         ConnectInstance(instance);
                     }
@@ -206,27 +211,34 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public void Disconnect()
         {
+            List<MongoServerInstance> currentInstances;
             lock (_lock)
             {
-                if (_state != MongoServerState.Disconnected && _state != MongoServerState.Disconnecting)
+                if (_state == MongoServerState.Disconnected || _state == MongoServerState.Disconnecting)
                 {
-                    SetState(MongoServerState.Disconnecting);
+                    return;
+                }
+
+                currentInstances = _instances.ToList();
+
+                SetState(MongoServerState.Disconnecting);
+            }
+
+            try
+            {
+                _connectedInstances.Clear();
+                foreach (var instance in currentInstances)
+                {
                     try
                     {
-                        foreach (var instance in _instances)
-                        {
-                            try
-                            {
-                                instance.Disconnect();
-                            }
-                            catch { } // ignore disconnection errors
-                        }
+                        instance.Disconnect();
                     }
-                    finally
-                    {
-                        SetState(MongoServerState.Disconnected);
-                    }
+                    catch { } // ignore disconnection errors
                 }
+            }
+            finally
+            {
+                SetState(MongoServerState.Disconnected);
             }
         }
 
@@ -307,10 +319,15 @@ namespace MongoDB.Driver.Internal
         {
             lock (_lock)
             {
-                if(!_instances.Any(x => x.Address == address))
+                if (!_instances.Any(x => x.Address == address))
                 {
                     var instance = new MongoServerInstance(_server, address);
                     AddInstance(instance);
+                    if (_state != MongoServerState.Disconnecting && _state != MongoServerState.Disconnected)
+                    {
+                        SetState(MongoServerState.Connecting);
+                        ConnectInstance(instance);
+                    }
                 }
             }
         }
@@ -360,14 +377,22 @@ namespace MongoDB.Driver.Internal
             lock (_lock)
             {
                 _instances.Add(instance);
-                instance.StateChanged += InstanceStateChanged;
-                ProcessInstanceStateChange(instance);
             }
+
+            instance.StateChanged += InstanceStateChanged;
+            ProcessInstanceStateChange(instance);
         }
 
         private void ConnectInstance(MongoServerInstance instance)
         {
-            _stateChangeQueue.EnqueuWorkItem(() =>
+            var instanceState = instance.State;
+            if (instanceState == MongoServerState.Connecting || instanceState == MongoServerState.Connected)
+            {
+                return;
+            }
+
+            Interlocked.Increment(ref _outstandingInstanceConnections);
+            ThreadPool.QueueUserWorkItem(_ =>
             {
                 try
                 {
@@ -377,89 +402,65 @@ namespace MongoDB.Driver.Internal
                 {
                     // instance is keeping it's last ConnectionException
                 }
-                return instance;
+                finally
+                {
+                    Interlocked.Decrement(ref _outstandingInstanceConnections);
+                }
             });
         }
 
         private void InstanceStateChanged(object sender, EventArgs e)
         {
-            _stateChangeQueue.Enqueue((MongoServerInstance)sender);
+            ProcessInstanceStateChange((MongoServerInstance)sender);
         }
 
         private void ProcessInstanceStateChange(MongoServerInstance instance)
         {
+            List<MongoServerInstance> currentInstances;
+            MongoServerState currentState;
+
             lock (_lock)
             {
-                if (instance.State == MongoServerState.Connected && _instances.Contains(instance))
+                currentInstances = _instances;
+                currentState = _state;
+            }
+
+            if (currentInstances.Contains(instance))
+            {
+                if (instance.State == MongoServerState.Connected)
                 {
                     if (!IsValidInstance(instance))
                     {
                         RemoveInstance(instance);
-                        // TODO: log this...
                         return;
                     }
 
-                    if (instance.IsMasterResult.MyAddress != null && instance.Address != instance.IsMasterResult.MyAddress)
+                    if (currentState != MongoServerState.Disconnecting && currentState != MongoServerState.Disconnected)
                     {
-                        // NOTE: if this gets set inside the MongoServerInstance, then there is a race condition that could cause
-                        // the instance to get added more than once to the list because the changes occur under different locks.
-                        // I don't like this and would rather it be in the MongoServerInstance, but haven't figured out how to do
-                        // it yet.
-                        // One solution is for every instance change to check to see if two instances exist in the list and remove
-                        // the other one, as the current one is more up-to-date.
-                        instance.Address = instance.IsMasterResult.MyAddress;
+                        _connectedInstances.EnsureContains(instance);
+                        ProcessConnectedInstanceStateChange(instance);
                     }
-
-                    if (!_connectedInstances.Contains(instance))
-                    {
-                        _connectedInstances.Add(instance);
-                    }
-
-                    ProcessConnectedInstanceStateChange(instance);
                 }
                 else
                 {
                     _connectedInstances.Remove(instance);
                 }
-
-                SetState(DetermineServerState(_state, _instances));
             }
-        }
 
-        private void ProcessStateChanges()
-        {
-            while (true)
-            {
-                var instancesForProcessing = new List<MongoServerInstance>();
-                var instance = _stateChangeQueue.Dequeue();
-                while (instance != null)
-                {
-                    instancesForProcessing.Add(instance);
-                    instance = _stateChangeQueue.Dequeue(TimeSpan.Zero); //don't wait, but get all the rest in the queue
-                }
-
-                var distinctInstances = instancesForProcessing.Distinct();
-
-                lock (_lock)
-                {
-                    foreach (var distinctInstance in distinctInstances)
-                    {
-                        ProcessInstanceStateChange(distinctInstance);
-                    }
-                }
-            }
+            SetState(DetermineServerState(currentState, currentInstances));
         }
 
         private void RemoveInstance(MongoServerInstance instance)
         {
+            _connectedInstances.Remove(instance);
             lock (_lock)
             {
-                _connectedInstances.Remove(instance);
                 _instances.Remove(instance);
-                instance.StateChanged -= InstanceStateChanged;
-                instance.Disconnect();
-                ProcessInstanceStateChange(instance);
             }
+
+            instance.StateChanged -= InstanceStateChanged;
+            instance.Disconnect();
+            ProcessInstanceStateChange(instance);
         }
 
         private void SetState(MongoServerState state)
@@ -480,7 +481,6 @@ namespace MongoDB.Driver.Internal
             var firstException = exceptions.FirstOrDefault();
             string message;
 
-            // TODO: change this based on the read preference.
             if (firstException == null)
             {
                 message = string.Format("Unable to connect to a member of the replica set matching the read preference {0}", readPreference);
