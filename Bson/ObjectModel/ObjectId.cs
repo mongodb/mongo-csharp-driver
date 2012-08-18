@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -22,6 +23,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using MongoDB.Bson.ComponentModel;
 
 namespace MongoDB.Bson
 {
@@ -29,6 +31,7 @@ namespace MongoDB.Bson
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
     [Serializable]
+    [TypeConverter(typeof(ObjectIdConverter))]
     public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>
     {
         // private static fields
