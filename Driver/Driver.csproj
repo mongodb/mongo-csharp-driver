@@ -172,7 +172,7 @@
     <Compile Include="Exceptions\MongoQueryException.cs" />
     <Compile Include="Exceptions\MongoSafeModeException.cs" />
     <Compile Include="GridFS\MongoGridFSCreateOptions.cs" />
-    <Compile Include="Internal\MultipleConnectionMongoServerProxy.cs" />
+    <Compile Include="Internal\MultipleInstanceMongoServerProxy.cs" />
     <Compile Include="Internal\ShardedMongoServerProxy.cs" />
     <Compile Include="Internal\DirectMongoServerProxy.cs" />
     <Compile Include="Internal\ConnectedInstanceCollection.cs" />

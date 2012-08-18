@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Internal
     /// <summary>
     /// Connects to a number of mongos' and distributes load based on ping times.
     /// </summary>
-    internal sealed class ShardedMongoServerProxy : MultipleConnectionMongoServerProxy
+    internal sealed class ShardedMongoServerProxy : MultipleInstanceMongoServerProxy
     {
         // constructors
         /// <summary>

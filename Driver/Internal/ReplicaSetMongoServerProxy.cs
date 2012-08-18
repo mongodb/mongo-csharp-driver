@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Internal
     /// <summary>
     /// Proxy for connecting to a replica set.
     /// </summary>
-    internal sealed class ReplicaSetMongoServerProxy : MultipleConnectionMongoServerProxy
+    internal sealed class ReplicaSetMongoServerProxy : MultipleInstanceMongoServerProxy
     {
         // private fields
         private string _replicaSetName;

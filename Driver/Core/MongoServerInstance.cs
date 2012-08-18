@@ -63,14 +63,14 @@ namespace MongoDB.Driver
         internal event EventHandler AveragePingTimeChanged;
 
         // private fields
-        private readonly object _stateLock = new object();
+        private readonly object _serverInstanceLock = new object();
         private readonly MongoServer _server;
         private readonly MongoConnectionPool _connectionPool;
         private readonly PingTimeAggregator _pingTimeAggregator;
         private MongoServerAddress _address;
         private Exception _connectException;
         private bool _inStateVerification;
-        private ServerInformation _stateInfo;
+        private ServerInformation _serverInfo;
         private IPEndPoint _ipEndPoint;
         private int _sequentialId;
         private MongoServerState _state;
@@ -88,7 +88,7 @@ namespace MongoDB.Driver
             _address = address;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             _state = MongoServerState.Disconnected;
-            _stateInfo = new ServerInformation
+            _serverInfo = new ServerInformation
             {
                 MaxDocumentSize = MongoDefaults.MaxDocumentSize,
                 MaxMessageLength = MongoDefaults.MaxMessageLength,
@@ -100,6 +100,9 @@ namespace MongoDB.Driver
         }
 
         // internal properties
+        /// <summary>
+        /// Gets the average ping time.
+        /// </summary>
         internal TimeSpan AveragePingTime
         {
             get { return _pingTimeAggregator.Average; }
@@ -112,7 +115,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).ReplicaSetInformation;
+                return _serverInfo.ReplicaSetInformation;
             }
         }
 
@@ -123,7 +126,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).InstanceType;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.InstanceType;
+                }
             }
         }
 
@@ -135,11 +141,17 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _address, null, null);
+                lock (_serverInstanceLock)
+                {
+                    return _address;
+                }
             }
             internal set
             {
-                Interlocked.Exchange(ref _address, value);
+                lock (_address)
+                {
+                    _address = value;
+                }
             }
         }
 
@@ -150,7 +162,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).BuildInfo;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.BuildInfo;
+                }
             }
         }
 
@@ -161,7 +176,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _connectException, null, null);
+                lock (_serverInstanceLock)
+                {
+                    return _connectException;
+                }
             }
         }
 
@@ -180,7 +198,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).IsArbiter;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.IsArbiter;
+                }
             }
         }
 
@@ -191,7 +212,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).IsMasterResult;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.IsMasterResult;
+                }
             }
         }
 
@@ -202,7 +226,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).IsPassive;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.IsPassive;
+                }
             }
         }
 
@@ -213,7 +240,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).IsPrimary;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.IsPrimary;
+                }
             }
         }
 
@@ -224,7 +254,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).IsSecondary;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.IsSecondary;
+                }
             }
         }
 
@@ -235,7 +268,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).MaxDocumentSize;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.MaxDocumentSize;
+                }
             }
         }
 
@@ -246,7 +282,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return Interlocked.CompareExchange(ref _stateInfo, null, null).MaxMessageLength;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.MaxMessageLength;
+                }
             }
         }
 
@@ -273,7 +312,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                lock (_stateLock)
+                lock (_serverInstanceLock)
                 {
                     return _state;
                 }
@@ -350,7 +389,7 @@ namespace MongoDB.Driver
         internal MongoConnection AcquireConnection(MongoDatabase database)
         {
             MongoConnection connection;
-            lock (_stateLock)
+            lock (_serverInstanceLock)
             {
                 if (_state != MongoServerState.Connected)
                 {
@@ -361,14 +400,12 @@ namespace MongoDB.Driver
 
             connection = _connectionPool.AcquireConnection(database);
 
-            // check authentication outside the lock because it might involve a round trip to the server
             try
             {
                 connection.CheckAuthentication(database); // will authenticate if necessary
             }
             catch (MongoAuthenticationException)
             {
-                // don't let the connection go to waste just because authentication failed
                 _connectionPool.ReleaseConnection(connection);
                 throw;
             }
@@ -382,20 +419,22 @@ namespace MongoDB.Driver
         internal void Connect()
         {
             // Console.WriteLine("MongoServerInstance[{0}]: Connect() called.", sequentialId);
-            lock (_stateLock)
+            lock (_serverInstanceLock)
             {
                 if (_state == MongoServerState.Connecting || _state == MongoServerState.Connected)
                 {
                     return;
                 }
+
+                _connectException = null;
+
+                // set the state manually here because SetState raises an event that shouldn't be raised
+                // while holding a lock.
+                _state = MongoServerState.Connecting;
             }
 
-            // There is a possibility that multiple threads enter into this area.  While it is highly unlikely,
-            // it is not a problem even if they do as there are no adverse affects.
-
-            Interlocked.Exchange(ref _connectException, null);
-
-            SetState(MongoServerState.Connecting);
+            // We know for certain that the state just changed
+            OnStateChanged();
 
             try
             {
@@ -413,6 +452,10 @@ namespace MongoDB.Driver
             }
             catch (Exception ex)
             {
+                lock (_serverInstanceLock)
+                {
+                    _connectException = ex;
+                }
                 _connectionPool.Clear();
                 Interlocked.Exchange(ref _connectException, ex);
                 SetState(MongoServerState.Disconnected);
@@ -420,11 +463,11 @@ namespace MongoDB.Driver
             }
             finally
             {
-                lock (_stateLock)
+                lock (_serverInstanceLock)
                 {
                     if (_stateVerificationTimer == null)
                     {
-                        _stateVerificationTimer = new Timer(o => StateVerificationTimerCallback(), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+                        _stateVerificationTimer = new Timer(_ => StateVerificationTimerCallback(), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
                     }
                 }
             }
@@ -436,28 +479,28 @@ namespace MongoDB.Driver
         internal void Disconnect()
         {
             // Console.WriteLine("MongoServerInstance[{0}]: Disconnect called.", sequentialId);
-            lock (_stateLock)
+            lock (_serverInstanceLock)
             {
-                if (_state == MongoServerState.Disconnecting)
-                {
-                    throw new MongoInternalException("Disconnect called while disconnecting.");
-                }
-
                 if (_stateVerificationTimer != null)
                 {
                     _stateVerificationTimer.Dispose();
                     _stateVerificationTimer = null;
                 }
 
-                if (_state == MongoServerState.Disconnected)
+                if (_state == MongoServerState.Disconnecting || _state == MongoServerState.Disconnected)
                 {
                     return;
                 }
+
+                // set the state here because SetState raises an event that should not be raised while holding a lock
+                _state = MongoServerState.Disconnecting;
             }
+
+            // we know for certain state has just changed.
+            OnStateChanged(); 
 
             try
             {
-                SetState(MongoServerState.Disconnecting);
                 _connectionPool.Clear();
             }
             finally
@@ -481,7 +524,17 @@ namespace MongoDB.Driver
         /// <param name="state">The state.</param>
         internal void SetState(MongoServerState state)
         {
-            SetState(state, Interlocked.CompareExchange(ref _stateInfo, null, null));
+            lock (_serverInstanceLock)
+            {
+                if (_state == state)
+                {
+                    return;
+                }
+
+                _state = state;
+            }
+
+            OnStateChanged();
         }
 
         // private methods
@@ -530,7 +583,7 @@ namespace MongoDB.Driver
                     instanceType = MongoServerInstanceType.ShardRouter;
                 }
 
-                var newStateInfo = new ServerInformation
+                var newServerInfo = new ServerInformation
                 {
                     BuildInfo = buildInfo,
                     InstanceType = instanceType,
@@ -544,22 +597,27 @@ namespace MongoDB.Driver
                     ReplicaSetInformation = replicaSetInformation
                 };
                 MongoServerState currentState;
-                lock (_stateLock)
+                lock (_serverInstanceLock)
                 {
                     currentState = _state;
                 }
-                SetState(currentState, newStateInfo);
+                SetState(currentState, newServerInfo);
                 ok = true;
             }
             finally
             {
                 if (!ok)
                 {
-                    var currentStateInfo = Interlocked.CompareExchange(ref _stateInfo, null, null);
-                    var newStateInfo = new ServerInformation
+                    ServerInformation currentServerInfo;
+                    lock (_serverInstanceLock)
+                    {
+                        currentServerInfo = _serverInfo;
+                    }
+
+                    var newServerInfo = new ServerInformation
                     {
                         BuildInfo = null,
-                        InstanceType = currentStateInfo.InstanceType,
+                        InstanceType = currentServerInfo.InstanceType,
                         IsArbiter = false,
                         IsMasterResult = isMasterResult,
                         IsPassive = false,
@@ -570,7 +628,7 @@ namespace MongoDB.Driver
                         ReplicaSetInformation = null
                     };
 
-                    SetState(MongoServerState.Disconnected, newStateInfo);
+                    SetState(MongoServerState.Disconnected, newServerInfo);
                 }
             }
         }
@@ -597,8 +655,8 @@ namespace MongoDB.Driver
         {
             try
             {
-                Stopwatch stopwatch = Stopwatch.StartNew();
                 var pingCommand = new CommandDocument("ping", 1);
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
                 stopwatch.Stop();
                 var currentAverage = _pingTimeAggregator.Average;
@@ -647,27 +705,26 @@ namespace MongoDB.Driver
             }
         }
 
-        private void SetState(MongoServerState state, ServerInformation serverInfo)
+        /// <remarks>This method must be raised outside of a lock.</remarks>
+        private void SetState(MongoServerState newState, ServerInformation newServerInfo)
         {
-            var currentServerInfo = Interlocked.CompareExchange(ref _stateInfo, null, null);
-
             bool raiseChangedEvent = false;
-            lock (_stateLock)
+            lock (_serverInstanceLock)
             {
-                if (_state != state)
+                if (_state != newState)
                 {
-                    _state = state;
+                    _state = newState;
                     raiseChangedEvent = true;
                 }
 
-                if (state == MongoServerState.Disconnected)
+                if (newState == MongoServerState.Disconnected)
                 {
                     _connectionPool.Clear();
                 }
 
-                if (currentServerInfo != serverInfo && currentServerInfo.IsDifferentFrom(serverInfo))
+                if (_serverInfo != newServerInfo && _serverInfo.IsDifferentFrom(newServerInfo))
                 {
-                    Interlocked.Exchange(ref _stateInfo, serverInfo);
+                    _serverInfo = newServerInfo;
                     raiseChangedEvent = true;
                 }
             }
