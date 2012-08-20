@@ -521,9 +521,8 @@ namespace MongoDB.Driver
                 MongoServerInstanceType instanceType = MongoServerInstanceType.StandAlone;
                 if (isMasterResult.ReplicaSetName != null)
                 {
-                    var tagSet = new ReplicaSetTagSet();
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
-                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, tagSet);
+                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags);
                     instanceType = MongoServerInstanceType.ReplicaSetMember;
                 }
                 else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")

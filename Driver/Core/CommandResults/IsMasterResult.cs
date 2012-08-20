@@ -187,6 +187,27 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets the tags.
+        /// </summary>
+        public ReplicaSetTagSet Tags
+        {
+            get
+            {
+                var tagSet = new ReplicaSetTagSet();
+                if (Response.Contains("tags"))
+                {
+                    var tags = Response["tags"].AsBsonDocument;
+                    foreach (var tag in tags)
+                    {
+                        tagSet.Add(tag.Name, tag.Value.ToString());
+                    }
+                }
+
+                return tagSet;
+            }
+        }
+
         // private methods
         private IEnumerable<MongoServerAddress> GetInstanceAddressesFromNamedResponseElement(string elementName)
         {
