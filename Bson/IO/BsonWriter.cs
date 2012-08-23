@@ -649,7 +649,6 @@ namespace MongoDB.Bson.IO
                     // a few element names starting with $ have to be allowed for historical reasons
                     switch (name)
                     {
-                        case "$csharpnull":
                         case "$code":
                         case "$db":
                         case "$id":

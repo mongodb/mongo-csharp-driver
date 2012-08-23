@@ -1062,12 +1062,18 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : null, 'V' : # }".Replace("#", "{ '$csharpnull' : true }").Replace("'", "\"");
+            var expected = "{ 'B' : null, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+
+            // test that we can still deserialize the legacy representation for a BsonNull value of C# null
+            var legacy = expected.Replace("_csharpnull", "$csharpnull");
+            rehydrated = BsonSerializer.Deserialize<TestClass>(legacy);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
         }
 
         [Test]

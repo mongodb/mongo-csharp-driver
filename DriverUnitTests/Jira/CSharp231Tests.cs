@@ -544,7 +544,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             _collection.RemoveAll();
 
             var doc = new ClassWithBsonNullId { Id = null, X = 1 };
-            _collection.Insert(doc); // serializes _id as { "_id" : { "$csharpnull" : true }, "X" : 1 }
+            _collection.Insert(doc); // serializes _id as { "_id" : { "_csharpnull" : true }, "X" : 1 }
             Assert.AreEqual(null, doc.Id);
 
             doc = new ClassWithBsonNullId { Id = BsonNull.Value, X = 1 };
