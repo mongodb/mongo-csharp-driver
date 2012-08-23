@@ -409,6 +409,7 @@ namespace MongoDB.Driver
             }
             catch (MongoAuthenticationException)
             {
+                // don't let the connection go to waste just because authentication failed
                 _connectionPool.ReleaseConnection(connection);
                 throw;
             }
@@ -470,7 +471,7 @@ namespace MongoDB.Driver
                 {
                     if (_stateVerificationTimer == null)
                     {
-                        _stateVerificationTimer = new Timer(_ => StateVerificationTimerCallback(), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+                        _stateVerificationTimer = new Timer(o => StateVerificationTimerCallback(), null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
                     }
                 }
             }
