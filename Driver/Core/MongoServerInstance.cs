@@ -115,7 +115,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverInfo.ReplicaSetInformation;
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.ReplicaSetInformation;
+                }
             }
         }
 
@@ -148,7 +151,7 @@ namespace MongoDB.Driver
             }
             internal set
             {
-                lock (_address)
+                lock (_serverInstanceLock)
                 {
                     _address = value;
                 }
@@ -705,7 +708,7 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <remarks>This method must be raised outside of a lock.</remarks>
+        /// <remarks>This method must be called outside of a lock.</remarks>
         private void SetState(MongoServerState newState, ServerInformation newServerInfo)
         {
             bool raiseChangedEvent = false;
