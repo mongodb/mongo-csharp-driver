@@ -159,9 +159,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestInstance()
         {
-            var instance = _server.Instance;
-            Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.IsPrimary);
+            if (_server.Instances.Length == 1)
+            {
+                var instance = _server.Instance;
+                Assert.IsNotNull(instance);
+                Assert.IsTrue(instance.IsPrimary);
+            }
         }
 
         [Test]
@@ -169,8 +172,16 @@ namespace MongoDB.DriverUnitTests
         {
             var instances = _server.Instances;
             Assert.IsNotNull(instances);
-            Assert.AreEqual(1, instances.Length);
-            Assert.IsTrue(instances[0].IsPrimary);
+
+            if (instances.Length == 1)
+            {
+                Assert.IsTrue(instances[0].IsPrimary);
+            }
+            else
+            {
+                Assert.IsTrue(instances.Length > 1);
+                Assert.AreEqual(1, instances.Count(i => i.IsPrimary));
+            }
         }
 
         [Test]
@@ -288,7 +299,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSecondaries()
         {
-            Assert.AreEqual(0, _server.Secondaries.Length);
+            Assert.IsTrue(_server.Secondaries.Length < _server.Instances.Length);
         }
 
         [Test]
