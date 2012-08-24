@@ -148,6 +148,28 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestGetCollectionWithoutSpecifyingCollectionName()
+        {
+            var collectionName = typeof(BsonDocument).Name;
+            var collection = _database.GetCollection(typeof(BsonDocument));
+            Assert.AreSame(_database, collection.Database);
+            Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
+            Assert.AreEqual(collectionName, collection.Name);
+            Assert.AreEqual(_database.Settings.SafeMode, collection.Settings.SafeMode);
+        }
+
+        [Test]
+        public void TestGetCollectionGenericWithoutSpecifyingCollectionName()
+        {
+            var collectionName = typeof (BsonDocument).Name;
+            var collection = _database.GetCollection<BsonDocument>();
+            Assert.AreSame(_database, collection.Database);
+            Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
+            Assert.AreEqual(collectionName, collection.Name);
+            Assert.AreEqual(_database.Settings.SafeMode, collection.Settings.SafeMode);
+        }
+
+        [Test]
         public void TestGetCollectionGeneric()
         {
             var collectionName = Configuration.TestCollection.Name;

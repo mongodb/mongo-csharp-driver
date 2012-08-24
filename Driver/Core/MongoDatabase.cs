@@ -347,8 +347,11 @@ namespace MongoDB.Driver
         /// <returns>A MongoCollectionSettings.</returns>
         public virtual MongoCollectionSettings CreateCollectionSettings(
             Type defaultDocumentType,
-            string collectionName)
+            string collectionName = null)
         {
+            if (string.IsNullOrEmpty(collectionName))
+                collectionName = defaultDocumentType.Name;
+
             var settingsDefinition = typeof(MongoCollectionSettings<>);
             var settingsType = settingsDefinition.MakeGenericType(defaultDocumentType);
             var constructorInfo = settingsType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string) });
@@ -524,10 +527,13 @@ namespace MongoDB.Driver
         /// with a default document type of TDefaultDocument.
         /// </summary>
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
-        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="collectionName">The name of the collection (optional).</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName = null)
         {
+            if (string.IsNullOrEmpty(collectionName))
+                collectionName = typeof(TDefaultDocument).Name;
+
             var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
             return GetCollection(collectionSettings);
         }
@@ -609,7 +615,7 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type.</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName)
+        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName = null)
         {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
             return GetCollection(collectionSettings);
