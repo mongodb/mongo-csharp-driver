@@ -323,6 +323,11 @@ namespace MongoDB.Driver.Internal
         /// <param name="address">The address.</param>
         protected void EnsureInstanceWithAddress(MongoServerAddress address)
         {
+            if (address == null)
+            {
+                throw new ArgumentNullException("address");
+            }
+
             lock (_lock)
             {
                 if (!_instances.Any(x => x.Address == address))
@@ -365,7 +370,10 @@ namespace MongoDB.Driver.Internal
 
                 foreach (var address in addresses)
                 {
-                    EnsureInstanceWithAddress(address);
+                    if (address != null)
+                    {
+                        EnsureInstanceWithAddress(address);
+                    }
                 }
             }
         }
@@ -427,6 +435,20 @@ namespace MongoDB.Driver.Internal
                             return;
                         }
 
+                        if (instance.Address != instance.IsMasterResult.MyAddress)
+                        {
+                            if (!_instances.Any(x => x.Address == instance.IsMasterResult.MyAddress))
+                            {
+                                instance.Address = instance.IsMasterResult.MyAddress;
+                            }
+                            else
+                            {
+                                // we need to get rid of the duplicate.
+                                RemoveInstance(instance);
+                                return;
+                            }
+                        }
+
                         if (_state != MongoServerState.Disconnecting && _state != MongoServerState.Disconnected)
                         {
                             _connectedInstances.EnsureContains(instance);
@@ -450,7 +472,7 @@ namespace MongoDB.Driver.Internal
             {
                 _instances.Remove(instance);
                 instance.StateChanged -= InstanceStateChanged;
-                instance.Disconnect();
+                instance.DisconnectPermanently();
                 ProcessInstanceStateChange(instance);
             }
         }

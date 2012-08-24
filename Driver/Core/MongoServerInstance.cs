@@ -72,6 +72,7 @@ namespace MongoDB.Driver
         private bool _inStateVerification;
         private ServerInformation _serverInfo;
         private IPEndPoint _ipEndPoint;
+        private bool _permanentlyDisconnected;
         private int _sequentialId;
         private MongoServerState _state;
         private Timer _stateVerificationTimer;
@@ -96,6 +97,7 @@ namespace MongoDB.Driver
             };
             _connectionPool = new MongoConnectionPool(this);
             _pingTimeAggregator = new PingTimeAggregator(5);
+            _permanentlyDisconnected = false;
             // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
         }
 
@@ -425,7 +427,7 @@ namespace MongoDB.Driver
             // Console.WriteLine("MongoServerInstance[{0}]: Connect() called.", sequentialId);
             lock (_serverInstanceLock)
             {
-                if (_state == MongoServerState.Connecting || _state == MongoServerState.Connected)
+                if (_permanentlyDisconnected || _state == MongoServerState.Connecting || _state == MongoServerState.Connected)
                 {
                     return;
                 }
@@ -511,6 +513,19 @@ namespace MongoDB.Driver
             {
                 SetState(MongoServerState.Disconnected);
             }
+        }
+
+        /// <summary>
+        /// Disconnects this instance permanently.
+        /// </summary>
+        internal void DisconnectPermanently()
+        {
+            lock (_serverInstanceLock)
+            {
+                _permanentlyDisconnected = true;
+            }
+
+            Disconnect();
         }
 
         /// <summary>
@@ -618,18 +633,20 @@ namespace MongoDB.Driver
                         currentServerInfo = _serverInfo;
                     }
 
+                    // keep the current instance type, build info, and replica set info
+                    // as these aren't relevent to state and are likely still correct.
                     var newServerInfo = new ServerInformation
                     {
-                        BuildInfo = null,
+                        BuildInfo = currentServerInfo.BuildInfo,
                         InstanceType = currentServerInfo.InstanceType,
                         IsArbiter = false,
                         IsMasterResult = isMasterResult,
                         IsPassive = false,
                         IsPrimary = false,
                         IsSecondary = false,
-                        MaxDocumentSize = MongoDefaults.MaxDocumentSize,
-                        MaxMessageLength = MongoDefaults.MaxMessageLength,
-                        ReplicaSetInformation = null
+                        MaxDocumentSize = currentServerInfo.MaxDocumentSize,
+                        MaxMessageLength = currentServerInfo.MaxMessageLength,
+                        ReplicaSetInformation = currentServerInfo.ReplicaSetInformation
                     };
 
                     SetState(MongoServerState.Disconnected, newServerInfo);

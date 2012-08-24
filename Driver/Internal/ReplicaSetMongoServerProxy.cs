@@ -175,8 +175,12 @@ namespace MongoDB.Driver.Internal
 
         private void ProcessConnectedSecondaryStateChange(MongoServerInstance instance)
         {
-            // make sure the primary exists in the instance list
-            EnsureInstanceWithAddress(instance.ReplicaSetInformation.Primary);
+            var address = instance.ReplicaSetInformation.Primary;
+            if (address != null)
+            {
+                // make sure the primary exists in the instance list
+                EnsureInstanceWithAddress(address);
+            }
         }
     }
 }
