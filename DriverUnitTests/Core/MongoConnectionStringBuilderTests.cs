@@ -1219,5 +1219,11 @@ namespace MongoDB.DriverUnitTests
 #pragma warning restore
             Assert.AreEqual(connectionString, builder.ToString());
         }
+
+		[Test]
+		public void TestConnectionStringWithParameters()
+		{
+			new MongoConnectionStringBuilder("mongodb://localhost/testDb?safe=true");
+		}
     }
 }
