@@ -102,6 +102,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the time to live value.
+        /// </summary>
+        /// <param name="timeToLive">The time to live.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetTimeToLive(TimeSpan timeToLive)
+        {
+            return new IndexOptionsBuilder().SetTimeToLive(timeToLive);
+        }
+
+        /// <summary>
         /// Sets whether the index enforces unique values.
         /// </summary>
         /// <param name="value">Whether the index enforces unique values.</param>
@@ -196,6 +206,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetSparse(bool value)
         {
             _document["sparse"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the time to live value.
+        /// </summary>
+        /// <param name="timeToLive">The time to live.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetTimeToLive(TimeSpan timeToLive)
+        {
+            _document["expireAfterSeconds"] = (int)timeToLive.TotalSeconds;
             return this;
         }
 

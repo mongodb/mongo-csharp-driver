@@ -277,6 +277,25 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestEnsureIndexTimeToLive()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 2))
+            {
+                _collection.DropAllIndexes();
+                Assert.AreEqual(1, _collection.GetIndexes().Count());
+
+                var keys = IndexKeys.Ascending("ts");
+                var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
+                _collection.EnsureIndex(keys, options);
+
+                var indexes = _collection.GetIndexes();
+                Assert.AreEqual("_id_", indexes[0].Name);
+                Assert.AreEqual("ts_1", indexes[1].Name);
+                Assert.AreEqual(TimeSpan.FromHours(1), indexes[1].TimeToLive);
+            }
+        }
+
+        [Test]
         public void TestExplain()
         {
             _collection.RemoveAll();
