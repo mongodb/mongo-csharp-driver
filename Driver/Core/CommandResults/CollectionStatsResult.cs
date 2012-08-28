@@ -24,6 +24,38 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Represents collection system flags.
+    /// </summary>
+    [Flags]
+    public enum CollectionSystemFlags
+    {
+        /// <summary>
+        /// No flags.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// The collection has an _id index.
+        /// </summary>
+        HaveIdIndex = 1
+    }
+
+    /// <summary>
+    /// Represents collection user flags.
+    /// </summary>
+    [Flags]
+    public enum CollectionUserFlags
+    {
+        /// <summary>
+        /// No flags.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// User power of 2 size.
+        /// </summary>
+        UsePowerOf2Size = 1
+    }
+
+    /// <summary>
     /// Represents the results of the collection stats command.
     /// </summary>
     [Serializable]
@@ -68,9 +100,22 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the flags.
         /// </summary>
+        [Obsolete("Use SystemFlags or UserFlags instead.")]
         public int Flags
         {
-            get { return Response["flags"].AsInt32; }
+            get
+            {
+                // flags was renamed to systemFlags in server version 2.2
+                BsonValue flags;
+                if (Response.TryGetValue("flags", out flags) || Response.TryGetValue("systemFlags", out flags))
+                {
+                    return flags.AsInt32;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
         }
 
         /// <summary>
@@ -154,11 +199,51 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the system flags.
+        /// </summary>
+        public CollectionSystemFlags SystemFlags
+        {
+            get
+            {
+                // systemFlags was called flags prior to server version 2.2
+                BsonValue systemFlags;
+                if (Response.TryGetValue("systemFlags", out systemFlags) || Response.TryGetValue("flags", out systemFlags))
+                {
+                    return (CollectionSystemFlags)systemFlags.AsInt32;
+                }
+                else
+                {
+                    return CollectionSystemFlags.None;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the total index size.
         /// </summary>
         public long TotalIndexSize
         {
             get { return Response["totalIndexSize"].ToInt64(); }
+        }
+
+        /// <summary>
+        /// Gets the user flags.
+        /// </summary>
+        public CollectionUserFlags UserFlags
+        {
+            get
+            {
+                // userFlags was first introduced in server version 2.2
+                BsonValue userFlags;
+                if (Response.TryGetValue("userFlags", out userFlags))
+                {
+                    return (CollectionUserFlags)userFlags.AsInt32;
+                }
+                else
+                {
+                    return CollectionUserFlags.None;
+                }
+            }
         }
 
         // nested classes
