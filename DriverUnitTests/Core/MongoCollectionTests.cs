@@ -1341,7 +1341,27 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetStats()
         {
-            var dataSize = _collection.GetStats();
+            var stats = _collection.GetStats();
+        }
+
+        [Test]
+        public void TestGetStatsUsePowerOf2Sizes()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 2))
+            {
+                _collection.Drop();
+                _database.CreateCollection(_collection.Name); // collMod command only works if collection exists
+
+                var command = new CommandDocument
+                {
+                    { "collMod", _collection.Name },
+                    { "usePowerOf2Sizes", true }
+                };
+                _database.RunCommand(command);
+
+                var stats = _collection.GetStats();
+                Assert.IsTrue((stats.UserFlags & CollectionUserFlags.UsePowerOf2Sizes) != 0);
+            }
         }
 
         [Test]

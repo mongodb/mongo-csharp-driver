@@ -71,7 +71,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.AreEqual(1, result.ObjectCount);
             Assert.IsTrue(result.PaddingFactor > 0.0);
             Assert.IsTrue(result.StorageSize > 0);
-            Assert.AreEqual(CollectionSystemFlags.HaveIdIndex, result.SystemFlags);
+            Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
             Assert.IsTrue(result.TotalIndexSize > 0);
             Assert.AreEqual(CollectionUserFlags.None, result.UserFlags);
         }

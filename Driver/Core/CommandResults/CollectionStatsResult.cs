@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// The collection has an _id index.
         /// </summary>
-        HaveIdIndex = 1
+        HasIdIndex = 1 // called HaveIdIndex in the server but renamed here to follow .NET naming conventions
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// User power of 2 size.
         /// </summary>
-        UsePowerOf2Size = 1
+        UsePowerOf2Sizes = 1
     }
 
     /// <summary>
@@ -106,15 +106,7 @@ namespace MongoDB.Driver
             get
             {
                 // flags was renamed to systemFlags in server version 2.2
-                BsonValue flags;
-                if (Response.TryGetValue("flags", out flags) || Response.TryGetValue("systemFlags", out flags))
-                {
-                    return flags.AsInt32;
-                }
-                else
-                {
-                    return 0;
-                }
+                return (int)SystemFlags;
             }
         }
 
@@ -205,7 +197,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                // systemFlags was called flags prior to server version 2.2
+                // systemFlags was first introduced in server version 2.2 (check "flags" also for compatibility with older servers)
                 BsonValue systemFlags;
                 if (Response.TryGetValue("systemFlags", out systemFlags) || Response.TryGetValue("flags", out systemFlags))
                 {
