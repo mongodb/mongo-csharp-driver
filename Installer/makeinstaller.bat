@@ -1,6 +1,6 @@
 @ECHO OFF
-SET FullVersion=1.5.0.4566
-SET Version=1.5
+SET FullVersion=1.6.0.4624
+SET Version=1.6
 SET Configuration=Release
 SET SourceBase=..
 
@@ -15,3 +15,4 @@ echo Building installer
 %windir%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe CSharpDriverInstaller.wixproj
 
 echo Done Building installer v%Version%
+pause
