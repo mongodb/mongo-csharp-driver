@@ -1,7 +1,13 @@
 BSON library changes from 1.5 to 1.6
 
+BsonWriter.cs
+    no longer allow $csharpnull (driver now uses _csharpnull instead)
+
 BsonSerializerAttribute.cs
     new attribute to configure a serializer for a class or a member
+
+BsonValueSerializer.cs
+    BsonNullSerializer now uses _csharpnull instead of $csharpnull for a C# null value of type BsonNull
 
 ReadOnlyCollectionSerializer.cs
     new serializer for ReadOnlyCollection
