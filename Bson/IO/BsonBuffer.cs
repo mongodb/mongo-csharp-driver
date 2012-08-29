@@ -564,6 +564,7 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the reader (a null terminated string).
         /// </summary>
+        /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
         /// <param name="bsonTrie">An optional BsonTrie to use during decoding.</param>
         /// <param name="found">Set to true if the string was found in the trie.</param>
         /// <param name="value">Set to the value found in the trie; otherwise, null.</param>

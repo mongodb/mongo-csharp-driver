@@ -493,7 +493,7 @@ namespace MongoDB.Driver
         /// Creates the instance.
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
-        /// <returns></returns>
+        /// <returns>A SystemProfileInfo instance.</returns>
         protected override SystemProfileInfo CreateInstance(BsonDocument backingDocument)
         {
             return new SystemProfileInfo(backingDocument);
@@ -532,7 +532,7 @@ namespace MongoDB.Driver
         /// Creates the instance.
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
-        /// <returns></returns>
+        /// <returns>A SystemProfileLockStatistics instance.</returns>
         protected override SystemProfileLockStatistics CreateInstance(BsonDocument backingDocument)
         {
             return new SystemProfileLockStatistics(backingDocument);
@@ -572,7 +572,7 @@ namespace MongoDB.Driver
         /// Creates the instance.
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
-        /// <returns></returns>
+        /// <returns>A SystemProfileReadWriteLockStatistics instance.</returns>
         protected override SystemProfileReadWriteLockStatistics CreateInstance(BsonDocument backingDocument)
         {
             return new SystemProfileReadWriteLockStatistics(backingDocument);

@@ -68,6 +68,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the value from the backing document.
         /// </summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="memberName">The member name.</param>
         /// <param name="defaultValue">The default value.</param>
         /// <returns>The value.</returns>

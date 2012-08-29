@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// An abstract base class for an Expression visitor that returns a value of type T.
     /// </summary>
+    /// <typeparam name="T">The type of the return value.</typeparam>
     public abstract class ExpressionVisitor<T>
     {
         // constructors

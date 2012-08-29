@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that an element does not equal the value (see $ne).
         /// </summary>
-        /// <typeparam name="TMember"></typeparam>
+        /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
@@ -963,7 +963,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that an element does not equal the value (see $ne).
         /// </summary>
-        /// <typeparam name="TMember"></typeparam>
+        /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>

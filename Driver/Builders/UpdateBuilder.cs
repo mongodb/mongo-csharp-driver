@@ -1205,6 +1205,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for creating update modifiers.
     /// </summary>
+    /// <typeparam name="TDocument">The document type.</typeparam>
     public static class Update<TDocument>
     {
         // public static methods

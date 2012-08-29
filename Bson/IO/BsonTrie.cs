@@ -22,6 +22,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a mapping from a set of UTF8 encoded strings to a set of elementName/value pairs, implemented as a trie.
     /// </summary>
+    /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
     public class BsonTrie<TValue>
     {
         // private static fields
@@ -114,6 +115,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a node in a BsonTrie.
     /// </summary>
+    /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
     public sealed class BsonTrieNode<TValue>
     {
         // private fields
