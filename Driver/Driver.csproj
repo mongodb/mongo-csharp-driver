@@ -91,7 +91,6 @@
     <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
-    <Compile Include="Builders\QueryBuilderTyped.cs" />
     <Compile Include="Builders\UpdateBuilder.cs" />
     <Compile Include="CommandResults\AggregateResult.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
