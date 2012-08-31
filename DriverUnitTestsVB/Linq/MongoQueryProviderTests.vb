@@ -21,9 +21,8 @@ Imports System.Text
 Imports NUnit.Framework
 
 Imports MongoDB.Bson
-Imports MongoDB.Bson.Serialization.Attributes
+Imports MongoDB.Bson.Serialization
 Imports MongoDB.Driver
-Imports MongoDB.Driver.Builders
 Imports MongoDB.Driver.Linq
 
 Namespace MongoDB.DriverUnitTests.Linq

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     internal enum MessageOpcode
     {

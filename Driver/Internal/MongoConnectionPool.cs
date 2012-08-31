@@ -20,7 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a pool of connections to a MongoDB server.

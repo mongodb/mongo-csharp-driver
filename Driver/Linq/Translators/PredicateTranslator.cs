@@ -24,8 +24,6 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Linq

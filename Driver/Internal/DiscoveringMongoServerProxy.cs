@@ -19,7 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// A proxy that dynamically discovers the type of server it is connecting to.

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Holds the ping times and a rolling calculated average.  This class is thread-safe.

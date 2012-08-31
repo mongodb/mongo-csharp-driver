@@ -21,7 +21,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {

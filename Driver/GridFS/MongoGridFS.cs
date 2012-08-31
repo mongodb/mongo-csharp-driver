@@ -21,7 +21,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
+using MongoDB.Driver;
 
 namespace MongoDB.Driver.GridFS
 {

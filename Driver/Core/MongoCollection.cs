@@ -23,10 +23,6 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Internal;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.Driver
 {
@@ -1459,7 +1455,7 @@ namespace MongoDB.Driver
                     }
 
                     var query = Query.EQ("_id", idBsonValue);
-                    var update = Builders.Update.Replace(nominalType, document);
+                    var update = MongoDB.Driver.Update.Replace(nominalType, document);
                     var updateOptions = new MongoUpdateOptions
                     {
                         CheckElementNames = options.CheckElementNames,

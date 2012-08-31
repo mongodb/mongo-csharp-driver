@@ -16,7 +16,7 @@
 using System;
 using System.Collections.ObjectModel;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Abstraction for a compositing server instances based on type.

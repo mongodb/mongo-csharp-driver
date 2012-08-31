@@ -27,7 +27,6 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {
@@ -507,7 +506,6 @@ namespace MongoDB.BsonUnitTests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
-
 
         [Test]
         public void TestEnUsUseUserOverrideFalse()

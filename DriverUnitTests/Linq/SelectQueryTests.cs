@@ -20,9 +20,8 @@ using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.DriverUnitTests.Linq

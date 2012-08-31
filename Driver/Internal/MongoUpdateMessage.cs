@@ -22,9 +22,8 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     internal class MongoUpdateMessage : MongoRequestMessage
     {

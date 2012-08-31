@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Options
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Represents the units a TimeSpan is serialized in.

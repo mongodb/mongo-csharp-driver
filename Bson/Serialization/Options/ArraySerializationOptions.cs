@@ -18,10 +18,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Bson.Serialization.Options
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Represents serialization options for an Array value.

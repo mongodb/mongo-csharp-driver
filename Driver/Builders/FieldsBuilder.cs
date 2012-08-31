@@ -24,7 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Utils;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// A builder for specifying which fields of a document the server should return.

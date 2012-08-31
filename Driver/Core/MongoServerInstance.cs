@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {

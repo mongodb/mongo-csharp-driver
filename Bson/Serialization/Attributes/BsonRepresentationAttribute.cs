@@ -19,9 +19,8 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 
-namespace MongoDB.Bson.Serialization.Attributes
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Specifies the external representation and related options for this field or property.

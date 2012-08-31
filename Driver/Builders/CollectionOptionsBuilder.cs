@@ -22,9 +22,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// A builder for the options used when creating a collection.

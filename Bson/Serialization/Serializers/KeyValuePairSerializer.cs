@@ -20,7 +20,6 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Bson.Serialization.Serializers

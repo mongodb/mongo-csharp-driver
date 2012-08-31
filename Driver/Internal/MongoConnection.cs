@@ -27,7 +27,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents the state of a connection.

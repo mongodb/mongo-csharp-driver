@@ -20,7 +20,6 @@ Imports System.Text
 Imports NUnit.Framework
 
 Imports MongoDB.Bson
-Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 

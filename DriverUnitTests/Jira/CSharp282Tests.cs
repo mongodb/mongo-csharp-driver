@@ -21,7 +21,6 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverUnitTests.Jira
 {

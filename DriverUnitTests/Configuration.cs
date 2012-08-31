@@ -21,7 +21,6 @@ using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverUnitTests
 {

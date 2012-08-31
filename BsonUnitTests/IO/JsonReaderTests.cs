@@ -82,7 +82,6 @@ namespace MongoDB.BsonUnitTests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
 
-
         [Test]
         public void TestBookmark()
         {
@@ -171,7 +170,6 @@ namespace MongoDB.BsonUnitTests.IO
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(new StringReader(json)).ToJson());
         }
-
 
         [Test]
         public void TestDateTimeMinBson()

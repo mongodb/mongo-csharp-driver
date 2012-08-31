@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Specifies that this is the Id field or property.

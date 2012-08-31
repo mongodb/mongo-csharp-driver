@@ -23,7 +23,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     internal abstract class MongoRequestMessage : MongoMessage, IDisposable
     {

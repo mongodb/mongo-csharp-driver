@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a thread-safe queue.

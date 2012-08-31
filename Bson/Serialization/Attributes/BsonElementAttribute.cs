@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Bson.Serialization.Attributes
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Specifies the element name and related options for a field or property.

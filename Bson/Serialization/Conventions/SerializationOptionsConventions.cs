@@ -19,8 +19,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-using MongoDB.Bson.Serialization.Options;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>

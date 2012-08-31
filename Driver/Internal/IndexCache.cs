@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a cache of the names of indexes that are known to exist on a given server.

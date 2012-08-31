@@ -16,10 +16,9 @@
 using System;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Bson.Serialization.Options
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Represents the representation to use for dictionaries.

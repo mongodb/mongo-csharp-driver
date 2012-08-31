@@ -27,7 +27,6 @@ using System.Xml;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -864,7 +863,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
     }
-
 
     /// <summary>
     /// Represents a serializer for System.Drawing.Size.

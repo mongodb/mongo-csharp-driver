@@ -22,7 +22,6 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverUnitTests.Builders
 {

@@ -20,7 +20,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Maintains a sorted list of connected instances by ping time.

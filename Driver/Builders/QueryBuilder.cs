@@ -20,7 +20,7 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// A builder for creating queries.

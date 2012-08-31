@@ -16,9 +16,8 @@
 using System;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.Bson.Serialization.Options
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Represents serialization options for a document.

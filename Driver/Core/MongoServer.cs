@@ -23,7 +23,6 @@ using System.Threading;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -464,7 +463,6 @@ namespace MongoDB.Driver
                 __servers.Remove(server._settings);
             }
         }
-
 
         // public methods
         /// <summary>

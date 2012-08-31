@@ -19,7 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections.ObjectModel;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Base class for proxies that maintain multiple server instances.

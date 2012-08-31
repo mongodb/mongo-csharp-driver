@@ -19,7 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Proxy for connecting to a replica set.

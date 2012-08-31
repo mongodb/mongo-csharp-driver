@@ -23,7 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Abstract base class for the builders.

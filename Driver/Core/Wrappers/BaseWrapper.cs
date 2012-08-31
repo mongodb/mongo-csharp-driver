@@ -21,7 +21,7 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver.Wrappers
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Abstract base class for wrapper classes.

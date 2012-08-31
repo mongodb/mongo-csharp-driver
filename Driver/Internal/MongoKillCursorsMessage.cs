@@ -21,7 +21,7 @@ using System.Text;
 
 using MongoDB.Bson;
 
-namespace MongoDB.Driver.Internal
+namespace MongoDB.Driver
 {
     internal class MongoKillCursorsMessage : MongoRequestMessage
     {

@@ -24,7 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Utils;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Aids in building mongo queries based on type information.

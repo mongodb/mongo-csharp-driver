@@ -226,7 +226,6 @@ namespace MongoDB.Driver
             return lhs.Equals(rhs);
         }
 
-
         // public methods
         /// <summary>
         /// Add a new tag set to the existing tag sets.

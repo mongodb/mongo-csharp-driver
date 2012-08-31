@@ -21,7 +21,6 @@ using System.Net.Sockets;
 using System.Text;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {

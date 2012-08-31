@@ -21,8 +21,6 @@ using System.Text;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -361,7 +359,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor SetFields(params string[] fields)
         {
             if (_isFrozen) { ThrowFrozen(); }
-            _fields = Builders.Fields.Include(fields);
+            _fields = MongoDB.Driver.Fields.Include(fields);
             return this;
         }
 

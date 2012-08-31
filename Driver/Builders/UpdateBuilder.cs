@@ -23,9 +23,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Utils;
-using MongoDB.Driver.Wrappers;
 
-namespace MongoDB.Driver.Builders
+namespace MongoDB.Driver
 {
     /// <summary>
     /// A builder for creating update modifiers.
@@ -1200,7 +1199,6 @@ namespace MongoDB.Driver.Builders
             incDocument.Add(name, value);
         }
     }
-
 
     /// <summary>
     /// A builder for creating update modifiers.

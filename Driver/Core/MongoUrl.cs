@@ -20,7 +20,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {

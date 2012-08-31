@@ -22,8 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
-using MongoDB.Driver.Builders;
+using MongoDB.Driver;
 
 namespace MongoDB.Driver.GridFS
 {

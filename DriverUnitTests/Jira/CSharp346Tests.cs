@@ -23,8 +23,6 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Wrappers;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp346
 {
@@ -76,7 +74,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
         }
-
 
         [Test]
         public void TestTwoIPv6AddressesWithDefaultCredentials()
