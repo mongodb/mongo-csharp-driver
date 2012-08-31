@@ -89,7 +89,6 @@
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
-    <Compile Include="Builders\DeprecatedQueryBuilder.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
     <Compile Include="Builders\QueryBuilderTyped.cs" />
@@ -230,9 +229,6 @@
     <Compile Include="Internal\MessageOpcode.cs" />
     <Compile Include="Internal\ResponseFlags.cs" />
     <Compile Include="Core\MongoCollection.cs" />
-    <Compile Include="Core\MongoConnectionStringBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Core\MongoCredentials.cs" />
     <Compile Include="Core\CommandResults\MapReduceResult.cs" />
     <Compile Include="Core\MongoServer.cs" />

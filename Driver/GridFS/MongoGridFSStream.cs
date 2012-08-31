@@ -215,16 +215,6 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-        /// <summary>
-        /// Gets or sets whether to compute and update the MD5 hash for the file when the stream is closed.
-        /// </summary>
-        [Obsolete("Use UpdateMD5 on MongoGridFSSettings instead.")]
-        public bool UpdateMD5
-        {
-            get { return _updateMD5; }
-            set { _updateMD5 = value; }
-        }
-
         // public methods
         /// <summary>
         /// Flushes any unsaved data in the buffers to the GridFS file.

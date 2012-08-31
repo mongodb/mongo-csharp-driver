@@ -39,12 +39,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(27017, url.Server.Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "server=[::1:];safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual("[::1:]", builder.Server.Host);
-            Assert.AreEqual(27017, builder.Server.Port);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
 
         [Test]
@@ -57,14 +51,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("username", url.DefaultCredentials.Username);
             Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "server=[::1:];username=username;password=password;safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual("[::1:]", builder.Server.Host);
-            Assert.AreEqual(27017, builder.Server.Port);
-            Assert.AreEqual("username", builder.Username);
-            Assert.AreEqual("password", builder.Password);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
 
         [Test]
@@ -75,12 +61,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(1234, url.Server.Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "server=[::1:]:1234;safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            Assert.AreEqual("[::1:]", builder.Server.Host);
-            Assert.AreEqual(1234, builder.Server.Port);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
 
         [Test]
@@ -95,16 +75,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("[::2:]", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "servers=[::1:],[::2:];safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            servers = builder.Servers.ToArray();
-            Assert.AreEqual(2, servers.Length);
-            Assert.AreEqual("[::1:]", servers[0].Host);
-            Assert.AreEqual(27017, servers[0].Port);
-            Assert.AreEqual("[::2:]", servers[1].Host);
-            Assert.AreEqual(27017, servers[1].Port);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
 
 
@@ -122,18 +92,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("username", url.DefaultCredentials.Username);
             Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "servers=[::1:],[::2:];username=username;password=password;safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            servers = builder.Servers.ToArray();
-            Assert.AreEqual(2, servers.Length);
-            Assert.AreEqual("[::1:]", servers[0].Host);
-            Assert.AreEqual(27017, servers[0].Port);
-            Assert.AreEqual("[::2:]", servers[1].Host);
-            Assert.AreEqual(27017, servers[1].Port);
-            Assert.AreEqual("username", url.DefaultCredentials.Username);
-            Assert.AreEqual("password", url.DefaultCredentials.Password);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
 
         [Test]
@@ -148,16 +106,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("[::2:]", servers[1].Host);
             Assert.AreEqual(2345, servers[1].Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
-
-            connectionString = "servers=[::1:]:1234,[::2:]:2345;safe=true";
-            var builder = new MongoConnectionStringBuilder(connectionString);
-            servers = builder.Servers.ToArray();
-            Assert.AreEqual(2, servers.Length);
-            Assert.AreEqual("[::1:]", servers[0].Host);
-            Assert.AreEqual(1234, servers[0].Port);
-            Assert.AreEqual("[::2:]", servers[1].Host);
-            Assert.AreEqual(2345, servers[1].Port);
-            Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
     }
 }

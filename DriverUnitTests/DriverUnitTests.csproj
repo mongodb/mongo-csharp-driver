@@ -96,7 +96,6 @@
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
-    <Compile Include="Builders\DeprecatedQueryBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
@@ -109,7 +108,6 @@
     <Compile Include="Core\ReadPreferenceTests.cs" />
     <Compile Include="Core\MongoCollectionSettingsTests.cs" />
     <Compile Include="Core\MongoCollectionTests.cs" />
-    <Compile Include="Core\MongoConnectionStringBuilderTests.cs" />
     <Compile Include="Core\MongoCredentialTests.cs" />
     <Compile Include="Core\MongoDatabaseSettingsTests.cs" />
     <Compile Include="Core\MongoDatabaseTests.cs" />

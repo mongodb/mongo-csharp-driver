@@ -227,16 +227,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets whether wait for journal commit is true.
         /// </summary>
-        [Obsolete("Use Journal instead.")]
-        public bool J
-        {
-            get { return Journal; }
-            set { Journal = value; }
-        }
-
-        /// <summary>
-        /// Gets whether wait for journal commit is true.
-        /// </summary>
         public bool Journal
         {
             get { return _journal; }

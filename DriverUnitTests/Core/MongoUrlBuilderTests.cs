@@ -48,9 +48,6 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(null, builder.ReadPreference);
             Assert.AreEqual(null, builder.ReplicaSetName);
             Assert.AreEqual(null, builder.SafeMode);
-#pragma warning disable 618
-            Assert.AreEqual(false, builder.SlaveOk);
-#pragma warning restore
             Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
             Assert.AreEqual(false, builder.UseSsl);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
@@ -970,32 +967,6 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?fsync=true;w=2;wtimeout=3723s").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?fsync=true;w=2;wtimeout=01:02:03").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?fsync=true;w=2;wtimeoutMS=3723000").ToString());
-        }
-
-        [Test]
-        public void TestSlaveOkFalse()
-        {
-#pragma warning disable 618
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = false };
-            Assert.AreEqual(false, builder.SlaveOk);
-#pragma warning restore
-
-            var connectionString = "mongodb://localhost/?slaveOk=false";
-            Assert.AreEqual(connectionString, builder.ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
-        }
-
-        [Test]
-        public void TestSlaveOkTrue()
-        {
-#pragma warning disable 618
-            var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = true };
-            Assert.AreEqual(true, builder.SlaveOk);
-#pragma warning restore
-
-            var connectionString = "mongodb://localhost/?slaveOk=true";
-            Assert.AreEqual(connectionString, builder.ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]

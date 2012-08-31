@@ -198,23 +198,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                return _readPreference.ToSlaveOk();
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
-            }
-        }
-
         // public methods
         /// <summary>
         /// Creates a clone of the settings.

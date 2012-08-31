@@ -90,19 +90,6 @@ namespace MongoDB.Driver
         /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
         /// is created for each combination of server settings.
         /// </summary>
-        /// <param name="builder">Server settings in the form of a MongoConnectionStringBuilder.</param>
-        /// <returns>
-        /// A new or existing instance of MongoServer.
-        /// </returns>
-        public static MongoServer Create(MongoConnectionStringBuilder builder)
-        {
-            return Create(builder.ToServerSettings());
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoServer. Only one instance
-        /// is created for each combination of server settings.
-        /// </summary>
         /// <param name="settings">Server settings.</param>
         /// <returns>
         /// A new or existing instance of MongoServer.
@@ -149,16 +136,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static MongoServer Create(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
-            {
-                var url = MongoUrl.Create(connectionString);
-                return Create(url);
-            }
-            else
-            {
-                var builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
-            }
+            var url = MongoUrl.Create(connectionString);
+            return Create(url);
         }
 
         /// <summary>
@@ -884,21 +863,6 @@ namespace MongoDB.Driver
         public virtual IDisposable RequestStart(MongoDatabase initialDatabase)
         {
             return RequestStart(initialDatabase, ReadPreference.Primary);
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <param name="initialDatabase">One of the databases involved in the related operations.</param>
-        /// <param name="slaveOk">Whether a secondary is acceptable.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
-        public virtual IDisposable RequestStart(MongoDatabase initialDatabase, bool slaveOk)
-        {
-            var readPreference = ReadPreference.FromSlaveOk(slaveOk);
-            return RequestStart(initialDatabase, readPreference);
         }
 
         /// <summary>

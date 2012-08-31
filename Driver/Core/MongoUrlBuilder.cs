@@ -26,8 +26,7 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents URL style connection strings. This is the recommended connection string style, but see also
-    /// MongoConnectionStringBuilder if you wish to use .NET style connection strings.
+    /// Represents URL style connection strings.
     /// </summary>
     [Serializable]
     public class MongoUrlBuilder
@@ -48,7 +47,6 @@ namespace MongoDB.Driver
         private string _replicaSetName;
         private SafeMode _safeMode;
         private IEnumerable<MongoServerAddress> _servers;
-        private bool? _slaveOk;
         private TimeSpan _socketTimeout;
         private bool _useSsl;
         private bool _verifySslCertificate;
@@ -188,29 +186,8 @@ namespace MongoDB.Driver
         /// </summary>
         public ReadPreference ReadPreference
         {
-            get
-            {
-                if (_readPreference != null)
-                {
-                    return _readPreference;
-                }
-                else if (_slaveOk.HasValue)
-                {
-                    return ReadPreference.FromSlaveOk(_slaveOk.Value);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (_slaveOk.HasValue)
-                {
-                    throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
-                }
-                _readPreference = value;
-            }
+            get { return _readPreference; }
+            set { _readPreference = value; }
         }
 
         /// <summary>
@@ -247,37 +224,6 @@ namespace MongoDB.Driver
         {
             get { return _servers; }
             set { _servers = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                if (_slaveOk.HasValue)
-                {
-                    return _slaveOk.Value;
-                }
-                else if (_readPreference != null)
-                {
-                    return _readPreference.ToSlaveOk();
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            set
-            {
-                if (_readPreference != null)
-                {
-                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
-                }
-                _slaveOk = value;
-            }
         }
 
         /// <summary>
@@ -343,7 +289,6 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
-        // these helper methods are shared with MongoConnectionStringBuilder
         internal static string FormatTimeSpan(TimeSpan value)
         {
             const int msInOneSecond = 1000; // milliseconds
@@ -637,9 +582,6 @@ namespace MongoDB.Driver
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
                                 SafeMode.Enabled = ParseBoolean(name, value);
                                 break;
-                            case "slaveok":
-                                _slaveOk = ParseBoolean(name, value);
-                                break;
                             case "sockettimeout":
                             case "sockettimeoutms":
                                 _socketTimeout = ParseTimeSpan(name, value);
@@ -765,10 +707,6 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("replicaSet={0};", _replicaSetName);
             }
-            if (_slaveOk.HasValue)
-            {
-                query.AppendFormat("slaveOk={0};", _slaveOk.Value ? "true" : "false"); // note: bool.ToString() returns "True" and "False"
-            }
             if (_readPreference != null)
             {
                 query.AppendFormat("readPreference={0};", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
@@ -877,7 +815,6 @@ namespace MongoDB.Driver
             _replicaSetName = null;
             _safeMode = null;
             _servers = null;
-            _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _useSsl = false;
             _verifySslCertificate = true;

@@ -227,12 +227,6 @@ namespace MongoDB.Driver
         }
 
 
-        // internal static methods
-        internal static ReadPreference FromSlaveOk(bool slaveOk)
-        {
-            return slaveOk ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
-        }
-
         // public methods
         /// <summary>
         /// Add a new tag set to the existing tag sets.
@@ -484,11 +478,6 @@ namespace MongoDB.Driver
                     }
                     return matchingInstances[randomIndex]; // random load balancing
             }
-        }
-
-        internal bool ToSlaveOk()
-        {
-            return _readPreferenceMode != ReadPreferenceMode.Primary;
         }
 
         // private methods

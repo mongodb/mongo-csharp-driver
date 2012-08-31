@@ -754,8 +754,7 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominal type of the object (ignored, but should be BsonDocument).</param>
         /// <param name="options">The serialization options (ignored).</param>
         /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
-        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
@@ -794,8 +793,7 @@ namespace MongoDB.Bson
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
-        [Obsolete("GetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] or document.GetValue(\"_id\") instead.")]
-        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
@@ -1051,8 +1049,7 @@ namespace MongoDB.Bson
         /// <param name="bsonWriter">The writer.</param>
         /// <param name="nominalType">The nominalType.</param>
         /// <param name="options">The serialization options (can be null).</param>
-        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonWriter == null)
             {
@@ -1135,8 +1132,7 @@ namespace MongoDB.Bson
         /// Sets the document Id.
         /// </summary>
         /// <param name="id">The value of the Id.</param>
-        [Obsolete("SetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] = value or document.Set(\"_id\", value) instead.")]
-        public void SetDocumentId(object id)
+        void IBsonSerializable.SetDocumentId(object id)
         {
             if (id == null)
             {

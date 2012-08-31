@@ -25,9 +25,6 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-#pragma warning disable 618 // about obsolete DeprecatedQuery class
-using Query = MongoDB.Driver.Builders.DeprecatedQuery;
-
 namespace MongoDB.DriverUnitTests.Jira.CSharp137
 {
     [TestFixture]
@@ -37,8 +34,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137
         public void TestAndInNotIn()
         {
             var query = Query.And(
-                Query.In("value", 1, 2, 3, 4 ),
-                Query.NotIn("value", 11, 12, 13, 14)
+                Query.In("value", new BsonArray { 1, 2, 3, 4 }),
+                Query.NotIn("value", new BsonArray { 11, 12, 13, 14 })
             );
 
             Assert.AreEqual(
@@ -58,7 +55,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137
         public void TestAndGtLt()
         {
             var query = Query.And(
-                Query.NotIn("value", 1, 2, 3),
+                Query.NotIn("value", new BsonArray { 1, 2, 3 }),
                 Query.EQ("OtherValue", 1),
                 Query.GT("value", 6),
                 Query.LT("value", 20)
@@ -132,4 +129,3 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp137
         }
     }
 }
-#pragma warning restore 618

@@ -213,15 +213,6 @@ namespace MongoDB.Bson.Serialization
             get { return _knownTypes; }
         }
 
-        /// <summary>
-        /// Gets the member maps.
-        /// </summary>
-        [Obsolete("Use AllMemberMaps or DeclaredMemberMaps instead.")]
-        public IEnumerable<BsonMemberMap> MemberMaps
-        {
-            get { return _allMemberMaps; }
-        }
-
         // internal properties
         /// <summary>
         /// Gets the element name to member index trie.
@@ -1099,18 +1090,7 @@ namespace MongoDB.Bson.Serialization
             var memberMap = MapMember(memberInfo);
 
             memberMap.SetElementName(_conventions.ElementNameConvention.GetElementName(memberInfo));
-            bool ignoreIfDefault;
-#pragma warning disable 618 // SerializeDefaultValueConvention is obsolete
-            if (_conventions.SerializeDefaultValueConvention != null)
-            {
-                ignoreIfDefault = !_conventions.SerializeDefaultValueConvention.SerializeDefaultValue(memberInfo);
-            }
-#pragma warning restore 618
-            else
-            {
-                ignoreIfDefault = _conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo);
-            }
-            memberMap.SetIgnoreIfDefault(ignoreIfDefault);
+            memberMap.SetIgnoreIfDefault(_conventions.IgnoreIfDefaultConvention.IgnoreIfDefault(memberInfo));
             memberMap.SetIgnoreIfNull(_conventions.IgnoreIfNullConvention.IgnoreIfNull(memberInfo));
 
             var defaultValue = _conventions.DefaultValueConvention.GetDefaultValue(memberInfo);

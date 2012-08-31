@@ -204,15 +204,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets whether the default value should be serialized.
-        /// </summary>
-        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# Driver. Please use IgnoreIfDefault instead.")]
-        public bool SerializeDefaultValue
-        {
-            get { return !_ignoreIfDefault; }
-        }
-
-        /// <summary>
         /// Gets the method that will be called to determine whether the member should be serialized.
         /// </summary>
         public Func<object, bool> ShouldSerializeMethod
@@ -331,20 +322,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Sets the default value.
-        /// </summary>
-        /// <param name="defaultValue">The default value.</param>
-        /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
-        /// <returns>The member map.</returns>
-        [Obsolete("This overload of SetDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetDefaultValue(defaultValue) and SetIgnoreIfDefault instead.")]
-        public BsonMemberMap SetDefaultValue(object defaultValue, bool serializeDefaultValue)
-        {
-            SetDefaultValue(defaultValue);
-            SetIgnoreIfDefault(!serializeDefaultValue);
-            return this;
-        }
-
-        /// <summary>
         /// Sets the name of the element.
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
@@ -448,18 +425,6 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetSerializer(IBsonSerializer serializer)
         {
             _serializer = serializer;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets whether the default value should be serialized.
-        /// </summary>
-        /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
-        /// <returns>The member map.</returns>
-        [Obsolete("SetSerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefault instead.")]
-        public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
-        {
-            _ignoreIfDefault = !serializeDefaultValue;
             return this;
         }
 

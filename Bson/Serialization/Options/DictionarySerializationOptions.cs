@@ -144,25 +144,6 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public properties
         /// <summary>
-        /// Gets or sets the serialization options for the values in the dictionary.
-        /// </summary>
-        [Obsolete("Use KeyValuePairSerializationOptions instead.")]
-        public IBsonSerializationOptions ItemSerializationOptions
-        {
-            get { return _keyValuePairSerializationOptions.ValueSerializationOptions; }
-            set {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-                _keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
-                    _keyValuePairSerializationOptions.Representation,
-                    _keyValuePairSerializationOptions.KeySerializationOptions,
-                    value);
-            }
-        }
-
-        /// <summary>
         /// Gets the representation to use for a Dictionary.
         /// </summary>
         public DictionaryRepresentation Representation

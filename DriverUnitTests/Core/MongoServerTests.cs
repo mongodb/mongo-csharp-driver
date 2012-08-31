@@ -266,37 +266,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestRequestStartSlaveOk()
-        {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-#pragma warning disable 618
-            using (_server.RequestStart(_database, true))
-            {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-            }
-#pragma warning restore
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-        }
-
-        [Test]
-        public void TestRequestStartSlaveOkNested()
-        {
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-#pragma warning disable 618
-            using (_server.RequestStart(_database, false))
-            {
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-                using (_server.RequestStart(_database, true))
-                {
-                    Assert.AreEqual(2, _server.RequestNestingLevel);
-                }
-                Assert.AreEqual(1, _server.RequestNestingLevel);
-            }
-#pragma warning restore
-            Assert.AreEqual(0, _server.RequestNestingLevel);
-        }
-
-        [Test]
         public void TestSecondaries()
         {
             Assert.IsTrue(_server.Secondaries.Length < _server.Instances.Length);

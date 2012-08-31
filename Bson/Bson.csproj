@@ -140,7 +140,6 @@
     <Compile Include="Serialization\Conventions\DefaultValueConventions.cs" />
     <Compile Include="Serialization\Conventions\DiscriminatorConventions.cs" />
     <Compile Include="Serialization\Conventions\MemberFinderConventions.cs" />
-    <Compile Include="Serialization\Conventions\SerializeDefaultValueConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfNullConventions.cs" />
     <Compile Include="Serialization\Conventions\ElementNameConventions.cs" />
     <Compile Include="Serialization\Conventions\IdMemberConventions.cs" />

@@ -46,9 +46,6 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, url.MaxConnectionPoolSize);
             Assert.AreEqual(null, url.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, url.SafeMode);
-#pragma warning disable 618
-            Assert.AreEqual(false, url.SlaveOk);
-#pragma warning restore
             Assert.AreEqual(MongoDefaults.SocketTimeout, url.SocketTimeout);
             Assert.AreEqual(false, url.UseSsl);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, url.WaitQueueMultiple);
@@ -381,28 +378,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestSlaveOkFalse()
-        {
-            string connectionString = "mongodb://localhost/?slaveOk=false";
-            MongoUrl url = new MongoUrl(connectionString);
-#pragma warning disable 618
-            Assert.AreEqual(false, url.SlaveOk);
-#pragma warning restore
-            Assert.AreEqual(connectionString, url.ToString());
-        }
-
-        [Test]
-        public void TestSlaveOkTrue()
-        {
-            string connectionString = "mongodb://localhost/?slaveOk=true";
-            MongoUrl url = new MongoUrl(connectionString);
-#pragma warning disable 618
-            Assert.AreEqual(true, url.SlaveOk);
-#pragma warning restore
-            Assert.AreEqual(connectionString, url.ToString());
-        }
-
-        [Test]
         public void TestSocketTimeout()
         {
             string connectionString = "mongodb://localhost/?socketTimeout=123ms";
@@ -463,7 +438,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAll()
         {
-            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;slaveOk=true;safe=true;fsync=true;w=2;wtimeout=2s;uuidRepresentation=PythonLegacy";
+            string connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name;readPreference=secondaryPreferred;safe=true;fsync=true;w=2;wtimeout=2s;uuidRepresentation=PythonLegacy";
             MongoUrl url = new MongoUrl(connectionString);
             Assert.IsNull(url.DefaultCredentials);
             Assert.AreEqual(1, url.Servers.Count());
@@ -474,9 +449,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("name", url.ReplicaSetName);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, url.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(true, true, 2, TimeSpan.FromSeconds(2)), url.SafeMode);
-#pragma warning disable 618
-            Assert.AreEqual(true, url.SlaveOk);
-#pragma warning restore
+            Assert.AreEqual(ReadPreferenceMode.SecondaryPreferred, url.ReadPreference.ReadPreferenceMode);
             Assert.AreEqual(connectionString, url.ToString());
         }
 

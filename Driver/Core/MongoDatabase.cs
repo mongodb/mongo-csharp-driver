@@ -81,22 +81,6 @@ namespace MongoDB.Driver
         /// is created for each combination of database settings. Automatically creates an instance
         /// of MongoServer if needed.
         /// </summary>
-        /// <param name="builder">Server and database settings in the form of a MongoConnectionStringBuilder.</param>
-        /// <returns>
-        /// A new or existing instance of MongoDatabase.
-        /// </returns>
-        public static MongoDatabase Create(MongoConnectionStringBuilder builder)
-        {
-            var serverSettings = builder.ToServerSettings();
-            var databaseName = builder.DatabaseName;
-            return Create(serverSettings, databaseName);
-        }
-
-        /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
-        /// </summary>
         /// <param name="serverSettings">The server settings for the server that contains this database.</param>
         /// <param name="databaseName">The name of this database (will be accessed using default settings).</param>
         /// <returns>
@@ -139,16 +123,8 @@ namespace MongoDB.Driver
         /// </returns>
         public static MongoDatabase Create(string connectionString)
         {
-            if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
-            {
-                MongoUrl url = MongoUrl.Create(connectionString);
-                return Create(url);
-            }
-            else
-            {
-                MongoConnectionStringBuilder builder = new MongoConnectionStringBuilder(connectionString);
-                return Create(builder);
-            }
+            MongoUrl url = MongoUrl.Create(connectionString);
+            return Create(url);
         }
 
         /// <summary>
@@ -879,19 +855,6 @@ namespace MongoDB.Driver
         public virtual IDisposable RequestStart()
         {
             return RequestStart(ReadPreference.Primary);
-        }
-
-        /// <summary>
-        /// Lets the server know that this thread is about to begin a series of related operations that must all occur
-        /// on the same connection. The return value of this method implements IDisposable and can be placed in a
-        /// using statement (in which case RequestDone will be called automatically when leaving the using statement).
-        /// </summary>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
-        /// <returns>A helper object that implements IDisposable and calls <see cref="RequestDone"/> from the Dispose method.</returns>
-        [Obsolete("Use the overload of RequestStart that has a ReadPreference parameter instead.")]
-        public virtual IDisposable RequestStart(bool slaveOk)
-        {
-            return _server.RequestStart(this, ReadPreference.FromSlaveOk(slaveOk));
         }
 
         /// <summary>

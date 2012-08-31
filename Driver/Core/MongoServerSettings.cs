@@ -398,23 +398,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether queries should be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-            get
-            {
-                return _readPreference.ToSlaveOk();
-            }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the socket timeout.
         /// </summary>
         public TimeSpan SocketTimeout

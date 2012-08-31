@@ -220,17 +220,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether queries can be sent to secondary servers.
-        /// </summary>
-        [Obsolete("Use ReadPreference instead.")]
-        public bool SlaveOk
-        {
-#pragma warning disable 618
-            get { return _serverSettings.SlaveOk; }
-#pragma warning restore
-        }
-
-        /// <summary>
         /// Gets the socket timeout.
         /// </summary>
         public TimeSpan SocketTimeout
