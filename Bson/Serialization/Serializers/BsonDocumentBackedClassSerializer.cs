@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Bson.Serialization
+namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).

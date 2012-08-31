@@ -24,7 +24,7 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization
+namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for a class map.

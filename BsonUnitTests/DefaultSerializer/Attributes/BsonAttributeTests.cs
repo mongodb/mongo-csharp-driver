@@ -21,7 +21,6 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.BsonUnitTests.Serialization.Attributes
 {

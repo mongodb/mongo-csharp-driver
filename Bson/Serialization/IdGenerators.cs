@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Bson.Serialization.IdGenerators
+namespace MongoDB.Bson.Serialization
 {
     /// <summary>
     /// Represents an Id generator for Guids stored in BsonBinaryData values.

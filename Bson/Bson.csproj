@@ -102,7 +102,7 @@
     <Compile Include="Serialization\Attributes\BsonSerializerAttribute.cs" />
     <Compile Include="Serialization\BsonClassMapSerializationProvider.cs" />
     <Compile Include="Serialization\BsonDocumentBackedClass.cs" />
-    <Compile Include="Serialization\BsonDocumentBackedClassSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonDocumentBackedClassSerializer.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsMemberConventions.cs" />
     <Compile Include="Serialization\Conventions\IgnoreIfDefaultConventions.cs" />
     <Compile Include="Serialization\Conventions\SerializationOptionsConventions.cs" />
@@ -134,7 +134,7 @@
     <Compile Include="IO\JsonToken.cs" />
     <Compile Include="ObjectModel\BsonUndefined.cs" />
     <Compile Include="Serialization\IBsonSerializationOptions.cs" />
-    <Compile Include="Serialization\IdGenerators\IdGenerators.cs" />
+    <Compile Include="Serialization\IdGenerators.cs" />
     <Compile Include="Serialization\Conventions\ConventionProfile.cs" />
     <Compile Include="Serialization\Conventions\IdGeneratorConventions.cs" />
     <Compile Include="Serialization\Conventions\DefaultValueConventions.cs" />
@@ -169,7 +169,7 @@
     <Compile Include="Serialization\Attributes\BsonKnownTypesAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonRequiredAttribute.cs" />
     <Compile Include="Serialization\BsonClassMap.cs" />
-    <Compile Include="Serialization\BsonClassMapSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonClassMapSerializer.cs" />
     <Compile Include="Serialization\BsonMemberMap.cs" />
     <Compile Include="ObjectModel\BsonArray.cs" />
     <Compile Include="IO\BsonBinaryReader.cs" />

@@ -24,7 +24,6 @@ using System.Xml;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace MongoDB.Bson
 {
