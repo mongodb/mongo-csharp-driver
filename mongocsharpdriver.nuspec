@@ -15,12 +15,12 @@
     <language>en-US</language>
   </metadata>
   <files>
-    <file src="Bson\bin\Release\MongoDB.Bson.dll" target="lib\net35" />
-    <file src="Bson\bin\Release\MongoDB.Bson.pdb" target="lib\net35" />
-    <file src="Bson\bin\Release\MongoDB.Bson.xml" target="lib\net35" />
-    <file src="Driver\bin\Release\MongoDB.Driver.dll" target="lib\net35" />
-    <file src="Driver\bin\Release\MongoDB.Driver.pdb" target="lib\net35" />
-    <file src="Driver\bin\Release\MongoDB.Driver.XML" target="lib\net35" />
+    <file src="MongoDB.Bson\bin\Release\MongoDB.Bson.dll" target="lib\net35" />
+    <file src="MongoDB.Bson\bin\Release\MongoDB.Bson.pdb" target="lib\net35" />
+    <file src="MongoDB.Bson\bin\Release\MongoDB.Bson.xml" target="lib\net35" />
+    <file src="MongoDB.Driver\bin\Release\MongoDB.Driver.dll" target="lib\net35" />
+    <file src="MongoDB.Driver\bin\Release\MongoDB.Driver.pdb" target="lib\net35" />
+    <file src="MongoDB.Driver\bin\Release\MongoDB.Driver.XML" target="lib\net35" />
     <file src="Release Notes\Release Notes v1.6.txt" target="" />
     <file src="License.rtf" target ="" />
   </files>

@@ -187,7 +187,7 @@
     <Compile Include="Serialization\IdGeneratorsTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bson\Bson.csproj">
+    <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>Bson</Name>
     </ProjectReference>

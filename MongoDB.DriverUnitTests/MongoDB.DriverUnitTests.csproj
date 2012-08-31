@@ -189,11 +189,11 @@
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bson\Bson.csproj">
+    <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj">
       <Project>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</Project>
       <Name>Bson</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Driver\Driver.csproj">
+    <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
       <Name>Driver</Name>
     </ProjectReference>
