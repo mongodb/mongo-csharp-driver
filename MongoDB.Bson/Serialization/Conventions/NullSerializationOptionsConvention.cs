@@ -16,35 +16,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents a default value convention.
+    /// Represents BSON serialiation options that use default values.
     /// </summary>
-    public interface IDefaultValueConvention
+    public class NullSerializationOptionsConvention : ISerializationOptionsConvention
     {
         /// <summary>
-        /// Gets the default value for a member.
+        /// Gets the BSON serialization options for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>The default value.</returns>
-        object GetDefaultValue(MemberInfo memberInfo);
-    }
-
-    /// <summary>
-    /// Represents a default value convention of null.
-    /// </summary>
-    public class NullDefaultValueConvention : IDefaultValueConvention
-    {
-        /// <summary>
-        /// Gets the default value for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>null.</returns>
-        public object GetDefaultValue(MemberInfo memberInfo)
+        /// <returns>
+        /// The BSON serialization options for the member; or null to use defaults.
+        /// </returns>
+        public IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo)
         {
             return null;
         }

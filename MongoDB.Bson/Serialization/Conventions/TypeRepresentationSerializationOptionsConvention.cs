@@ -22,37 +22,6 @@ using System.Text;
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents a BSON serialization options convention.
-    /// </summary>
-    public interface ISerializationOptionsConvention
-    {
-        /// <summary>
-        /// Gets the BSON serialization options for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>The BSON serialization options for the member; or null to use defaults.</returns>
-        IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo);
-    }
-
-    /// <summary>
-    /// Represents BSON serialiation options that use default values.
-    /// </summary>
-    public class NullSerializationOptionsConvention : ISerializationOptionsConvention
-    {
-        /// <summary>
-        /// Gets the BSON serialization options for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>
-        /// The BSON serialization options for the member; or null to use defaults.
-        /// </returns>
-        public IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo)
-        {
-            return null;   
-        }
-    }
-
-    /// <summary>
     /// Sets serialization options for a member of a given type.
     /// </summary>
     public class TypeRepresentationSerializationOptionsConvention : ISerializationOptionsConvention
@@ -95,5 +64,4 @@ namespace MongoDB.Bson.Serialization.Conventions
             return null;
         }
     }
-
 }

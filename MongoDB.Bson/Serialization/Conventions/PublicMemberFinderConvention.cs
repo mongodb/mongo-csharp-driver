@@ -16,24 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    /// <summary>
-    /// Represents a member finder convention.
-    /// </summary>
-    public interface IMemberFinderConvention
-    {
-        /// <summary>
-        /// Finds the members of a class that are serialized.
-        /// </summary>
-        /// <param name="type">The class.</param>
-        /// <returns>The members that are serialized.</returns>
-        IEnumerable<MemberInfo> FindMembers(Type type);
-    }
-
     /// <summary>
     /// Represents a member finder convention where all public read/write fields and properties are serialized.
     /// </summary>

@@ -16,39 +16,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-
-using MongoDB.Bson.Serialization;
+using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents an Id generator convention.
+    /// Represents a default value convention of null.
     /// </summary>
-    public interface IIdGeneratorConvention
+    public class NullDefaultValueConvention : IDefaultValueConvention
     {
         /// <summary>
-        /// Gets the Id generator for an Id member.
+        /// Gets the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>An Id generator.</returns>
-        IIdGenerator GetIdGenerator(MemberInfo memberInfo);
-    }
-
-    /// <summary>
-    /// Represents an Id generator convention where the Id generator is looked up based on the member type.
-    /// </summary>
-    public class LookupIdGeneratorConvention : IIdGeneratorConvention
-    {
-        /// <summary>
-        /// Gets the Id generator for an Id member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>An Id generator.</returns>
-        public IIdGenerator GetIdGenerator(MemberInfo memberInfo)
+        /// <returns>null.</returns>
+        public object GetDefaultValue(MemberInfo memberInfo)
         {
-            return BsonSerializer.LookupIdGenerator(BsonClassMap.GetMemberInfoType(memberInfo));
+            return null;
         }
     }
 }

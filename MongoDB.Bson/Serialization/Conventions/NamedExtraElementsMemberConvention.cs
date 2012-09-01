@@ -16,24 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    /// <summary>
-    /// Represents an extra elements member convention.
-    /// </summary>
-    public interface IExtraElementsMemberConvention
-    {
-        /// <summary>
-        /// Finds the extra elements member of a class.
-        /// </summary>
-        /// <param name="type">The class.</param>
-        /// <returns>The extra elements member.</returns>
-        string FindExtraElementsMember(Type type);
-    }
-
     /// <summary>
     /// Represents an extra elements member convention where the extra elements member has a certain name.
     /// </summary>

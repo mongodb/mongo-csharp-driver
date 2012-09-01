@@ -16,40 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    /// <summary>
-    /// Represents an ignore if null convention.
-    /// </summary>
-    public interface IIgnoreIfNullConvention
-    {
-        /// <summary>
-        /// Determines whether to ignore nulls for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>Whether to ignore nulls.</returns>
-        bool IgnoreIfNull(MemberInfo memberInfo);
-    }
-
-    /// <summary>
-    /// Represents an ignore if null convention where nulls are never ignored.
-    /// </summary>
-    public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention
-    {
-        /// <summary>
-        /// Determines whether to ignore nulls for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>Whether to ignore nulls.</returns>
-        public bool IgnoreIfNull(MemberInfo memberInfo)
-        {
-            return false;
-        }
-    }
-
     /// <summary>
     /// Represents an ignore if null convention where nulls are always ignored.
     /// </summary>
