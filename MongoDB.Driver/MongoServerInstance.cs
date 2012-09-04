@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
     /// </summary>
-    internal enum MongoServerInstanceType
+    public enum MongoServerInstanceType
     {
         /// <summary>
         /// The server instance type is unknown.  This is the default.
@@ -126,7 +126,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the instance type.
         /// </summary>
-        internal MongoServerInstanceType InstanceType
+        public MongoServerInstanceType InstanceType
         {
             get
             {
