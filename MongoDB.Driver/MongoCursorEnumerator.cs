@@ -364,8 +364,8 @@ namespace MongoDB.Driver
                 var query = (_cursor.Query == null) ? (BsonValue)new BsonDocument() : BsonDocumentWrapper.Create(_cursor.Query);
                 var wrappedQuery = new QueryDocument
                 {
+                    { "$query", query },
                     { "$readPreference", formattedReadPreference, formattedReadPreference != null }, // only if sending query to a mongos
-                    { "$query", query }
                 };
                 wrappedQuery.Merge(_cursor.Options);
                 return wrappedQuery;
