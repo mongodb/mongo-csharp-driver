@@ -3,14 +3,14 @@
 	<Product Id="184bee72-2f1b-4800-9d48-1f3dc3c5a607" 
            Name="!(wix.ProductName)" 
            Language="1033" 
-           Version="$(var.DriverVersion)" 
+           Version="$(var.Version)" 
            Manufacturer="10gen Inc." 
            UpgradeCode="8fcd3593-c858-4a8d-8f8e-031b50530e95">
     
 		<Package InstallerVersion="200" Compressed="yes" />
 
-    <WixVariable Id="ProductShortName" Value="CSharpDriver $(var.DriverVersion)" />
-    <WixVariable Id="ProductName" Value="MongoDB CSharpDriver $(var.DriverVersion)" />
+    <WixVariable Id="ProductShortName" Value="CSharpDriver $(var.SemVersion)" />
+    <WixVariable Id="ProductName" Value="MongoDB CSharpDriver $(var.SemVersion)" />
 
 		<Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
@@ -20,7 +20,7 @@
     <WixVariable Id="WixUIExclamationIco" Value="Installer_Icon_32x32.ico" />
     <WixVariable Id="WixUINewIco" Value="Installer_Icon_16x16.ico" />
     <WixVariable Id="WixUIUpIco" Value="Installer_Icon_16x16.ico" />
-    <WixVariable Id="WixUILicenseRtf" Value="$(var.SourceBase)\License.rtf" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.SourceBase)\$(var.License)" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
@@ -39,8 +39,8 @@
       <Component Id="c_ReleaseNotesShortCut" Guid="0D00A9A7-03C4-466F-A3B8-C1CC8456ACC6">
         <Shortcut Id="f_ReleaseNotesShortCut" 
                   Name="Release Notes" 
-                  Description="Release notes for MongoDB C#/.Net Driver"
-                  Target="[INSTALLDIR]$(var.ReleaseNotes).txt"
+                  Description="Release notes for MongoDB CSharp Driver"
+                  Target="[INSTALLDIR]ReleaseNotes.txt"
                   WorkingDirectory="INSTALLDIR"
                   Directory="CSharpDriverProgramsFolder"/>
         <RemoveFolder Id="r_CSharpDriverProgramsFolder" Directory="CSharpDriverProgramsFolder" On="uninstall" />
@@ -51,7 +51,7 @@
         <Shortcut Id="f_HelpShortCut"
                   Name="Help"
                   Description="Help for !(WixProductName)"
-                  Target="[INSTALLDIR]CSharpDriverDocs.chm"
+                  Target="[INSTALLDIR]Documentation.chm"
                   WorkingDirectory="INSTALLDIR"/>
         <RegistryValue Root="HKCU" Key="Software\MongoDB" Name="helpinstalled" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
@@ -59,86 +59,46 @@
 
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="c_License" Guid="7901999A-6026-4321-8584-ECB67D424221">
-        <File Id="f_License" Name="License.rtf" Source="$(var.SourceBase)\License.rtf"
+        <File Id="f_License" Name="License.rtf" Source="$(var.SourceBase)\$(var.License)"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_ReleaseNotes" Guid="115F1B08-8A38-435A-BBB0-0C0DED5ACB31">
-        <File Id="f_ReleaseNotes" Name="$(var.ReleaseNotes).txt" Source="$(var.SourceBase)\Release Notes\$(var.ReleaseNotes).md"
+        <File Id="f_ReleaseNotes" Name="ReleaseNotes.txt" Source="$(var.SourceBase)\$(var.ReleaseNotes)"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_Help" Guid="CC3F9A2F-1C43-48CA-B998-D03C15181DD3">
-        <File Id="f_Help" Name="CSharpDriverDocs.chm" Source="$(var.SourceBase)\Help\CSharpDriverDocs.chm"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_BsonDll" Guid="13DA8DD9-1AD1-46BF-971A-78FA499F281D">
-        <File Id="f_BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.dll"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_BsonPdb" Guid="AC6CE1A0-1584-42E6-B9FB-765F34A44745">
-        <File Id="f_BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.pdb"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_BsonXml" Guid="ED71DBCD-5A02-4AC0-88E4-C793F5FBEDA8">
-        <File Id="f_BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.XML"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_DriverDll" Guid="0A94BBE0-6281-422D-BEE2-5831B06F2D55">
-        <File Id="f_DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.dll"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_DriverPdb" Guid="C580837A-9EE9-4C86-97EE-0A8DCBB4794E">
-        <File Id="f_DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.pdb"
-              DiskId ="1" KeyPath="yes" />
-      </Component>
-      <Component Id="c_DriverXml" Guid="9EBD61C3-5365-416F-B345-517B053D9784">
-        <File Id="f_DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.XML"
+        <File Id="f_Help" Name="Help.chm" Source="$(var.SourceBase)\$(var.Documentation)"
               DiskId ="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
-    <ComponentGroup Id="cg_Bson">
-      <ComponentRef Id="c_BsonDll"/>
-      <ComponentRef Id="c_BsonPdb"/>
-      <ComponentRef Id="c_BsonXml"/>
+    <ComponentGroup Id="cg_Required">
+      <ComponentRef Id="c_License"/>
+      <ComponentRef Id="c_ReleaseNotes"/>
+      <ComponentRef Id="c_ReleaseNotesShortCut"/>
     </ComponentGroup>
 
-    <ComponentGroup Id="cg_Driver">
-      <ComponentGroupRef Id="cg_Bson"/>
-      <ComponentRef Id="c_DriverDll"/>
-      <ComponentRef Id="c_DriverPdb"/>
-      <ComponentRef Id="c_DriverXml"/>
+    <ComponentGroup Id="cg_Help">
+      <ComponentRef Id="c_Help"/>
+      <ComponentRef Id="c_HelpShortCut"/>
     </ComponentGroup>
 
 		<Feature Id="ProductFeature" 
              Title="!(wix.ProductName)" 
              Description="!(wix.ProductName)" 
              Level="1"
-             ConfigurableDirectory="INSTALLDIR">
-      <ComponentRef Id="c_License"/>
-      <ComponentRef Id="c_ReleaseNotes"/>
-      <ComponentRef Id="c_ReleaseNotesShortCut"/>
-      <Feature Id="Bson"
-               Title ="Bson Library"
-               Description="The Bson Library"
-               Level ="1">
-        <ComponentGroupRef Id="cg_Bson"/>
-      </Feature>
-      <Feature Id="Driver"
-               Title ="Driver Library"
-               Description="The Bson Library"
-               Level ="1">
-        <ComponentGroupRef Id="cg_Driver"/>
-      </Feature>
+             Display="expand"
+             ConfigurableDirectory="INSTALLDIR"
+             AllowAdvertise="no">
+      <ComponentGroupRef Id="cg_Required"/>
+      <FeatureRef Id="FrameworksFeature" />
       <Feature Id="Help"
                Title ="Driver Help"
                Description="The driver help file"
-               Level ="1">
-        <ComponentRef Id="c_Help"/>
-        <ComponentRef Id="c_HelpShortCut"/>
+               Level ="1"
+               AllowAdvertise="no">
+        <ComponentGroupRef Id="cg_Help"/>
       </Feature>
-			
-			<!-- Note: The following ComponentGroupRef is required to pull in generated authoring from project references. -->
-			<ComponentGroupRef Id="Product.Generated" />
 		</Feature>
 
     <UIRef Id="WixUI_Mondo" />

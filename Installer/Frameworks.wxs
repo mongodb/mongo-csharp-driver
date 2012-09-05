@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="INSTALLDIR">
+      <Directory Id="net35Folder" Name="net35" />
+      <Directory Id="net40Folder" Name="net40" />
+    </DirectoryRef>
+
+    <DirectoryRef Id="net35Folder">
+      <Component Id="c_net35BsonDll" Guid="13DA8DD9-1AD1-46BF-971A-78FA499F281D">
+        <File Id="f_net35BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.dll"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net35BsonPdb" Guid="AC6CE1A0-1584-42E6-B9FB-765F34A44745">
+        <File Id="f_net35BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.pdb"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net35BsonXml" Guid="ED71DBCD-5A02-4AC0-88E4-C793F5FBEDA8">
+        <File Id="f_net35BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.XML"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net35DriverDll" Guid="0A94BBE0-6281-422D-BEE2-5831B06F2D55">
+        <File Id="f_net35DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.dll"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net35DriverPdb" Guid="C580837A-9EE9-4C86-97EE-0A8DCBB4794E">
+        <File Id="f_net35DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.pdb"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net35DriverXml" Guid="9EBD61C3-5365-416F-B345-517B053D9784">
+        <File Id="f_net35DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.XML"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <ComponentGroup Id="cg_net35">
+      <ComponentRef Id="c_net35BsonDll"/>
+      <ComponentRef Id="c_net35BsonPdb"/>
+      <ComponentRef Id="c_net35BsonXml"/>
+      <ComponentRef Id="c_net35DriverDll"/>
+      <ComponentRef Id="c_net35DriverPdb"/>
+      <ComponentRef Id="c_net35DriverXml"/>
+    </ComponentGroup>
+
+    <DirectoryRef Id="net40Folder">
+      <Component Id="c_net40BsonDll" Guid="ec7c163e-dfd7-4063-ba49-e91dcde34126">
+        <File Id="f_net40BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Bson.dll"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net40BsonPdb" Guid="26d1d6d9-13d7-435b-912b-efa23c562b8f">
+        <File Id="f_net40BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Bson.pdb"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net40BsonXml" Guid="8a703382-523e-4c5d-b84e-829ce17e74a8">
+        <File Id="f_net40BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Bson.XML"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net40DriverDll" Guid="05ed77f8-c1b9-49eb-a893-0144c2128593">
+        <File Id="f_net40DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Driver.dll"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net40DriverPdb" Guid="3f6d49e7-9f1f-4a2c-9512-a7fc8abfaf8c">
+        <File Id="f_net40DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Driver.pdb"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+      <Component Id="c_net40DriverXml" Guid="36054a9a-35cc-4f42-b52d-e46eec2965c4">
+        <File Id="f_net40DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\artifacts\net40\build\MongoDB.Driver.XML"
+              DiskId ="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <ComponentGroup Id="cg_net40">
+      <ComponentRef Id="c_net40BsonDll"/>
+      <ComponentRef Id="c_net40BsonPdb"/>
+      <ComponentRef Id="c_net40BsonXml"/>
+      <ComponentRef Id="c_net40DriverDll"/>
+      <ComponentRef Id="c_net40DriverPdb"/>
+      <ComponentRef Id="c_net40DriverXml"/>
+    </ComponentGroup>
+
+    <Feature Id="FrameworksFeature"
+             Title ="Frameworks"
+             Description="The supported frameworks."
+             Level ="1"
+             AllowAdvertise="no">
+      <Feature Id="net35Feature"
+               Title =".NET 3.5"
+               Description="Install support for .NET 3.5."
+               Level ="1"
+               AllowAdvertise="no">
+        <ComponentGroupRef Id="cg_net35" />
+      </Feature>
+      <Feature Id="net40Feature"
+               Title =".NET 4.0"
+               Description="Install support for .NET 4.0."
+               Level ="1"
+               AllowAdvertise="no">
+        <ComponentGroupRef Id="cg_net40" />
+      </Feature>
+    </Feature>
+  </Fragment>
+</Wix>

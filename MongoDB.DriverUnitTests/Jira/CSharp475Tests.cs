@@ -42,7 +42,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp475
         [Test]
         public void ProjectAfterOfTypeTest()
         {
-            var server = MongoServer.Create();
+            var server = Configuration.TestServer;
             var db = server.GetDatabase("csharp475");
             var collection = db.GetCollection<Base>("ProjectTest");
             collection.Drop();

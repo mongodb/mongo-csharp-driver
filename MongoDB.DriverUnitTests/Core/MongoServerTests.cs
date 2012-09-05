@@ -218,13 +218,21 @@ namespace MongoDB.DriverUnitTests
         public void TestReconnect()
         {
             _server.Reconnect();
-            Assert.AreEqual(MongoServerState.Connected, _server.State);
+            Assert.That(_server.State == MongoServerState.Connecting || _server.State == MongoServerState.Connected, "expected state to be Connecting or Connected.");
         }
 
         [Test]
         public void TestReplicaSetName()
         {
-            Assert.IsNull(_server.ReplicaSetName);
+            var instances = _server.Instances;
+            if (instances.Length == 1)
+            {
+                Assert.IsNull(_server.ReplicaSetName);
+            }
+            else
+            {
+                Assert.IsNotNull(_server.ReplicaSetName);
+            }
         }
 
         [Test]

@@ -37,7 +37,8 @@ namespace MongoDB.DriverUnitTests
         // static constructor
         static Configuration()
         {
-            var connectionString = "mongodb://localhost/?safe=true"; // TODO: make this configurable
+            var connectionString = Environment.GetEnvironmentVariable("CSharpDriverTestsConnectionString")
+                ?? "mongodb://localhost/?safe=true";
 
             var mongoUrlBuilder = new MongoUrlBuilder(connectionString);
             var serverSettings = mongoUrlBuilder.ToServerSettings();
