@@ -54,5 +54,15 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
             Assert.AreEqual("_DumbName", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
             Assert.AreEqual("lowerCase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
         }
+
+        [Test]
+        public void TestLowerCaseElementNameConvention()
+        {
+            var convention = new LowerCaseElementNameConvention();
+            Assert.AreEqual("firstname", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
+            Assert.AreEqual("age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
+            Assert.AreEqual("_dumbname", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
+            Assert.AreEqual("lowercase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
+        }
     }
 }
