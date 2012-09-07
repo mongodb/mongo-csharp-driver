@@ -1,5 +1,13 @@
 ## MongoDB C# Driver
 
+> This "x2.0" branch is an experimental branch where we are beginning work
+> on the 2.0 version of the C# driver. We expect this branch to be quite
+> volatile for awhile, so we don't recommend you use it much except as
+> a way to track what's changing in 2.0.
+>
+> Eventually as this work stabilizes it will be merged with master and
+> then further work will continue on master.
+
 documentation: http://www.mongodb.org/display/DOCS/CSharp+Language+Center
 apidoc: http://api.mongodb.org/csharp/
 
