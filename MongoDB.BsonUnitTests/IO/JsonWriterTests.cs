@@ -503,7 +503,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "symbol", BsonSymbol.Create("name") }
+                { "symbol", BsonSymbolTable.Lookup("name") }
             };
             string expected = "{ \"symbol\" : { \"$symbol\" : \"name\" } }";
             string actual = document.ToJson();

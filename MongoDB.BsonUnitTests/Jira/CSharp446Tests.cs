@@ -45,7 +45,7 @@ namespace MongoDB.BsonUnitTests.Jira
         public void TestSetDocumentIdBsonValue()
         {
             var document = new BsonDocument { { "x", "abc" } };
-            var id = BsonInt32.Create(1);
+            var id = new BsonInt32(1);
             ((IBsonSerializable)document).SetDocumentId(id);
             Assert.IsTrue(document["_id"].IsInt32);
             Assert.AreEqual(1, document["_id"].AsInt32);

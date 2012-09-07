@@ -58,7 +58,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol.</returns>
         public static implicit operator BsonSymbol(string name)
         {
-            return BsonSymbol.Create(name);
+            return BsonSymbolTable.Lookup(name);
         }
 
         /// <summary>
@@ -93,16 +93,6 @@ namespace MongoDB.Bson
         public new static BsonSymbol Create(object value)
         {
             return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonSymbol class.
-        /// </summary>
-        /// <param name="name">A string.</param>
-        /// <returns>A BsonSymbol.</returns>
-        public static BsonSymbol Create(string name)
-        {
-            return BsonSymbolTable.Lookup(name);
         }
 
         // public methods

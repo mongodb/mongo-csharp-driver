@@ -800,7 +800,7 @@ namespace MongoDB.Driver.GridFS
                         {
                             { "_id", BsonObjectId.GenerateNewId() },
                             { "files_id", files_id },
-                            { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : new BsonInt64(n) },
+                            { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
                             { "data", new BsonBinaryData(data) }
                         };
                         _chunks.Insert(chunk, _settings.SafeMode);

@@ -73,7 +73,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonBoolean()
         {
-            var value = BsonBoolean.Create(true);
+            var value = BsonBoolean.True;
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(1, Convert.ToByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));
@@ -158,7 +158,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonInt32()
         {
-            var value = BsonInt32.Create(1);
+            var value = new BsonInt32(1);
             Assert.AreEqual(true, Convert.ToBoolean(value));
             Assert.AreEqual(1, Convert.ToByte(value));
             Assert.AreEqual(1, Convert.ToChar(value));
@@ -373,7 +373,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonSymbol()
         {
-            var value = BsonSymbol.Create("name");
+            var value = BsonSymbolTable.Lookup("name");
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));

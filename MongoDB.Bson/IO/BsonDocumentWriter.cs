@@ -442,7 +442,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteSymbol", BsonWriterState.Value);
             }
 
-            WriteValue(BsonSymbol.Create(value));
+            WriteValue(BsonSymbolTable.Lookup(value));
             State = GetNextState();
         }
 

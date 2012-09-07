@@ -579,7 +579,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(bool value)
         {
-            return BsonBoolean.Create(value);
+            return value ? BsonBoolean.True : BsonBoolean.False;
         }
 
         /// <summary>
@@ -589,7 +589,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(bool? value)
         {
-            return value.HasValue ? (BsonValue)BsonBoolean.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)(value.Value ? BsonBoolean.True : BsonBoolean.False) : BsonNull.Value;
         }
 
         /// <summary>
@@ -679,7 +679,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(int value)
         {
-            return BsonInt32.Create(value);
+            return new BsonInt32(value);
         }
 
         /// <summary>
@@ -689,7 +689,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(int? value)
         {
-            return value.HasValue ? (BsonValue)BsonInt32.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonInt32(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -1057,7 +1057,7 @@ namespace MongoDB.Bson
             }
             else if (value is int)
             {
-                return BsonInt32.Create((int)value);
+                return new BsonInt32((int)value);
             }
             else if (value is string)
             {
@@ -1065,7 +1065,7 @@ namespace MongoDB.Bson
             }
             else if (value is bool)
             {
-                return BsonBoolean.Create((bool)value);
+                return (BsonBoolean)((bool)value);
             }
             else if (value is DateTime)
             {
@@ -1104,7 +1104,7 @@ namespace MongoDB.Bson
                     bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
                     return new BsonBinaryData(bytes, subType, guidRepresentation);
                 case BsonType.Boolean:
-                    return BsonBoolean.Create(bsonReader.ReadBoolean());
+                    return (BsonBoolean)(bsonReader.ReadBoolean());
                 case BsonType.DateTime:
                     return new BsonDateTime(bsonReader.ReadDateTime());
                 case BsonType.Document:
@@ -1112,7 +1112,7 @@ namespace MongoDB.Bson
                 case BsonType.Double:
                     return new BsonDouble(bsonReader.ReadDouble());
                 case BsonType.Int32:
-                    return BsonInt32.Create(bsonReader.ReadInt32());
+                    return new BsonInt32(bsonReader.ReadInt32());
                 case BsonType.Int64:
                     return new BsonInt64(bsonReader.ReadInt64());
                 case BsonType.JavaScript:
@@ -1145,7 +1145,7 @@ namespace MongoDB.Bson
                 case BsonType.String:
                     return new BsonString(bsonReader.ReadString());
                 case BsonType.Symbol:
-                    return BsonSymbol.Create(bsonReader.ReadSymbol());
+                    return BsonSymbolTable.Lookup(bsonReader.ReadSymbol());
                 case BsonType.Timestamp:
                     return new BsonTimestamp(bsonReader.ReadTimestamp());
                 case BsonType.Undefined:

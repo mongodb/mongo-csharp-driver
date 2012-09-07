@@ -27,23 +27,8 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
     {
-        // private static fields
-        private static int __firstInstance = -10;
-        private static int __lastInstance = 100;
-        private static BsonInt32[] __instances;
-
         // private fields
         private int _value;
-
-        // static constructor
-        static BsonInt32()
-        {
-            __instances = new BsonInt32[__lastInstance - __firstInstance + 1];
-            for (int i = 0; i < __instances.Length; i++)
-            {
-                __instances[i] = new BsonInt32(__firstInstance + i);
-            }
-        }
 
         // constructors
         /// <summary>
@@ -54,47 +39,6 @@ namespace MongoDB.Bson
             : base(BsonType.Int32)
         {
             _value = value;
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents -1.
-        /// </summary>
-        public static BsonInt32 MinusOne
-        {
-            get { return BsonInt32.Create(-1); }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents -0.
-        /// </summary>
-        public static BsonInt32 Zero
-        {
-            get { return BsonInt32.Create(0); }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 1.
-        /// </summary>
-        public static BsonInt32 One
-        {
-            get { return BsonInt32.Create(1); }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 2.
-        /// </summary>
-        public static BsonInt32 Two
-        {
-            get { return BsonInt32.Create(2); }
-        }
-
-        /// <summary>
-        /// Gets an instance of BsonInt32 that represents 3.
-        /// </summary>
-        public static BsonInt32 Three
-        {
-            get { return BsonInt32.Create(3); }
         }
 
         // public properties
@@ -122,7 +66,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt32.</returns>
         public static implicit operator BsonInt32(int value)
         {
-            return BsonInt32.Create(value);
+            return new BsonInt32(value);
         }
 
         /// <summary>
@@ -149,23 +93,6 @@ namespace MongoDB.Bson
         }
 
         // public static methods
-        /// <summary>
-        /// Creates a new instance of the BsonInt32 class.
-        /// </summary>
-        /// <param name="value">An int.</param>
-        /// <returns>A BsonInt32.</returns>
-        public static BsonInt32 Create(int value)
-        {
-            if (value >= __firstInstance && value <= __lastInstance)
-            {
-                return __instances[value - __firstInstance];
-            }
-            else
-            {
-                return new BsonInt32(value);
-            }
-        }
-
         /// <summary>
         /// Creates a new BsonInt32.
         /// </summary>

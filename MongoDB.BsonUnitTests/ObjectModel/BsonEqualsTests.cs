@@ -116,8 +116,8 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonSymbolEquals()
         {
-            BsonSymbol lhs = BsonSymbol.Create("name");
-            BsonSymbol rhs = BsonSymbol.Create("name");
+            BsonSymbol lhs = BsonSymbolTable.Lookup("name");
+            BsonSymbol rhs = BsonSymbolTable.Lookup("name");
             Assert.AreSame(lhs, rhs);
             Assert.AreEqual(lhs, rhs);
             Assert.AreEqual(lhs.GetHashCode(), rhs.GetHashCode());

@@ -143,7 +143,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestAsBsonSymbol()
         {
-            BsonValue v = BsonSymbol.Create("name");
+            BsonValue v = BsonSymbolTable.Lookup("name");
             BsonValue s = "";
             var sym = v.AsBsonSymbol;
             Assert.AreEqual("name", sym.Name);

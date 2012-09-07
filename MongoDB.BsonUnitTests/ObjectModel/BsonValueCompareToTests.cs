@@ -33,7 +33,7 @@ namespace MongoDB.BsonUnitTests
             {
                 BsonMinKey.Value,
                 BsonNull.Value,
-                BsonInt32.Zero,
+                new BsonInt32(0),
                 BsonString.Empty,
                 new BsonDocument(),
                 new BsonArray(),

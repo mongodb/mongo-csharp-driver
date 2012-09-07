@@ -982,7 +982,7 @@ namespace MongoDB.BsonUnitTests
                 { "MinKey", BsonMinKey.Value },
                 { "Null", BsonNull.Value },
                 { "RegularExpression", new BsonRegularExpression("abc") },
-                { "Symbol", BsonSymbol.Create("name") },
+                { "Symbol", BsonSymbolTable.Lookup("name") },
                 { "Timestamp", new BsonTimestamp(123L) },
                 { "Undefined", BsonUndefined.Value },
             };
@@ -1164,7 +1164,7 @@ namespace MongoDB.BsonUnitTests
                 { "MinKey", BsonMinKey.Value },
                 { "Null", BsonNull.Value },
                 { "RegularExpression", new BsonRegularExpression("abc") },
-                { "Symbol", BsonSymbol.Create("name") },
+                { "Symbol", BsonSymbolTable.Lookup("name") },
                 { "Timestamp", new BsonTimestamp(123L) },
                 { "Undefined", BsonUndefined.Value },
             };

@@ -284,7 +284,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonBoolean.Create(value));
+                Add((BsonBoolean)value);
             }
             return this;
         }
@@ -356,7 +356,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonInt32.Create(value));
+                Add(new BsonInt32(value));
             }
             return this;
         }

@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return BsonInt32.Create((int)Int32Serializer.Instance.Deserialize(bsonReader, typeof(int), options));
+                return new BsonInt32((int)Int32Serializer.Instance.Deserialize(bsonReader, typeof(int), options));
             }
         }
 

@@ -242,7 +242,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             }
 
             var fileInfo = _gridFS.FindOne("test");
-            Assert.AreEqual(BsonInt32.Create(1), fileInfo.Id);
+            Assert.AreEqual(new BsonInt32(1), fileInfo.Id);
         }
 
         [Test]

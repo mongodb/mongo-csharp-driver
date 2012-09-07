@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return BsonBoolean.Create((bool)BooleanSerializer.Instance.Deserialize(bsonReader, typeof(bool), options));
+                return (BsonBoolean)((bool)BooleanSerializer.Instance.Deserialize(bsonReader, typeof(bool), options));
             }
         }
 
