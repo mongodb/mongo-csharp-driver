@@ -130,7 +130,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(Regex value)
         {
-            return BsonRegularExpression.Create(value);
+            return new BsonRegularExpression(value);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(string value)
         {
-            return BsonRegularExpression.Create(value);
+            return new BsonRegularExpression(value);
         }
 
         /// <summary>
@@ -175,37 +175,6 @@ namespace MongoDB.Bson
         public new static BsonRegularExpression Create(object value)
         {
             return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="regex">A Regex.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(Regex regex)
-        {
-            return new BsonRegularExpression(regex);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(string pattern)
-        {
-            return new BsonRegularExpression(pattern);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">Regular expression options.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        public static BsonRegularExpression Create(string pattern, string options)
-        {
-            return new BsonRegularExpression(pattern, options);
         }
 
         // public methods

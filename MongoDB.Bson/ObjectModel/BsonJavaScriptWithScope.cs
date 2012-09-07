@@ -89,17 +89,6 @@ namespace MongoDB.Bson
             return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
         }
 
-        /// <summary>
-        /// Creates a new instance of the BsonJavaScript class.
-        /// </summary>
-        /// <param name="code">A string containing JavaScript code.</param>
-        /// <param name="scope">A scope (a set of variable with values).</param>
-        /// <returns>A BsonJavaScript.</returns>
-        public static BsonJavaScriptWithScope Create(string code, BsonDocument scope)
-        {
-            return new BsonJavaScriptWithScope(code, scope);
-        }
-
         // public methods
         /// <summary>
         /// Creates a shallow clone of the BsonJavaScriptWithScope (see also DeepClone).

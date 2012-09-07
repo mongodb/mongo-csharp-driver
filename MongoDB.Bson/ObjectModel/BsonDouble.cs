@@ -97,16 +97,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Creates a new instance of the BsonDouble class.
         /// </summary>
-        /// <param name="value">A double.</param>
-        /// <returns>A BsonDouble.</returns>
-        public static BsonDouble Create(double value)
-        {
-            return new BsonDouble(value);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonDouble class.
-        /// </summary>
         /// <param name="value">An object to be mapped to a BsonDouble.</param>
         /// <returns>A BsonDouble.</returns>
         public new static BsonDouble Create(object value)

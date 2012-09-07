@@ -599,7 +599,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(byte[] value)
         {
-            return (value != null) ? (BsonValue)BsonBinaryData.Create(value) : BsonNull.Value;
+            return (value != null) ? (BsonValue)new BsonBinaryData(value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -619,7 +619,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(DateTime? value)
         {
-            return value.HasValue ? (BsonValue)BsonDateTime.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonDateTime(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -639,7 +639,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(double? value)
         {
-            return value.HasValue ? (BsonValue)BsonDouble.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonDouble(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -659,7 +659,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(Guid value)
         {
-            return BsonBinaryData.Create(value);
+            return new BsonBinaryData(value);
         }
 
         /// <summary>
@@ -669,7 +669,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(Guid? value)
         {
-            return value.HasValue ? (BsonValue)BsonBinaryData.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonBinaryData(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -709,7 +709,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(long? value)
         {
-            return value.HasValue ? (BsonValue)BsonInt64.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonInt64(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -729,7 +729,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(ObjectId? value)
         {
-            return value.HasValue ? (BsonValue)BsonObjectId.Create(value.Value) : BsonNull.Value;
+            return value.HasValue ? (BsonValue)new BsonObjectId(value.Value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -739,7 +739,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(Regex value)
         {
-            return (value != null) ? (BsonValue)BsonRegularExpression.Create(value) : BsonNull.Value;
+            return (value != null) ? (BsonValue)new BsonRegularExpression(value) : BsonNull.Value;
         }
 
         /// <summary>
@@ -749,7 +749,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonValue.</returns>
         public static implicit operator BsonValue(string value)
         {
-            return (value != null) ? (BsonValue)BsonString.Create(value) : BsonNull.Value;
+            return (value != null) ? (BsonValue)new BsonString(value) : BsonNull.Value;
         }
 
         /// <summary>

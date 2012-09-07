@@ -100,16 +100,6 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScript.</returns>
         public static implicit operator BsonJavaScript(string code)
         {
-            return BsonJavaScript.Create(code);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonJavaScript class.
-        /// </summary>
-        /// <param name="code">A string containing JavaScript code.</param>
-        /// <returns>A BsonJavaScript.</returns>
-        public static BsonJavaScript Create(string code)
-        {
             return new BsonJavaScript(code);
         }
 

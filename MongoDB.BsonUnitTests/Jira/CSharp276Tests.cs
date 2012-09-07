@@ -43,7 +43,7 @@ namespace MongoDB.BsonUnitTests.Jira
         public void TestCreateWithNonGenericIEnumerable()
         {
             IEnumerable values = new object[] { 1, "a" };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.AreEqual(BsonType.Int32, array[0].BsonType);
             Assert.AreEqual(BsonType.String, array[1].BsonType);

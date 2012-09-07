@@ -239,7 +239,7 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.AreEqual(new BsonRegularExpression("abc"), c.X["XRegularExpression"]);
             Assert.AreEqual("abc", c.X["XString"]);
             Assert.AreSame(BsonSymbol.Create("abc"), c.X["XSymbol"]);
-            Assert.AreEqual(BsonTimestamp.Create(1234), c.X["XTimestamp"]);
+            Assert.AreEqual(new BsonTimestamp(1234), c.X["XTimestamp"]);
             Assert.AreSame(BsonUndefined.Value, c.X["XUndefined"]);
         }
     }

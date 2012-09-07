@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.DateTime:
                     // use an intermediate BsonDateTime so MinValue and MaxValue are handled correctly
-                    value = BsonDateTime.Create(bsonReader.ReadDateTime()).Value;
+                    value = new BsonDateTime(bsonReader.ReadDateTime()).Value;
                     break;
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();

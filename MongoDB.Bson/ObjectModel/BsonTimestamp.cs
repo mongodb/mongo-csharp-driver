@@ -103,27 +103,6 @@ namespace MongoDB.Bson
 
         // public static methods
         /// <summary>
-        /// Creates a new instance of the BsonTimestamp class.
-        /// </summary>
-        /// <param name="value">The combined timestamp/increment value.</param>
-        /// <returns>A BsonTimestamp.</returns>
-        public static BsonTimestamp Create(long value)
-        {
-            return new BsonTimestamp(value);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonTimestamp class.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="increment">The increment.</param>
-        /// <returns>A BsonTimestamp.</returns>
-        public static BsonTimestamp Create(int timestamp, int increment)
-        {
-            return new BsonTimestamp(timestamp, increment);
-        }
-
-        /// <summary>
         /// Creates a new BsonTimestamp.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonTimestamp.</param>

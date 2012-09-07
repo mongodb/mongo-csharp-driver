@@ -173,7 +173,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonBinaryData.</returns>
         public static implicit operator BsonBinaryData(byte[] bytes)
         {
-            return BsonBinaryData.Create(bytes);
+            return new BsonBinaryData(bytes);
         }
 
         /// <summary>
@@ -210,63 +210,6 @@ namespace MongoDB.Bson
         }
 
         // public static methods
-        /// <summary>
-        /// Creates a new BsonBinaryData.
-        /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <returns>A BsonBinaryData or null.</returns>
-        public static BsonBinaryData Create(byte[] bytes)
-        {
-            return Create(bytes, BsonBinarySubType.Binary);
-        }
-
-        /// <summary>
-        /// Creates a new BsonBinaryData.
-        /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <returns>A BsonBinaryData or null.</returns>
-        public static BsonBinaryData Create(byte[] bytes, BsonBinarySubType subType)
-        {
-            return new BsonBinaryData(bytes, subType);
-        }
-
-        /// <summary>
-        /// Creates a new BsonBinaryData.
-        /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <returns>A BsonBinaryData or null.</returns>
-        public static BsonBinaryData Create(
-            byte[] bytes,
-            BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation)
-        {
-            return new BsonBinaryData(bytes, subType, guidRepresentation);
-        }
-
-        /// <summary>
-        /// Creates a new BsonBinaryData.
-        /// </summary>
-        /// <param name="guid">A Guid.</param>
-        /// <returns>A BsonBinaryData.</returns>
-        public static BsonBinaryData Create(Guid guid)
-        {
-            return new BsonBinaryData(guid);
-        }
-
-        /// <summary>
-        /// Creates a new BsonBinaryData.
-        /// </summary>
-        /// <param name="guid">A Guid.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <returns>A BsonBinaryData.</returns>
-        public static BsonBinaryData Create(Guid guid, GuidRepresentation guidRepresentation)
-        {
-            return new BsonBinaryData(guid, guidRepresentation);
-        }
-
         /// <summary>
         /// Creates a new BsonBinaryData.
         /// </summary>

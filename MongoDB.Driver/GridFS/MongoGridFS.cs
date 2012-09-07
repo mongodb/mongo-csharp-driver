@@ -699,7 +699,7 @@ namespace MongoDB.Driver.GridFS
         public void SetAliases(MongoGridFSFileInfo fileInfo, string[] aliases)
         {
             var query = Query.EQ("_id", fileInfo.Id);
-            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
+            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", new BsonArray(aliases));
             _files.Update(query, update, _settings.SafeMode);
         }
 
@@ -800,7 +800,7 @@ namespace MongoDB.Driver.GridFS
                         {
                             { "_id", BsonObjectId.GenerateNewId() },
                             { "files_id", files_id },
-                            { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
+                            { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : new BsonInt64(n) },
                             { "data", new BsonBinaryData(data) }
                         };
                         _chunks.Insert(chunk, _settings.SafeMode);
@@ -841,7 +841,7 @@ namespace MongoDB.Driver.GridFS
                 }
 
                 var uploadDate = (createOptions.UploadDate == DateTime.MinValue) ? DateTime.UtcNow : createOptions.UploadDate;
-                var aliases = (createOptions.Aliases != null) ? BsonArray.Create(createOptions.Aliases) : null;
+                var aliases = (createOptions.Aliases != null) ? new BsonArray(createOptions.Aliases) : null;
                 BsonDocument fileInfo = new BsonDocument
                 {
                     { "_id", files_id },

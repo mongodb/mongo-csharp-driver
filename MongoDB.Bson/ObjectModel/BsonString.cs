@@ -81,7 +81,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonString.</returns>
         public static implicit operator BsonString(string value)
         {
-            return BsonString.Create(value);
+            return new BsonString(value);
         }
 
         /// <summary>
@@ -116,17 +116,6 @@ namespace MongoDB.Bson
         public new static BsonString Create(object value)
         {
             return (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonString class.
-        /// </summary>
-        /// <param name="value">A string.</param>
-        /// <returns>A BsonString.</returns>
-        public static BsonString Create(string value)
-        {
-            // TODO: are there any other commonly used strings worth checking for?
-            return value == "" ? __emptyInstance : new BsonString(value);
         }
 
         // public methods

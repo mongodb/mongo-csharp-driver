@@ -115,7 +115,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An Id.</returns>
         public object GenerateId(object container, object document)
         {
-            return BsonBinaryData.Create(Guid.NewGuid(), _guidRepresentation);
+            return new BsonBinaryData(Guid.NewGuid(), _guidRepresentation);
         }
 
         /// <summary>

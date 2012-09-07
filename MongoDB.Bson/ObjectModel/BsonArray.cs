@@ -230,96 +230,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Creates a new BsonArray.
         /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<bool> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<BsonValue> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<DateTime> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<double> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<int> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<long> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<ObjectId> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable<string> values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
-        /// <param name="values">A list of values to add to the array.</param>
-        /// <returns>A BsonArray or null.</returns>
-        public static BsonArray Create(IEnumerable values)
-        {
-            return new BsonArray(values);
-        }
-
-        /// <summary>
-        /// Creates a new BsonArray.
-        /// </summary>
         /// <param name="value">A value to be mapped to a BsonArray.</param>
         /// <returns>A BsonArray or null.</returns>
         public new static BsonArray Create(object value)
@@ -410,7 +320,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonDateTime.Create(value));
+                Add(new BsonDateTime(value));
             }
             return this;
         }
@@ -428,7 +338,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonDouble.Create(value));
+                Add(new BsonDouble(value));
             }
             return this;
         }
@@ -464,7 +374,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonInt64.Create(value));
+                Add(new BsonInt64(value));
             }
             return this;
         }
@@ -482,7 +392,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add(BsonObjectId.Create(value));
+                Add(new BsonObjectId(value));
             }
             return this;
         }
@@ -500,7 +410,7 @@ namespace MongoDB.Bson
             }
             foreach (var value in values)
             {
-                Add((value == null) ? (BsonValue)BsonNull.Value : BsonString.Create(value));
+                Add((value == null) ? (BsonValue)BsonNull.Value : new BsonString(value));
             }
             return this;
         }

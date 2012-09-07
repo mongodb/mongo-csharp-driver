@@ -226,7 +226,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateBooleanArray()
         {
             var values = new bool[] { true, false };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonBoolean>(array[0]);
             Assert.IsInstanceOf<BsonBoolean>(array[1]);
@@ -238,14 +238,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateBooleanArrayNull()
         {
             bool[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateBsonValueArray()
         {
             var values = new BsonValue[] { true, 1, 1.5 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(3, array.Count);
             Assert.IsInstanceOf<BsonBoolean>(array[0]);
             Assert.IsInstanceOf<BsonInt32>(array[1]);
@@ -259,7 +259,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateBsonValueArrayNull()
         {
             BsonValue[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
@@ -268,7 +268,7 @@ namespace MongoDB.BsonUnitTests
             var value1 = DateTime.SpecifyKind(new DateTime(2011, 1, 18), DateTimeKind.Utc);
             var value2 = DateTime.SpecifyKind(new DateTime(2011, 1, 19), DateTimeKind.Utc);
             var values = new DateTime[] { value1, value2 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonDateTime>(array[0]);
             Assert.IsInstanceOf<BsonDateTime>(array[1]);
@@ -280,14 +280,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateDateTimeArrayNull()
         {
             DateTime[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateDoubleArray()
         {
             var values = new double[] { 1.5, 2.5 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonDouble>(array[0]);
             Assert.IsInstanceOf<BsonDouble>(array[1]);
@@ -299,14 +299,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateDoubleArrayNull()
         {
             double[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateInt32Array()
         {
             var values = new int[] { 1, 2 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonInt32>(array[0]);
             Assert.IsInstanceOf<BsonInt32>(array[1]);
@@ -318,14 +318,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateInt32ArrayNull()
         {
             int[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateInt64Array()
         {
             var values = new long[] { 1, 2 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonInt64>(array[0]);
             Assert.IsInstanceOf<BsonInt64>(array[1]);
@@ -337,14 +337,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateInt64ArrayNull()
         {
             long[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateObjectArray()
         {
             var values = new object[] { true, 1 , 1.5, null }; // null will be mapped to BsonNull.Value
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(4, array.Count);
             Assert.IsInstanceOf<BsonBoolean>(array[0]);
             Assert.IsInstanceOf<BsonInt32>(array[1]);
@@ -360,7 +360,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateObjectArrayNull()
         {
             object[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
@@ -369,7 +369,7 @@ namespace MongoDB.BsonUnitTests
             var value1 = ObjectId.GenerateNewId();
             var value2 = ObjectId.GenerateNewId();
             var values = new ObjectId[] { value1, value2 };
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonObjectId>(array[0]);
             Assert.IsInstanceOf<BsonObjectId>(array[1]);
@@ -381,14 +381,14 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateObjectIdArrayNull()
         {
             ObjectId[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
         public void TestCreateStringArray()
         {
             var values = new string[] { "a", "b", null }; // null will be mapped to BsonNull.Value
-            var array = BsonArray.Create(values);
+            var array = new BsonArray(values);
             Assert.AreEqual(3, array.Count);
             Assert.IsInstanceOf<BsonString>(array[0]);
             Assert.IsInstanceOf<BsonString>(array[1]);
@@ -402,7 +402,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateStringArrayNull()
         {
             string[] values = null;
-            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
+            Assert.Throws<ArgumentNullException>(() => new BsonArray(values));
         }
 
         [Test]
@@ -423,7 +423,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateFromObjectNull()
         {
             object value = null;
-            Assert.Throws<ArgumentException>(() => BsonArray.Create(value));
+            Assert.Throws<ArgumentException>(() => BsonArray.Create(value)); // not ArgumentNullException
         }
 
         [Test]

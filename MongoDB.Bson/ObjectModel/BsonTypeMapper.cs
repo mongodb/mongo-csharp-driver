@@ -506,13 +506,13 @@ namespace MongoDB.Bson
             {
                 // note: I expect this switch statement to be compiled using a jump table and therefore to be very efficient
                 case Conversion.None: return (BsonValue)value;
-                case Conversion.BsonJavaScriptToBsonJavaScriptWithScope: return BsonJavaScriptWithScope.Create(((BsonJavaScript)value).Code, new BsonDocument());
+                case Conversion.BsonJavaScriptToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope(((BsonJavaScript)value).Code, new BsonDocument());
                 case Conversion.BsonMaxKeyToBsonBoolean: return BsonBoolean.True;
                 case Conversion.BsonMinKeyToBsonBoolean: return BsonBoolean.True;
                 case Conversion.BsonNullToBsonBoolean: return BsonBoolean.False;
                 case Conversion.BsonUndefinedToBsonBoolean: return BsonBoolean.False;
                 case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[])value);
-                case Conversion.ByteArrayToBsonObjectId: return BsonObjectId.Create((byte[])value);
+                case Conversion.ByteArrayToBsonObjectId: return new BsonObjectId((byte[])value);
                 case Conversion.ByteToBsonBoolean: return BsonBoolean.Create((byte)value != 0);
                 case Conversion.ByteToBsonDouble: return new BsonDouble((double)(byte)value);
                 case Conversion.ByteToBsonInt32: return BsonInt32.Create((int)(byte)value);
@@ -558,7 +558,7 @@ namespace MongoDB.Bson
                 case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string)value));
                 case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string)value);
                 case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string)value, new BsonDocument());
-                case Conversion.StringToBsonObjectId: return BsonObjectId.Create((string)value);
+                case Conversion.StringToBsonObjectId: return BsonObjectId.Parse((string)value);
                 case Conversion.StringToBsonRegularExpression: return new BsonRegularExpression((string)value);
                 case Conversion.StringToBsonSymbol: return BsonSymbol.Create((string)value);
                 case Conversion.StringToBsonTimestamp: return new BsonTimestamp(XmlConvert.ToInt64((string)value));
