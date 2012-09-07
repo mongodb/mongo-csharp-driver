@@ -43,8 +43,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var value = (BsonValue)null;
-            array.Add(value);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.Add(value));
         }
 
         [Test]
@@ -52,8 +51,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (bool[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -61,8 +59,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (BsonValue[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -70,8 +67,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (DateTime[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -79,8 +75,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (double[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -88,8 +83,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (int[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -97,8 +91,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (long[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -106,8 +99,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (ObjectId[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -115,8 +107,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (string[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -124,8 +115,7 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray();
             var values = (object[])null;
-            array.AddRange(values);
-            Assert.AreEqual(0, array.Count);
+            Assert.Throws<ArgumentNullException>(() => array.AddRange(values));
         }
 
         [Test]
@@ -248,14 +238,13 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateBooleanArrayNull()
         {
             bool[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
         public void TestCreateBsonValueArray()
         {
-            var values = new BsonValue[] { true, 1, null, 1.5 }; // embedded null is skipped by functional construction
+            var values = new BsonValue[] { true, 1, 1.5 };
             var array = BsonArray.Create(values);
             Assert.AreEqual(3, array.Count);
             Assert.IsInstanceOf<BsonBoolean>(array[0]);
@@ -270,8 +259,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateBsonValueArrayNull()
         {
             BsonValue[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -292,8 +280,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateDateTimeArrayNull()
         {
             DateTime[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -312,8 +299,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateDoubleArrayNull()
         {
             double[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -332,8 +318,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateInt32ArrayNull()
         {
             int[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -352,8 +337,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateInt64ArrayNull()
         {
             long[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -376,8 +360,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateObjectArrayNull()
         {
             object[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -398,8 +381,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateObjectIdArrayNull()
         {
             ObjectId[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -420,8 +402,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateStringArrayNull()
         {
             string[] values = null;
-            var array = BsonArray.Create(values);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentNullException>(() => BsonArray.Create(values));
         }
 
         [Test]
@@ -442,8 +423,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateFromObjectNull()
         {
             object value = null;
-            var array = BsonArray.Create(value);
-            Assert.IsNull(array);
+            Assert.Throws<ArgumentException>(() => BsonArray.Create(value));
         }
 
         [Test]

@@ -110,14 +110,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt64 or null.</returns>
         public new static BsonInt64 Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonInt64)BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonInt64)BsonTypeMapper.MapToBsonValue(value, BsonType.Int64);
         }
 
         // public methods

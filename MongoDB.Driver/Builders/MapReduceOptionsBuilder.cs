@@ -338,7 +338,7 @@ namespace MongoDB.Driver
                     return new BsonDocument
                     {
                         { modeString, _collectionName },
-                        { "db", _databaseName }, // optional
+                        { "db", _databaseName, _databaseName != null }, // optional
                         { "sharded", true, _sharded } // optional
                     };
                 }

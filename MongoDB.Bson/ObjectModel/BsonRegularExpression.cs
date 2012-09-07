@@ -174,14 +174,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression or null.</returns>
         public new static BsonRegularExpression Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
         }
 
         /// <summary>
@@ -191,14 +184,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(Regex regex)
         {
-            if (regex != null)
-            {
-                return new BsonRegularExpression(regex);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonRegularExpression(regex);
         }
 
         /// <summary>
@@ -208,14 +194,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(string pattern)
         {
-            if (pattern != null)
-            {
-                return new BsonRegularExpression(pattern);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonRegularExpression(pattern);
         }
 
         /// <summary>
@@ -226,14 +205,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static BsonRegularExpression Create(string pattern, string options)
         {
-            if (pattern != null)
-            {
-                return new BsonRegularExpression(pattern, options);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonRegularExpression(pattern, options);
         }
 
         // public methods

@@ -47,8 +47,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = Response["result", null];
-                if (result != null)
+                BsonValue result;
+                if (Response.TryGetValue("result", out result))
                 {
                     if (result.IsString)
                     {
@@ -56,7 +56,11 @@ namespace MongoDB.Driver
                     }
                     else
                     {
-                        return (string)result.AsBsonDocument["collection", null];
+                        BsonValue collection;
+                        if (result.AsBsonDocument.TryGetValue("collection", out collection))
+                        {
+                            return collection.AsString;
+                        }
                     }
                 }
                 return null;
@@ -70,10 +74,14 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = Response["result", null];
-                if (result != null && result.IsBsonDocument)
+                BsonValue result;
+                if (Response.TryGetValue("result", out result) && result.IsBsonDocument)
                 {
-                    return (string)result.AsBsonDocument["db", null];
+                    BsonValue db;
+                    if (result.AsBsonDocument.TryGetValue("db", out db))
+                    {
+                        return db.AsString;
+                    }
                 }
                 return null;
             }

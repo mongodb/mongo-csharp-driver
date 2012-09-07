@@ -173,7 +173,10 @@ namespace MongoDB.Driver
                 { "ns", FullName },
                 { "key", keysDocument }
             };
-            index.Merge(optionsDocument);
+            if (optionsDocument != null)
+            {
+                index.Merge(optionsDocument);
+            }
             var insertOptions = new MongoInsertOptions
             {
                 CheckElementNames = false,

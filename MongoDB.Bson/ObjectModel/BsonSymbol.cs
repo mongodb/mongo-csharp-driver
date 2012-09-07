@@ -92,14 +92,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol or null.</returns>
         public new static BsonSymbol Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
         }
 
         /// <summary>
@@ -109,14 +102,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol.</returns>
         public static BsonSymbol Create(string name)
         {
-            if (name != null)
-            {
-                return BsonSymbolTable.Lookup(name);
-            }
-            else
-            {
-                return null;
-            }
+            return BsonSymbolTable.Lookup(name);
         }
 
         // public methods

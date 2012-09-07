@@ -392,7 +392,7 @@ namespace MongoDB.Driver.GridFS
             hash = 37 * hash + _length.GetHashCode();
             hash = 37 * hash + ((_md5 == null) ? 0 : _md5.GetHashCode());
             hash = 37 * hash + ((_metadata == null) ? 0 : _metadata.GetHashCode());
-            hash = 37 * hash + _name.GetHashCode();
+            hash = 37 * hash + ((_name == null) ? 0 : _name.GetHashCode());
             hash = 37 * hash + _uploadDate.GetHashCode();
             return hash;
         }
@@ -467,9 +467,13 @@ namespace MongoDB.Driver.GridFS
             {
                 cursor = _gridFS.Files.Find(Query.EQ("_id", _id));
             }
-            else
+            else if (_name != null)
             {
                 cursor = _gridFS.Files.Find(Query.EQ("filename", _name)).SetSortOrder(SortBy.Descending("uploadDate"));
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot refresh FileInfo when both Id and Name are missing.");
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();
             CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist
@@ -501,8 +505,8 @@ namespace MongoDB.Driver.GridFS
             }
             else
             {
-                var aliasesValue = fileInfo["aliases", null];
-                if (aliasesValue != null && !aliasesValue.IsBsonNull)
+                BsonValue aliasesValue;
+                if (fileInfo.TryGetValue("aliases", out aliasesValue) && !aliasesValue.IsBsonNull)
                 {
                     var list = new List<string>();
                     foreach (var alias in aliasesValue.AsBsonArray)
@@ -516,8 +520,8 @@ namespace MongoDB.Driver.GridFS
                     _aliases = null;
                 }
                 _chunkSize = fileInfo["chunkSize"].ToInt32();
-                var contentTypeValue = fileInfo["contentType", null];
-                if (contentTypeValue != null && !contentTypeValue.IsBsonNull)
+                BsonValue contentTypeValue;
+                if (fileInfo.TryGetValue("contentType", out contentTypeValue) && !contentTypeValue.IsBsonNull)
                 {
                     _contentType = contentTypeValue.AsString;
                 }
@@ -528,8 +532,8 @@ namespace MongoDB.Driver.GridFS
                 _exists = true;
                 _id = fileInfo["_id"];
                 _length = fileInfo["length"].ToInt64();
-                var md5Value = fileInfo["md5", null];
-                if (md5Value != null && md5Value.IsString)
+                BsonValue md5Value;
+                if (fileInfo.TryGetValue("md5", out md5Value) && md5Value.IsString)
                 {
                     _md5 = md5Value.AsString;
                 }
@@ -537,8 +541,8 @@ namespace MongoDB.Driver.GridFS
                 {
                     _md5 = null;
                 }
-                var metadataValue = fileInfo["metadata", null];
-                if (metadataValue != null && !metadataValue.IsBsonNull)
+                BsonValue metadataValue;
+                if (fileInfo.TryGetValue("metadata", out metadataValue) && !metadataValue.IsBsonNull)
                 {
                     _metadata = metadataValue.AsBsonDocument;
                 }
@@ -546,8 +550,8 @@ namespace MongoDB.Driver.GridFS
                 {
                     _metadata = null;
                 }
-                var filenameValue = fileInfo["filename", null];
-                if (filenameValue != null && !filenameValue.IsBsonNull)
+                BsonValue filenameValue;
+                if (fileInfo.TryGetValue("filename", out filenameValue) && !filenameValue.IsBsonNull)
                 {
                     _name = filenameValue.AsString;
                 }

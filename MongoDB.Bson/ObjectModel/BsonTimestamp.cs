@@ -130,14 +130,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonTimestamp or null.</returns>
         public new static BsonTimestamp Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonTimestamp)BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonTimestamp)BsonTypeMapper.MapToBsonValue(value, BsonType.Timestamp);
         }
 
         // public methods

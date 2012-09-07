@@ -86,14 +86,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScriptWithScope or null.</returns>
         public new static BsonJavaScriptWithScope Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
         }
 
         /// <summary>
@@ -104,14 +97,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScript.</returns>
         public static BsonJavaScriptWithScope Create(string code, BsonDocument scope)
         {
-            if (code != null)
-            {
-                return new BsonJavaScriptWithScope(code, scope);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonJavaScriptWithScope(code, scope);
         }
 
         // public methods

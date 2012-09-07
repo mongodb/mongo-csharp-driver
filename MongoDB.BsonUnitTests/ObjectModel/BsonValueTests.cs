@@ -506,7 +506,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new byte[] { 1, 2 };
             BsonValue n = (byte[])null;
             Assert.IsInstanceOf<BsonBinaryData>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var b = (BsonBinaryData)v;
             Assert.AreEqual(BsonBinarySubType.Binary, b.SubType);
             Assert.AreEqual(1, b.AsByteArray[0]);
@@ -687,7 +687,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz");
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("", r.Options);
@@ -699,7 +699,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("imxs", r.Options);
@@ -711,7 +711,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz", RegexOptions.IgnoreCase);
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("i", r.Options);
@@ -723,7 +723,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz", RegexOptions.Multiline);
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("m", r.Options);
@@ -735,7 +735,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz", RegexOptions.IgnorePatternWhitespace);
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("x", r.Options);
@@ -747,7 +747,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = new Regex("xyz", RegexOptions.Singleline);
             BsonValue n = (Regex)null;
             Assert.IsInstanceOf<BsonRegularExpression>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var r = (BsonRegularExpression)v;
             Assert.AreEqual("xyz", r.Pattern);
             Assert.AreEqual("s", r.Options);
@@ -759,7 +759,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = "xyz";
             BsonValue n = (string)null;
             Assert.IsInstanceOf<BsonString>(v);
-            Assert.IsNull(n);
+            Assert.IsInstanceOf<BsonNull>(n);
             var s = (BsonString)v;
             Assert.AreEqual("xyz", s.Value);
         }

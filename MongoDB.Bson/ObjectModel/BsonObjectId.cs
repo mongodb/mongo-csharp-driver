@@ -210,14 +210,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(byte[] value)
         {
-            if (value != null)
-            {
-                return new BsonObjectId(value);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonObjectId(value);
         }
 
         /// <summary>
@@ -240,14 +233,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonObjectId or null.</returns>
         public new static BsonObjectId Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
         }
 
         /// <summary>
@@ -257,14 +243,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonObjectId.</returns>
         public static BsonObjectId Create(string value)
         {
-            if (value != null)
-            {
-                return new BsonObjectId(value);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonObjectId(value);
         }
 
         /// <summary>

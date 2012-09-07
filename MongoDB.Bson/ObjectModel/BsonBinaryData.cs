@@ -228,14 +228,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonBinaryData or null.</returns>
         public static BsonBinaryData Create(byte[] bytes, BsonBinarySubType subType)
         {
-            if (bytes != null)
-            {
-                return new BsonBinaryData(bytes, subType);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonBinaryData(bytes, subType);
         }
 
         /// <summary>
@@ -250,14 +243,7 @@ namespace MongoDB.Bson
             BsonBinarySubType subType,
             GuidRepresentation guidRepresentation)
         {
-            if (bytes != null)
-            {
-                return new BsonBinaryData(bytes, subType, guidRepresentation);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
         }
 
         /// <summary>
@@ -288,14 +274,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonBinaryData or null.</returns>
         public new static BsonBinaryData Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
         }
 
         // public methods

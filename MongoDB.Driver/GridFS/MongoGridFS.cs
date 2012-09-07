@@ -840,18 +840,19 @@ namespace MongoDB.Driver.GridFS
                     throw new MongoGridFSException("Upload client and server MD5 hashes are not equal.");
                 }
 
-                var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;
+                var uploadDate = (createOptions.UploadDate == DateTime.MinValue) ? DateTime.UtcNow : createOptions.UploadDate;
+                var aliases = (createOptions.Aliases != null) ? BsonArray.Create(createOptions.Aliases) : null;
                 BsonDocument fileInfo = new BsonDocument
                 {
                     { "_id", files_id },
-                    { "filename", remoteFileName },
+                    { "filename", remoteFileName, !string.IsNullOrEmpty(remoteFileName) }, // optional
                     { "length", length },
                     { "chunkSize", chunkSize },
                     { "uploadDate", uploadDate },
                     { "md5", (md5Server == null) ? (BsonValue)BsonNull.Value : new BsonString(md5Server) },
-                    { "contentType", createOptions.ContentType }, // optional
-                    { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
-                    { "metadata", createOptions.Metadata } // optional
+                    { "contentType", createOptions.ContentType, !string.IsNullOrEmpty(createOptions.ContentType) }, // optional
+                    { "aliases", aliases, aliases != null }, // optional
+                    { "metadata", createOptions.Metadata, createOptions.Metadata != null } // optional
                 };
                 _files.Insert(fileInfo, _settings.SafeMode);
 

@@ -115,14 +115,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonString or null.</returns>
         public new static BsonString Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
         }
 
         /// <summary>
@@ -132,15 +125,8 @@ namespace MongoDB.Bson
         /// <returns>A BsonString.</returns>
         public static BsonString Create(string value)
         {
-            if (value != null)
-            {
-                // TODO: are there any other commonly used strings worth checking for?
-                return value == "" ? __emptyInstance : new BsonString(value);
-            }
-            else
-            {
-                return null;
-            }
+            // TODO: are there any other commonly used strings worth checking for?
+            return value == "" ? __emptyInstance : new BsonString(value);
         }
 
         // public methods

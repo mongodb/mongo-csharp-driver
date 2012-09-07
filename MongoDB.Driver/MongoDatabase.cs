@@ -370,10 +370,11 @@ namespace MongoDB.Driver
         /// <returns>The result of evaluating the code.</returns>
         public virtual BsonValue Eval(EvalFlags flags, BsonJavaScript code, params object[] args)
         {
+            var argsArray = (args != null && args.Length > 1) ? BsonArray.Create(args) : null;
             var command = new CommandDocument
             {
                 { "$eval", code },
-                { "args", BsonArray.Create(args), args != null && args.Length > 0 },
+                { "args", argsArray, argsArray != null },
                 { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
             };
             var result = RunCommand(command);

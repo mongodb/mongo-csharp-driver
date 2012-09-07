@@ -234,14 +234,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<bool> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -251,14 +244,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<BsonValue> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -268,14 +254,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<DateTime> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -285,14 +264,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<double> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -302,14 +274,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<int> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -319,14 +284,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<long> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -336,14 +294,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<ObjectId> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -353,14 +304,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable<string> values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -370,14 +314,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public static BsonArray Create(IEnumerable values)
         {
-            if (values != null)
-            {
-                return new BsonArray(values);
-            }
-            else
-            {
-                return null;
-            }
+            return new BsonArray(values);
         }
 
         /// <summary>
@@ -387,14 +324,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public new static BsonArray Create(object value)
         {
-            if (value != null)
-            {
-                return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
-            }
-            else
-            {
-                return null;
-            }
+            return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
         }
 
         /// <summary>
@@ -423,10 +353,11 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray Add(BsonValue value)
         {
-            if (value != null)
+            if (value == null)
             {
-                _values.Add(value);
+                throw new ArgumentNullException("value");
             }
+            _values.Add(value);
             return this;
         }
 
@@ -437,12 +368,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<bool> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonBoolean.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonBoolean.Create(value));
             }
             return this;
         }
@@ -454,15 +386,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<BsonValue> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    if (value != null)
-                    {
-                        _values.Add(value);
-                    }
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(value);
             }
             return this;
         }
@@ -474,12 +404,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<DateTime> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonDateTime.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonDateTime.Create(value));
             }
             return this;
         }
@@ -491,12 +422,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<double> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonDouble.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonDouble.Create(value));
             }
             return this;
         }
@@ -508,12 +440,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<int> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonInt32.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonInt32.Create(value));
             }
             return this;
         }
@@ -525,12 +458,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<long> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonInt64.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonInt64.Create(value));
             }
             return this;
         }
@@ -542,12 +476,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<ObjectId> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonObjectId.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonObjectId.Create(value));
             }
             return this;
         }
@@ -559,12 +494,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable<string> values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add((value == null) ? (BsonValue)BsonNull.Value : BsonString.Create(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add((value == null) ? (BsonValue)BsonNull.Value : BsonString.Create(value));
             }
             return this;
         }
@@ -576,12 +512,13 @@ namespace MongoDB.Bson
         /// <returns>The array (so method calls can be chained).</returns>
         public BsonArray AddRange(IEnumerable values)
         {
-            if (values != null)
+            if (values == null)
             {
-                foreach (var value in values)
-                {
-                    _values.Add(BsonTypeMapper.MapToBsonValue(value));
-                }
+                throw new ArgumentNullException("values");
+            }
+            foreach (var value in values)
+            {
+                Add(BsonTypeMapper.MapToBsonValue(value));
             }
             return this;
         }
