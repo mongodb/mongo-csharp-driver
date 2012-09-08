@@ -70,28 +70,8 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the QueryDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public QueryDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(dictionary, keys)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the QueryDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public QueryDocument(IDictionary<string, object> dictionary)
+        public QueryDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
             : base(dictionary)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the QueryDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public QueryDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(dictionary, keys)
         {
         }
 
@@ -105,16 +85,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the QueryDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public QueryDocument(IDictionary dictionary, IEnumerable keys)
-            : base(dictionary, keys)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the QueryDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
@@ -124,14 +94,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the QueryDocument class and adds one or more elements.
-        /// </summary>
-        /// <param name="elements">One or more elements to add to the document.</param>
-        public QueryDocument(params BsonElement[] elements)
-            : base(elements)
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the QueryDocument class and creates and adds a new element.
         /// </summary>

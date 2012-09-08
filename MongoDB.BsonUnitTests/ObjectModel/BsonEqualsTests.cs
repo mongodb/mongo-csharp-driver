@@ -54,10 +54,11 @@ namespace MongoDB.BsonUnitTests
                 { "Hello", "World" },
                 { "Foo", "Bar" }
             };
-            BsonDocument rhs = new BsonDocument(
-                new BsonElement("Hello", "World"),
-                new BsonElement("Foo", "Bar")
-            );
+            BsonDocument rhs = new BsonDocument
+            {
+                { "Hello", "World" },
+                { "Foo", "Bar" }
+            };
             Assert.AreNotSame(lhs, rhs);
             Assert.AreEqual(lhs, rhs);
             Assert.AreEqual(lhs.GetHashCode(), rhs.GetHashCode());

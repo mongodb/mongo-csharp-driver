@@ -682,7 +682,7 @@ namespace MongoDB.Driver
                 BsonElement operation;
                 if (_document.TryGetElement(otherOperationName, out operation))
                 {
-                    operation.Value.AsBsonDocument.Add(otherTargets);
+                    operation.Value.AsBsonDocument.AddRange(otherTargets);
                 }
                 else
                 {

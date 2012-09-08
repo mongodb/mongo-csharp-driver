@@ -173,39 +173,10 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        public void TestConstructorElementsParams()
-        {
-            var element1 = new BsonElement("x", 1);
-            var element2 = new BsonElement("y", 2);
-            var document = new BsonDocument(element1, element2);
-            Assert.AreEqual(2, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(2, document["y"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.Contains("y"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-            Assert.AreEqual(true, document.ContainsValue(2));
-            Assert.AreSame(element1, document.GetElement("x"));
-            Assert.AreSame(element2, document.GetElement("y"));
-        }
-
-        [Test]
         public void TestConstructorDictionaryGeneric()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-        }
-
-        [Test]
-        public void TestConstructorDictionaryGenericWithKeys()
-        {
-            var dictionary = new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-            var document = new BsonDocument(dictionary, keys);
             Assert.AreEqual(1, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));
@@ -228,30 +199,6 @@ namespace MongoDB.BsonUnitTests
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 } };
             var document = new BsonDocument(dictionary);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-        }
-
-        [Test]
-        public void TestConstructorIDictionaryGenericWithKeys()
-        {
-            var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-            var document = new BsonDocument(dictionary, keys);
-            Assert.AreEqual(1, document.ElementCount);
-            Assert.AreEqual(1, document["x"].AsInt32);
-            Assert.AreEqual(true, document.Contains("x"));
-            Assert.AreEqual(true, document.ContainsValue(1));
-        }
-
-        [Test]
-        public void TestConstructorIDictionaryWithKeys()
-        {
-            var hashtable = (IDictionary)new Hashtable { { "x", 1 }, { "y", 2 } };
-            var keys = new string[] { "x" };
-            var document = new BsonDocument(hashtable, keys);
             Assert.AreEqual(1, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));

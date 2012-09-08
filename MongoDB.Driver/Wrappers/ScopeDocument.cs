@@ -70,28 +70,8 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the ScopeDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public ScopeDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(dictionary, keys)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ScopeDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public ScopeDocument(IDictionary<string, object> dictionary)
+        public ScopeDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
             : base(dictionary)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ScopeDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public ScopeDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-            : base(dictionary, keys)
         {
         }
 
@@ -105,29 +85,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Initializes a new instance of the ScopeDocument class and adds new elements from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        /// <param name="keys">A list of keys to select values from the dictionary.</param>
-        public ScopeDocument(IDictionary dictionary, IEnumerable keys)
-            : base(dictionary, keys)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the ScopeDocument class and adds new elements from a list of elements.
         /// </summary>
         /// <param name="elements">A list of elements to add to the document.</param>
         public ScopeDocument(IEnumerable<BsonElement> elements)
-            : base(elements)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ScopeDocument class and adds one or more elements.
-        /// </summary>
-        /// <param name="elements">One or more elements to add to the document.</param>
-        public ScopeDocument(params BsonElement[] elements)
             : base(elements)
         {
         }
