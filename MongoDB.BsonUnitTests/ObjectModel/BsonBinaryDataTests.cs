@@ -36,7 +36,6 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(BsonBinarySubType.UuidLegacy, binaryData.SubType);
             Assert.AreEqual(GuidRepresentation.CSharpLegacy, binaryData.GuidRepresentation);
             Assert.AreEqual(guid, binaryData.AsGuid);
-            Assert.AreEqual(guid, binaryData.RawValue);
         }
 
         [Test]
@@ -49,7 +48,6 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(BsonBinarySubType.UuidLegacy, binaryData.SubType);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, binaryData.GuidRepresentation);
             Assert.AreEqual(guid, binaryData.AsGuid);
-            Assert.AreEqual(guid, binaryData.RawValue);
         }
 
         [Test]
@@ -62,7 +60,6 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(BsonBinarySubType.UuidLegacy, binaryData.SubType);
             Assert.AreEqual(GuidRepresentation.JavaLegacy, binaryData.GuidRepresentation);
             Assert.AreEqual(guid, binaryData.AsGuid);
-            Assert.AreEqual(guid, binaryData.RawValue);
         }
     }
 }

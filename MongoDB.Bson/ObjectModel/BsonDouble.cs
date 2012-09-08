@@ -44,14 +44,6 @@ namespace MongoDB.Bson
 
         // public properties
         /// <summary>
-        /// Gets the BsonDouble as a double.
-        /// </summary>
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonDouble.
         /// </summary>
         public double Value

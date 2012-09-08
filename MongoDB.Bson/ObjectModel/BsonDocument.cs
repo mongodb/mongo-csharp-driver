@@ -224,14 +224,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the raw values (see BsonValue.RawValue).
-        /// </summary>
-        public IEnumerable<object> RawValues
-        {
-            get { return _elements.Select(e => e.Value.RawValue); }
-        }
-
-        /// <summary>
         /// Gets the values.
         /// </summary>
         public IEnumerable<BsonValue> Values
@@ -758,7 +750,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the Id of the document.
         /// </summary>
-        /// <param name="id">The Id of the document (the RawValue if it has one, otherwise the element Value).</param>
+        /// <param name="id">The Id of the document.</param>
         /// <param name="idNominalType">The nominal type of the Id.</param>
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
@@ -767,19 +759,11 @@ namespace MongoDB.Bson
             BsonElement idElement;
             if (TryGetElement("_id", out idElement))
             {
-                // TODO: in a future release we will always return a BsonValue (GetDocumentId is not supposed to transform Id values in any way)
-                // we're returning the raw value in 1.4.2 to remain temporarily backward compatible with 1.4.0 and earlier
-                id = idElement.Value.RawValue;
-                if (id == null)
-                {
-                    id = idElement.Value;
-                }
+                id = idElement.Value;
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
 
                 if (idGenerator == null)
                 {
-                    // note: in 1.4.2 this code isn't yet used because if the RawValue was a Guid then the GuidIdGenerator was found
-                    // but once we start returning BsonValue like we should this code will start being used
                     var idBinaryData = id as BsonBinaryData;
                     if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
                     {

@@ -35,8 +35,8 @@ namespace MongoDB.BsonUnitTests.Jira
             Type nominalType;
             IIdGenerator idGenerator;
             Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<int>(id); // TODO: in a future release id will be an instance of BsonInt32
-            Assert.AreEqual(1, (int)id);
+            Assert.IsInstanceOf<BsonInt32>(id);
+            Assert.AreEqual(new BsonInt32(1), id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
             Assert.IsNull(idGenerator);
         }

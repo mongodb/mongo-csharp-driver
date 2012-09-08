@@ -534,15 +534,6 @@ namespace MongoDB.Bson
             get { return _bsonType == BsonType.String; }
         }
 
-        /// <summary>
-        /// Gets the raw value of this BsonValue (or null if this BsonValue doesn't have a single scalar value).
-        /// </summary>
-        // note: don't change return value to "this" or lots of things will break
-        public virtual object RawValue
-        {
-            get { return null; } // subclasses that have a single value (e.g. Int32) override this
-        }
-
         // public operators
         /// <summary>
         /// Casts a BsonValue to a bool.

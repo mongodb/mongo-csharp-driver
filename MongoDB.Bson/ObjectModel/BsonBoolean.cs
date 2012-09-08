@@ -64,14 +64,6 @@ namespace MongoDB.Bson
 
         // public properties
         /// <summary>
-        /// Gets the BsonBoolean as a bool.
-        /// </summary>
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonBoolean.
         /// </summary>
         public bool Value

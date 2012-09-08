@@ -213,16 +213,6 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
-        public void TestCopyToOjbectArray()
-        {
-            var bsonArray = new BsonArray { 1, 2 };
-            var bsonValueArray = new object[2];
-            bsonArray.CopyTo(bsonValueArray, 0);
-            Assert.AreEqual(1, bsonValueArray[0]);
-            Assert.AreEqual(2, bsonValueArray[1]);
-        }
-
-        [Test]
         public void TestCreateBooleanArray()
         {
             var values = new bool[] { true, false };
@@ -585,14 +575,6 @@ namespace MongoDB.BsonUnitTests
             var lhs = new BsonArray { 1, 2 };
             var rhs = (BsonArray)null;
             Assert.IsTrue(lhs != rhs);
-        }
-
-        [Test]
-        public void TestRawValues()
-        {
-            var array = new BsonArray { 1, "abc", new BsonDocument("x", 1) };
-            var expectedRawValues = new object[] { 1, "abc", null };
-            Assert.IsTrue(expectedRawValues.SequenceEqual(array.RawValues));
         }
 
         [Test]

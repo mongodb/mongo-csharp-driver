@@ -134,30 +134,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the BsonBinaryData as a Guid if the subtype is UuidStandard or UuidLegacy, otherwise null.
-        /// </summary>
-#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
-        public override object RawValue
-        {
-            get
-            {
-                if (_subType == BsonBinarySubType.Binary || _subType == BsonBinarySubType.OldBinary)
-                {
-                    return _bytes;
-                }
-                else if (_subType == BsonBinarySubType.UuidStandard || _subType == BsonBinarySubType.UuidLegacy)
-                {
-                    return ToGuid();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-#pragma warning restore 618
-
-        /// <summary>
         /// Gets the binary data subtype.
         /// </summary>
         public BsonBinarySubType SubType

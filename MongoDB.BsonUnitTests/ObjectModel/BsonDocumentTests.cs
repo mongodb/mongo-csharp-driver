@@ -282,8 +282,6 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(false, document.IsBsonArray);
             Assert.AreEqual(true, document.IsBsonDocument);
             Assert.AreEqual(0, document.Names.Count());
-            Assert.AreEqual(null, document.RawValue);
-            Assert.AreEqual(0, document.RawValues.Count());
             Assert.AreEqual(true, document.ToBoolean());
             Assert.AreSame(document, document.ToBsonDocument());
             Assert.AreEqual("{ }", document.ToJson());
@@ -382,8 +380,8 @@ namespace MongoDB.BsonUnitTests
             Type nominalType;
             IIdGenerator idGenerator;
             Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<int>(id); // TODO: in a future release id will be an instance of BsonInt32
-            Assert.AreEqual(1, id);
+            Assert.IsInstanceOf<BsonInt32>(id);
+            Assert.AreEqual(new BsonInt32(1), id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
             Assert.IsNull(idGenerator);
         }
@@ -396,10 +394,10 @@ namespace MongoDB.BsonUnitTests
             Type nominalType;
             IIdGenerator idGenerator;
             Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
-            Assert.IsInstanceOf<Guid>(id); // TODO: in a future release id will be an instance of BsonBinaryData
-            Assert.AreEqual(Guid.Empty, id);
+            Assert.IsInstanceOf<BsonBinaryData>(id);
+            Assert.AreEqual(new BsonBinaryData(Guid.Empty), id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
-            Assert.IsInstanceOf<GuidGenerator>(idGenerator); // TODO: in a future release idGenerator will be an instance of BsonBinaryDataGuidGenerator
+            Assert.IsInstanceOf<BsonBinaryDataGuidGenerator>(idGenerator);
         }
 
         [Test]

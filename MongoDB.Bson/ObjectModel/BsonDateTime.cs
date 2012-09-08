@@ -74,14 +74,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the number of milliseconds since the Unix Epoch.
-        /// </summary>
-        public override object RawValue
-        {
-            get { return _millisecondsSinceEpoch; }
-        }
-
-        /// <summary>
         /// Gets the DateTime value.
         /// </summary>
         public DateTime Value

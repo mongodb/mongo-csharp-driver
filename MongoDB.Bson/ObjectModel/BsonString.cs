@@ -58,14 +58,6 @@ namespace MongoDB.Bson
 
         // public properties
         /// <summary>
-        /// Gets the BsonString as a string.
-        /// </summary>
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonString.
         /// </summary>
         public string Value

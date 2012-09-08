@@ -43,14 +43,6 @@ namespace MongoDB.Bson
 
         // public properties
         /// <summary>
-        /// Gets the BsonInt64 as a long.
-        /// </summary>
-        public override object RawValue
-        {
-            get { return _value; }
-        }
-
-        /// <summary>
         /// Gets the value of this BsonInt64.
         /// </summary>
         public long Value
