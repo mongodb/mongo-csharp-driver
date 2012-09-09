@@ -73,10 +73,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
-                case BsonType.String:
-                    return BsonSymbolTable.Lookup(bsonReader.ReadString());
                 case BsonType.Symbol:
-                    return BsonSymbolTable.Lookup(bsonReader.ReadSymbol());
+                    var name = bsonReader.ReadSymbol();
+                    return BsonSymbolTable.Lookup(name);
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonSymbol from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -98,25 +103,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
                 var symbol = (BsonSymbol)value;
-                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
-
-                switch (representationSerializationOptions.Representation)
-                {
-                    case BsonType.String:
-                        bsonWriter.WriteString(symbol.Name);
-                        break;
-                    case BsonType.Symbol:
-                        bsonWriter.WriteSymbol(symbol.Name);
-                        break;
-                    default:
-                        var message = string.Format("'{0}' is not a valid BsonSymbol representation.", representationSerializationOptions.Representation);
-                        throw new BsonSerializationException(message);
-                }
+                bsonWriter.WriteSymbol(symbol.Name);
             }
         }
     }

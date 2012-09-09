@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -67,14 +68,26 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonObjectId));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonObjectId((ObjectId)ObjectIdSerializer.Instance.Deserialize(bsonReader, typeof(ObjectId), options));
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.ObjectId:
+                    int timestamp, machine, increment;
+                    short pid;
+                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
+                    var objectId = new ObjectId(timestamp, machine, pid, increment);
+                    return new BsonObjectId(objectId);
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
+                default:
+                    var message = string.Format("Cannot deserialize BsonObjectId from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,12 +106,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
-                var bsonObjectId = (BsonObjectId)value;
-                ObjectIdSerializer.Instance.Serialize(bsonWriter, nominalType, bsonObjectId.Value, options);
+                var objectId = ((BsonObjectId)value).Value;
+                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
             }
         }
     }

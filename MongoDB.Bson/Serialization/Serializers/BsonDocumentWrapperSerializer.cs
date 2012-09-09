@@ -85,8 +85,27 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                var bsonDocumentWrapper = (BsonDocumentWrapper)value;
-                ((IBsonSerializable)bsonDocumentWrapper).Serialize(bsonWriter, nominalType, options);
+                var wrapper = (BsonDocumentWrapper)value;
+                if (wrapper.IsUpdateDocument)
+                {
+                    var savedCheckElementNames = bsonWriter.CheckElementNames;
+                    var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
+                    try
+                    {
+                        bsonWriter.CheckElementNames = false;
+                        bsonWriter.CheckUpdateDocument = true;
+                        BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
+                    }
+                    finally
+                    {
+                        bsonWriter.CheckElementNames = savedCheckElementNames;
+                        bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
+                    }
+                }
+                else
+                {
+                    BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
+                }
             }
         }
     }

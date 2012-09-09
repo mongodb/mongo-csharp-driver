@@ -210,7 +210,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonBinaryData>[]
             {
-                new TestData<BsonBinaryData>(null, "null"),
+                new TestData<BsonBinaryData>(null, "{ \"_csharpnull\" : true }"),
                 new TestData<BsonBinaryData>(new byte[] { }, "new BinData(0, \"\")"),
                 new TestData<BsonBinaryData>(new byte[] { 1 }, "new BinData(0, \"AQ==\")"),
                 new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "new BinData(0, \"AQI=\")"),
@@ -230,7 +230,7 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonBinaryData>[]
             {
-                new TestData<BsonBinaryData>(null, "null"),
+                new TestData<BsonBinaryData>(null, "{ \"_csharpnull\" : true }"),
                 new TestData<BsonBinaryData>(new byte[] { }, "{ \"$binary\" : \"\", \"$type\" : \"00\" }"),
                 new TestData<BsonBinaryData>(new byte[] { 1 }, "{ \"$binary\" : \"AQ==\", \"$type\" : \"00\" }"),
                 new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "{ \"$binary\" : \"AQI=\", \"$type\" : \"00\" }"),

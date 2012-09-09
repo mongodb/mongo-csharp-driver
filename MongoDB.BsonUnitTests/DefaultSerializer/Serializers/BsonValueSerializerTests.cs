@@ -49,11 +49,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -106,11 +108,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -165,11 +169,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -222,11 +228,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -400,11 +408,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -462,7 +472,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : null }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -555,11 +565,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -690,11 +702,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -786,11 +800,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -882,11 +898,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -926,11 +944,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -971,11 +991,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1016,11 +1038,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1061,11 +1085,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : null, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
 
             // test that we can still deserialize the legacy representation for a BsonNull value of C# null
@@ -1112,11 +1138,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1156,11 +1184,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1251,11 +1281,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1297,14 +1329,10 @@ namespace MongoDB.BsonUnitTests.Serialization
             {
                 this.B = value;
                 this.V = value;
-                this.S = value;
             }
 
             public BsonValue B { get; set; }
-            [BsonRepresentation(BsonType.Symbol)]
             public BsonSymbol V { get; set; }
-            [BsonRepresentation(BsonType.String)]
-            public BsonSymbol S { get; set; }
         }
 
         [Test]
@@ -1312,12 +1340,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : #, 'S' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.AreSame(obj.V, rehydrated.V);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1326,7 +1355,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass("");
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : #, 'S' : '' }".Replace("#", "{ '$symbol' : '' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$symbol' : '' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1340,7 +1369,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass("Hello World");
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : #, 'S' : 'Hello World' }".Replace("#", "{ '$symbol' : 'Hello World' }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '$symbol' : 'Hello World' }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
@@ -1372,11 +1401,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "null").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -1481,11 +1512,13 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : null, 'V' : null }".Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 

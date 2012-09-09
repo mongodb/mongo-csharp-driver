@@ -229,24 +229,6 @@ namespace MongoDB.Bson
             return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
         }
 
-        /// <summary>
-        /// Reads a BsonArray from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The reader.</param>
-        /// <returns>A BsonArray.</returns>
-        public static new BsonArray ReadFrom(BsonReader bsonReader)
-        {
-            var array = new BsonArray();
-            bsonReader.ReadStartArray();
-            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-            {
-                var value = BsonValue.ReadFrom(bsonReader);
-                array.Add(value);
-            }
-            bsonReader.ReadEndArray();
-            return array;
-        }
-
         // public methods
         /// <summary>
         /// Adds an element to the array.
@@ -679,20 +661,6 @@ namespace MongoDB.Bson
             }
             sb.Append("]");
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Writes the array to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        public new void WriteTo(BsonWriter bsonWriter)
-        {
-            bsonWriter.WriteStartArray();
-            for (int i = 0; i < _values.Count; i++)
-            {
-                _values[i].WriteTo(bsonWriter);
-            }
-            bsonWriter.WriteEndArray();
         }
 
         // explicit interface implementations

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -67,14 +68,30 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonArray));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return BsonArray.ReadFrom(bsonReader);
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Array:
+                    bsonReader.ReadStartArray();
+                    var array = new BsonArray();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), options);
+                        array.Add(value);
+                    }
+                    bsonReader.ReadEndArray();
+                    return array;
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
+                default:
+                    var message = string.Format("Cannot deserialize BsonArray from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,12 +110,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
                 var array = (BsonArray)value;
-                array.WriteTo(bsonWriter);
+                bsonWriter.WriteStartArray();
+                for (int i = 0; i < array.Count; i++)
+                {
+                    BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), array[i], options);
+                }
+                bsonWriter.WriteEndArray();
             }
         }
     }

@@ -376,7 +376,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         if (discriminator != null)
                         {
                             bsonWriter.WriteName(discriminatorConvention.ElementName);
-                            discriminator.WriteTo(bsonWriter);
+                            BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), discriminator, null);
                         }
                     }
                 }
@@ -445,7 +445,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     extraElements = new BsonDocument();
                     extraElementsMemberMap.Setter(obj, extraElements);
                 }
-                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                var bsonValue = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
                 extraElements[elementName] = bsonValue;
             }
             else
@@ -463,7 +463,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     extraElementsMemberMap.Setter(obj, extraElements);
                 }
-                var bsonValue = BsonValue.ReadFrom(bsonReader);
+                var bsonValue = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
                 extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
             }
         }
@@ -506,7 +506,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var bsonDocument = (BsonDocument)extraElements;
                     foreach (var element in bsonDocument)
                     {
-                        element.WriteTo(bsonWriter);
+                        bsonWriter.WriteName(element.Name);
+                        BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), element.Value, null);
                     }
                 }
                 else
@@ -523,7 +524,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         else
                         {
                             var bsonValue = BsonTypeMapper.MapToBsonValue(dictionary[key]);
-                            bsonValue.WriteTo(bsonWriter);
+                            BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), bsonValue, null);
                         }
                     }
                 }

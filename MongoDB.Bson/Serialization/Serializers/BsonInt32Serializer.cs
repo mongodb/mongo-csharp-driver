@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -67,14 +68,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonInt32));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonInt32((int)Int32Serializer.Instance.Deserialize(bsonReader, typeof(int), options));
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.Int32:
+                    return new BsonInt32(bsonReader.ReadInt32());
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
+                default:
+                    var message = string.Format("Cannot deserialize BsonInt32 from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,12 +102,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
                 var bsonInt32 = (BsonInt32)value;
-                Int32Serializer.Instance.Serialize(bsonWriter, nominalType, bsonInt32.Value, options);
+                bsonWriter.WriteInt32(bsonInt32.Value);
             }
         }
     }

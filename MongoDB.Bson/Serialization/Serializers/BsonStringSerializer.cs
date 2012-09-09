@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -67,14 +68,22 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonString));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonString((string)StringSerializer.Instance.Deserialize(bsonReader, typeof(string), options));
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.String:
+                    return new BsonString(bsonReader.ReadString());
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
+                default:
+                    var message = string.Format("Cannot deserialize BsonString from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,12 +102,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
                 var bsonString = (BsonString)value;
-                StringSerializer.Instance.Serialize(bsonWriter, nominalType, bsonString.Value, options);
+                bsonWriter.WriteString(bsonString.Value);
             }
         }
     }

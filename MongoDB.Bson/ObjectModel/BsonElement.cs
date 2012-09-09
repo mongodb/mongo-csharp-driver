@@ -111,43 +111,6 @@ namespace MongoDB.Bson
             return !(lhs == rhs);
         }
 
-        // internal static methods
-        internal static bool ReadFrom(BsonReader bsonReader, out BsonElement element)
-        {
-            BsonType bsonType;
-            if ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
-            {
-                var name = bsonReader.ReadName();
-                var value = BsonValue.ReadFrom(bsonReader);
-                element = new BsonElement(name, value);
-                return true;
-            }
-            else
-            {
-                element = null;
-                return false;
-            }
-        }
-
-        internal static BsonElement ReadFrom(BsonReader bsonReader, string expectedName)
-        {
-            BsonElement element;
-            if (ReadFrom(bsonReader, out element))
-            {
-                if (element.Name != expectedName)
-                {
-                    string message = string.Format("Expected element '{0}', not '{1}'.", expectedName, element._name);
-                    throw new FileFormatException(message);
-                }
-                return element;
-            }
-            else
-            {
-                string message = string.Format("Element '{0}' is missing.", expectedName);
-                throw new FileFormatException(message);
-            }
-        }
-
         // private static methods
         private static void ValidateElementName(string name)
         {
@@ -236,13 +199,6 @@ namespace MongoDB.Bson
         public override string ToString()
         {
             return string.Format("{0}={1}", _name, _value);
-        }
-
-        // internal methods
-        internal void WriteTo(BsonWriter bsonWriter)
-        {
-            bsonWriter.WriteName(_name);
-            _value.WriteTo(bsonWriter);
         }
     }
 }

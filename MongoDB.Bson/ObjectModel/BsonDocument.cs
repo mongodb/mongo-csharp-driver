@@ -24,6 +24,7 @@ using System.Xml;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson
 {
@@ -31,7 +32,7 @@ namespace MongoDB.Bson
     /// Represents a BSON document.
     /// </summary>
     [Serializable]
-    public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
+    public class BsonDocument : BsonValue, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
@@ -294,73 +295,7 @@ namespace MongoDB.Bson
         {
             using (var bsonReader = BsonReader.Create(json))
             {
-                var document = new BsonDocument();
-                return (BsonDocument)((IBsonSerializable)document).Deserialize(bsonReader, typeof(BsonDocument), null);
-            }
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">The BsonBuffer.</param>
-        /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(BsonBuffer buffer)
-        {
-            using (BsonReader bsonReader = BsonReader.Create(buffer))
-            {
-                return ReadFrom(bsonReader);
-            }
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <returns>A BsonDocument.</returns>
-        public static new BsonDocument ReadFrom(BsonReader bsonReader)
-        {
-            BsonDocument document = new BsonDocument();
-            return (BsonDocument)((IBsonSerializable)document).Deserialize(bsonReader, typeof(BsonDocument), null);
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a byte array.
-        /// </summary>
-        /// <param name="bytes">The byte array.</param>
-        /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(byte[] bytes)
-        {
-            MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream))
-            {
-                return ReadFrom(bsonReader);
-            }
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(Stream stream)
-        {
-            using (BsonReader bsonReader = BsonReader.Create(stream))
-            {
-                return ReadFrom(bsonReader);
-            }
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a file.
-        /// </summary>
-        /// <param name="filename">The name of the file.</param>
-        /// <returns>A BsonDocument.</returns>
-        public static BsonDocument ReadFrom(string filename)
-        {
-            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-            using (BsonReader bsonReader = BsonReader.Create(stream))
-            {
-                return ReadFrom(bsonReader);
+                return (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
             }
         }
 
@@ -595,79 +530,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Deserializes the document from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object (ignored, but should be BsonDocument).</param>
-        /// <param name="options">The serialization options (ignored).</param>
-        /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
-                if (documentSerializationOptions == null)
-                {
-                    var message = string.Format(
-                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
-                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
-                        BsonUtils.GetFriendlyTypeName(options.GetType()));
-                    throw new BsonSerializationException(message);
-                }
-                _allowDuplicateNames = documentSerializationOptions.AllowDuplicateNames;
-                
-                bsonReader.ReadStartDocument();
-                Clear();
-                BsonElement element;
-                while (BsonElement.ReadFrom(bsonReader, out element))
-                {
-                    Add(element);
-                }
-                bsonReader.ReadEndDocument();
-                return this;
-            }
-        }
-
-        /// <summary>
-        /// Gets the Id of the document.
-        /// </summary>
-        /// <param name="id">The Id of the document.</param>
-        /// <param name="idNominalType">The nominal type of the Id.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
-        /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            BsonElement idElement;
-            if (TryGetElement("_id", out idElement))
-            {
-                id = idElement.Value;
-                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
-
-                if (idGenerator == null)
-                {
-                    var idBinaryData = id as BsonBinaryData;
-                    if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
-                    {
-                        idGenerator = BsonBinaryDataGuidGenerator.GetInstance(idBinaryData.GuidRepresentation);
-                    }
-                }
-            }
-            else
-            {
-                id = null;
-                idGenerator = ObjectIdGenerator.Instance; // TODO: in a future release we will return an instance of BsonObjectIdGenerator
-            }
-
-            idNominalType = typeof(BsonValue);
-            return true;
-        }
-
-        /// <summary>
         /// Compares this document to another document.
         /// </summary>
         /// <param name="rhs">The other document.</param>
@@ -896,55 +758,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Serializes this document to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominalType.</param>
-        /// <param name="options">The serialization options (can be null).</param>
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            if (bsonWriter == null)
-            {
-                throw new ArgumentNullException("bsonWriter");
-            }
-            if (nominalType == null)
-            {
-                throw new ArgumentNullException("nominalType");
-            }
-            var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
-            if (documentSerializationOptions == null)
-            {
-                var message = string.Format(
-                    "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
-                    BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
-                    BsonUtils.GetFriendlyTypeName(options.GetType()));
-                throw new BsonSerializationException(message);
-            }
-
-            bsonWriter.WriteStartDocument();
-            int idIndex;
-            if (documentSerializationOptions.SerializeIdFirst && _indexes.TryGetValue("_id", out idIndex))
-            {
-                _elements[idIndex].WriteTo(bsonWriter);
-            }
-            else
-            {
-                idIndex = -1; // remember that when TryGetValue returns false it sets idIndex to 0
-            }
-
-            for (int i = 0; i < _elements.Count; i++)
-            {
-                // if serializeIdFirst is false then idIndex will be -1 and no elements will be skipped
-                if (i != idIndex)
-                {
-                    _elements[i].WriteTo(bsonWriter);
-                }
-            }
-
-            bsonWriter.WriteEndDocument();
-        }
-
-        /// <summary>
         /// Sets the value of an element.
         /// </summary>
         /// <param name="index">The zero based index of the element whose value is to be set.</param>
@@ -978,39 +791,6 @@ namespace MongoDB.Bson
             }
             this[name] = value;
             return this;
-        }
-
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="id">The value of the Id.</param>
-        void IBsonSerializable.SetDocumentId(object id)
-        {
-            if (id == null)
-            {
-                throw new ArgumentNullException("id");
-            }
-
-            // TODO: in a future release we will just cast directly to BsonValue because the caller is required to pass a BsonValue
-            // var idBsonValue = (BsonValue)id;
-
-            var idBsonValue = id as BsonValue;
-            if (idBsonValue == null)
-            {
-                // SetDocumentId contract requires that caller provide an id of the correct type so this conversion is not correct
-                // for temporary backward compatibility with versions prior to 1.4.2 we continue to map objects to BsonValue for now
-                idBsonValue = BsonValue.Create(id); // TODO: in a future release this mapping will be removed
-            }
-
-            BsonElement idElement;
-            if (TryGetElement("_id", out idElement))
-            {
-                idElement.Value = idBsonValue;
-            }
-            else
-            {
-                InsertAt(0, new BsonElement("_id", idBsonValue));
-            }
         }
 
         /// <summary>
@@ -1141,51 +921,6 @@ namespace MongoDB.Bson
             {
                 value = null;
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Writes the document to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        public new void WriteTo(BsonWriter bsonWriter)
-        {
-            ((IBsonSerializable)this).Serialize(bsonWriter, typeof(BsonDocument), null);
-        }
-
-        /// <summary>
-        /// Writes the document to a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">The buffer.</param>
-        public void WriteTo(BsonBuffer buffer)
-        {
-            using (BsonWriter bsonWriter = BsonWriter.Create(buffer))
-            {
-                WriteTo(bsonWriter);
-            }
-        }
-
-        /// <summary>
-        /// Writes the document to a Stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        public void WriteTo(Stream stream)
-        {
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
-            {
-                WriteTo(bsonWriter);
-            }
-        }
-
-        /// <summary>
-        /// Writes the document to a file.
-        /// </summary>
-        /// <param name="filename">The name of the file.</param>
-        public void WriteTo(string filename)
-        {
-            using (FileStream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-            {
-                WriteTo(stream);
             }
         }
 

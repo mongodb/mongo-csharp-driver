@@ -47,7 +47,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp365
 
                 var query = Query.EQ("A", 1);
                 var fields = Fields.Include("_id");
-                var cursor = collection.Find(query).SetFields(fields);
+                var cursor = collection.Find(query).SetFields(fields).SetHint("A_1__id_1"); // make sure it uses the index
                 var explain = cursor.Explain();
                 Assert.IsTrue(explain["indexOnly"].ToBoolean());
             }

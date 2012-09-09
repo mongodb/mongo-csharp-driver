@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -92,7 +93,7 @@ namespace MongoDB.Driver
                 }
                 if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
                 {
-                    var document = BsonDocument.ReadFrom(bsonReader);
+                    var document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
                     var err = document.GetValue("$err", "Unknown error.");
                     var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
                     throw new MongoQueryException(message, document);

@@ -73,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Array:
-                    var array = BsonArray.ReadFrom(bsonReader);
+                    var array = (BsonArray)BsonArraySerializer.Instance.Deserialize(bsonReader, typeof(BsonArray), null);
                     var bits = new int[4];
                     bits[0] = array[0].AsInt32;
                     bits[1] = array[1].AsInt32;

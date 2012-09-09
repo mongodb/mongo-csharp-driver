@@ -79,6 +79,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     GuidRepresentation guidRepresentation;
                     bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
                     return new BsonBinaryData(bytes, subType, guidRepresentation);
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -100,7 +106,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {

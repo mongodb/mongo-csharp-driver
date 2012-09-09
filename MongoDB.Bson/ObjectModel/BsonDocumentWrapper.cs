@@ -34,7 +34,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BsonDocument wrapper.
     /// </summary>
-    public class BsonDocumentWrapper : BsonValue, IBsonSerializable
+    public class BsonDocumentWrapper : BsonValue
     {
         // private fields
         private Type _wrappedNominalType;
@@ -84,6 +84,31 @@ namespace MongoDB.Bson
             _wrappedNominalType = wrappedNominalType;
             _wrappedObject = wrappedObject;
             _isUpdateDocument = isUpdateDocument;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets whether the wrapped document is an update document.
+        /// </summary>
+        public bool IsUpdateDocument
+        {
+            get { return _isUpdateDocument; }
+        }
+
+        /// <summary>
+        /// Gets the nominal type of the wrapped document.
+        /// </summary>
+        public Type WrappedNominalType
+        {
+            get { return _wrappedNominalType; }
+        }
+
+        /// <summary>
+        /// Gets the wrapped object.
+        /// </summary>
+        public object WrappedObject
+        {
+            get { return _wrappedObject; }
         }
 
         // public static methods
@@ -181,30 +206,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Deserialize is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="bsonReader">Not applicable.</param>
-        /// <param name="nominalType">Not applicable.</param>
-        /// <param name="options">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// GetDocumentId is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="id">Not applicable.</param>
-        /// <param name="idNominalType">Not applicable.</param>
-        /// <param name="idGenerator">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
         /// Equals is an invalid operation for BsonDocumentWrapper.
         /// </summary>
         /// <param name="obj">Not applicable.</param>
@@ -219,45 +220,6 @@ namespace MongoDB.Bson
         /// </summary>
         /// <returns>Not applicable.</returns>
         public override int GetHashCode()
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Serializes the wrapped object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type (overridded by the wrapped nominal type).</param>
-        /// <param name="options">The serialization options.</param>
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            if (_isUpdateDocument)
-            {
-                var savedCheckElementNames = bsonWriter.CheckElementNames;
-                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
-                try
-                {
-                    bsonWriter.CheckElementNames = false;
-                    bsonWriter.CheckUpdateDocument = true;
-                    BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
-                }
-                finally
-                {
-                    bsonWriter.CheckElementNames = savedCheckElementNames;
-                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
-                }
-            }
-            else
-            {
-                BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
-            }
-        }
-
-        /// <summary>
-        /// SetDocumentId is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="Id">Not applicable.</param>
-        void IBsonSerializable.SetDocumentId(object Id)
         {
             throw new NotSupportedException();
         }

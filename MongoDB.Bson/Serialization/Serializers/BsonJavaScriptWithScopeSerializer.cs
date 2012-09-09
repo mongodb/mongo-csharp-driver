@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -66,16 +67,24 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonJavaScriptWithScope));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var code = bsonReader.ReadJavaScriptWithScope();
-                var scope = BsonDocument.ReadFrom(bsonReader);
-                return new BsonJavaScriptWithScope(code, scope);
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+                case BsonType.JavaScriptWithScope:
+                    var code = bsonReader.ReadJavaScriptWithScope();
+                    var scope = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
+                    return new BsonJavaScriptWithScope(code, scope);
+                case BsonType.Document:
+                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
+                    {
+                        return null;
+                    }
+                    goto default;
+                default:
+                    var message = string.Format("Cannot deserialize BsonJavaScriptWithScope from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -94,13 +103,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteBoolean("_csharpnull", true);
+                bsonWriter.WriteEndDocument();
             }
             else
             {
                 var script = (BsonJavaScriptWithScope)value;
                 bsonWriter.WriteJavaScriptWithScope(script.Code);
-                script.Scope.WriteTo(bsonWriter);
+                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), script.Scope, null);
             }
         }
     }

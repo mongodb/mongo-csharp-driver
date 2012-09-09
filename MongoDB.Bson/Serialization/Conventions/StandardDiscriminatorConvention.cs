@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Text;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
@@ -127,7 +128,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     var actualType = nominalType;
                     if (bsonReader.FindElement(_elementName))
                     {
-                        var discriminator = BsonValue.ReadFrom(bsonReader);
+                        var discriminator = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
                         if (discriminator.IsBsonArray)
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator

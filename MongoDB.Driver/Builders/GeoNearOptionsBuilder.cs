@@ -21,6 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver
@@ -148,7 +149,7 @@ namespace MongoDB.Driver
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
         }
     }
 }
