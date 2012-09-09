@@ -202,11 +202,11 @@ namespace MongoDB.Bson
 
         // public indexers
         /// <summary>
-        /// Gets or sets an array element.
+        /// Gets or sets a value by position.
         /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>The value of the element.</returns>
-        public BsonValue this[int index]
+        /// <param name="index">The position.</param>
+        /// <returns>The value.</returns>
+        public override BsonValue this[int index]
         {
             get { return _values[index]; }
             set {

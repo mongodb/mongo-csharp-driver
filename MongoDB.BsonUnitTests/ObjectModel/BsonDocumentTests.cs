@@ -100,6 +100,22 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestAutoIndexing()
+        {
+            var document = new BsonDocument
+            {
+                { "Addresses", new BsonArray
+                    {
+                        new BsonDocument { { "StreetAdress", "123 Main St" }, { "City", "Hope" } },
+                        new BsonDocument { { "StreetAdress", "456 Main St" }, { "City", "Despair" } },
+                    }
+                }
+            };
+            var streetAddress = document.AsBsonDocument["Addresses"].AsBsonArray[0].AsBsonDocument[0];
+            Assert.AreSame(streetAddress, document["Addresses"][0][0]);
+        }
+
+        [Test]
         public void TestClear()
         {
             var document = new BsonDocument("x", 1);

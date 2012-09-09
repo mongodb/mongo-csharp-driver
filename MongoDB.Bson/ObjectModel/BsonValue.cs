@@ -789,6 +789,29 @@ namespace MongoDB.Bson
             return !(lhs < rhs);
         }
 
+        // public indexers
+        /// <summary>
+        /// Gets or sets a value by position (only applies to BsonDocument and BsonArray).
+        /// </summary>
+        /// <param name="index">The position.</param>
+        /// <returns>The value.</returns>
+        public virtual BsonValue this[int index]
+        {
+            get { throw new InvalidOperationException("Indexing by position only applies to BsonDocument and BsonArray."); }
+            set { throw new InvalidOperationException("Indexing by position only applies to BsonDocument and BsonArray."); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value by name (only applies to BsonDocument).
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The value.</returns>
+        public virtual BsonValue this[string name]
+        {
+            get { throw new InvalidOperationException("Indexing by name only applies to BsonDocument."); }
+            set { throw new InvalidOperationException("Indexing by name only applies to BsonDocument."); }
+        }
+
         // public static methods
         // TODO: implement more Create methods for .NET types (int, string, etc...)? Not sure... already have implicit conversions
 
