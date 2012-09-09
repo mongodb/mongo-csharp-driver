@@ -94,7 +94,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// <summary>
         /// Initializes a new instance of the QueryDocument class and creates and adds a new element.
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>
