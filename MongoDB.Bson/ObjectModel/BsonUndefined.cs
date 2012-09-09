@@ -122,6 +122,15 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
+        /// </summary>
+        /// <returns>A Boolean.</returns>
+        public override bool ToBoolean()
+        {
+            return false;
+        }
+
+        /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
