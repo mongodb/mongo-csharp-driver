@@ -265,11 +265,11 @@ namespace MongoDB.Bson
         //     BsonElement colorElement = car.GetElement("color"); // returns null if element "color" is not found
 
         /// <summary>
-        /// Gets or sets the value of an element.
+        /// Gets or sets a value by position.
         /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>The value of the element.</returns>
-        public BsonValue this[int index]
+        /// <param name="index">The position.</param>
+        /// <returns>The value.</returns>
+        public override BsonValue this[int index]
         {
             get { return _elements[index].Value; }
             set {
@@ -308,11 +308,11 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets or sets the value of an element.
+        /// Gets or sets a value by name.
         /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <returns>The value of the element.</returns>
-        public BsonValue this[string name]
+        /// <param name="name">The name.</param>
+        /// <returns>The value.</returns>
+        public override BsonValue this[string name]
         {
             get
             {
