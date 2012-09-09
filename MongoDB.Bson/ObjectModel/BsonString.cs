@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace MongoDB.Bson
 {
@@ -208,6 +209,42 @@ namespace MongoDB.Bson
             hash = 37 * hash + BsonType.GetHashCode();
             hash = 37 * hash + _value.GetHashCode();
             return hash;
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
+        /// </summary>
+        /// <returns>A Boolean.</returns>
+        public override bool ToBoolean()
+        {
+            return _value != "";
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a Double.
+        /// </summary>
+        /// <returns>A Double.</returns>
+        public override double ToDouble()
+        {
+            return XmlConvert.ToDouble(_value);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to an Int32.
+        /// </summary>
+        /// <returns>An Int32.</returns>
+        public override int ToInt32()
+        {
+            return XmlConvert.ToInt32(_value);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to an Int64.
+        /// </summary>
+        /// <returns>An Int32.</returns>
+        public override long ToInt64()
+        {
+            return XmlConvert.ToInt64(_value);
         }
 
         /// <summary>

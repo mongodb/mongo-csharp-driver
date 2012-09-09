@@ -1226,64 +1226,40 @@ namespace MongoDB.Bson
         /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
         /// </summary>
         /// <returns>A Boolean.</returns>
-        public bool ToBoolean()
+        public virtual bool ToBoolean()
         {
-            switch (_bsonType)
-            {
-                case BsonType.Boolean: return ((BsonBoolean)this).Value;
-                case BsonType.Double: var d = ((BsonDouble)this).Value; return !(double.IsNaN(d) || d == 0.0);
-                case BsonType.Int32: return ((BsonInt32)this).Value != 0;
-                case BsonType.Int64: return ((BsonInt64)this).Value != 0;
-                case BsonType.Null: return false;
-                case BsonType.String: return ((BsonString)this).Value != "";
-                case BsonType.Undefined: return false;
-                default: return true; // everything else is true
-            }
+            // some subclasses override as appropriate
+            return true; // everything else is true        
         }
 
         /// <summary>
         /// Converts this BsonValue to a Double.
         /// </summary>
         /// <returns>A Double.</returns>
-        public double ToDouble()
+        public virtual double ToDouble()
         {
-            switch (_bsonType)
-            {
-                case BsonType.Int32: return (double)((BsonInt32)this).Value;
-                case BsonType.Int64: return (double)((BsonInt64)this).Value;
-                case BsonType.String: return XmlConvert.ToDouble(((BsonString)this).Value);
-                default: return ((BsonDouble)this).Value;
-            }
+            var message = string.Format("{0} does not support ToDouble.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
         /// Converts this BsonValue to an Int32.
         /// </summary>
         /// <returns>An Int32.</returns>
-        public int ToInt32()
+        public virtual int ToInt32()
         {
-            switch (_bsonType)
-            {
-                case BsonType.Double: return (int)((BsonDouble)this).Value;
-                case BsonType.Int64: return (int)((BsonInt64)this).Value;
-                case BsonType.String: return XmlConvert.ToInt32(((BsonString)this).Value);
-                default: return ((BsonInt32)this).Value;
-            }
+            var message = string.Format("{0} does not support ToInt32.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
         /// Converts this BsonValue to an Int64.
         /// </summary>
         /// <returns>An Int64.</returns>
-        public long ToInt64()
+        public virtual long ToInt64()
         {
-            switch (_bsonType)
-            {
-                case BsonType.Double: return (long)((BsonDouble)this).Value;
-                case BsonType.Int32: return (long)((BsonInt32)this).Value;
-                case BsonType.String: return XmlConvert.ToInt64(((BsonString)this).Value);
-                default: return ((BsonInt64)this).Value;
-            }
+            var message = string.Format("{0} does not support ToInt64.", this.GetType().Name);
+            throw new NotSupportedException(message);
         }
 
         /// <summary>

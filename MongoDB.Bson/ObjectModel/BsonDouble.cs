@@ -194,6 +194,42 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts this BsonValue to a Boolean (using the JavaScript definition of truthiness).
+        /// </summary>
+        /// <returns>A Boolean.</returns>
+        public override bool ToBoolean()
+        {
+            return !(double.IsNaN(_value) || _value == 0.0);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a Double.
+        /// </summary>
+        /// <returns>A Double.</returns>
+        public override double ToDouble()
+        {
+            return _value;
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to an Int32.
+        /// </summary>
+        /// <returns>An Int32.</returns>
+        public override int ToInt32()
+        {
+            return (int)_value;
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to an Int64.
+        /// </summary>
+        /// <returns>An Int32.</returns>
+        public override long ToInt64()
+        {
+            return (long)_value;
+        }
+
+        /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>
