@@ -797,8 +797,16 @@ namespace MongoDB.Bson
         /// <returns>The value.</returns>
         public virtual BsonValue this[int index]
         {
-            get { throw new InvalidOperationException("Indexing by position only applies to BsonDocument and BsonArray."); }
-            set { throw new InvalidOperationException("Indexing by position only applies to BsonDocument and BsonArray."); }
+            get
+            {
+                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                throw new NotSupportedException(message);
+            }
+            set
+            {
+                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                throw new NotSupportedException(message);
+            }
         }
 
         /// <summary>
@@ -808,8 +816,16 @@ namespace MongoDB.Bson
         /// <returns>The value.</returns>
         public virtual BsonValue this[string name]
         {
-            get { throw new InvalidOperationException("Indexing by name only applies to BsonDocument."); }
-            set { throw new InvalidOperationException("Indexing by name only applies to BsonDocument."); }
+            get
+            {
+                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                throw new NotSupportedException(message);
+            }
+            set
+            {
+                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                throw new NotSupportedException(message);
+            }
         }
 
         // public static methods

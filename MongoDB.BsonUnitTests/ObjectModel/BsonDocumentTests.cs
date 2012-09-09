@@ -113,6 +113,11 @@ namespace MongoDB.BsonUnitTests
             };
             var streetAddress = document.AsBsonDocument["Addresses"].AsBsonArray[0].AsBsonDocument[0];
             Assert.AreSame(streetAddress, document["Addresses"][0][0]);
+
+            Assert.Throws<NotSupportedException>(() => { var x = document["Addresses"][0][0][0]; });
+            Assert.Throws<NotSupportedException>(() => { var x = document["Addresses"][0][0]["x"]; });
+            Assert.Throws<NotSupportedException>(() => { document["Addresses"][0][0][0] = 1; });
+            Assert.Throws<NotSupportedException>(() => { document["Addresses"][0][0]["x"] = 1; });
         }
 
         [Test]
