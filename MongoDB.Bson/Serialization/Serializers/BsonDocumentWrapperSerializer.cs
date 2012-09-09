@@ -81,31 +81,29 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
+            }
+
+            var wrapper = (BsonDocumentWrapper)value;
+            if (wrapper.IsUpdateDocument)
+            {
+                var savedCheckElementNames = bsonWriter.CheckElementNames;
+                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
+                try
+                {
+                    bsonWriter.CheckElementNames = false;
+                    bsonWriter.CheckUpdateDocument = true;
+                    BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
+                }
+                finally
+                {
+                    bsonWriter.CheckElementNames = savedCheckElementNames;
+                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
+                }
             }
             else
             {
-                var wrapper = (BsonDocumentWrapper)value;
-                if (wrapper.IsUpdateDocument)
-                {
-                    var savedCheckElementNames = bsonWriter.CheckElementNames;
-                    var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
-                    try
-                    {
-                        bsonWriter.CheckElementNames = false;
-                        bsonWriter.CheckUpdateDocument = true;
-                        BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
-                    }
-                    finally
-                    {
-                        bsonWriter.CheckElementNames = savedCheckElementNames;
-                        bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
-                    }
-                }
-                else
-                {
-                    BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
-                }
+                BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
             }
         }
     }

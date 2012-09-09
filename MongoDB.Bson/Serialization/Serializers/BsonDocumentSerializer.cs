@@ -20,6 +20,7 @@ using System.Text;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using System.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -66,47 +67,35 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDocument));
 
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            var bsonType = bsonReader.GetCurrentBsonType();
+            string message;
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
-                if (documentSerializationOptions == null)
-                {
-                    var message = string.Format(
-                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
-                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
-                        BsonUtils.GetFriendlyTypeName(options.GetType()));
-                    throw new BsonSerializationException(message);
-                }
-
-                bsonReader.ReadStartDocument();
-                var document = new BsonDocument(documentSerializationOptions.AllowDuplicateNames);
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var name = bsonReader.ReadName();
-                    var value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), options);
-                    document.Add(name, value);
-                }
-                bsonReader.ReadEndDocument();
-
-                // check for special encoding of C# null BsonDocuments
-                if (document.ElementCount == 1)
-                {
-                    var element = document.GetElement(0);
-                    if (element.Name == "_csharpnull" || element.Name == "$csharpnull")
+                case BsonType.Document:
+                    var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                    if (documentSerializationOptions == null)
                     {
-                        if (element.Value.IsBoolean && element.Value.AsBoolean)
-                        {
-                            return null;
-                        }
+                        message = string.Format(
+                            "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                            BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                            BsonUtils.GetFriendlyTypeName(options.GetType()));
+                        throw new BsonSerializationException(message);
                     }
-                }
 
-                return document;
+                    bsonReader.ReadStartDocument();
+                    var document = new BsonDocument(documentSerializationOptions.AllowDuplicateNames);
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var name = bsonReader.ReadName();
+                        var value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), options);
+                        document.Add(name, value);
+                    }
+                    bsonReader.ReadEndDocument();
+
+                    return document;
+                default:
+                    message = string.Format("Cannot deserialize BsonDocument from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -166,51 +155,47 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
+
+            // could get here with a BsonDocumentWrapper from BsonValueSerializer switch statement
+            var wrapper = value as BsonDocumentWrapper;
+            if (wrapper != null)
             {
-                // could get here with a BsonDocumentWrapper from BsonValueSerializer switch statement
-                var wrapper = value as BsonDocumentWrapper;
-                if (wrapper != null)
-                {
-                    BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
-                    return;
-                }
-
-                var bsonDocument = (BsonDocument)value;
-                var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
-                if (documentSerializationOptions == null)
-                {
-                    var message = string.Format(
-                        "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
-                        BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
-                        BsonUtils.GetFriendlyTypeName(options.GetType()));
-                    throw new BsonSerializationException(message);
-                }
-
-                bsonWriter.WriteStartDocument();
-                BsonElement idElement = null;
-                if (documentSerializationOptions.SerializeIdFirst && bsonDocument.TryGetElement("_id", out idElement))
-                {
-                    bsonWriter.WriteName(idElement.Name);
-                    BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), idElement.Value, options);
-                }
-
-                foreach (var element in bsonDocument)
-                {
-                    // if serializeIdFirst is false then idElement will be null and no elements will be skipped
-                    if (!object.ReferenceEquals(element, idElement))
-                    {
-                        bsonWriter.WriteName(element.Name);
-                        BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), element.Value, options);
-                    }
-                }
-
-                bsonWriter.WriteEndDocument();
+                BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
+                return;
             }
+
+            var bsonDocument = (BsonDocument)value;
+            var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+            if (documentSerializationOptions == null)
+            {
+                var message = string.Format(
+                    "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                    BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                    BsonUtils.GetFriendlyTypeName(options.GetType()));
+                throw new BsonSerializationException(message);
+            }
+
+            bsonWriter.WriteStartDocument();
+            BsonElement idElement = null;
+            if (documentSerializationOptions.SerializeIdFirst && bsonDocument.TryGetElement("_id", out idElement))
+            {
+                bsonWriter.WriteName(idElement.Name);
+                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), idElement.Value, options);
+            }
+
+            foreach (var element in bsonDocument)
+            {
+                // if serializeIdFirst is false then idElement will be null and no elements will be skipped
+                if (!object.ReferenceEquals(element, idElement))
+                {
+                    bsonWriter.WriteName(element.Name);
+                    BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), element.Value, options);
+                }
+            }
+
+            bsonWriter.WriteEndDocument();
         }
 
         /// <summary>

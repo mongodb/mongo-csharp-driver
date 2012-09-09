@@ -70,17 +70,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.Boolean:
                     return (BsonBoolean)bsonReader.ReadBoolean();
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonBoolean from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -102,15 +93,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonBoolean = (BsonBoolean)value;
-                bsonWriter.WriteBoolean(bsonBoolean.Value);
-            }
+
+            var bsonBoolean = (BsonBoolean)value;
+            bsonWriter.WriteBoolean(bsonBoolean.Value);
         }
     }
 }

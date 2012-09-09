@@ -472,22 +472,14 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass(null);
             var json = obj.ToJson();
-            var expected = "{ 'B' : #, 'V' : null }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
+            var expected = "{ 'B' : #, 'V' : # }".Replace("#", "{ '_csharpnull' : true }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();
-            try
-            {
-                BsonSerializer.Deserialize<TestClass>(bson);
-                Assert.Fail("Expected an exception to be thrown.");
-            }
-            catch (Exception ex)
-            {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
-                Assert.IsInstanceOf<FileFormatException>(ex);
-                Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
-                Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
-            }
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson); // can only be deserialized because V is C# null
+            Assert.AreEqual(null, rehydrated.B);
+            Assert.AreEqual(null, rehydrated.V);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
         [Test]

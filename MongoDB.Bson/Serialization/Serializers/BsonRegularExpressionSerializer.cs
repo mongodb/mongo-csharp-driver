@@ -70,19 +70,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.RegularExpression:
                     string regexPattern, regexOptions;
                     bsonReader.ReadRegularExpression(out regexPattern, out regexOptions);
                     return new BsonRegularExpression(regexPattern, regexOptions);
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonRegularExpression from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -104,15 +95,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var regex = (BsonRegularExpression)value;
-                bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
-            }
+
+            var regex = (BsonRegularExpression)value;
+            bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
         }
     }
 }

@@ -70,9 +70,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
                     var array = new BsonArray();
@@ -83,12 +80,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     bsonReader.ReadEndArray();
                     return array;
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonArray from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -110,20 +101,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
+
+            var array = (BsonArray)value;
+            bsonWriter.WriteStartArray();
+            for (int i = 0; i < array.Count; i++)
             {
-                var array = (BsonArray)value;
-                bsonWriter.WriteStartArray();
-                for (int i = 0; i < array.Count; i++)
-                {
-                    BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), array[i], options);
-                }
-                bsonWriter.WriteEndArray();
+                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), array[i], options);
             }
+            bsonWriter.WriteEndArray();
         }
     }
 }

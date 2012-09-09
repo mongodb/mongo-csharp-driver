@@ -70,17 +70,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.Int32:
                     return new BsonInt32(bsonReader.ReadInt32());
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonInt32 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -102,15 +93,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonInt32 = (BsonInt32)value;
-                bsonWriter.WriteInt32(bsonInt32.Value);
-            }
+
+            var bsonInt32 = (BsonInt32)value;
+            bsonWriter.WriteInt32(bsonInt32.Value);
         }
     }
 }

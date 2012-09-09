@@ -71,18 +71,9 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.DateTime:
                     var millisecondsSinceEpoch = bsonReader.ReadDateTime();
                     return new BsonDateTime(millisecondsSinceEpoch);
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonDateTime from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -104,15 +95,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonDateTime = (BsonDateTime)value;
-                bsonWriter.WriteDateTime(bsonDateTime.MillisecondsSinceEpoch);
-            }
+
+            var bsonDateTime = (BsonDateTime)value;
+            bsonWriter.WriteDateTime(bsonDateTime.MillisecondsSinceEpoch);
         }
     }
 }

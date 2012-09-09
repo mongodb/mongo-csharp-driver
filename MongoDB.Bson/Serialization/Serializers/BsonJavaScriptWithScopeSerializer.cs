@@ -69,19 +69,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.JavaScriptWithScope:
                     var code = bsonReader.ReadJavaScriptWithScope();
                     var scope = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
                     return new BsonJavaScriptWithScope(code, scope);
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonJavaScriptWithScope from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -103,16 +94,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var script = (BsonJavaScriptWithScope)value;
-                bsonWriter.WriteJavaScriptWithScope(script.Code);
-                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), script.Scope, null);
-            }
+
+            var script = (BsonJavaScriptWithScope)value;
+            bsonWriter.WriteJavaScriptWithScope(script.Code);
+            BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), script.Scope, null);
         }
     }
 }

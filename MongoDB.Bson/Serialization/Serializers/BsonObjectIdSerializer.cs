@@ -70,21 +70,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
                 case BsonType.ObjectId:
                     int timestamp, machine, increment;
                     short pid;
                     bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
                     var objectId = new ObjectId(timestamp, machine, pid, increment);
                     return new BsonObjectId(objectId);
-                case BsonType.Document:
-                    if (BsonValueSerializer.IsCSharpNullRepresentation(bsonReader))
-                    {
-                        return null;
-                    }
-                    goto default;
                 default:
                     var message = string.Format("Cannot deserialize BsonObjectId from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -106,15 +97,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var objectId = ((BsonObjectId)value).Value;
-                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
-            }
+
+            var objectId = ((BsonObjectId)value).Value;
+            bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
         }
     }
 }
