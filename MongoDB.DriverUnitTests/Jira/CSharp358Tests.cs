@@ -46,20 +46,20 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp358
             var insertOptions = new MongoInsertOptions { CheckElementNames = false };
             collection.Insert(document, insertOptions);
             document = collection.FindOne();
-            Assert.AreEqual(1, document["v"].AsBsonDocument["$x"].AsInt32);
+            Assert.AreEqual(1, document["v"]["$x"].AsInt32);
 
-            document["v"].AsBsonDocument["$x"] = 2;
+            document["v"]["$x"] = 2;
             var query = Query.EQ("_id", 1);
             var update = Update.Replace(document);
             var updateOptions = new MongoUpdateOptions { CheckElementNames = false };
             collection.Update(query, update, updateOptions);
             document = collection.FindOne();
-            Assert.AreEqual(2, document["v"].AsBsonDocument["$x"].AsInt32);
+            Assert.AreEqual(2, document["v"]["$x"].AsInt32);
 
-            document["v"].AsBsonDocument["$x"] = 3;
+            document["v"]["$x"] = 3;
             collection.Save(document, insertOptions);
             document = collection.FindOne();
-            Assert.AreEqual(3, document["v"].AsBsonDocument["$x"].AsInt32);
+            Assert.AreEqual(3, document["v"]["$x"].AsInt32);
         }
     }
 }

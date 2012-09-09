@@ -1339,7 +1339,7 @@ namespace MongoDB.Driver.Linq
 
             if (discriminator.IsBsonArray)
             {
-                discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
+                discriminator = discriminator[discriminator.AsBsonArray.Count - 1];
             }
 
             return Query.EQ(discriminatorConvention.ElementName, discriminator);

@@ -430,21 +430,21 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(3, hits.Length);
 
             var hit0 = hits[0];
-            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-74.0, hit0["Location"][0].AsDouble);
+            Assert.AreEqual(40.74, hit0["Location"][1].AsDouble);
             Assert.AreEqual("10gen", hit0["Name"].AsString);
             Assert.AreEqual("Office", hit0["Type"].AsString);
 
             // with spherical false "Three" is slightly closer than "Two"
             var hit1 = hits[1];
-            Assert.AreEqual(-74.0, hit1["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(41.73, hit1["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-74.0, hit1["Location"][0].AsDouble);
+            Assert.AreEqual(41.73, hit1["Location"][1].AsDouble);
             Assert.AreEqual("Three", hit1["Name"].AsString);
             Assert.AreEqual("Coffee", hit1["Type"].AsString);
 
             var hit2 = hits[2];
-            Assert.AreEqual(-75.0, hit2["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit2["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-75.0, hit2["Location"][0].AsDouble);
+            Assert.AreEqual(40.74, hit2["Location"][1].AsDouble);
             Assert.AreEqual("Two", hit2["Name"].AsString);
             Assert.AreEqual("Coffee", hit2["Type"].AsString);
 
@@ -453,8 +453,8 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, hits.Length);
 
             hit0 = hits[0];
-            Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-74.0, hit0["Location"][0].AsDouble);
+            Assert.AreEqual(40.74, hit0["Location"][1].AsDouble);
             Assert.AreEqual("10gen", hit0["Name"].AsString);
             Assert.AreEqual("Office", hit0["Type"].AsString);
 
@@ -479,21 +479,21 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(3, hits.Length);
 
                 var hit0 = hits[0];
-                Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-74.0, hit0["Location"][0].AsDouble);
+                Assert.AreEqual(40.74, hit0["Location"][1].AsDouble);
                 Assert.AreEqual("10gen", hit0["Name"].AsString);
                 Assert.AreEqual("Office", hit0["Type"].AsString);
 
                 // with spherical true "Two" is considerably closer than "Three"
                 var hit1 = hits[1];
-                Assert.AreEqual(-75.0, hit1["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(40.74, hit1["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-75.0, hit1["Location"][0].AsDouble);
+                Assert.AreEqual(40.74, hit1["Location"][1].AsDouble);
                 Assert.AreEqual("Two", hit1["Name"].AsString);
                 Assert.AreEqual("Coffee", hit1["Type"].AsString);
 
                 var hit2 = hits[2];
-                Assert.AreEqual(-74.0, hit2["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(41.73, hit2["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-74.0, hit2["Location"][0].AsDouble);
+                Assert.AreEqual(41.73, hit2["Location"][1].AsDouble);
                 Assert.AreEqual("Three", hit2["Name"].AsString);
                 Assert.AreEqual("Coffee", hit2["Type"].AsString);
 
@@ -502,8 +502,8 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(1, hits.Length);
 
                 hit0 = hits[0];
-                Assert.AreEqual(-74.0, hit0["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(40.74, hit0["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-74.0, hit0["Location"][0].AsDouble);
+                Assert.AreEqual(40.74, hit0["Location"][1].AsDouble);
                 Assert.AreEqual("10gen", hit0["Name"].AsString);
                 Assert.AreEqual("Office", hit0["Type"].AsString);
 
@@ -739,8 +739,8 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
             Assert.AreEqual(5, result.Hits.Count);
             Assert.IsTrue(result.Hits[0].Distance > 1.0);
-            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"][0].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"][1].AsDouble);
             Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
             Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
 
@@ -776,8 +776,8 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
             Assert.AreEqual(5, result.Hits.Count);
             Assert.IsTrue(result.Hits[0].Distance > 1.0);
-            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"][0].AsDouble);
+            Assert.AreEqual(1.0, result.Hits[0].RawDocument["Location"][1].AsDouble);
             Assert.AreEqual("One", result.Hits[0].RawDocument["Name"].AsString);
             Assert.AreEqual("Museum", result.Hits[0].RawDocument["Type"].AsString);
 
@@ -811,24 +811,24 @@ namespace MongoDB.DriverUnitTests
 
             var hit0 = result.Hits[0];
             Assert.IsTrue(hit0.Distance == 0.0);
-            Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-74.0, hit0.RawDocument["Location"][0].AsDouble);
+            Assert.AreEqual(40.74, hit0.RawDocument["Location"][1].AsDouble);
             Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
             Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
 
             // with spherical false "Three" is slightly closer than "Two"
             var hit1 = result.Hits[1];
             Assert.IsTrue(hit1.Distance > 0.0);
-            Assert.AreEqual(-74.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(41.73, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-74.0, hit1.RawDocument["Location"][0].AsDouble);
+            Assert.AreEqual(41.73, hit1.RawDocument["Location"][1].AsDouble);
             Assert.AreEqual("Three", hit1.RawDocument["Name"].AsString);
             Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
 
             var hit2 = result.Hits[2];
             Assert.IsTrue(hit2.Distance > 0.0);
             Assert.IsTrue(hit2.Distance > hit1.Distance);
-            Assert.AreEqual(-75.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
-            Assert.AreEqual(40.74, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
+            Assert.AreEqual(-75.0, hit2.RawDocument["Location"][0].AsDouble);
+            Assert.AreEqual(40.74, hit2.RawDocument["Location"][1].AsDouble);
             Assert.AreEqual("Two", hit2.RawDocument["Name"].AsString);
             Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
         }
@@ -858,24 +858,24 @@ namespace MongoDB.DriverUnitTests
 
                 var hit0 = result.Hits[0];
                 Assert.IsTrue(hit0.Distance == 0.0);
-                Assert.AreEqual(-74.0, hit0.RawDocument["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(40.74, hit0.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-74.0, hit0.RawDocument["Location"][0].AsDouble);
+                Assert.AreEqual(40.74, hit0.RawDocument["Location"][1].AsDouble);
                 Assert.AreEqual("10gen", hit0.RawDocument["Name"].AsString);
                 Assert.AreEqual("Office", hit0.RawDocument["Type"].AsString);
 
                 // with spherical true "Two" is considerably closer than "Three"
                 var hit1 = result.Hits[1];
                 Assert.IsTrue(hit1.Distance > 0.0);
-                Assert.AreEqual(-75.0, hit1.RawDocument["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(40.74, hit1.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-75.0, hit1.RawDocument["Location"][0].AsDouble);
+                Assert.AreEqual(40.74, hit1.RawDocument["Location"][1].AsDouble);
                 Assert.AreEqual("Two", hit1.RawDocument["Name"].AsString);
                 Assert.AreEqual("Coffee", hit1.RawDocument["Type"].AsString);
 
                 var hit2 = result.Hits[2];
                 Assert.IsTrue(hit2.Distance > 0.0);
                 Assert.IsTrue(hit2.Distance > hit1.Distance);
-                Assert.AreEqual(-74.0, hit2.RawDocument["Location"].AsBsonArray[0].AsDouble);
-                Assert.AreEqual(41.73, hit2.RawDocument["Location"].AsBsonArray[1].AsDouble);
+                Assert.AreEqual(-74.0, hit2.RawDocument["Location"][0].AsDouble);
+                Assert.AreEqual(41.73, hit2.RawDocument["Location"][1].AsDouble);
                 Assert.AreEqual("Three", hit2.RawDocument["Name"].AsString);
                 Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
             }
@@ -1095,7 +1095,7 @@ namespace MongoDB.DriverUnitTests
             foreach (var document in _database[result.CollectionName].FindAll())
             {
                 var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                var count = document["value"]["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
 
@@ -1103,7 +1103,7 @@ namespace MongoDB.DriverUnitTests
             foreach (var document in result.GetResults())
             {
                 var key = document["_id"].AsString;
-                var count = document["value"].AsBsonDocument["count"].ToInt32();
+                var count = document["value"]["count"].ToInt32();
                 Assert.AreEqual(expectedCounts[key], count);
             }
 
@@ -1164,7 +1164,7 @@ namespace MongoDB.DriverUnitTests
                 foreach (var document in result.InlineResults)
                 {
                     var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    var count = document["value"]["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
@@ -1180,7 +1180,7 @@ namespace MongoDB.DriverUnitTests
                 foreach (var document in result.GetResults())
                 {
                     var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    var count = document["value"]["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
@@ -1244,7 +1244,7 @@ namespace MongoDB.DriverUnitTests
                 foreach (var document in result.InlineResults)
                 {
                     var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    var count = document["value"]["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 
@@ -1260,7 +1260,7 @@ namespace MongoDB.DriverUnitTests
                 foreach (var document in result.GetResults())
                 {
                     var key = document["_id"].AsString;
-                    var count = document["value"].AsBsonDocument["count"].ToInt32();
+                    var count = document["value"]["count"].ToInt32();
                     Assert.AreEqual(expectedCounts[key], count);
                 }
 

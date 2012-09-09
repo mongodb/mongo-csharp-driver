@@ -84,8 +84,8 @@ namespace MongoDB.BsonUnitTests
             // note: can't test json against expected because the order of the keys in the hash table is not defined
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual(1, document["A"].AsInt32);
-            Assert.AreEqual(2, document["B"].AsBsonDocument["C"].AsInt32);
-            Assert.AreEqual(3, document["B"].AsBsonDocument["D"].AsInt32);
+            Assert.AreEqual(2, document["B"]["C"].AsInt32);
+            Assert.AreEqual(3, document["B"]["D"].AsInt32);
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace MongoDB.BsonUnitTests
                     }
                 }
             };
-            var streetAddress = document.AsBsonDocument["Addresses"].AsBsonArray[0].AsBsonDocument[0];
+            var streetAddress = document["Addresses"][0][0];
             Assert.AreSame(streetAddress, document["Addresses"][0][0]);
 
             Assert.Throws<NotSupportedException>(() => { var x = document["Addresses"][0][0][0]; });
@@ -285,8 +285,8 @@ namespace MongoDB.BsonUnitTests
             Assert.AreSame(BsonNull.Value, document["n"]);
             Assert.IsTrue(document["a"].IsBsonArray);
             Assert.AreEqual(2, document["a"].AsBsonArray.Count);
-            Assert.AreEqual(1, document["a"].AsBsonArray[0].AsInt32);
-            Assert.AreSame(BsonNull.Value, document["a"].AsBsonArray[1]);
+            Assert.AreEqual(1, document["a"][0].AsInt32);
+            Assert.AreSame(BsonNull.Value, document["a"][1]);
             Assert.AreEqual(true, document.Contains("x"));
             Assert.AreEqual(true, document.Contains("n"));
             Assert.AreEqual(true, document.Contains("a"));

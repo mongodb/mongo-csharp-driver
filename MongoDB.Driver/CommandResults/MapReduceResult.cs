@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long EmitCount
         {
-            get { return Response["counts"].AsBsonDocument["emit"].ToInt64(); }
+            get { return Response["counts"]["emit"].ToInt64(); }
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long OutputCount
         {
-            get { return Response["counts"].AsBsonDocument["output"].ToInt64(); }
+            get { return Response["counts"]["output"].ToInt64(); }
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long InputCount
         {
-            get { return Response["counts"].AsBsonDocument["input"].ToInt64(); }
+            get { return Response["counts"]["input"].ToInt64(); }
         }
 
         // public methods
