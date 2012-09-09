@@ -473,19 +473,30 @@ namespace MongoDB.Bson.Serialization
         {
             try
             {
+                object value;
+
                 var nominalType = memberMap.MemberType;
-                Type actualType;
-                if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+                var bsonType = bsonReader.GetCurrentBsonType();
+                if (bsonType == BsonType.Null && nominalType.IsInterface)
                 {
-                    actualType = nominalType;
+                    bsonReader.ReadNull();
+                    value = null;
                 }
-                else
-                {
-                    var discriminatorConvention = memberMap.GetDiscriminatorConvention();
-                    actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+                else{
+                    Type actualType;
+                    if (bsonType == BsonType.Null)
+                    {
+                        actualType = nominalType;
+                    }
+                    else
+                    {
+                        var discriminatorConvention = memberMap.GetDiscriminatorConvention();
+                        actualType = discriminatorConvention.GetActualType(bsonReader, nominalType); // returns nominalType if no discriminator found
+                    }
+                    var serializer = memberMap.GetSerializer(actualType);
+                    value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
                 }
-                var serializer = memberMap.GetSerializer(actualType);
-                var value = serializer.Deserialize(bsonReader, nominalType, actualType, memberMap.SerializationOptions);
+
                 memberMap.Setter(obj, value);
             }
             catch (Exception ex)
@@ -541,10 +552,18 @@ namespace MongoDB.Bson.Serialization
             }
 
             bsonWriter.WriteName(memberMap.ElementName);
+
             var nominalType = memberMap.MemberType;
-            var actualType = (value == null) ? nominalType : value.GetType();
-            var serializer = memberMap.GetSerializer(actualType);
-            serializer.Serialize(bsonWriter, nominalType, value, memberMap.SerializationOptions);
+            if (value == null && nominalType.IsInterface)
+            {
+                bsonWriter.WriteNull();
+            }
+            else
+            {
+                var actualType = (value == null) ? nominalType : value.GetType();
+                var serializer = memberMap.GetSerializer(actualType);
+                serializer.Serialize(bsonWriter, nominalType, value, memberMap.SerializationOptions);
+            }
         }
 
         private void VerifyNominalType(Type nominalType)
