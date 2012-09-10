@@ -170,6 +170,7 @@
     <Compile Include="ObjectModel\BsonValueEqualsTests.cs" />
     <Compile Include="ObjectModel\BsonValueIConvertibleTests.cs" />
     <Compile Include="ObjectModel\BsonValueTests.cs" />
+    <Compile Include="ObjectModel\BsonBooleanTests.cs" />
     <Compile Include="ObjectModel\ObjectIdTests.cs" />
     <Compile Include="IO\BsonBinaryReaderTests.cs" />
     <Compile Include="IO\BsonRoundTripTests.cs" />
