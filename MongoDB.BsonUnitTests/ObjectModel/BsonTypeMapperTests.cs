@@ -212,7 +212,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestMapBsonObjectId()
         {
-            var value = BsonObjectId.GenerateNewId();
+            var value = new BsonObjectId(ObjectId.GenerateNewId());
             var bsonValue = (BsonObjectId)BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
             var bsonObjectId = (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
@@ -294,7 +294,7 @@ namespace MongoDB.BsonUnitTests
             Assert.AreSame(value, bsonBinary.Bytes);
             Assert.AreEqual(BsonBinarySubType.Binary, bsonBinary.SubType);
             var bsonObjectId = (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
-            Assert.IsTrue(value.SequenceEqual(bsonObjectId.ToByteArray()));
+            Assert.IsTrue(value.SequenceEqual(((ObjectId)bsonObjectId).ToByteArray()));
         }
 
         [Test]

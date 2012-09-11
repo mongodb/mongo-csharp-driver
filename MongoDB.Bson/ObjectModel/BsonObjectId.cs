@@ -29,9 +29,6 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId>
     {
-        // private static fields
-        private static BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
-
         // private fields
         private ObjectId _value;
 
@@ -44,102 +41,6 @@ namespace MongoDB.Bson
             : base(BsonType.ObjectId)
         {
             _value = value;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        public BsonObjectId(byte[] bytes)
-            : base(BsonType.ObjectId)
-        {
-            _value = new ObjectId(bytes);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="timestamp">The timestamp (expressed as a DateTime).</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public BsonObjectId(DateTime timestamp, int machine, short pid, int increment)
-            : base(BsonType.ObjectId)
-        {
-            _value = new ObjectId(timestamp, machine, pid, increment);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public BsonObjectId(int timestamp, int machine, short pid, int increment)
-            : base(BsonType.ObjectId)
-        {
-            _value = new ObjectId(timestamp, machine, pid, increment);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        public BsonObjectId(string value)
-            : base(BsonType.ObjectId)
-        {
-            _value = new ObjectId(value);
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets an instance of BsonObjectId where the value is empty.
-        /// </summary>
-        public static BsonObjectId Empty
-        {
-            get { return __emptyInstance; }
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets the timestamp.
-        /// </summary>
-        public int Timestamp
-        {
-            get { return _value.Timestamp; }
-        }
-
-        /// <summary>
-        /// Gets the machine.
-        /// </summary>
-        public int Machine
-        {
-            get { return _value.Machine; }
-        }
-
-        /// <summary>
-        /// Gets the PID.
-        /// </summary>
-        public short Pid
-        {
-            get { return _value.Pid; }
-        }
-
-        /// <summary>
-        /// Gets the increment.
-        /// </summary>
-        public int Increment
-        {
-            get { return _value.Increment; }
-        }
-
-        /// <summary>
-        /// Gets the creation time (derived from the timestamp).
-        /// </summary>
-        public DateTime CreationTime
-        {
-            get { return _value.CreationTime; }
         }
 
         /// <summary>
@@ -193,67 +94,6 @@ namespace MongoDB.Bson
         public new static BsonObjectId Create(object value)
         {
             return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
-        }
-
-        /// <summary>
-        /// Generates a new BsonObjectId with a unique value.
-        /// </summary>
-        /// <returns>A BsonObjectId.</returns>
-        public static BsonObjectId GenerateNewId()
-        {
-            return new BsonObjectId(ObjectId.GenerateNewId());
-        }
-
-        /// <summary>
-        /// Generates a new BsonObjectId with a unique value (with the timestamp component based on a given DateTime).
-        /// </summary>
-        /// <param name="timestamp">The timestamp component (expressed as a DateTime).</param>
-        /// <returns>A BsonObjectId.</returns>
-        public static BsonObjectId GenerateNewId(DateTime timestamp)
-        {
-            return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
-        }
-
-        /// <summary>
-        /// Generates a new BsonObjectId with a unique value (with the given timestamp).
-        /// </summary>
-        /// <param name="timestamp">The timestamp component.</param>
-        /// <returns>A BsonObjectId.</returns>
-        public static BsonObjectId GenerateNewId(int timestamp)
-        {
-            return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
-        }
-
-        /// <summary>
-        /// Parses a string and creates a new BsonObjectId.
-        /// </summary>
-        /// <param name="s">The string value.</param>
-        /// <returns>A BsonObjectId.</returns>
-        public static BsonObjectId Parse(string s)
-        {
-            return new BsonObjectId(ObjectId.Parse(s));
-        }
-
-        /// <summary>
-        /// Tries to parse a string and create a new BsonObjectId.
-        /// </summary>
-        /// <param name="s">The string value.</param>
-        /// <param name="value">The new BsonObjectId.</param>
-        /// <returns>True if the string was parsed successfully.</returns>
-        public static bool TryParse(string s, out BsonObjectId value)
-        {
-            // don't throw ArgumentNullException if s is null
-            ObjectId objectId;
-            if (ObjectId.TryParse(s, out objectId))
-            {
-                value = new BsonObjectId(objectId);
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
         }
 
         // public methods
@@ -315,15 +155,6 @@ namespace MongoDB.Bson
             hash = 37 * hash + BsonType.GetHashCode();
             hash = 37 * hash + _value.GetHashCode();
             return hash;
-        }
-
-        /// <summary>
-        /// Converts the BsonObjectId to a byte array.
-        /// </summary>
-        /// <returns>A byte array.</returns>
-        public byte[] ToByteArray()
-        {
-            return _value.ToByteArray();
         }
 
         /// <summary>

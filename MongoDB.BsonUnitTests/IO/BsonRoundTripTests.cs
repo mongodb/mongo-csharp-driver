@@ -64,7 +64,7 @@ namespace MongoDB.BsonUnitTests.IO
                 { "document", new BsonDocument { { "hello", "world" } } },
                 { "array", new BsonArray { 1, 2, 3 } },
                 { "binary", new byte[] { 1, 2, 3 } },
-                { "objectid", new BsonObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2 }) },
+                { "objectid", new ObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2 }) },
                 { "boolean1", false },
                 { "boolean2", true }
             };

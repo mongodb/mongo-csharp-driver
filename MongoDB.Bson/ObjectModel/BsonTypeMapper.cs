@@ -512,7 +512,7 @@ namespace MongoDB.Bson
                 case Conversion.BsonNullToBsonBoolean: return BsonBoolean.False;
                 case Conversion.BsonUndefinedToBsonBoolean: return BsonBoolean.False;
                 case Conversion.ByteArrayToBsonBinary: return new BsonBinaryData((byte[])value);
-                case Conversion.ByteArrayToBsonObjectId: return new BsonObjectId((byte[])value);
+                case Conversion.ByteArrayToBsonObjectId: return new BsonObjectId(new ObjectId((byte[])value));
                 case Conversion.ByteToBsonBoolean: return (BsonBoolean)((byte)value != 0);
                 case Conversion.ByteToBsonDouble: return new BsonDouble((double)(byte)value);
                 case Conversion.ByteToBsonInt32: return new BsonInt32((int)(byte)value);
@@ -558,7 +558,7 @@ namespace MongoDB.Bson
                 case Conversion.StringToBsonInt64: return new BsonInt64(XmlConvert.ToInt64((string)value));
                 case Conversion.StringToBsonJavaScript: return new BsonJavaScript((string)value);
                 case Conversion.StringToBsonJavaScriptWithScope: return new BsonJavaScriptWithScope((string)value, new BsonDocument());
-                case Conversion.StringToBsonObjectId: return BsonObjectId.Parse((string)value);
+                case Conversion.StringToBsonObjectId: return new BsonObjectId(ObjectId.Parse((string)value));
                 case Conversion.StringToBsonRegularExpression: return new BsonRegularExpression((string)value);
                 case Conversion.StringToBsonSymbol: return BsonSymbolTable.Lookup((string)value);
                 case Conversion.StringToBsonTimestamp: return new BsonTimestamp(XmlConvert.ToInt64((string)value));

@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An Id.</returns>
         public object GenerateId(object container, object document)
         {
-            return BsonObjectId.GenerateNewId();
+            return new BsonObjectId(ObjectId.GenerateNewId());
         }
 
         /// <summary>

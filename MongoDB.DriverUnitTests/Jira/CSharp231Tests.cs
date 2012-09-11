@@ -315,11 +315,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             _collection.Insert(doc);
             Assert.AreEqual(BsonNull.Value, doc["_id"]);
 
-            doc = new BsonDocument { { "_id", BsonObjectId.Empty }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", ObjectId.Empty }, { "X", 1 } };
             _collection.Insert(doc);
             Assert.AreNotEqual(ObjectId.Empty, doc["_id"].AsObjectId);
 
-            doc = new BsonDocument { { "_id", BsonObjectId.GenerateNewId() }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -560,11 +560,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             Assert.IsNotNull(doc.Id);
             Assert.AreNotEqual(ObjectId.Empty, doc.Id.AsObjectId);
 
-            doc = new ClassWithBsonObjectId { Id = BsonObjectId.Empty, X = 1 };
+            doc = new ClassWithBsonObjectId { Id = ObjectId.Empty, X = 1 };
             _collection.Insert(doc);
             Assert.AreNotEqual(ObjectId.Empty, doc.Id.AsObjectId);
 
-            doc = new ClassWithBsonObjectId { Id = BsonObjectId.GenerateNewId(), X = 1 };
+            doc = new ClassWithBsonObjectId { Id = ObjectId.GenerateNewId(), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -766,11 +766,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 _collection.Insert(doc);
                 Assert.IsNull(doc.Id); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
 
-                doc = new ClassWithBsonValueId { Id = BsonObjectId.Empty, X = 1 };
+                doc = new ClassWithBsonValueId { Id = ObjectId.Empty, X = 1 };
                 _collection.Insert(doc);
                 Assert.AreEqual(ObjectId.Empty, doc.Id.AsObjectId); // BsonObjectIdGenerator is not invoked when nominalType is BsonValue
 
-                doc = new ClassWithBsonValueId { Id = BsonObjectId.GenerateNewId(), X = 1 };
+                doc = new ClassWithBsonValueId { Id = ObjectId.GenerateNewId(), X = 1 };
                 _collection.Insert(doc);
             }
 

@@ -97,8 +97,8 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonObjectIdEquals()
         {
-            BsonObjectId lhs = new BsonObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
-            BsonObjectId rhs = new BsonObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+            BsonObjectId lhs = new ObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+            BsonObjectId rhs = new ObjectId(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
             Assert.AreNotSame(lhs, rhs);
             Assert.AreEqual(lhs, rhs);
             Assert.AreEqual(lhs.GetHashCode(), rhs.GetHashCode());

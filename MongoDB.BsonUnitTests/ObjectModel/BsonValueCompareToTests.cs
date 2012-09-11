@@ -38,7 +38,7 @@ namespace MongoDB.BsonUnitTests
                 new BsonDocument(),
                 new BsonArray(),
                 new BsonBinaryData(new byte[] { 1 }),
-                BsonObjectId.GenerateNewId(),
+                ObjectId.GenerateNewId(),
                 BsonBoolean.False,
                 new BsonDateTime(DateTime.UtcNow),
                 new BsonRegularExpression("pattern")

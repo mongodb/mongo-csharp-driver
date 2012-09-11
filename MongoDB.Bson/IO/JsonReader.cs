@@ -1279,7 +1279,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken(")");
-            return BsonObjectId.Parse(valueToken.StringValue);
+            return new BsonObjectId(ObjectId.Parse(valueToken.StringValue));
         }
 
         private BsonValue ParseObjectIdExtendedJson()
@@ -1292,7 +1292,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
-            return BsonObjectId.Parse(valueToken.StringValue);
+            return new BsonObjectId(ObjectId.Parse(valueToken.StringValue));
         }
 
         private BsonValue ParseRegularExpressionConstructor()
