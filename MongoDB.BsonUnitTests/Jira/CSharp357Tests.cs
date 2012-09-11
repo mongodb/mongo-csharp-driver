@@ -157,14 +157,14 @@ namespace MongoDB.BsonUnitTests.Jira
                 if (expectedIsValidDateTime)
                 {
                     Assert.IsTrue(bsonDateTime.IsValidDateTime);
-                    var value = bsonDateTime.Value;
+                    var value = bsonDateTime.AsUniversalTime;
                     Assert.AreEqual(DateTimeKind.Utc, value.Kind);
                     Assert.AreEqual(expectedDateTime, value);
                 }
                 else
                 {
                     Assert.IsFalse(bsonDateTime.IsValidDateTime);
-                    Assert.Throws<ArgumentOutOfRangeException>(() => { var value = bsonDateTime.Value; });
+                    Assert.Throws<ArgumentOutOfRangeException>(() => { var value = bsonDateTime.AsUniversalTime; });
                 }
             }
         }
