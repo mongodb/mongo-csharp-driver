@@ -315,9 +315,9 @@ namespace MongoDB.BsonUnitTests
             var value = DateTime.UtcNow;
             var valueTruncated = value.AddTicks(-(value.Ticks % 10000));
             var bsonValue = (BsonDateTime)BsonTypeMapper.MapToBsonValue(value);
-            Assert.AreEqual(valueTruncated, bsonValue.Value);
+            Assert.AreEqual(valueTruncated, bsonValue.ToUniversalTime());
             var bsonDateTime = (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
-            Assert.AreEqual(valueTruncated, bsonDateTime.Value);
+            Assert.AreEqual(valueTruncated, bsonDateTime.ToUniversalTime());
         }
 
         [Test]
@@ -326,7 +326,7 @@ namespace MongoDB.BsonUnitTests
             var value = DateTimeOffset.UtcNow;
             var valueTruncated = value.AddTicks(-(value.Ticks % 10000));
             var bsonDateTime = (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
-            Assert.AreEqual(valueTruncated.DateTime, bsonDateTime.Value);
+            Assert.AreEqual(valueTruncated.DateTime, bsonDateTime.ToUniversalTime());
         }
 
         [Test]
@@ -506,7 +506,7 @@ namespace MongoDB.BsonUnitTests
             var bsonBoolean = (BsonBoolean)BsonTypeMapper.MapToBsonValue("1", BsonType.Boolean);
             Assert.AreEqual(true, bsonBoolean.Value);
             var bsonDateTime = (BsonDateTime)BsonTypeMapper.MapToBsonValue("2010-01-02", BsonType.DateTime);
-            Assert.AreEqual(new DateTime(2010, 1, 2), bsonDateTime.Value);
+            Assert.AreEqual(new DateTime(2010, 1, 2), bsonDateTime.ToUniversalTime());
             var bsonDouble = (BsonDouble)BsonTypeMapper.MapToBsonValue("1.2", BsonType.Double);
             Assert.AreEqual(1.2, bsonDouble.Value);
             var bsonInt32 = (BsonInt32)BsonTypeMapper.MapToBsonValue("1", BsonType.Int32);

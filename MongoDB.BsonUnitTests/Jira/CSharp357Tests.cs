@@ -46,7 +46,7 @@ namespace MongoDB.BsonUnitTests.Jira
             var utcNow = DateTime.UtcNow;
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             var bsonDateTime = new BsonDateTime(utcNow);
-            var utcDateTime = bsonDateTime.AsUniversalTime;
+            var utcDateTime = bsonDateTime.ToUniversalTime();
             Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
             Assert.AreEqual(utcNowTruncated, utcDateTime);
         }
@@ -59,7 +59,7 @@ namespace MongoDB.BsonUnitTests.Jira
                 var bsonDateTime = new BsonDateTime(DateTime.SpecifyKind(DateTime.MaxValue, kind));
                 Assert.AreEqual(BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
 
-                var utcDateTime = bsonDateTime.AsUniversalTime;
+                var utcDateTime = bsonDateTime.ToUniversalTime();
                 Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
                 Assert.AreEqual(DateTime.MaxValue, utcDateTime);
 
@@ -77,7 +77,7 @@ namespace MongoDB.BsonUnitTests.Jira
                 var bsonDateTime = new BsonDateTime(DateTime.SpecifyKind(DateTime.MinValue, kind));
                 Assert.AreEqual(BsonConstants.DateTimeMinValueMillisecondsSinceEpoch, bsonDateTime.MillisecondsSinceEpoch);
 
-                var utcDateTime = bsonDateTime.AsUniversalTime;
+                var utcDateTime = bsonDateTime.ToUniversalTime();
                 Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
                 Assert.AreEqual(DateTime.MinValue, utcDateTime);
 
@@ -161,14 +161,14 @@ namespace MongoDB.BsonUnitTests.Jira
                 if (expectedIsValidDateTime)
                 {
                     Assert.IsTrue(bsonDateTime.IsValidDateTime);
-                    var value = bsonDateTime.Value;
+                    var value = bsonDateTime.ToUniversalTime();
                     Assert.AreEqual(DateTimeKind.Utc, value.Kind);
                     Assert.AreEqual(expectedDateTime, value);
                 }
                 else
                 {
                     Assert.IsFalse(bsonDateTime.IsValidDateTime);
-                    Assert.Throws<ArgumentOutOfRangeException>(() => { var value = bsonDateTime.Value; });
+                    Assert.Throws<ArgumentOutOfRangeException>(() => { var value = bsonDateTime.ToUniversalTime(); });
                 }
             }
         }

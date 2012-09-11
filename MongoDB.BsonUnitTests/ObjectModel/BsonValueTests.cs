@@ -521,7 +521,7 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = utcNow;
             Assert.IsInstanceOf<BsonDateTime>(v);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNowTruncated, dt.Value);
+            Assert.AreEqual(utcNowTruncated, dt.ToUniversalTime());
         }
 
         [Test]
@@ -610,7 +610,7 @@ namespace MongoDB.BsonUnitTests
             Assert.IsInstanceOf<BsonDateTime>(v);
             Assert.IsInstanceOf<BsonNull>(n);
             var dt = (BsonDateTime)v;
-            Assert.AreEqual(utcNowTruncated, dt.Value);
+            Assert.AreEqual(utcNowTruncated, dt.ToUniversalTime());
         }
 
         [Test]

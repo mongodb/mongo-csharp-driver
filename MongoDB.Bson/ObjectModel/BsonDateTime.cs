@@ -85,6 +85,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the DateTime value.
         /// </summary>
+        [Obsolete("Use ToUniversalTime instead.")]
         public DateTime Value
         {
             get
