@@ -29,6 +29,9 @@ namespace MongoDB.Bson
     [Serializable]
     public class BsonObjectId : BsonValue, IComparable<BsonObjectId>, IEquatable<BsonObjectId>
     {
+        // private static fields
+        private static BsonObjectId __emptyInstance = new BsonObjectId(ObjectId.Empty);
+
         // private fields
         private ObjectId _value;
 
@@ -43,6 +46,16 @@ namespace MongoDB.Bson
             _value = value;
         }
 
+        // public static properties
+        /// <summary>
+        /// Gets an instance of BsonObjectId where the value is empty.
+        /// </summary>
+        public static BsonObjectId Empty
+        {
+            get { return __emptyInstance; }
+        }
+
+        // public properties
         /// <summary>
         /// Gets the value of this BsonObjectId.
         /// </summary>
