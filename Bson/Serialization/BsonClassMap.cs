@@ -288,6 +288,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Returns all registered class maps.
+        /// </summary>
+        public static IEnumerable<BsonClassMap> AllClassMaps()
+        {
+            return __classMaps.Values;
+        }
+
+        /// <summary>
         /// Looks up a class map (will AutoMap the class if no class map is registered).
         /// </summary>
         /// <param name="classType">The class type.</param>
