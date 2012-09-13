@@ -310,6 +310,48 @@ namespace MongoDB.BsonUnitTests.Serialization
     }
 
     [TestFixture]
+    public class BsonClassMapAllClassMapTests
+    {
+        private static bool __testAlreadyRan;
+
+        public class C
+        {
+            public ObjectId Id;
+            public int X;
+        }
+
+        public class D
+        {
+            public ObjectId Id;
+            public string Y;
+        }
+
+        [Test]
+        public void TestAllClassMaps()
+        {
+            // test can only be run once
+            if (__testAlreadyRan)
+            {
+                return;
+            }
+
+            __testAlreadyRan = true;
+
+            Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
+            Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(D)));
+            BsonClassMap.RegisterClassMap<C>(cm => cm.AutoMap());
+            BsonClassMap.RegisterClassMap<D>(cm => cm.AutoMap());
+
+            var classMaps = BsonClassMap.AllClassMaps();
+            var classMapTypes = classMaps.Select(x => x.ClassType).ToList();
+
+            Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
+            Assert.Contains(typeof(C), classMapTypes);
+            Assert.Contains(typeof(D), classMapTypes);
+        }
+    }
+
+    [TestFixture]
     public class BsonShouldSerializeTests
     {
         public class ClassA
