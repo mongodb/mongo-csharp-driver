@@ -28,7 +28,7 @@ namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents .NET style connection strings. We recommend you use URL style connection strings
-    /// (see MongoUrl and MongoUrlBuilder).
+    /// (see <see cref="MongoUrl"/> and <see cref="MongoUrlBuilder"/>).
     /// </summary>
     public class MongoConnectionStringBuilder : DbConnectionStringBuilder
     {

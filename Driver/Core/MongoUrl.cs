@@ -49,8 +49,9 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
+    /// Represents an immutable URL style connection string.
     /// </summary>
+    /// <seealso cref="MongoUrlBuilder"/>
     [Serializable]
     public class MongoUrl : IEquatable<MongoUrl>
     {
