@@ -60,7 +60,7 @@ namespace MonogoDB.DriverUnitTestsPosh.HashtableCasts
         }
 
         [Test]
-        public void GroupByDocument()
+        public void TestGroupByDocument()
         {
             TestHashTableCast(typeof(GroupByDocument));
         }
