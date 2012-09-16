@@ -57,9 +57,7 @@ $bsonDoc
                 pipeline.Commands.AddScript(script);
                 var results = pipeline.Invoke();
                 Assert.AreEqual(3, results.Count, "Expected three result sets");
-                var resultHt = (results.OfType<System.Collections.DictionaryEntry>());
-                Assert.IsTrue(resultHt.Contains(new DictionaryEntry("Name", "Dearing")));
-                Assert.IsTrue(resultHt.Contains(new DictionaryEntry("PhoneNumber", "718-555-1212")));
+                
             }
         }
     }
