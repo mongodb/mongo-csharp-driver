@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Management.Automation;
 using NUnit.Framework;
 
 namespace MonogoDB.BsonUnitTestsPosh
@@ -26,13 +28,8 @@ $bsonDoc
 #$bsonDoc.ToHashtable()
 #New-Object PSObject -Property $bsonDoc.ToHashtable() 
 ";
-            using (var pipeline = runspace.CreatePipeline())
-            {
-                pipeline.Commands.AddScript(script);
-                var results = pipeline.Invoke();
-                Assert.AreEqual(3, results.Count, "Expected three result sets");
-                
-            }
+            var results = RunScript(script);
+            Assert.AreEqual(3, results.Count, "Expected three result sets");
         }
     }
 }

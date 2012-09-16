@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using NUnit.Framework;
 
@@ -30,6 +32,17 @@ namespace MonogoDB.BsonUnitTestsPosh
         {
             runspace.Close();
             runspace.Dispose();
+        }
+
+        internal Collection<PSObject> RunScript(string script)
+        {
+            Collection<PSObject> results;
+            using (var pipeline = runspace.CreatePipeline())
+            {
+                pipeline.Commands.AddScript(script);
+                results = pipeline.Invoke();
+            }
+            return results;
         }
     }
 }
