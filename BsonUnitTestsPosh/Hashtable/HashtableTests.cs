@@ -28,8 +28,8 @@ namespace MonogoDB.BsonUnitTestsPosh.Hashtable
 ";
             var results = RunScript(script);
             Assert.AreEqual(3, results.Count, "Expected three result sets");
-            results.Contains(new PSObject(new BsonElement("Name", "Dearing")));
-            results.Contains(new PSObject(new BsonElement("PoneNumber", "718-555-1212")));
+            Assert.IsTrue(results.Contains(new PSObject(new BsonElement("Name", "Justin Dearing"))));
+            Assert.IsTrue(results.Contains(new PSObject(new BsonElement("PhoneNumber", "718-555-1212"))));
         }
     }
 }
