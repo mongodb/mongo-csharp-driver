@@ -6,11 +6,8 @@ using System.Management.Automation;
 using MongoDB.Bson;
 using NUnit.Framework;
 
-namespace MonogoDB.BsonUnitTestsPosh
-{
-}
 
-namespace MonogoDB.BsonUnitTestsPosh.Hashtable
+namespace MonogoDB.BsonUnitTestsPosh.HashtableCasts
 {
     [TestFixture]
     public sealed class HashtableTests : PoshTestsBase
