@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Management.Automation;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace MonogoDB.BsonUnitTestsPosh
@@ -16,20 +19,17 @@ namespace MonogoDB.BsonUnitTestsPosh.Hashtable
         public void TestHashTable()
         {
             const string script = @"
-$bsonDoc = [MongoDB.Bson.BsonDocument] @{
+[MongoDB.Bson.BsonDocument] @{
 	Name = 'Justin Dearing'
 	EmailAddresses = 'zippy1981@gmail.com','justin@mongodb.org'
     PhoneNumber = '718-555-1212'
 
 };
-
-$bsonDoc
-
-#$bsonDoc.ToHashtable()
-#New-Object PSObject -Property $bsonDoc.ToHashtable() 
 ";
             var results = RunScript(script);
             Assert.AreEqual(3, results.Count, "Expected three result sets");
+            results.Contains(new PSObject(new BsonElement("Name", "Dearing")));
+            results.Contains(new PSObject(new BsonElement("PoneNumber", "718-555-1212")));
         }
     }
 }
