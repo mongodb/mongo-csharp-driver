@@ -37,3 +37,6 @@ Help
 # Merge tool artifacts
 *.cs.orig
 *.vb.orig
+
+# Mongo related files
+.dbshell

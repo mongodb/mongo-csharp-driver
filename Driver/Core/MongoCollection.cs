@@ -1685,13 +1685,22 @@ namespace MongoDB.Driver
     {
         // constructors
         /// <summary>
-        /// Creates a new instance of MongoCollection. Normally you would call one of the indexers or GetCollection methods
+        /// Creates a new instance of MongoCollection&lt;TDefaultDocument&gt;. Normally you would call one of the indexers or GetCollection methods
         /// of MongoDatabase instead.
         /// </summary>
         /// <param name="database">The database that contains this collection.</param>
         /// <param name="settings">The settings to use to access this collection.</param>
         public MongoCollection(MongoDatabase database, MongoCollectionSettings<TDefaultDocument> settings)
             : base(database, settings)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoCollection&lt;TDefaultDocument&gt;. This allows Powerhsell to cast an "untyped" collection to a typed collection
+        /// </summary>
+        /// <param name="collection"></param>
+        public MongoCollection(MongoCollection collection)
+            : base(collection.Database, collection.Settings)
         {
         }
 
