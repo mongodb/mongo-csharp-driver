@@ -108,6 +108,7 @@
     <Compile Include="Serialization\Conventions\CamelCaseElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\HierarchicalDiscriminatorConvention.cs" />
     <Compile Include="Serialization\Conventions\LookupIdGeneratorConvention.cs" />
+    <Compile Include="Serialization\Conventions\LowerCaseElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\MemberNameElementNameConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsMemberConvention.cs" />
     <Compile Include="Serialization\Conventions\NamedIdMemberConvention.cs" />
