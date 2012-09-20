@@ -57,10 +57,10 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
-        /// Gets a list of InstanceWithPingTimes.
+        /// Gets a list of all instances.
         /// </summary>
-        /// <returns>The list of InstanceWithPingTimes</returns>
-        public List<InstanceWithPingTime> GetInstancesWithPingTime()
+        /// <returns>The list of all instances.</returns>
+        public List<InstanceWithPingTime> GetAllInstances()
         {
             lock (_connectedInstancesLock)
             {
@@ -80,6 +80,38 @@ namespace MongoDB.Driver.Internal
             lock (_connectedInstancesLock)
             {
                 return _instances.Select(x => x.Instance).FirstOrDefault(i => i.IsPrimary);
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of primary and secondary instances.
+        /// </summary>
+        /// <returns>The list of primary and secondary instances.</returns>
+        public List<InstanceWithPingTime> GetPrimaryAndSecondaries()
+        {
+            lock (_connectedInstancesLock)
+            {
+                // note: make copies of InstanceWithPingTime values because they can change after we return
+                return _instances
+                    .Where(x => x.Instance.IsPrimary || x.Instance.IsSecondary)
+                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .ToList();
+            }
+        }
+
+        /// <summary>
+        /// Gets a list of secondaries.
+        /// </summary>
+        /// <returns>The list of secondaries.</returns>
+        public List<InstanceWithPingTime> GetSecondaries()
+        {
+            lock (_connectedInstancesLock)
+            {
+                // note: make copies of InstanceWithPingTime values because they can change after we return
+                return _instances
+                    .Where(x => x.Instance.IsSecondary)
+                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .ToList();
             }
         }
 

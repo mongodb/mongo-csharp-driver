@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Internal
         /// <returns>A MongoServerInstance.</returns>
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
-            var instancesWithPingTime = connectedInstances.GetInstancesWithPingTime();
+            var instancesWithPingTime = connectedInstances.GetAllInstances();
             if (instancesWithPingTime.Count == 0)
             {
                 return null;
