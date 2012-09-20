@@ -26,6 +26,10 @@ namespace MongoDB.Driver.Internal
     /// </summary>
     internal sealed class ShardedMongoServerProxy : MultipleInstanceMongoServerProxy
     {
+        // private fields
+        private readonly Random _random = new Random();
+        private readonly object _randomLock = new object();
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ShardedMongoServerProxy"/> class.
@@ -55,8 +59,20 @@ namespace MongoDB.Driver.Internal
         /// <returns>A MongoServerInstance.</returns>
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
-            var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
-            return connectedInstances.GetRandomInstance(secondaryAcceptableLatency);
+            var instancesWithPingTime = connectedInstances.GetInstancesWithPingTime();
+            if (instancesWithPingTime.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
+                var minPingTime = instancesWithPingTime[0].CachedAveragePingTime;
+                var maxPingTime = minPingTime + secondaryAcceptableLatency;
+                var n = instancesWithPingTime.Count(i => i.CachedAveragePingTime <= maxPingTime);
+                var index = _random.Next(n);
+                return instancesWithPingTime[index].Instance; // return random instance
+            }
         }
 
         /// <summary>

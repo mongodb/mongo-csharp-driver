@@ -27,6 +27,8 @@ namespace MongoDB.Driver.Internal
     internal sealed class ReplicaSetMongoServerProxy : MultipleInstanceMongoServerProxy
     {
         // private fields
+        private readonly Random _random = new Random();
+        private readonly object _randomLock = new object();
         private string _replicaSetName;
 
         // constructors
@@ -85,14 +87,14 @@ namespace MongoDB.Driver.Internal
                     }
                     else
                     {
-                        return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                        return GetMatchingInstance(connectedInstances, readPreference, secondaryAcceptableLatency);
                     }
 
                 case ReadPreferenceMode.Secondary:
-                    return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                    return GetMatchingInstance(connectedInstances, readPreference, secondaryAcceptableLatency);
 
                 case ReadPreferenceMode.SecondaryPreferred:
-                    var secondary = connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                    var secondary = GetMatchingInstance(connectedInstances, readPreference, secondaryAcceptableLatency);
                     if (secondary != null)
                     {
                         return secondary;
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Internal
                     }
 
                 case ReadPreferenceMode.Nearest:
-                    return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                    return GetMatchingInstance(connectedInstances, readPreference, secondaryAcceptableLatency);
 
                 default:
                     throw new MongoInternalException("Invalid ReadPreferenceMode.");
@@ -198,6 +200,54 @@ namespace MongoDB.Driver.Internal
         }
 
         // private methods
+        /// <summary>
+        /// Gets a randomly selected matching instance.
+        /// </summary>
+        /// <param name="readPreference">The read preference that must be matched.</param>
+        /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
+        /// <returns>A randomly selected matching instance.</returns>
+        public MongoServerInstance GetMatchingInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
+        {
+            var instancesWithPingTime = connectedInstances.GetInstancesWithPingTime();
+
+            var tagSets = readPreference.TagSets ?? new ReplicaSetTagSet[] { new ReplicaSetTagSet() };
+            foreach (var tagSet in tagSets)
+            {
+                var matchingInstances = new List<MongoServerInstance>();
+                var maxPingTime = TimeSpan.MaxValue;
+
+                foreach (var instanceWithPingTime in instancesWithPingTime)
+                {
+                    if (instanceWithPingTime.CachedAveragePingTime > maxPingTime)
+                    {
+                        break; // the rest will exceed maxPingTime also
+                    }
+
+                    var instance = instanceWithPingTime.Instance;
+                    if (instance.IsSecondary || (readPreference.ReadPreferenceMode == ReadPreferenceMode.Nearest && instance.IsPrimary))
+                    {
+                        if (tagSet.MatchesInstance(instance))
+                        {
+                            matchingInstances.Add(instance);
+                            if (maxPingTime == TimeSpan.MaxValue)
+                            {
+                                maxPingTime = instanceWithPingTime.CachedAveragePingTime + secondaryAcceptableLatency;
+                            }
+                        }
+                    }
+                }
+
+                // stop looking at tagSets if this one yielded any matching instances
+                if (matchingInstances.Count != 0)
+                {
+                    var index = _random.Next(matchingInstances.Count);
+                    return matchingInstances[index]; // randomly selected matching instance
+                }
+            }
+
+            return null;
+        }
+
         private void ProcessConnectedPrimaryStateChange(MongoServerInstance instance)
         {
             Interlocked.CompareExchange(ref _replicaSetName, instance.ReplicaSetInformation.Name, null);

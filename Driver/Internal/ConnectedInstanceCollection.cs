@@ -29,8 +29,6 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private readonly object _connectedInstancesLock = new object();
-        private readonly Random _random = new Random();
-        private readonly object _randomLock = new object();
 
         private Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>> _instanceLookup;
         private LinkedList<InstanceWithPingTime> _instances;
@@ -59,6 +57,21 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets a list of InstanceWithPingTimes.
+        /// </summary>
+        /// <returns>The list of InstanceWithPingTimes</returns>
+        public List<InstanceWithPingTime> GetInstancesWithPingTime()
+        {
+            lock (_connectedInstancesLock)
+            {
+                // note: make copies of InstanceWithPingTime values because they can change after we return
+                return _instances
+                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .ToList();
+            }
+        }
+
+        /// <summary>
         /// Gets the primary instance.
         /// </summary>
         /// <returns>The primary instance (or null if there is none).</returns>
@@ -66,92 +79,7 @@ namespace MongoDB.Driver.Internal
         {
             lock (_connectedInstancesLock)
             {
-                return _instances.Select(x => x.Instance).Where(i => i.IsPrimary).FirstOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Gets a randomly selected matching instance.
-        /// </summary>
-        /// <param name="readPreference">The read preference must be matched.</param>
-        /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
-        /// <returns>A randomly selected matching instance.</returns>
-        public MongoServerInstance GetRandomInstance(ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
-        {
-            lock (_connectedInstancesLock)
-            {
-                var matchingInstances = new List<MongoServerInstance>();
-                var maxPingTime = TimeSpan.MaxValue;
-
-                var tagSets = readPreference.TagSets ?? new ReplicaSetTagSet[] { new ReplicaSetTagSet() };
-                foreach (var tagSet in tagSets)
-                {
-                    foreach (var instanceWithPingTime in _instances)
-                    {
-                        if (instanceWithPingTime.CachedAveragePingTime > maxPingTime)
-                        {
-                            break; // the rest will exceed maxPingTime also
-                        }
-
-                        var instance = instanceWithPingTime.Instance;
-                        if (instance.IsSecondary || instance.IsPrimary && readPreference.ReadPreferenceMode == ReadPreferenceMode.Nearest)
-                        {
-                            if (tagSet.MatchesInstance(instance))
-                            {
-                                matchingInstances.Add(instance);
-                                if (maxPingTime == TimeSpan.MaxValue)
-                                {
-                                    maxPingTime = instanceWithPingTime.CachedAveragePingTime + secondaryAcceptableLatency;
-                                }
-                            }
-                        }
-                    }
-
-                    if (matchingInstances.Count != 0)
-                    {
-                        var n = _random.Next(matchingInstances.Count);
-                        return matchingInstances[n]; // randomly selected matching instance
-                    }
-                }
-
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Gets a randomly selected matching instance.
-        /// </summary>
-        /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
-        /// <returns>A randomly selected matching instance.</returns>
-        public MongoServerInstance GetRandomInstance(TimeSpan secondaryAcceptableLatency)
-        {
-            lock (_connectedInstancesLock)
-            {
-                var matchingInstances = new List<MongoServerInstance>();
-                var maxPingTime = TimeSpan.MaxValue;
-
-                foreach (var instanceWithPingTime in _instances)
-                {
-                    if (instanceWithPingTime.CachedAveragePingTime > maxPingTime)
-                    {
-                        break; // the rest will exceed maxPingTime also
-                    }
-
-                    var instance = instanceWithPingTime.Instance;
-                    matchingInstances.Add(instance);
-                    if (maxPingTime == TimeSpan.MaxValue)
-                    {
-                        maxPingTime = instanceWithPingTime.CachedAveragePingTime + secondaryAcceptableLatency;
-                    }
-                }
-
-                if (matchingInstances.Count != 0)
-                {
-                    var n = _random.Next(matchingInstances.Count);
-                    return matchingInstances[n]; // randomly selected matching instance
-                }
-
-                return null;
+                return _instances.Select(x => x.Instance).FirstOrDefault(i => i.IsPrimary);
             }
         }
 
@@ -272,7 +200,7 @@ namespace MongoDB.Driver.Internal
 
         // When dealing with an always sorted linked list, we need to maintain a cached version of the ping time 
         // to compare against because a MongoServerInstance's could change on it's own making the sorting of the list incorrect.
-        private class InstanceWithPingTime
+        internal class InstanceWithPingTime
         {
             public MongoServerInstance Instance;
             public TimeSpan CachedAveragePingTime;
