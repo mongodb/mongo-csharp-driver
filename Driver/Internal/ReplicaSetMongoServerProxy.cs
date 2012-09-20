@@ -70,7 +70,44 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
-            return connectedInstances.ChooseServerInstance(readPreference);
+            var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
+
+            switch (readPreference.ReadPreferenceMode)
+            {
+                case ReadPreferenceMode.Primary:
+                    return connectedInstances.GetPrimary();
+
+                case ReadPreferenceMode.PrimaryPreferred:
+                    var primary = connectedInstances.GetPrimary();
+                    if (primary != null)
+                    {
+                        return primary;
+                    }
+                    else
+                    {
+                        return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                    }
+
+                case ReadPreferenceMode.Secondary:
+                    return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+
+                case ReadPreferenceMode.SecondaryPreferred:
+                    var secondary = connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+                    if (secondary != null)
+                    {
+                        return secondary;
+                    }
+                    else
+                    {
+                        return connectedInstances.GetPrimary();
+                    }
+
+                case ReadPreferenceMode.Nearest:
+                    return connectedInstances.GetRandomInstance(readPreference, secondaryAcceptableLatency);
+
+                default:
+                    throw new MongoInternalException("Invalid ReadPreferenceMode.");
+            }
         }
 
         /// <summary>

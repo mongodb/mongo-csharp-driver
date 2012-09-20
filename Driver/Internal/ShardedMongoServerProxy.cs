@@ -55,7 +55,8 @@ namespace MongoDB.Driver.Internal
         /// <returns>A MongoServerInstance.</returns>
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
-            return connectedInstances.ChooseServerInstance(ReadPreference.Primary);
+            var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
+            return connectedInstances.GetRandomInstance(secondaryAcceptableLatency);
         }
 
         /// <summary>

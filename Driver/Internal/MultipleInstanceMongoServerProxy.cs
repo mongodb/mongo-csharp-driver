@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Internal
         {
             get
             {
-                var instance = _connectedInstances.ChooseServerInstance(ReadPreference.Primary);
+                var instance = ChooseServerInstance(ReadPreference.Primary);
                 return instance == null
                     ? null
                     : instance.BuildInfo;

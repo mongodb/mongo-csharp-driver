@@ -29,6 +29,9 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private readonly object _connectedInstancesLock = new object();
+        private readonly Random _random = new Random();
+        private readonly object _randomLock = new object();
+
         private Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>> _instanceLookup;
         private LinkedList<InstanceWithPingTime> _instances;
 
@@ -56,26 +59,100 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
-        /// Chooses the server instance based on the read preference.
+        /// Gets the primary instance.
         /// </summary>
-        /// <param name="readPreference">The read preference.</param>
-        /// <returns>A MongoServerInstance.</returns>
-        public MongoServerInstance ChooseServerInstance(ReadPreference readPreference)
+        /// <returns>The primary instance (or null if there is none).</returns>
+        public MongoServerInstance GetPrimary()
         {
-            List<MongoServerInstance> instances;
             lock (_connectedInstancesLock)
             {
-                if (_instances.Count == 0)
+                return _instances.Select(x => x.Instance).Where(i => i.IsPrimary).FirstOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Gets a randomly selected matching instance.
+        /// </summary>
+        /// <param name="readPreference">The read preference must be matched.</param>
+        /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
+        /// <returns>A randomly selected matching instance.</returns>
+        public MongoServerInstance GetRandomInstance(ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
+        {
+            lock (_connectedInstancesLock)
+            {
+                var matchingInstances = new List<MongoServerInstance>();
+                var maxPingTime = TimeSpan.MaxValue;
+
+                var tagSets = readPreference.TagSets ?? new ReplicaSetTagSet[] { new ReplicaSetTagSet() };
+                foreach (var tagSet in tagSets)
                 {
-                    return null;
+                    foreach (var instanceWithPingTime in _instances)
+                    {
+                        if (instanceWithPingTime.CachedAveragePingTime > maxPingTime)
+                        {
+                            break; // the rest will exceed maxPingTime also
+                        }
+
+                        var instance = instanceWithPingTime.Instance;
+                        if (instance.IsSecondary || instance.IsPrimary && readPreference.ReadPreferenceMode == ReadPreferenceMode.Nearest)
+                        {
+                            if (tagSet.MatchesInstance(instance))
+                            {
+                                matchingInstances.Add(instance);
+                                if (maxPingTime == TimeSpan.MaxValue)
+                                {
+                                    maxPingTime = instanceWithPingTime.CachedAveragePingTime + secondaryAcceptableLatency;
+                                }
+                            }
+                        }
+                    }
+
+                    if (matchingInstances.Count != 0)
+                    {
+                        var n = _random.Next(matchingInstances.Count);
+                        return matchingInstances[n]; // randomly selected matching instance
+                    }
                 }
 
-                // We realize we are making extra instances of a list. It is to increase
-                // concurrency related to ChooseServerInstance.
-                instances = _instances.Select(x => x.Instance).ToList();
+                return null;
             }
+        }
 
-            return readPreference.ChooseServerInstance(instances);
+        /// <summary>
+        /// Gets a randomly selected matching instance.
+        /// </summary>
+        /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
+        /// <returns>A randomly selected matching instance.</returns>
+        public MongoServerInstance GetRandomInstance(TimeSpan secondaryAcceptableLatency)
+        {
+            lock (_connectedInstancesLock)
+            {
+                var matchingInstances = new List<MongoServerInstance>();
+                var maxPingTime = TimeSpan.MaxValue;
+
+                foreach (var instanceWithPingTime in _instances)
+                {
+                    if (instanceWithPingTime.CachedAveragePingTime > maxPingTime)
+                    {
+                        break; // the rest will exceed maxPingTime also
+                    }
+
+                    var instance = instanceWithPingTime.Instance;
+                    matchingInstances.Add(instance);
+                    if (maxPingTime == TimeSpan.MaxValue)
+                    {
+                        maxPingTime = instanceWithPingTime.CachedAveragePingTime + secondaryAcceptableLatency;
+                    }
+                }
+
+                if (matchingInstances.Count != 0)
+                {
+                    var n = _random.Next(matchingInstances.Count);
+                    return matchingInstances[n]; // randomly selected matching instance
+                }
+
+                return null;
+            }
         }
 
         /// <summary>

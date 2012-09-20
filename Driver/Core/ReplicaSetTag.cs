@@ -38,6 +38,14 @@ namespace MongoDB.Driver
         /// <param name="value">The value of the tag.</param>
         public ReplicaSetTag(string name, string value)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
             _name = name;
             _value = value;
             _hashCode = GetHashCodeHelper();

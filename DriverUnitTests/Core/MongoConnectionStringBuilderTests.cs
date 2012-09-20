@@ -687,7 +687,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestReadPreferenceSecondaryNearest()
+        public void TestReadPreferenceNearest()
         {
             var builder = new MongoConnectionStringBuilder() { Server = __localhost, ReadPreference = ReadPreference.Nearest };
             Assert.AreEqual(ReadPreferenceMode.Nearest, builder.ReadPreference.ReadPreferenceMode);

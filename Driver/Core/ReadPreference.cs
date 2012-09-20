@@ -61,8 +61,6 @@ namespace MongoDB.Driver
         private static readonly ReadPreference __secondaryPreferred = new ReadPreference(ReadPreferenceMode.SecondaryPreferred).Freeze();
 
         // private fields
-        private readonly Random _random = new Random();
-        private readonly object _randomLock = new object();
         private ReadPreferenceMode _readPreferenceMode;
         private List<ReplicaSetTagSet> _tagSets;
         private ReadOnlyCollection<ReplicaSetTagSet> _tagSetsReadOnly;
@@ -74,8 +72,8 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the ReadPreference class.
         /// </summary>
         public ReadPreference()
+            : this(ReadPreferenceMode.Primary)
         {
-            _readPreferenceMode = ReadPreferenceMode.Primary;
         }
 
         /// <summary>
@@ -83,13 +81,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="readPreference">A read preference</param>
         public ReadPreference(ReadPreference readPreference)
+            : this(readPreference.ReadPreferenceMode, readPreference.TagSets)
         {
-            _readPreferenceMode = readPreference._readPreferenceMode;
-            if (readPreference._tagSets != null)
-            {
-                _tagSets = new List<ReplicaSetTagSet>(readPreference._tagSets);
-                _tagSetsReadOnly = _tagSets.AsReadOnly();
-            }
         }
 
         /// <summary>
@@ -97,8 +90,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="readPreferenceMode">The read preference mode.</param>
         public ReadPreference(ReadPreferenceMode readPreferenceMode)
+            : this(readPreferenceMode, null)
         {
-            _readPreferenceMode = readPreferenceMode;
         }
 
         /// <summary>
@@ -109,8 +102,11 @@ namespace MongoDB.Driver
         public ReadPreference(ReadPreferenceMode readPreferenceMode, IEnumerable<ReplicaSetTagSet> tagSets)
         {
             _readPreferenceMode = readPreferenceMode;
-            _tagSets = new List<ReplicaSetTagSet>(tagSets);
-            _tagSetsReadOnly = _tagSets.AsReadOnly();
+            if (tagSets != null)
+            {
+                _tagSets = new List<ReplicaSetTagSet>(tagSets);
+                _tagSetsReadOnly = _tagSets.AsReadOnly();
+            }
         }
 
         // static properties
@@ -396,96 +392,6 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal MongoServerInstance ChooseServerInstance(IEnumerable<MongoServerInstance> connectedInstancesByPingTime)
-        {
-            // tags are not evaluated for a primary
-            if (_readPreferenceMode == ReadPreferenceMode.Primary || _readPreferenceMode == ReadPreferenceMode.PrimaryPreferred)
-            {
-                foreach (var instance in connectedInstancesByPingTime)
-                {
-                    if (instance.IsPrimary)
-                    {
-                        return instance;
-                    }
-                }
-                if (_readPreferenceMode == ReadPreferenceMode.Primary)
-                {
-                    return null;
-                }
-            }
-
-            List<MongoServerInstance> matchingInstances = new List<MongoServerInstance>();
-            TimeSpan maxPingTime = TimeSpan.MaxValue;
-            foreach (var instance in connectedInstancesByPingTime)
-            {
-                if (instance.AveragePingTime > maxPingTime)
-                {
-                    break; // any subsequent instances will also exceed maxPingTime
-                }
-                if (MatchesInstance(instance))
-                {
-                    if (maxPingTime == TimeSpan.MaxValue)
-                    {
-                        var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
-                        try
-                        {
-                            maxPingTime = instance.AveragePingTime + secondaryAcceptableLatency;
-                        }
-                        catch (OverflowException)
-                        {
-                            maxPingTime = TimeSpan.MaxValue;
-                        }
-                    }
-                    matchingInstances.Add(instance);
-                }
-            }
-
-            if (matchingInstances.Count == 0)
-            {
-                return null;
-            }
-
-            if (_readPreferenceMode == ReadPreferenceMode.SecondaryPreferred)
-            {
-                MongoServerInstance primary = null;
-                foreach (var instance in matchingInstances)
-                {
-                    if (instance.IsPrimary)
-                    {
-                        primary = instance;
-                        break;
-                    }
-                }
-
-                if (primary != null)
-                {
-                    if (matchingInstances.Count == 1)
-                    {
-                        return primary;
-                    }
-                    else
-                    {
-                        matchingInstances.Remove(primary);
-                    }
-                }
-            }
-
-            switch (matchingInstances.Count)
-            {
-                case 0:
-                    return null;
-                case 1:
-                    return matchingInstances[0];
-                default:
-                    int randomIndex;
-                    lock (_randomLock)
-                    {
-                        randomIndex = _random.Next(matchingInstances.Count);
-                    }
-                    return matchingInstances[randomIndex]; // random load balancing
-            }
-        }
-
         internal bool ToSlaveOk()
         {
             return _readPreferenceMode != ReadPreferenceMode.Primary;
