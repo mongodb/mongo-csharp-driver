@@ -69,6 +69,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestTimeToLive()
+        {
+            var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
+            string expected = "{ \"expireAfterSeconds\" : 3600 }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestUnique()
         {
             var options = IndexOptions.SetUnique(true);

@@ -17,25 +17,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Used with the Connect method when connecting to a replica set to specify what subset of the replica set must be connected before returning.
+    /// Represents the results of a Aggregate command.
     /// </summary>
-    public enum ConnectWaitFor
+    [Serializable]
+    public class AggregateResult : CommandResult
     {
+        // constructors
         /// <summary>
-        /// Wait for all members of the replica set to be connected.
+        /// Initializes a new instance of the AggregateResult class.
         /// </summary>
-        All,
+        public AggregateResult()
+        {
+        }
+
+        // public properties
         /// <summary>
-        /// Wait for the primary member of the replica set to be connected.
+        /// Gets the results of the aggregation.
         /// </summary>
-        Primary,
-        /// <summary>
-        /// Wait for any slaveOk member of the replica set to be connected (primary or any secondary).
-        /// </summary>
-        AnySlaveOk
+        public IEnumerable<BsonDocument> ResultDocuments
+        {
+            get { return Response["result"].AsBsonArray.Select(v => v.AsBsonDocument); }
+        }
     }
 }

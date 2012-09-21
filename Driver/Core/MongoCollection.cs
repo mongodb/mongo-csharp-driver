@@ -104,6 +104,37 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="operations">The pipeline operations.</param>
+        /// <returns>An AggregateResult.</returns>
+        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations)
+        {
+            var pipeline = new BsonArray();
+            foreach (var operation in operations)
+            {
+                pipeline.Add(operation);
+            }
+
+            var aggregateCommand = new CommandDocument
+            {
+                { "aggregate", _name },
+                { "pipeline", pipeline }
+            };
+            return _database.RunCommandAs<AggregateResult>(aggregateCommand);
+        }
+
+        /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="operations">The pipeline operations.</param>
+        /// <returns>An AggregateResult.</returns>
+        public virtual AggregateResult Aggregate(params BsonDocument[] operations)
+        {
+            return Aggregate((IEnumerable<BsonDocument>) operations);
+        }
+
+        /// <summary>
         /// Counts the number of documents in this collection.
         /// </summary>
         /// <returns>The number of documents in this collection.</returns>
@@ -491,7 +522,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
-            return new MongoCursor<TDocument>(this, query);
+            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -502,7 +533,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
         {
-            return MongoCursor.Create(documentType, this, query);
+            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference);
         }
 
         /// <summary>
@@ -1083,7 +1114,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var safeMode = options.SafeMode ?? _settings.SafeMode;
@@ -1126,13 +1157,13 @@ namespace MongoDB.Driver
                         if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
                         {
                             byte[] lastDocument = message.RemoveLastDocument();
-                            var intermediateResult = connection.SendMessage(message, safeMode);
+                            var intermediateResult = connection.SendMessage(message, safeMode, _database.Name);
                             if (safeMode.Enabled) { results.Add(intermediateResult); }
                             message.ResetBatch(lastDocument);
                         }
                     }
 
-                    var finalResult = connection.SendMessage(message, safeMode);
+                    var finalResult = connection.SendMessage(message, safeMode, _database.Name);
                     if (safeMode.Enabled) { results.Add(finalResult); }
 
                     return results;
@@ -1272,13 +1303,13 @@ namespace MongoDB.Driver
         /// <returns>A SafeModeResult (or null if SafeMode is not being used).</returns>
         public virtual SafeModeResult Remove(IMongoQuery query, RemoveFlags flags, SafeMode safeMode)
         {
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
                 {
-                    return connection.SendMessage(message, safeMode ?? _settings.SafeMode);
+                    return connection.SendMessage(message, safeMode ?? _settings.SafeMode, _database.Name);
                 }
             }
             finally
@@ -1502,14 +1533,14 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, false); // not slaveOk
+            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update))
                 {
                     var safeMode = options.SafeMode ?? _settings.SafeMode;
-                    return connection.SendMessage(message, safeMode);
+                    return connection.SendMessage(message, safeMode, _database.Name);
                 }
             }
             finally

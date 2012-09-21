@@ -40,11 +40,12 @@ namespace MongoDB.DriverUnitTests
             settings.MaxConnectionLifeTime = TimeSpan.FromSeconds(3);
             settings.MaxConnectionPoolSize = 99;
             settings.MinConnectionPoolSize = 11;
+            settings.ReadPreference = ReadPreference.Primary;
             settings.ReplicaSetName = "replicaname";
             settings.SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(4));
             settings.Server = new MongoServerAddress("server");
-            settings.SlaveOk = true;
             settings.SocketTimeout = TimeSpan.FromSeconds(5);
+            settings.UseSsl = true;
             settings.WaitQueueSize = 55;
             settings.WaitQueueTimeout = TimeSpan.FromSeconds(6);
 
@@ -57,11 +58,13 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(TimeSpan.FromSeconds(3), settings.MaxConnectionLifeTime);
             Assert.AreEqual(99, settings.MaxConnectionPoolSize);
             Assert.AreEqual(11, settings.MinConnectionPoolSize);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual("replicaname", settings.ReplicaSetName);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(4)), settings.SafeMode);
             Assert.AreEqual(new MongoServerAddress("server"), settings.Server);
             Assert.IsTrue((new[] { new MongoServerAddress("server") }).SequenceEqual(settings.Servers));
             Assert.AreEqual(TimeSpan.FromSeconds(5), settings.SocketTimeout);
+            Assert.AreEqual(true, settings.UseSsl);
             Assert.AreEqual(55, settings.WaitQueueSize);
             Assert.AreEqual(TimeSpan.FromSeconds(6), settings.WaitQueueTimeout);
 
@@ -79,6 +82,8 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDefaults()
         {
+            var localhost = new MongoServerAddress("localhost");
+
             var settings = new MongoServerSettings();
             Assert.AreEqual(ConnectionMode.Direct, settings.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
@@ -89,11 +94,14 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, settings.MinConnectionPoolSize);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(null, settings.ReplicaSetName);
             Assert.AreEqual(SafeMode.False, settings.SafeMode);
-            Assert.AreEqual(null, settings.Server);
-            Assert.AreEqual(null, settings.Servers);
+            Assert.AreEqual(1, settings.Servers.Count());
+            Assert.AreEqual(localhost, settings.Server);
+            Assert.AreEqual(localhost, settings.Servers.First());
             Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(false, settings.UseSsl);
             Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
 

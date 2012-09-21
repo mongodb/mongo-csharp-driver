@@ -70,6 +70,18 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is equal to some value.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery EQ<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            return new QueryBuilder<TDocument>().EQ(memberExpression, value);
+        }
+
+        /// <summary>
         /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -93,6 +105,18 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is greater than some value (see $lt).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GT<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            return new QueryBuilder<TDocument>().GT(memberExpression, value);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -105,13 +129,37 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is greater than or equal to some value (see $gte).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GTE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            return new QueryBuilder<TDocument>().GTE(memberExpression, value);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is equal to one of a list of values (see $in).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery In<TMember>(Expression<Func<TDocument, TMember>> memberExpression, IEnumerable<TMember> values)
+        {
+            return new QueryBuilder<TDocument>().In(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element are equal to one of a list of values (see $in).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="values">The values to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery In<TValue>(Expression<Func<TDocument, TValue>> memberExpression, IEnumerable<TValue> values)
+        public static IMongoQuery In<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
         {
             return new QueryBuilder<TDocument>().In(memberExpression, values);
         }
@@ -129,6 +177,18 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is less than some value (see $lt).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery LT<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            return new QueryBuilder<TDocument>().LT(memberExpression, value);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -141,14 +201,35 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is less than or equal to some value (see $lte).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery LTE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            return new QueryBuilder<TDocument>().LTE(memberExpression, value);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element matches a regular expression (see $regex).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="regex">The regex.</param>
-        /// <returns>
-        /// A query.
-        /// </returns>
+        /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Matches(Expression<Func<TDocument, string>> memberExpression, BsonRegularExpression regex)
+        {
+            return new QueryBuilder<TDocument>().Matches(memberExpression, regex);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element matches a regular expression (see $regex).
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Matches(Expression<Func<TDocument, IEnumerable<string>>> memberExpression, BsonRegularExpression regex)
         {
             return new QueryBuilder<TDocument>().Matches(memberExpression, regex);
         }
@@ -160,7 +241,19 @@ namespace MongoDB.Driver.Builders
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, int modulus, int value)
+        public static IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, long modulus, long value)
+        {
+            return new QueryBuilder<TDocument>().Mod(memberExpression, modulus, value);
+        }
+
+        /// <summary>
+        /// Tests that the any of the values in the named array element match some value (see $mod).
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="modulus">The modulus.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, long modulus, long value)
         {
             return new QueryBuilder<TDocument>().Mod(memberExpression, modulus, value);
         }
@@ -210,11 +303,23 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that an element does not equal the value (see $ne).
         /// </summary>
-        /// <typeparam name="TMember"></typeparam>
+        /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery NE<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            return new QueryBuilder<TDocument>().NE(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Tests that none of the values in the named array element is equal to some value (see $ne).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery NE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
         {
             return new QueryBuilder<TDocument>().NE(memberExpression, value);
         }
@@ -232,6 +337,18 @@ namespace MongoDB.Driver.Builders
 
         /// <summary>
         /// Tests that the value of the named element is not equal to any item in a list of values (see $nin).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery NotIn<TMember>(Expression<Func<TDocument, TMember>> memberExpression, IEnumerable<TMember> values)
+        {
+            return new QueryBuilder<TDocument>().NotIn(memberExpression, values);
+        }
+
+        /// <summary>
+        /// Tests that the none of the values of the named array element is equal to any item in a list of values (see $nin).
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
@@ -262,6 +379,18 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, BsonType type)
+        {
+            return new QueryBuilder<TDocument>().Type(memberExpression, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
         {
             return new QueryBuilder<TDocument>().Type(memberExpression, type);
         }
@@ -452,6 +581,26 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is equal to some value.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery EQ<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("EQ", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            return Query.EQ(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
         /// Tests that an element of that name does or does not exist (see $exists).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -488,6 +637,26 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is greater than some value (see $lt).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery GT<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("GT", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            return Query.GT(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is greater than or equal to some value (see $gte).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -507,13 +676,33 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is greater than or equal to some value (see $gte).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery GTE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("GTE", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            return Query.GTE(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is equal to one of a list of values (see $in).
         /// </summary>
-        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
+        /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="values">The values to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery In<TValue>(Expression<Func<TDocument, TValue>> memberExpression, IEnumerable<TValue> values)
+        public IMongoQuery In<TMember>(Expression<Func<TDocument, TMember>> memberExpression, IEnumerable<TMember> values)
         {
             if (memberExpression == null)
             {
@@ -526,6 +715,30 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, values);
+            return Query.In(serializationInfo.ElementName, serializedValues);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element are equal to one of a list of values (see $in).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery In<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("In", serializationInfo);
+            var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
             return Query.In(serializationInfo.ElementName, serializedValues);
         }
 
@@ -549,6 +762,26 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element is less than some value (see $lt).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery LT<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("LT", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
+            return Query.LT(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is less than or equal to some value (see $lte).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -564,6 +797,26 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            return Query.LTE(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is less than or equal to some value (see $lte).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery LTE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("LTE", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
             return Query.LTE(serializationInfo.ElementName, serializedValue);
         }
 
@@ -591,13 +844,54 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that any of the values in the named array element matches a regular expression (see $regex).
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="regex">The regex.</param>
+        /// <returns>
+        /// A query.
+        /// </returns>
+        public IMongoQuery Matches(Expression<Func<TDocument, IEnumerable<string>>> memberExpression, BsonRegularExpression regex)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (regex == null)
+            {
+                throw new ArgumentNullException("regex");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Matches(serializationInfo.ElementName, regex);
+        }
+
+        /// <summary>
         /// Tests that the modulus of the value of the named element matches some value (see $mod).
         /// </summary>
         /// <param name="memberExpression">The member expression representing the element to test.</param>
         /// <param name="modulus">The modulus.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, int modulus, int value)
+        public IMongoQuery Mod(Expression<Func<TDocument, int>> memberExpression, long modulus, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Mod(serializationInfo.ElementName, modulus, value);
+        }
+
+        /// <summary>
+        /// Tests that the any of the values in the named array element match some value (see $mod).
+        /// </summary>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="modulus">The modulus.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Mod(Expression<Func<TDocument, IEnumerable<int>>> memberExpression, long modulus, long value)
         {
             if (memberExpression == null)
             {
@@ -660,7 +954,7 @@ namespace MongoDB.Driver.Builders
         /// Tests that the inverse of the query is true (see $not).
         /// </summary>
         /// <param name="query">The query.</param>
-        /// <returns></returns>
+        /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Not(IMongoQuery query)
         {
             return Query.Not(query);
@@ -669,7 +963,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that an element does not equal the value (see $ne).
         /// </summary>
-        /// <typeparam name="TMember"></typeparam>
+        /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="value">The value.</param>
         /// <returns>An IMongoQuery.</returns>
@@ -682,6 +976,26 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            return Query.NE(serializationInfo.ElementName, serializedValue);
+        }
+
+        /// <summary>
+        /// Tests that none of the values in the named array element is equal to some value (see $ne).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="value">The value to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery NE<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, TValue value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("NE", serializationInfo);
+            var serializedValue = _serializationInfoHelper.SerializeValue(itemSerializationInfo, value);
             return Query.NE(serializationInfo.ElementName, serializedValue);
         }
 
@@ -705,6 +1019,29 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Tests that the value of the named element is not equal to any item in a list of values (see $nin).
         /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="values">The values to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery NotIn<TMember>(Expression<Func<TDocument, TMember>> memberExpression, IEnumerable<TMember> values)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (values == null)
+            {
+                throw new ArgumentNullException("values");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, values);
+            return Query.NotIn(serializationInfo.ElementName, serializedValues);
+        }
+
+        /// <summary>
+        /// Tests that the none of the values of the named array element is equal to any item in a list of values (see $nin).
+        /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="values">The values to compare.</param>
@@ -721,7 +1058,8 @@ namespace MongoDB.Driver.Builders
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            var serializedValues = _serializationInfoHelper.SerializeValues(serializationInfo, values);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("NotIn", serializationInfo);
+            var serializedValues = _serializationInfoHelper.SerializeValues(itemSerializationInfo, values);
             return Query.NotIn(serializationInfo.ElementName, serializedValues);
         }
 
@@ -775,6 +1113,24 @@ namespace MongoDB.Driver.Builders
         /// <param name="type">The type to compare to.</param>
         /// <returns>An IMongoQuery.</returns>
         public IMongoQuery Type<TMember>(Expression<Func<TDocument, TMember>> memberExpression, BsonType type)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Type(serializationInfo.ElementName, type);
+        }
+
+        /// <summary>
+        /// Tests that any of the values in the named array element is equal to some type (see $type).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="type">The type to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Type<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, BsonType type)
         {
             if (memberExpression == null)
             {

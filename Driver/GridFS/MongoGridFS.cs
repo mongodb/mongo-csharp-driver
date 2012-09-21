@@ -55,8 +55,8 @@ namespace MongoDB.Driver.GridFS
         {
             _database = database;
             _settings = settings.FrozenCopy();
-            _chunks = database[settings.ChunksCollectionName, settings.SafeMode];
-            _files = database[settings.FilesCollectionName, settings.SafeMode];
+            _chunks = database.GetCollection(settings.ChunksCollectionName);
+            _files = database.GetCollection(settings.FilesCollectionName);
         }
 
         // public properties
@@ -259,10 +259,8 @@ namespace MongoDB.Driver.GridFS
                 throw new MongoGridFSException("VerifyMD5 is true and file being downloaded has no MD5 hash.");
             }
 
-            using (_database.RequestStart(_database.Settings.SlaveOk))
+            using (_database.RequestStart(_database.Settings.ReadPreference))
             {
-                EnsureIndexes();
-
                 string md5Client = null;
                 using (var md5Algorithm = _settings.VerifyMD5 ? MD5.Create() : null)
                 {
@@ -325,7 +323,6 @@ namespace MongoDB.Driver.GridFS
         /// <param name="version">The version to download.</param>
         public void Download(Stream stream, string remoteFileName, int version)
         {
-            EnsureIndexes();
             Download(stream, Query.EQ("filename", remoteFileName), version);
         }
 
@@ -423,25 +420,10 @@ namespace MongoDB.Driver.GridFS
         /// <param name="maxFiles">Only create new indexes if there are fewer than this number of GridFS files).</param>
         public void EnsureIndexes(int maxFiles)
         {
-            // don't try to create indexes on secondaries
-            var requestConnection = _database.Server.RequestConnection;
-            if (requestConnection != null)
-            {
-                // check whether the actual server instance we are using is a primary
-                var serverInstance = requestConnection.ServerInstance;
-                if (!serverInstance.IsPrimary)
-                {
-                    return;
-                }
-            }
-            else
-            {
-                // check whether we are guaranteed to use a primary
-                if (_database.Settings.SlaveOk)
-                {
-                    return;
-                }
-            }
+            // EnsureIndexes should only be called for update operations
+            // read-only operations shouldn't call EnsureIndexes because:
+            // 1. we might be reading from a secondary
+            // 2. we might be authenticating as a read-only uaser
 
             // avoid round trip to count files if possible
             var indexCache = _database.Server.IndexCache;
@@ -489,7 +471,6 @@ namespace MongoDB.Driver.GridFS
         /// <returns>True if the GridFS file exists.</returns>
         public bool Exists(string remoteFileName)
         {
-            EnsureIndexes();
             return Exists(Query.EQ("filename", remoteFileName));
         }
 
@@ -521,7 +502,6 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The matching GridFS files.</returns>
         public MongoCursor<MongoGridFSFileInfo> Find(string remoteFileName)
         {
-            EnsureIndexes();
             return Find(Query.EQ("filename", remoteFileName));
         }
 
@@ -594,7 +574,6 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The matching GridFS file.</returns>
         public MongoGridFSFileInfo FindOne(string remoteFileName, int version)
         {
-            EnsureIndexes();
             return FindOne(Query.EQ("filename", remoteFileName), version);
         }
 
@@ -721,7 +700,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>
@@ -733,7 +712,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>
@@ -745,7 +724,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
-            _files.Update(query, update);
+            _files.Update(query, update, _settings.SafeMode);
         }
 
         /// <summary>
@@ -777,7 +756,7 @@ namespace MongoDB.Driver.GridFS
             string remoteFileName,
             MongoGridFSCreateOptions createOptions)
         {
-            using (_database.RequestStart(false)) // not slaveOk
+            using (_database.RequestStart(ReadPreference.Primary))
             {
                 EnsureIndexes();
 

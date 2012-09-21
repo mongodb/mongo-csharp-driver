@@ -36,16 +36,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp378
     {
         public class C
         {
-            static C()
-            {
-                BsonClassMap.RegisterClassMap<C>(cm =>
-                {
-                    cm.AutoMap();
-                    cm.GetMemberMap(c => c.Id).SetSerializer(new MyIdSerializer());
-                }
-                );
-            }
-
+            [BsonSerializer(typeof(MyIdSerializer))]
             public string Id;
             public int X;
         }

@@ -44,7 +44,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
         public void Test()
         {
             // make sure collection exists and has exactly one document
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument());
 
             var result = _collection.GetStats();
@@ -54,6 +54,9 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.IsTrue(result.AverageObjectSize > 0.0);
             Assert.IsTrue(result.DataSize > 0);
             Assert.IsTrue(result.ExtentCount > 0);
+#pragma warning disable 618
+            Assert.AreEqual(1, result.Flags);
+#pragma warning restore
             Assert.IsTrue(result.IndexCount > 0);
             Assert.IsTrue(result.IndexSizes["_id_"] > 0);
             Assert.IsTrue(result.IndexSizes.ContainsKey("_id_"));
@@ -61,10 +64,16 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.IsTrue(result.IndexSizes.Keys.Contains("_id_"));
             Assert.IsTrue(result.IndexSizes.Values.Count() > 0);
             Assert.IsTrue(result.IndexSizes.Values.First() > 0);
+            Assert.IsFalse(result.IsCapped);
             Assert.IsTrue(result.LastExtentSize > 0);
+            Assert.IsFalse(result.Response.Contains("max"));
+            Assert.AreEqual(_collection.FullName, result.Namespace);
+            Assert.AreEqual(1, result.ObjectCount);
             Assert.IsTrue(result.PaddingFactor > 0.0);
             Assert.IsTrue(result.StorageSize > 0);
+            Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
             Assert.IsTrue(result.TotalIndexSize > 0);
+            Assert.AreEqual(CollectionUserFlags.None, result.UserFlags);
         }
     }
 }

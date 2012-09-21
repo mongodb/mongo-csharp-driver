@@ -67,6 +67,7 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Jira\CSharp542.vb" />
     <Compile Include="Linq\MongoQueryableTests.vb" />
     <Compile Include="Linq\MongoQueryProviderTests.vb" />
     <Compile Include="Linq\SelectDictionaryTests.vb" />

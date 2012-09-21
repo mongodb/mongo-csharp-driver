@@ -61,6 +61,28 @@ namespace MongoDB.Driver.Linq
         {
             node = EnsureConstantIsOnRight(node);
 
+            // VB lifts comparisons of Nullable<T> values and C# does not, so unlift them
+            if (node.Type == typeof(Nullable<bool>))
+            {
+                switch (node.NodeType)
+                {
+                    case ExpressionType.Equal:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
+                    case ExpressionType.NotEqual:
+                        node = Expression.MakeBinary(
+                            node.NodeType,
+                            node.Left,
+                            node.Right,
+                            false, // liftToNull
+                            null, // method
+                            null); // conversion
+                        break;
+                }
+            }
+
             Expression result = null;
             if (node.Left.NodeType == ExpressionType.Call && node.Right.NodeType == ExpressionType.Constant)
             {
@@ -118,16 +140,19 @@ namespace MongoDB.Driver.Linq
         /// <returns>The UnaryExpression (possibly modified).</returns>
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (node.NodeType == ExpressionType.Convert || node.NodeType == ExpressionType.ConvertChecked)
+            var newNode = base.VisitUnary(node);
+
+            if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
             {
-                if (node.Type.IsAssignableFrom(node.Operand.Type))
+                var newUnaryNode = (UnaryExpression)newNode;
+                if (newUnaryNode.Type.IsAssignableFrom(newUnaryNode.Operand.Type))
                 {
                     // ignore the unnecessary conversion added by VB
-                    return Visit(node.Operand);
+                    newNode = newUnaryNode.Operand;
                 }
             }
 
-            return base.VisitUnary(node);
+            return newNode;
         }
 
         private BinaryExpression EnsureConstantIsOnRight(BinaryExpression node)

@@ -54,9 +54,18 @@ namespace MongoDB.Driver.GridFS
         /// <param name="database">The database from which to inherit some of the settings.</param>
         public MongoGridFSSettings(MongoDatabase database)
         {
+            if (database == null)
+            {
+                throw new ArgumentNullException("database");
+            }
+
+            _chunksCollectionName = __defaults._chunksCollectionName;
             _chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
+            _filesCollectionName = __defaults._filesCollectionName;
             _root = MongoGridFSSettings.Defaults.Root;
-            this.SafeMode = database.Settings.SafeMode;
+            _safeMode = database.Settings.SafeMode;
+            _updateMD5 = __defaults.UpdateMD5;
+            _verifyMD5 = __defaults.VerifyMD5;
         }
 
         /// <summary>
@@ -67,9 +76,20 @@ namespace MongoDB.Driver.GridFS
         /// <param name="safeMode">The safe mode.</param>
         public MongoGridFSSettings(int chunkSize, string root, SafeMode safeMode)
         {
+            if (root == null)
+            {
+                throw new ArgumentNullException("root");
+            }
+            if (safeMode == null)
+            {
+                throw new ArgumentNullException("safeMode");
+            }
+
             _chunkSize = chunkSize;
             this.Root = root; // use property not field
             _safeMode = safeMode;
+            _updateMD5 = __defaults.UpdateMD5;
+            _verifyMD5 = __defaults.VerifyMD5;
         }
 
         // public static properties
@@ -129,6 +149,10 @@ namespace MongoDB.Driver.GridFS
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _root = value;
                 _filesCollectionName = value + ".files";
                 _chunksCollectionName = value + ".chunks";
@@ -144,6 +168,10 @@ namespace MongoDB.Driver.GridFS
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _safeMode = value;
             }
         }
@@ -203,9 +231,11 @@ namespace MongoDB.Driver.GridFS
         public MongoGridFSSettings Clone()
         {
             var clone = new MongoGridFSSettings();
+            clone._chunksCollectionName = _chunksCollectionName;
             clone._chunkSize = _chunkSize;
+            clone._filesCollectionName = _filesCollectionName;
             clone._root = _root;
-            clone._safeMode = _safeMode;
+            clone._safeMode = _safeMode.Clone();
             clone._updateMD5 = _updateMD5;
             clone._verifyMD5 = _verifyMD5;
             return clone;

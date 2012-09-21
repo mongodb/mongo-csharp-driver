@@ -7,6 +7,7 @@ obj
 *.csproj.VisualState.xml
 *.vbproj.VisualState.xml
 *.cache
+TestResults
 
 # MonoDevelop artifacts
 *.pidb
@@ -32,3 +33,7 @@ Help
 
 # NCrunch artifacts
 *.ncrunch*
+
+# Merge tool artifacts
+*.cs.orig
+*.vb.orig

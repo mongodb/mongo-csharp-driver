@@ -60,12 +60,26 @@ namespace MongoDB.DriverUnitTests
                 IdHack = true,
                 Info = "info",
                 KeyUpdates = 4,
+                LockStatistics = new SystemProfileLockStatistics
+                {
+                    TimeAcquiring = new SystemProfileReadWriteLockStatistics
+                    {
+                        Read = TimeSpan.FromMilliseconds(10),
+                        Write = TimeSpan.FromMilliseconds(20)
+                    },
+                    TimeLocked = new SystemProfileReadWriteLockStatistics
+                    {
+                        Read = TimeSpan.FromMilliseconds(5),
+                        Write = TimeSpan.FromMilliseconds(30)
+                    }
+                },
                 Moved = true,
                 Namespace = "ns",
                 NumberReturned = 5,
                 NumberScanned = 6,
                 NumberToReturn = 7,
                 NumberToSkip = 8,
+                NumberOfYields = 10,
                 Op = "op",
                 Query = new BsonDocument("query", 1),
                 ResponseLength = 9,
@@ -91,12 +105,14 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(info.IdHack, rehydrated.IdHack);
             Assert.AreEqual(info.Info, rehydrated.Info);
             Assert.AreEqual(info.KeyUpdates, rehydrated.KeyUpdates);
+            Assert.AreEqual(info.LockStatistics.RawDocument, rehydrated.LockStatistics.RawDocument);
             Assert.AreEqual(info.Moved, rehydrated.Moved);
             Assert.AreEqual(info.Namespace, rehydrated.Namespace);
             Assert.AreEqual(info.NumberReturned, rehydrated.NumberReturned);
             Assert.AreEqual(info.NumberScanned, rehydrated.NumberScanned);
             Assert.AreEqual(info.NumberToReturn, rehydrated.NumberToReturn);
             Assert.AreEqual(info.NumberToSkip, rehydrated.NumberToSkip);
+            Assert.AreEqual(info.NumberOfYields, rehydrated.NumberOfYields);
             Assert.AreEqual(info.Op, rehydrated.Op);
             Assert.AreEqual(info.Query, rehydrated.Query);
             Assert.AreEqual(info.ResponseLength, rehydrated.ResponseLength);

@@ -8,7 +8,7 @@
     <ProductVersion>3.5</ProductVersion>
     <ProjectGuid>{0f21668d-b8ad-4b32-9392-a7beadf54efd}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>CSharpDriverInstaller</OutputName>
+    <OutputName>CSharpDriver-$(FullVersion)</OutputName>
     <OutputType>Package</OutputType>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>

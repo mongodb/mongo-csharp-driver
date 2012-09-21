@@ -51,6 +51,35 @@ namespace MongoDB.DriverUnitTests
         // TODO: more tests for MongoCollection
 
         [Test]
+        public void TestAggregate()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 1, 0))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.Insert(new BsonDocument("x", 3));
+                _collection.Insert(new BsonDocument("x", 3));
+
+                var commandResult = _collection.Aggregate(
+                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
+                );
+                var dictionary = new Dictionary<int, int>();
+                foreach (var result in commandResult.ResultDocuments)
+                {
+                    var x = result["_id"].AsInt32;
+                    var count = result["count"].AsInt32;
+                    dictionary[x] = count;
+                }
+                Assert.AreEqual(3, dictionary.Count);
+                Assert.AreEqual(1, dictionary[1]);
+                Assert.AreEqual(1, dictionary[2]);
+                Assert.AreEqual(2, dictionary[3]);
+            }
+        }
+
+        [Test]
         public void TestConstructorArgumentChecking()
         {
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "");
@@ -245,6 +274,25 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(2, _collection.GetIndexes().Count());
             _collection.DropIndex("x");
             Assert.AreEqual(1, _collection.GetIndexes().Count());
+        }
+
+        [Test]
+        public void TestEnsureIndexTimeToLive()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 2))
+            {
+                _collection.DropAllIndexes();
+                Assert.AreEqual(1, _collection.GetIndexes().Count());
+
+                var keys = IndexKeys.Ascending("ts");
+                var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
+                _collection.EnsureIndex(keys, options);
+
+                var indexes = _collection.GetIndexes();
+                Assert.AreEqual("_id_", indexes[0].Name);
+                Assert.AreEqual("ts_1", indexes[1].Name);
+                Assert.AreEqual(TimeSpan.FromHours(1), indexes[1].TimeToLive);
+            }
         }
 
         [Test]
@@ -604,53 +652,67 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoHaystackSearch()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
-            _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
-            _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
-            _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-            _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    if (_collection.Exists()) { _collection.Drop(); }
+                    _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+                    _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+                    _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+                    _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
-            var options = GeoHaystackSearchOptions
-                .SetLimit(30)
-                .SetMaxDistance(6)
-                .SetQuery("Type", "restaurant");
-            var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
-            Assert.IsTrue(result.Ok);
-            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
-            Assert.AreEqual(2, result.Stats.BTreeMatches);
-            Assert.AreEqual(2, result.Stats.NumberOfHits);
-            Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
-            Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
-            Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
-            Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
-            Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
-            Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                    var options = GeoHaystackSearchOptions
+                        .SetLimit(30)
+                        .SetMaxDistance(6)
+                        .SetQuery("Type", "restaurant");
+                    var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
+                    Assert.IsTrue(result.Ok);
+                    Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+                    Assert.AreEqual(2, result.Stats.BTreeMatches);
+                    Assert.AreEqual(2, result.Stats.NumberOfHits);
+                    Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
+                    Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
+                    Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
+                    Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
+                    Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
+                    Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                }
+            }
         }
 
         [Test]
         public void TestGeoHaystackSearch_Typed()
         {
-            if (_collection.Exists()) { _collection.Drop(); }
-            _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
-            _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
-            _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-            _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    if (_collection.Exists()) { _collection.Drop(); }
+                    _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+                    _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+                    _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+                    _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
 
-            var options = GeoHaystackSearchOptions<Place>
-                .SetLimit(30)
-                .SetMaxDistance(6)
-                .SetQuery(x => x.Type, "restaurant");
-            var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
-            Assert.IsTrue(result.Ok);
-            Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
-            Assert.AreEqual(2, result.Stats.BTreeMatches);
-            Assert.AreEqual(2, result.Stats.NumberOfHits);
-            Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
-            Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
-            Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
-            Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
-            Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
-            Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                    var options = GeoHaystackSearchOptions<Place>
+                        .SetLimit(30)
+                        .SetMaxDistance(6)
+                        .SetQuery(x => x.Type, "restaurant");
+                    var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
+                    Assert.IsTrue(result.Ok);
+                    Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
+                    Assert.AreEqual(2, result.Stats.BTreeMatches);
+                    Assert.AreEqual(2, result.Stats.NumberOfHits);
+                    Assert.AreEqual(34.2, result.Hits[0].Document.Location[0]);
+                    Assert.AreEqual(33.3, result.Hits[0].Document.Location[1]);
+                    Assert.AreEqual("restaurant", result.Hits[0].Document.Type);
+                    Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
+                    Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
+                    Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                }
+            }
         }
 
         [Test]
@@ -1214,21 +1276,28 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestReIndex()
         {
-            _collection.RemoveAll();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.DropAllIndexes();
-            _collection.CreateIndex("x");
-            // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
-            try
+            using (_database.RequestStart())
             {
-                var result = _collection.ReIndex();
-                Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
-                Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
-            }
-            catch (InvalidOperationException ex)
-            {
-                Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    _collection.RemoveAll();
+                    _collection.Insert(new BsonDocument("x", 1));
+                    _collection.Insert(new BsonDocument("x", 2));
+                    _collection.DropAllIndexes();
+                    _collection.CreateIndex("x");
+                    // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
+                    try
+                    {
+                        var result = _collection.ReIndex();
+                        Assert.AreEqual(2, result.Response["nIndexes"].ToInt32());
+                        Assert.AreEqual(2, result.Response["nIndexesWas"].ToInt32());
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        Assert.AreEqual("Duplicate element name 'ok'.", ex.Message);
+                    }
+                }
             }
         }
 
@@ -1293,7 +1362,27 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetStats()
         {
-            var dataSize = _collection.GetStats();
+            var stats = _collection.GetStats();
+        }
+
+        [Test]
+        public void TestGetStatsUsePowerOf2Sizes()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 2))
+            {
+                _collection.Drop();
+                _database.CreateCollection(_collection.Name); // collMod command only works if collection exists
+
+                var command = new CommandDocument
+                {
+                    { "collMod", _collection.Name },
+                    { "usePowerOf2Sizes", true }
+                };
+                _database.RunCommand(command);
+
+                var stats = _collection.GetStats();
+                Assert.IsTrue((stats.UserFlags & CollectionUserFlags.UsePowerOf2Sizes) != 0);
+            }
         }
 
         [Test]
@@ -1341,34 +1430,41 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestValidate()
         {
-            // ensure collection exists
-            _collection.RemoveAll();
-            _collection.Insert(new BsonDocument("x", 1));
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    // ensure collection exists
+                    _collection.RemoveAll();
+                    _collection.Insert(new BsonDocument("x", 1));
 
-            var result = _collection.Validate();
-            var ns = result.Namespace;
-            var firstExtent = result.FirstExtent;
-            var lastExtent = result.LastExtent;
-            var extentCount = result.ExtentCount;
-            var dataSize = result.DataSize;
-            var nrecords = result.RecordCount;
-            var lastExtentSize = result.LastExtentSize;
-            var padding = result.Padding;
-            var firstExtentDetails = result.FirstExtentDetails;
-            var loc = firstExtentDetails.Loc;
-            var xnext = firstExtentDetails.XNext;
-            var xprev = firstExtentDetails.XPrev;
-            var nsdiag = firstExtentDetails.NSDiag;
-            var size = firstExtentDetails.Size;
-            var firstRecord = firstExtentDetails.FirstRecord;
-            var lastRecord = firstExtentDetails.LastRecord;
-            var deletedCount = result.DeletedCount;
-            var deletedSize = result.DeletedSize;
-            var nindexes = result.IndexCount;
-            var keysPerIndex = result.KeysPerIndex;
-            var valid = result.IsValid;
-            var errors = result.Errors;
-            var warning = result.Warning;
+                    var result = _collection.Validate();
+                    var ns = result.Namespace;
+                    var firstExtent = result.FirstExtent;
+                    var lastExtent = result.LastExtent;
+                    var extentCount = result.ExtentCount;
+                    var dataSize = result.DataSize;
+                    var nrecords = result.RecordCount;
+                    var lastExtentSize = result.LastExtentSize;
+                    var padding = result.Padding;
+                    var firstExtentDetails = result.FirstExtentDetails;
+                    var loc = firstExtentDetails.Loc;
+                    var xnext = firstExtentDetails.XNext;
+                    var xprev = firstExtentDetails.XPrev;
+                    var nsdiag = firstExtentDetails.NSDiag;
+                    var size = firstExtentDetails.Size;
+                    var firstRecord = firstExtentDetails.FirstRecord;
+                    var lastRecord = firstExtentDetails.LastRecord;
+                    var deletedCount = result.DeletedCount;
+                    var deletedSize = result.DeletedSize;
+                    var nindexes = result.IndexCount;
+                    var keysPerIndex = result.KeysPerIndex;
+                    var valid = result.IsValid;
+                    var errors = result.Errors;
+                    var warning = result.Warning;
+                }
+            }
         }
     }
 }

@@ -1,0 +1,211 @@
+C# driver changes from 1.5 to 1.6
+
+IndexOptionsBuilder.cs
+    added SetTimeToLive
+
+QueryBuilder.cs
+QueryBuilderTyped.cs
+    Mod arguments changed from int to long
+
+AggregateResult.cs
+    new class
+    represents the result of an aggregate command
+
+CollectionStatsResults.cs
+    added CollectionSystemFlags and CollectionUserFlags enums
+    marked Flags property obsolete
+    added SystemFlags and UserFlags properties
+
+IsMasterResult.cs
+    new class
+    represents the result of an IsMaster command
+
+ConnectWaitFor.cs
+    enum removed (obsoleted by ReadPreference)
+
+GetIndexesResult.cs
+    added TimeToLive property to IndexInfo class
+
+MongoCollection.cs
+    added Aggregate helper method
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoCollectionSettings.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoConnectionStringBuilder.cs
+MongoUrlBuilder.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+    ConnectionMode now defaults to new Automatic mode
+    ConnectionMode no longer set to ReplicaSet when ReplicaSetName is set
+    ConnectionMode no longer set to Direct when one server name is provided and ReplicaSet when more than one server is provided
+    added support for SSL
+
+MongoCursor.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoCursorEnumerator.cs
+    added support for ReadPreference (including sending $readPreference to mongos)
+
+MongoDatabase.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+    commands now go to a server chosen by ReadPreferences (not necessarily the primary)
+
+MongoDatabaseSettings.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoDBRef.cs
+    use new BsonSerializerAttribute to configure serializer for MongoDBRef
+
+MongoServer.cs
+    instance management logic moved from this class to new proxy classes
+    static constructor no longer registers serializers (see MongoDBRef and SystemProfileInfo)
+    removed ConnectWaitFor overload to Connect
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoServerBuildInfo.cs
+    added new FromCommandResult helper factory method
+
+MongoServerInstance.cs
+    added new MongoServerInstanceType enum (Unknown, StandAlone, ReplicaSetMember, ShardRouter)
+    added tracking of a running average Ping time
+    moved state verification time here from MongoConnectionPool
+    added several new internal properties (AveragePingTime, ReplicaSetInformation, InstanceType)
+    reengineered how locking is used
+    changed some thread synchronization to use Interlocked methods rather than locks
+    IsMasterResult now returns an instance of the new IsMasterResult class
+    reimplemented VerifyState 
+    reimplemented Connect and Disconnect
+    renamed internal VerifyState helper method to LookupServerInformation (and reimplemented it)
+    added internal Ping helper method that keeps running average of Ping time
+    added new ServerInformation helper class
+
+MongoServerSettings.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+    added _serversReadOnly private field
+    added UseSsl and VerifySslCertificate properties
+
+MongoUrl.cs
+    added new Automatic and ShardRouter ConnectionModes
+    obsoleted slaveOk
+    added support for ReadPreference
+    added support for SSL
+
+ReadPreference.cs
+    new class to represent a read preference
+
+ReplicaSetTag.cs
+    new class to represent a tag attached to a replica set member
+
+ReplicaSetTagSet.cs
+    new class to represent a set of tags
+
+SystemProfileInfo.cs
+    reimplemented as a subclass of BsonDocumentBackedClass
+    removed all private fields and reimplemented properties to extract from the backing document
+    added new LockStatistics and NumberOfYields properties introduced by MongoDB Server 2.2
+    added new RawDocument property to expose the underlying raw BSON document
+    added new SystemProfileLockStatistics and SystemProfileReadWriteLockStatistics helper classes
+    reimplemented SystemProfileInfoSerializer as a BsonDocumentBackedClassSerializer
+    added new SystemProfileLockStatisticsSerializer class
+    added new SystemProfileReadWriteLockStatisticsSerializer class
+
+MongoGridFS.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+    changes to use SafeMode from the GridFS settings
+
+MongoGridFSFileInfo.cs
+    obsoleted slaveOk
+    added support for ReadPreference
+
+MongoGridFSSettings.cs
+    fixed handling of defaults
+    fixed Clone
+
+BlockingQueue.cs
+    added new _pipelineCount private field to track items that are not yet in the queue but are in the pipeline (will be queued eventually)
+    added new Count property that reports the number of items in the queue PLUS the number of items in the pipeline
+    added new overload of Dequeue that blocks forever waiting for an item to be queued
+    added new EnqueueWorkItem method that adds a work item to the pipeline
+    added new RunItemFunc that runs a work item from the pipeline and queues the result
+
+ConnectedInstanceCollection.cs
+    new class to hold a collection of connected instances sorted by average ping time
+
+DirectConnector.cs
+    class has been removed
+    more or less replaced by DirectMongoServerProxy
+
+DirectMongoServerProxy.cs
+    new class to handle management of a directly connected instance
+
+DiscoveringMongoServerProxy.cs
+    new class that is used when we won't know what kind of server we are connected to until we try to connect to it
+
+IMongoServerProxy.cs
+    interface for server proxies
+
+MongoConnection.cs
+    added support for SSL
+    changed RunCommand to take a database name instead of a collection name
+
+MongoConnectionPool.cs
+    moved state verification timer to MongoServerInstance
+    new MaintainPoolSize method is a refactoring of the old TimerCallback method
+    RemoveConnection is now private
+
+MongoServerProxyFactory.cs
+    new class to handle choosing the type of IMongoServerProxy to create based on settings
+
+MultipleInstanceMongoServerProxy.cs
+    new abstract class for managing multiple active MongoServerInstances
+
+PingTimeAggregator.cs
+    new class to keep track of ping times and their average for a MongoServerInstance
+
+ReplicaSetConnector.cs
+    removed class
+    more or less replaced by MultipleInstanceMongoServerProxy and ReplicaSetMongoServerProxy
+
+ReplicaSetInformation.cs
+    new class to hold information about a replica set
+
+ReplicaSetMongoServerProxy.cs
+    new subclass of MultipleInstanceMongoServerProxy to implement replica set specifics
+
+ShardedMongoServerProxy.cs
+    new sublcass of MultipleInstanceMongoServerProxy to implement mongos specifics
+
+ExpressionNormalizer.cs
+    normalize comparisons of Nullable<T> from VB to C#
+    VisitUnary now calls base method before normalizing
+
+PredicateTranslator.cs
+    changed Mod query operator to support either 32-bit or 64-bit integers
+
+Projector.cs
+    added new IProjector and IProjector<TSource, TResult> interfaces
+    added new IdentityProjector<T> class
+    Projector<TSource, TResult> now implements IProjector<TSource, TResult> interface
+    added Cursor property to Projector
+
+SelectQuery.cs
+    changed skip and take handling to be order dependent
+    Distinct now must appear last in the query pipeline
+    changed Execute so that a projector is always used, even if it is only an IdentityProjector
+
+BsonSerializationInfoHelper.cs
+    moved SerializeValue and SerializeValues to the BsonSerializationInfo class
+    but left behind forwarding stubs (for now)
+
+MongoQueryProvider.cs
+    fixed a bug related to First, FirstOrDefault, Single and SingleOrDefault when projecting a primitive type

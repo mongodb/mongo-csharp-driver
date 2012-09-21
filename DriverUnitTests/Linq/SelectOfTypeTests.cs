@@ -166,7 +166,7 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(typeof(D), selectQuery.OfType);
             Assert.IsNull(selectQuery.OrderBy);
             Assert.IsNotNull(selectQuery.Projection);
-            Assert.AreEqual("(D x) => new <>f__AnonymousType1`1(x.d)", ExpressionFormatter.ToString(selectQuery.Projection));
+            Assert.AreEqual("(D x) => new __AnonymousType<Int32>(x.d)", ExpressionFormatter.ToString(selectQuery.Projection));
             Assert.IsNull(selectQuery.Skip);
             Assert.IsNull(selectQuery.Take);
 

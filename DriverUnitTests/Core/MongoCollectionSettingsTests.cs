@@ -36,7 +36,7 @@ namespace MongoDB.DriverUnitTests
             {
                 AssignIdOnInsert = true,
                 SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
-                SlaveOk = true
+                ReadPreference = ReadPreference.Primary
             };
 
             Assert.AreEqual("collection", settings.CollectionName);
@@ -44,7 +44,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
             Assert.AreEqual(GuidRepresentation.CSharpLegacy, settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
-            Assert.AreEqual(true, settings.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
 
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// Gets the serialization info for the given expression.
         /// </summary>
         /// <param name="node">The expression.</param>
-        /// <returns></returns>
+        /// <returns>The serialization info.</returns>
         public BsonSerializationInfo GetSerializationInfo(Expression node)
         {
             return BsonSerializationInfoFinder.GetSerializationInfo(node, _serializationInfoCache);
@@ -96,13 +96,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>A BsonValue representing the value serialized using the serializer.</returns>
         public BsonValue SerializeValue(BsonSerializationInfo serializationInfo, object value)
         {
-            var bsonDocument = new BsonDocument();
-            var bsonWriter = BsonWriter.Create(bsonDocument);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("value");
-            serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
-            bsonWriter.WriteEndDocument();
-            return bsonDocument[0];
+            return serializationInfo.SerializeValue(value);
         }
 
         /// <summary>
@@ -113,18 +107,7 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>A BsonArray representing the values serialized using the serializer.</returns>
         public BsonArray SerializeValues(BsonSerializationInfo serializationInfo, IEnumerable values)
         {
-            var bsonDocument = new BsonDocument();
-            var bsonWriter = BsonWriter.Create(bsonDocument);
-            bsonWriter.WriteStartDocument();
-            bsonWriter.WriteName("values");
-            bsonWriter.WriteStartArray();
-            foreach (var value in values)
-            {
-                serializationInfo.Serializer.Serialize(bsonWriter, serializationInfo.NominalType, value, serializationInfo.SerializationOptions);
-            }
-            bsonWriter.WriteEndArray();
-            bsonWriter.WriteEndDocument();
-            return bsonDocument[0].AsBsonArray;
+            return serializationInfo.SerializeValues(values);
         }
     }
 }

@@ -1,0 +1,32 @@
+BSON library changes from 1.5 to 1.6
+
+BsonWriter.cs
+    no longer allow $csharpnull (driver now uses _csharpnull instead)
+
+BsonSerializerAttribute.cs
+    new attribute to configure a serializer for a class or a member
+
+BsonValueSerializer.cs
+    BsonNullSerializer now uses _csharpnull instead of $csharpnull for a C# null value of type BsonNull
+
+ReadOnlyCollectionSerializer.cs
+    new serializer for ReadOnlyCollection
+
+BsonClassMapSerializer.cs
+    class is now public again (so client serializers can delegate to it if they want)
+
+BsonDefaultSerializationProvider.cs
+    special handling for ReadOnlyCollection<T>
+
+BsonDocumentBackedClass.cs
+    new abstract base class for helper classes that decode a BSON document
+
+BsonDocumentBackedClassSerializer.cs
+    new abstract base class for BsonDocumentBackedClass serializers
+
+BsonSerializationInfo.cs
+    new helper methods: DeserializeValue, SerializeValue, SerializeValues
+    used to be in BsonSerializationInfoHelper (in the driver)
+
+BsonSerializer.cs
+    LookupSerializer now supports the BsonSerializerAttribute

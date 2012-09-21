@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(null, builder.Server);
             Assert.AreEqual(null, builder.Servers);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
             Assert.AreEqual(false, builder.IPv6);
@@ -45,10 +45,14 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
             Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
             Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
+            Assert.AreEqual(null, builder.ReadPreference);
             Assert.AreEqual(null, builder.ReplicaSetName);
             Assert.AreEqual(null, builder.SafeMode);
+#pragma warning disable 618
             Assert.AreEqual(false, builder.SlaveOk);
+#pragma warning restore
             Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+            Assert.AreEqual(false, builder.UseSsl);
             Assert.AreEqual(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
             Assert.AreEqual(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
             Assert.AreEqual(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
@@ -67,7 +71,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo.xyz.com", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://mongo.xyz.com";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -83,7 +87,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo.xyz.com", builder.Server.Host);
             Assert.AreEqual(12345, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://mongo.xyz.com:12345";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -109,7 +113,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://mongo1.xyz.com,mongo2.xyz.com";
@@ -136,7 +140,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(23456, servers[1].Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://mongo1.xyz.com:12345,mongo2.xyz.com:23456";
@@ -158,7 +162,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://username:password@localhost";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -179,7 +183,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual(null, builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://usern%3Ame:p%40ssword@localhost";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -206,7 +210,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("localhost", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.Direct, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
 
             var connectionString = "mongodb://username:password@localhost/database";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -235,7 +239,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://username:password@mongo1.xyz.com,mongo2.xyz.com/database";
@@ -265,7 +269,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("mongo2.xyz.com", servers[1].Host);
             Assert.AreEqual(23456, servers[1].Port);
             Assert.AreEqual("database", builder.DatabaseName);
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual(null, builder.ReplicaSetName);
 
             var connectionString = "mongodb://username:password@mongo1.xyz.com:12345,mongo2.xyz.com:23456/database";
@@ -573,13 +577,120 @@ namespace MongoDB.DriverUnitTests
         public void TestReplicaSetName()
         {
             var builder = new MongoUrlBuilder("mongodb://localhost") { ReplicaSetName = "name" };
-            Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
             Assert.AreEqual("name", builder.ReplicaSetName);
 
-            var connectionString = "mongodb://localhost/?connect=replicaSet;replicaSet=name";
+            var connectionString = "mongodb://localhost/?replicaSet=name";
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?replicaSet=name").ToString());
+        }
+
+        [Test]
+        public void TestReadPreferencePrimary()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Primary };
+            Assert.AreEqual(ReadPreferenceMode.Primary, builder.ReadPreference.ReadPreferenceMode);
+            Assert.AreEqual(null, builder.ReadPreference.TagSets);
+
+            var connectionString = "mongodb://localhost/?readPreference=primary";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferencePrimaryPreferred()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.PrimaryPreferred };
+            Assert.AreEqual(ReadPreferenceMode.PrimaryPreferred, builder.ReadPreference.ReadPreferenceMode);
+            Assert.AreEqual(null, builder.ReadPreference.TagSets);
+
+            var connectionString = "mongodb://localhost/?readPreference=primaryPreferred";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferenceSecondary()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Secondary };
+            Assert.AreEqual(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
+            Assert.AreEqual(null, builder.ReadPreference.TagSets);
+
+            var connectionString = "mongodb://localhost/?readPreference=secondary";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferenceSecondaryWithOneTagSet()
+        {
+            var tagSets = new ReplicaSetTagSet[]
+            {
+                new ReplicaSetTagSet { { "dc", "ny" }, { "rack", "1" } }
+            };
+            var readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Secondary, TagSets = tagSets };
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = readPreference };
+            Assert.AreEqual(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
+            var builderTagSets = builder.ReadPreference.TagSets.ToArray();
+            Assert.AreEqual(1, builderTagSets.Length);
+            var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
+            Assert.AreEqual(2, builderTagSet1Tags.Length);
+            Assert.AreEqual(new ReplicaSetTag("dc", "ny"), builderTagSet1Tags[0]);
+            Assert.AreEqual(new ReplicaSetTag("rack", "1"), builderTagSet1Tags[1]);
+
+            var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferenceSecondaryWithTwoTagSets()
+        {
+            var tagSets = new ReplicaSetTagSet[]
+            {
+                new ReplicaSetTagSet { { "dc", "ny" }, { "rack", "1" } },
+                new ReplicaSetTagSet { { "dc", "sf" } }
+            };
+            var readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Secondary, TagSets = tagSets };
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = readPreference };
+            Assert.AreEqual(ReadPreferenceMode.Secondary, builder.ReadPreference.ReadPreferenceMode);
+            var builderTagSets = builder.ReadPreference.TagSets.ToArray();
+            Assert.AreEqual(2, builderTagSets.Length);
+            var builderTagSet1Tags = builderTagSets[0].Tags.ToArray();
+            var builderTagSet2Tags = builderTagSets[1].Tags.ToArray();
+            Assert.AreEqual(2, builderTagSet1Tags.Length);
+            Assert.AreEqual(new ReplicaSetTag("dc", "ny"), builderTagSet1Tags[0]);
+            Assert.AreEqual(new ReplicaSetTag("rack", "1"), builderTagSet1Tags[1]);
+            Assert.AreEqual(1, builderTagSet2Tags.Length);
+            Assert.AreEqual(new ReplicaSetTag("dc", "sf"), builderTagSet2Tags[0]);
+
+            var connectionString = "mongodb://localhost/?readPreference=secondary;readPreferenceTags=dc:ny,rack:1;readPreferenceTags=dc:sf";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferenceSecondaryPreferred()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.SecondaryPreferred };
+            Assert.AreEqual(ReadPreferenceMode.SecondaryPreferred, builder.ReadPreference.ReadPreferenceMode);
+            Assert.AreEqual(null, builder.ReadPreference.TagSets);
+
+            var connectionString = "mongodb://localhost/?readPreference=secondaryPreferred";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestReadPreferenceNearest()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { ReadPreference = ReadPreference.Nearest };
+            Assert.AreEqual(ReadPreferenceMode.Nearest, builder.ReadPreference.ReadPreferenceMode);
+            Assert.AreEqual(null, builder.ReadPreference.TagSets);
+
+            var connectionString = "mongodb://localhost/?readPreference=nearest";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]
@@ -864,20 +975,23 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestSlaveOkFalse()
         {
+#pragma warning disable 618
             var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = false };
             Assert.AreEqual(false, builder.SlaveOk);
+#pragma warning restore
 
-            var connectionString = "mongodb://localhost";
+            var connectionString = "mongodb://localhost/?slaveOk=false";
             Assert.AreEqual(connectionString, builder.ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
-            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?slaveOk=false").ToString());
         }
 
         [Test]
         public void TestSlaveOkTrue()
         {
+#pragma warning disable 618
             var builder = new MongoUrlBuilder("mongodb://localhost") { SlaveOk = true };
             Assert.AreEqual(true, builder.SlaveOk);
+#pragma warning restore
 
             var connectionString = "mongodb://localhost/?slaveOk=true";
             Assert.AreEqual(connectionString, builder.ToString());
@@ -941,6 +1055,42 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeout=3723s").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeout=01:02:03").ToString());
             Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?socketTimeoutMS=3723000").ToString());
+        }
+
+        [Test]
+        public void TestSslFalse()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = false };
+            Assert.AreEqual(false, builder.UseSsl);
+
+            var connectionString = "mongodb://localhost";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?ssl=false").ToString());
+        }
+
+        [Test]
+        public void TestSslTrue()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = true };
+            Assert.AreEqual(true, builder.UseSsl);
+            Assert.AreEqual(true, builder.VerifySslCertificate);
+
+            var connectionString = "mongodb://localhost/?ssl=true";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
+        }
+
+        [Test]
+        public void TestSslTrueDontVerifyCertificate()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { UseSsl = true, VerifySslCertificate = false };
+            Assert.AreEqual(true, builder.UseSsl);
+            Assert.AreEqual(false, builder.VerifySslCertificate);
+
+            var connectionString = "mongodb://localhost/?ssl=true;sslVerifyCertificate=false";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder(connectionString).ToString());
         }
 
         [Test]

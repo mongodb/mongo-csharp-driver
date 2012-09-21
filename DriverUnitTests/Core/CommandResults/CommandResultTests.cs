@@ -142,13 +142,30 @@ namespace MongoDB.DriverUnitTests.CommandResults
         [Test]
         public void TestInvalidCommand()
         {
-            try
+            using (_database.RequestStart())
             {
-                var result = _database.RunCommand("invalid");
-            }
-            catch (MongoCommandException ex)
-            {
-                Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
+                try
+                {
+                    var result = _database.RunCommand("invalid");
+                }
+                catch (Exception ex)
+                {
+                    // when connected to mongod a MongoCommandException is thrown
+                    // but when connected to mongos a MongoQueryException is thrown
+                    // this should be considered a server bug that they don't report the error in the same way
+
+                    var instance = _server.RequestConnection.ServerInstance;
+                    if (instance.InstanceType == MongoServerInstanceType.ShardRouter)
+                    {
+                        Assert.IsInstanceOf<MongoQueryException>(ex);
+                        Assert.IsTrue(ex.Message.StartsWith("QueryFailure flag was unrecognized command: ", StringComparison.Ordinal));
+                    }
+                    else
+                    {
+                        Assert.IsInstanceOf<MongoCommandException>(ex);
+                        Assert.IsTrue(ex.Message.StartsWith("Command 'invalid' failed: no such cmd", StringComparison.Ordinal));
+                    }
+                }
             }
         }
     }

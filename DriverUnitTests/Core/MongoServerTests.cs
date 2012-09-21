@@ -81,7 +81,7 @@ namespace MongoDB.DriverUnitTests
             Assert.IsNull(server.Settings.DefaultCredentials);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
-            Assert.AreEqual(false, server.Settings.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);
             Assert.AreEqual(new MongoServerAddress("localhost"), server.Instance.Address);
         }
 
@@ -142,12 +142,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetDatabase()
         {
-            var settings = new MongoDatabaseSettings(_server, "test") { SlaveOk = true };
+            var settings = new MongoDatabaseSettings(_server, "test") { ReadPreference = ReadPreference.Primary };
             var database1 = _server.GetDatabase(settings);
             var database2 = _server.GetDatabase(settings);
             Assert.AreSame(database1, database2);
             Assert.AreEqual("test", database1.Name);
-            Assert.AreEqual(true, database1.Settings.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, database1.Settings.ReadPreference);
         }
 
         [Test]
@@ -159,9 +159,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestInstance()
         {
-            var instance = _server.Instance;
-            Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.IsPrimary);
+            if (_server.Instances.Length == 1)
+            {
+                var instance = _server.Instance;
+                Assert.IsNotNull(instance);
+                Assert.IsTrue(instance.IsPrimary);
+            }
         }
 
         [Test]
@@ -169,8 +172,16 @@ namespace MongoDB.DriverUnitTests
         {
             var instances = _server.Instances;
             Assert.IsNotNull(instances);
-            Assert.AreEqual(1, instances.Length);
-            Assert.IsTrue(instances[0].IsPrimary);
+
+            if (instances.Length == 1)
+            {
+                Assert.IsTrue(instances[0].IsPrimary);
+            }
+            else
+            {
+                Assert.IsTrue(instances.Length > 1);
+                Assert.AreEqual(1, instances.Count(i => i.IsPrimary));
+            }
         }
 
         [Test]
@@ -258,10 +269,12 @@ namespace MongoDB.DriverUnitTests
         public void TestRequestStartSlaveOk()
         {
             Assert.AreEqual(0, _server.RequestNestingLevel);
+#pragma warning disable 618
             using (_server.RequestStart(_database, true))
             {
                 Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+#pragma warning restore
             Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
@@ -269,6 +282,7 @@ namespace MongoDB.DriverUnitTests
         public void TestRequestStartSlaveOkNested()
         {
             Assert.AreEqual(0, _server.RequestNestingLevel);
+#pragma warning disable 618
             using (_server.RequestStart(_database, false))
             {
                 Assert.AreEqual(1, _server.RequestNestingLevel);
@@ -278,13 +292,20 @@ namespace MongoDB.DriverUnitTests
                 }
                 Assert.AreEqual(1, _server.RequestNestingLevel);
             }
+#pragma warning restore
             Assert.AreEqual(0, _server.RequestNestingLevel);
         }
 
         [Test]
         public void TestSecondaries()
         {
-            Assert.AreEqual(0, _server.Secondaries.Length);
+            Assert.IsTrue(_server.Secondaries.Length < _server.Instances.Length);
+        }
+
+        [Test]
+        public void TestVerifyState()
+        {
+            _server.VerifyState();
         }
 
         [Test]

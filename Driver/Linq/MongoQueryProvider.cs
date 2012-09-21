@@ -127,7 +127,16 @@ namespace MongoDB.Driver.Linq
             {
                 throw new ArgumentException("Argument expression is not valid.");
             }
-            return (TResult)Execute(expression);
+
+            var result = Execute(expression);
+            if (result == null)
+            {
+                return default(TResult);
+            }
+            else
+            {
+                return (TResult)result;
+            }
         }
 
         /// <summary>

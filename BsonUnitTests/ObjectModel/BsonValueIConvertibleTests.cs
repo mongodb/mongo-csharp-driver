@@ -306,7 +306,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonObjectId()
         {
-            var value = BsonObjectId.Empty;
+            var value = new BsonObjectId(ObjectId.Parse("0102030405060708090a0b0c"));
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));
@@ -318,7 +318,8 @@ namespace MongoDB.BsonUnitTests
             Assert.Throws<InvalidCastException>(() => Convert.ToInt64(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToSByte(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToSingle(value));
-            Assert.Throws<InvalidCastException>(() => Convert.ToString(value));
+            Assert.AreEqual("0102030405060708090a0b0c", Convert.ToString(value));
+            Assert.AreEqual("0102030405060708090a0b0c", ((IConvertible)value).ToType(typeof(string), null));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt16(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt32(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToUInt64(value));

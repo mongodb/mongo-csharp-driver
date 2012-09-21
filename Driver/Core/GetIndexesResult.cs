@@ -225,6 +225,25 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the time to live value (or TimeSpan.MaxValue if index doesn't have a time to live value).
+        /// </summary>
+        public TimeSpan TimeToLive
+        {
+            get
+            {
+                BsonValue value;
+                if (_document.TryGetValue("expireAfterSeconds", out value))
+                {
+                    return TimeSpan.FromSeconds(value.ToInt32());
+                }
+                else
+                {
+                    return TimeSpan.MaxValue;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the version of the index.
         /// </summary>
         public int Version

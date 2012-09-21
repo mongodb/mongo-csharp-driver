@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -48,8 +50,16 @@ namespace MongoDB.Bson
         static ObjectId()
         {
             __staticMachine = GetMachineHash();
-            __staticPid = (short)Process.GetCurrentProcess().Id; // use low order two bytes only
             __staticIncrement = (new Random()).Next();
+
+            try
+            {
+                __staticPid = (short)GetCurrentProcessId(); // use low order two bytes only
+            }
+            catch (SecurityException)
+            {
+                __staticPid = 0;
+            }
         }
 
         // constructors
@@ -351,6 +361,17 @@ namespace MongoDB.Bson
         }
 
         // private static methods
+        /// <summary>
+        /// Gets the current process id.  This method exists because of how CAS operates on the call stack, checking
+        /// for permissions before executing the method.  Hence, if we inlined this call, the calling method would not execute
+        /// before throwing an exception requiring the try/catch at an even higher level that we don't necessarily control.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static int GetCurrentProcessId()
+        {
+            return Process.GetCurrentProcess().Id;
+        }
+
         private static int GetMachineHash()
         {
             var hostName = Environment.MachineName; // use instead of Dns.HostName so it will work offline

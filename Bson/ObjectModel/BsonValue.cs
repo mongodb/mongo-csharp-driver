@@ -1528,6 +1528,7 @@ namespace MongoDB.Bson
                 case BsonType.Double: return Convert.ToString(this.AsDouble, provider);
                 case BsonType.Int32: return Convert.ToString(this.AsInt32, provider);
                 case BsonType.Int64: return Convert.ToString(this.AsInt64, provider);
+                case BsonType.ObjectId: return this.AsObjectId.ToString();
                 case BsonType.String: return this.AsString;
                 default: throw new InvalidCastException();
             }
@@ -1542,6 +1543,7 @@ namespace MongoDB.Bson
                 case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
                 case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
                 case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);
+                case BsonType.ObjectId: return Convert.ChangeType(this, conversionType, provider);
                 case BsonType.String: return Convert.ChangeType(this.AsString, conversionType, provider);
                 default: throw new InvalidCastException();
             }

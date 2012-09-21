@@ -338,7 +338,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (Exists)
             {
-                using (_gridFS.Database.RequestStart(false)) // not slaveOk
+                using (_gridFS.Database.RequestStart(ReadPreference.Primary))
                 {
                     _gridFS.EnsureIndexes();
                     _gridFS.Files.Remove(Query.EQ("_id", _id), _gridFS.Settings.SafeMode);
@@ -470,7 +470,6 @@ namespace MongoDB.Driver.GridFS
             }
             else
             {
-                _gridFS.EnsureIndexes();
                 cursor = _gridFS.Files.Find(Query.EQ("filename", _name)).SetSortOrder(SortBy.Descending("uploadDate"));
             }
             var fileInfo = cursor.SetLimit(1).FirstOrDefault();

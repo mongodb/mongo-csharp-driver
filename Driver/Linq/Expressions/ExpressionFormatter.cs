@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -132,7 +133,7 @@ namespace MongoDB.Driver.Linq
             // need to check node.Type instead of value.GetType() because boxed Nullable<T> values are boxed as <T>
             if (node.Type.IsGenericType && node.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                _sb.AppendFormat("({0})", FriendlyClassName(node.Type));
+                _sb.AppendFormat("({0})", FriendlyTypeName(node.Type));
             }
             VisitValue(node.Value);
             return node;
@@ -179,7 +180,7 @@ namespace MongoDB.Driver.Linq
         protected override Expression VisitLambda(LambdaExpression node)
         {
             _sb.Append("(");
-            _sb.Append(string.Join(", ", node.Parameters.Select(p => p.Type.Name + " " + p.Name).ToArray()));
+            _sb.Append(string.Join(", ", node.Parameters.Select(p => FriendlyTypeName(p.Type) + " " + p.Name).ToArray()));
             _sb.Append(") => ");
             Visit(node.Body);
             return node;
@@ -284,7 +285,7 @@ namespace MongoDB.Driver.Linq
         {
             if (node.Method.IsStatic)
             {
-                _sb.Append(node.Method.DeclaringType.Name);
+                _sb.Append(FriendlyTypeName(node.Method.DeclaringType));
             }
             else
             {
@@ -294,7 +295,7 @@ namespace MongoDB.Driver.Linq
             _sb.Append(node.Method.Name);
             if (node.Method.IsGenericMethod)
             {
-                _sb.AppendFormat("<{0}>", string.Join(", ", node.Method.GetGenericArguments().Select(t => FriendlyClassName(t)).ToArray()));
+                _sb.AppendFormat("<{0}>", string.Join(", ", node.Method.GetGenericArguments().Select(t => FriendlyTypeName(t)).ToArray()));
             }
             _sb.Append("(");
             var separator = "";
@@ -316,7 +317,7 @@ namespace MongoDB.Driver.Linq
         protected override NewExpression VisitNew(NewExpression node)
         {
             _sb.Append("new ");
-            _sb.Append(node.Type.Name);
+            _sb.Append(FriendlyTypeName(node.Type));
             _sb.Append("(");
             var separator = "";
             foreach (var arg in node.Arguments)
@@ -337,7 +338,7 @@ namespace MongoDB.Driver.Linq
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             var elementType = node.Type.GetElementType();
-            _sb.AppendFormat("new {0}[] {{ ", PublicClassName(elementType));
+            _sb.AppendFormat("new {0}[] {{ ", FriendlyTypeName(elementType));
             var separator = "";
             foreach (var item in node.Expressions)
             {
@@ -370,7 +371,7 @@ namespace MongoDB.Driver.Linq
             _sb.Append("(");
             Visit(node.Expression);
             _sb.Append(" is ");
-            _sb.Append(FriendlyClassName(node.TypeOperand));
+            _sb.Append(FriendlyTypeName(node.TypeOperand));
             _sb.Append(")");
             return node;
         }
@@ -385,7 +386,7 @@ namespace MongoDB.Driver.Linq
             switch (node.NodeType)
             {
                 case ExpressionType.ArrayLength: break;
-                case ExpressionType.Convert: _sb.AppendFormat("({0})", FriendlyClassName(node.Type)); break;
+                case ExpressionType.Convert: _sb.AppendFormat("({0})", FriendlyTypeName(node.Type)); break;
                 case ExpressionType.Negate: _sb.Append("-"); break;
                 case ExpressionType.Not: _sb.Append("!"); break;
                 case ExpressionType.Quote: break;
@@ -401,31 +402,35 @@ namespace MongoDB.Driver.Linq
         }
 
         // private methods
-        private string FriendlyClassName(Type type)
+        private string FriendlyTypeName(Type type)
         {
-            if (!type.IsGenericType)
-            {
-                return type.Name;
-            }
+            var typeName = IsAnonymousType(type) ? "__AnonymousType" : type.Name;
 
-            var sb = new StringBuilder();
-            sb.AppendFormat("{0}<", Regex.Replace(type.Name, @"\`\d+$", ""));
-            foreach (var typeParameter in type.GetGenericArguments())
+            if (type.IsGenericType)
             {
-                sb.AppendFormat("{0}, ", FriendlyClassName(typeParameter));
+                var sb = new StringBuilder();
+                sb.AppendFormat("{0}<", Regex.Replace(typeName, @"\`\d+$", ""));
+                foreach (var typeParameter in type.GetGenericArguments())
+                {
+                    sb.AppendFormat("{0}, ", FriendlyTypeName(typeParameter));
+                }
+                sb.Remove(sb.Length - 2, 2);
+                sb.Append(">");
+                return sb.ToString();
             }
-            sb.Remove(sb.Length - 2, 2);
-            sb.Append(">");
-            return sb.ToString();
+            else
+            {
+                return typeName;
+            }
         }
 
-        private string PublicClassName(Type type)
+        private bool IsAnonymousType(Type type)
         {
-            while (!type.IsPublic)
-            {
-                type = type.BaseType;
-            }
-            return FriendlyClassName(type);
+            // don't test for too many things in case implementation details change in the future
+            return
+                Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) &&
+                type.IsGenericType &&
+                type.Name.Contains("Anon"); // don't check for more than "Anon" so it works in mono also
         }
 
         private void VisitValue(object value)
@@ -440,7 +445,7 @@ namespace MongoDB.Driver.Linq
             if (a != null && a.Rank == 1)
             {
                 var elementType = a.GetType().GetElementType();
-                _sb.AppendFormat("{0}[]:{{", elementType.Name);
+                _sb.AppendFormat("{0}[]:{{", FriendlyTypeName(elementType));
                 var separator = " ";
                 foreach (var item in a)
                 {
@@ -487,7 +492,7 @@ namespace MongoDB.Driver.Linq
             var e = value as Enum;
             if (e != null)
             {
-                _sb.Append(e.GetType().Name + "." + e.ToString());
+                _sb.Append(FriendlyTypeName(e.GetType()) + "." + e.ToString());
                 return;
             }
 
@@ -527,7 +532,7 @@ namespace MongoDB.Driver.Linq
             var type = value as Type;
             if (type != null)
             {
-                _sb.AppendFormat("typeof({0})", FriendlyClassName(type));
+                _sb.AppendFormat("typeof({0})", FriendlyTypeName(type));
                 return;
             }
 

@@ -1311,6 +1311,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonNull));
 
             var bsonType = bsonReader.GetCurrentBsonType();
+            string message;
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -1318,11 +1319,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return BsonNull.Value;
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
-                    var csharpNull = bsonReader.ReadBoolean("$csharpnull");
-                    bsonReader.ReadEndDocument();
-                    return csharpNull ? null : BsonNull.Value;
+                    var name = bsonReader.ReadName();
+                    if (name == "_csharpnull" || name == "$csharpnull")
+                    {
+                        var csharpNull = bsonReader.ReadBoolean();
+                        bsonReader.ReadEndDocument();
+                        return csharpNull ? null : BsonNull.Value;
+                    }
+                    else
+                    {
+                        message = string.Format("Unexpected element name while deserializing a BsonNull: {0}.", name);
+                        throw new FileFormatException(message);
+                    }
                 default:
-                    var message = string.Format("Cannot deserialize BsonNull from BsonType {0}.", bsonType);
+                    message = string.Format("Cannot deserialize BsonNull from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -1343,7 +1353,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             if (value == null)
             {
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("$csharpnull", true);
+                bsonWriter.WriteBoolean("_csharpnull", true);
                 bsonWriter.WriteEndDocument();
             }
             else

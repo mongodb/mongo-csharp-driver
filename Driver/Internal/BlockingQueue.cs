@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace MongoDB.Driver.Internal
@@ -28,24 +26,56 @@ namespace MongoDB.Driver.Internal
     internal class BlockingQueue<T>
     {
         // private fields
-        private object _syncRoot = new object();
-        private Queue<T> _queue = new Queue<T>();
+        private readonly object _syncRoot = new object();
+        private readonly Queue<T> _queue = new Queue<T>();
+        private int _pipelineCount;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the BlockingQueue class.
         /// </summary>
-        internal BlockingQueue()
+        public BlockingQueue()
         {
         }
 
-        // internal methods
+        // public properties
+        /// <summary>
+        /// Gets the count of the items either ready or in the pipeline.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                lock (_syncRoot)
+                {
+                    return _queue.Count + _pipelineCount;
+                }
+            }
+        }
+
+        // public methods
+        /// <summary>
+        /// Dequeues one item from the queue.  Will block until the item is available.
+        /// </summary>
+        /// <returns>The first item in the queue.</returns>
+        public T Dequeue()
+        {
+            lock (_syncRoot)
+            {
+                while (_queue.Count == 0)
+                {
+                    Monitor.Wait(_syncRoot);
+                }
+                return _queue.Dequeue();
+            }
+        }
+
         /// <summary>
         /// Dequeues one item from the queue. Will block waiting for an item if the queue is empty.
         /// </summary>
         /// <param name="timeout">The timeout for waiting for an item to appear in the queue.</param>
         /// <returns>The first item in the queue (null if it timed out).</returns>
-        internal T Dequeue(TimeSpan timeout)
+        public T Dequeue(TimeSpan timeout)
         {
             lock (_syncRoot)
             {
@@ -70,12 +100,35 @@ namespace MongoDB.Driver.Internal
         /// Enqueues an item on to the queue.
         /// </summary>
         /// <param name="item">The item to be queued.</param>
-        internal void Enqueue(T item)
+        public void Enqueue(T item)
         {
             lock (_syncRoot)
             {
                 _queue.Enqueue(item);
-                Monitor.Pulse(_syncRoot);
+                Monitor.PulseAll(_syncRoot);
+            }
+        }
+
+        /// <summary>
+        /// Enqueus the work item to run on a seperate-thread.
+        /// </summary>
+        /// <param name="itemFunc">The item func.</param>
+        public void EnqueuWorkItem(Func<T> itemFunc)
+        {
+            lock (_syncRoot)
+            {
+                _pipelineCount++;
+            }
+            ThreadPool.QueueUserWorkItem(o => RunItemFunc(itemFunc));
+        }
+
+        // private methods
+        private void RunItemFunc(Func<T> itemFunc)
+        {
+            Enqueue(itemFunc());
+            lock (_syncRoot)
+            {
+                _pipelineCount--;
             }
         }
     }

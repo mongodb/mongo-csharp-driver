@@ -31,13 +31,21 @@ namespace MongoDB.Driver
     public enum ConnectionMode
     {
         /// <summary>
+        /// Automatically determine how to connect.
+        /// </summary>
+        Automatic,
+        /// <summary>
         /// Connect directly to a server.
         /// </summary>
         Direct,
         /// <summary>
         /// Connect to a replica set.
         /// </summary>
-        ReplicaSet
+        ReplicaSet,
+        /// <summary>
+        /// Connect to one or more shard routers.
+        /// </summary>
+        ShardRouter
     }
 
     /// <summary>
@@ -172,6 +180,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the read preference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _serverSettings.ReadPreference; }
+        }
+
+        /// <summary>
         /// Gets the name of the replica set.
         /// </summary>
         public string ReplicaSetName
@@ -204,11 +220,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets whether queries should be sent to secondary servers.
+        /// Gets whether queries can be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
+#pragma warning disable 618
             get { return _serverSettings.SlaveOk; }
+#pragma warning restore
         }
 
         /// <summary>
@@ -225,6 +244,22 @@ namespace MongoDB.Driver
         public string Url
         {
             get { return _url; }
+        }
+
+        /// <summary>
+        /// Gets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _serverSettings.UseSsl; }
+        }
+
+        /// <summary>
+        /// Gets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _serverSettings.VerifySslCertificate; }
         }
 
         /// <summary>

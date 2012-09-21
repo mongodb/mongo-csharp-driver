@@ -35,14 +35,14 @@ namespace MongoDB.DriverUnitTests
             {
                 Credentials = MongoCredentials.Create("username", "password"),
                 SafeMode = SafeMode.Create(5, TimeSpan.FromSeconds(5)),
-                SlaveOk = true
+                ReadPreference = ReadPreference.Primary
             };
 
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
             Assert.AreEqual(GuidRepresentation.CSharpLegacy, settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.Create(5, TimeSpan.FromSeconds(5)), settings.SafeMode);
-            Assert.AreEqual(true, settings.SlaveOk);
+            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
 
             Assert.IsFalse(settings.IsFrozen);
             var hashCode = settings.GetHashCode();

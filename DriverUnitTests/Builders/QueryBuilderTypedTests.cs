@@ -173,6 +173,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestEqual_Array()
+        {
+            var query = Query<A>.EQ(a => a.J, 3);
+            var expected = "{ \"j\" : 3 }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestExists()
         {
             var query = Query<A>.Exists(a => a.X);
@@ -213,6 +221,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestGreaterThan_Array()
+        {
+            var query = Query<A>.GT(a => a.J, 10);
+            var expected = "{ \"j\" : { \"$gt\" : 10 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestGreaterThanOrEqual()
         {
             var query = Query<A>.GTE(a => a.X, 10);
@@ -241,6 +257,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.Where(a => !(a.X >= 10));
             var expected = "{ \"x\" : { \"$not\" : { \"$gte\" : 10 } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestGreaterThanOrEqual_Array()
+        {
+            var query = Query<A>.GTE(a => a.J, 10);
+            var expected = "{ \"j\" : { \"$gte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -279,6 +303,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestIn_Array()
+        {
+            var query = Query<A>.In(a => a.J, new[] { 2, 4, 6 });
+            var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestLessThan()
         {
             var query = Query<A>.LT(a => a.X, 10);
@@ -311,6 +343,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestLessThan_Array()
+        {
+            var query = Query<A>.LT(a => a.J, 10);
+            var expected = "{ \"j\" : { \"$lt\" : 10 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestLessThanOrEqual()
         {
             var query = Query<A>.LTE(a => a.X, 10);
@@ -339,6 +379,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.Where(a => !(a.X <= 10));
             var expected = "{ \"x\" : { \"$not\" : { \"$lte\" : 10 } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestLessThanOrEqual_Array()
+        {
+            var query = Query<A>.LTE(a => a.J, 10);
+            var expected = "{ \"j\" : { \"$lte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -416,6 +464,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestMatchesPattern_Array()
+        {
+            var query = Query<A>.Matches(a => a.L, "abc");
+            var expected = "{ \"l\" : /abc/ }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestMod()
         {
             var query = Query<A>.Mod(a => a.X, 10, 1);
@@ -444,6 +500,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.Where(a => a.X % 10 != 1);
             var expected = "{ \"x\" : { \"$not\" : { \"$mod\" : [10, 1] } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestMod_Array()
+        {
+            var query = Query<A>.Mod(a => a.J, 10, 1);
+            var expected = "{ \"j\" : { \"$mod\" : [10, 1] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -500,6 +564,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.NE(a => a.X, 3);
             var expected = "{ \"x\" : { \"$ne\" : 3 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNotEqual_Array()
+        {
+            var query = Query<A>.NE(a => a.J, 3);
+            var expected = "{ \"j\" : { \"$ne\" : 3 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -629,6 +701,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Not(Query<A>.Type(a => a.S, BsonType.String));
             var expected = "{ \"s\" : { \"$not\" : { \"$type\" : 2 } } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestType_Array()
+        {
+            var query = Query<A>.Type(a => a.J, BsonType.String);
+            var expected = "{ \"j\" : { \"$type\" : 2 } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

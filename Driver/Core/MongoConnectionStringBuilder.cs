@@ -41,6 +41,7 @@ namespace MongoDB.Driver
             { "database", "database" },
             { "fsync", "fsync" },
             { "guids", "uuidRepresentation" },
+            { "ipv6", "ipv6" },
             { "j", "journal" },
             { "journal", "journal" },
             { "maxidletime", "maxIdleTime" },
@@ -50,6 +51,8 @@ namespace MongoDB.Driver
             { "maxpoolsize", "maxPoolSize" },
             { "minpoolsize", "minPoolSize" },
             { "password", "password" },
+            { "readpreference", "readPreference" },
+            { "readpreferencetags", "readPreferenceTags" },
             { "replicaset", "replicaSet" },
             { "safe", "safe" },
             { "server", "server" },
@@ -57,6 +60,8 @@ namespace MongoDB.Driver
             { "slaveok", "slaveOk" },
             { "sockettimeout", "socketTimeout" },
             { "sockettimeoutms", "socketTimeout" },
+            { "ssl", "ssl" },
+            { "sslverifycertificate", "sslVerifyCertificate" },
             { "username", "username" },
             { "uuidrepresentation", "uuidRepresentation" },
             { "w", "w" },
@@ -80,12 +85,15 @@ namespace MongoDB.Driver
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
         private string _password;
+        private ReadPreference _readPreference;
         private string _replicaSetName;
         private SafeMode _safeMode;
         private IEnumerable<MongoServerAddress> _servers;
-        private bool _slaveOk;
+        private bool? _slaveOk;
         private TimeSpan _socketTimeout;
         private string _username;
+        private bool _useSsl;
+        private bool _verifySslCertificate;
         private double _waitQueueMultiple;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
@@ -256,6 +264,53 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read preference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get
+            {
+                if (_readPreference != null)
+                {
+                    return _readPreference;
+                }
+                else if (_slaveOk.HasValue)
+                {
+                    return ReadPreference.FromSlaveOk(_slaveOk.Value);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (_slaveOk.HasValue)
+                {
+                    throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
+                }
+                _readPreference = value;
+
+                base["readPreference"] = MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString());
+                if (_readPreference.TagSets == null)
+                {
+                    base["readPreferenceTags"] = null;
+                }
+                else
+                {
+                    var readPreferenceTagsString = string.Join(
+                        "|",
+                        _readPreference.TagSets.Select(ts => string.Join(
+                            ",",
+                            ts.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()
+                        )).ToArray()
+                    );
+                    base["readPreferenceTags"] = readPreferenceTagsString;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the name of the replica set.
         /// </summary>
         public string ReplicaSetName
@@ -263,7 +318,6 @@ namespace MongoDB.Driver
             get { return _replicaSetName; }
             set
             {
-                ConnectionMode = ConnectionMode.ReplicaSet;
                 base["replicaSet"] = _replicaSetName = value;
             }
         }
@@ -277,6 +331,7 @@ namespace MongoDB.Driver
             set
             {
                 _safeMode = value;
+
                 if (value == null)
                 {
                     base["safe"] = null;
@@ -329,18 +384,36 @@ namespace MongoDB.Driver
             {
                 _servers = value;
                 base["server"] = GetServersString();
-                _connectionMode = (value.Count() == 1) ? ConnectionMode.Direct : ConnectionMode.ReplicaSet; // assign to field not to property
             }
         }
 
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+            get
+            {
+                if (_slaveOk.HasValue)
+                {
+                    return _slaveOk.Value;
+                }
+                else if (_readPreference != null)
+                {
+                    return _readPreference.ToSlaveOk();
+                }
+                else
+                {
+                    return false;
+                }
+            }
             set
             {
+                if (_readPreference != null)
+                {
+                    throw new InvalidOperationException("SlaveOk cannot be set because ReadPreference already has a value.");
+                }
                 _slaveOk = value;
                 base["slaveOk"] = XmlConvert.ToString(value);
             }
@@ -368,6 +441,32 @@ namespace MongoDB.Driver
             set
             {
                 base["username"] = _username = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                _useSsl = value;
+                base["ssl"] = XmlConvert.ToString(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _verifySslCertificate; }
+            set
+            {
+                _verifySslCertificate = value;
+                base["sslVerifyCertificate"] = XmlConvert.ToString(value);
             }
         }
 
@@ -430,12 +529,14 @@ namespace MongoDB.Driver
             set
             {
                 if (keyword == null) { throw new ArgumentNullException("keyword"); }
+                ReadPreference newReadPreference;
+                SafeMode newSafeMode;
                 switch (keyword.ToLower())
                 {
                     case "connect":
                         if (value is string)
                         {
-                            ConnectionMode = (ConnectionMode)Enum.Parse(typeof(ConnectionMode), (string)value, true);
+                            ConnectionMode = (ConnectionMode)Enum.Parse(typeof(ConnectionMode), (string)value, true); // ignoreCase
                         }
                         else
                         {
@@ -450,9 +551,9 @@ namespace MongoDB.Driver
                         DatabaseName = (string)value;
                         break;
                     case "fsync":
-                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                        _safeMode.FSync = Convert.ToBoolean(value);
-                        SafeMode = _safeMode;
+                        newSafeMode = _safeMode ?? new SafeMode(false);
+                        newSafeMode.FSync = Convert.ToBoolean(value);
+                        SafeMode = newSafeMode;
                         break;
                     case "guids":
                     case "uuidrepresentation":
@@ -463,9 +564,9 @@ namespace MongoDB.Driver
                         break;
                     case "j":
                     case "journal":
-                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                        _safeMode.Journal = Convert.ToBoolean(value);
-                        SafeMode = _safeMode;
+                        newSafeMode = _safeMode ?? new SafeMode(false);
+                        newSafeMode.Journal = Convert.ToBoolean(value);
+                        SafeMode = newSafeMode;
                         break;
                     case "maxidletime":
                     case "maxidletimems":
@@ -486,38 +587,69 @@ namespace MongoDB.Driver
                         break;
                     case "replicaset":
                         ReplicaSetName = (string)value;
-                        ConnectionMode = ConnectionMode.ReplicaSet;
+                        break;
+                    case "readpreference":
+                        newReadPreference = _readPreference ?? new ReadPreference();
+                        if (value is string)
+                        {
+                            newReadPreference.ReadPreferenceMode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), (string)value, true); // ignoreCase
+                        }
+                        else
+                        {
+                            newReadPreference.ReadPreferenceMode = (ReadPreferenceMode)value;
+                        }
+                        ReadPreference = newReadPreference;
+                        break;
+                    case "readpreferencetags":
+                        newReadPreference = _readPreference ?? new ReadPreference();
+                        if (value is string)
+                        {
+                            newReadPreference.TagSets = ParseReplicaSetTagSets((string)value);
+                        }
+                        else
+                        {
+                            newReadPreference.TagSets = (IEnumerable<ReplicaSetTagSet>)value;
+                        }
+                        ReadPreference = newReadPreference;
                         break;
                     case "safe":
-                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                        _safeMode.Enabled = Convert.ToBoolean(value);
-                        SafeMode = _safeMode;
+                        newSafeMode = _safeMode ?? new SafeMode(false);
+                        newSafeMode.Enabled = Convert.ToBoolean(value);
+                        SafeMode = newSafeMode;
                         break;
                     case "server":
                     case "servers":
                         Servers = ParseServersString((string)value);
                         break;
                     case "slaveok":
+#pragma warning disable 618
                         SlaveOk = Convert.ToBoolean(value);
+#pragma warning restore
                         break;
                     case "sockettimeout":
                     case "sockettimeoutms":
                         SocketTimeout = ToTimeSpan(keyword, value);
                         break;
+                    case "ssl":
+                        UseSsl = Convert.ToBoolean(value);
+                        break;
+                    case "sslverifycertificate":
+                        VerifySslCertificate = Convert.ToBoolean(value);
+                        break;
                     case "username":
                         Username = (string)value;
                         break;
                     case "w":
-                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
+                        newSafeMode = _safeMode ?? new SafeMode(false);
                         try
                         {
-                            _safeMode.W = Convert.ToInt32(value);
+                            newSafeMode.W = Convert.ToInt32(value);
                         }
                         catch (FormatException)
                         {
-                            _safeMode.WMode = (string)value;
+                            newSafeMode.WMode = (string)value;
                         }
-                        SafeMode = _safeMode;
+                        SafeMode = newSafeMode;
                         break;
                     case "waitqueuemultiple":
                         WaitQueueMultiple = Convert.ToDouble(value);
@@ -531,9 +663,9 @@ namespace MongoDB.Driver
                         break;
                     case "wtimeout":
                     case "wtimeoutms":
-                        if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                        _safeMode.WTimeout = ToTimeSpan(keyword, value);
-                        SafeMode = _safeMode;
+                        newSafeMode = _safeMode ?? new SafeMode(false);
+                        newSafeMode.WTimeout = ToTimeSpan(keyword, value);
+                        SafeMode = newSafeMode;
                         break;
                     default:
                         var message = string.Format("Invalid keyword '{0}'.", keyword);
@@ -569,9 +701,10 @@ namespace MongoDB.Driver
         public MongoServerSettings ToServerSettings()
         {
             var defaultCredentials = MongoCredentials.Create(_username, _password);
+            var readPreference = ReadPreference ?? ReadPreference.Primary;
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, defaultCredentials, _guidRepresentation, _ipv6,
-                _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, _replicaSetName,
-                _safeMode ?? MongoDefaults.SafeMode, _servers, _slaveOk, _socketTimeout, ComputedWaitQueueSize,_waitQueueTimeout);
+                _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
+                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate, ComputedWaitQueueSize, _waitQueueTimeout);
         }
 
         // private methods
@@ -593,6 +726,27 @@ namespace MongoDB.Driver
             return sb.ToString();
         }
 
+        private IEnumerable<ReplicaSetTagSet> ParseReplicaSetTagSets(string value)
+        {
+            var tagSets = new List<ReplicaSetTagSet>();
+            foreach (var tagSetString in value.Split('|'))
+            {
+                var tagSet = new ReplicaSetTagSet();
+                foreach (var tagString in tagSetString.Split(','))
+                {
+                    var parts = tagString.Split(':');
+                    if (parts.Length != 2)
+                    {
+                        var message = string.Format("Invalid tag: {0}.", tagString);
+                    }
+                    var tag = new ReplicaSetTag(parts[0], parts[1]);
+                    tagSet.Add(tag);
+                }
+                tagSets.Add(tagSet);
+            }
+            return tagSets;
+        }
+
         private IEnumerable<MongoServerAddress> ParseServersString(string value)
         {
             var servers = new List<MongoServerAddress>();
@@ -606,7 +760,7 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            _connectionMode = ConnectionMode.Direct;
+            _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
@@ -616,12 +770,15 @@ namespace MongoDB.Driver
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
             _password = null;
+            _readPreference = null;
             _replicaSetName = null;
             _safeMode = null;
             _servers = null;
-            _slaveOk = false;
+            _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
             _username = null;
+            _useSsl = false;
+            _verifySslCertificate = true;
             _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
             _waitQueueSize = MongoDefaults.WaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;

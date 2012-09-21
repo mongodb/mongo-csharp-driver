@@ -18,7 +18,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 using MongoDB.Bson;
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Internal
         private int _generationId; // the generationId of the connection pool at the time this connection was created
         private MongoConnectionState _state;
         private TcpClient _tcpClient;
+        private Stream _stream; // either a NetworkStream or an SslStream wrapping a NetworkStream
         private DateTime _createdAt;
         private DateTime _lastUsedAt; // set every time the connection is Released
         private int _messageCounter;
@@ -154,9 +157,7 @@ namespace MongoDB.Driver.Internal
             lock (_connectionLock)
             {
                 var nonceCommand = new CommandDocument("getnonce", 1);
-                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-
-                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, nonceCommand, false);
+                var commandResult = RunCommand(databaseName, QueryFlags.None, nonceCommand, false);
                 if (!commandResult.Ok)
                 {
                     throw new MongoAuthenticationException(
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Internal
                     { "key", digest }
                 };
 
-                commandResult = RunCommand(commandCollectionName, QueryFlags.None, authenticateCommand, false);
+                commandResult = RunCommand(databaseName, QueryFlags.None, authenticateCommand, false);
                 if (!commandResult.Ok)
                 {
                     var message = string.Format("Invalid credentials for database '{0}'.", databaseName);
@@ -289,6 +290,11 @@ namespace MongoDB.Driver.Internal
             {
                 if (_state != MongoConnectionState.Closed)
                 {
+                    if (_stream != null)
+                    {
+                        try { _stream.Close(); } catch { } // ignore exceptions
+                        _stream = null;
+                    }
                     if (_tcpClient != null)
                     {
                         if (_tcpClient.Connected)
@@ -340,9 +346,7 @@ namespace MongoDB.Driver.Internal
             lock (_connectionLock)
             {
                 var logoutCommand = new CommandDocument("logout", 1);
-                var commandCollectionName = string.Format("{0}.$cmd", databaseName);
-
-                var commandResult = RunCommand(commandCollectionName, QueryFlags.None, logoutCommand, false);
+                var commandResult = RunCommand(databaseName, QueryFlags.None, logoutCommand, false);
                 if (!commandResult.Ok)
                 {
                     throw new MongoAuthenticationException(
@@ -368,14 +372,43 @@ namespace MongoDB.Driver.Internal
             tcpClient.SendBufferSize = MongoDefaults.TcpSendBufferSize;
             tcpClient.Connect(ipEndPoint);
 
+            var stream = (Stream)tcpClient.GetStream();
+            if (_serverInstance.Server.Settings.UseSsl)
+            {
+                SslStream sslStream;
+                if (_serverInstance.Server.Settings.VerifySslCertificate)
+                {
+                    sslStream = new SslStream(stream, false); // don't leave inner stream open
+                }
+                else
+                {
+                    sslStream = new SslStream(stream, false, AcceptAnyCertificate, null); // don't leave inner stream open
+                }
+
+                try
+                {
+                    sslStream.AuthenticateAsClient(_serverInstance.Address.Host);
+                }
+                catch
+                {
+                    try { stream.Close(); }
+                    catch { } // ignore exceptions
+                    try { tcpClient.Close(); }
+                    catch { } // ignore exceptions
+                    throw;
+                }
+                stream = sslStream;
+            }
+
             _tcpClient = tcpClient;
+            _stream = stream;
             _state = MongoConnectionState.Open;
         }
 
         // this is a low level method that doesn't require a MongoServer
         // so it can be used while connecting to a MongoServer
         internal CommandResult RunCommand(
-            string collectionName,
+            string databaseName,
             QueryFlags queryFlags,
             CommandDocument command,
             bool throwOnError)
@@ -387,9 +420,9 @@ namespace MongoDB.Driver.Internal
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
-            using (var message = new MongoQueryMessage(writerSettings, collectionName, queryFlags, 0, 1, command, null))
+            using (var message = new MongoQueryMessage(writerSettings, databaseName + ".$cmd", queryFlags, 0, 1, command, null))
             {
-                SendMessage(message, SafeMode.False);
+                SendMessage(message, SafeMode.False, databaseName);
             }
 
             var readerSettings = new BsonBinaryReaderSettings
@@ -444,7 +477,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal SafeModeResult SendMessage(MongoRequestMessage message, SafeMode safeMode)
+        internal SafeModeResult SendMessage(MongoRequestMessage message, SafeMode safeMode, string databaseName)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -465,7 +498,7 @@ namespace MongoDB.Driver.Internal
                         { "wtimeout", (int) safeMode.WTimeout.TotalMilliseconds, safeMode.W > 1 && safeMode.WTimeout != TimeSpan.Zero }
                     };
                     // piggy back on network transmission for message
-                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, "admin.$cmd", QueryFlags.None, 0, 1, safeModeCommand, null))
+                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, databaseName + ".$cmd", QueryFlags.None, 0, 1, safeModeCommand, null))
                     {
                         getLastErrorMessage.WriteToBuffer();
                     }
@@ -522,13 +555,23 @@ namespace MongoDB.Driver.Internal
         }
 
         // private methods
-        private NetworkStream GetNetworkStream()
+        private bool AcceptAnyCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors
+        )
+        {
+            return true;
+        }
+
+        private Stream GetNetworkStream()
         {
             if (_state == MongoConnectionState.Initial)
             {
                 Open();
             }
-            return _tcpClient.GetStream();
+            return _stream;
         }
 
         private void HandleException(Exception ex)

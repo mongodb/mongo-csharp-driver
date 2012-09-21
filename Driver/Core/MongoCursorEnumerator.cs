@@ -207,7 +207,7 @@ namespace MongoDB.Driver
             if (_serverInstance == null)
             {
                 // first time we need a connection let Server.AcquireConnection pick the server instance
-                var connection = _cursor.Server.AcquireConnection(_cursor.Database, _cursor.SlaveOk);
+                var connection = _cursor.Server.AcquireConnection(_cursor.Database, _cursor.ReadPreference);
                 _serverInstance = connection.ServerInstance;
                 return connection;
             }
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
         private MongoReplyMessage<TDocument> GetReply(MongoConnection connection, MongoRequestMessage message)
         {
             var readerSettings = _cursor.Collection.GetReaderSettings(connection);
-            connection.SendMessage(message, SafeMode.False); // safemode doesn't apply to queries
+            connection.SendMessage(message, SafeMode.False, _cursor.Database.Name); // safemode doesn't apply to queries
             var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.SerializationOptions);
             _responseFlags = reply.ResponseFlags;
             _openCursorId = reply.CursorId;
@@ -312,7 +312,7 @@ namespace MongoDB.Driver
                         {
                             using (var message = new MongoKillCursorsMessage(_openCursorId))
                             {
-                                connection.SendMessage(message, SafeMode.False); // no need to use SafeMode for KillCursors
+                                connection.SendMessage(message, SafeMode.False, _cursor.Database.Name); // no need to use SafeMode for KillCursors
                             }
                         }
                         finally
@@ -330,14 +330,45 @@ namespace MongoDB.Driver
 
         private IMongoQuery WrapQuery()
         {
-            if (_cursor.Options == null)
+            BsonDocument formattedReadPreference = null;
+            if (_serverInstance.InstanceType == MongoServerInstanceType.ShardRouter)
+            {
+                var readPreference = _cursor.ReadPreference;
+
+                BsonArray tagSetsArray = null;
+                if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && readPreference.TagSets != null)
+                {
+                    tagSetsArray = new BsonArray();
+                    foreach (var tagSet in readPreference.TagSets)
+                    {
+                        var tagSetDocument = new BsonDocument();
+                        foreach (var tag in tagSet)
+                        {
+                            tagSetDocument.Add(tag.Name, tag.Value);
+                        }
+                        tagSetsArray.Add(tagSetDocument);
+                    }
+                }
+
+                formattedReadPreference = new BsonDocument
+                {
+                    { "mode", MongoUtils.ToCamelCase(readPreference.ReadPreferenceMode.ToString()) },
+                    { "tags", tagSetsArray, tagSetsArray != null } // optional
+                };
+            }
+
+            if (_cursor.Options == null && formattedReadPreference == null)
             {
                 return _cursor.Query;
             }
             else
             {
                 var query = (_cursor.Query == null) ? (BsonValue)new BsonDocument() : BsonDocumentWrapper.Create(_cursor.Query);
-                var wrappedQuery = new QueryDocument("$query", query);
+                var wrappedQuery = new QueryDocument
+                {
+                    { "$query", query },
+                    { "$readPreference", formattedReadPreference, formattedReadPreference != null }, // only if sending query to a mongos
+                };
                 wrappedQuery.Merge(_cursor.Options);
                 return wrappedQuery;
             }

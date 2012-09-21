@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -40,11 +41,14 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private ReadPreference _readPreference;
         private string _replicaSetName;
         private SafeMode _safeMode;
-        private IEnumerable<MongoServerAddress> _servers;
-        private bool _slaveOk;
+        private List<MongoServerAddress> _servers;
+        private ReadOnlyCollection<MongoServerAddress> _serversReadOnly;
         private TimeSpan _socketTimeout;
+        private bool _useSsl;
+        private bool _verifySslCertificate;
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
 
@@ -69,11 +73,14 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _safeMode = MongoDefaults.SafeMode;
-            _servers = null;
-            _slaveOk = false;
+            _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
+            _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _useSsl = false;
+            _verifySslCertificate = true;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
         }
@@ -91,11 +98,13 @@ namespace MongoDB.Driver
         /// <param name="maxConnectionLifeTime">The max connection life time.</param>
         /// <param name="maxConnectionPoolSize">The max connection pool size.</param>
         /// <param name="minConnectionPoolSize">The min connection pool size.</param>
+        /// <param name="readPreference">The default read preference.</param>
         /// <param name="replicaSetName">The name of the replica set.</param>
         /// <param name="safeMode">The safe mode.</param>
         /// <param name="servers">The server addresses (normally one unless it is the seed list for connecting to a replica set).</param>
-        /// <param name="slaveOk">Whether queries should be sent to secondary servers.</param>
         /// <param name="socketTimeout">The socket timeout.</param>
+        /// <param name="useSsl">Whether to use SSL.</param>
+        /// <param name="verifySslCertificate">Whether to verify an SSL certificate.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
         public MongoServerSettings(
@@ -109,14 +118,29 @@ namespace MongoDB.Driver
             TimeSpan maxConnectionLifeTime,
             int maxConnectionPoolSize,
             int minConnectionPoolSize,
+            ReadPreference readPreference,
             string replicaSetName,
             SafeMode safeMode,
             IEnumerable<MongoServerAddress> servers,
-            bool slaveOk,
             TimeSpan socketTimeout,
+            bool useSsl,
+            bool verifySslCertificate,
             int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
+            if (servers == null)
+            {
+                throw new ArgumentNullException("servers");
+            }
+            if (readPreference == null)
+            {
+                throw new ArgumentNullException("readPreference");
+            }
+            if (safeMode == null)
+            {
+                throw new ArgumentNullException("safeMode");
+            }
+
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;
             _credentialsStore = credentialsStore ?? new MongoCredentialsStore();
@@ -127,11 +151,14 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = maxConnectionLifeTime;
             _maxConnectionPoolSize = maxConnectionPoolSize;
             _minConnectionPoolSize = minConnectionPoolSize;
+            _readPreference = readPreference;
             _replicaSetName = replicaSetName;
             _safeMode = safeMode;
-            _servers = servers;
-            _slaveOk = slaveOk;
+            _servers = new List<MongoServerAddress>(servers);
+            _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = socketTimeout;
+            _useSsl = useSsl;
+            _verifySslCertificate = verifySslCertificate;
             _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
         }
@@ -180,6 +207,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _credentialsStore = value;
             }
         }
@@ -284,6 +315,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the read preferences.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _readPreference = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the name of the replica set.
         /// </summary>
         public string ReplicaSetName
@@ -305,6 +353,10 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 _safeMode = value;
             }
         }
@@ -314,11 +366,16 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoServerAddress Server
         {
-            get { return (_servers == null) ? null : _servers.Single(); }
+            get { return _servers.Single(); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _servers = new MongoServerAddress[] { value };
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _servers = new List<MongoServerAddress> { value };
+                _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             }
         }
 
@@ -327,24 +384,33 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return _servers; }
+            get { return _serversReadOnly; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _servers = value;
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _servers = new List<MongoServerAddress>(value);
+                _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             }
         }
 
         /// <summary>
         /// Gets or sets whether queries should be sent to secondary servers.
         /// </summary>
+        [Obsolete("Use ReadPreference instead.")]
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+            get
+            {
+                return _readPreference.ToSlaveOk();
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _slaveOk = value;
+                _readPreference = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -358,6 +424,32 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _socketTimeout = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use SSL.
+        /// </summary>
+        public bool UseSsl
+        {
+            get { return _useSsl; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _useSsl = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to verify an SSL certificate.
+        /// </summary>
+        public bool VerifySslCertificate
+        {
+            get { return _verifySslCertificate; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _verifySslCertificate = value;
             }
         }
 
@@ -396,7 +488,7 @@ namespace MongoDB.Driver
         {
             return new MongoServerSettings(_connectionMode, _connectTimeout, _credentialsStore.Clone(), _defaultCredentials,
                 _guidRepresentation, _ipv6, _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize,
-                _minConnectionPoolSize, _replicaSetName, _safeMode, _servers, _slaveOk, _socketTimeout,
+                _minConnectionPoolSize, _readPreference, _replicaSetName, _safeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate,
                 _waitQueueSize, _waitQueueTimeout);
         }
 
@@ -431,11 +523,13 @@ namespace MongoDB.Driver
                         _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                         _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                         _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+                        _readPreference == rhs._readPreference &&
                         _replicaSetName == rhs._replicaSetName &&
                         _safeMode == rhs._safeMode &&
-                        (_servers == null && rhs._servers == null || _servers.SequenceEqual(rhs._servers)) &&
-                        _slaveOk == rhs._slaveOk &&
+                        _servers.SequenceEqual(rhs._servers) &&
                         _socketTimeout == rhs._socketTimeout &&
+                        _useSsl == rhs._useSsl &&
+                        _verifySslCertificate == rhs._verifySslCertificate &&
                         _waitQueueSize == rhs._waitQueueSize &&
                         _waitQueueTimeout == rhs._waitQueueTimeout;
                 }
@@ -451,6 +545,7 @@ namespace MongoDB.Driver
             if (!_isFrozen)
             {
                 _credentialsStore.Freeze();
+                _readPreference = _readPreference.FrozenCopy();
                 _safeMode = _safeMode.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
@@ -521,24 +616,23 @@ namespace MongoDB.Driver
             hash = 37 * hash + _connectionMode.GetHashCode();
             hash = 37 * hash + _connectTimeout.GetHashCode();
             hash = 37 * hash + _credentialsStore.GetHashCode();
-            hash = 37 * hash + (_defaultCredentials == null ? 0 : _defaultCredentials.GetHashCode());
+            hash = 37 * hash + ((_defaultCredentials == null) ? 0 : _defaultCredentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
             hash = 37 * hash + _maxConnectionLifeTime.GetHashCode();
             hash = 37 * hash + _maxConnectionPoolSize.GetHashCode();
             hash = 37 * hash + _minConnectionPoolSize.GetHashCode();
-            hash = 37 * hash + (_replicaSetName == null ? 0 : _replicaSetName.GetHashCode());
-            hash = 37 * hash + (_safeMode == null ? 0 : _safeMode.GetHashCode());
-            if (_servers != null)
+            hash = 37 * hash + _readPreference.GetHashCode();
+            hash = 37 * hash + ((_replicaSetName == null) ? 0 : _replicaSetName.GetHashCode());
+            hash = 37 * hash +  _safeMode.GetHashCode();
+            foreach (var server in _servers)
             {
-                foreach (var server in _servers)
-                {
-                    hash = 37 * hash + server.GetHashCode();
-                }
+                hash = 37 * hash + server.GetHashCode();
             }
-            hash = 37 * hash + _slaveOk.GetHashCode();
             hash = 37 * hash + _socketTimeout.GetHashCode();
+            hash = 37 * hash + _useSsl.GetHashCode();
+            hash = 37 * hash + _verifySslCertificate.GetHashCode();
             hash = 37 * hash + _waitQueueSize.GetHashCode();
             hash = 37 * hash + _waitQueueTimeout.GetHashCode();
             return hash;
@@ -556,11 +650,6 @@ namespace MongoDB.Driver
             }
 
             var sb = new StringBuilder();
-            string serversString = null;
-            if (_servers != null)
-            {
-                serversString = string.Join(",", _servers.Select(s => s.ToString()).ToArray());
-            }
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
@@ -571,11 +660,13 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("SafeMode={0};", _safeMode);
-            sb.AppendFormat("Servers={0};", serversString);
-            sb.AppendFormat("SlaveOk={0};", _slaveOk);
+            sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            sb.AppendFormat("Ssl={0};", _useSsl);
+            sb.AppendFormat("SslVerifyCertificate={0};", _verifySslCertificate);
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
             return sb.ToString();

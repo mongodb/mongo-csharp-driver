@@ -81,7 +81,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp253
             var document = new BsonDocument
             {
                 { "_id", ObjectId.GenerateNewId() },
-                { "BsonNull", new BsonDocument("$csharpnull", true) },
+                { "BsonNull", new BsonDocument("_csharpnull", true) },
                 { "Code", new BsonDocument
                     {
                         { "$code", "code" },

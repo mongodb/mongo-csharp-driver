@@ -22,11 +22,82 @@ using System.Text;
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
+    /// Represents a projection from TSource to TResult;
+    /// </summary>
+    internal interface IProjector : IEnumerable
+    {
+        /// <summary>
+        /// Gets the cursor.
+        /// </summary>
+        MongoCursor Cursor { get; }
+    }
+
+    /// <summary>
+    /// Represents a projection from TSource to TResult;
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    internal interface IProjector<TSource, TResult> : IProjector, IEnumerable<TResult>
+    { }
+
+    /// <summary>
+    /// Represents a projector that does nothing.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    internal class IdentityProjector<T> : IProjector<T,T>
+    {
+        // private fields
+        private readonly MongoCursor _cursor;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IdentityProjector&lt;T&gt;"/> class.
+        /// </summary>
+        /// <param name="cursor">The cursor.</param>
+        public IdentityProjector(MongoCursor cursor)
+        {
+            _cursor = cursor;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the cursor.
+        /// </summary>
+        public MongoCursor Cursor
+        {
+            get { return _cursor; }
+        }
+
+        // public methods
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+        /// </returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            return ((IEnumerable<T>)_cursor).GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
+        /// </returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    /// <summary>
     /// Represents a projection.
     /// </summary>
     /// <typeparam name="TSource">The type of the source objects.</typeparam>
     /// <typeparam name="TResult">The type of the result objects.</typeparam>
-    public class Projector<TSource, TResult> : IEnumerable<TResult>
+    internal class Projector<TSource, TResult> : IProjector<TSource, TResult>
     {
         // private fields
         private MongoCursor<TSource> _cursor;
@@ -44,6 +115,15 @@ namespace MongoDB.Driver.Linq
             _projection = projection;
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the cursor.
+        /// </summary>
+        public MongoCursor Cursor
+        {
+            get { return _cursor; }
+        }
+
         // public methods
         /// <summary>
         /// Gets an enumerator for the result objects.
@@ -51,10 +131,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>An enumerator for the result objects.</returns>
         public IEnumerator<TResult> GetEnumerator()
         {
-            foreach (var document in _cursor)
-            {
-                yield return _projection(document);
-            }
+            return _cursor.Select(_projection).GetEnumerator();
         }
 
         // explicit interface implementation
