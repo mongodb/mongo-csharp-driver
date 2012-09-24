@@ -55,6 +55,8 @@ namespace MongoDB.Driver
             { "readpreferencetags", "readPreferenceTags" },
             { "replicaset", "replicaSet" },
             { "safe", "safe" },
+            { "secondaryacceptablelatency", "secondaryAcceptableLatency" },
+            { "secondaryacceptablelatencyms", "secondaryAcceptableLatency" },
             { "server", "server" },
             { "servers", "server" },
             { "slaveok", "slaveOk" },
@@ -88,6 +90,7 @@ namespace MongoDB.Driver
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private SafeMode _safeMode;
+        private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
@@ -363,6 +366,20 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the acceptable latency for considering a replica set member for inclusion in load balancing
+        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
+        /// </summary>
+        public TimeSpan SecondaryAcceptableLatency
+        {
+            get { return _secondaryAcceptableLatency; }
+            set
+            {
+                _secondaryAcceptableLatency = value;
+                base["SecondaryAcceptableLatency"] = MongoUrlBuilder.FormatTimeSpan(value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the address of the server (see also Servers if using more than one address).
         /// </summary>
         public MongoServerAddress Server
@@ -617,6 +634,10 @@ namespace MongoDB.Driver
                         newSafeMode.Enabled = Convert.ToBoolean(value);
                         SafeMode = newSafeMode;
                         break;
+                    case "secondaryacceptablelatency":
+                    case "secondaryacceptablelatencyms":
+                        SecondaryAcceptableLatency = ToTimeSpan(keyword, value);
+                        break;
                     case "server":
                     case "servers":
                         Servers = ParseServersString((string)value);
@@ -704,7 +725,8 @@ namespace MongoDB.Driver
             var readPreference = ReadPreference ?? ReadPreference.Primary;
             return new MongoServerSettings(_connectionMode, _connectTimeout, null, defaultCredentials, _guidRepresentation, _ipv6,
                 _maxConnectionIdleTime, _maxConnectionLifeTime, _maxConnectionPoolSize, _minConnectionPoolSize, readPreference, _replicaSetName,
-                _safeMode ?? MongoDefaults.SafeMode, _servers, _socketTimeout, _useSsl, _verifySslCertificate, ComputedWaitQueueSize, _waitQueueTimeout);
+                _safeMode ?? MongoDefaults.SafeMode, _secondaryAcceptableLatency, _servers, _socketTimeout, _useSsl, _verifySslCertificate, 
+                ComputedWaitQueueSize, _waitQueueTimeout);
         }
 
         // private methods
@@ -773,6 +795,7 @@ namespace MongoDB.Driver
             _readPreference = null;
             _replicaSetName = null;
             _safeMode = null;
+            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = null;
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;

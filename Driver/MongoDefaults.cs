@@ -37,6 +37,7 @@ namespace MongoDB.Driver
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
         private static SafeMode __safeMode = SafeMode.False;
+        private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
@@ -151,6 +152,16 @@ namespace MongoDB.Driver
         {
             get { return __safeMode; }
             set { __safeMode = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the default acceptable latency for considering a replica set member for inclusion in load balancing
+        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
+        /// </summary>
+        public static TimeSpan SecondaryAcceptableLatency
+        {
+            get { return __secondaryAcceptableLatency; }
+            set { __secondaryAcceptableLatency = value; }
         }
 
         /// <summary>

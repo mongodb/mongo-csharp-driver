@@ -973,6 +973,75 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestSecondaryAcceptableLatencyDefaults()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost");
+            Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
+
+            var connectionString = "mongodb://localhost";
+            Assert.AreEqual(connectionString, builder.ToString());
+        }
+
+        [Test]
+        public void TestSecondaryAcceptableLatency()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost") { SecondaryAcceptableLatency = TimeSpan.FromMilliseconds(500) };
+            Assert.AreEqual(TimeSpan.FromMilliseconds(500), builder.SecondaryAcceptableLatency);
+            var connectionString = "mongodb://localhost/?secondaryAcceptableLatency=500ms";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=500ms").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=0.5").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=0.5s").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=00:00:00.500").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatencyMS=500").ToString());
+
+            builder = new MongoUrlBuilder("mongodb://localhost") { SecondaryAcceptableLatency = TimeSpan.FromSeconds(30) };
+            Assert.AreEqual(TimeSpan.FromSeconds(30), builder.SecondaryAcceptableLatency);
+            connectionString = "mongodb://localhost/?secondaryAcceptableLatency=30s";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=30000ms").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=30").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=30s").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=0.5m").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=00:00:30").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatencyMS=30000").ToString());
+
+            builder = new MongoUrlBuilder("mongodb://localhost") { SecondaryAcceptableLatency = TimeSpan.FromMinutes(30) };
+            Assert.AreEqual(TimeSpan.FromMinutes(30), builder.SecondaryAcceptableLatency);
+            connectionString = "mongodb://localhost/?secondaryAcceptableLatency=30m";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=1800000ms").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=1800").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=1800s").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=30m").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=0.5h").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=00:30:00").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatencyMS=1800000").ToString());
+
+            builder = new MongoUrlBuilder("mongodb://localhost") { SecondaryAcceptableLatency = TimeSpan.FromHours(1) };
+            Assert.AreEqual(TimeSpan.FromHours(1), builder.SecondaryAcceptableLatency);
+            connectionString = "mongodb://localhost/?secondaryAcceptableLatency=1h";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3600000ms").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3600").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3600s").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=60m").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=1h").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=01:00:00").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatencyMS=3600000").ToString());
+
+            builder = new MongoUrlBuilder("mongodb://localhost") { SecondaryAcceptableLatency = new TimeSpan(1, 2, 3) };
+            Assert.AreEqual(new TimeSpan(1, 2, 3), builder.SecondaryAcceptableLatency);
+            connectionString = "mongodb://localhost/?secondaryAcceptableLatency=01:02:03";
+            Assert.AreEqual(connectionString, builder.ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3723000ms").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3723").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=3723s").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatency=01:02:03").ToString());
+            Assert.AreEqual(connectionString, new MongoUrlBuilder("mongodb://localhost/?secondaryAcceptableLatencyMS=3723000").ToString());
+        }
+
+        [Test]
         public void TestSlaveOkFalse()
         {
 #pragma warning disable 618

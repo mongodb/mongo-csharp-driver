@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Internal
         // protected methods
         protected override MongoServerInstance ChooseServerInstance(ConnectedInstanceCollection connectedInstances, ReadPreference readPreference)
         {
-            var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
+            var secondaryAcceptableLatency = Server.Settings.SecondaryAcceptableLatency;
 
             switch (readPreference.ReadPreferenceMode)
             {
@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Internal
         /// <param name="readPreference">The read preference that must be matched.</param>
         /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
         /// <returns>A randomly selected matching instance.</returns>
-        public MongoServerInstance GetMatchingInstance(List<ConnectedInstanceCollection.InstanceWithPingTime> instancesWithPingTime, ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
+        private MongoServerInstance GetMatchingInstance(List<ConnectedInstanceCollection.InstanceWithPingTime> instancesWithPingTime, ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
         {
             var tagSets = readPreference.TagSets ?? new ReplicaSetTagSet[] { new ReplicaSetTagSet() };
             foreach (var tagSet in tagSets)

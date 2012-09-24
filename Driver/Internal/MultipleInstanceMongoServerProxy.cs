@@ -139,6 +139,15 @@ namespace MongoDB.Driver.Internal
             }
         }
 
+        //protected properties
+        /// <summary>
+        /// Gets the server.
+        /// </summary>
+        protected MongoServer Server
+        {
+            get { return _server; }
+        }
+
         // public methods
         /// <summary>
         /// Chooses the server instance.

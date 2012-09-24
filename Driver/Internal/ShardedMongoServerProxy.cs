@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Internal
             }
             else
             {
-                var secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15); // TODO: make configurable
+                var secondaryAcceptableLatency = Server.Settings.SecondaryAcceptableLatency;
                 var minPingTime = instancesWithPingTime[0].CachedAveragePingTime;
                 var maxPingTime = minPingTime + secondaryAcceptableLatency;
                 var n = instancesWithPingTime.Count(i => i.CachedAveragePingTime <= maxPingTime);
