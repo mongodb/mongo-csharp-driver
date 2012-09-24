@@ -375,7 +375,7 @@ namespace MongoDB.Driver
             set
             {
                 _secondaryAcceptableLatency = value;
-                base["SecondaryAcceptableLatency"] = MongoUrlBuilder.FormatTimeSpan(value);
+                base["secondaryAcceptableLatency"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
 

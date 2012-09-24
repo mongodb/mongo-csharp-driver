@@ -48,6 +48,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(null, builder.ReadPreference);
             Assert.AreEqual(null, builder.ReplicaSetName);
             Assert.AreEqual(null, builder.SafeMode);
+            Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
 #pragma warning disable 618
             Assert.AreEqual(false, builder.SlaveOk);
 #pragma warning restore

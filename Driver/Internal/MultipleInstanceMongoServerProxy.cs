@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        //protected properties
+        // protected properties
         /// <summary>
         /// Gets the server.
         /// </summary>

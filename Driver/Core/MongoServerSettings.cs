@@ -77,7 +77,7 @@ namespace MongoDB.Driver
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _safeMode = MongoDefaults.SafeMode;
-            _secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
+            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serversReadOnly = new ReadOnlyCollection<MongoServerAddress>(_servers);
             _socketTimeout = MongoDefaults.SocketTimeout;
@@ -103,12 +103,14 @@ namespace MongoDB.Driver
         /// <param name="readPreference">The default read preference.</param>
         /// <param name="replicaSetName">The name of the replica set.</param>
         /// <param name="safeMode">The safe mode.</param>
+        /// <param name="secondaryAcceptableLatency">The secondary acceptable latency.</param>
         /// <param name="servers">The server addresses (normally one unless it is the seed list for connecting to a replica set).</param>
         /// <param name="socketTimeout">The socket timeout.</param>
         /// <param name="useSsl">Whether to use SSL.</param>
         /// <param name="verifySslCertificate">Whether to verify an SSL certificate.</param>
         /// <param name="waitQueueSize">The wait queue size.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
+        /// <exception cref="System.ArgumentNullException"></exception>
         public MongoServerSettings(
             ConnectionMode connectionMode,
             TimeSpan connectTimeout,
