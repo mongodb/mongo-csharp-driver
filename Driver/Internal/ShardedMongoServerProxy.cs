@@ -64,14 +64,21 @@ namespace MongoDB.Driver.Internal
             {
                 return null;
             }
+            else if (instancesWithPingTime.Count == 1)
+            {
+                return instancesWithPingTime[0].Instance;
+            }
             else
             {
                 var secondaryAcceptableLatency = Server.Settings.SecondaryAcceptableLatency;
                 var minPingTime = instancesWithPingTime[0].CachedAveragePingTime;
                 var maxPingTime = minPingTime + secondaryAcceptableLatency;
                 var n = instancesWithPingTime.Count(i => i.CachedAveragePingTime <= maxPingTime);
-                var index = _random.Next(n);
-                return instancesWithPingTime[index].Instance; // return random instance
+                lock (_randomLock)
+                {
+                    var index = _random.Next(n);
+                    return instancesWithPingTime[index].Instance; // return random instance
+                }
             }
         }
 

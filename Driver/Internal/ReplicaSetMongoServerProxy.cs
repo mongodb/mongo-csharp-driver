@@ -234,10 +234,17 @@ namespace MongoDB.Driver.Internal
                 }
 
                 // stop looking at tagSets if this one yielded any matching instances
-                if (matchingInstances.Count != 0)
+                if (matchingInstances.Count == 1)
                 {
-                    var index = _random.Next(matchingInstances.Count);
-                    return matchingInstances[index]; // randomly selected matching instance
+                    return matchingInstances[0];
+                }
+                else if (matchingInstances.Count != 0)
+                {
+                    lock (_randomLock)
+                    {
+                        var index = _random.Next(matchingInstances.Count);
+                        return matchingInstances[index]; // randomly selected matching instance
+                    }
                 }
             }
 
