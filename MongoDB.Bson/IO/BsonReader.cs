@@ -299,8 +299,15 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
+        /// <returns>A BsonBinaryData.</returns>
+        public abstract BsonBinaryData ReadBinaryData();
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        [Obsolete("Use ReadBinaryData() instead.")]
         public void ReadBinaryData(out byte[] bytes, out BsonBinarySubType subType)
         {
             GuidRepresentation guidRepresentation;
@@ -313,10 +320,28 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
-        public abstract void ReadBinaryData(
+        [Obsolete("Use ReadBinaryData() instead.")]
+        public void ReadBinaryData(
             out byte[] bytes,
             out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation);
+            out GuidRepresentation guidRepresentation)
+        {
+            var binaryData = ReadBinaryData();
+            bytes = binaryData.Bytes;
+            subType = binaryData.SubType;
+            guidRepresentation = binaryData.GuidRepresentation;
+        }
+
+        /// <summary>
+        /// Reads a BSON binary data element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>A BsonBinaryData.</returns>
+        public BsonBinaryData ReadBinaryData(string name)
+        {
+            VerifyName(name);
+            return ReadBinaryData();
+        }
 
         /// <summary>
         /// Reads a BSON binary data element from the reader.
@@ -324,6 +349,7 @@ namespace MongoDB.Bson.IO
         /// <param name="name">The name of the element.</param>
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
+        [Obsolete("Use ReadBinaryData(string name) instead.")]
         public void ReadBinaryData(string name, out byte[] bytes, out BsonBinarySubType subType)
         {
             GuidRepresentation guidRepresentation;
@@ -337,6 +363,7 @@ namespace MongoDB.Bson.IO
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
+        [Obsolete("Use ReadBinaryData(string name) instead.")]
         public void ReadBinaryData(
             string name,
             out byte[] bytes,
@@ -384,6 +411,23 @@ namespace MongoDB.Bson.IO
         /// <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
         /// <returns>A BsonType.</returns>
         public abstract BsonType ReadBsonType<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value);
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <returns>A byte array.</returns>
+        public abstract byte[] ReadBytes();
+
+        /// <summary>
+        /// Reads a BSON binary data element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>A byte array.</returns>
+        public byte[] ReadBytes(string name)
+        {
+            VerifyName(name);
+            return ReadBytes();
+        }
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.

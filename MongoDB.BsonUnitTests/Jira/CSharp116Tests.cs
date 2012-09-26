@@ -50,7 +50,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116
             using (var bsonWriter = BsonWriter.Create(stream))
             {
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 16], BsonBinarySubType.Binary);
+                bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 16]);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.Close();
             }
@@ -63,7 +63,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116
             using (var bsonWriter = BsonWriter.Create(stream))
             {
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 17], BsonBinarySubType.Binary);
+                bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 17]);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.Close();
             }
@@ -76,7 +76,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp116
             using (var bsonWriter = BsonWriter.Create(stream))
             {
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBinaryData("Data", new byte[16 * 1024 - 15], BsonBinarySubType.Binary);
+                bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 15]);
                 bsonWriter.WriteEndDocument();
                 bsonWriter.Close();
             }

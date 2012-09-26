@@ -76,21 +76,13 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        public override void ReadBinaryData(
-            out byte[] bytes,
-            out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation)
+        /// <returns>A BsonBinaryData.</returns>
+        public override BsonBinaryData ReadBinaryData()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
             State = GetNextState();
-            var binaryData = _currentValue.AsBsonBinaryData;
-            bytes = binaryData.Bytes;
-            subType = binaryData.SubType;
-            guidRepresentation = binaryData.GuidRepresentation;
+            return _currentValue.AsBsonBinaryData;
         }
 
         /// <summary>
@@ -307,6 +299,29 @@ namespace MongoDB.Bson.IO
                     break;
             }
             return CurrentBsonType;
+        }
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <returns>A byte array.</returns>
+        public override byte[] ReadBytes()
+        {
+#pragma warning disable 618
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadBinaryData", BsonType.Binary);
+            State = GetNextState();
+            var binaryData = _currentValue.AsBsonBinaryData;
+
+            var subType = binaryData.SubType;
+            if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
+            {
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
+                throw new FileFormatException(message);
+            }
+
+            return binaryData.Bytes;
+#pragma warning restore
         }
 
         /// <summary>
@@ -642,9 +657,7 @@ namespace MongoDB.Bson.IO
                     ReadEndArray();
                     break;
                 case BsonType.Binary:
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    ReadBinaryData(out bytes, out subType);
+                    ReadBinaryData();
                     break;
                 case BsonType.Boolean:
                     ReadBoolean();

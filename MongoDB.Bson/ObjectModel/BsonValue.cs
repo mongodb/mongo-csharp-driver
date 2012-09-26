@@ -1097,11 +1097,7 @@ namespace MongoDB.Bson
                 case BsonType.Array:
                     return BsonArray.ReadFrom(bsonReader);
                 case BsonType.Binary:
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    GuidRepresentation guidRepresentation;
-                    bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
-                    return new BsonBinaryData(bytes, subType, guidRepresentation);
+                    return bsonReader.ReadBinaryData();
                 case BsonType.Boolean:
                     return BsonBoolean.Create(bsonReader.ReadBoolean());
                 case BsonType.DateTime:
@@ -1130,17 +1126,9 @@ namespace MongoDB.Bson
                     bsonReader.ReadNull();
                     return BsonNull.Value;
                 case BsonType.ObjectId:
-                    int timestamp;
-                    int machine;
-                    short pid;
-                    int increment;
-                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                    return new BsonObjectId(timestamp, machine, pid, increment);
+                    return bsonReader.ReadObjectId();
                 case BsonType.RegularExpression:
-                    string pattern;
-                    string options;
-                    bsonReader.ReadRegularExpression(out pattern, out options);
-                    return new BsonRegularExpression(pattern, options);
+                    return bsonReader.ReadRegularExpression();
                 case BsonType.String:
                     return new BsonString(bsonReader.ReadString());
                 case BsonType.Symbol:
@@ -1294,7 +1282,8 @@ namespace MongoDB.Bson
                             guidRepresentation = writerGuidRepresentation;
                         }
                     }
-                    bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
+                    binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
+                    bsonWriter.WriteBinaryData(binaryData);
                     break;
                 case BsonType.Boolean:
                     bsonWriter.WriteBoolean(((BsonBoolean)this).Value);
@@ -1350,11 +1339,11 @@ namespace MongoDB.Bson
                     break;
                 case BsonType.ObjectId:
                     var objectId = ((BsonObjectId)this).Value;
-                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+                    bsonWriter.WriteObjectId(objectId);
                     break;
                 case BsonType.RegularExpression:
                     BsonRegularExpression regex = (BsonRegularExpression)this;
-                    bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
+                    bsonWriter.WriteRegularExpression(regex);
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(((BsonString)this).Value);

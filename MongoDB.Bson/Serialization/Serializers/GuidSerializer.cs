@@ -72,10 +72,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Binary:
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    GuidRepresentation guidRepresentation;
-                    bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
+                    var binaryData = bsonReader.ReadBinaryData();
+                    var bytes = binaryData.Bytes;
+                    var subType = binaryData.SubType;
+                    var guidRepresentation = binaryData.GuidRepresentation;
                     if (bytes.Length != 16)
                     {
                         message = string.Format("Expected length to be 16, not {0}.", bytes.Length);
@@ -125,7 +125,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     var bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
                     var subType = (writerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-                    bsonWriter.WriteBinaryData(bytes, subType, writerGuidRepresentation);
+                    bsonWriter.WriteBinaryData(new BsonBinaryData(bytes, subType, writerGuidRepresentation));
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(guid.ToString());

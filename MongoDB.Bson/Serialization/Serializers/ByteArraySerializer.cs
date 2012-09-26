@@ -78,13 +78,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Binary:
-                    BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
-                    {
-                        message = string.Format("Invalid Binary sub type {0}.", subType);
-                        throw new FileFormatException(message);
-                    }
+                    bytes = bsonReader.ReadBytes();
                     return bytes;
                 case BsonType.String:
                     var s = bsonReader.ReadString();
@@ -132,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 switch (representationSerializationOptions.Representation)
                 {
                     case BsonType.Binary:
-                        bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Binary);
+                        bsonWriter.WriteBytes(bytes);
                         break;
                     case BsonType.String:
                         var sb = new StringBuilder(bytes.Length * 2);

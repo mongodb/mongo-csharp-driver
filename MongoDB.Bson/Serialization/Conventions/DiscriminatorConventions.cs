@@ -117,9 +117,8 @@ namespace MongoDB.Bson.Serialization.Conventions
                     case BsonType.Boolean: primitiveType = typeof(bool); break;
                     case BsonType.Binary:
                         var bookmark = bsonReader.GetBookmark();
-                        byte[] bytes;
-                        BsonBinarySubType subType;
-                        bsonReader.ReadBinaryData(out bytes, out subType);
+                        var binaryData = bsonReader.ReadBinaryData();
+                        var subType = binaryData.SubType;
                         if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
                         {
                             primitiveType = typeof(Guid);

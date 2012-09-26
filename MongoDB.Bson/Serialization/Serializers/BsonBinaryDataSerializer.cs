@@ -74,11 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Binary:
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    GuidRepresentation guidRepresentation;
-                    bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
-                    return new BsonBinaryData(bytes, subType, guidRepresentation);
+                    return bsonReader.ReadBinaryData();
                 default:
                     var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -131,7 +127,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                 }
 
-                bsonWriter.WriteBinaryData(bytes, subType, guidRepresentation);
+                binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
+                bsonWriter.WriteBinaryData(binaryData);
             }
         }
     }

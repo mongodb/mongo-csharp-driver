@@ -342,13 +342,10 @@ namespace MongoDB.BsonUnitTests.IO
             using (_bsonReader = BsonReader.Create(json))
             {
                 Assert.AreEqual(BsonType.Binary, _bsonReader.ReadBsonType());
-                byte[] bytes;
-                BsonBinarySubType subType;
-                GuidRepresentation guidRepresentation;
-                _bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
-                Assert.IsTrue(bytes.SequenceEqual(guid.ToByteArray()));
-                Assert.AreEqual(BsonBinarySubType.UuidLegacy, subType);
-                Assert.AreEqual(GuidRepresentation.CSharpLegacy, guidRepresentation);
+                var binaryData = _bsonReader.ReadBinaryData();
+                Assert.IsTrue(binaryData.Bytes.SequenceEqual(guid.ToByteArray()));
+                Assert.AreEqual(BsonBinarySubType.UuidLegacy, binaryData.SubType);
+                Assert.AreEqual(GuidRepresentation.CSharpLegacy, binaryData.GuidRepresentation);
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
             var expected = "CSUUID(\"b5f21e0c-2a0d-42d6-ad03-d827008d8ab6\")";
@@ -363,13 +360,8 @@ namespace MongoDB.BsonUnitTests.IO
             using (_bsonReader = BsonReader.Create(json))
             {
                 Assert.AreEqual(BsonType.Binary, _bsonReader.ReadBsonType());
-                byte[] bytes;
-                BsonBinarySubType subType;
-                GuidRepresentation guidRepresentation;
-                _bsonReader.ReadBinaryData(out bytes, out subType, out guidRepresentation);
+                var bytes = _bsonReader.ReadBytes();
                 Assert.IsTrue(expectedBytes.SequenceEqual(bytes));
-                Assert.AreEqual(BsonBinarySubType.Binary, subType);
-                Assert.AreEqual(GuidRepresentation.Unspecified, guidRepresentation);
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
             var expectedJson = "new BinData(0, \"ASM=\")";

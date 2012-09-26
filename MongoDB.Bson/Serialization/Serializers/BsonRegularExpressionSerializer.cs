@@ -74,9 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                string regexPattern, regexOptions;
-                bsonReader.ReadRegularExpression(out regexPattern, out regexOptions);
-                return new BsonRegularExpression(regexPattern, regexOptions);
+                return bsonReader.ReadRegularExpression();
             }
         }
 
@@ -100,7 +98,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var regex = (BsonRegularExpression)value;
-                bsonWriter.WriteRegularExpression(regex.Pattern, regex.Options);
+                bsonWriter.WriteRegularExpression(regex);
             }
         }
     }

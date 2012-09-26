@@ -80,13 +80,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes BSON binary data to the writer.
         /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        public override void WriteBinaryData(
-            byte[] bytes,
-            BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation)
+        /// <param name="binaryData">The binary data.</param>
+        public override void WriteBinaryData(BsonBinaryData binaryData)
         {
             if (Disposed) { throw new ObjectDisposedException("JsonWriter"); }
             if (State != BsonWriterState.Value && State != BsonWriterState.Initial)
@@ -94,6 +89,9 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteBinaryData", BsonWriterState.Value, BsonWriterState.Initial);
             }
 
+            var subType = binaryData.SubType;
+            var bytes = binaryData.Bytes;
+            var guidRepresentation = binaryData.GuidRepresentation;
             if (_jsonWriterSettings.OutputMode == JsonOutputMode.Shell)
             {
                 WriteNameHelper(Name);
@@ -182,6 +180,15 @@ namespace MongoDB.Bson.IO
             _textWriter.Write(value ? "true" : "false");
 
             State = GetNextState();
+        }
+
+        /// <summary>
+        /// Writes BSON binary data to the writer.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        public override void WriteBytes(byte[] bytes)
+        {
+            WriteBinaryData(new BsonBinaryData(bytes, BsonBinarySubType.Binary));
         }
 
         /// <summary>

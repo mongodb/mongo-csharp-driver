@@ -74,9 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Binary:
-                    byte[] bytes;
-                    BsonBinarySubType subType;
-                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    var bytes = bsonReader.ReadBytes();
                     if (bytes.Length != 1)
                     {
                         throw new FileFormatException("Binary data for SByte must be exactly one byte long.");
@@ -133,7 +131,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (representationSerializationOptions.Representation)
             {
                 case BsonType.Binary:
-                    bsonWriter.WriteBinaryData(new byte[] { (byte)sbyteValue }, BsonBinarySubType.Binary);
+                    bsonWriter.WriteBytes(new byte[] { (byte)sbyteValue });
                     break;
                 case BsonType.Int32:
                     bsonWriter.WriteInt32(sbyteValue);

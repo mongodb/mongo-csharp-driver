@@ -71,31 +71,17 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             BitArray bitArray;
-            byte[] bytes;
-            BsonBinarySubType subType;
-            string message;
             switch (bsonType)
             {
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Binary:
-                    bsonReader.ReadBinaryData(out bytes, out subType);
-                    if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
-                    {
-                        message = string.Format("Invalid Binary sub type {0}.", subType);
-                        throw new FileFormatException(message);
-                    }
-                    return new BitArray(bytes);
+                    return new BitArray(bsonReader.ReadBytes());
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     var length = bsonReader.ReadInt32("Length");
-                    bsonReader.ReadBinaryData("Bytes", out bytes, out subType);
-                    if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
-                    {
-                        message = string.Format("Invalid Binary sub type {0}.", subType);
-                        throw new FileFormatException(message);
-                    }
+                    var bytes = bsonReader.ReadBytes("Bytes");
                     bsonReader.ReadEndDocument();
                     bitArray = new BitArray(bytes);
                     bitArray.Length = length;
@@ -119,7 +105,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     }
                     return bitArray;
                 default:
-                    message = string.Format("Cannot deserialize Byte[] from BsonType {0}.", bsonType);
+                    var message = string.Format("Cannot deserialize Byte[] from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -152,13 +138,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case BsonType.Binary:
                         if ((bitArray.Length % 8) == 0)
                         {
-                            bsonWriter.WriteBinaryData(GetBytes(bitArray), BsonBinarySubType.Binary);
+                            bsonWriter.WriteBytes(GetBytes(bitArray));
                         }
                         else
                         {
                             bsonWriter.WriteStartDocument();
                             bsonWriter.WriteInt32("Length", bitArray.Length);
-                            bsonWriter.WriteBinaryData("Bytes", GetBytes(bitArray), BsonBinarySubType.Binary);
+                            bsonWriter.WriteBytes("Bytes", GetBytes(bitArray));
                             bsonWriter.WriteEndDocument();
                         }
                         break;

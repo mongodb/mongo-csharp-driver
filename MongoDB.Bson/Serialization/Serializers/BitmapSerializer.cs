@@ -85,7 +85,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var bsonType = bsonReader.GetCurrentBsonType();
             byte[] bytes;
-            BsonBinarySubType subType;
             switch (bsonType)
             {
                 case BsonType.Null:
@@ -93,25 +92,19 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return null;
 
                 case BsonType.Binary:
-                    bsonReader.ReadBinaryData(out bytes, out subType);
+                    bytes = bsonReader.ReadBytes();
                     break;
 
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     bsonReader.ReadString("_t");
-                    bsonReader.ReadBinaryData("bitmap", out bytes, out subType);
+                    bytes = bsonReader.ReadBytes("bitmap");
                     bsonReader.ReadEndDocument();
                     break;
 
                 default:
                     var message = string.Format("BsonType must be Null, Binary or Document, not {0}.", bsonType);
                     throw new FileFormatException(message);
-            }
-
-            if (subType != BsonBinarySubType.Binary)
-            {
-                var message = string.Format("Binary sub type must be Binary, not {0}.", subType);
-                throw new FileFormatException(message);
             }
 
             var stream = new MemoryStream(bytes);
@@ -159,12 +152,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteString("_t", "Bitmap");
-                    bsonWriter.WriteBinaryData("bitmap", bytes, BsonBinarySubType.Binary);
+                    bsonWriter.WriteBytes("bitmap", bytes);
                     bsonWriter.WriteEndDocument();
                 }
                 else
                 {
-                    bsonWriter.WriteBinaryData(bytes, BsonBinarySubType.Binary);
+                    bsonWriter.WriteBytes(bytes);
                 }
             }
         }

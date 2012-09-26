@@ -89,20 +89,16 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
+        /// <returns>A BsonBinaryData.</returns>
 #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
-        public override void ReadBinaryData(
-            out byte[] bytes,
-            out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation)
+        public override BsonBinaryData ReadBinaryData()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
 
             int size = ReadSize();
-            subType = (BsonBinarySubType)_buffer.ReadByte();
+
+            var subType = (BsonBinarySubType)_buffer.ReadByte();
             if (subType == BsonBinarySubType.OldBinary)
             {
                 // sub type OldBinary has two sizes (for historical reasons)
@@ -118,30 +114,28 @@ namespace MongoDB.Bson.IO
                     subType = BsonBinarySubType.Binary; // replace obsolete OldBinary with new Binary sub type
                 }
             }
-            switch (subType)
+
+            var bytes = _buffer.ReadBytes(size);
+
+            var guidRepresentation = GuidRepresentation.Unspecified;
+            if (subType == BsonBinarySubType.UuidLegacy || subType == BsonBinarySubType.UuidStandard)
             {
-                case BsonBinarySubType.UuidLegacy:
-                case BsonBinarySubType.UuidStandard:
-                    if (_binaryReaderSettings.GuidRepresentation != GuidRepresentation.Unspecified)
+                if (_binaryReaderSettings.GuidRepresentation != GuidRepresentation.Unspecified)
+                {
+                    var expectedSubType = (_binaryReaderSettings.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
+                    if (subType != expectedSubType)
                     {
-                        var expectedSubType = (_binaryReaderSettings.GuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-                        if (subType != expectedSubType)
-                        {
-                            var message = string.Format(
-                                "The GuidRepresentation for the reader is {0}, which requires the binary sub type to be {1}, not {2}.",
-                                _binaryReaderSettings.GuidRepresentation, expectedSubType, subType);
-                            throw new FileFormatException(message);
-                        }
+                        var message = string.Format(
+                            "The GuidRepresentation for the reader is {0}, which requires the binary sub type to be {1}, not {2}.",
+                            _binaryReaderSettings.GuidRepresentation, expectedSubType, subType);
+                        throw new FileFormatException(message);
                     }
-                    guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : _binaryReaderSettings.GuidRepresentation;
-                    break;
-                default:
-                    guidRepresentation = GuidRepresentation.Unspecified;
-                    break;
+                }
+                guidRepresentation = (subType == BsonBinarySubType.UuidStandard) ? GuidRepresentation.Standard : _binaryReaderSettings.GuidRepresentation;
             }
-            bytes = _buffer.ReadBytes(size);
 
             State = GetNextState();
+            return new BsonBinaryData(bytes, subType, guidRepresentation);
         }
 #pragma warning restore 618
 
@@ -220,6 +214,30 @@ namespace MongoDB.Bson.IO
                 return CurrentBsonType;
             }
         }
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <returns>A byte array.</returns>
+#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
+        public override byte[] ReadBytes()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadBytes", BsonType.Binary);
+
+            int size = ReadSize();
+
+            var subType = (BsonBinarySubType)_buffer.ReadByte();
+            if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
+            {
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
+                throw new FileFormatException(message);
+            }
+
+            State = GetNextState();
+            return _buffer.ReadBytes(size);
+        }
+#pragma warning restore 618
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.

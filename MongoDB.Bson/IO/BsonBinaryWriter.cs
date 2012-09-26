@@ -117,13 +117,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes BSON binary data to the writer.
         /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        public override void WriteBinaryData(
-            byte[] bytes,
-            BsonBinarySubType subType,
-            GuidRepresentation guidRepresentation)
+        /// <param name="binaryData">The binary data.</param>
+        public override void WriteBinaryData(BsonBinaryData binaryData)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (State != BsonWriterState.Value)
@@ -131,6 +126,9 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteBinaryData", BsonWriterState.Value);
             }
 
+            var bytes = binaryData.Bytes;
+            var subType = binaryData.SubType;
+            var guidRepresentation = binaryData.GuidRepresentation;
             switch (subType)
             {
                 case BsonBinarySubType.OldBinary:
@@ -197,6 +195,27 @@ namespace MongoDB.Bson.IO
             _buffer.WriteByte((byte)BsonType.Boolean);
             WriteNameHelper();
             _buffer.WriteBoolean(value);
+
+            State = GetNextState();
+        }
+
+        /// <summary>
+        /// Writes BSON binary data to the writer.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        public override void WriteBytes(byte[] bytes)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Value)
+            {
+                ThrowInvalidState("WriteBytes", BsonWriterState.Value);
+            }
+
+            _buffer.WriteByte((byte)BsonType.Binary);
+            WriteNameHelper();
+            _buffer.WriteInt32(bytes.Length);
+            _buffer.WriteByte((byte)BsonBinarySubType.Binary);
+            _buffer.WriteBytes(bytes);
 
             State = GetNextState();
         }

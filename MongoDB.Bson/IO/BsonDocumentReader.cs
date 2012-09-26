@@ -70,22 +70,14 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
-        /// <param name="bytes">The binary data.</param>
-        /// <param name="subType">The binary data subtype.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        public override void ReadBinaryData(
-            out byte[] bytes,
-            out BsonBinarySubType subType,
-            out GuidRepresentation guidRepresentation)
+        /// <returns>A BsonBinaryData.</returns>
+        public override BsonBinaryData ReadBinaryData()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadBinaryData", BsonType.Binary);
 
-            var binaryData = _currentValue.AsBsonBinaryData;
-            bytes = binaryData.Bytes;
-            subType = binaryData.SubType;
-            guidRepresentation = binaryData.GuidRepresentation;
             State = GetNextState();
+            return _currentValue.AsBsonBinaryData;
         }
 
         /// <summary>
@@ -158,6 +150,30 @@ namespace MongoDB.Bson.IO
             CurrentBsonType = _currentValue.BsonType;
             return CurrentBsonType;
         }
+
+        /// <summary>
+        /// Reads BSON binary data from the reader.
+        /// </summary>
+        /// <returns>A byte array.</returns>
+#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
+        public override byte[] ReadBytes()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadBytes", BsonType.Binary);
+
+            State = GetNextState();
+            var binaryData = _currentValue.AsBsonBinaryData;
+
+            var subType = binaryData.SubType;
+            if (subType != BsonBinarySubType.Binary && subType != BsonBinarySubType.OldBinary)
+            {
+                var message = string.Format("ReadBytes requires the binary sub type to be Binary, not {2}.", subType);
+                throw new FileFormatException(message);
+            }
+
+            return binaryData.Bytes;
+        }
+#pragma warning restore 618
 
         /// <summary>
         /// Reads a BSON DateTime from the reader.

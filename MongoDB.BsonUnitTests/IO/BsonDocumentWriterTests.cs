@@ -314,7 +314,7 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
+                writer.WriteBytes("a", new byte[] { 1 });
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -330,7 +330,7 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteBinaryData("a", new byte[] { 1, 2 }, BsonBinarySubType.Binary);
+                writer.WriteBytes("a", new byte[] { 1, 2 });
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
@@ -346,8 +346,8 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
-                writer.WriteBinaryData("b", new byte[] { 2 }, BsonBinarySubType.Binary);
+                writer.WriteBytes("a", new byte[] { 1 });
+                writer.WriteBytes("b", new byte[] { 2 });
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -363,8 +363,8 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteBinaryData("a", new byte[] { 1 }, BsonBinarySubType.Binary);
-                writer.WriteBinaryData("b", new byte[] { 2 }, BsonBinarySubType.Binary);
+                writer.WriteBytes("a", new byte[] { 1 });
+                writer.WriteBytes("b", new byte[] { 2 });
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
