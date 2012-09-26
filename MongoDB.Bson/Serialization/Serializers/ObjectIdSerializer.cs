@@ -71,12 +71,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.ObjectId:
-                    int timestamp;
-                    int machine;
-                    short pid;
-                    int increment;
-                    bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                    return new ObjectId(timestamp, machine, pid, increment);
+                    return bsonReader.ReadObjectId();
                 case BsonType.String:
                     return ObjectId.Parse(bsonReader.ReadString());
                 default:
@@ -104,7 +99,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (representationSerializationOptions.Representation)
             {
                 case BsonType.ObjectId:
-                    bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+                    bsonWriter.WriteObjectId(objectId);
                     break;
                 case BsonType.String:
                     bsonWriter.WriteString(objectId.ToString());

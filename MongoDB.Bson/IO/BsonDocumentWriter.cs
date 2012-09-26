@@ -334,11 +334,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes a BSON ObjectId to the writer.
         /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public override void WriteObjectId(int timestamp, int machine, short pid, int increment)
+        /// <param name="objectId">The ObjectId.</param>
+        public override void WriteObjectId(ObjectId objectId)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
             if (State != BsonWriterState.Value)
@@ -346,16 +343,15 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteObjectId", BsonWriterState.Value);
             }
 
-            WriteValue(new ObjectId(timestamp, machine, pid, increment));
+            WriteValue(objectId);
             State = GetNextState();
         }
 
         /// <summary>
         /// Writes a BSON regular expression to the writer.
         /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">A regular expression options.</param>
-        public override void WriteRegularExpression(string pattern, string options)
+        /// <param name="regex">A BsonRegularExpression.</param>
+        public override void WriteRegularExpression(BsonRegularExpression regex)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonDocumentWriter"); }
             if (State != BsonWriterState.Value)
@@ -363,7 +359,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("WriteRegularExpression", BsonWriterState.Value);
             }
 
-            WriteValue(new BsonRegularExpression(pattern, options));
+            WriteValue(regex);
             State = GetNextState();
         }
 

@@ -429,11 +429,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes a BSON ObjectId to the writer.
         /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public override void WriteObjectId(int timestamp, int machine, short pid, int increment)
+        /// <param name="objectId">The ObjectId.</param>
+        public override void WriteObjectId(ObjectId objectId)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (State != BsonWriterState.Value)
@@ -443,7 +440,7 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.ObjectId);
             WriteNameHelper();
-            _buffer.WriteObjectId(timestamp, machine, pid, increment);
+            _buffer.WriteObjectId(objectId);
 
             State = GetNextState();
         }
@@ -451,9 +448,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes a BSON regular expression to the writer.
         /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">A regular expression options.</param>
-        public override void WriteRegularExpression(string pattern, string options)
+        /// <param name="regex">A BsonRegularExpression.</param>
+        public override void WriteRegularExpression(BsonRegularExpression regex)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
             if (State != BsonWriterState.Value)
@@ -463,8 +459,8 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.RegularExpression);
             WriteNameHelper();
-            _buffer.WriteCString(pattern);
-            _buffer.WriteCString(options);
+            _buffer.WriteCString(regex.Pattern);
+            _buffer.WriteCString(regex.Options);
 
             State = GetNextState();
         }

@@ -1071,8 +1071,7 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                var id = ObjectId.Empty;
-                writer.WriteObjectId("a", id.Timestamp, id.Machine, id.Pid, id.Increment);
+                writer.WriteObjectId("a", ObjectId.Empty);
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -1088,8 +1087,7 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                var id = ObjectId.Empty;
-                writer.WriteObjectId("a", id.Timestamp, id.Machine, id.Pid, id.Increment);
+                writer.WriteObjectId("a", ObjectId.Empty);
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
@@ -1105,9 +1103,8 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                var id = ObjectId.Empty;
-                writer.WriteObjectId("a", id.Timestamp, id.Machine, id.Pid, id.Increment);
-                writer.WriteObjectId("b", id.Timestamp, id.Machine, id.Pid, id.Increment);
+                writer.WriteObjectId("a", ObjectId.Empty);
+                writer.WriteObjectId("b", ObjectId.Empty);
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -1123,9 +1120,8 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                var id = ObjectId.Empty;
-                writer.WriteObjectId("a", id.Timestamp, id.Machine, id.Pid, id.Increment);
-                writer.WriteObjectId("b", id.Timestamp, id.Machine, id.Pid, id.Increment);
+                writer.WriteObjectId("a", ObjectId.Empty);
+                writer.WriteObjectId("b", ObjectId.Empty);
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
@@ -1142,7 +1138,7 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                writer.WriteRegularExpression("a", "p", "i");
+                writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -1158,7 +1154,7 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteRegularExpression("a", "p", "i");
+                writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }
@@ -1174,8 +1170,8 @@ namespace MongoDB.BsonUnitTests.IO
             using (var writer = BsonWriter.Create(document))
             {
                 writer.WriteStartDocument();
-                writer.WriteRegularExpression("a", "p", "i");
-                writer.WriteRegularExpression("b", "q", "m");
+                writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
+                writer.WriteRegularExpression("b", new BsonRegularExpression("q", "m"));
                 writer.WriteEndDocument();
             }
             var json = document.ToJson();
@@ -1191,8 +1187,8 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
-                writer.WriteRegularExpression("a", "p", "i");
-                writer.WriteRegularExpression("b", "q", "m");
+                writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
+                writer.WriteRegularExpression("b", new BsonRegularExpression("q", "m"));
                 writer.WriteEndDocument();
                 writer.WriteEndDocument();
             }

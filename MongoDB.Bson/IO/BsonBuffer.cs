@@ -486,11 +486,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON ObjectId from the reader.
         /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
+        /// <returns>An ObjectId.</returns>
+        public ObjectId ReadObjectId()
         {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
             EnsureDataAvailable(12);
@@ -498,17 +495,35 @@ namespace MongoDB.Bson.IO
             {
                 var c = _chunk;
                 var o = _chunkOffset;
-                timestamp = (c[o + 0] << 24) + (c[o + 1] << 16) + (c[o + 2] << 8) + c[o + 3];
-                machine = (c[o + 4] << 16) + (c[o + 5] << 8) + c[o + 6];
-                pid = (short)((c[o + 7] << 8) + c[o + 8]);
-                increment = (c[o + 9] << 16) + (c[o + 10] << 8) + c[o + 11];
+                var timestamp = (c[o + 0] << 24) + (c[o + 1] << 16) + (c[o + 2] << 8) + c[o + 3];
+                var machine = (c[o + 4] << 16) + (c[o + 5] << 8) + c[o + 6];
+                var pid = (short)((c[o + 7] << 8) + c[o + 8]);
+                var increment = (c[o + 9] << 16) + (c[o + 10] << 8) + c[o + 11];
                 Position += 12;
+                return new ObjectId(timestamp, machine, pid, increment);
             }
             else
             {
                 var bytes = ReadBytes(12); // straddles chunk boundary
-                ObjectId.Unpack(bytes, out timestamp, out machine, out pid, out increment);
+                return new ObjectId(bytes);
             }
+        }
+
+        /// <summary>
+        /// Reads a BSON ObjectId from the reader.
+        /// </summary>
+        /// <param name="timestamp">The timestamp.</param>
+        /// <param name="machine">The machine hash.</param>
+        /// <param name="pid">The PID.</param>
+        /// <param name="increment">The increment.</param>
+        [Obsolete("Use ReadObjectId() instead.")]
+        public void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
+        {
+            var objectId = ReadObjectId();
+            timestamp = objectId.Timestamp;
+            machine = objectId.Machine;
+            pid = objectId.Pid;
+            increment = objectId.Increment;
         }
 
         /// <summary>
@@ -860,9 +875,25 @@ namespace MongoDB.Bson.IO
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
+        [Obsolete("Use WriteObjectId(ObjectId objectId) instead.")]
         public void WriteObjectId(int timestamp, int machine, short pid, int increment)
         {
+            var objectId = new ObjectId(timestamp, machine, pid, increment);
+            WriteObjectId(objectId);
+        }
+
+        /// <summary>
+        /// Writes a BSON ObjectId to the buffer.
+        /// </summary>
+        /// <param name="objectId">The ObjectId.</param>
+        public void WriteObjectId(ObjectId objectId)
+        {
             if (_disposed) { throw new ObjectDisposedException("BsonBuffer"); }
+            var timestamp = objectId.Timestamp;
+            var machine = objectId.Machine;
+            var pid = objectId.Pid;
+            var increment = objectId.Increment;
+
             EnsureSpaceAvailable(12);
             if (__chunkSize - _chunkOffset >= 12)
             {

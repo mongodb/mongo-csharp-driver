@@ -574,11 +574,36 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON ObjectId from the reader.
         /// </summary>
+        /// <returns>An ObjectId.</returns>
+        public abstract ObjectId ReadObjectId();
+
+        /// <summary>
+        /// Reads a BSON ObjectId from the reader.
+        /// </summary>
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
-        public abstract void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment);
+        [Obsolete("Use ReadObjectId() instead.")]
+        public void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
+        {
+            var objectId = ReadObjectId();
+            timestamp = objectId.Timestamp;
+            machine = objectId.Machine;
+            pid = objectId.Pid;
+            increment = objectId.Increment;
+        }
+
+        /// <summary>
+        /// Reads a BSON ObjectId element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>An ObjectId.</returns>
+        public ObjectId ReadObjectId(string name)
+        {
+            VerifyName(name);
+            return ReadObjectId();
+        }
 
         /// <summary>
         /// Reads a BSON ObjectId element from the reader.
@@ -588,6 +613,7 @@ namespace MongoDB.Bson.IO
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
+        [Obsolete("Use ReadObjectId(string name) instead.")]
         public void ReadObjectId(string name, out int timestamp, out int machine, out short pid, out int increment)
         {
             VerifyName(name);
@@ -597,9 +623,33 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON regular expression from the reader.
         /// </summary>
+        /// <returns>A BsonRegularExpression.</returns>
+        public abstract BsonRegularExpression ReadRegularExpression();
+
+        /// <summary>
+        /// Reads a BSON regular expression from the reader.
+        /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
-        public abstract void ReadRegularExpression(out string pattern, out string options);
+        [Obsolete("Use ReadRegularExpression() instead.")]
+        public void ReadRegularExpression(out string pattern, out string options)
+        {
+            var regex = ReadRegularExpression();
+            pattern = regex.Pattern;
+            options = regex.Options;
+        }
+
+        /// <summary>
+        /// Reads a BSON regular expression element from the reader.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>A BsonRegularExpression.</returns>
+        public BsonRegularExpression ReadRegularExpression(string name)
+        {
+            VerifyName(name);
+            return ReadRegularExpression();
+        }
+
 
         /// <summary>
         /// Reads a BSON regular expression element from the reader.
@@ -607,6 +657,7 @@ namespace MongoDB.Bson.IO
         /// <param name="name">The name of the element.</param>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">A regular expression options.</param>
+        [Obsolete("Use ReadRegularExpression(string name) instead.")]
         public void ReadRegularExpression(string name, out string pattern, out string options)
         {
             VerifyName(name);

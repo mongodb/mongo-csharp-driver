@@ -51,16 +51,12 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp378
         {
             public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
             {
-                int timestamp, machine, increment;
-                short pid;
-                bsonReader.ReadObjectId(out timestamp, out machine, out pid, out increment);
-                return new ObjectId(timestamp, machine, pid, increment).ToString();
+                return bsonReader.ReadObjectId().ToString();
             }
 
             public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
             {
-                var objectId = ObjectId.Parse((string)value);
-                bsonWriter.WriteObjectId(objectId.Timestamp, objectId.Machine, objectId.Pid, objectId.Increment);
+                bsonWriter.WriteObjectId(ObjectId.Parse((string)value));
             }
         }
 

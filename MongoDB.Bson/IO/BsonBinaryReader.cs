@@ -402,30 +402,27 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON ObjectId from the reader.
         /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The PID.</param>
-        /// <param name="increment">The increment.</param>
-        public override void ReadObjectId(out int timestamp, out int machine, out short pid, out int increment)
+        /// <returns>An ObjectId.</returns>
+        public override ObjectId ReadObjectId()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
-            _buffer.ReadObjectId(out timestamp, out machine, out pid, out increment);
             State = GetNextState();
+            return _buffer.ReadObjectId();
         }
 
         /// <summary>
         /// Reads a BSON regular expression from the reader.
         /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">A regular expression options.</param>
-        public override void ReadRegularExpression(out string pattern, out string options)
+        /// <returns>A BsonRegularExpression.</returns>
+        public override BsonRegularExpression ReadRegularExpression()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
-            pattern = _buffer.ReadCString();
-            options = _buffer.ReadCString();
             State = GetNextState();
+            var pattern = _buffer.ReadCString();
+            var options = _buffer.ReadCString();
+            return new BsonRegularExpression(pattern, options);
         }
 
         /// <summary>
