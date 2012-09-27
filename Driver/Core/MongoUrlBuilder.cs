@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -32,6 +33,9 @@ namespace MongoDB.Driver
     [Serializable]
     public class MongoUrlBuilder
     {
+        // constants
+        private static readonly char[] XmlWhitespaceChars = new[] { ' ', '\t', '\n', '\r' };
+
         // private fields
         // default values are set in ResetValues
         private ConnectionMode _connectionMode;
@@ -473,6 +477,60 @@ namespace MongoDB.Driver
             }
         }
 
+        internal static bool TryParseInt32(string s, out int result)
+        {
+            return int.TryParse(
+                s,
+                NumberStyles.Integer,
+                NumberFormatInfo.InvariantInfo,
+                out result);
+        }
+
+        internal static bool TryParseDouble(string s, out double result)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                result = default(double);
+                return false;
+            }
+
+            s = s.Trim(XmlWhitespaceChars);
+
+            if (s == "-INF")
+            {
+                result = double.NegativeInfinity;
+                return true;
+            }
+
+            if (s == "INF")
+            {
+                result = double.PositiveInfinity;
+                return true;
+            }
+
+            var parseResult = double.TryParse(
+                s,
+                NumberStyles.AllowLeadingSign |
+                NumberStyles.AllowDecimalPoint |
+                NumberStyles.AllowExponent |
+                NumberStyles.AllowLeadingWhite |
+                NumberStyles.AllowTrailingWhite,
+                NumberFormatInfo.InvariantInfo,
+                out result);
+
+            if (parseResult)
+            {
+                if (result == 0d && s[0] == '-')
+                    result = -0d;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         internal static bool TryParseTimeSpan(string name, string s, out TimeSpan result)
         {
             if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(s))
@@ -511,12 +569,15 @@ namespace MongoDB.Driver
                     return TimeSpan.TryParse(s, out result);
                 }
 
-                try
+                double milliseconds;
+
+                if (TryParseDouble(s, out milliseconds))
                 {
-                    result = TimeSpan.FromMilliseconds(multiplier * XmlConvert.ToDouble(s));
+                    // still the possibility of an OverflowException, but we shouldn't swallow that
+                    result = TimeSpan.FromMilliseconds(multiplier * milliseconds);
                     return true;
                 }
-                catch (FormatException)
+                else
                 {
                     result = default(TimeSpan);
                     return false;
@@ -667,14 +728,9 @@ namespace MongoDB.Driver
                                 break;
                             case "w":
                                 if (_safeMode == null) { _safeMode = new SafeMode(false); }
-                                try
-                                {
-                                    SafeMode.W = ParseInt32(name, value);
-                                }
-                                catch (FormatException)
-                                {
-                                    SafeMode.WMode = value;
-                                }
+                                int w;
+                                if (TryParseInt32(value, out w)) { SafeMode.W = w; }
+                                else { SafeMode.WMode = value; }
                                 break;
                             case "waitqueuemultiple":
                                 _waitQueueMultiple = ParseDouble(name, value);
