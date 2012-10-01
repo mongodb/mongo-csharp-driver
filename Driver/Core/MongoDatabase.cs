@@ -970,25 +970,7 @@ namespace MongoDB.Driver
         /// <returns>A TCommandResult</returns>
         public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
         {
-            var response = CommandCollection.FindOne(command);
-            if (response == null)
-            {
-                var commandName = command.ToBsonDocument().GetElement(0).Name;
-                var message = string.Format("Command '{0}' failed. No response returned.", commandName);
-                throw new MongoCommandException(message);
-            }
-            var commandResult = (CommandResult)Activator.CreateInstance(commandResultType); // constructor can't have arguments
-            commandResult.Initialize(command, response); // so two phase construction required
-            if (!commandResult.Ok)
-            {
-                if (commandResult.ErrorMessage == "not master")
-                {
-                    // TODO: figure out which instance gave the error and set its state to Unknown
-                    _server.Disconnect();
-                }
-                throw new MongoCommandException(commandResult);
-            }
-            return commandResult;
+            return CommandCollection.RunCommandAs(commandResultType, command);
         }
 
         /// <summary>

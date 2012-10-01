@@ -38,9 +38,9 @@ namespace MongoDB.Driver
         // private fields
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoDatabase _commandDatabase; // used to run commands with this collection's settings
         private MongoCollectionSettings _settings;
         private string _name;
+        private MongoCollection<BsonDocument> _commandCollection; // used to run commands with this collection's settings
 
         // constructors
         /// <summary>
@@ -69,19 +69,16 @@ namespace MongoDB.Driver
             _settings = settings.FrozenCopy();
             _name = settings.CollectionName;
 
-            // note: if the settings are compatible _commandDatabase will end up being the same instance as _database
-            // need to check for $cmd to avoid infinite recursion
             if (_name != "$cmd")
             {
-                var commandDatabaseSettings = _database.Settings.Clone();
-                commandDatabaseSettings.GuidRepresentation = _settings.GuidRepresentation;
-                commandDatabaseSettings.ReadPreference = _settings.ReadPreference;
-                commandDatabaseSettings.SafeMode = _settings.SafeMode; // not really relevant to commands since they are all queries anyway
-                _commandDatabase = _server.GetDatabase(commandDatabaseSettings);
-            }
-            else
-            {
-                _commandDatabase = _database;
+                var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(_database, "$cmd")
+                {
+                    AssignIdOnInsert = false,
+                    GuidRepresentation = _settings.GuidRepresentation,
+                    ReadPreference = _settings.ReadPreference,
+                    SafeMode = _settings.SafeMode
+                };
+                _commandCollection = _database.GetCollection(commandCollectionSettings);
             }
         }
 
@@ -137,7 +134,7 @@ namespace MongoDB.Driver
                 { "aggregate", _name },
                 { "pipeline", pipeline }
             };
-            return _commandDatabase.RunCommandAs<AggregateResult>(aggregateCommand);
+            return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
         /// <summary>
@@ -171,7 +168,7 @@ namespace MongoDB.Driver
                 { "count", _name },
                 { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
-            var result = _commandDatabase.RunCommand(command);
+            var result = RunCommand(command);
             return result.Response["n"].ToInt64();
         }
 
@@ -247,7 +244,7 @@ namespace MongoDB.Driver
                 { "key", key },
                 { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
-            var result = _commandDatabase.RunCommand(command);
+            var result = RunCommand(command);
             return result.Response["values"].AsBsonArray;
         }
 
@@ -314,7 +311,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                return _commandDatabase.RunCommand(command);
+                return RunCommand(command);
             }
             catch (MongoCommandException ex)
             {
@@ -473,7 +470,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                return _commandDatabase.RunCommandAs<FindAndModifyResult>(command);
+                return RunCommandAs<FindAndModifyResult>(command);
             }
             catch (MongoCommandException ex)
             {
@@ -510,7 +507,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                return _commandDatabase.RunCommandAs<FindAndModifyResult>(command);
+                return RunCommandAs<FindAndModifyResult>(command);
             }
             catch (MongoCommandException ex)
             {
@@ -654,7 +651,7 @@ namespace MongoDB.Driver
             command.Merge(options.ToBsonDocument());
             var geoHaystackSearchResultDefinition = typeof(GeoHaystackSearchResult<>);
             var geoHaystackSearchResultType = geoHaystackSearchResultDefinition.MakeGenericType(documentType);
-            return (GeoHaystackSearchResult)_commandDatabase.RunCommandAs(geoHaystackSearchResultType, command);
+            return (GeoHaystackSearchResult)RunCommandAs(geoHaystackSearchResultType, command);
         }
 
         /// <summary>
@@ -700,7 +697,7 @@ namespace MongoDB.Driver
                 { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
             command.Merge(options.ToBsonDocument());
-            return _commandDatabase.RunCommandAs<GeoNearResult<TDocument>>(command);
+            return RunCommandAs<GeoNearResult<TDocument>>(command);
         }
 
         /// <summary>
@@ -745,7 +742,7 @@ namespace MongoDB.Driver
             command.Merge(options.ToBsonDocument());
             var geoNearResultDefinition = typeof(GeoNearResult<>);
             var geoNearResultType = geoNearResultDefinition.MakeGenericType(documentType);
-            return (GeoNearResult)_commandDatabase.RunCommandAs(geoNearResultType, command);
+            return (GeoNearResult)RunCommandAs(geoNearResultType, command);
         }
 
         /// <summary>
@@ -766,7 +763,7 @@ namespace MongoDB.Driver
         public virtual CollectionStatsResult GetStats()
         {
             var command = new CommandDocument("collstats", _name);
-            return _commandDatabase.RunCommandAs<CollectionStatsResult>(command);
+            return RunCommandAs<CollectionStatsResult>(command);
         }
 
         /// <summary>
@@ -844,7 +841,7 @@ namespace MongoDB.Driver
                     }
                 }
             };
-            var result = _commandDatabase.RunCommand(command);
+            var result = RunCommand(command);
             return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -891,7 +888,7 @@ namespace MongoDB.Driver
                     }
                 }
             };
-            var result = _commandDatabase.RunCommand(command);
+            var result = RunCommand(command);
             return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -1219,7 +1216,7 @@ namespace MongoDB.Driver
                 { "reduce", reduce }
             };
             command.Add(options.ToBsonDocument());
-            var result = _commandDatabase.RunCommandAs<MapReduceResult>(command);
+            var result = RunCommandAs<MapReduceResult>(command);
             result.SetInputDatabase(_database);
             return result;
         }
@@ -1275,7 +1272,7 @@ namespace MongoDB.Driver
         public virtual CommandResult ReIndex()
         {
             var command = new CommandDocument("reIndex", _name);
-            return _commandDatabase.RunCommand(command);
+            return RunCommand(command);
         }
 
         /// <summary>
@@ -1620,7 +1617,7 @@ namespace MongoDB.Driver
         public virtual ValidateCollectionResult Validate()
         {
             var command = new CommandDocument("validate", _name);
-            return _commandDatabase.RunCommandAs<ValidateCollectionResult>(command);
+            return RunCommandAs<ValidateCollectionResult>(command);
         }
 
         // internal methods
@@ -1640,6 +1637,48 @@ namespace MongoDB.Driver
                 GuidRepresentation = _settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
+        }
+
+        internal CommandResult RunCommand(IMongoCommand command)
+        {
+            return RunCommandAs<CommandResult>(command);
+        }
+
+        internal TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
+            where TCommandResult : CommandResult, new()
+        {
+            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
+        }
+
+        internal CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
+        {
+            // if necessary delegate running the command to the _commandCollection
+            if (_name == "$cmd")
+            {
+                var response = FindOneAs<BsonDocument>(command);
+                if (response == null)
+                {
+                    var commandName = command.ToBsonDocument().GetElement(0).Name;
+                    var message = string.Format("Command '{0}' failed. No response returned.", commandName);
+                    throw new MongoCommandException(message);
+                }
+                var commandResult = (CommandResult)Activator.CreateInstance(commandResultType); // constructor can't have arguments
+                commandResult.Initialize(command, response); // so two phase construction required
+                if (!commandResult.Ok)
+                {
+                    if (commandResult.ErrorMessage == "not master")
+                    {
+                        // TODO: figure out which instance gave the error and set its state to Unknown
+                        _server.Disconnect();
+                    }
+                    throw new MongoCommandException(commandResult);
+                }
+                return commandResult;
+            }
+            else
+            {
+                return _commandCollection.RunCommandAs(commandResultType, command);
+            }
         }
 
         // private methods
