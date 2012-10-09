@@ -34,26 +34,6 @@ namespace MongoDB.Bson
         private static Dictionary<Type, Conversion> __fromMappings = new Dictionary<Type, Conversion>
         {
             { typeof(bool), Conversion.NewBsonBoolean },
-            { typeof(BsonArray), Conversion.None },
-            { typeof(BsonBinaryData), Conversion.None },
-            { typeof(BsonBoolean), Conversion.None },
-            { typeof(BsonDateTime), Conversion.None },
-            { typeof(BsonDocument), Conversion.None },
-            { typeof(BsonDouble), Conversion.None },
-            { typeof(BsonInt32), Conversion.None },
-            { typeof(BsonInt64), Conversion.None },
-            { typeof(BsonJavaScript), Conversion.None },
-            { typeof(BsonJavaScriptWithScope), Conversion.None },
-            { typeof(BsonMaxKey), Conversion.None },
-            { typeof(BsonMinKey), Conversion.None },
-            { typeof(BsonNull), Conversion.None },
-            { typeof(BsonObjectId), Conversion.None },
-            { typeof(BsonRegularExpression), Conversion.None },
-            { typeof(BsonString), Conversion.None },
-            { typeof(BsonSymbol), Conversion.None },
-            { typeof(BsonTimestamp), Conversion.None },
-            { typeof(BsonUndefined), Conversion.None },
-            { typeof(BsonValue), Conversion.None },
             { typeof(byte), Conversion.ByteToBsonInt32 },
             { typeof(byte[]), Conversion.ByteArrayToBsonBinary },
             { typeof(DateTime), Conversion.DateTimeToBsonDateTime },
@@ -195,6 +175,16 @@ namespace MongoDB.Bson
                 {
                     message = string.Format("C# null cannot be mapped to BsonType.{0}.", bsonType);
                     throw new ArgumentException(message, "value");
+                }
+            }
+
+            // handle subclasses of BsonDocument (like QueryDocument) correctly
+            if (bsonType == BsonType.Document)
+            {
+                var bsonDocument = value as BsonDocument;
+                if (bsonDocument != null)
+                {
+                    return bsonDocument;
                 }
             }
 
@@ -443,9 +433,12 @@ namespace MongoDB.Bson
                 return true;
             }
 
+            // also handles subclasses of BsonDocument (like QueryDocument) correctly
             bsonValue = value as BsonValue;
             if (bsonValue != null)
+            {
                 return true;
+            }
 
             var valueType = value.GetType();
             if (valueType.IsEnum)
