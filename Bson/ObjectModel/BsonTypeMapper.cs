@@ -443,6 +443,10 @@ namespace MongoDB.Bson
                 return true;
             }
 
+            bsonValue = value as BsonValue;
+            if (bsonValue != null)
+                return true;
+
             var valueType = value.GetType();
             if (valueType.IsEnum)
             {
