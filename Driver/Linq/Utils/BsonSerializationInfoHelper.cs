@@ -45,7 +45,8 @@ namespace MongoDB.Driver.Linq.Utils
         /// <returns>The serialization info.</returns>
         public BsonSerializationInfo GetSerializationInfo(Expression node)
         {
-            return BsonSerializationInfoFinder.GetSerializationInfo(node, _serializationInfoCache);
+            var evaluatedNode = PartialEvaluator.Evaluate(node);
+            return BsonSerializationInfoFinder.GetSerializationInfo(evaluatedNode, _serializationInfoCache);
         }
 
         /// <summary>
