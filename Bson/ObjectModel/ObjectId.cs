@@ -29,7 +29,7 @@ namespace MongoDB.Bson
     /// Represents an ObjectId (see also BsonObjectId).
     /// </summary>
     [Serializable]
-    public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>
+    public struct ObjectId : IComparable<ObjectId>, IEquatable<ObjectId>, IConvertible
     {
         // private static fields
         private static ObjectId __emptyInstance = default(ObjectId);
@@ -463,6 +463,108 @@ namespace MongoDB.Bson
         public override string ToString()
         {
             return BsonUtils.ToHexString(Pack(_timestamp, _machine, _pid, _increment));
+        }
+
+        // explicit IConvertible implementation
+        TypeCode IConvertible.GetTypeCode()
+        {
+            return TypeCode.Object;
+        }
+
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        double IConvertible.ToDouble(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        string IConvertible.ToString(IFormatProvider provider)
+        {
+            return ToString();
+        }
+
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+        {
+            switch (Type.GetTypeCode(conversionType))
+            {
+                case TypeCode.String:
+                    return ((IConvertible)this).ToString(provider);
+                case TypeCode.Object:
+                    if (conversionType == typeof(BsonObjectId))
+                    {
+                        return new BsonObjectId(this);
+                    }
+                    if (conversionType == typeof(BsonString))
+                    {
+                        return new BsonString(((IConvertible)this).ToString(provider));
+                    }
+                    break;
+            }
+
+            throw new InvalidCastException();
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            throw new InvalidCastException();
         }
     }
 }

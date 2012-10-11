@@ -1543,7 +1543,7 @@ namespace MongoDB.Bson
                 case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
                 case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
                 case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);
-                case BsonType.ObjectId: return Convert.ChangeType(this, conversionType, provider);
+                case BsonType.ObjectId: return Convert.ChangeType(this.AsObjectId, conversionType, provider);
                 case BsonType.String: return Convert.ChangeType(this.AsString, conversionType, provider);
                 default: throw new InvalidCastException();
             }

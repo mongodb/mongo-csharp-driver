@@ -115,6 +115,7 @@
     <Compile Include="IO\BsonDocumentWriterTests.cs" />
     <Compile Include="IO\JsonReaderTests.cs" />
     <Compile Include="IO\JsonScannerTests.cs" />
+    <Compile Include="Jira\CSharp595Tests.cs" />
     <Compile Include="Jira\CSharp102Tests.cs" />
     <Compile Include="Jira\CSharp104Tests.cs" />
     <Compile Include="Jira\CSharp116Tests.cs" />
