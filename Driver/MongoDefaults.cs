@@ -272,10 +272,13 @@ namespace MongoDB.Driver
                 return true;
             }
 
-            BsonValue outValue;
-            if (document.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
+            if (commandName.Equals("mapreduce", StringComparison.InvariantCultureIgnoreCase))
             {
-                return outValue.AsBsonDocument.Contains("inline");
+                BsonValue outValue;
+                if (document.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
+                {
+                    return outValue.AsBsonDocument.Contains("inline");
+                }
             }
 
             return false;

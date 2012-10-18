@@ -35,10 +35,13 @@ namespace MongoDB.Driver
     public class MongoCursorEnumerator<TDocument> : IEnumerator<TDocument>
     {
         // private fields
+        private readonly MongoCursor<TDocument> _cursor;
+        private readonly QueryFlags _queryFlags;
+        private readonly ReadPreference _readPreference;
+
         private bool _disposed = false;
         private bool _started = false;
         private bool _done = false;
-        private MongoCursor<TDocument> _cursor;
         private MongoServerInstance _serverInstance; // set when first request is sent to server instance
         private int _count;
         private int _positiveLimit;
@@ -46,9 +49,7 @@ namespace MongoDB.Driver
         private int _replyIndex;
         private ResponseFlags _responseFlags;
         private long _openCursorId;
-        private ReadPreference _readPreference;
-        private QueryFlags _queryFlags;
-
+        
         // constructors
         /// <summary>
         /// Initializes a new instance of the MongoCursorEnumerator class.
@@ -58,6 +59,22 @@ namespace MongoDB.Driver
         {
             _cursor = cursor;
             _positiveLimit = cursor.Limit >= 0 ? cursor.Limit : -cursor.Limit;
+            _readPreference = _cursor.ReadPreference;
+            _queryFlags = _cursor.Flags;
+
+            if (_readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _cursor.Collection.Name == "$cmd")
+            {
+                var queryDocument = _cursor.Query.ToBsonDocument();
+                var isSecondaryOk = MongoDefaults.CanCommandBeSentToSecondary(queryDocument);
+                if (!isSecondaryOk)
+                {
+                    // if the command can't be sent to a secondary, then we use primary here
+                    // regardless of the user's choice.
+                    _readPreference = ReadPreference.Primary;
+                    // remove the slaveOk bit from the flags
+                    _queryFlags &= ~QueryFlags.SlaveOk;
+                }
+            }
         }
 
         // public properties
@@ -208,22 +225,6 @@ namespace MongoDB.Driver
         {
             if (_serverInstance == null)
             {
-                _readPreference = _cursor.ReadPreference;
-                _queryFlags = _cursor.Flags;
-                if (_readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _cursor.Collection.Name == "$cmd")
-                {
-                    var queryDocument = _cursor.Query.ToBsonDocument();
-                    var isSecondaryOk = MongoDefaults.CanCommandBeSentToSecondary(queryDocument);
-                    if (!isSecondaryOk)
-                    {
-                        // if the command can't be sent to a secondary, then we use primary here
-                        // regardless of the user's choice.
-                        _readPreference = ReadPreference.Primary;
-                        // remove the slaveOk bit from the flags
-                        _queryFlags &= ~QueryFlags.SlaveOk;
-                    }
-                }
-
                 // first time we need a connection let Server.AcquireConnection pick the server instance
                 var connection = _cursor.Server.AcquireConnection(_cursor.Database, _readPreference);
                 _serverInstance = connection.ServerInstance;
@@ -349,8 +350,8 @@ namespace MongoDB.Driver
         private IMongoQuery WrapQuery()
         {
             BsonDocument formattedReadPreference = null;
-            if (_serverInstance.InstanceType == MongoServerInstanceType.ShardRouter 
-                && _readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
+            if (_serverInstance.InstanceType == MongoServerInstanceType.ShardRouter &&
+                _readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
             {
                 BsonArray tagSetsArray = null;
                 if (_readPreference.TagSets != null)
