@@ -189,6 +189,7 @@
     <Compile Include="Linq\MongoQueryProviderTests.cs" />
     <Compile Include="Linq\SkipAndTakeTests.cs" />
     <Compile Include="Linq\Utils\BsonSerializationInfoHelperTests.cs" />
+    <Compile Include="MongoDefaultsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\MagicDiscriminatorTests.cs" />
   </ItemGroup>

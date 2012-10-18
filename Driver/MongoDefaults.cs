@@ -28,8 +28,9 @@ namespace MongoDB.Driver
     /// </summary>
     public static class MongoDefaults
     {
-        // public static fields
+        // private static fields
         private static bool __assignIdOnInsert = true;
+        private static Func<BsonDocument, bool> __canCommandBeSentToSecondary = CanCommandBeSendToSecondaryDefault;
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
@@ -38,6 +39,18 @@ namespace MongoDB.Driver
         private static int __minConnectionPoolSize = 0;
         private static SafeMode __safeMode = SafeMode.False;
         private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
+        private static HashSet<string> __secondaryOkCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            "group",
+            "aggregate",
+            "collStats",
+            "dbStats",
+            "count",
+            "distinct",
+            "geoNear",
+            "geoSearch",
+            "geoWalk"
+        };
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
@@ -53,6 +66,24 @@ namespace MongoDB.Driver
         {
             get { return __assignIdOnInsert; }
             set { __assignIdOnInsert = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a delegate that informs the driver whether or not a command is allowed
+        /// to be sent to a secondary.
+        /// </summary>
+        public static Func<BsonDocument, bool> CanCommandBeSentToSecondary
+        {
+            get { return __canCommandBeSentToSecondary; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                __canCommandBeSentToSecondary = value;
+            }
         }
 
         /// <summary>
@@ -224,6 +255,39 @@ namespace MongoDB.Driver
         {
             get { return __waitQueueTimeout; }
             set { __waitQueueTimeout = value; }
+        }
+
+        // private static methods
+        private static bool CanCommandBeSendToSecondaryDefault(BsonDocument document)
+        {
+            if (document.ElementCount == 0)
+            {
+                return false;
+            }
+
+            var command = document.GetElement(0);
+
+            if (__secondaryOkCommands.Contains(command.Name))
+            {
+                return true;
+            }
+
+            if (!command.Value.IsBsonDocument)
+            {
+                return false;
+            }
+
+            if (command.Name.Equals("mapreduce", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var options = command.Value.AsBsonDocument;
+                BsonValue outValue;
+                if (options.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
+                {
+                    return outValue.AsBsonDocument.Contains("inline");
+                }
+            }
+
+            return false;
         }
     }
 }
