@@ -265,26 +265,17 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            var command = document.GetElement(0);
+            var commandName = document.GetElement(0).Name;
 
-            if (__secondaryOkCommands.Contains(command.Name))
+            if (__secondaryOkCommands.Contains(commandName))
             {
                 return true;
             }
 
-            if (!command.Value.IsBsonDocument)
+            BsonValue outValue;
+            if (document.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
             {
-                return false;
-            }
-
-            if (command.Name.Equals("mapreduce", StringComparison.InvariantCultureIgnoreCase))
-            {
-                var options = command.Value.AsBsonDocument;
-                BsonValue outValue;
-                if (options.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
-                {
-                    return outValue.AsBsonDocument.Contains("inline");
-                }
+                return outValue.AsBsonDocument.Contains("inline");
             }
 
             return false;

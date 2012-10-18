@@ -29,13 +29,13 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCanSendInlineMapReduceToSecondary()
         {
-            var doc = new BsonDocument("mapreduce",
-                new BsonDocument
-                {
-                    { "map", "emit()" },
-                    { "reduce", "return 1" },
-                    { "out", new BsonDocument("inline", 1) }
-                });
+            var doc = new BsonDocument
+            {
+                { "mapreduce", "col" },
+                { "map", "emit()" },
+                { "reduce", "return 1" },
+                { "out", new BsonDocument("inline", 1) }
+            };
 
             var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
 
@@ -45,12 +45,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCannotSendNonInlineMapReduceToSecondary()
         {
-            var doc = new BsonDocument("mapreduce",
-                new BsonDocument
-                {
-                    { "map", "emit()" },
-                    { "reduce", "return 1" }
-                });
+            var doc = new BsonDocument            
+            {
+                { "mapreduce", "col" },
+                { "map", "emit()" },
+                { "reduce", "return 1" }
+            };
 
             var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
 
@@ -60,13 +60,13 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCannotSendNonInlineMapReduceToSecondary2()
         {
-            var doc = new BsonDocument("mapreduce",
-                new BsonDocument
-                {
-                    { "map", "emit()" },
-                    { "reduce", "return 1" },
-                    { "out", new BsonDocument("merge", "foo") }
-                });
+            var doc = new BsonDocument            
+            {
+                { "mapreduce", "col" },
+                { "map", "emit()" },
+                { "reduce", "return 1" },
+                { "out", new BsonDocument("merge", "funny") }
+            };
 
             var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
 
