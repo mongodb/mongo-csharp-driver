@@ -1,0 +1,14 @@
+BSON library changes from 1.6 to 1.6.1
+
+BsonTypeMapper.cs
+    Map subclasses of BsonDocument correctly
+    Special case mapping of objects that can be simply cast to BsonValue
+
+BsonValue.cs
+    Fix implementation of IConvertible for ObjectId
+
+ObjectId.cs
+    Now implements IConvertible
+
+BsonClassMapSerializer.cs
+    Handle serializing/deserializing null values for properties/fields that are declared as an interface
