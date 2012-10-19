@@ -204,6 +204,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the acceptable latency for considering a replica set member for inclusion in load balancing
+        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
+        /// </summary>
+        public TimeSpan SecondaryAcceptableLatency
+        {
+            get { return _serverSettings.SecondaryAcceptableLatency; }
+        }
+
+        /// <summary>
         /// Gets the address of the server (see also Servers if using more than one address).
         /// </summary>
         public MongoServerAddress Server
