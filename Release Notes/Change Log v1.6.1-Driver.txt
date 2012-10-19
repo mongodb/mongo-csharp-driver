@@ -24,7 +24,7 @@ ReadPreference.cs
 
 ConnectedInstanceCollection.cs
     Removed ChooseServerInstance and moved logic to MongoServerProxies
-    Added GetAllInstances,
+    Added GetAllInstances
     Added GetPrimary
     Added GetPrimaryAndSecondaries
     Added GetSecondaries
