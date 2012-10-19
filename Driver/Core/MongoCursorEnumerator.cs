@@ -29,6 +29,76 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Represents a container for the CanCommandBeSentToSecondary delegate.
+    /// </summary>
+    public static class CanCommandBeSentToSecondary
+    {
+        // private static fields
+        private static Func<BsonDocument, bool> __delegate = DefaultImplementation;
+        private static HashSet<string> __secondaryOkCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            "group",
+            "aggregate",
+            "collStats",
+            "dbStats",
+            "count",
+            "distinct",
+            "geoNear",
+            "geoSearch",
+            "geoWalk"
+        };
+
+        // public static properties
+        /// <summary>
+        /// Gets or sets the CanCommandBeSentToSecondary delegate.
+        /// </summary>
+        public static Func<BsonDocument, bool> Delegate
+        {
+            get { return __delegate; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                __delegate = value;
+            }
+        }
+
+        // public static methods
+        /// <summary>
+        /// Default implementation of the CanCommandBeSentToSecondary delegate.
+        /// </summary>
+        /// <param name="document">The command.</param>
+        /// <returns>True if the command can be sent to a secondary member of a replica set.</returns>
+        public static bool DefaultImplementation(BsonDocument document)
+        {
+            if (document.ElementCount == 0)
+            {
+                return false;
+            }
+
+            var commandName = document.GetElement(0).Name;
+
+            if (__secondaryOkCommands.Contains(commandName))
+            {
+                return true;
+            }
+
+            if (commandName.Equals("mapreduce", StringComparison.InvariantCultureIgnoreCase))
+            {
+                BsonValue outValue;
+                if (document.TryGetValue("out", out outValue) && outValue.IsBsonDocument)
+                {
+                    return outValue.AsBsonDocument.Contains("inline");
+                }
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Reprsents an enumerator that fetches the results of a query sent to the server.
     /// </summary>
     /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
@@ -65,7 +135,7 @@ namespace MongoDB.Driver
             if (_readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _cursor.Collection.Name == "$cmd")
             {
                 var queryDocument = _cursor.Query.ToBsonDocument();
-                var isSecondaryOk = MongoDefaults.CanCommandBeSentToSecondary(queryDocument);
+                var isSecondaryOk = CanCommandBeSentToSecondary.Delegate(queryDocument);
                 if (!isSecondaryOk)
                 {
                     // if the command can't be sent to a secondary, then we use primary here

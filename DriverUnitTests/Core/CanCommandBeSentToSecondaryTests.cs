@@ -9,8 +9,24 @@ using System.Text;
 namespace MongoDB.DriverUnitTests
 {
     [TestFixture]
-    public class MongoDefaultsTests
+    public class CanCommandBeSentToSecondaryTests
     {
+        [Test]
+        public void TestGetDelegate()
+        {
+            Func<BsonDocument, bool> defaultImplementation = CanCommandBeSentToSecondary.DefaultImplementation;
+            Assert.AreEqual(defaultImplementation, CanCommandBeSentToSecondary.Delegate);
+        }
+
+        [Test]
+        public void TestSetDelegate()
+        {
+            Func<BsonDocument, bool> func = doc => true;
+            CanCommandBeSentToSecondary.Delegate = func;
+            Assert.AreEqual(func, CanCommandBeSentToSecondary.Delegate);
+            CanCommandBeSentToSecondary.Delegate = CanCommandBeSentToSecondary.DefaultImplementation; // reset Delegate
+        }
+
         [TestCase("group", true)]
         [TestCase("aggregate", true)]
         [TestCase("geoSearch", true)]
@@ -21,7 +37,7 @@ namespace MongoDB.DriverUnitTests
         public void TestCanSendCommandToSecondary(string command, bool expectedResult)
         {
             var doc = new BsonDocument(command, 1);
-            var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(doc);
 
             Assert.AreEqual(expectedResult, result);
         }
@@ -37,7 +53,7 @@ namespace MongoDB.DriverUnitTests
                 { "out", new BsonDocument("inline", 1) }
             };
 
-            var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(doc);
 
             Assert.IsTrue(result);
         }
@@ -52,7 +68,7 @@ namespace MongoDB.DriverUnitTests
                 { "reduce", "return 1" }
             };
 
-            var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(doc);
 
             Assert.IsFalse(result);
         }
@@ -68,7 +84,7 @@ namespace MongoDB.DriverUnitTests
                 { "out", new BsonDocument("merge", "funny") }
             };
 
-            var result = MongoDefaults.CanCommandBeSentToSecondary(doc);
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(doc);
 
             Assert.IsFalse(result);
         }
