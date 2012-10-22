@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="184bee72-2f1b-4800-9d48-1f3dc3c5a607" 
+	<Product Id="f5305d12-8c20-4539-a9a4-823c8fcef67b" 
            Name="!(wix.ProductName)" 
            Language="1033" 
            Version="$(var.DriverVersion)" 
            Manufacturer="10gen Inc." 
-           UpgradeCode="8fcd3593-c858-4a8d-8f8e-031b50530e95">
+           UpgradeCode="58ce7d83-8eb4-448b-b966-236701bb25d3">
     
 		<Package InstallerVersion="200" Compressed="yes" />
 
@@ -137,8 +137,6 @@
         <ComponentRef Id="c_HelpShortCut"/>
       </Feature>
 			
-			<!-- Note: The following ComponentGroupRef is required to pull in generated authoring from project references. -->
-			<ComponentGroupRef Id="Product.Generated" />
 		</Feature>
 
     <UIRef Id="WixUI_Mondo" />

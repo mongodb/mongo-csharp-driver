@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>mongocsharpdriver</id>
-    <version>1.6</version>
+    <version>1.6.1</version>
     <title>Official MongoDB C# driver</title>
     <authors>10gen, Inc.</authors>
     <owners>Sridhar Nanjundeswaran</owners>
@@ -21,7 +21,7 @@
     <file src="Driver\bin\Release\MongoDB.Driver.dll" target="lib\net35" />
     <file src="Driver\bin\Release\MongoDB.Driver.pdb" target="lib\net35" />
     <file src="Driver\bin\Release\MongoDB.Driver.XML" target="lib\net35" />
-    <file src="Release Notes\Release Notes v1.6.txt" target="" />
+    <file src="Release Notes\Release Notes v1.6.1.txt" target="" />
     <file src="License.rtf" target ="" />
   </files>
 </package>
