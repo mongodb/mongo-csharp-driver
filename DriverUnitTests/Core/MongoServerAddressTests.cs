@@ -87,5 +87,21 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("host", credentials.Host);
             Assert.AreEqual(123, credentials.Port);
         }
+
+        [Test]
+        [ExpectedException(ExpectedException = typeof(FormatException),
+                           ExpectedMessage = "'' is not a valid server address.")]
+        public void TestParseNullParam()
+        {
+            MongoServerAddress.Parse(null);
+        }
+
+        [Test]
+        [ExpectedException(ExpectedException = typeof(FormatException),
+                           ExpectedMessage = "'' is not a valid server address.")]
+        public void TestParseEmptyParam()
+        {
+            MongoServerAddress.Parse(String.Empty);
+        }
     }
 }
