@@ -71,7 +71,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                throw new FormatException("'{0}' is not a valid server address.");
+                throw new FormatException(String.Format("'{0}' is not a valid server address.", value));
             }
         }
 
