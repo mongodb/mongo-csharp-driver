@@ -101,20 +101,8 @@ namespace MongoDB.Bson.IO
                 {
                     case BsonBinarySubType.UuidLegacy:
                     case BsonBinarySubType.UuidStandard:
-                        if (bytes.Length != 16)
-                        {
-                            var message = string.Format("Length of binary subtype {0} must be 16, not {1}.", subType, bytes.Length);
-                            throw new ArgumentException(message);
-                        }
-                        if (subType == BsonBinarySubType.UuidLegacy && guidRepresentation == GuidRepresentation.Standard)
-                        {
-                            throw new ArgumentException("GuidRepresentation for binary subtype UuidLegacy must not be Standard.");
-                        }
-                        if (subType == BsonBinarySubType.UuidStandard && guidRepresentation != GuidRepresentation.Standard)
-                        {
-                            var message = string.Format("GuidRepresentation for binary subtype UuidStandard must be Standard, not {0}.", guidRepresentation);
-                            throw new ArgumentException(message);
-                        }
+						validateUuid( bytes, subType, guidRepresentation );
+						
                         if (_jsonWriterSettings.ShellVersion >= new Version(2, 0, 0))
                         {
                             if (guidRepresentation == GuidRepresentation.Unspecified)
@@ -144,6 +132,13 @@ namespace MongoDB.Bson.IO
                                 var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
                                 _textWriter.Write("{0}(\"{1}\")", uuidConstructorName, guid.ToString());
                             }
+                        } else if (_jsonWriterSettings.OutputMode == JsonOutputMode.JavaScript && (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) ){
+                        	validateUuid( bytes, subType, guidRepresentation );
+
+							var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
+
+							WriteNameHelper(Name);
+							_textWriter.Write( "\"{0}\"", guid );
                         }
                         else
                         {
@@ -165,6 +160,22 @@ namespace MongoDB.Bson.IO
 
             State = GetNextState();
         }
+
+    	void validateUuid( byte [ ] bytes, BsonBinarySubType sub_type, GuidRepresentation guid_representation ) {
+			if (bytes.Length != 16){
+                var message = string.Format("Length of binary subtype {0} must be 16, not {1}.", sub_type, bytes.Length);
+                throw new ArgumentException(message);
+            }
+
+            if (sub_type == BsonBinarySubType.UuidLegacy && guid_representation == GuidRepresentation.Standard){
+                throw new ArgumentException("GuidRepresentation for binary subtype UuidLegacy must not be Standard.");
+            }
+
+            if (sub_type == BsonBinarySubType.UuidStandard && guid_representation != GuidRepresentation.Standard){
+                var message = string.Format("GuidRepresentation for binary subtype UuidStandard must be Standard, not {0}.", guid_representation);
+                throw new ArgumentException(message);
+            }
+    	}
 
         /// <summary>
         /// Writes a BSON Boolean to the writer.
