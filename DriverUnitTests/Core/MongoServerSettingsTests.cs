@@ -85,7 +85,7 @@ namespace MongoDB.DriverUnitTests
             var localhost = new MongoServerAddress("localhost");
 
             var settings = new MongoServerSettings();
-            Assert.AreEqual(ConnectionMode.Direct, settings.ConnectionMode);
+            Assert.AreEqual(ConnectionMode.Automatic, settings.ConnectionMode);
             Assert.AreEqual(MongoDefaults.ConnectTimeout, settings.ConnectTimeout);
             Assert.AreEqual(null, settings.DefaultCredentials);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);

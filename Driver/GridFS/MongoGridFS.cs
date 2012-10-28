@@ -700,7 +700,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
-            _files.Update(query, update, _settings.SafeMode);
+            _files.Update(query, update, _settings.WriteConcern);
         }
 
         /// <summary>
@@ -712,7 +712,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (contentType == null) ? Update.Unset("contentType") : Update.Set("contentType", contentType);
-            _files.Update(query, update, _settings.SafeMode);
+            _files.Update(query, update, _settings.WriteConcern);
         }
 
         /// <summary>
@@ -724,7 +724,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", fileInfo.Id);
             var update = (metadata == null) ? Update.Unset("metadata") : Update.Set("metadata", metadata);
-            _files.Update(query, update, _settings.SafeMode);
+            _files.Update(query, update, _settings.WriteConcern);
         }
 
         /// <summary>
@@ -803,7 +803,7 @@ namespace MongoDB.Driver.GridFS
                             { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
                             { "data", new BsonBinaryData(data) }
                         };
-                        _chunks.Insert(chunk, _settings.SafeMode);
+                        _chunks.Insert(chunk, _settings.WriteConcern);
 
                         if (_settings.VerifyMD5)
                         {
@@ -853,7 +853,7 @@ namespace MongoDB.Driver.GridFS
                     { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
                     { "metadata", createOptions.Metadata } // optional
                 };
-                _files.Insert(fileInfo, _settings.SafeMode);
+                _files.Insert(fileInfo, _settings.WriteConcern);
 
                 return FindOneById(files_id);
             }

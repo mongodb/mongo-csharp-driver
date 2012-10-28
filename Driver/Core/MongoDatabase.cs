@@ -61,7 +61,7 @@ namespace MongoDB.Driver
             string message;
             if (!server.IsDatabaseNameValid(settings.DatabaseName, out message))
             {
-                throw new ArgumentOutOfRangeException(message);
+                throw new ArgumentOutOfRangeException("settings", message);
             }
 
             _server = server;
@@ -85,9 +85,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
+        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
         public static MongoDatabase Create(MongoConnectionStringBuilder builder)
         {
-            var serverSettings = builder.ToServerSettings();
+            var serverSettings = MongoServerSettings.FromConnectionStringBuilder(builder);
             var databaseName = builder.DatabaseName;
             return Create(serverSettings, databaseName);
         }
@@ -102,6 +103,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
+        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
         public static MongoDatabase Create(MongoServerSettings serverSettings, string databaseName)
         {
             if (databaseName == null)
@@ -121,9 +123,10 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
+        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
         public static MongoDatabase Create(MongoUrl url)
         {
-            var serverSettings = url.ToServerSettings();
+            var serverSettings = MongoServerSettings.FromUrl(url);
             var databaseName = url.DatabaseName;
             return Create(serverSettings, databaseName);
         }
@@ -137,6 +140,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
+        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
         public static MongoDatabase Create(string connectionString)
         {
             if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
@@ -160,6 +164,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A new or existing instance of MongoDatabase.
         /// </returns>
+        [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
         public static MongoDatabase Create(Uri uri)
         {
             return Create(MongoUrl.Create(uri.ToString()));
@@ -242,11 +247,11 @@ namespace MongoDB.Driver
         /// with a default document type of BsonDocument.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
+        /// <param name="writeConcern">The write concern to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> this[string collectionName, SafeMode safeMode]
+        public virtual MongoCollection<BsonDocument> this[string collectionName, WriteConcern writeConcern]
         {
-            get { return GetCollection(collectionName, safeMode); }
+            get { return GetCollection(collectionName, writeConcern); }
         }
 
         // public methods
@@ -538,15 +543,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
+        /// <param name="writeConcern">The write concern to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             string collectionName,
-            SafeMode safeMode)
+            WriteConcern writeConcern)
         {
             var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName)
             {
-                SafeMode = safeMode
+                WriteConcern = writeConcern
             };
             return GetCollection(collectionSettings);
         }
@@ -591,13 +596,13 @@ namespace MongoDB.Driver
         /// with a default document type of BsonDocument.
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
+        /// <param name="writeConcern">The write concern to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
-        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, SafeMode safeMode)
+        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, WriteConcern writeConcern)
         {
             var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName)
             {
-                SafeMode = safeMode
+                WriteConcern = writeConcern
             };
             return GetCollection(collectionSettings);
         }
@@ -621,15 +626,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="defaultDocumentType">The default document type.</param>
         /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="safeMode">The safe mode to use when accessing this collection.</param>
+        /// <param name="writeConcern">The write concern to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection GetCollection(
             Type defaultDocumentType,
             string collectionName,
-            SafeMode safeMode)
+            WriteConcern writeConcern)
         {
             var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
-            collectionSettings.SafeMode = safeMode;
+            collectionSettings.WriteConcern = writeConcern;
             return GetCollection(collectionSettings);
         }
 

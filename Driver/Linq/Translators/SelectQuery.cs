@@ -615,7 +615,7 @@ namespace MongoDB.Driver.Linq
             if (methodCallExpression.Arguments.Count == 0)
             {
                 var message = string.Format("Method call expression has no arguments: {0}.", ExpressionFormatter.ToString(methodCallExpression));
-                throw new ArgumentOutOfRangeException(message);
+                throw new ArgumentOutOfRangeException("methodCallExpression", message);
             }
 
             var source = methodCallExpression.Arguments[0];

@@ -341,8 +341,8 @@ namespace MongoDB.Driver.GridFS
                 using (_gridFS.Database.RequestStart(ReadPreference.Primary))
                 {
                     _gridFS.EnsureIndexes();
-                    _gridFS.Files.Remove(Query.EQ("_id", _id), _gridFS.Settings.SafeMode);
-                    _gridFS.Chunks.Remove(Query.EQ("files_id", _id), _gridFS.Settings.SafeMode);
+                    _gridFS.Files.Remove(Query.EQ("_id", _id), _gridFS.Settings.WriteConcern);
+                    _gridFS.Chunks.Remove(Query.EQ("files_id", _id), _gridFS.Settings.WriteConcern);
                 }
             }
         }
@@ -406,7 +406,7 @@ namespace MongoDB.Driver.GridFS
         {
             var query = Query.EQ("_id", _id);
             var update = Update.Set("filename", destFileName);
-            _gridFS.Files.Update(query, update, _gridFS.Settings.SafeMode);
+            _gridFS.Files.Update(query, update, _gridFS.Settings.WriteConcern);
         }
 
         /// <summary>

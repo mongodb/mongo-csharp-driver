@@ -58,7 +58,7 @@ namespace MongoDB.Driver
             }
             if (databaseName == "admin" && !credentials.Admin)
             {
-                throw new ArgumentOutOfRangeException("Credentials for the admin database must have the admin flag set to true.");
+                throw new ArgumentOutOfRangeException("credentials", "Credentials for the admin database must have the admin flag set to true.");
             }
             _credentialsStore.Add(databaseName, credentials);
         }

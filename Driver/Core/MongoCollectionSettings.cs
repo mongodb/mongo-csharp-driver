@@ -33,7 +33,7 @@ namespace MongoDB.Driver
         private Type _defaultDocumentType;
         private GuidRepresentation _guidRepresentation;
         private ReadPreference _readPreference;
-        private SafeMode _safeMode;
+        private WriteConcern _writeConcern;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
             _defaultDocumentType = defaultDocumentType;
             _guidRepresentation = databaseSettings.GuidRepresentation;
             _readPreference = databaseSettings.ReadPreference;
-            _safeMode = databaseSettings.SafeMode;
+            _writeConcern = databaseSettings.WriteConcern;
         }
 
         /// <summary>
@@ -79,14 +79,14 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
         /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
         /// <param name="readPreference">The read preference.</param>
-        /// <param name="safeMode">The SafeMode to use with this collection.</param>
+        /// <param name="writeConcern">The WriteConcern to use with this collection.</param>
         protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             Type defaultDocumentType,
             GuidRepresentation guidRepresentation,
             ReadPreference readPreference,
-            SafeMode safeMode)
+            WriteConcern writeConcern)
         {
             if (collectionName == null)
             {
@@ -100,9 +100,9 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("readPreference");
             }
-            if (safeMode == null)
+            if (writeConcern == null)
             {
-                throw new ArgumentNullException("safeMode");
+                throw new ArgumentNullException("writeConcern");
             }
 
             _collectionName = collectionName;
@@ -110,7 +110,7 @@ namespace MongoDB.Driver
             _defaultDocumentType = defaultDocumentType;
             _guidRepresentation = guidRepresentation;
             _readPreference = readPreference;
-            _safeMode = safeMode;
+            _writeConcern = writeConcern;
         }
 
         // public properties
@@ -184,9 +184,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
+        [Obsolete("Use WriteConcern instead.")]
         public SafeMode SafeMode
         {
-            get { return _safeMode; }
+            get { return new SafeMode(_writeConcern); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
@@ -194,7 +195,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _safeMode = value;
+                _writeConcern = value;
             }
         }
 
@@ -212,6 +213,23 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 _readPreference = ReadPreference.FromSlaveOk(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the WriteConcern to use.
+        /// </summary>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _writeConcern = value;
             }
         }
 
@@ -248,7 +266,7 @@ namespace MongoDB.Driver
                         _defaultDocumentType == rhs._defaultDocumentType &&
                         _guidRepresentation == rhs._guidRepresentation &&
                         _readPreference == rhs._readPreference &&
-                        _safeMode == rhs._safeMode;
+                        _writeConcern == rhs._writeConcern;
                 }
             }
         }
@@ -262,7 +280,7 @@ namespace MongoDB.Driver
             if (!_isFrozen)
             {
                 _readPreference = _readPreference.FrozenCopy();
-                _safeMode = _safeMode.FrozenCopy();
+                _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -304,7 +322,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + _defaultDocumentType.GetHashCode();
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + _safeMode.GetHashCode();
+            hash = 37 * hash + _writeConcern.GetHashCode();
             return hash;
         }
 
@@ -320,8 +338,8 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};ReadPreference={4};SafeMode={5}",
-                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _readPreference, _safeMode);
+                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};ReadPreference={4};WriteConcern={5}",
+                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _readPreference, _writeConcern);
         }
     }
 
@@ -349,14 +367,14 @@ namespace MongoDB.Driver
         /// <param name="assignIdOnInsert">Whether the driver should assign the Id values if necessary.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="readPreference">The read preference.</param>
-        /// <param name="safeMode">The safe mode to use.</param>
+        /// <param name="writeConcern">The write concern to use.</param>
         private MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
             GuidRepresentation guidRepresentation,
             ReadPreference readPreference,
-            SafeMode safeMode)
-            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, readPreference, safeMode)
+            WriteConcern writeConcern)
+            : base(collectionName, assignIdOnInsert, typeof(TDefaultDocument), guidRepresentation, readPreference, writeConcern)
         {
         }
 
@@ -367,7 +385,7 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public override MongoCollectionSettings Clone()
         {
-            return new MongoCollectionSettings<TDefaultDocument>(CollectionName, AssignIdOnInsert, GuidRepresentation, ReadPreference, SafeMode);
+            return new MongoCollectionSettings<TDefaultDocument>(CollectionName, AssignIdOnInsert, GuidRepresentation, ReadPreference, WriteConcern);
         }
     }
 }

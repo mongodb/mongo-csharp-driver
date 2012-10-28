@@ -24,8 +24,9 @@ namespace MongoDB.Driver
     /// Represents the results of an operation performed with a WriteConcern other than FireAndForget.
     /// </summary>
     [Serializable]
-    [Obsolete("Use WriteConcernResult instead.")]
-    public class SafeModeResult : GetLastErrorResult
+#pragma warning disable 618
+    public class WriteConcernResult : SafeModeResult
+#pragma warning restore
     {
     }
 }

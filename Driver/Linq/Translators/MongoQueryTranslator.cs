@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Linq
             }
 
             var message = string.Format("Unable to find document type of expression: {0}.", ExpressionFormatter.ToString(expression));
-            throw new ArgumentOutOfRangeException(message);
+            throw new ArgumentOutOfRangeException("expression", message);
         }
     }
 }

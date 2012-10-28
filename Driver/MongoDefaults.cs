@@ -36,7 +36,9 @@ namespace MongoDB.Driver
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
+#pragma warning disable 612, 618
         private static SafeMode __safeMode = SafeMode.False;
+#pragma warning restore
         private static TimeSpan __secondaryAcceptableLatency = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
@@ -148,6 +150,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the safe mode.
         /// </summary>
+        [Obsolete("SafeMode has been replaced by WriteConcern and the default for WriteConcern is always Errors and is not configurable.")]
         public static SafeMode SafeMode
         {
             get { return __safeMode; }

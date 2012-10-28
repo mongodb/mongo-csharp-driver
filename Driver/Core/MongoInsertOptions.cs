@@ -30,7 +30,7 @@ namespace MongoDB.Driver
         // private fields
         private bool _checkElementNames;
         private InsertFlags _flags;
-        private SafeMode _safeMode;
+        private WriteConcern _writeConcern;
 
         // constructors
         /// <summary>
@@ -49,7 +49,7 @@ namespace MongoDB.Driver
         [Obsolete("Options constructors which take a MongoCollection parameter are obsolete and will be removed in a future release of the MongoDB CSharp Driver. Please use a constructor which does not take a MongoCollection parameter.")]
         public MongoInsertOptions(MongoCollection collection) : this()
         {
-            _safeMode = collection.Settings.SafeMode;
+            _writeConcern = collection.Settings.WriteConcern;
         }
 
         // public properties
@@ -74,10 +74,20 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the SafeMode to use for the Insert.
         /// </summary>
+        [Obsolete("Use WriteConcern instead.")]
         public SafeMode SafeMode
         {
-            get { return _safeMode; }
-            set { _safeMode = value; }
+            get { return (_writeConcern == null) ? null : new SafeMode(_writeConcern); }
+            set { _writeConcern = (value == null) ? null : value.WriteConcern; }
+        }
+
+        /// <summary>
+        /// Gets or sets the WriteConcern to use for the Insert.
+        /// </summary>
+        public WriteConcern WriteConcern
+        {
+            get { return _writeConcern; }
+            set { _writeConcern = value; }
         }
     }
 }
