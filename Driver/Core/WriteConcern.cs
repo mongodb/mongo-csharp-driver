@@ -364,6 +364,12 @@ namespace MongoDB.Driver
         /// </summary>
         public abstract class WValue
         {
+            // constructors
+            // internal constructor prevents users from creating new subclasses of WValue
+            internal WValue()
+            {
+            }
+
             // implicit conversions
             /// <summary>
             /// Converts an int value to a WValue of type WCount.
@@ -454,7 +460,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Represents an integer "w" value in a WriteConcern.
         /// </summary>
-        public class WCount : WValue
+        public sealed class WCount : WValue
         {
             // private fields
             private readonly int _value;
@@ -522,7 +528,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Represents a string "w" value in a WriteConcern (the name of a mode).
         /// </summary>
-        public class WMode : WValue
+        public sealed class WMode : WValue
         {
             // private fields
             private readonly string _value;
