@@ -27,6 +27,7 @@ http://jira.mongodb.org/browse/CSHARP
 * Teun Duynstee             teun@duynstee.com
 * Ken Egozi                 mail@kenegozi.com
 * Simon Green               simon@captaincodeman.com
+* Nik Kolev                 nkolev@gmail.com
 * Oleg Kosmakov             kosmakoff@gmail.com
 * Brian Knight              brianknight10@gmail.com  
 * Richard Kreuter           richard@10gen.com

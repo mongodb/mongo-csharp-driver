@@ -29,19 +29,28 @@ namespace MongoDB.DriverUnitTests
     public class MongoServerAddressTests
     {
         [Test]
-        public void TestCreateWithHost()
+        [TestCase("host")]
+        [TestCase("192.168.0.1")]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]")]
+        public void TestConstructor(string host)
         {
-            var credentials = new MongoServerAddress("host");
-            Assert.AreEqual("host", credentials.Host);
-            Assert.AreEqual(27017, credentials.Port);
+            var address = new MongoServerAddress(host);
+            Assert.AreEqual(host, address.Host);
+            Assert.AreEqual(27017, address.Port);
         }
 
         [Test]
-        public void TestCreateWithHostAndPort()
+        [TestCase("host", 27017)]
+        [TestCase("host", 27018)]
+        [TestCase("192.168.0.1", 27017)]
+        [TestCase("192.168.0.1", 27018)]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27017)]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27018)]
+        public void TestConstructor(string host, int port)
         {
-            var credentials = new MongoServerAddress("host", 123);
-            Assert.AreEqual("host", credentials.Host);
-            Assert.AreEqual(123, credentials.Port);
+            var address = new MongoServerAddress(host, port);
+            Assert.AreEqual(host, address.Host);
+            Assert.AreEqual(port, address.Port);
         }
 
         [Test]
@@ -73,35 +82,35 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestParseWithHost()
+        [TestCase("host", 27017, "host")]
+        [TestCase("host", 27017, "host:27017")]
+        [TestCase("host", 27018, "host:27018")]
+        [TestCase("192.168.0.1", 27017, "192.168.0.1")]
+        [TestCase("192.168.0.1", 27017, "192.168.0.1:27017")]
+        [TestCase("192.168.0.1", 27018, "192.168.0.1:27018")]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27017, "[2001:0db8:85a3:0042:0000:8a2e:0370:7334]")]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27017, "[2001:0db8:85a3:0042:0000:8a2e:0370:7334]:27017")]
+        [TestCase("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27018, "[2001:0db8:85a3:0042:0000:8a2e:0370:7334]:27018")]
+        public void TestParse(string host, int port, string value)
         {
-            var credentials = MongoServerAddress.Parse("host");
-            Assert.AreEqual("host", credentials.Host);
-            Assert.AreEqual(27017, credentials.Port);
+            var address = MongoServerAddress.Parse(value);
+            Assert.AreEqual(host, address.Host);
+            Assert.AreEqual(port, address.Port);
         }
 
         [Test]
-        public void TestParseWithHostAndPort()
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("abc:def")]
+        [TestCase("abc:123:456")]
+        [TestCase("[]")]
+        [TestCase("a[]")]
+        [TestCase("[]b")]
+        [TestCase("a[]b")]
+        public void TestParse_InvalidValue(string value)
         {
-            var credentials = MongoServerAddress.Parse("host:123");
-            Assert.AreEqual("host", credentials.Host);
-            Assert.AreEqual(123, credentials.Port);
-        }
-
-        [Test]
-        [ExpectedException(ExpectedException = typeof(FormatException),
-                           ExpectedMessage = "'' is not a valid server address.")]
-        public void TestParseNullParam()
-        {
-            MongoServerAddress.Parse(null);
-        }
-
-        [Test]
-        [ExpectedException(ExpectedException = typeof(FormatException),
-                           ExpectedMessage = "'' is not a valid server address.")]
-        public void TestParseEmptyParam()
-        {
-            MongoServerAddress.Parse(String.Empty);
+            var message = string.Format("'{0}' is not a valid server address.", value);
+            Assert.Throws<FormatException>(() => { var address = MongoServerAddress.Parse(value); }, message);
         }
     }
 }

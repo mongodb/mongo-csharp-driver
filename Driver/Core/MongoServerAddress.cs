@@ -71,7 +71,8 @@ namespace MongoDB.Driver
             }
             else
             {
-                throw new FormatException(String.Format("'{0}' is not a valid server address.", value));
+                var message = string.Format("'{0}' is not a valid server address.", value);
+                throw new FormatException(message);
             }
         }
 
@@ -86,7 +87,7 @@ namespace MongoDB.Driver
             // don't throw ArgumentNullException if value is null
             if (value != null)
             {
-                Match match = Regex.Match(value, @"^(?<host>(\[[^]]+?\]|[^:]+))(:(?<port>\d+))?$");
+                Match match = Regex.Match(value, @"^(?<host>(\[[^]]+\]|[^:\[\]]+))(:(?<port>\d+))?$");
                 if (match.Success)
                 {
                     string host = match.Groups["host"].Value;
