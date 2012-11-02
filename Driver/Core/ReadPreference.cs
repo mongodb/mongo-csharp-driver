@@ -394,7 +394,7 @@ namespace MongoDB.Driver
         // internal methods
         internal bool ToSlaveOk()
         {
-            return _readPreferenceMode != ReadPreferenceMode.Primary;
+            return _readPreferenceMode != ReadPreferenceMode.Primary && _readPreferenceMode != ReadPreferenceMode.PrimaryPreferred;
         }
 
         // private methods

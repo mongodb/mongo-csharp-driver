@@ -988,7 +988,7 @@ namespace MongoDB.DriverUnitTests
             {
                 collection.InsertBatch(batch);
             }
-            catch (MongoSafeModeException)
+            catch (WriteConcernException)
             {
                 Assert.AreEqual(1, collection.Count());
                 Assert.AreEqual(1, collection.FindOne()["x"].AsInt32);
@@ -1002,7 +1002,7 @@ namespace MongoDB.DriverUnitTests
                     var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
                     collection.InsertBatch(batch, options);
                 }
-                catch (MongoSafeModeException)
+                catch (WriteConcernException)
                 {
                     Assert.AreEqual(3, collection.Count());
                 }

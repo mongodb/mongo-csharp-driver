@@ -39,6 +39,15 @@ namespace MongoDB.Driver
         {
         }
 
+        // public properties
+        /// <summary>
+        /// Gets whether the credentials store has been frozen to prevent further changes.
+        /// </summary>
+        public bool IsFrozen
+        {
+            get { return _isFrozen; }
+        }
+
         // public methods
         /// <summary>
         /// Adds the credentials for a database to the store.

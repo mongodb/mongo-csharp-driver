@@ -144,7 +144,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreSame(_database, collection.Database);
             Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
             Assert.AreEqual(collectionName, collection.Name);
-            Assert.AreEqual(_database.Settings.SafeMode, collection.Settings.SafeMode);
+            Assert.AreEqual(_database.Settings.WriteConcern, collection.Settings.WriteConcern);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreSame(_database, collection.Database);
             Assert.AreEqual(_database.Name + "." + collectionName, collection.FullName);
             Assert.AreEqual(collectionName, collection.Name);
-            Assert.AreEqual(_database.Settings.SafeMode, collection.Settings.SafeMode);
+            Assert.AreEqual(_database.Settings.WriteConcern, collection.Settings.WriteConcern);
         }
 
         [Test]

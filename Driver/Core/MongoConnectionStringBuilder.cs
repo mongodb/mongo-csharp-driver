@@ -195,13 +195,16 @@ namespace MongoDB.Driver
             get { return _fireAndForget; }
             set
             {
-                if (_safe != null)
+                if (value != null)
                 {
-                    throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
-                }
-                if ((value != null && value.Value) && AnyWriteConcernSettingsAreSet())
-                {
-                    throw new InvalidOperationException("FireAndForget cannot be set to true if any other write concern values have been set.");
+                    if (_safe != null)
+                    {
+                        throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
+                    }
+                    if (value.Value && AnyWriteConcernSettingsAreSet())
+                    {
+                        throw new InvalidOperationException("FireAndForget cannot be set to true if any other write concern values have been set.");
+                    }
                 }
                 _fireAndForget = value;
                 base["fireAndForget"] = (value == null) ? null : XmlConvert.ToString(value.Value);
@@ -230,7 +233,8 @@ namespace MongoDB.Driver
             get { return _guidRepresentation; }
             set
             {
-                base["uuidRepresentation"] = _guidRepresentation = value;
+                _guidRepresentation = value;
+                base["uuidRepresentation"] = (value == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(value.ToString());
             }
         }
 
@@ -363,27 +367,27 @@ namespace MongoDB.Driver
             }
             set
             {
-                if (_slaveOk.HasValue)
+                if (value != null && _slaveOk.HasValue)
                 {
                     throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
                 }
                 _readPreference = value;
 
-                base["readPreference"] = MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString());
-                if (_readPreference.TagSets == null)
-                {
-                    base["readPreferenceTags"] = null;
-                }
-                else
+                base["readPreference"] = (value == null) ? null : MongoUtils.ToCamelCase(value.ReadPreferenceMode.ToString());
+                if (value != null && value.TagSets != null)
                 {
                     var readPreferenceTagsString = string.Join(
                         "|",
-                        _readPreference.TagSets.Select(ts => string.Join(
+                        value.TagSets.Select(ts => string.Join(
                             ",",
                             ts.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()
                         )).ToArray()
                     );
                     base["readPreferenceTags"] = readPreferenceTagsString;
+                }
+                else
+                {
+                    base["readPreferenceTags"] = null;
                 }
             }
         }
@@ -409,13 +413,16 @@ namespace MongoDB.Driver
             get { return _safe; }
             set
             {
-                if (_fireAndForget != null)
+                if (value != null)
                 {
-                    throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
-                }
-                if ((value != null && !value.Value) && AnyWriteConcernSettingsAreSet())
-                {
-                    throw new InvalidOperationException("Safe cannot be set to false if any other write concern values have been set.");
+                    if (_fireAndForget != null)
+                    {
+                        throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
+                    }
+                    if (!value.Value && AnyWriteConcernSettingsAreSet())
+                    {
+                        throw new InvalidOperationException("Safe cannot be set to false if any other write concern values have been set.");
+                    }
                 }
                 _safe = value;
                 base["safe"] = (value == null) ? null : XmlConvert.ToString(value.Value);
@@ -489,7 +496,7 @@ namespace MongoDB.Driver
         public MongoServerAddress Server
         {
             get { return (_servers == null) ? null : _servers.Single(); }
-            set { Servers = new[] { value }; }
+            set { Servers = (value == null) ? null : new[] { value }; }
         }
 
         /// <summary>
@@ -501,7 +508,7 @@ namespace MongoDB.Driver
             set
             {
                 _servers = value;
-                base["server"] = GetServersString();
+                base["server"] = (value == null) ? null : GetServersString(value);
             }
         }
 
@@ -912,10 +919,10 @@ namespace MongoDB.Driver
             }
         }
 
-        private string GetServersString()
+        private string GetServersString(IEnumerable<MongoServerAddress> servers)
         {
             var sb = new StringBuilder();
-            foreach (var server in _servers)
+            foreach (var server in servers)
             {
                 if (sb.Length > 0) { sb.Append(","); }
                 if (server.Port == 27017)

@@ -57,7 +57,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp77
                     Name = string.Format("Foo-{0}", i),
                     Summary = string.Format("Summary for Foo-{0}", i)
                 };
-                collection.Save(foo, SafeMode.True);
+                collection.Save(foo);
                 var count = collection.Count();
                 Assert.AreEqual(i + 1, count);
             }

@@ -31,6 +31,7 @@ namespace MongoDB.DriverUnitTests
     public static class Configuration
     {
         // private static fields
+        private static MongoClient __testClient;
         private static MongoServer __testServer;
         private static MongoDatabase __testDatabase;
         private static MongoCollection<BsonDocument> __testCollection;
@@ -40,19 +41,28 @@ namespace MongoDB.DriverUnitTests
         {
             var connectionString = "mongodb://localhost/?safe=true"; // TODO: make this configurable
 
-            var mongoUrlBuilder = new MongoUrlBuilder(connectionString);
-            var serverSettings = mongoUrlBuilder.ToServerSettings();
-            if (!serverSettings.SafeMode.Enabled)
+            var mongoUrl = new MongoUrl(connectionString);
+            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
+            if (clientSettings.WriteConcern.FireAndForget)
             {
-                serverSettings.SafeMode = SafeMode.True;
+                clientSettings.WriteConcern.FireAndForget = false;
             }
 
-            __testServer = MongoServer.Create(serverSettings);
-            __testDatabase = __testServer["csharpdriverunittests"];
-            __testCollection = __testDatabase["testcollection"];
+            __testClient = new MongoClient(clientSettings);
+            __testServer = __testClient.GetServer();
+            __testDatabase = __testServer.GetDatabase("csharpdriverunittests");
+            __testCollection = __testDatabase.GetCollection("testcollection");
         }
 
-        // public static methods
+        // public static properties
+        /// <summary>
+        /// Gets the test client.
+        /// </summary>
+        public static MongoClient TestClient
+        {
+            get { return __testClient; }
+        }
+
         /// <summary>
         /// Gets the test collection.
         /// </summary>

@@ -46,10 +46,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            var serverSettings = Configuration.TestServer.Settings.Clone();
-            serverSettings.SafeMode = SafeMode.False;
-            _server = MongoServer.Create(serverSettings); // not safe=true
-            _database = _server[Configuration.TestDatabase.Name];
+            var clientSettings = Configuration.TestClient.Settings.Clone();
+            clientSettings.WriteConcern = WriteConcern.None;
+            var client = new MongoClient(clientSettings); // FireAndForget=true
+            _server = client.GetServer();
+            _database = _server.GetDatabase(Configuration.TestDatabase.Name);
             _collection = _database.GetCollection<C>(Configuration.TestCollection.Name);
         }
 

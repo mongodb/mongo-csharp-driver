@@ -40,7 +40,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp103
             {
                 for (int i = 0; i < 1; i++)
                 {
-                    collection.Insert(new BsonDocument { { "blah", i } }, SafeMode.True);
+                    collection.Insert(new BsonDocument { { "blah", i } });
                 }
             }
         }

@@ -49,8 +49,7 @@ namespace MongoDB.DriverUnitTests.Jira
         [Test]
         public void CastTest()
         {
-            var server = MongoServer.Create();
-            var db = server.GetDatabase("test");
+            var db = Configuration.TestDatabase;
             var collection = db.GetCollection<Base>("castTest");
             collection.Drop();
 

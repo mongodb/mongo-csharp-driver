@@ -60,15 +60,15 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp100
 
             collection.RemoveAll();
             var obj = new ChildClass { SomeProperty = null };
-            collection.Save(obj, SafeMode.True);
+            collection.Save(obj);
             obj = new ChildClass { SomeProperty = new List<SomeClass>() };
-            collection.Save(obj, SafeMode.True);
+            collection.Save(obj);
             obj = new ChildClass { SomeProperty = new List<SomeClass> { new SomeClass() } };
-            collection.Save(obj, SafeMode.True);
+            collection.Save(obj);
             obj = new ChildClass { SomeProperty = new List<SomeClass> { new SomeClass(), new SomeClass() } };
-            collection.Save(obj, SafeMode.True);
+            collection.Save(obj);
             obj = new ChildClass { SomeProperty = new[] { new SomeClass(), new SomeClass() } };
-            collection.Save(obj, SafeMode.True);
+            collection.Save(obj);
         }
     }
 }

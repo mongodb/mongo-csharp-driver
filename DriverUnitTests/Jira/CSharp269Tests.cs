@@ -32,16 +32,15 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
     [TestFixture]
     public class CSharp269Tests
     {
-        private MongoServer _server;
         private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            var serverSettings = Configuration.TestServer.Settings.Clone();
-            serverSettings.ReadPreference = ReadPreference.SecondaryPreferred;
-            _server = MongoServer.Create(serverSettings); // slaveOk=true
-            _database = Configuration.TestDatabase;
+            var clientSettings = Configuration.TestClient.Settings.Clone();
+            clientSettings.ReadPreference = ReadPreference.SecondaryPreferred;
+            var client = new MongoClient(clientSettings); // ReadPreference=SecondaryPreferred
+            _database = client.GetDatabase(Configuration.TestDatabase.Name);
             _database.GridFS.Files.Drop();
             _database.GridFS.Chunks.Drop();
         }

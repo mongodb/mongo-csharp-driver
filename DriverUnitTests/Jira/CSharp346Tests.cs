@@ -31,6 +31,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
     [TestFixture]
     public class CSharp346Tests
     {
+#pragma warning disable 618
         [Test]
         public void TestOneIPv6Address()
         {
@@ -159,5 +160,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual(2345, servers[1].Port);
             Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
+#pragma warning restore
     }
 }

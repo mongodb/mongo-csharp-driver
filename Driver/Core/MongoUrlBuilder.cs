@@ -150,13 +150,16 @@ namespace MongoDB.Driver
             get { return _fireAndForget; }
             set
             {
-                if (_safe != null)
+                if (value != null)
                 {
-                    throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
-                }
-                if ((value != null && value.Value) && AnyWriteConcernSettingsAreSet())
-                {
-                    throw new InvalidOperationException("FireAndForget cannot be set to true if any other write concern values have been set.");
+                    if (_safe != null)
+                    {
+                        throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
+                    }
+                    if (value.Value && AnyWriteConcernSettingsAreSet())
+                    {
+                        throw new InvalidOperationException("FireAndForget cannot be set to true if any other write concern values have been set.");
+                    }
                 }
                 _fireAndForget = value;
             }
@@ -292,7 +295,7 @@ namespace MongoDB.Driver
             }
             set
             {
-                if (_slaveOk.HasValue)
+                if (value != null && _slaveOk.HasValue)
                 {
                     throw new InvalidOperationException("ReadPreference cannot be set because SlaveOk already has a value.");
                 }
@@ -318,13 +321,16 @@ namespace MongoDB.Driver
             get { return _safe; }
             set
             {
-                if (_fireAndForget != null)
+                if (value != null)
                 {
-                    throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
-                }
-                if ((value != null && !value.Value) && AnyWriteConcernSettingsAreSet())
-                {
-                    throw new InvalidOperationException("Safe cannot be set to false if any other write concern values have been set.");
+                    if (_fireAndForget != null)
+                    {
+                        throw new InvalidOperationException("FireAndForget and Safe are mutually exclusive.");
+                    }
+                    if (!value.Value && AnyWriteConcernSettingsAreSet())
+                    {
+                        throw new InvalidOperationException("Safe cannot be set to false if any other write concern values have been set.");
+                    }
                 }
                 _safe = value; 
             }
@@ -396,7 +402,7 @@ namespace MongoDB.Driver
         public MongoServerAddress Server
         {
             get { return (_servers == null) ? null : _servers.Single(); }
-            set { _servers = new [] { value }; }
+            set { _servers = (value == null) ? null : new [] { value }; }
         }
 
         /// <summary>
@@ -765,7 +771,7 @@ namespace MongoDB.Driver
             const string pattern =
                 @"^mongodb://" +
                 @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
-                @"(?<servers>" + serverPattern + "(," + serverPattern + ")*)" +
+                @"(?<servers>" + serverPattern + "(," + serverPattern + ")*)?" +
                 @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
             Match match = Regex.Match(url, pattern);
             if (match.Success)
@@ -794,10 +800,6 @@ namespace MongoDB.Driver
                         addresses.Add(address);
                     }
                     _servers = addresses;
-                }
-                else
-                {
-                    throw new FormatException("Invalid connection string. Server missing.");
                 }
 
                 _databaseName = (databaseName != "") ? databaseName : null;
@@ -980,13 +982,12 @@ namespace MongoDB.Driver
             if (_useSsl)
             {
                 query.AppendFormat("ssl=true;");
-                if (!_verifySslCertificate)
-                {
-                    query.AppendFormat("sslVerifyCertificate=false;");
-                }
             }
-            if (_connectionMode == ConnectionMode.Direct && _servers != null && _servers.Count() != 1 ||
-                _connectionMode == ConnectionMode.ReplicaSet && (_servers == null || _servers.Count() == 1))
+            if (!_verifySslCertificate)
+            {
+                query.AppendFormat("sslVerifyCertificate=false;");
+            }
+            if (_connectionMode != ConnectionMode.Automatic)
             {
                 query.AppendFormat("connect={0};", MongoUtils.ToCamelCase(_connectionMode.ToString()));
             }
@@ -1075,7 +1076,7 @@ namespace MongoDB.Driver
             }
             if (_guidRepresentation != MongoDefaults.GuidRepresentation)
             {
-                query.AppendFormat("uuidRepresentation={0};", _guidRepresentation);
+                query.AppendFormat("uuidRepresentation={0};", (_guidRepresentation == GuidRepresentation.CSharpLegacy) ? "csharpLegacy" : MongoUtils.ToCamelCase(_guidRepresentation.ToString()));
             }
             if (query.Length != 0)
             {

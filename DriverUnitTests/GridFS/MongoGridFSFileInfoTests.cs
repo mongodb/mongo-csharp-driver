@@ -28,15 +28,13 @@ namespace MongoDB.DriverUnitTests.GridFS
     [TestFixture]
     public class MongoGridFSFileInfoTests
     {
-        private MongoServer _server;
         private MongoDatabase _database;
         private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            _server = MongoServer.Create();
-            _database = _server["test"];
+            _database = Configuration.TestDatabase;
             _gridFS = _database.GridFS;
         }
 

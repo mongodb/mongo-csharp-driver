@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.AreEqual(256 * 1024, settings.ChunkSize);
             Assert.AreEqual("fs.files", settings.FilesCollectionName);
             Assert.AreEqual("fs", settings.Root);
-            Assert.AreEqual(SafeMode.True, settings.SafeMode);
+            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
         }
 
         [Test]
@@ -55,14 +55,14 @@ namespace MongoDB.DriverUnitTests.GridFS
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",
-                SafeMode = SafeMode.True
+                WriteConcern = WriteConcern.Errors
             };
             Assert.IsFalse(settings.IsFrozen);
             Assert.AreEqual("root.chunks", settings.ChunksCollectionName);
             Assert.AreEqual(64 * 1024, settings.ChunkSize);
             Assert.AreEqual("root.files", settings.FilesCollectionName);
             Assert.AreEqual("root", settings.Root);
-            Assert.AreEqual(SafeMode.True, settings.SafeMode);
+            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
         }
 
         [Test]
@@ -72,9 +72,9 @@ namespace MongoDB.DriverUnitTests.GridFS
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",
-                SafeMode = SafeMode.True,
                 UpdateMD5 = false,
-                VerifyMD5 = false
+                VerifyMD5 = false,
+                WriteConcern = WriteConcern.Errors
             };
             var clone = settings.Clone();
             Assert.IsTrue(settings == clone);
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             var a = new MongoGridFSSettings(_database) { ChunkSize = 123 };
             var b = new MongoGridFSSettings(_database) { ChunkSize = 123 };
             var c = new MongoGridFSSettings(_database) { ChunkSize = 345 };
-            var n = (SafeMode)null;
+            var n = (WriteConcern)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
@@ -120,9 +120,9 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.IsTrue(settings.IsFrozen);
             Assert.Throws<InvalidOperationException>(() => settings.ChunkSize = 64 * 1024);
             Assert.Throws<InvalidOperationException>(() => settings.Root = "root");
-            Assert.Throws<InvalidOperationException>(() => settings.SafeMode = SafeMode.True);
             Assert.Throws<InvalidOperationException>(() => settings.UpdateMD5 = true);
             Assert.Throws<InvalidOperationException>(() => settings.VerifyMD5 = true);
+            Assert.Throws<InvalidOperationException>(() => settings.WriteConcern = WriteConcern.Errors);
         }
     }
 }

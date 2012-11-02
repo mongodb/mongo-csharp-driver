@@ -28,6 +28,7 @@ namespace MongoDB.DriverUnitTests
     [TestFixture]
     public class MongoSafeModeTests
     {
+#pragma warning disable 618
         [Test]
         public void TestCreateWithEnabled()
         {
@@ -265,6 +266,6 @@ namespace MongoDB.DriverUnitTests
             var s = SafeMode.W4;
             s.Enabled = true;
         }
-
+#pragma warning restore
     }
 }
