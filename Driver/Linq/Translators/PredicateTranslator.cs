@@ -27,6 +27,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq.Utils;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MongoDB.Driver.Linq
 {
@@ -1291,14 +1292,7 @@ namespace MongoDB.Driver.Linq
                 return null;
             }
 
-            // TODO: would the object ever not be a ParameterExpression?
-            var parameterExpression = methodCallExpression.Object as ParameterExpression;
-            if (parameterExpression == null)
-            {
-                return null;
-            }
-
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(parameterExpression);
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Object);
             var nominalType = serializationInfo.NominalType;
 
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
@@ -1308,22 +1302,28 @@ namespace MongoDB.Driver.Linq
                 return BuildBooleanQuery(true);
             }
 
+            var elementName = discriminatorConvention.ElementName;
+            if (serializationInfo.ElementName != null)
+            {
+                elementName = string.Format("{0}.{1}", serializationInfo.ElementName, elementName);
+            }
+
             if (discriminator.IsBsonArray)
             {
                 var discriminatorArray = discriminator.AsBsonArray;
                 var queries = new IMongoQuery[discriminatorArray.Count + 1];
-                queries[0] = Query.Size(discriminatorConvention.ElementName, discriminatorArray.Count);
+                queries[0] = Query.Size(elementName, discriminatorArray.Count);
                 for (var i = 0; i < discriminatorArray.Count; i++)
                 {
-                    queries[i + 1] = Query.EQ(string.Format("{0}.{1}", discriminatorConvention.ElementName, i), discriminatorArray[i]);
+                    queries[i + 1] = Query.EQ(string.Format("{0}.{1}", elementName, i), discriminatorArray[i]);
                 }
                 return Query.And(queries);
             }
             else
             {
                 return Query.And(
-                    Query.NotExists(discriminatorConvention.ElementName + ".0"), // trick to check that element is not an array
-                    Query.EQ(discriminatorConvention.ElementName, discriminator));
+                    Query.NotExists(elementName + ".0"), // trick to check that element is not an array
+                    Query.EQ(elementName, discriminator));
             }
         }
 
@@ -1344,7 +1344,13 @@ namespace MongoDB.Driver.Linq
                 discriminator = discriminator.AsBsonArray[discriminator.AsBsonArray.Count - 1];
             }
 
-            return Query.EQ(discriminatorConvention.ElementName, discriminator);
+            var elementName = discriminatorConvention.ElementName;
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(typeBinaryExpression.Expression);
+            if (serializationInfo.ElementName != null)
+            {
+                elementName = string.Format("{0}.{1}", serializationInfo.ElementName, elementName);
+            }
+            return Query.EQ(elementName, discriminator);
         }
 
         private string GetTrimCharsPattern(Expression trimCharsExpression)
