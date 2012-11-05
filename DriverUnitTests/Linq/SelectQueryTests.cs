@@ -6015,6 +6015,305 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
+        public void TestWhereSTrimStartTrimEndToLowerInvariantContainsXyz()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLowerInvariant().Contains("xyz")
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLowerInvariant().Contains(\"xyz\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^[\\ \\.\\-\\t]*.*xyz.*\\s*$/is }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantEqualsConstantLowerCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() == "abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() == \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : /^abc$/i }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantDoesNotEqualConstantLowerCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() != "abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() != \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$not\" : /^abc$/i } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(4, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantEqualsConstantMixedCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() == "Abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() == \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantDoesNotEqualConstantMixedCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() != "Abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() != \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantEqualsNullValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() == null
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() == null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToLowerInvariantDoesNotEqualNullValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToLowerInvariant() != null
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToLowerInvariant() != null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$ne\" : null } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantEqualsConstantLowerCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() == "abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() == \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantDoesNotEqualConstantLowerCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() != "abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() != \"abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantEqualsConstantMixedCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() == "Abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() == \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"_id\" : { \"$type\" : -1 } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(0, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantDoesNotEqualConstantMixedCaseValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() != "Abc"
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() != \"Abc\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(5, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantEqualsNullValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() == null
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() == null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : null }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(3, Consume(query));
+        }
+
+        [Test]
+        public void TestWhereSToUpperInvariantDoesNotEqualNullValue()
+        {
+            var query = from c in _collection.AsQueryable<C>()
+                        where c.S.ToUpperInvariant() != null
+                        select c;
+
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
+            Assert.AreSame(_collection, translatedQuery.Collection);
+            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
+
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.AreEqual("(C c) => (c.S.ToUpperInvariant() != null)", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.IsNull(selectQuery.OrderBy);
+            Assert.IsNull(selectQuery.Projection);
+            Assert.IsNull(selectQuery.Skip);
+            Assert.IsNull(selectQuery.Take);
+
+            Assert.AreEqual("{ \"s\" : { \"$ne\" : null } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(2, Consume(query));
+        }
+
+        [Test]
         public void TestWhereSystemProfileInfoDurationGreatherThan10Seconds()
         {
             var query = from pi in _systemProfileCollection.AsQueryable<SystemProfileInfo>()
