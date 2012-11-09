@@ -25,7 +25,9 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
         <Directory Id="MONGODB" Name="MongoDB">
-          <Directory Id="INSTALLDIR" Name="!(wix.ProductShortName)" />
+          <Directory Id="INSTALLDIR" Name="!(wix.ProductShortName)" >
+            <Directory Id="GACDIR" Name="Gac" /> <!-- This is a ghost folder as Gac files still need a location declared -->
+          </Directory>
 				</Directory>
 			</Directory>
       <Directory Id="ProgramMenuFolder">
@@ -96,8 +98,24 @@
       </Component>
     </DirectoryRef>
 
+    <!-- 
+    This adds the Bson and Driver DLLs to the GAC. For some reason they have to be redeclared separately and 
+    have a location that is different to the placement of the DLL files.
+    -->
+    <DirectoryRef Id="GACDIR">
+      <Component Id="c_BsonDllGac" Guid="4C3CDD1E-F7A2-47FF-9EC8-74C3E815673C">
+        <File Id="f_BsonDllGac" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\Bson\bin\$(var.Configuration)\MongoDB.Bson.dll"
+              DiskId ="1" KeyPath="yes" Assembly=".net" />
+      </Component>
+      <Component Id="c_DriverDllGac" Guid="D8DAAB63-8FCC-45C4-A701-B03B08418A23">
+        <File Id="f_DriverDllGac" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\Driver\bin\$(var.Configuration)\MongoDB.Driver.dll"
+              DiskId ="1" KeyPath="yes" Assembly=".net"/>
+      </Component>
+    </DirectoryRef>
+
     <ComponentGroup Id="cg_Bson">
       <ComponentRef Id="c_BsonDll"/>
+      <ComponentRef Id="c_BsonDllGac"/>
       <ComponentRef Id="c_BsonPdb"/>
       <ComponentRef Id="c_BsonXml"/>
     </ComponentGroup>
@@ -105,6 +123,7 @@
     <ComponentGroup Id="cg_Driver">
       <ComponentGroupRef Id="cg_Bson"/>
       <ComponentRef Id="c_DriverDll"/>
+      <ComponentRef Id="c_DriverDllGac"/>
       <ComponentRef Id="c_DriverPdb"/>
       <ComponentRef Id="c_DriverXml"/>
     </ComponentGroup>
