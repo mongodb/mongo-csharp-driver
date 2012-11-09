@@ -61,6 +61,14 @@ namespace MongoDB.Bson
                 __staticPid = 0;
             }
         }
+		
+		/// <summary>
+        /// Allows for implicit conversion of ObjectId to String
+        /// </summary>
+        public static implicit operator String(ObjectId Id)
+        {
+            return Id.ToString();
+        }
 
         // constructors
         /// <summary>
