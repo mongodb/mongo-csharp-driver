@@ -1948,5 +1948,21 @@ namespace MongoDB.Driver
         {
             return Save<TDefaultDocument>(document, writeConcern);
         }
+
+        /// <summary>
+        /// Returns a strongly-typed UpdateBuilder.
+        /// </summary>
+        public UpdateBuilder<TDefaultDocument> UpdateBuilder
+        {
+            get { return new UpdateBuilder<TDefaultDocument>(); }
+        }
+
+        /// <summary>
+        /// Returns a strongly-typed QueryBuilder.
+        /// </summary>
+        public QueryBuilder<TDefaultDocument> QueryBuilder
+        {
+            get { return new QueryBuilder<TDefaultDocument>(); }
+        }
     }
 }
