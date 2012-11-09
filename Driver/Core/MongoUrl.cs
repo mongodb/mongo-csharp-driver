@@ -15,12 +15,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 using MongoDB.Bson;
-using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver
 {
@@ -56,6 +52,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static object __staticLock = new object();
+
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
@@ -436,7 +433,11 @@ namespace MongoDB.Driver
         /// </summary>
         public static void ClearCache()
         {
-            __cache.Clear();
+            // Replace cache with new empty one. GC will remove old cache when not referenced.
+            lock(__staticLock)
+            {
+                __cache = new Dictionary<string, MongoUrl>();
+            }
         }
 
         /// <summary>
@@ -447,28 +448,43 @@ namespace MongoDB.Driver
         public static MongoUrl Create(string url)
         {
             // cache previously seen urls to avoid repeated parsing
-            lock (__staticLock)
+            MongoUrl mongoUrl;
+            // get ref to current dictionary instance.
+            var cacheRef = __cache;
+
+            if (!cacheRef.TryGetValue(url, out mongoUrl))
             {
-                MongoUrl mongoUrl;
-                if (!__cache.TryGetValue(url, out mongoUrl))
+                lock (__staticLock)
                 {
-                    mongoUrl = new MongoUrl(url);
-                    var canonicalUrl = mongoUrl.ToString();
-                    if (canonicalUrl != url)
+                    // re-grab the current cache ref. We got lock, but another thread may have modified before we entered lock.
+                    cacheRef = __cache;
+                    if (!cacheRef.TryGetValue(url, out mongoUrl))
                     {
-                        if (__cache.ContainsKey(canonicalUrl))
+                        mongoUrl = new MongoUrl(url);
+                        var canonicalUrl = mongoUrl.ToString();
+                        if (canonicalUrl != url)
                         {
-                            mongoUrl = __cache[canonicalUrl]; // use existing MongoUrl
+                            if (cacheRef.ContainsKey(canonicalUrl))
+                            {
+                                mongoUrl = cacheRef[canonicalUrl]; // use existing MongoUrl
+                            }
+                            else
+                            {
+                                cacheRef[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            }
                         }
-                        else
+                        // copy old dictionary values to new one. Can't guarantee concurrent write while unlocked reader may be accessing cachRef
+                        Dictionary<string, MongoUrl> updatedCache = new Dictionary<string, MongoUrl>(cacheRef.Count+1);
+                        updatedCache[url] = mongoUrl;
+                        foreach (var entry in cacheRef)
                         {
-                            __cache[canonicalUrl] = mongoUrl; // cache under canonicalUrl also
+                            updatedCache[entry.Key] = entry.Value;
                         }
+                        __cache = updatedCache;
                     }
-                    __cache[url] = mongoUrl;
                 }
-                return mongoUrl;
             }
+            return mongoUrl;
         }
 
         // public methods

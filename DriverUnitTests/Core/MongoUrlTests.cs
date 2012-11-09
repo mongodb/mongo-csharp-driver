@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using NUnit.Framework;
 
 using MongoDB.Bson;
@@ -1089,6 +1089,76 @@ namespace MongoDB.DriverUnitTests
                     yield return new MongoUrl(connectionString);
                 }
             }
+        }
+
+        [Test]
+        public void TestCacheEmptyWhenInstanceConstructed()
+        {
+            var target = new MongoUrl("mongodb://host1");
+
+            Dictionary<string, MongoUrl> cache = getCacheReference(target);
+
+            Assert.IsNotNull(cache);
+            Assert.AreEqual(0, cache.Count);
+        }
+
+        [Test]
+        public void TestCacheHasItemAfterCreate()
+        {
+            var target = MongoUrl.Create("mongodb://host1");
+
+            Dictionary<string, MongoUrl> cache = getCacheReference(target);
+
+            Assert.IsNotNull(cache);
+            Assert.AreEqual(1, cache.Count);
+        }
+
+        [Test]
+        public void TestCacheEmptyAfterClear()
+        {
+            var target = MongoUrl.Create("mongodb://host1");
+
+            Dictionary<string, MongoUrl> cache = getCacheReference(target);
+
+            Assert.AreEqual(1, cache.Count);
+            MongoUrl.ClearCache();
+
+            cache = getCacheReference(target);
+
+            Assert.AreEqual(0, cache.Count);
+        }
+
+
+        [Test]
+        public void TestCacheSameInstanceAcrossMultipleCreate()
+        {
+            var t1 = MongoUrl.Create("mongodb://host1");
+            var cache1 = getCacheReference(t1);
+            var t2 = MongoUrl.Create("mongodb://host2");
+            var cache2 = getCacheReference(t2);
+
+            Assert.AreNotSame(cache1, cache2, "Cache internal dictionary is replaced upon insertion to allow lockless reads");
+            Assert.AreEqual(1, cache1.Count, "Cache dictionary should have 1 item after the first insertion");
+            Assert.AreEqual(2, cache2.Count, "Cache dictionary shoudl have 2 items after the second insertion");
+        }
+
+        [Test]
+        public void TestCacheDifferentInstanceOnceClearCache()
+        {
+            var target = MongoUrl.Create("mongodb://host1");
+            var cache1 = getCacheReference(target);
+
+            MongoUrl.ClearCache();
+
+            var cache2 = getCacheReference(target);
+            Assert.AreNotSame(cache1, cache2, "The 2 cache references shoudl refer to different object since CacheClear() exchanges the old ref to a new empty dictionary");
+        }
+
+
+        private Dictionary<string, MongoUrl> getCacheReference(MongoUrl target)
+        {
+            var fieldInfo = typeof(MongoUrl).GetField("__cache", BindingFlags.Static | BindingFlags.GetField | BindingFlags.NonPublic);
+            return fieldInfo.GetValue(target) as Dictionary<string, MongoUrl>;
         }
     }
 }
