@@ -500,7 +500,13 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcern.</returns>
         public WriteConcern GetWriteConcern(bool enabledDefault)
         {
-            return WriteConcern.Create(enabledDefault, _safe, _fsync, _journal, _w, _wTimeout);
+            return new WriteConcern(_safe.HasValue ? _safe.Value : enabledDefault)
+            {
+                FSync = _fsync,
+                Journal = _journal,
+                W = _w,
+                WTimeout = _wTimeout
+            };
         }
 
         /// <summary>

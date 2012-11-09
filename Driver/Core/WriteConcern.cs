@@ -30,15 +30,15 @@ namespace MongoDB.Driver
     public class WriteConcern : IEquatable<WriteConcern>
     {
         // private static fields
-        private readonly static WriteConcern __errors = new WriteConcern { Enabled = true }.Freeze();
-        private readonly static WriteConcern __none = new WriteConcern { Enabled = false }.Freeze();
+        private readonly static WriteConcern __errors = new WriteConcern { W = 1 }.Freeze();
+        private readonly static WriteConcern __none = new WriteConcern().Freeze();
         private readonly static WriteConcern __w2 = new WriteConcern { W = 2 }.Freeze();
         private readonly static WriteConcern __w3 = new WriteConcern { W = 3 }.Freeze();
         private readonly static WriteConcern __w4 = new WriteConcern { W = 4 }.Freeze();
         private readonly static WriteConcern __wmajority = new WriteConcern { W = "majority" }.Freeze();
 
         // private fields
-        private bool _enabled = true;
+        private readonly bool _enabledDefault;
         private bool? _fsync;
         private bool? _journal;
         private WValue _w;
@@ -46,6 +46,19 @@ namespace MongoDB.Driver
 
         private bool _isFrozen;
         private int _frozenHashCode;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WriteConcern" /> class.
+        /// </summary>
+        public WriteConcern()
+            : this(true)
+        { }
+
+        internal WriteConcern(bool enabledDefault)
+        {
+            _enabledDefault = enabledDefault;
+        }
 
         // public static properties
         /// <summary>
@@ -102,15 +115,31 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Enabled
         {
-            get { return _enabled; }
-            set
+            get
             {
-                if (_isFrozen) { ThrowFrozenException(); }
-                if (!value && AnyWriteConcernSettingsAreSet())
+                // order here doesn't matter because 
+                // after we are frozen there will be 
+                // no conflicting values
+                if (_w != null)
                 {
-                    throw new InvalidOperationException("Enabled cannot be set to false if any other WriteConcern values have been set.");
+                    var wCount = _w as WCount;
+                    if (wCount != null)
+                    {
+                        return wCount.Value > 0;
+                    }
+
+                    return true;
                 }
-                _enabled = value;
+                if (_fsync.HasValue)
+                {
+                    return true;
+                }
+                if (_journal.HasValue)
+                {
+                    return true;
+                }
+
+                return _enabledDefault;
             }
         }
 
@@ -123,7 +152,6 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureEnabledIsTrue("FSync"); }
                 _fsync = value;
             }
         }
@@ -145,7 +173,6 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureEnabledIsTrue("Journal"); }
                 _journal = value;
             }
         }
@@ -159,21 +186,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value is WCount && ((WCount)value).Value == 0)
-                {
-                    _w = null;
-                    Enabled = false;
-                }
-                else if (value is WCount && ((WCount)value).Value == 1)
-                {
-                    Enabled = true;
-                    _w = null;
-                }
-                else
-                {
-                    if (value != null) { EnsureEnabledIsTrue("W"); }
-                    _w = value;
-                }
+                _w = value;
             }
         }
 
@@ -186,7 +199,6 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureEnabledIsTrue("WTimeout"); }
                 _wTimeout = value;
             }
         }
@@ -227,40 +239,6 @@ namespace MongoDB.Driver
             return lhs.Equals(rhs);
         }
 
-        // internal static methods
-        internal static WriteConcern Create(
-            bool enabledDefault,
-            bool? safe,
-            bool? fsync,
-            bool? journal,
-            WValue w,
-            TimeSpan? wTimeout)
-        {
-            var wIsMagicZero = false;
-            var wIsMagicOne = false;
-            if (safe == null)
-            {
-                wIsMagicZero = w is WCount && ((WCount)w).Value == 0;
-                wIsMagicOne = w is WCount && ((WCount)w).Value == 1;
-            }
-            var wIsMagic = wIsMagicZero || wIsMagicOne;
-
-            var enabled = enabledDefault;
-            if (safe != null) { enabled = safe.Value; }
-            else if (wIsMagicZero) { enabled = false; }
-            else if (wIsMagicOne) { enabled = true; }
-            else if (fsync != null || journal != null || w != null || wTimeout != null) { enabled = true; }
-
-            return new WriteConcern
-            {
-                Enabled = enabled,
-                FSync = fsync,
-                Journal = journal,
-                W = wIsMagic ? null : w,
-                WTimeout = wTimeout
-            };
-        }
-
         // public methods
         /// <summary>
         /// Creates a clone of the WriteConcern.
@@ -269,7 +247,6 @@ namespace MongoDB.Driver
         public WriteConcern Clone()
         {
             var clone = new WriteConcern();
-            clone._enabled = _enabled;
             clone._fsync = _fsync;
             clone._journal = _journal;
             clone._w = _w;
@@ -297,7 +274,6 @@ namespace MongoDB.Driver
             if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
             if ((object)this == (object)rhs) { return true; }
             return
-                _enabled == rhs._enabled &&
                 _fsync == rhs._fsync &&
                 _journal == rhs._journal &&
                 _w == rhs._w &&
@@ -314,6 +290,15 @@ namespace MongoDB.Driver
             {
                 _frozenHashCode = GetHashCode();
                 _isFrozen = true;
+
+                if (_fsync.HasValue || _journal.HasValue)
+                {
+                    if (_w != null && _w is WCount && ((WCount)_w).Value == 0)
+                    {
+                        var message = string.Format("There are conflicting values in WriteConcern({0}).  When W=0, no other values may be set.", ToString());
+                        throw new MongoException(message);
+                    }
+                }
             }
             return this;
         }
@@ -347,7 +332,6 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _enabled.GetHashCode();
             hash = 37 * hash + _fsync.GetHashCode();
             hash = 37 * hash + _journal.GetHashCode();
             hash = 37 * hash + ((_w == null) ? 0 : _w.GetHashCode());
@@ -361,43 +345,35 @@ namespace MongoDB.Driver
         /// <returns>A string representation of the WriteConcern.</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            sb.AppendFormat("enabled={0}", XmlConvert.ToString(_enabled));
-            if (_enabled)
+            if (!Enabled && _enabledDefault)
             {
-                if (_fsync != null)
-                {
-                    sb.AppendFormat(",fsync={0}", _fsync.Value);
-                }
-                if (_journal != null)
-                {
-                    sb.AppendFormat(",journal={0}", _journal.Value);
-                }
-                if (_w != null)
-                {
-                    sb.AppendFormat(",w={0}", _w);
-                }
-                if (_wTimeout != null)
-                {
-                    sb.AppendFormat(",wtimeout={0}", MongoUrlBuilder.FormatTimeSpan(_wTimeout.Value));
-                }
+                return "w=0";
             }
-            return sb.ToString();
-        }
 
-        // private methods
-        private bool AnyWriteConcernSettingsAreSet()
-        {
-            return _fsync != null || _journal != null || _w != null || _wTimeout != null;
-        }
-
-        private void EnsureEnabledIsTrue(string propertyName)
-        {
-            if (!_enabled)
+            List<string> parts = new List<string>();
+            if (_fsync != null)
             {
-                var message = string.Format("{0} cannot be set when Enabled is false.", propertyName);
-                throw new InvalidOperationException(message);
+                parts.Add(string.Format("fsync={0}", _fsync.Value));
             }
+            if (_journal != null)
+            {
+                parts.Add(string.Format(",journal={0}", _journal.Value));
+            }
+            if (_w != null)
+            {
+                parts.Add(string.Format(",w={0}", _w));
+            }
+            if (_wTimeout != null)
+            {
+                parts.Add(string.Format(",wtimeout={0}", MongoUrlBuilder.FormatTimeSpan(_wTimeout.Value)));
+            }
+
+            if (parts.Count == 0 && Enabled)
+            {
+                return "w=1";
+            }
+
+            return string.Join(",", parts.ToArray());
         }
 
         private void ThrowFrozenException()

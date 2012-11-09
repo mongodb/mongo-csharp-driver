@@ -339,13 +339,13 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(false, false, null, "server=localhost")]
-        [TestCase(false, false, null, "server=localhost;w=0")]
-        [TestCase(false, true, null, "server=localhost;w=1")]
+        [TestCase(false, false, 0, "server=localhost;w=0")]
+        [TestCase(false, true, 1, "server=localhost;w=1")]
         [TestCase(false, true, 2, "server=localhost;w=2")]
         [TestCase(false, true, "mode", "server=localhost;w=mode")]
         [TestCase(true, true, null, "server=localhost")]
-        [TestCase(true, false, null, "server=localhost;w=0")]
-        [TestCase(true, true, null, "server=localhost;w=1")]
+        [TestCase(true, false, 0, "server=localhost;w=0")]
+        [TestCase(true, true, 1, "server=localhost;w=1")]
         [TestCase(true, true, 2, "server=localhost;w=2")]
         [TestCase(true, true, "mode", "server=localhost;w=mode")]
         public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)

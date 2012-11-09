@@ -307,7 +307,7 @@ namespace MongoDB.DriverUnitTests
         public void TestGetWriteConcern_Enabled(bool enabledDefault, bool enabled, string connectionString)
         {
             var url = new MongoUrl(connectionString);
-            var writeConcern = url.GetWriteConcern(enabledDefault);
+            var writeConcern = url.GetWriteConcern(enabledDefault || enabled);
             Assert.AreEqual(enabled, writeConcern.Enabled);
         }
 
@@ -339,13 +339,13 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(false, false, null, "mongodb://localhost")]
-        [TestCase(false, false, null, "mongodb://localhost/?w=0")]
-        [TestCase(false, true, null, "mongodb://localhost/?w=1")]
+        [TestCase(false, false, 0, "mongodb://localhost/?w=0")]
+        [TestCase(false, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(false, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(false, true, "mode", "mongodb://localhost/?w=mode")]
         [TestCase(true, true, null, "mongodb://localhost")]
-        [TestCase(true, false, null, "mongodb://localhost/?w=0")]
-        [TestCase(true, true, null, "mongodb://localhost/?w=1")]
+        [TestCase(true, false, 0, "mongodb://localhost/?w=0")]
+        [TestCase(true, true, 1, "mongodb://localhost/?w=1")]
         [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
         [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
         public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)
