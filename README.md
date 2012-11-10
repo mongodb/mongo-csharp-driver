@@ -39,5 +39,6 @@ http://jira.mongodb.org/browse/CSHARP
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   
 * Alex Brown                https://github.com/alexjamesbrown
+* staywellandy              https://github.com/staywellandy
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
