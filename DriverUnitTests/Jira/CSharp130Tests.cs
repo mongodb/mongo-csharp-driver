@@ -47,8 +47,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
         public void TestFixtureSetup()
         {
             var clientSettings = Configuration.TestClient.Settings.Clone();
-            clientSettings.WriteConcern = WriteConcern.None;
-            var client = new MongoClient(clientSettings); // FireAndForget=true
+            clientSettings.WriteConcern.Enabled = false;
+            var client = new MongoClient(clientSettings); // WriteConcern disabled
             _server = client.GetServer();
             _database = _server.GetDatabase(Configuration.TestDatabase.Name);
             _collection = _database.GetCollection<C>(Configuration.TestCollection.Name);

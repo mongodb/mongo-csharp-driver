@@ -580,7 +580,7 @@ namespace MongoDB.Driver
             serverSettings.WaitQueueSize = builder.ComputedWaitQueueSize;
             serverSettings.WaitQueueTimeout = builder.WaitQueueTimeout;
 #pragma warning disable 618
-            serverSettings.WriteConcern = builder.GetWriteConcern(!MongoDefaults.SafeMode.Enabled);
+            serverSettings.WriteConcern = builder.GetWriteConcern(MongoDefaults.SafeMode.Enabled);
 #pragma warning restore
             return serverSettings;
         }
@@ -612,7 +612,7 @@ namespace MongoDB.Driver
             serverSettings.WaitQueueSize = url.ComputedWaitQueueSize;
             serverSettings.WaitQueueTimeout = url.WaitQueueTimeout;
 #pragma warning disable 618
-            serverSettings.WriteConcern = url.GetWriteConcern(!MongoDefaults.SafeMode.Enabled);
+            serverSettings.WriteConcern = url.GetWriteConcern(MongoDefaults.SafeMode.Enabled);
 #pragma warning restore
             return serverSettings;
         }

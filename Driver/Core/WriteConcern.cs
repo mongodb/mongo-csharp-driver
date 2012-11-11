@@ -30,15 +30,15 @@ namespace MongoDB.Driver
     public class WriteConcern : IEquatable<WriteConcern>
     {
         // private static fields
-        private readonly static WriteConcern __errors = new WriteConcern { FireAndForget = false }.Freeze();
-        private readonly static WriteConcern __none = new WriteConcern { FireAndForget = true }.Freeze();
+        private readonly static WriteConcern __errors = new WriteConcern { Enabled = true }.Freeze();
+        private readonly static WriteConcern __none = new WriteConcern { Enabled = false }.Freeze();
         private readonly static WriteConcern __w2 = new WriteConcern { W = 2 }.Freeze();
         private readonly static WriteConcern __w3 = new WriteConcern { W = 3 }.Freeze();
         private readonly static WriteConcern __w4 = new WriteConcern { W = 4 }.Freeze();
         private readonly static WriteConcern __wmajority = new WriteConcern { W = "majority" }.Freeze();
 
         // private fields
-        private bool _fireAndForget;
+        private bool _enabled = true;
         private bool? _fsync;
         private bool? _journal;
         private WValue _w;
@@ -98,19 +98,19 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets whether WriteConcern is fire and forget.
+        /// Gets or sets whether WriteConcern is enabled.
         /// </summary>
-        public bool FireAndForget
+        public bool Enabled
         {
-            get { return _fireAndForget; }
+            get { return _enabled; }
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value && AnyWriteConcernSettingsAreSet())
+                if (!value && AnyWriteConcernSettingsAreSet())
                 {
-                    throw new InvalidOperationException("FireAndForget cannot be set to true if any other WriteConcern values have been set.");
+                    throw new InvalidOperationException("Enabled cannot be set to false if any other WriteConcern values have been set.");
                 }
-                _fireAndForget = value;
+                _enabled = value;
             }
         }
 
@@ -123,7 +123,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureFireAndForgetIsNotTrue("FSync"); }
+                if (value != null) { EnsureEnabledIsTrue("FSync"); }
                 _fsync = value;
             }
         }
@@ -145,7 +145,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureFireAndForgetIsNotTrue("Journal"); }
+                if (value != null) { EnsureEnabledIsTrue("Journal"); }
                 _journal = value;
             }
         }
@@ -159,8 +159,21 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureFireAndForgetIsNotTrue("W"); }
-                _w = value;
+                if (value is WCount && ((WCount)value).Value == 0)
+                {
+                    _w = null;
+                    Enabled = false;
+                }
+                else if (value is WCount && ((WCount)value).Value == 1)
+                {
+                    Enabled = true;
+                    _w = null;
+                }
+                else
+                {
+                    if (value != null) { EnsureEnabledIsTrue("W"); }
+                    _w = value;
+                }
             }
         }
 
@@ -173,7 +186,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { ThrowFrozenException(); }
-                if (value != null) { EnsureFireAndForgetIsNotTrue("WTimeout"); }
+                if (value != null) { EnsureEnabledIsTrue("WTimeout"); }
                 _wTimeout = value;
             }
         }
@@ -214,6 +227,40 @@ namespace MongoDB.Driver
             return lhs.Equals(rhs);
         }
 
+        // internal static methods
+        internal static WriteConcern Create(
+            bool enabledDefault,
+            bool? safe,
+            bool? fsync,
+            bool? journal,
+            WValue w,
+            TimeSpan? wTimeout)
+        {
+            var wIsMagicZero = false;
+            var wIsMagicOne = false;
+            if (safe == null)
+            {
+                wIsMagicZero = w is WCount && ((WCount)w).Value == 0;
+                wIsMagicOne = w is WCount && ((WCount)w).Value == 1;
+            }
+            var wIsMagic = wIsMagicZero || wIsMagicOne;
+
+            var enabled = enabledDefault;
+            if (safe != null) { enabled = safe.Value; }
+            else if (wIsMagicZero) { enabled = false; }
+            else if (wIsMagicOne) { enabled = true; }
+            else if (fsync != null || journal != null || w != null || wTimeout != null) { enabled = true; }
+
+            return new WriteConcern
+            {
+                Enabled = enabled,
+                FSync = fsync,
+                Journal = journal,
+                W = wIsMagic ? null : w,
+                WTimeout = wTimeout
+            };
+        }
+
         // public methods
         /// <summary>
         /// Creates a clone of the WriteConcern.
@@ -222,7 +269,7 @@ namespace MongoDB.Driver
         public WriteConcern Clone()
         {
             var clone = new WriteConcern();
-            clone._fireAndForget = _fireAndForget;
+            clone._enabled = _enabled;
             clone._fsync = _fsync;
             clone._journal = _journal;
             clone._w = _w;
@@ -250,7 +297,7 @@ namespace MongoDB.Driver
             if ((object)rhs == null || GetType() != rhs.GetType()) { return false; }
             if ((object)this == (object)rhs) { return true; }
             return
-                _fireAndForget == rhs._fireAndForget &&
+                _enabled == rhs._enabled &&
                 _fsync == rhs._fsync &&
                 _journal == rhs._journal &&
                 _w == rhs._w &&
@@ -300,7 +347,7 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _fireAndForget.GetHashCode();
+            hash = 37 * hash + _enabled.GetHashCode();
             hash = 37 * hash + _fsync.GetHashCode();
             hash = 37 * hash + _journal.GetHashCode();
             hash = 37 * hash + ((_w == null) ? 0 : _w.GetHashCode());
@@ -315,8 +362,8 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("fireAndForget={0}", XmlConvert.ToString(_fireAndForget));
-            if (!_fireAndForget)
+            sb.AppendFormat("enabled={0}", XmlConvert.ToString(_enabled));
+            if (_enabled)
             {
                 if (_fsync != null)
                 {
@@ -344,11 +391,11 @@ namespace MongoDB.Driver
             return _fsync != null || _journal != null || _w != null || _wTimeout != null;
         }
 
-        private void EnsureFireAndForgetIsNotTrue(string propertyName)
+        private void EnsureEnabledIsTrue(string propertyName)
         {
-            if (_fireAndForget)
+            if (!_enabled)
             {
-                var message = string.Format("{0} cannot be set when FireAndForget is true.", propertyName);
+                var message = string.Format("{0} cannot be set when Enabled is false.", propertyName);
                 throw new InvalidOperationException(message);
             }
         }
@@ -454,7 +501,10 @@ namespace MongoDB.Driver
             }
 
             // internal methods
-            internal abstract BsonValue ToBsonValue();
+            internal virtual BsonValue ToGetLastErrorWValue()
+            {
+                throw new NotImplementedException("Must be implemented by subclasses.");
+            }
         }
 
         /// <summary>
@@ -472,9 +522,9 @@ namespace MongoDB.Driver
             /// <param name="value">The value.</param>
             public WCount(int value)
             {
-                if (value <= 0)
+                if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", "W value must be greater than zero.");
+                    throw new ArgumentOutOfRangeException("value", "W value must be greater than or equal to zero.");
                 }
                 _value = value;
             }
@@ -519,7 +569,7 @@ namespace MongoDB.Driver
             }
 
             // internal methods
-            internal override BsonValue ToBsonValue()
+            internal override BsonValue ToGetLastErrorWValue()
             {
                 return new BsonInt32(_value);
             }
@@ -587,7 +637,7 @@ namespace MongoDB.Driver
             }
 
             // internal methods
-            internal override BsonValue ToBsonValue()
+            internal override BsonValue ToGetLastErrorWValue()
             {
                 return new BsonString(_value);
             }

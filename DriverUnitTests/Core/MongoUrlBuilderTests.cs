@@ -43,7 +43,6 @@ namespace MongoDB.DriverUnitTests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 DefaultCredentials = new MongoCredentials("username", "password"),
-                FireAndForget = false,
                 FSync = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
@@ -54,6 +53,7 @@ namespace MongoDB.DriverUnitTests
                 MinConnectionPoolSize = 5,
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
+                Safe = true,
                 SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
@@ -72,7 +72,7 @@ namespace MongoDB.DriverUnitTests
                 "connect=replicaSet",
                 "replicaSet=name",
                 "readPreference=secondary;readPreferenceTags=dc:1",
-                "fireAndForget=false",
+                "safe=true",
                 "fsync=true",
                 "journal=true",
                 "w=2",
@@ -96,7 +96,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
                 Assert.AreEqual(new MongoCredentials("username", "password"), builder.DefaultCredentials);
-                Assert.AreEqual(false, builder.FireAndForget);
                 Assert.AreEqual(true, builder.FSync);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
@@ -108,7 +107,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
 #pragma warning disable 618
-                Assert.AreEqual(null, builder.Safe);
+                Assert.AreEqual(true, builder.Safe);
                 Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, builder.SafeMode);
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
@@ -251,7 +250,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.AreEqual(null, builder.DatabaseName);
                 Assert.AreEqual(null, builder.DefaultCredentials);
-                Assert.AreEqual(null, builder.FireAndForget);
                 Assert.AreEqual(null, builder.FSync);
                 Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
                 Assert.AreEqual(false, builder.IPv6);
@@ -286,44 +284,6 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(null, "mongodb://localhost", new[] { "" })]
-        [TestCase(false, "mongodb://localhost/?fireAndForget={0}", new[] { "false", "False" })]
-        [TestCase(true, "mongodb://localhost/?fireAndForget={0}", new[] { "true", "True" })]
-        public void TestFireAndForget(bool? fireAndForget, string formatString, string[] values)
-        {
-            var built = new MongoUrlBuilder { Server = _localhost, FireAndForget = fireAndForget };
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
-            {
-                Assert.AreEqual(fireAndForget, builder.FireAndForget);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
-            }
-        }
-
-        [Test]
-        public void TestFireAndForget_AfterOtherSettings()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.W = 2;
-            builder.FireAndForget = null;
-            builder.FireAndForget = false;
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = true; });
-        }
-
-        [Test]
-        public void TestFireAndForget_AfterSafe()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.FireAndForget = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = true; });
-        }
-
-        [Test]
-        [TestCase(null, "mongodb://localhost", new[] { "" })]
         [TestCase(false, "mongodb://localhost/?fsync={0}", new[] { "false", "False" })]
         [TestCase(true, "mongodb://localhost/?fsync={0}", new[] { "true", "True" })]
         public void TestFSync(bool? fsync, string formatString, string[] values)
@@ -339,41 +299,25 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestFSync_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.FSync = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = true; });
-
-            builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.FSync = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = true; });
-        }
-
-        [Test]
         [TestCase(false, false, "mongodb://localhost")]
-        [TestCase(false, false, "mongodb://localhost/?fireAndForget=false")]
-        [TestCase(false, true, "mongodb://localhost/?fireAndForget=true")]
-        [TestCase(false, true, "mongodb://localhost/?safe=false")]
-        [TestCase(false, false, "mongodb://localhost/?safe=true")]
-        [TestCase(false, false, "mongodb://localhost/?w=2")]
+        [TestCase(false, false, "mongodb://localhost/?safe=false")]
+        [TestCase(false, true, "mongodb://localhost/?safe=true")]
+        [TestCase(false, false, "mongodb://localhost/?w=0")]
+        [TestCase(false, true, "mongodb://localhost/?w=1")]
+        [TestCase(false, true, "mongodb://localhost/?w=2")]
+        [TestCase(false, true, "mongodb://localhost/?w=mode")]
         [TestCase(true, true, "mongodb://localhost")]
-        [TestCase(true, false, "mongodb://localhost/?fireAndForget=false")]
-        [TestCase(true, true, "mongodb://localhost/?fireAndForget=true")]
-        [TestCase(true, true, "mongodb://localhost/?safe=false")]
-        [TestCase(true, false, "mongodb://localhost/?safe=true")]
-        [TestCase(true, false, "mongodb://localhost/?w=2")]
-        public void TestGetWriteConcern_FireAndForget(bool fireAndForgetDefault, bool fireAndForget, string connectionString)
+        [TestCase(true, false, "mongodb://localhost/?safe=false")]
+        [TestCase(true, true, "mongodb://localhost/?safe=true")]
+        [TestCase(true, false, "mongodb://localhost/?w=0")]
+        [TestCase(true, true, "mongodb://localhost/?w=1")]
+        [TestCase(true, true, "mongodb://localhost/?w=2")]
+        [TestCase(true, true, "mongodb://localhost/?w=mode")]
+        public void TestGetWriteConcern_Enabled(bool enabledDefault, bool enabled, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(fireAndForgetDefault);
-            Assert.AreEqual(fireAndForget, writeConcern.FireAndForget);
+            var writeConcern = builder.GetWriteConcern(enabledDefault);
+            Assert.AreEqual(enabled, writeConcern.Enabled);
         }
 
         [Test]
@@ -383,7 +327,7 @@ namespace MongoDB.DriverUnitTests
         public void TestGetWriteConcern_FSync(bool? fsync, string connectionString)
         {
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(true);
             Assert.AreEqual(fsync, writeConcern.FSync);
         }
 
@@ -403,14 +347,22 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(2, "mongodb://localhost/?w=2")]
-        [TestCase("mode", "mongodb://localhost/?w=mode")]
-        public void TestGetWriteConcern_W(object obj, string connectionString)
+        [TestCase(false, false, null, "mongodb://localhost")]
+        [TestCase(false, false, null, "mongodb://localhost/?w=0")]
+        [TestCase(false, true, null, "mongodb://localhost/?w=1")]
+        [TestCase(false, true, 2, "mongodb://localhost/?w=2")]
+        [TestCase(false, true, "mode", "mongodb://localhost/?w=mode")]
+        [TestCase(true, true, null, "mongodb://localhost")]
+        [TestCase(true, false, null, "mongodb://localhost/?w=0")]
+        [TestCase(true, true, null, "mongodb://localhost/?w=1")]
+        [TestCase(true, true, 2, "mongodb://localhost/?w=2")]
+        [TestCase(true, true, "mode", "mongodb://localhost/?w=mode")]
+        public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)
         {
-            var w = (obj is int) ? (WriteConcern.WValue)(int)obj : (WriteConcern.WValue)(string)obj;
+            var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(enabledDefault);
+            Assert.AreEqual(enabled, writeConcern.Enabled);
             Assert.AreEqual(w, writeConcern.W);
         }
 
@@ -421,7 +373,7 @@ namespace MongoDB.DriverUnitTests
         {
             var wtimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var builder = new MongoUrlBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(true);
             Assert.AreEqual(wtimeout, writeConcern.WTimeout);
         }
 
@@ -476,24 +428,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(journal, builder.Journal);
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
-        }
-
-        [Test]
-        public void TestJournal_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.Journal = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = true; });
-
-            builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.Journal = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = true; });
         }
 
         [Test]
@@ -726,18 +660,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestSafe_AfterFireAndForget()
-        {
-#pragma warning disable 618
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.Safe = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Safe = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Safe = true; });
-#pragma warning restore
-        }
-
-        [Test]
         public void TestSafe_AfterOtherSettings()
         {
 #pragma warning disable 618
@@ -855,21 +777,20 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "mongodb://localhost/?safe=true")]
-        [TestCase(2, "mongodb://localhost/?w=2")]
-        [TestCase(2, "mongodb://localhost/?safe=true;w=2")]
-        public void TestSafeMode_W(int? w, string connectionString)
+        [TestCase(true, false, 0, 0, "mongodb://localhost/?w=0")]
+        [TestCase(false, true, 1, 0, "mongodb://localhost/?w=1")]
+        [TestCase(false, true, 2, 2, "mongodb://localhost/?w=2")]
+        public void TestSafeMode_W(bool enabledIn, bool enabledOut, int wIn, int wOut, string connectionString)
         {
 #pragma warning disable 618
-            var safeMode = new SafeMode(true);
-            if (w != null) { safeMode.W = w.Value; }
+            var safeMode = new SafeMode(enabledIn) { W = wIn };
             var built = new MongoUrlBuilder { Server = _localhost, SafeMode = safeMode };
 
             var isParsedBuilder = false;
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(true, builder.SafeMode.Enabled);
-                Assert.AreEqual(w ?? 0, builder.SafeMode.W);
+                Assert.AreEqual(enabledOut, builder.SafeMode.Enabled);
+                Assert.AreEqual(wOut, builder.SafeMode.W);
                 if (connectionString.Contains("safe=") || isParsedBuilder)
                 {
                     Assert.AreEqual(connectionString, builder.ToString());
@@ -1133,18 +1054,27 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "mongodb://localhost")]
-        [TestCase(1, "mongodb://localhost/?w=1")]
-        [TestCase(2, "mongodb://localhost/?w=2")]
-        [TestCase("mode", "mongodb://localhost/?w=mode")]
-        public void TestW(object wobj, string connectionString)
+        [TestCase(false, false, null, null, "mongodb://localhost")]
+        [TestCase(false, false, 0, null, "mongodb://localhost/?w=0")]
+        [TestCase(false, true, 1, null, "mongodb://localhost/?w=1")]
+        [TestCase(false, true, 2, 2, "mongodb://localhost/?w=2")]
+        [TestCase(false, true, "mode", "mode", "mongodb://localhost/?w=mode")]
+        [TestCase(true, true, null, null, "mongodb://localhost")]
+        [TestCase(true, false, 0, null, "mongodb://localhost/?w=0")]
+        [TestCase(true, true, 1, null, "mongodb://localhost/?w=1")]
+        [TestCase(true, true, 2, 2, "mongodb://localhost/?w=2")]
+        [TestCase(true, true, "mode", "mode", "mongodb://localhost/?w=mode")]
+        public void TestW(bool enabledDefault, bool enabled, object wobjIn, object wobjOut, string connectionString)
         {
-            var w = (wobj is int) ? (WriteConcern.WValue)(int)wobj : (WriteConcern.WValue)(string)wobj;
-            var built = new MongoUrlBuilder { Server = _localhost, W = w };
+            var wIn = (wobjIn == null) ? null : (wobjIn is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjIn) : new WriteConcern.WMode((string)wobjIn);
+            var wOut = (wobjOut == null) ? null : (wobjOut is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjOut) : new WriteConcern.WMode((string)wobjOut);
+            var built = new MongoUrlBuilder { Server = _localhost, W = wIn };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(w, builder.W);
+                var writeConcern = builder.GetWriteConcern(enabledDefault);
+                Assert.AreEqual(enabled, writeConcern.Enabled);
+                Assert.AreEqual(wOut, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -1155,27 +1085,10 @@ namespace MongoDB.DriverUnitTests
             var builder = new MongoUrlBuilder { Server = _localhost };
             builder.W = null;
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.W = -1; });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.W = 0; });
-            builder.W = 1;
-            builder.W = "mode";
-        }
-
-        [Test]
-        public void TestW_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.W = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.W = 2; });
-            Assert.Throws<InvalidOperationException>(() => { builder.W = "mode"; });
-
-            builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.W = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.W = 2; });
-            Assert.Throws<InvalidOperationException>(() => { builder.W = "mode"; });
+            builder.W = 0; // magic zero
+            builder.W = 1; // magic one
+            builder.W = 2; // regular w value
+            builder.W = "mode"; // a mode name
         }
 
         [Test]
@@ -1286,22 +1199,6 @@ namespace MongoDB.DriverUnitTests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WTimeout = TimeSpan.FromSeconds(-1); });
             builder.WTimeout = TimeSpan.Zero;
             builder.WTimeout = TimeSpan.FromSeconds(1);
-        }
-
-        [Test]
-        public void TestWTimeout_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.WTimeout = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.WTimeout = TimeSpan.Zero; });
-
-            builder = new MongoUrlBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.WTimeout = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.WTimeout = TimeSpan.Zero; });
         }
 
         // private methods

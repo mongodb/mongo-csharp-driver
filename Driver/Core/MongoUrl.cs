@@ -63,7 +63,6 @@ namespace MongoDB.Driver
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
         private readonly MongoCredentials _defaultCredentials;
-        private readonly bool? _fireAndForget;
         private readonly bool? _fsync;
         private readonly GuidRepresentation _guidRepresentation;
         private readonly bool _ipv6;
@@ -100,7 +99,6 @@ namespace MongoDB.Driver
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _defaultCredentials = builder.DefaultCredentials;
-            _fireAndForget = builder.FireAndForget;
             _fsync = builder.FSync;
             _guidRepresentation = builder.GuidRepresentation;
             _ipv6 = builder.IPv6;
@@ -179,14 +177,6 @@ namespace MongoDB.Driver
         public MongoCredentials DefaultCredentials
         {
             get { return _defaultCredentials; }
-        }
-
-        /// <summary>
-        /// Gets the fireAndForget value.
-        /// </summary>
-        public bool? FireAndForget
-        {
-            get { return _fireAndForget; }
         }
 
         /// <summary>
@@ -272,6 +262,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the safe value.
         /// </summary>
+        [Obsolete("Use W=0 or W=1 instead.")]
         public bool? Safe
         {
             get { return _safe; }
@@ -280,12 +271,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the SafeMode to use.
         /// </summary>
-        [Obsolete("Use FireAndForget, FSync, Journal, W and WTimeout instead.")]
+        [Obsolete("Use FSync, Journal, W and WTimeout instead.")]
         public SafeMode SafeMode
         {
             get
             {
-                if (_fireAndForget != null || _safe != null || AnyWriteConcernSettingsAreSet())
+                if (_safe != null || AnyWriteConcernSettingsAreSet())
                 {
 #pragma warning disable 618
                     return new SafeMode(GetWriteConcern(false));
@@ -503,23 +494,13 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a WriteConcern value based on this instance's settings and a fire and forget default.
+        /// Returns a WriteConcern value based on this instance's settings and a default enabled value.
         /// </summary>
-        /// <param name="fireAndForgetDefault">The fire and forget default.</param>
+        /// <param name="enabledDefault">The default enabled value.</param>
         /// <returns>A WriteConcern.</returns>
-        public WriteConcern GetWriteConcern(bool fireAndForgetDefault)
+        public WriteConcern GetWriteConcern(bool enabledDefault)
         {
-            var fireAndForget = fireAndForgetDefault;
-            if (_fireAndForget != null) { fireAndForget = _fireAndForget.Value; }
-            else if (_safe != null) { fireAndForget = !_safe.Value; }
-            else if (AnyWriteConcernSettingsAreSet()) { fireAndForget = false; }
-
-            var writeConcern = new WriteConcern { FireAndForget = fireAndForget };
-            if (_fsync != null) { writeConcern.FSync = _fsync.Value; }
-            if (_journal != null) { writeConcern.Journal = _journal.Value; }
-            if (_w != null) { writeConcern.W = _w; }
-            if (_wTimeout != null) { writeConcern.WTimeout = _wTimeout.Value; }
-            return writeConcern;
+            return WriteConcern.Create(enabledDefault, _safe, _fsync, _journal, _w, _wTimeout);
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ using System.Text;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the results of an operation performed with a WriteConcern other than FireAndForget.
+    /// Represents the results of an operation performed with WriteConcern enabled.
     /// </summary>
     [Serializable]
     [Obsolete("Use WriteConcernResult instead.")]

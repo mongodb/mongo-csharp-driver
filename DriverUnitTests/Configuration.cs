@@ -43,10 +43,7 @@ namespace MongoDB.DriverUnitTests
 
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            if (clientSettings.WriteConcern.FireAndForget)
-            {
-                clientSettings.WriteConcern.FireAndForget = false;
-            }
+            clientSettings.WriteConcern.Enabled = true; // ensure WriteConcern is enabled regardless of what the URL says
 
             __testClient = new MongoClient(clientSettings);
             __testServer = __testClient.GetServer();

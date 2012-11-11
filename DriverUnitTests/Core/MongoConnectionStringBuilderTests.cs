@@ -42,7 +42,6 @@ namespace MongoDB.DriverUnitTests
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
-                FireAndForget = false,
                 FSync = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
@@ -54,6 +53,7 @@ namespace MongoDB.DriverUnitTests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
+                Safe = true,
                 SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
@@ -70,7 +70,6 @@ namespace MongoDB.DriverUnitTests
                 "connect=replicaSet",
                 "connectTimeout=1s",
                 "database=database",
-                "fireAndForget=false",
                 "fsync=true",
                 "uuidRepresentation=pythonLegacy",
                 "ipv6=true",
@@ -82,6 +81,7 @@ namespace MongoDB.DriverUnitTests
                 "password=password",
                 "readPreference=secondary;readPreferenceTags=dc:1",
                 "replicaSet=name",
+                "safe=true",
                 "secondaryAcceptableLatency=6s",
                 "server=host",
                 "socketTimeout=7s",
@@ -100,7 +100,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
-                Assert.AreEqual(false, builder.FireAndForget);
                 Assert.AreEqual(true, builder.FSync);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
@@ -113,7 +112,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
 #pragma warning disable 618
-                Assert.AreEqual(null, builder.Safe);
+                Assert.AreEqual(true, builder.Safe);
                 Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, builder.SafeMode);
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
@@ -240,7 +239,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
                 Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.AreEqual(null, builder.DatabaseName);
-                Assert.AreEqual(null, builder.FireAndForget);
                 Assert.AreEqual(null, builder.FSync);
                 Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
                 Assert.AreEqual(false, builder.IPv6);
@@ -277,44 +275,6 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(null, "server=localhost", new[] { "" })]
-        [TestCase(false, "server=localhost;fireAndForget={0}", new[] { "false", "False" })]
-        [TestCase(true, "server=localhost;fireAndForget={0}", new[] { "true", "True" })]
-        public void TestFireAndForget(bool? fireAndForget, string formatString, string[] values)
-        {
-            var built = new MongoConnectionStringBuilder { Server = _localhost, FireAndForget = fireAndForget };
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
-            {
-                Assert.AreEqual(fireAndForget, builder.FireAndForget);
-                Assert.AreEqual(canonicalConnectionString, builder.ToString());
-            }
-        }
-
-        [Test]
-        public void TestFireAndForget_AfterOtherSettings()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.W = 2;
-            builder.FireAndForget = null;
-            builder.FireAndForget = false;
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = true; });
-        }
-
-        [Test]
-        public void TestFireAndForget_AfterSafe()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.FireAndForget = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FireAndForget = true; });
-        }
-
-        [Test]
-        [TestCase(null, "server=localhost", new[] { "" })]
         [TestCase(false, "server=localhost;fsync={0}", new[] { "false", "False" })]
         [TestCase(true, "server=localhost;fsync={0}", new[] { "true", "True" })]
         public void TestFSync(bool? fsync, string formatString, string[] values)
@@ -330,41 +290,25 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestFSync_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.FSync = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = true; });
-
-            builder = new MongoConnectionStringBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.FSync = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.FSync = true; });
-        }
-
-        [Test]
         [TestCase(false, false, "server=localhost")]
-        [TestCase(false, false, "server=localhost;fireAndForget=false")]
-        [TestCase(false, true, "server=localhost;fireAndForget=true")]
-        [TestCase(false, true, "server=localhost;safe=false")]
-        [TestCase(false, false, "server=localhost;safe=true")]
-        [TestCase(false, false, "server=localhost;w=2")]
+        [TestCase(false, false, "server=localhost;safe=false")]
+        [TestCase(false, true, "server=localhost;safe=true")]
+        [TestCase(false, false, "server=localhost;w=0")]
+        [TestCase(false, true, "server=localhost;w=1")]
+        [TestCase(false, true, "server=localhost;w=2")]
+        [TestCase(false, true, "server=localhost;w=mode")]
         [TestCase(true, true, "server=localhost")]
-        [TestCase(true, false, "server=localhost;fireAndForget=false")]
-        [TestCase(true, true, "server=localhost;fireAndForget=true")]
-        [TestCase(true, true, "server=localhost;safe=false")]
-        [TestCase(true, false, "server=localhost;safe=true")]
-        [TestCase(true, false, "server=localhost;w=2")]
-        public void TestGetWriteConcern_FireAndForget(bool fireAndForgetDefault, bool fireAndForget, string connectionString)
+        [TestCase(true, false, "server=localhost;safe=false")]
+        [TestCase(true, true, "server=localhost;safe=true")]
+        [TestCase(true, false, "server=localhost;w=0")]
+        [TestCase(true, true, "server=localhost;w=1")]
+        [TestCase(true, true, "server=localhost;w=2")]
+        [TestCase(true, true, "server=localhost;w=mode")]
+        public void TestGetWriteConcern_Enabled(bool enabledDefault, bool enabled, string connectionString)
         {
             var builder = new MongoConnectionStringBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(fireAndForgetDefault);
-            Assert.AreEqual(fireAndForget, writeConcern.FireAndForget);
+            var writeConcern = builder.GetWriteConcern(enabledDefault);
+            Assert.AreEqual(enabled, writeConcern.Enabled);
         }
 
         [Test]
@@ -374,7 +318,7 @@ namespace MongoDB.DriverUnitTests
         public void TestGetWriteConcern_FSync(bool? fsync, string connectionString)
         {
             var builder = new MongoConnectionStringBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(true);
             Assert.AreEqual(fsync, writeConcern.FSync);
         }
 
@@ -394,14 +338,22 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "server=localhost")]
-        [TestCase(2, "server=localhost;w=2")]
-        [TestCase("mode", "server=localhost;w=mode")]
-        public void TestGetWriteConcern_W(object obj, string connectionString)
+        [TestCase(false, false, null, "server=localhost")]
+        [TestCase(false, false, null, "server=localhost;w=0")]
+        [TestCase(false, true, null, "server=localhost;w=1")]
+        [TestCase(false, true, 2, "server=localhost;w=2")]
+        [TestCase(false, true, "mode", "server=localhost;w=mode")]
+        [TestCase(true, true, null, "server=localhost")]
+        [TestCase(true, false, null, "server=localhost;w=0")]
+        [TestCase(true, true, null, "server=localhost;w=1")]
+        [TestCase(true, true, 2, "server=localhost;w=2")]
+        [TestCase(true, true, "mode", "server=localhost;w=mode")]
+        public void TestGetWriteConcern_W(bool enabledDefault, bool enabled, object wobj, string connectionString)
         {
-            var w = (obj is int) ? (WriteConcern.WValue)(int)obj : (WriteConcern.WValue)(string)obj;
+            var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
             var builder = new MongoConnectionStringBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(enabledDefault);
+            Assert.AreEqual(enabled, writeConcern.Enabled);
             Assert.AreEqual(w, writeConcern.W);
         }
 
@@ -412,7 +364,7 @@ namespace MongoDB.DriverUnitTests
         {
             var wtimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var builder = new MongoConnectionStringBuilder(connectionString);
-            var writeConcern = builder.GetWriteConcern(false);
+            var writeConcern = builder.GetWriteConcern(true);
             Assert.AreEqual(wtimeout, writeConcern.WTimeout);
         }
 
@@ -494,24 +446,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(journal, builder.Journal);
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
-        }
-
-        [Test]
-        public void TestJournal_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.Journal = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = true; });
-
-            builder = new MongoConnectionStringBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.Journal = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Journal = true; });
         }
 
         [Test]
@@ -759,18 +693,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestSafe_AfterFireAndForget()
-        {
-#pragma warning disable 618
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.Safe = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.Safe = false; });
-            Assert.Throws<InvalidOperationException>(() => { builder.Safe = true; });
-#pragma warning restore
-        }
-
-        [Test]
         public void TestSafe_AfterOtherSettings()
         {
 #pragma warning disable 618
@@ -888,21 +810,20 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "server=localhost;safe=true")]
-        [TestCase(2, "server=localhost;w=2")]
-        [TestCase(2, "server=localhost;safe=true;w=2")]
-        public void TestSafeMode_W(int? w, string connectionString)
+        [TestCase(true, false, 0, 0, "server=localhost;w=0")]
+        [TestCase(false, true, 1, 0, "server=localhost;w=1")]
+        [TestCase(false, true, 2, 2, "server=localhost;w=2")]
+        public void TestSafeMode_W(bool enabledIn, bool enabledOut, int wIn, int wOut, string connectionString)
         {
 #pragma warning disable 618
-            var safeMode = new SafeMode(true);
-            if (w != null) { safeMode.W = w.Value; }
+            var safeMode = new SafeMode(enabledIn) { W = wIn };
             var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
             var isParsedBuilder = false;
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(true, builder.SafeMode.Enabled);
-                Assert.AreEqual(w ?? 0, builder.SafeMode.W);
+                Assert.AreEqual(enabledOut, builder.SafeMode.Enabled);
+                Assert.AreEqual(wOut, builder.SafeMode.W);
                 if (connectionString.Contains("safe=") || isParsedBuilder)
                 {
                     Assert.AreEqual(connectionString, builder.ToString());
@@ -1183,18 +1104,27 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, "server=localhost")]
-        [TestCase(1, "server=localhost;w=1")]
-        [TestCase(2, "server=localhost;w=2")]
-        [TestCase("mode", "server=localhost;w=mode")]
-        public void TestW(object wobj, string connectionString)
+        [TestCase(false, false, null, null, "server=localhost")]
+        [TestCase(false, false, 0, null, "server=localhost;w=0")]
+        [TestCase(false, true, 1, null, "server=localhost;w=1")]
+        [TestCase(false, true, 2, 2, "server=localhost;w=2")]
+        [TestCase(false, true, "mode", "mode", "server=localhost;w=mode")]
+        [TestCase(true, true, null, null, "server=localhost")]
+        [TestCase(true, false, 0, null, "server=localhost;w=0")]
+        [TestCase(true, true, 1, null, "server=localhost;w=1")]
+        [TestCase(true, true, 2, 2, "server=localhost;w=2")]
+        [TestCase(true, true, "mode", "mode", "server=localhost;w=mode")]
+        public void TestW(bool enabledDefault, bool enabled, object wobjIn, object wobjOut, string connectionString)
         {
-            var w = (wobj is int) ? (WriteConcern.WValue)(int)wobj : (WriteConcern.WValue)(string)wobj;
-            var built = new MongoConnectionStringBuilder { Server = _localhost, W = w };
+            var wIn = (wobjIn == null) ? null : (wobjIn is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjIn) : new WriteConcern.WMode((string)wobjIn);
+            var wOut = (wobjOut == null) ? null : (wobjOut is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjOut) : new WriteConcern.WMode((string)wobjOut);
+            var built = new MongoConnectionStringBuilder { Server = _localhost, W = wIn };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(w, builder.W);
+                var writeConcern = builder.GetWriteConcern(enabledDefault);
+                Assert.AreEqual(enabled, writeConcern.Enabled);
+                Assert.AreEqual(wOut, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -1205,27 +1135,10 @@ namespace MongoDB.DriverUnitTests
             var builder = new MongoConnectionStringBuilder { Server = _localhost };
             builder.W = null;
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.W = -1; });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.W = 0; });
-            builder.W = 1;
-            builder.W = "mode";
-        }
-
-        [Test]
-        public void TestW_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.W = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.W = 2; });
-            Assert.Throws<InvalidOperationException>(() => { builder.W = "mode"; });
-
-            builder = new MongoConnectionStringBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.W = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.W = 2; });
-            Assert.Throws<InvalidOperationException>(() => { builder.W = "mode"; });
+            builder.W = 0; // magic zero
+            builder.W = 1; // magic one
+            builder.W = 2; // regular w value
+            builder.W = "mode"; // a mode name
         }
 
         [Test]
@@ -1336,22 +1249,6 @@ namespace MongoDB.DriverUnitTests
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WTimeout = TimeSpan.FromSeconds(-1); });
             builder.WTimeout = TimeSpan.Zero;
             builder.WTimeout = TimeSpan.FromSeconds(1);
-        }
-
-        [Test]
-        public void TestWTimeout_WhenFireAndForgetIsTrue()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.FireAndForget = true;
-            builder.WTimeout = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.WTimeout = TimeSpan.Zero; });
-
-            builder = new MongoConnectionStringBuilder { Server = _localhost };
-#pragma warning disable 618
-            builder.Safe = false;
-#pragma warning restore
-            builder.WTimeout = null;
-            Assert.Throws<InvalidOperationException>(() => { builder.WTimeout = TimeSpan.Zero; });
         }
 
         // private methods

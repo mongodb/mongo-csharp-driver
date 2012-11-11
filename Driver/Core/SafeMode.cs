@@ -92,7 +92,7 @@ namespace MongoDB.Driver
                 throw new ArgumentException("wtimeout cannot be non-zero when w is zero.");
             }
 
-            _writeConcern = new WriteConcern { FireAndForget = !enabled };
+            _writeConcern = new WriteConcern { Enabled = enabled };
             if (fsync) { _writeConcern.FSync = fsync; }
             if (w != 0) { _writeConcern.W = w; }
             if (wtimeout != TimeSpan.Zero) { _writeConcern.WTimeout = wtimeout; }
@@ -122,9 +122,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="other">Another SafeMode to initialize this one from.</param>
         public SafeMode(SafeMode other)
-            : this(false)
+            : this((other == null) ? new WriteConcern() : other.WriteConcern.Clone())
         {
-            _writeConcern = (other == null) ? new WriteConcern() : other.WriteConcern.Clone();
         }
 
         internal SafeMode(WriteConcern writeConcern)
@@ -198,13 +197,13 @@ namespace MongoDB.Driver
         /// </summary>
         public bool Enabled
         {
-            get { return !_writeConcern.FireAndForget; }
+            get { return _writeConcern.Enabled; }
             set
             {
                 if (IsFrozen) { ThrowFrozenException(); }
                 if (value)
                 {
-                    _writeConcern.FireAndForget = false;
+                    _writeConcern.Enabled = true;
                 }
                 else
                 {
@@ -221,7 +220,7 @@ namespace MongoDB.Driver
             get { return _writeConcern.FSync ?? false; }
             set {
                 if (IsFrozen) { ThrowFrozenException(); }
-                _writeConcern.FireAndForget = false;
+                _writeConcern.Enabled = true;
                 _writeConcern.FSync = value;
             }
         }
@@ -252,7 +251,7 @@ namespace MongoDB.Driver
             get { return _writeConcern.Journal ?? false; }
             set {
                 if (IsFrozen) { ThrowFrozenException(); }
-                _writeConcern.FireAndForget = false;
+                _writeConcern.Enabled = true;
                 _writeConcern.Journal = value;
             }
         }
@@ -269,8 +268,20 @@ namespace MongoDB.Driver
             }
             set {
                 if (IsFrozen) { ThrowFrozenException(); }
-                _writeConcern.FireAndForget = false;
-                _writeConcern.W = value;
+                if (value == 0)
+                {
+                    ResetValues();
+                }
+                else if (value == 1)
+                {
+                    _writeConcern.Enabled = true;
+                    _writeConcern.W = null;
+                }
+                else
+                {
+                    _writeConcern.Enabled = true;
+                    _writeConcern.W = value;
+                }
             }
         }
 
@@ -287,7 +298,7 @@ namespace MongoDB.Driver
             set
             {
                 if (IsFrozen) { ThrowFrozenException(); }
-                _writeConcern.FireAndForget = false;
+                _writeConcern.Enabled = true;
                 _writeConcern.W = value;
             }
         }
@@ -300,7 +311,7 @@ namespace MongoDB.Driver
             get { return _writeConcern.WTimeout ?? TimeSpan.Zero; }
             set {
                 if (IsFrozen) { ThrowFrozenException(); }
-                _writeConcern.FireAndForget = false;
+                _writeConcern.Enabled = true;
                 _writeConcern.WTimeout = value;
             }
         }
@@ -557,7 +568,7 @@ namespace MongoDB.Driver
         // private methods
         private void ResetValues()
         {
-            _writeConcern.FireAndForget = true; // defaults to true because this is the obsolete SafeMode class
+            _writeConcern.Enabled = false; // defaults to false because this is the obsolete SafeMode class
             _writeConcern.FSync = null;
             _writeConcern.Journal = null;
             _writeConcern.W = null;

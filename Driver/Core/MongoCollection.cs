@@ -1132,7 +1132,7 @@ namespace MongoDB.Driver
             {
                 var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
 
-                List<WriteConcernResult> results = (writeConcern.FireAndForget) ? null : new List<WriteConcernResult>();
+                List<WriteConcernResult> results = (writeConcern.Enabled) ? new List<WriteConcernResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
                 using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags))
@@ -1171,13 +1171,13 @@ namespace MongoDB.Driver
                         {
                             byte[] lastDocument = message.RemoveLastDocument();
                             var intermediateResult = connection.SendMessage(message, writeConcern, _database.Name);
-                            if (!writeConcern.FireAndForget) { results.Add(intermediateResult); }
+                            if (writeConcern.Enabled) { results.Add(intermediateResult); }
                             message.ResetBatch(lastDocument);
                         }
                     }
 
                     var finalResult = connection.SendMessage(message, writeConcern, _database.Name);
-                    if (!writeConcern.FireAndForget) { results.Add(finalResult); }
+                    if (writeConcern.Enabled) { results.Add(finalResult); }
 
                     return results;
                 }
