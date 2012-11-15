@@ -36,7 +36,7 @@ namespace MongoDB.Driver.GridFS
         private string _root = "fs";
         private bool _updateMD5 = true;
         private bool _verifyMD5 = true;
-        private WriteConcern _writeConcern = WriteConcern.Errors;
+        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
         private bool _isFrozen;
         private int _frozenHashCode;
 

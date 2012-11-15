@@ -131,7 +131,7 @@ namespace MongoDB.DriverUnitTests
             var d = new SafeMode(false) { Journal = true };
             var e = new SafeMode(false) { W = 2 };
             var f = new SafeMode(false) { WMode = "mode" };
-            var g = new SafeMode(false) { WTimeout = TimeSpan.FromMinutes(1) };
+            var g = new SafeMode(false) { W = 2, WTimeout = TimeSpan.FromMinutes(1) };
             var null1 = (SafeMode)null;
             var null2 = (SafeMode)null;
 

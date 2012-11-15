@@ -39,11 +39,14 @@ namespace MongoDB.DriverUnitTests
         // static constructor
         static Configuration()
         {
-            var connectionString = "mongodb://localhost/?safe=true"; // TODO: make this configurable
+            var connectionString = "mongodb://localhost/?w=1"; // TODO: make this configurable
 
             var mongoUrl = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            clientSettings.WriteConcern.W = 1; // ensure WriteConcern is enabled regardless of what the URL says
+            if (!clientSettings.WriteConcern.Enabled)
+            {
+                clientSettings.WriteConcern.W = 1; // ensure WriteConcern is enabled regardless of what the URL says
+            }
 
             __testClient = new MongoClient(clientSettings);
             __testServer = __testClient.GetServer();

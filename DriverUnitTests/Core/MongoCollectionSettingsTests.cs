@@ -47,7 +47,7 @@ namespace MongoDB.DriverUnitTests
                 AssignIdOnInsert = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 ReadPreference = ReadPreference.Primary,
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual("collection", settings.CollectionName);
@@ -55,7 +55,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(true, settings.AssignIdOnInsert);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreSame(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace MongoDB.DriverUnitTests
         public void TestWriteConcern()
         {
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
 
             var writeConcern = WriteConcern.W2;
             settings.WriteConcern = writeConcern;

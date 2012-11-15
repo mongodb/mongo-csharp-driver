@@ -43,7 +43,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             var settings = new MongoGridFSSettings(_database)
             {
                 ChunkSize = 16,
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
             _gridFS = _database.GetGridFS(settings);
         }

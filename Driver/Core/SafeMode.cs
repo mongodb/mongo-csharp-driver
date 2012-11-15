@@ -28,9 +28,9 @@ namespace MongoDB.Driver
     public class SafeMode : IEquatable<SafeMode>
     {
         // private static fields
-        private static SafeMode __false = new SafeMode(WriteConcern.None);
+        private static SafeMode __false = new SafeMode(WriteConcern.Unacknowledged);
         private static SafeMode __fsyncTrue = new SafeMode(new WriteConcern { FSync = true }.Freeze());
-        private static SafeMode __true = new SafeMode(WriteConcern.Errors);
+        private static SafeMode __true = new SafeMode(WriteConcern.Acknowledged);
         private static SafeMode __w2 = new SafeMode(WriteConcern.W2);
         private static SafeMode __w3 = new SafeMode(WriteConcern.W3);
         private static SafeMode __w4 = new SafeMode(WriteConcern.W4);
@@ -92,9 +92,9 @@ namespace MongoDB.Driver
                 throw new ArgumentException("wtimeout cannot be non-zero when w is zero.");
             }
 
-            _writeConcern = new WriteConcern(false);
+            _writeConcern = new WriteConcern(enabled);
             if (fsync) { _writeConcern.FSync = fsync; }
-            _writeConcern.W = w != 0 ? w : enabled ? 1 : 0;
+            if (w != 0) { _writeConcern.W = w; }
             if (wtimeout != TimeSpan.Zero) { _writeConcern.WTimeout = wtimeout; }
         }
 
@@ -201,9 +201,12 @@ namespace MongoDB.Driver
             set
             {
                 if (IsFrozen) { ThrowFrozenException(); }
-                if (value && !_writeConcern.Enabled)
+                if (value)
                 {
-                    _writeConcern.W = 1;
+                    if (!_writeConcern.Enabled)
+                    {
+                        _writeConcern.W = 1;
+                    }
                 }
                 else
                 {
@@ -555,6 +558,7 @@ namespace MongoDB.Driver
             }
             return sb.ToString();
         }
+
         // private methods
         private void ResetValues()
         {

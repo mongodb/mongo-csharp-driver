@@ -35,13 +35,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestOneIPv6Address()
         {
-            var connectionString = "mongodb://[::1:]/?safe=true";
+            var connectionString = "mongodb://[::1:]/?w=1";
             var url = new MongoUrl(connectionString);
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(27017, url.Server.Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "server=[::1:];safe=true";
+            connectionString = "server=[::1:];w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             Assert.AreEqual("[::1:]", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
@@ -51,7 +51,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestOneIPv6AddressWithDefaultCredentials()
         {
-            var connectionString = "mongodb://username:password@[::1:]/?safe=true";
+            var connectionString = "mongodb://username:password@[::1:]/?w=1";
             var url = new MongoUrl(connectionString);
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(27017, url.Server.Port);
@@ -59,7 +59,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "server=[::1:];username=username;password=password;safe=true";
+            connectionString = "server=[::1:];username=username;password=password;w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             Assert.AreEqual("[::1:]", builder.Server.Host);
             Assert.AreEqual(27017, builder.Server.Port);
@@ -71,13 +71,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestOneIPv6AddressWithPort()
         {
-            var connectionString = "mongodb://[::1:]:1234/?safe=true";
+            var connectionString = "mongodb://[::1:]:1234/?w=1";
             var url = new MongoUrl(connectionString);
             Assert.AreEqual("[::1:]", url.Server.Host);
             Assert.AreEqual(1234, url.Server.Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "server=[::1:]:1234;safe=true";
+            connectionString = "server=[::1:]:1234;w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             Assert.AreEqual("[::1:]", builder.Server.Host);
             Assert.AreEqual(1234, builder.Server.Port);
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestTwoIPv6Addresses()
         {
-            var connectionString = "mongodb://[::1:],[::2:]/?safe=true";
+            var connectionString = "mongodb://[::1:],[::2:]/?w=1";
             var url = new MongoUrl(connectionString);
             var servers = url.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);
@@ -97,7 +97,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "servers=[::1:],[::2:];safe=true";
+            connectionString = "servers=[::1:],[::2:];w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             servers = builder.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);
@@ -112,7 +112,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestTwoIPv6AddressesWithDefaultCredentials()
         {
-            var connectionString = "mongodb://username:password@[::1:],[::2:]/?safe=true";
+            var connectionString = "mongodb://username:password@[::1:],[::2:]/?w=1";
             var url = new MongoUrl(connectionString);
             var servers = url.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);
@@ -124,7 +124,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual("password", url.DefaultCredentials.Password);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "servers=[::1:],[::2:];username=username;password=password;safe=true";
+            connectionString = "servers=[::1:],[::2:];username=username;password=password;w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             servers = builder.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);
@@ -140,7 +140,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         [Test]
         public void TestTwoIPv6AddressesWithPorts()
         {
-            var connectionString = "mongodb://[::1:]:1234,[::2:]:2345/?safe=true";
+            var connectionString = "mongodb://[::1:]:1234,[::2:]:2345/?w=1";
             var url = new MongoUrl(connectionString);
             var servers = url.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);
@@ -150,7 +150,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual(2345, servers[1].Port);
             Assert.AreEqual(true, url.SafeMode.Enabled);
 
-            connectionString = "servers=[::1:]:1234,[::2:]:2345;safe=true";
+            connectionString = "servers=[::1:]:1234,[::2:]:2345;w=1";
             var builder = new MongoConnectionStringBuilder(connectionString);
             servers = builder.Servers.ToArray();
             Assert.AreEqual(2, servers.Length);

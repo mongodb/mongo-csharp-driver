@@ -47,7 +47,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
         public void TestFixtureSetup()
         {
             var clientSettings = Configuration.TestClient.Settings.Clone();
-            clientSettings.WriteConcern.W = 1;
+            clientSettings.WriteConcern = WriteConcern.Unacknowledged;
             var client = new MongoClient(clientSettings); // WriteConcern disabled
             _server = client.GetServer();
             _database = _server.GetDatabase(Configuration.TestDatabase.Name);
@@ -69,7 +69,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp130
                 Assert.IsNull(lastError.LastErrorMessage);
                 Assert.IsFalse(lastError.UpdatedExisting);
 
-                // insert it again (expect duplicate key error)
+                // insert it again (expect duplicate key error, but no exception because WriteConcern = WriteConcern.Unacknowledged)
                 _collection.Insert(c);
                 lastError = _server.GetLastError();
                 Assert.AreEqual(0, lastError.DocumentsAffected);

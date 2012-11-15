@@ -1815,10 +1815,10 @@ namespace MongoDB.BsonUnitTests.Serialization
         {
             var obj = new TestClass
             {
-                V = new Uri("mongodb://localhost/?safe=true")
+                V = new Uri("mongodb://localhost/?w=1")
             };
             var json = obj.ToJson();
-            var expected = "{ 'V' : 'mongodb://localhost/?safe=true' }".Replace("'", "\"");
+            var expected = "{ 'V' : 'mongodb://localhost/?w=1' }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = obj.ToBson();

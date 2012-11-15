@@ -53,7 +53,6 @@ namespace MongoDB.DriverUnitTests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
-                Safe = true,
                 SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
@@ -81,7 +80,6 @@ namespace MongoDB.DriverUnitTests
                 "password=password",
                 "readPreference=secondary;readPreferenceTags=dc:1",
                 "replicaSet=name",
-                "safe=true",
                 "secondaryAcceptableLatency=6s",
                 "server=host",
                 "socketTimeout=7s",
@@ -112,8 +110,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
 #pragma warning disable 618
-                Assert.AreEqual(true, builder.Safe);
-                Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, builder.SafeMode);
+                Assert.AreEqual(new SafeMode(false) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, builder.SafeMode);
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
@@ -251,7 +248,6 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(null, builder.ReadPreference);
                 Assert.AreEqual(null, builder.ReplicaSetName);
 #pragma warning disable 618
-                Assert.AreEqual(null, builder.Safe);
                 Assert.AreEqual(null, builder.SafeMode);
 #pragma warning restore
                 Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
@@ -676,47 +672,39 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(null, "server=localhost", new[] { "" })]
-        [TestCase(false, "server=localhost;safe={0}", new[] { "false", "False" })]
-        [TestCase(true, "server=localhost;safe={0}", new[] { "true", "True" })]
-        public void TestSafe(bool? safe, string formatString, string[] values)
+        [TestCase(0, "server=localhost;{0}", new[] { "w=0", "w=0;safe=false", "w=0;safe=False", "safe=false", "safe=False" })]
+        [TestCase(0, "server=localhost;{0}", new[] { "w=0", "w=1;safe=false", "w=1;safe=False" })]
+        [TestCase(0, "server=localhost;{0}", new[] { "w=0", "w=2;safe=false", "w=2;safe=False" })]
+        [TestCase(0, "server=localhost;{0}", new[] { "w=0", "w=mode;safe=false", "w=mode;safe=False" })]
+        [TestCase(1, "server=localhost;{0}", new[] { "w=1", "w=0;safe=true", "w=0;safe=True", "safe=true", "safe=True" })]
+        [TestCase(1, "server=localhost;{0}", new[] { "w=1", "w=1;safe=true", "w=1;safe=True" })]
+        [TestCase(2, "server=localhost;{0}", new[] { "w=2", "w=2;safe=true", "w=2;safe=True" })]
+        [TestCase("mode", "server=localhost;{0}", new[] { "w=mode", "w=mode;safe=true", "w=mode;safe=True" })]
+        public void TestSafe(object wobj, string formatString, string[] values)
         {
-#pragma warning disable 618
-            var built = new MongoConnectionStringBuilder { Server = _localhost, Safe = safe };
+            var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)(int)wobj : (string)wobj;
+            var built = new MongoConnectionStringBuilder { Server = _localhost, W = w };
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(safe, builder.Safe);
+                Assert.AreEqual(w, builder.W);
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
-#pragma warning restore
         }
 
         [Test]
-        public void TestSafe_AfterOtherSettings()
+        [TestCase(false, false, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [TestCase(false, true, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "true", "True" }, new[] { "journal", "j" })]
+        [TestCase(true, false, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [TestCase(true, true, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "true", "True" }, new[] { "journal", "j" })]
+        public void TestSafeMode_All(bool enabledDefault, bool trueOrFalse, string formatString, string[] values, string[] journalAliases)
         {
 #pragma warning disable 618
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            builder.W = 2;
-            builder.Safe = null;
-            builder.Safe = true;
-            Assert.Throws<InvalidOperationException>(() => { builder.Safe = false; });
-#pragma warning restore
-        }
-
-        [Test]
-        [TestCase(false, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(false, "server=localhost;safe=true;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(true, "server=localhost;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "true", "True" }, new[] { "journal", "j" })]
-        [TestCase(true, "server=localhost;safe=true;fsync={0};{1}={0};w=2;wtimeout=30s", new[] { "true", "True" }, new[] { "journal", "j" })]
-        public void TestSafeMode_All(bool trueOrFalse, string formatString, string[] values, string[] journalAliases)
-        {
-#pragma warning disable 618
-            var safeMode = new SafeMode(true) { FSync = trueOrFalse, Journal = trueOrFalse, W = 2, WTimeout = TimeSpan.FromSeconds(30) };
+            var safeMode = new SafeMode(enabledDefault) { FSync = trueOrFalse, Journal = trueOrFalse, W = 2, WTimeout = TimeSpan.FromSeconds(30) };
             var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
             var canonicalConnectionString = string.Format(formatString, values[0], "journal");
-            var isParsedBuilder = false;
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, journalAliases))
             {
                 Assert.AreEqual(true, builder.SafeMode.Enabled);
@@ -724,80 +712,23 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(trueOrFalse, builder.SafeMode.Journal);
                 Assert.AreEqual(2, builder.SafeMode.W);
                 Assert.AreEqual(TimeSpan.FromSeconds(30), builder.SafeMode.WTimeout);
-                if (canonicalConnectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(canonicalConnectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
+                Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
 #pragma warning restore
         }
 
         [Test]
-        [TestCase(null, "server=localhost;safe=true", new[] { "" })]
-        [TestCase(false, "server=localhost;fsync={0}", new[] { "false", "False" })]
-        [TestCase(false, "server=localhost;safe=true;fsync={0}", new[] { "false", "False" })]
-        [TestCase(true, "server=localhost;fsync={0}", new[] { "true", "True" })]
-        [TestCase(true, "server=localhost;safe=true;fsync={0}", new[] { "true", "True" })]
-        public void TestSafeMode_FSync (bool? fsync, string formatString, string[] values)
+        [TestCase(false, null, "server=localhost;w=1", new[] { "" })]
+        [TestCase(false, false, "server=localhost;fsync={0};w=1", new[] { "false", "False" })]
+        [TestCase(false, true, "server=localhost;fsync={0};w=1", new[] { "true", "True" })]
+        [TestCase(true, null, "server=localhost;w=1", new[] { "" })]
+        [TestCase(true, false, "server=localhost;fsync={0};w=1", new[] { "false", "False" })]
+        [TestCase(true, true, "server=localhost;fsync={0};w=1", new[] { "true", "True" })]
+        public void TestSafeMode_FSync(bool enabledDefault, bool? fsync, string formatString, string[] values)
         {
 #pragma warning disable 618
-            var safeMode = new SafeMode(true);
+            var safeMode = new SafeMode(enabledDefault) { W = 1 };
             if (fsync != null) { safeMode.FSync = fsync.Value; }
-            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
-
-            var canonicalConnectionString = string.Format(formatString, values[0]);
-            var isParsedBuilder = false;
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
-            {
-                Assert.AreEqual(true, builder.SafeMode.Enabled);
-                Assert.AreEqual(fsync ?? false, builder.SafeMode.FSync);
-                if (canonicalConnectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(canonicalConnectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
-            }
-#pragma warning restore
-        }
-
-
-        [Test]
-        [TestCase(null, "server=localhost;safe=true", new[] { "" }, new[] { "" })]
-        [TestCase(false, "server=localhost;{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(false, "server=localhost;safe=true;{1}={0}", new[] { "false", "False" }, new[] { "journal", "j" })]
-        [TestCase(true, "server=localhost;{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
-        [TestCase(true, "server=localhost;safe=true;{1}={0}", new[] { "true", "True" }, new[] { "journal", "j" })]
-        public void TestSafeMode_Journal(bool? journal, string formatString, string[] values, string[] journalAliases)
-        {
-#pragma warning disable 618
-            var safeMode = new SafeMode(true);
-            if (journal != null) { safeMode.Journal = journal.Value; }
-            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
-
-            var canonicalConnectionString = string.Format(formatString, values[0], "journal");
-            var isParsedBuilder = false;
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, journalAliases))
-            {
-                Assert.AreEqual(true, builder.SafeMode.Enabled);
-                Assert.AreEqual(journal ?? false, builder.SafeMode.Journal);
-                if (canonicalConnectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(canonicalConnectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
-            }
-#pragma warning restore
-        }
-
-        [Test]
-        [TestCase(null, "server=localhost", new[] { "" })]
-        [TestCase(false, "server=localhost;safe={0}", new[] { "false", "False" })]
-        [TestCase(true, "server=localhost;safe={0}", new[] { "true", "True" })]
-        public void TestSafeMode_Safe(bool? enabled, string formatString, string[] values)
-        {
-#pragma warning disable 618
-            var safeMode = (enabled == null) ? null : new SafeMode(enabled.Value);
             var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
@@ -809,84 +740,121 @@ namespace MongoDB.DriverUnitTests
 #pragma warning restore
         }
 
+
         [Test]
-        [TestCase(true, false, 0, 0, "server=localhost;w=0")]
-        [TestCase(false, true, 1, 0, "server=localhost;w=1")]
-        [TestCase(false, true, 2, 2, "server=localhost;w=2")]
-        public void TestSafeMode_W(bool enabledIn, bool enabledOut, int wIn, int wOut, string connectionString)
+        [TestCase(false, null, "server=localhost;w=1", new[] { "" }, new[] { "" })]
+        [TestCase(false, false, "server=localhost;{1}={0};w=1", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [TestCase(false, true, "server=localhost;{1}={0};w=1", new[] { "true", "True" }, new[] { "journal", "j" })]
+        [TestCase(true, null, "server=localhost;w=1", new[] { "" }, new[] { "" })]
+        [TestCase(true, false, "server=localhost;{1}={0};w=1", new[] { "false", "False" }, new[] { "journal", "j" })]
+        [TestCase(true, true, "server=localhost;{1}={0};w=1", new[] { "true", "True" }, new[] { "journal", "j" })]
+        public void TestSafeMode_Journal(bool enabledDefault, bool? journal, string formatString, string[] values, string[] journalAliases)
         {
 #pragma warning disable 618
-            var safeMode = new SafeMode(enabledIn) { W = wIn };
+            var safeMode = new SafeMode(enabledDefault) { W = 1 };
+            if (journal != null) { safeMode.Journal = journal.Value; }
             var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
-            var isParsedBuilder = false;
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            var canonicalConnectionString = string.Format(formatString, values[0], "journal");
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, journalAliases))
             {
-                Assert.AreEqual(enabledOut, builder.SafeMode.Enabled);
-                Assert.AreEqual(wOut, builder.SafeMode.W);
-                if (connectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(connectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
+                Assert.AreEqual(safeMode, builder.SafeMode);
+                Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
 #pragma warning restore
         }
 
         [Test]
-        [TestCase(null, "server=localhost;safe=true")]
-        [TestCase("mode", "server=localhost;w=mode")]
-        [TestCase("mode", "server=localhost;safe=true;w=mode")]
-        public void TestSafeMode_WMode(string wmode, string connectionString)
+        [TestCase(false, null, 0, "server=localhost;w=0")]
+        [TestCase(false, false, 0, "server=localhost;w=0")]
+        [TestCase(false, true, 1, "server=localhost;w=1")]
+        [TestCase(true, null, 1, "server=localhost;w=1")]
+        [TestCase(true, false, 0, "server=localhost;w=0")]
+        [TestCase(true, true, 1, "server=localhost;w=1")]
+        public void TestSafeMode_Enabled(bool enabledDefault, bool? enabled, int w, string connectionString)
         {
 #pragma warning disable 618
-            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = new SafeMode(true) { WMode = wmode } };
+            var safeMode = new SafeMode(enabledDefault);
+            if (enabled != null) { safeMode.Enabled = enabled.Value; }
+            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
-            var isParsedBuilder = false;
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(true, builder.SafeMode.Enabled);
-                Assert.AreEqual(wmode, builder.SafeMode.WMode);
-                if (connectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(connectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
+                Assert.AreEqual((WriteConcern.WValue)w, builder.W);
+                Assert.AreEqual(connectionString, builder.ToString());
             }
 #pragma warning restore
         }
 
         [Test]
-        [TestCase(null, "server=localhost;safe=true", new[] { "" })]
-        [TestCase(500, "server=localhost;wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(500, "server=localhost;safe=true;wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "server=localhost;wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(30000, "server=localhost;safe=true;wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "server=localhost;wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(1800000, "server=localhost;safe=true;wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "server=localhost;wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3600000, "server=localhost;safe=true;wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "server=localhost;wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
-        [TestCase(3723000, "server=localhost;safe=true;wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
-        public void TestSafeMode_WTimeout(int? ms, string formatString, string[] values)
+        [TestCase(false, false, 0, "server=localhost;w=0")]
+        [TestCase(false, true, 1, "server=localhost;w=1")]
+        [TestCase(false, true, 2, "server=localhost;w=2")]
+        [TestCase(true, false, 0, "server=localhost;w=0")]
+        [TestCase(true, true, 1, "server=localhost;w=1")]
+        [TestCase(true, true, 2, "server=localhost;w=2")]
+        public void TestSafeMode_W(bool enabledDefault, bool enabled, int w, string connectionString)
+        {
+#pragma warning disable 618
+            var safeMode = new SafeMode(enabledDefault) { W = w };
+            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(enabled, builder.SafeMode.Enabled);
+                Assert.AreEqual(w, builder.SafeMode.W);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+#pragma warning restore
+        }
+
+        [Test]
+        [TestCase(false, false, null, "server=localhost;w=0")]
+        [TestCase(false, true, "mode", "server=localhost;w=mode")]
+        [TestCase(true, true, null, "server=localhost;w=1")]
+        [TestCase(true, true, "mode", "server=localhost;w=mode")]
+        public void TestSafeMode_WMode(bool enabledDefault, bool enabled, string wmode, string connectionString)
+        {
+#pragma warning disable 618
+            var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = new SafeMode(enabledDefault) { WMode = wmode } };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(enabled, builder.SafeMode.Enabled);
+                Assert.AreEqual(wmode, builder.SafeMode.WMode);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+#pragma warning restore
+        }
+
+        [Test]
+        [TestCase(false, null, "server=localhost;w=2", new[] { "" })]
+        [TestCase(false, 500, "server=localhost;w=2;wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [TestCase(false, 30000, "server=localhost;w=2;wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [TestCase(false, 1800000, "server=localhost;w=2;wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [TestCase(false, 3600000, "server=localhost;w=2;wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [TestCase(false, 3723000, "server=localhost;w=2;wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [TestCase(true, null, "server=localhost;w=2", new[] { "" })]
+        [TestCase(true, 500, "server=localhost;w=2;wtimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [TestCase(true, 30000, "server=localhost;w=2;wtimeout{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [TestCase(true, 1800000, "server=localhost;w=2;wtimeout{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [TestCase(true, 3600000, "server=localhost;w=2;wtimeout{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [TestCase(true, 3723000, "server=localhost;w=2;wtimeout{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        public void TestSafeMode_WTimeout(bool enabledDefault, int? ms, string formatString, string[] values)
         {
 #pragma warning disable 618
             var wtimeout = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
-            var safeMode = new SafeMode(true);
+            var safeMode = new SafeMode(enabledDefault) { W = 2 };
             if (wtimeout != null) { safeMode.WTimeout = wtimeout.Value; }
             var built = new MongoConnectionStringBuilder { Server = _localhost, SafeMode = safeMode };
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
-            var isParsedBuilder = false;
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.AreEqual(true, builder.SafeMode.Enabled);
+                Assert.AreEqual(2, builder.SafeMode.W);
                 Assert.AreEqual(wtimeout ?? TimeSpan.Zero, builder.SafeMode.WTimeout);
-                if (canonicalConnectionString.Contains("safe=") || isParsedBuilder)
-                {
-                    Assert.AreEqual(canonicalConnectionString, builder.ToString());
-                }
-                isParsedBuilder = true;
+                Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
 #pragma warning restore
         }
@@ -1104,27 +1072,26 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(false, false, null, null, "server=localhost")]
-        [TestCase(false, false, 0, null, "server=localhost;w=0")]
-        [TestCase(false, true, 1, null, "server=localhost;w=1")]
-        [TestCase(false, true, 2, 2, "server=localhost;w=2")]
-        [TestCase(false, true, "mode", "mode", "server=localhost;w=mode")]
-        [TestCase(true, true, null, null, "server=localhost")]
-        [TestCase(true, false, 0, null, "server=localhost;w=0")]
-        [TestCase(true, true, 1, null, "server=localhost;w=1")]
-        [TestCase(true, true, 2, 2, "server=localhost;w=2")]
-        [TestCase(true, true, "mode", "mode", "server=localhost;w=mode")]
-        public void TestW(bool enabledDefault, bool enabled, object wobjIn, object wobjOut, string connectionString)
+        [TestCase(false, false, null, "server=localhost")]
+        [TestCase(false, false, 0, "server=localhost;w=0")]
+        [TestCase(false, true, 1, "server=localhost;w=1")]
+        [TestCase(false, true, 2, "server=localhost;w=2")]
+        [TestCase(false, true, "mode", "server=localhost;w=mode")]
+        [TestCase(true, true, null, "server=localhost")]
+        [TestCase(true, false, 0, "server=localhost;w=0")]
+        [TestCase(true, true, 1, "server=localhost;w=1")]
+        [TestCase(true, true, 2, "server=localhost;w=2")]
+        [TestCase(true, true, "mode", "server=localhost;w=mode")]
+        public void TestW(bool enabledDefault, bool enabled, object wobj, string connectionString)
         {
-            var wIn = (wobjIn == null) ? null : (wobjIn is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjIn) : new WriteConcern.WMode((string)wobjIn);
-            var wOut = (wobjOut == null) ? null : (wobjOut is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobjOut) : new WriteConcern.WMode((string)wobjOut);
-            var built = new MongoConnectionStringBuilder { Server = _localhost, W = wIn };
+            var w = (wobj == null) ? null : (wobj is int) ? (WriteConcern.WValue)new WriteConcern.WCount((int)wobj) : new WriteConcern.WMode((string)wobj);
+            var built = new MongoConnectionStringBuilder { Server = _localhost, W = w };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 var writeConcern = builder.GetWriteConcern(enabledDefault);
                 Assert.AreEqual(enabled, writeConcern.Enabled);
-                Assert.AreEqual(wOut, writeConcern.W);
+                Assert.AreEqual(w, writeConcern.W);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }

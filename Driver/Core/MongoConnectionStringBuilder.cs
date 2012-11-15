@@ -54,7 +54,6 @@ namespace MongoDB.Driver
             { "readpreference", "readPreference" },
             { "readpreferencetags", "readPreferenceTags" },
             { "replicaset", "replicaSet" },
-            { "safe", "safe" },
             { "secondaryacceptablelatency", "secondaryAcceptableLatency" },
             { "secondaryacceptablelatencyms", "secondaryAcceptableLatency" },
             { "server", "server" },
@@ -91,7 +90,6 @@ namespace MongoDB.Driver
         private string _password;
         private ReadPreference _readPreference;
         private string _replicaSetName;
-        private bool? _safe;
         private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
@@ -377,27 +375,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the safe value.
-        /// </summary>
-        [Obsolete("Use W=0 or W=1 instead.")]
-        public bool? Safe
-        {
-            get { return _safe; }
-            set
-            {
-                if (value != null)
-                {
-                    if (!value.Value && AnyWriteConcernSettingsAreSet())
-                    {
-                        throw new InvalidOperationException("Safe cannot be set to false if any other write concern values have been set.");
-                    }
-                }
-                _safe = value;
-                base["safe"] = (value == null) ? null : XmlConvert.ToString(value.Value);
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
         [Obsolete("Use FSync, Journal, W and WTimeout instead.")]
@@ -405,7 +382,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (_safe != null || AnyWriteConcernSettingsAreSet())
+                if (AnyWriteConcernSettingsAreSet())
                 {
 #pragma warning disable 618
                     return new SafeMode(GetWriteConcern(false));
@@ -418,23 +395,20 @@ namespace MongoDB.Driver
             }
             set
             {
-                Safe = null;
-                FSync = null;
-                Journal = null;
-                W = null;
-                WTimeout = null;
-
-                if (value != null)
+                if (value == null)
                 {
-                    Safe = value.Enabled;
-                    if (value.Enabled)
-                    {
-                        var writeConcern = value.WriteConcern;
-                        if (writeConcern.FSync != null) { FSync = writeConcern.FSync.Value; }
-                        if (writeConcern.Journal != null) { Journal = writeConcern.Journal.Value; }
-                        if (writeConcern.W != null) { W = writeConcern.W; }
-                        if (writeConcern.WTimeout != null) { WTimeout = writeConcern.WTimeout.Value; }
-                    }
+                    FSync = null;
+                    Journal = null;
+                    W = null;
+                    WTimeout = null;
+                }
+                else
+                {
+                    var writeConcern = value.WriteConcern;
+                    FSync = writeConcern.FSync;
+                    Journal = writeConcern.Journal;
+                    W = writeConcern.W ?? (writeConcern.Enabled ? 1 : 0);
+                    WTimeout = writeConcern.WTimeout;
                 }
             }
         }
@@ -746,9 +720,27 @@ namespace MongoDB.Driver
                         ReplicaSetName = (string)value;
                         break;
                     case "safe":
-#pragma warning disable 618
-                        Safe = Convert.ToBoolean(value);
-#pragma warning restore
+                        var safe = Convert.ToBoolean(value);
+                        if (_w == null)
+                        {
+                            W = safe ? 1 : 0;
+                        }
+                        else
+                        {
+                            if (safe)
+                            {
+                                // don't overwrite existing W value unless it's 0
+                                var wCount = _w as WriteConcern.WCount;
+                                if (wCount != null && wCount.Value == 0)
+                                {
+                                    W = 1;
+                                }
+                            }
+                            else
+                            {
+                                W = 0;
+                            }
+                        }
                         break;
                     case "secondaryacceptablelatency":
                     case "secondaryacceptablelatencyms":
@@ -838,7 +830,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcern.</returns>
         public WriteConcern GetWriteConcern(bool enabledDefault)
         {
-            return new WriteConcern(_safe.HasValue ? _safe.Value : enabledDefault)
+            return new WriteConcern(enabledDefault)
             {
                 FSync = _fsync,
                 Journal = _journal,
@@ -945,7 +937,6 @@ namespace MongoDB.Driver
             _password = null;
             _readPreference = null;
             _replicaSetName = null;
-            _safe = null;
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = null;
             _slaveOk = null;

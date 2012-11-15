@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.AreEqual(256 * 1024, settings.ChunkSize);
             Assert.AreEqual("fs.files", settings.FilesCollectionName);
             Assert.AreEqual("fs", settings.Root);
-            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
         [Test]
@@ -55,14 +55,14 @@ namespace MongoDB.DriverUnitTests.GridFS
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
             Assert.IsFalse(settings.IsFrozen);
             Assert.AreEqual("root.chunks", settings.ChunksCollectionName);
             Assert.AreEqual(64 * 1024, settings.ChunkSize);
             Assert.AreEqual("root.files", settings.FilesCollectionName);
             Assert.AreEqual("root", settings.Root);
-            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace MongoDB.DriverUnitTests.GridFS
                 Root = "root",
                 UpdateMD5 = false,
                 VerifyMD5 = false,
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
             var clone = settings.Clone();
             Assert.IsTrue(settings == clone);
@@ -122,7 +122,7 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.Throws<InvalidOperationException>(() => settings.Root = "root");
             Assert.Throws<InvalidOperationException>(() => settings.UpdateMD5 = true);
             Assert.Throws<InvalidOperationException>(() => settings.VerifyMD5 = true);
-            Assert.Throws<InvalidOperationException>(() => settings.WriteConcern = WriteConcern.Errors);
+            Assert.Throws<InvalidOperationException>(() => settings.WriteConcern = WriteConcern.Acknowledged);
         }
     }
 }

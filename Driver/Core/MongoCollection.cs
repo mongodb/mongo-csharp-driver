@@ -194,7 +194,7 @@ namespace MongoDB.Driver
             var insertOptions = new MongoInsertOptions
             {
                 CheckElementNames = false,
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
             var result = indexes.Insert(index, insertOptions);
             return result;

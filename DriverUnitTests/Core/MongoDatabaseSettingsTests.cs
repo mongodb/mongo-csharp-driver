@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests
                 Credentials = MongoCredentials.Create("username", "password"),
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 ReadPreference = ReadPreference.Primary,
-                WriteConcern = WriteConcern.Errors
+                WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual("database", settings.DatabaseName);
@@ -53,10 +53,10 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
 #pragma warning disable 618
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
+            Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
             Assert.AreEqual(false, settings.SlaveOk);
 #pragma warning restore
-            Assert.AreSame(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
         [Test]
@@ -83,10 +83,10 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
 #pragma warning disable 618
-            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
+            Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
             Assert.AreEqual(false, settings.SlaveOk);
 #pragma warning restore
-            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
         }
 
         [Test]
@@ -258,7 +258,7 @@ namespace MongoDB.DriverUnitTests
         public void TestWriteConcern()
         {
             var settings = new MongoDatabaseSettings(_server, "database");
-            Assert.AreEqual(WriteConcern.Errors, settings.WriteConcern);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
 
             var writeConcern = WriteConcern.W2;
             settings.WriteConcern = writeConcern;

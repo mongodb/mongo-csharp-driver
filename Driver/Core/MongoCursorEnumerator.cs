@@ -401,7 +401,7 @@ namespace MongoDB.Driver
                         {
                             using (var message = new MongoKillCursorsMessage(_openCursorId))
                             {
-                                connection.SendMessage(message, WriteConcern.None, _cursor.Database.Name);
+                                connection.SendMessage(message, WriteConcern.Unacknowledged, _cursor.Database.Name);
                             }
                         }
                         finally
