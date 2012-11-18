@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Linq
         private LambdaExpression _where;
         private Type _ofType;
         private List<OrderByClause> _orderBy;
+        private BsonValue _indexHint;
         private LambdaExpression _projection;
         private int? _skip;
         private int? _take;
@@ -96,6 +97,14 @@ namespace MongoDB.Driver.Linq
         public int? Take
         {
             get { return _take; }
+        }
+
+        /// <summary>
+        /// Gets the BsonValue (string or document) that defines which index to use (or null if not specified);
+        /// </summary>
+        public BsonValue IndexHint
+        {
+            get { return _indexHint; }
         }
 
         /// <summary>
@@ -168,6 +177,22 @@ namespace MongoDB.Driver.Linq
             if (_take != null)
             {
                 cursor.SetLimit(_take.Value);
+            }
+
+            if (_indexHint != null)
+            {
+                if (_indexHint.IsString)
+                {
+                    cursor.SetHint(_indexHint.AsString);
+                }
+                else if (_indexHint.IsBsonDocument)
+                {
+                    cursor.SetHint(_indexHint.AsBsonDocument);
+                }
+                else
+                {
+                    throw new NotSupportedException("Index hints must be strings or documents");
+                }
             }
 
             var projection = _projection;
@@ -436,6 +461,12 @@ namespace MongoDB.Driver.Linq
                 throw new NotSupportedException(message);
             }
 
+            if (_indexHint != null)
+            {
+                var message = "Distinct cannot be used together with WithIndex.";
+                throw new NotSupportedException(message);
+            }
+
             _distinct = _projection;
             _projection = null;
         }
@@ -679,6 +710,9 @@ namespace MongoDB.Driver.Linq
                 case "ThenByDescending":
                     TranslateThenBy(methodCallExpression);
                     break;
+                case "WithIndex":
+                    TranslateWithIndex(methodCallExpression);
+                    break;
                 case "Where":
                     TranslateWhere(methodCallExpression);
                     break;
@@ -863,6 +897,47 @@ namespace MongoDB.Driver.Linq
             var clause = new OrderByClause(key, direction);
 
             _orderBy.Add(clause);
+        }
+
+        private void TranslateWithIndex(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            var method = methodCallExpression.Method;
+
+            if (method.DeclaringType != typeof(LinqToMongo))
+            {
+                var message = string.Format("WithIndex method of class {0} is not supported.", BsonUtils.GetFriendlyTypeName(method.DeclaringType));
+                throw new NotSupportedException(message);
+            }
+
+            if (_indexHint != null)
+            {
+                throw new NotSupportedException("Only one index can be used for each query");
+            }
+
+            if (_distinct != null)
+            {
+                var message = "WithIndex cannot be used together with Distinct.";
+                throw new NotSupportedException(message);
+            }
+
+            Expression expression = methodCallExpression.Arguments[1];
+            if (expression.Type != typeof(BsonString) && expression.Type != typeof(BsonDocument))
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression", "Expected an Expression of Type BsonString or BsonDocument.");
+            }
+
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression == null)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression", "Expected a ConstantExpression.");
+            }
+
+            _indexHint = (BsonValue)constantExpression.Value;
         }
 
         private void TranslateWhere(MethodCallExpression methodCallExpression)
