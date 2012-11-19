@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Change Log v1.6-Driver.txt = Release Notes\Change Log v1.6-Driver.txt
 		Release Notes\Change Log v1.6.1-Bson.txt = Release Notes\Change Log v1.6.1-Bson.txt
 		Release Notes\Change Log v1.6.1-Driver.txt = Release Notes\Change Log v1.6.1-Driver.txt
+		Release Notes\Change Log v1.7-Bson.txt = Release Notes\Change Log v1.7-Bson.txt
+		Release Notes\Change Log v1.7-Driver.txt = Release Notes\Change Log v1.7-Driver.txt
 		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
 		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
 		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
@@ -46,6 +48,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.5.md = Release Notes\Release Notes v1.5.md
 		Release Notes\Release Notes v1.6.1.md = Release Notes\Release Notes v1.6.1.md
 		Release Notes\Release Notes v1.6.md = Release Notes\Release Notes v1.6.md
+		Release Notes\Release Notes v1.7.md = Release Notes\Release Notes v1.7.md
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "DriverUnitTestsVB", "DriverUnitTestsVB\DriverUnitTestsVB.vbproj", "{19ED9AD5-A2CA-4F1B-9BE4-96450382F404}"
