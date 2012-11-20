@@ -275,6 +275,12 @@ namespace MongoDB.Driver.Linq
             Expression body = this.Visit(node.Body);
             if (body != node.Body)
             {
+                var funcArgs = node.Type.GetGenericArguments();
+                var returnType = funcArgs[funcArgs.Length - 1];
+                if (body.Type.IsValueType && !returnType.IsValueType)
+                {
+                    body = Expression.Convert(body, returnType);
+                }
                 return Expression.Lambda(node.Type, body, node.Parameters);
             }
             return node;

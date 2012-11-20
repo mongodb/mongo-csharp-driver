@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 
@@ -1367,6 +1368,32 @@ namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, results.Count);
             Assert.AreEqual(1, results.First().X);
             Assert.AreEqual(5, results.Last().X);
+        }
+
+        [Test]
+        public void TestOrderByvalueTypeWithObjectReturnType()
+        {
+            Expression<Func<C, object>> orderByClause = c => c.LX;
+            var query = _collection.AsQueryable<C>().OrderBy(orderByClause);
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (Object)c.LX");
+        }
+
+        [Test]
+        public void TestOrderByvalueTypeWithIComparableReturnType()
+        {
+            Expression<Func<C, IComparable>> orderByClause = c => c.LX;
+            var query = _collection.AsQueryable<C>().OrderBy(orderByClause);
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (IComparable)c.LX");
+        }
+
+        private void RunTestOrderByValueTypeWithMismatchingType(IOrderedQueryable query, string orderByString)
+        {
+            var mongoQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(mongoQuery);
+            var selectQuery = (SelectQuery) mongoQuery;
+            Assert.AreEqual(orderByString, ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
         }
 
         [Test]
