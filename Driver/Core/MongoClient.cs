@@ -90,27 +90,7 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database. See also GetServer.
-        /// </summary>
-        /// <param name="databaseSettings">The settings to use with this database.</param>
-        /// <returns>An instance of MongoDatabase.</returns>
-        public MongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings)
-        {
-            return GetServer().GetDatabase(databaseSettings);
-        }
-
-        /// <summary>
-        /// Gets a MongoDatabase instance representing a database. See also GetServer.
-        /// </summary>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <returns>An instance of MongoDatabase.</returns>
-        public virtual MongoDatabase GetDatabase(string databaseName)
-        {
-            return GetServer().GetDatabase(databaseName);
-        }
-
-        /// <summary>
-        /// Gets a MongoServer object using this client's settings. See also GetDatabase.
+        /// Gets a MongoServer object using this client's settings.
         /// </summary>
         /// <returns>A MongoServer.</returns>
         public MongoServer GetServer()

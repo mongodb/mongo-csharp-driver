@@ -40,7 +40,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
             var clientSettings = Configuration.TestClient.Settings.Clone();
             clientSettings.ReadPreference = ReadPreference.SecondaryPreferred;
             var client = new MongoClient(clientSettings); // ReadPreference=SecondaryPreferred
-            _database = client.GetDatabase(Configuration.TestDatabase.Name);
+            var server = client.GetServer();
+            _database = server.GetDatabase(Configuration.TestDatabase.Name);
             _database.GridFS.Files.Drop();
             _database.GridFS.Chunks.Drop();
         }
