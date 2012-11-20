@@ -67,19 +67,9 @@ The new way to start using the C# driver is:
 
     var connectionString = "mongodb://localhost";
     var client = new MongoClient(connectionString);
-    var database = client.GetDatabase("test"); // WriteConcern defaulted to Acknowledged
+    var server = client.GetServer();
+    var database = server.GetDatabase("test"); // WriteConcern defaulted to Acknowledged
 
 If you use the old way to start using the driver the default WriteConcern will
 be Unacknowledged, but if you use the new way (using MongoClient) the default
 WriteConcern will be Acknowledged.
-
-If for some reason you need access to the MongoServer object you can write this instead:
-
-    var connectionString = "mongodb://localhost";
-    var client = new MongoClient(connectionString);
-    var server = client.GetServer();
-    var database = server.GetDatabase("test");
-
-You can also navigate from the MongoDatabase object to the MongoServer it belongs to:
-
-    var server = database.Server;

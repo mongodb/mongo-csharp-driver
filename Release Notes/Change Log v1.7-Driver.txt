@@ -11,11 +11,11 @@ WriteConcernResult.cs
 
 MongoClient.cs
     new root class (see Release Notes)
-    use instead of MongoServer (or in addition to)
+    use instead of MongoServer
 
 MongoClientSettings.cs
     new class
-    used instead of MongoServerSettings
+    use instead of MongoServerSettings
 
 MongoCollection.cs
     all methods that used to return a SafeModeResult now return a WriteConcernResult
