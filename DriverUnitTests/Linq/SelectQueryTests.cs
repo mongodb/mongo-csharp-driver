@@ -1371,7 +1371,7 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestOrderByvalueTypeWithObjectReturnType()
+        public void TestOrderByValueTypeWithObjectReturnType()
         {
             Expression<Func<C, object>> orderByClause = c => c.LX;
             var query = _collection.AsQueryable<C>().OrderBy(orderByClause);
@@ -1380,7 +1380,7 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestOrderByvalueTypeWithIComparableReturnType()
+        public void TestOrderByValueTypeWithIComparableReturnType()
         {
             Expression<Func<C, IComparable>> orderByClause = c => c.LX;
             var query = _collection.AsQueryable<C>().OrderBy(orderByClause);

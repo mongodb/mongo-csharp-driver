@@ -16,6 +16,7 @@
 Imports System
 Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Linq.Expressions
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports NUnit.Framework
@@ -1292,6 +1293,29 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreEqual(5, results.Last().X)
         End Sub
 
+        <Test()>
+        Public Sub TestOrderByValueTypeWithObjectReturnType()
+            Dim orderByClause As Expression(Of Func(Of C, Object)) = Function(c) c.LX
+            Dim query = _collection.AsQueryable(Of C)().OrderBy(orderByClause)
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (Object)c.LX")
+        End Sub
+
+        <Test()>
+        Public Sub TestOrderByValueTypeWithIComparableReturnType()
+            Dim orderByClause As Expression(Of Func(Of C, IComparable)) = Function(c) c.LX
+            Dim query = _collection.AsQueryable(Of C)().OrderBy(orderByClause)
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (IComparable)c.LX")
+        End Sub
+
+        Sub RunTestOrderByValueTypeWithMismatchingType(ByVal query As IOrderedQueryable, ByVal orderByString As String)
+            Dim mongoQuery = MongoQueryTranslator.Translate(query)
+            Assert.IsInstanceOf(Of SelectQuery)(mongoQuery)
+            Dim selectQuery As SelectQuery = mongoQuery
+            Assert.AreEqual(orderByString, ExpressionFormatter.ToString(selectQuery.OrderBy(0).Key))
+        End Sub
+
         <Test()> _
         Public Sub TestOrderByAscendingThenByAscending()
             Dim query = From c In _collection.AsQueryable(Of C)()
@@ -1974,7 +1998,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""a"" : { ""$all"" : [2, 3] } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, Consume(Query))
+            Assert.AreEqual(1, Consume(query))
         End Sub
 
         <Test()> _
@@ -2655,7 +2679,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                         Where c.DA.Any(Function(x) x.Z = 333)
                         Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(Query)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
             Assert.AreSame(_collection, translatedQuery.Collection)
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
@@ -2668,7 +2692,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""da"" : { ""$elemMatch"" : { ""z"" : 333 } } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, Consume(Query))
+            Assert.AreEqual(1, Consume(query))
         End Sub
 
 
@@ -2786,7 +2810,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                         Where Not (c.DBRef <> New MongoDBRef("db", "c", 1))
                         Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(Query)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
             Assert.AreSame(_collection, translatedQuery.Collection)
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
@@ -2799,7 +2823,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""dbref"" : { ""$ref"" : ""c"", ""$id"" : 1, ""$db"" : ""db"" } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, Consume(Query))
+            Assert.AreEqual(1, Consume(query))
         End Sub
 
         <Test()> _
@@ -2987,7 +3011,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                      Where Not c.EA.ContainsAny({E.A, E.B})
                      Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(Query)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
             Assert.AreSame(_collection, translatedQuery.Collection)
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
@@ -3000,7 +3024,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""ea"" : { ""$nin"" : [1, 2] } }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(4, Consume(Query))
+            Assert.AreEqual(4, Consume(query))
         End Sub
 
         <Test()> _
@@ -4927,7 +4951,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                         Where c.S.Length = 3
                         Select c
 
-            Dim translatedQuery = MongoQueryTranslator.Translate(Query)
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
             Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
             Assert.AreSame(_collection, translatedQuery.Collection)
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
@@ -4940,7 +4964,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.IsNull(selectQuery.Take)
 
             Assert.AreEqual("{ ""s"" : /^.{3}$/s }", selectQuery.BuildQuery().ToJson())
-            Assert.AreEqual(1, Consume(Query))
+            Assert.AreEqual(1, Consume(query))
         End Sub
 
         <Test()> _
