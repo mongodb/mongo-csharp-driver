@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (defaultSerializationOptions != null)
             {
-                _defaultSerializationOptions = defaultSerializationOptions.Clone().Freeze();
+            	_defaultSerializationOptions = defaultSerializationOptions;
             }
         }
 
