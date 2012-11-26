@@ -290,9 +290,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _frozenHashCode = GetHashCode();
-                _isFrozen = true;
-
                 if (_fsync.HasValue || _journal.HasValue)
                 {
                     if (_w != null && _w is WCount && ((WCount)_w).Value == 0)
@@ -306,6 +303,9 @@ namespace MongoDB.Driver
                 {
                     throw new MongoException("WTimeout may not be set unless W is set also.");
                 }
+
+                _frozenHashCode = GetHashCode();
+                _isFrozen = true;
             }
             return this;
         }

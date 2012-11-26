@@ -312,6 +312,8 @@ namespace MongoDB.BsonUnitTests.Serialization
     [TestFixture]
     public class BsonClassMapGetRegisteredClassMapTests
     {
+        private static bool __firstTime = true;
+
         public class C
         {
             public ObjectId Id;
@@ -327,17 +329,22 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestGetRegisteredClassMaps()
         {
-            Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
-            Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(D)));
-            BsonClassMap.RegisterClassMap<C>(cm => cm.AutoMap());
-            BsonClassMap.RegisterClassMap<D>(cm => cm.AutoMap());
+            // this unit test can only be run once (per process)
+            if (__firstTime)
+            {
+                Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(C)));
+                Assert.IsFalse(BsonClassMap.IsClassMapRegistered(typeof(D)));
+                BsonClassMap.RegisterClassMap<C>(cm => cm.AutoMap());
+                BsonClassMap.RegisterClassMap<D>(cm => cm.AutoMap());
 
-            var classMaps = BsonClassMap.GetRegisteredClassMaps();
-            var classMapTypes = classMaps.Select(x => x.ClassType).ToList();
+                var classMaps = BsonClassMap.GetRegisteredClassMaps();
+                var classMapTypes = classMaps.Select(x => x.ClassType).ToList();
 
-            Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
-            Assert.Contains(typeof(C), classMapTypes);
-            Assert.Contains(typeof(D), classMapTypes);
+                Assert.IsTrue(BsonClassMap.IsClassMapRegistered(typeof(C)));
+                Assert.Contains(typeof(C), classMapTypes);
+                Assert.Contains(typeof(D), classMapTypes);
+                __firstTime = false;
+            }
         }
     }
 
