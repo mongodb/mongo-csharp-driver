@@ -1,6 +1,6 @@
 @ECHO OFF
-SET FullVersion=1.6.1.4678
-SET Version=1.6.1
+SET FullVersion=1.7.0.4714
+SET Version=1.7
 SET Configuration=Release
 SET SourceBase=..
 
