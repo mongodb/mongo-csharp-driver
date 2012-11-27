@@ -392,6 +392,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a MongoClientSettings object intialized with values from a connection string builder.
         /// </summary>
+        /// <param name="builder">The connection string builder.</param>
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
@@ -426,8 +427,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoClientSettings object intialized with values from a URL.
+        /// Gets a MongoClientSettings object intialized with values from a MongoURL.
         /// </summary>
+        /// <param name="url">The MongoURL.</param>
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {

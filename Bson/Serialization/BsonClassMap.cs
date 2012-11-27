@@ -267,6 +267,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets all registered class maps.
         /// </summary>
+        /// <returns>All registered class maps.</returns>
         public static IEnumerable<BsonClassMap> GetRegisteredClassMaps()
         {
             return __classMaps.Values;
