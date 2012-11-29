@@ -114,7 +114,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapField()
         {
+#pragma warning disable 618 // MapField is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapField("f"));
+#pragma warning restore
             var memberMap = classMap.GetMemberMap("f");
             Assert.IsNotNull(memberMap);
             Assert.AreEqual("f", memberMap.ElementName);
@@ -124,7 +126,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdField()
         {
+#pragma warning disable 618 // MapIdField is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapIdField("f"));
+#pragma warning restore
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -145,7 +149,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdProperty()
         {
+#pragma warning disable 618 // MapIdProperty is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty("p"));
+#pragma warning restore
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -166,7 +172,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapProperty()
         {
+#pragma warning disable 618 // MapIdProperty is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapProperty("p"));
+#pragma warning restore
             var memberMap = classMap.GetMemberMap("p");
             Assert.IsNotNull(memberMap);
             Assert.AreEqual("p", memberMap.ElementName);
@@ -188,7 +196,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapField()
         {
+#pragma warning disable 618 // MapField is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapField(c => c.F));
+#pragma warning restore
             var memberMap = classMap.GetMemberMap("F");
             Assert.IsNotNull(memberMap);
             Assert.AreEqual("F", memberMap.ElementName);
@@ -198,7 +208,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdField()
         {
+#pragma warning disable 618 // MapIdField is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapIdField(c => c.F));
+#pragma warning restore
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -218,7 +230,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdProperty()
         {
+#pragma warning disable 618 // MapIdProperty is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty(c => c.P));
+#pragma warning restore
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -238,7 +252,9 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapProperty()
         {
+#pragma warning disable 618 // MapProperty is obsolete
             var classMap = new BsonClassMap<C>(cm => cm.MapProperty(c => c.P));
+#pragma warning restore
             var memberMap = classMap.GetMemberMap("P");
             Assert.IsNotNull(memberMap);
             Assert.AreEqual("P", memberMap.ElementName);
@@ -266,11 +282,13 @@ namespace MongoDB.BsonUnitTests.Serialization
             {
                 cm.AutoMap();
                 cm.SetIdMember(cm.GetMemberMap("Id"));
+#pragma warning disable 618 // UnmapField and UnmapProperty are obsolete
                 cm.UnmapField("Id");
                 cm.UnmapField("FieldUnmappedByName");
                 cm.UnmapField(c => c.FieldUnmappedByLambda);
                 cm.UnmapProperty("PropertyUnmappedByName");
                 cm.UnmapProperty(c => c.PropertyUnmappedByLambda);
+#pragma warning restore
             });
             classMap.Freeze();
             Assert.IsNull(classMap.IdMemberMap);

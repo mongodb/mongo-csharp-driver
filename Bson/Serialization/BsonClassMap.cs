@@ -639,6 +639,22 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Gets a member map (only considers members declared in this class).
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <returns>The member map (or null if the member was not found).</returns>
+        public BsonMemberMap GetMemberMap(MemberInfo memberInfo)
+        {
+            if (memberInfo == null)
+            {
+                throw new ArgumentNullException("memberInfo");
+            }
+
+            // can be called whether frozen or not
+            return _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
+        }
+
+        /// <summary>
         /// Gets the member map for a BSON element.
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
@@ -665,17 +681,22 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="fieldName">The name of the extra elements field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapExtraElementsField is obsolete and will be removed in a future version of the C# Driver. Please use MapExtraElementsMember instead.")]
         public BsonMemberMap MapExtraElementsField(string fieldName)
         {
-            if (fieldName == null)
-            {
-                throw new ArgumentNullException("fieldName");
-            }
+            return MapExtraElementsMember(fieldName);
+        }
 
-            if (_frozen) { ThrowFrozenException(); }
-            var fieldMap = MapField(fieldName);
-            SetExtraElementsMember(fieldMap);
-            return fieldMap;
+        /// <summary>
+        /// Creates a member map for the extra elements field and adds it to the class map.
+        /// </summary>
+        /// <param name="memberName">The name of the extra elements member.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
+        public BsonMemberMap MapExtraElementsMember(string memberName)
+        {
+            var memberMap = MapMember(memberName);
+            SetExtraElementsMember(memberMap);
+            return memberMap;
         }
 
         /// <summary>
@@ -685,12 +706,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapExtraElementsMember(MemberInfo memberInfo)
         {
-            if (memberInfo == null)
-            {
-                throw new ArgumentNullException("memberInfo");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetExtraElementsMember(memberMap);
             return memberMap;
@@ -701,17 +716,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapExtraElementsProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapExtraElementsMember instead.")]
         public BsonMemberMap MapExtraElementsProperty(string propertyName)
         {
-            if (propertyName == null)
-            {
-                throw new ArgumentNullException("propertyName");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
-            var propertyMap = MapProperty(propertyName);
-            SetExtraElementsMember(propertyMap);
-            return propertyMap;
+            return MapExtraElementsMember(propertyName);
         }
 
         /// <summary>
@@ -719,21 +727,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="fieldName">The name of the field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapField is obsolete and will be removed in a future version of the C# Driver. Please use MapMember instead.")]
         public BsonMemberMap MapField(string fieldName)
         {
-            if (fieldName == null)
-            {
-                throw new ArgumentNullException("fieldName");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
-            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (fieldInfo == null)
-            {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
-                throw new BsonSerializationException(message);
-            }
-            return MapMember(fieldInfo);
+            return MapMember(fieldName);
         }
 
         /// <summary>
@@ -741,17 +738,22 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="fieldName">The name of the Id field.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapIdField is obsolete and will be removed in a future version of the C# Driver. Please use MapIdMember instead.")]
         public BsonMemberMap MapIdField(string fieldName)
         {
-            if (fieldName == null)
-            {
-                throw new ArgumentNullException("fieldName");
-            }
+            return MapIdMember(fieldName);
+        }
 
-            if (_frozen) { ThrowFrozenException(); }
-            var fieldMap = MapField(fieldName);
-            SetIdMember(fieldMap);
-            return fieldMap;
+        /// <summary>
+        /// Creates a member map for the Id member and adds it to the class map.
+        /// </summary>
+        /// <param name="memberName">The name of the Id member.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
+        public BsonMemberMap MapIdMember(string memberName)
+        {
+            var memberMap = MapMember(memberName);
+            SetIdMember(memberMap);
+            return memberMap;
         }
 
         /// <summary>
@@ -761,12 +763,6 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map (so method calls can be chained).</returns>
         public BsonMemberMap MapIdMember(MemberInfo memberInfo)
         {
-            if (memberInfo == null)
-            {
-                throw new ArgumentNullException("memberInfo");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
             var memberMap = MapMember(memberInfo);
             SetIdMember(memberMap);
             return memberMap;
@@ -777,17 +773,36 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="propertyName">The name of the Id property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapIdProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapIdMember instead.")]
         public BsonMemberMap MapIdProperty(string propertyName)
         {
-            if (propertyName == null)
+            return MapIdMember(propertyName);
+        }
+
+        /// <summary>
+        /// Creates a member map for a field and adds it to the class map.
+        /// </summary>
+        /// <param name="memberName">The name of the member.</param>
+        /// <returns>The member map (so method calls can be chained).</returns>
+        public BsonMemberMap MapMember(string memberName)
+        {
+            if (memberName == null)
             {
-                throw new ArgumentNullException("propertyName");
+                throw new ArgumentNullException("memberName");
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var propertyMap = MapProperty(propertyName);
-            SetIdMember(propertyMap);
-            return propertyMap;
+            var memberInfo = _classType.GetMember(
+                memberName,
+                MemberTypes.Field | MemberTypes.Property,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .FirstOrDefault();
+            if (memberInfo == null)
+            {
+                var message = string.Format("The class '{0}' does not have a member named '{1}'.", _classType.FullName, memberName);
+                throw new BsonSerializationException(message);
+            }
+            return MapMember(memberInfo);
         }
 
         /// <summary>
@@ -807,7 +822,7 @@ namespace MongoDB.Bson.Serialization
             var memberMap = _declaredMemberMaps.Find(m => m.MemberInfo == memberInfo);
             if (memberMap == null)
             {
-                memberMap = new BsonMemberMap(this, memberInfo);
+                memberMap = BsonMemberMap.Create(this, memberInfo);
                 _declaredMemberMaps.Add(memberMap);
             }
             return memberMap;
@@ -818,21 +833,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>The member map (so method calls can be chained).</returns>
+        [Obsolete("MapProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapMember instead.")]
         public BsonMemberMap MapProperty(string propertyName)
         {
-            if (propertyName == null)
-            {
-                throw new ArgumentNullException("propertyName");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
-            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (propertyInfo == null)
-            {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
-                throw new BsonSerializationException(message);
-            }
-            return MapMember(propertyInfo);
+            return MapMember(propertyName);
         }
 
         /// <summary>
@@ -971,21 +975,35 @@ namespace MongoDB.Bson.Serialization
         /// Removes the member map for a field from the class map.
         /// </summary>
         /// <param name="fieldName">The name of the field.</param>
+        [Obsolete("UnmapField is obsolete and will be removed in a future version of the C# Driver. Please use UnmapMember instead.")]
         public void UnmapField(string fieldName)
         {
-            if (fieldName == null)
+            UnmapMember(fieldName);
+        }
+
+        /// <summary>
+        /// Removes a member map from the class map.
+        /// </summary>
+        /// <param name="memberName">The name of the member.</param>
+        public void UnmapMember(string memberName)
+        {
+            if (memberName == null)
             {
-                throw new ArgumentNullException("fieldName");
+                throw new ArgumentNullException("memberName");
             }
 
             if (_frozen) { ThrowFrozenException(); }
-            var fieldInfo = _classType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (fieldInfo == null)
+            var memberInfo = _classType.GetMember(
+                memberName,
+                MemberTypes.Field | MemberTypes.Property,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .FirstOrDefault();
+            if (memberInfo == null)
             {
-                var message = string.Format("The class '{0}' does not have a field named '{1}'.", _classType.FullName, fieldName);
+                var message = string.Format("The class '{0}' does not have a member named '{1}'.", _classType.FullName, memberName);
                 throw new BsonSerializationException(message);
             }
-            UnmapMember(fieldInfo);
+            UnmapMember(memberInfo);
         }
 
         /// <summary>
@@ -1020,21 +1038,10 @@ namespace MongoDB.Bson.Serialization
         /// Removes the member map for a property from the class map.
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
+        [Obsolete("UnmapProperty is obsolete and will be removed in a future version of the C# Driver. Please use UnmapMember instead.")]
         public void UnmapProperty(string propertyName)
         {
-            if (propertyName == null)
-            {
-                throw new ArgumentNullException("propertyName");
-            }
-
-            if (_frozen) { ThrowFrozenException(); }
-            var propertyInfo = _classType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            if (propertyInfo == null)
-            {
-                var message = string.Format("The class '{0}' does not have a property named '{1}'.", _classType.FullName, propertyName);
-                throw new BsonSerializationException(message);
-            }
-            UnmapMember(propertyInfo);
+            UnmapMember(propertyName);
         }
 
         // internal methods
@@ -1324,10 +1331,10 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap GetMemberMap<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        public BsonMemberMap<TClass, TMember> GetMemberMap<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
-            var memberName = GetMemberNameFromLambda(memberLambda);
-            return GetMemberMap(memberName);
+            var memberInfo = GetMemberInfoFromLambda(memberLambda);
+            return (BsonMemberMap<TClass, TMember>)GetMemberMap(memberInfo);
         }
 
         /// <summary>
@@ -1336,6 +1343,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the extra elements field.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapExtraElementsField is obsolete and will be removed in a future version of the C# Driver. Please use MapExtraElementsMember instead.")]
         public BsonMemberMap MapExtraElementsField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
         {
             var fieldMap = MapField(fieldLambda);
@@ -1349,7 +1357,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the extra elements member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapExtraElementsMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        public BsonMemberMap<TClass, TMember> MapExtraElementsMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var memberMap = MapMember(memberLambda);
             SetExtraElementsMember(memberMap);
@@ -1362,6 +1370,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the extra elements property.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapExtraElementsProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapExtraElementsMember instead.")]
         public BsonMemberMap MapExtraElementsProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
             var propertyMap = MapProperty(propertyLambda);
@@ -1375,6 +1384,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapField is obsolete and will be removed in a future version of the C# Driver. Please use MapMember instead.")]
         public BsonMemberMap MapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
         {
             return MapMember(fieldLambda);
@@ -1386,6 +1396,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the Id field.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapIdField is obsolete and will be removed in a future version of the C# Driver. Please use MapIdMember instead.")]
         public BsonMemberMap MapIdField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
         {
             var fieldMap = MapField(fieldLambda);
@@ -1399,7 +1410,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the Id member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapIdMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        public BsonMemberMap<TClass, TMember> MapIdMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var memberMap = MapMember(memberLambda);
             SetIdMember(memberMap);
@@ -1412,6 +1423,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapIdProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapIdMember instead.")]
         public BsonMemberMap MapIdProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
             var propertyMap = MapProperty(propertyLambda);
@@ -1425,10 +1437,10 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="memberLambda">A lambda expression specifying the member.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap MapMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
+        public BsonMemberMap<TClass, TMember> MapMember<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             var memberInfo = GetMemberInfoFromLambda(memberLambda);
-            return MapMember(memberInfo);
+            return (BsonMemberMap<TClass, TMember>)MapMember(memberInfo);
         }
 
         /// <summary>
@@ -1437,6 +1449,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the Id property.</param>
         /// <returns>The member map.</returns>
+        [Obsolete("MapProperty is obsolete and will be removed in a future version of the C# Driver. Please use MapMember instead.")]
         public BsonMemberMap MapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
             return MapMember(propertyLambda);
@@ -1447,6 +1460,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="fieldLambda">A lambda expression specifying the field.</param>
+        [Obsolete("UnmapField is obsolete and will be removed in a future version of the C# Driver. Please use UnmapMember instead.")]
         public void UnmapField<TMember>(Expression<Func<TClass, TMember>> fieldLambda)
         {
             UnmapMember(fieldLambda);
@@ -1468,6 +1482,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
         /// <param name="propertyLambda">A lambda expression specifying the property.</param>
+        [Obsolete("UnmapProperty is obsolete and will be removed in a future version of the C# Driver. Please use UnmapMember instead.")]
         public void UnmapProperty<TMember>(Expression<Func<TClass, TMember>> propertyLambda)
         {
             UnmapMember(propertyLambda);
@@ -1500,11 +1515,6 @@ namespace MongoDB.Bson.Serialization
                     throw new BsonSerializationException("Invalid lambda expression");
             }
             return memberInfo;
-        }
-
-        private static string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
-        {
-            return GetMemberInfoFromLambda(memberLambda).Name;
         }
     }
 }

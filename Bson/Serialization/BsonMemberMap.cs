@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents the mapping between a field or property and a BSON element.
     /// </summary>
-    public class BsonMemberMap
+    public abstract class BsonMemberMap
     {
         // private fields
         private BsonClassMap _classMap;
@@ -51,8 +51,6 @@ namespace MongoDB.Bson.Serialization
         private Func<object, bool> _shouldSerializeMethod;
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
-        private object _defaultValue;
-        private bool _defaultValueSpecified;
 
         // constructors
         /// <summary>
@@ -60,13 +58,11 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="classMap">The class map this member map belongs to.</param>
         /// <param name="memberInfo">The member info.</param>
-        public BsonMemberMap(BsonClassMap classMap, MemberInfo memberInfo)
+        protected BsonMemberMap(BsonClassMap classMap, MemberInfo memberInfo)
         {
             _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
-            _defaultValue = GetDefaultValue(_memberType);
-            _defaultValueSpecified = false;
         }
 
         // public properties
@@ -239,9 +235,9 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the default value.
         /// </summary>
-        public object DefaultValue
+        public abstract object DefaultValue
         {
-            get { return _defaultValue; }
+            get;
         }
 
         /// <summary>
@@ -272,18 +268,25 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        // public static methods
+        /// <summary>
+        /// Creates a new instance of the BsonMemberMap class.
+        /// </summary>
+        /// <param name="classMap">The class map this member map belongs to.</param>
+        /// <param name="memberInfo">The member info.</param>
+        public static BsonMemberMap Create(BsonClassMap classMap, MemberInfo memberInfo)
+        {
+            var memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            var memberMapType = typeof(BsonMemberMap<,>).MakeGenericType(memberInfo.DeclaringType, memberType);
+            return (BsonMemberMap)Activator.CreateInstance(memberMapType, classMap, memberInfo);
+        }
+
         // public methods
         /// <summary>
         /// Applies the default value to the member of an object.
         /// </summary>
         /// <param name="obj">The object.</param>
-        public void ApplyDefaultValue(object obj)
-        {
-            if (_defaultValueSpecified)
-            {
-                this.Setter(obj, _defaultValue);
-            }
-        }
+        public abstract void ApplyDefaultValue(object obj);
 
         /// <summary>
         /// Gets the serializer.
@@ -323,12 +326,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
         /// <returns>The member map.</returns>
-        public BsonMemberMap SetDefaultValue(object defaultValue)
-        {
-            _defaultValue = defaultValue;
-            _defaultValueSpecified = true;
-            return this;
-        }
+        public abstract BsonMemberMap SetDefaultValue(object defaultValue);
 
         /// <summary>
         /// Sets the default value.
@@ -459,7 +457,7 @@ namespace MongoDB.Bson.Serialization
         [Obsolete("SetSerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefault instead.")]
         public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
         {
-            _ignoreIfDefault = !serializeDefaultValue;
+            SetIgnoreIfDefault(!serializeDefaultValue);
             return this;
         }
 
@@ -492,7 +490,7 @@ namespace MongoDB.Bson.Serialization
 
             if (_ignoreIfDefault)
             {
-                if (object.Equals(_defaultValue, value))
+                if (object.Equals(DefaultValue, value))
                 {
                     return false; // don't serialize default value
                 }
@@ -526,43 +524,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         // private methods
-        private static object GetDefaultValue(Type type)
-        {
-            if (type.IsEnum)
-            {
-                return Enum.ToObject(type, 0);
-            }
-
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Empty:
-                case TypeCode.DBNull:
-                case TypeCode.String:
-                    break;
-                case TypeCode.Object:
-                    if (type.IsValueType)
-                    {
-                        return Activator.CreateInstance(type);
-                    }
-                    break;
-                case TypeCode.Boolean: return false;
-                case TypeCode.Char: return '\0';
-                case TypeCode.SByte: return (sbyte)0;
-                case TypeCode.Byte: return (byte)0;
-                case TypeCode.Int16: return (short)0;
-                case TypeCode.UInt16: return (ushort)0;
-                case TypeCode.Int32: return 0;
-                case TypeCode.UInt32: return 0U;
-                case TypeCode.Int64: return 0L;
-                case TypeCode.UInt64: return 0UL;
-                case TypeCode.Single: return 0F;
-                case TypeCode.Double: return 0D;
-                case TypeCode.Decimal: return 0M;
-                case TypeCode.DateTime: return DateTime.MinValue;
-            }
-            return null;
-        }
-
         private Action<object, object> GetFieldSetter()
         {
             var fieldInfo = (FieldInfo)_memberInfo;
@@ -646,6 +607,203 @@ namespace MongoDB.Bson.Serialization
             );
 
             return lambdaExpression.Compile();
+        }
+    }
+
+    /// <summary>
+    /// Represents the mapping between a field or property and a BSON element.
+    /// </summary>
+    public class BsonMemberMap<TClass, TMember> : BsonMemberMap
+    {
+        // private fields
+        private TMember _defaultValue;
+        private bool _defaultValueSpecified;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the BsonMemberMap class.
+        /// </summary>
+        /// <param name="classMap">The class map this member map belongs to.</param>
+        /// <param name="memberInfo">The member info.</param>
+        public BsonMemberMap(BsonClassMap<TClass> classMap, MemberInfo memberInfo)
+            : base(classMap, memberInfo)
+        {
+            _defaultValue = default(TMember);
+            _defaultValueSpecified = false;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the class map that this member map belongs to.
+        /// </summary>
+        public new BsonClassMap<TClass> ClassMap
+        {
+            get { return (BsonClassMap<TClass>)base.ClassMap; }
+        }
+
+        /// <summary>
+        /// Gets the default value.
+        /// </summary>
+        public override sealed object DefaultValue
+        {
+            get { return _defaultValue; }
+        }
+
+        // public methods
+        /// <summary>
+        /// Applies the default value to the member of an object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public override sealed void ApplyDefaultValue(object obj)
+        {
+            ApplyDefaultValue((TClass)obj);
+        }
+
+        /// <summary>
+        /// Applies the default value to the member of an object.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        public void ApplyDefaultValue(TClass obj)
+        {
+            if (_defaultValueSpecified)
+            {
+                this.Setter(obj, _defaultValue);
+            }
+        }
+
+        /// <summary>
+        /// Sets the default value.
+        /// </summary>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The member map.</returns>
+        public override sealed BsonMemberMap SetDefaultValue(object defaultValue)
+        {
+            SetDefaultValue((TMember)defaultValue);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the default value.
+        /// </summary>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap<TClass, TMember> SetDefaultValue(TMember defaultValue)
+        {
+            _defaultValue = defaultValue;
+            _defaultValueSpecified = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the name of the element.
+        /// </summary>
+        /// <param name="elementName">The name of the element.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetElementName(string elementName)
+        {
+            base.SetElementName(elementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the Id generator.
+        /// </summary>
+        /// <param name="idGenerator">The Id generator.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetIdGenerator(IIdGenerator idGenerator)
+        {
+            base.SetIdGenerator(idGenerator);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether default values should be ignored when serialized.
+        /// </summary>
+        /// <param name="ignoreIfDefault">Whether default values should be ignored when serialized.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetIgnoreIfDefault(bool ignoreIfDefault)
+        {
+            base.SetIgnoreIfDefault(ignoreIfDefault);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether null values should be ignored when serialized.
+        /// </summary>
+        /// <param name="ignoreIfNull">Wether null values should be ignored when serialized.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetIgnoreIfNull(bool ignoreIfNull)
+        {
+            base.SetIgnoreIfNull(ignoreIfNull);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether an element is required for this member when deserialized
+        /// </summary>
+        /// <param name="isRequired">Whether an element is required for this member when deserialized</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetIsRequired(bool isRequired)
+        {
+            base.SetIsRequired(isRequired);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the serialization order.
+        /// </summary>
+        /// <param name="order">The serialization order.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetOrder(int order)
+        {
+            base.SetOrder(order);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the external representation.
+        /// </summary>
+        /// <param name="representation">The external representation.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetRepresentation(BsonType representation)
+        {
+            base.SetRepresentation(representation);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the serialization options.
+        /// </summary>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetSerializationOptions(IBsonSerializationOptions serializationOptions)
+        {
+            base.SetSerializationOptions(serializationOptions);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the serializer.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>The member map.</returns>
+        public new BsonMemberMap<TClass, TMember> SetSerializer(IBsonSerializer serializer)
+        {
+            base.SetSerializer(serializer);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the method that will be called to determine whether the member should be serialized.
+        /// </summary>
+        /// <param name="shouldSerializeMethod">The method.</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap<TClass, TMember> SetShouldSerializeMethod(
+            Func<TClass, bool> shouldSerializeMethod)
+        {
+            base.SetShouldSerializeMethod(shouldSerializeMethod != null ?
+                obj => shouldSerializeMethod(((TClass)obj)) : (Func<object, bool>)null);
+            return this;
         }
     }
 }

@@ -71,11 +71,11 @@ namespace MongoDB.BsonUnitTests.Serialization
             {
                 BsonClassMap.RegisterClassMap<Employee>(cm =>
                 {
-                    cm.MapIdProperty(e => e.EmployeeId);
-                    cm.MapProperty(e => e.FirstName).SetElementName("fn");
-                    cm.MapProperty(e => e.LastName).SetElementName("ln");
-                    cm.MapProperty(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
-                    cm.MapProperty(e => e.Age).SetElementName("age");
+                    cm.MapIdMember(e => e.EmployeeId);
+                    cm.MapMember(e => e.FirstName).SetElementName("fn");
+                    cm.MapMember(e => e.LastName).SetElementName("ln");
+                    cm.MapMember(e => e.DateOfBirth).SetElementName("dob").SetSerializer(new DateOfBirthSerializer());
+                    cm.MapMember(e => e.Age).SetElementName("age");
                 });
             }
 
