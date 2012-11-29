@@ -150,6 +150,9 @@
     <Compile Include="Serialization\BsonSerializationInfo.cs" />
     <Compile Include="Serialization\Serializers\CollectionGenericSerializers.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializers.cs" />
+    <Compile Include="Serialization\Serializers\NullSerializer.cs" />
+    <Compile Include="Serialization\Serializers\SerializerHolder.cs" />
+    <Compile Include="Serialization\Serializers\DiscriminatorSerializer.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionaryGenericSerializer.cs" />
     <Compile Include="Serialization\Serializers\DictionarySerializer.cs" />

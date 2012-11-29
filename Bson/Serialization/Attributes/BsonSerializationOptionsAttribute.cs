@@ -20,6 +20,7 @@ using System.Text;
 
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {
@@ -43,7 +44,8 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="memberMap">The member map.</param>
         public virtual void Apply(BsonMemberMap memberMap)
         {
-            var memberSerializer = memberMap.GetSerializer(memberMap.MemberType);
+            var memberSerializer = memberMap.GetSerializer();
+            memberSerializer = DiscriminatorSerializer.Unwrap(memberSerializer);
             var memberSerializationOptions = memberMap.SerializationOptions;
             if (memberSerializationOptions == null)
             {

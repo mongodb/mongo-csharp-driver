@@ -48,7 +48,6 @@ namespace MongoDB.Bson.Serialization
         private bool _frozen; // once a class map has been frozen no further changes are allowed
         private BsonClassMap _baseClassMap; // null for class object and interfaces
         private Type _classType;
-        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
         private Func<object> _creator;
         private ConventionProfile _conventions;
         private string _discriminator;
@@ -58,7 +57,7 @@ namespace MongoDB.Bson.Serialization
         private bool _isAnonymous;
         private BsonMemberMap _idMemberMap;
         private readonly List<BsonMemberMap> _allMemberMaps; // includes inherited member maps
-        private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
+        private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly; // List is faster than an Array when converted to a ReadOnlyCollection
         private readonly List<BsonMemberMap> _declaredMemberMaps; // only the members declared in this class
         private readonly BsonTrie<int> _elementTrie;
         private bool _ignoreExtraElements = true;
@@ -408,7 +407,10 @@ namespace MongoDB.Bson.Serialization
             {
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 __classMaps.Add(classMap.ClassType, classMap);
-                BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+                if (classMap.ClassType.IsClass)
+                {
+                    BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+                }
             }
             finally
             {
@@ -1035,24 +1037,6 @@ namespace MongoDB.Bson.Serialization
                 throw new BsonSerializationException(message);
             }
             UnmapMember(propertyInfo);
-        }
-
-        // internal methods
-        /// <summary>
-        /// Gets the discriminator convention for the class.
-        /// </summary>
-        /// <returns>The discriminator convention for the class.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention()
-        {
-            // return a cached discriminator convention when possible
-            var discriminatorConvention = _cachedDiscriminatorConvention;
-            if (discriminatorConvention == null)
-            {
-                // it's possible but harmless for multiple threads to do the initial lookup at the same time
-                discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(_classType);
-                _cachedDiscriminatorConvention = discriminatorConvention;
-            }
-            return discriminatorConvention;
         }
 
         // private methods

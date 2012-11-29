@@ -109,7 +109,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonReader,
                         typeof(KeyValuePair<TKey, TValue>),
                         keyValuePairSerializationOptions);
-                    dictionary.Add(keyValuePair);
+                    dictionary.Add(keyValuePair.Key, keyValuePair.Value);
                 }
                 bsonReader.ReadEndArray();
 

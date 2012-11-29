@@ -33,6 +33,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ReadOnlyCollectionSerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
+        // private static fields
+        private static SerializerHolder __elementHolder = new SerializerHolder(typeof(T));
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the ReadOnlyCollectionSerializer class.
@@ -67,14 +70,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Array:
+                    var elementSerializer = __elementHolder.Value;
                     bsonReader.ReadStartArray();
                     var list = new List<T>();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                        var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
+                        var element = (T)elementSerializer.Deserialize(bsonReader, typeof(T), itemSerializationOptions);
                         list.Add(element);
                     }
                     bsonReader.ReadEndArray();
@@ -99,7 +100,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(T));
+            var serializer = __elementHolder.Value;
+            serializer = DiscriminatorSerializer.Unwrap(serializer);
             var nominalType = typeof(T);
             IBsonSerializationOptions serializationOptions = null;
             return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
@@ -149,10 +151,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var elementSerializer = __elementHolder.Value;
                 bsonWriter.WriteStartArray();
                 foreach (var item in items)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), item, itemSerializationOptions);
+                    elementSerializer.Serialize(bsonWriter, typeof(T), item, itemSerializationOptions);
                 }
                 bsonWriter.WriteEndArray();
             }

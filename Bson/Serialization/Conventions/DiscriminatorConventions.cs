@@ -107,45 +107,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <returns>The actual type.</returns>
         public Type GetActualType(BsonReader bsonReader, Type nominalType)
         {
-            // the BsonReader is sitting at the value whose actual type needs to be found
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonReader.State == BsonReaderState.Value)
-            {
-                Type primitiveType = null;
-                switch (bsonType)
-                {
-                    case BsonType.Boolean: primitiveType = typeof(bool); break;
-                    case BsonType.Binary:
-                        var bookmark = bsonReader.GetBookmark();
-                        byte[] bytes;
-                        BsonBinarySubType subType;
-                        bsonReader.ReadBinaryData(out bytes, out subType);
-                        if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
-                        {
-                            primitiveType = typeof(Guid);
-                        }
-                        bsonReader.ReturnToBookmark(bookmark);
-                        break;
-                    case BsonType.DateTime: primitiveType = typeof(DateTime); break;
-                    case BsonType.Double: primitiveType = typeof(double); break;
-                    case BsonType.Int32: primitiveType = typeof(int); break;
-                    case BsonType.Int64: primitiveType = typeof(long); break;
-                    case BsonType.ObjectId: primitiveType = typeof(ObjectId); break;
-                    case BsonType.String: primitiveType = typeof(string); break;
-                }
-
-                // Type.IsAssignableFrom is extremely expensive, always perform a direct type check before calling Type.IsAssignableFrom
-                if (primitiveType != null && (primitiveType == nominalType || nominalType.IsAssignableFrom(primitiveType)))
-                {
-                    return primitiveType;
-                }
-            }
-
             if (bsonType == BsonType.Document)
             {
-                // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
-
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
                 if (BsonSerializer.IsTypeDiscriminated(nominalType))
                 {
@@ -163,6 +127,34 @@ namespace MongoDB.Bson.Serialization.Conventions
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;
+                }
+            }
+            else if (bsonReader.State == BsonReaderState.Value &&
+                nominalType == typeof(object))
+            {
+                // only System.Object is assignable from primitive types as type.IsAssignable
+                // is evaluated at the CLR level where language level conversions do not apply
+                // the BsonReader is sitting at the value whose actual type needs to be found
+                switch (bsonType)
+                {
+                    case BsonType.Boolean: return typeof(bool);
+                    case BsonType.Binary:
+                        var bookmark = bsonReader.GetBookmark();
+                        byte[] bytes;
+                        BsonBinarySubType subType;
+                        bsonReader.ReadBinaryData(out bytes, out subType);
+                        bsonReader.ReturnToBookmark(bookmark);
+                        if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
+                        {
+                            return typeof(Guid);
+                        }
+                        break;
+                    case BsonType.DateTime: return typeof(DateTime);
+                    case BsonType.Double: return typeof(double);
+                    case BsonType.Int32: return typeof(int);
+                    case BsonType.Int64: return typeof(long);
+                    case BsonType.ObjectId: return typeof(ObjectId);
+                    case BsonType.String: return typeof(string);
                 }
             }
 
