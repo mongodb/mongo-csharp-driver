@@ -49,7 +49,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp270
         public void TestBogusElement()
         {
             var document = new BsonDocument("bogus", 0);
-            var message = "Element 'bogus' does not match any field or property of class MongoDB.BsonUnitTests.Jira.CSharp270.C.";
+            var message = "An error occurred while deserializing class MongoDB.BsonUnitTests.Jira.CSharp270.C: Element 'bogus' does not match any field or property of class MongoDB.BsonUnitTests.Jira.CSharp270.C.";
             var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }

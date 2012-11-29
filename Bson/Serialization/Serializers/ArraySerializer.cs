@@ -32,6 +32,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ArraySerializer<T> : BsonBaseSerializer, IBsonArraySerializer
     {
+        // private static fields
+        private static SerializerHolder __elementHolder = new SerializerHolder(typeof(T));
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the ArraySerializer class.
@@ -67,14 +70,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Array:
+                    var elementSerializer = __elementHolder.Value;
                     bsonReader.ReadStartArray();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     var list = new List<T>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                        var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
+                        var element = (T)elementSerializer.Deserialize(bsonReader, typeof(T), itemSerializationOptions);
                         list.Add(element);
                     }
                     bsonReader.ReadEndArray();
@@ -141,10 +142,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var elementSerializer = __elementHolder.Value;
                 bsonWriter.WriteStartArray();
                 for (int index = 0; index < array.Length; index++)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), array[index], itemSerializationOptions);
+                    elementSerializer.Serialize(bsonWriter, typeof(T), array[index], itemSerializationOptions);
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -157,6 +159,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class TwoDimensionalArraySerializer<T> : BsonBaseSerializer
     {
+        // private static fields
+        private static SerializerHolder __elementHolder = new SerializerHolder(typeof(T));
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the TwoDimensionalArraySerializer class.
@@ -193,8 +198,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Array:
+                    var elementSerializer = __elementHolder.Value;
                     bsonReader.ReadStartArray();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     var outerList = new List<List<T>>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
@@ -202,9 +207,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         var innerList = new List<T>();
                         while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                         {
-                            var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                            var serializer = BsonSerializer.LookupSerializer(elementType);
-                            var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
+                            var element = (T)elementSerializer.Deserialize(bsonReader, typeof(T), itemSerializationOptions);
                             innerList.Add(element);
                         }
                         bsonReader.ReadEndArray();
@@ -279,6 +282,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var elementSerializer = __elementHolder.Value;
                 bsonWriter.WriteStartArray();
                 var length1 = array.GetLength(0);
                 var length2 = array.GetLength(1);
@@ -287,7 +291,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteStartArray();
                     for (int j = 0; j < length2; j++)
                     {
-                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j], itemSerializationOptions);
+                        elementSerializer.Serialize(bsonWriter, typeof(T), array[i, j], itemSerializationOptions);
                     }
                     bsonWriter.WriteEndArray();
                 }
@@ -302,6 +306,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T">The type of the elements.</typeparam>
     public class ThreeDimensionalArraySerializer<T> : BsonBaseSerializer
     {
+        // private static fields
+        private static SerializerHolder __elementHolder = new SerializerHolder(typeof(T));
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the ThreeDimensionalArraySerializer class.
@@ -338,6 +345,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Array:
+                    var elementSerializer = __elementHolder.Value;
                     bsonReader.ReadStartArray();
                     var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     var outerList = new List<List<List<T>>>();
@@ -351,9 +359,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                             var innerList = new List<T>();
                             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                             {
-                                var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                                var serializer = BsonSerializer.LookupSerializer(elementType);
-                                var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
+                                var element = (T)elementSerializer.Deserialize(bsonReader, typeof(T), itemSerializationOptions);
                                 innerList.Add(element);
                             }
                             bsonReader.ReadEndArray();
@@ -441,6 +447,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var elementSerializer = __elementHolder.Value;
                 bsonWriter.WriteStartArray();
                 var length1 = array.GetLength(0);
                 var length2 = array.GetLength(1);
@@ -453,7 +460,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bsonWriter.WriteStartArray();
                         for (int k = 0; k < length3; k++)
                         {
-                            BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k], itemSerializationOptions);
+                            elementSerializer.Serialize(bsonWriter, typeof(T), array[i, j, k], itemSerializationOptions);
                         }
                         bsonWriter.WriteEndArray();
                     }

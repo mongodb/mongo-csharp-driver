@@ -26,6 +26,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -44,8 +45,6 @@ namespace MongoDB.Bson.Serialization
         private Action<object, object> _setter;
         private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
-        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
-        private volatile IBsonSerializer _cachedSerializer;
         private IIdGenerator _idGenerator;
         private bool _isRequired;
         private Func<object, bool> _shouldSerializeMethod;
@@ -53,6 +52,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreIfNull;
         private object _defaultValue;
         private bool _defaultValueSpecified;
+        private readonly SerializerHolder _holder;
 
         // constructors
         /// <summary>
@@ -67,6 +67,7 @@ namespace MongoDB.Bson.Serialization
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _defaultValue = GetDefaultValue(_memberType);
             _defaultValueSpecified = false;
+            _holder = new SerializerHolder(_memberType);
         }
 
         // public properties
@@ -288,34 +289,11 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Gets the serializer.
         /// </summary>
-        /// <param name="actualType">The actual type of the member's value.</param>
         /// <returns>The member map.</returns>
-        public IBsonSerializer GetSerializer(Type actualType)
+        public IBsonSerializer GetSerializer()
         {
             // if a custom serializer is configured always return it
-            if (_serializer != null)
-            {
-                return _serializer;
-            }
-            else
-            {
-                // return a cached serializer when possible
-                if (actualType == _memberType)
-                {
-                    var serializer = _cachedSerializer;
-                    if (serializer == null)
-                    {
-                        // it's possible but harmless for multiple threads to do the initial lookup at the same time
-                        serializer = BsonSerializer.LookupSerializer(_memberType);
-                        _cachedSerializer = serializer;
-                    }
-                    return serializer;
-                }
-                else
-                {
-                    return BsonSerializer.LookupSerializer(actualType);
-                }
-            }
+            return _serializer ?? _holder.Value;
         }
 
         /// <summary>
@@ -505,24 +483,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             return true;
-        }
-
-        // internal methods
-        /// <summary>
-        /// Gets the discriminator convention for the member type.
-        /// </summary>
-        /// <returns>The discriminator convention for the member type.</returns>
-        internal IDiscriminatorConvention GetDiscriminatorConvention()
-        {
-            // return a cached discriminator convention when possible
-            var discriminatorConvention = _cachedDiscriminatorConvention;
-            if (discriminatorConvention == null)
-            {
-                // it's possible but harmless for multiple threads to do the initial lookup at the same time
-                discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(_memberType);
-                _cachedDiscriminatorConvention = discriminatorConvention;
-            }
-            return discriminatorConvention;
         }
 
         // private methods

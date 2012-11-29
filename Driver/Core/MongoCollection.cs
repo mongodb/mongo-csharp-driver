@@ -1451,7 +1451,7 @@ namespace MongoDB.Driver
                     {
                         var classMap = BsonClassMap.LookupClassMap(documentType);
                         var idMemberMap = classMap.IdMemberMap;
-                        var idSerializer = idMemberMap.GetSerializer(id.GetType());
+                        var idSerializer = idMemberMap.GetSerializer();
                         // we only care about the serialized _id value but we need a dummy document to serialize it into
                         var bsonDocument = new BsonDocument();
                         var bsonDocumentWriterSettings = new BsonDocumentWriterSettings
