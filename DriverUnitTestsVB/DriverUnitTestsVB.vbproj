@@ -111,7 +111,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DriverUnitTests\DriverUnitTests.csproj">
+    <ProjectReference Include="..\MongoDB.DriverUnitTests\MongoDB.DriverUnitTests.csproj">
       <Project>{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}</Project>
       <Name>DriverUnitTests</Name>
     </ProjectReference>
