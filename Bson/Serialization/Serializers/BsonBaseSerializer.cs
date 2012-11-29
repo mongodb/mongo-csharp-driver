@@ -48,11 +48,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
         protected BsonBaseSerializer(IBsonSerializationOptions defaultSerializationOptions)
         {
-            if (defaultSerializationOptions != null)
-            {
-                _defaultSerializationOptions = defaultSerializationOptions.Clone().Freeze();
-            }
-        }
+			_defaultSerializationOptions = defaultSerializationOptions;
+		}
 
         // public properties
         /// <summary>
