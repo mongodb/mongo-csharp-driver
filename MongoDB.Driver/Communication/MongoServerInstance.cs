@@ -23,29 +23,6 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents an instance of a MongoDB server host (in the case of a replica set a MongoServer uses multiple MongoServerInstances).
-    /// </summary>
-    public enum MongoServerInstanceType
-    {
-        /// <summary>
-        /// The server instance type is unknown.  This is the default.
-        /// </summary>
-        Unknown,
-        /// <summary>
-        /// The server is a standalone instance.
-        /// </summary>
-        StandAlone,
-        /// <summary>
-        /// The server is a replica set member.
-        /// </summary>
-        ReplicaSetMember,
-        /// <summary>
-        /// The server is a shard router (mongos).
-        /// </summary>
-        ShardRouter
-    }
-
-    /// <summary>
     /// Represents an instance of a MongoDB server host.
     /// </summary>
     public sealed class MongoServerInstance

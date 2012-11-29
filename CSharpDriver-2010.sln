@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson", "MongoDB.Bso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.BsonUnitTests", "MongoDB.BsonUnitTests\MongoDB.BsonUnitTests.csproj", "{10A5FAC2-E26F-4726-B888-26D5B849F805}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver", "MongoDB.Driver\MongoDB.Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverUnitTests", "DriverUnitTests\DriverUnitTests.csproj", "{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}"
 EndProject

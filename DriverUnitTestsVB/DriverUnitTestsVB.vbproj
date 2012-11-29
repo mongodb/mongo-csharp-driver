@@ -115,7 +115,7 @@
       <Project>{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}</Project>
       <Name>DriverUnitTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Driver\Driver.csproj">
+    <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>
       <Name>Driver</Name>
     </ProjectReference>
