@@ -22,7 +22,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("MongoDB.BsonUnitTests")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("MongoDB.BsonUnitTests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM

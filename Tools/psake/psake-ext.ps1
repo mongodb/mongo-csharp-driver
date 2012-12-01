@@ -11,7 +11,29 @@ function Get-GitCommit
   }
 }
 
-function Generate-Assembly-Info
+function Get-BuildNumber
+{
+  try {
+    $version = git describe --tags --long --match v*
+    $regex = [regex]"-(\d+)-"
+    $match = $regex.Match($version)
+    return $match.Groups[1].Value
+  }
+  catch {
+    return "0"
+  }
+}
+
+function Get-ShortenedVersion($version)
+{
+  if($version.EndsWith(".0")) {
+    return $version.SubString(0, $version.Length - 2)
+  }
+
+  return $version
+}
+
+function Generate-AssemblyInfo
 {
 param(
   [string]$config,
@@ -63,4 +85,14 @@ function RemoveDirectory($path) {
   if(Test-Path $path) {
     rd -rec -force $path | out-null
   }
+}
+
+function Reset-AssemblyInfo 
+{
+  try {
+    git checkout GlobalAssemblyInfo.cs
+  }
+  catch {
+    Write-Host "Unable to reset assembly info"
+  } 
 }
