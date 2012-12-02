@@ -602,7 +602,7 @@ namespace MongoDB.Driver.Builders
         // internal methods
         internal MapReduceOptionsBuilder AddOptions(BsonDocument options)
         {
-            _document.Add(options);
+            _document.AddRange(options);
             return this;
         }
 

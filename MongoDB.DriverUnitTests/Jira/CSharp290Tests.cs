@@ -54,10 +54,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290
         [Test]
         public void TestBsonDocumentAdd()
         {
-            var document1 = new BsonDocument().Add(_dictionary);
-            var document2 = new BsonDocument().Add(_hashtable);
-            var document3 = new BsonDocument().Add(_idictionaryNonGeneric);
-            var document4 = new BsonDocument().Add(_idictionary);
+            var document1 = new BsonDocument().AddRange(_dictionary);
+            var document2 = new BsonDocument().AddRange(_hashtable);
+            var document3 = new BsonDocument().AddRange(_idictionaryNonGeneric);
+            var document4 = new BsonDocument().AddRange(_idictionary);
 
             Assert.AreEqual("Dictionary<string, object>", document1["type"].AsString);
             Assert.AreEqual("Hashtable", document2["type"].AsString);

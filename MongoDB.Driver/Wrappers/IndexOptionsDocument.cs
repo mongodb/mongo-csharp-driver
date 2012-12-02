@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use IndexOptionsDocument<IEnumerable<BsonElement> elements) instead.")]
         public IndexOptionsDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
             : base(dictionary, keys)
         {
@@ -80,7 +81,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the IndexOptionsDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public IndexOptionsDocument(IDictionary<string, object> dictionary)
+        public IndexOptionsDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
             : base(dictionary)
         {
         }
@@ -90,6 +91,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use IndexOptionsDocument<IEnumerable<BsonElement> elements) instead.")]
         public IndexOptionsDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
             : base(dictionary, keys)
         {
@@ -109,6 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use IndexOptionsDocument<IEnumerable<BsonElement> elements) instead.")]
         public IndexOptionsDocument(IDictionary dictionary, IEnumerable keys)
             : base(dictionary, keys)
         {
@@ -127,6 +130,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the IndexOptionsDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
+        [Obsolete("Use IndexOptionsDocument<IEnumerable<BsonElement> elements) instead.")]
         public IndexOptionsDocument(params BsonElement[] elements)
             : base(elements)
         {

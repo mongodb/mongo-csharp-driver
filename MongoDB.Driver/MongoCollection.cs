@@ -1215,7 +1215,7 @@ namespace MongoDB.Driver
                 { "map", map },
                 { "reduce", reduce }
             };
-            command.Add(options.ToBsonDocument());
+            command.AddRange(options.ToBsonDocument());
             var result = RunCommandAs<MapReduceResult>(command);
             result.SetInputDatabase(_database);
             return result;

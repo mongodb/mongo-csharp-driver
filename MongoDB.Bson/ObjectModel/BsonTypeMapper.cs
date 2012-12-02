@@ -222,9 +222,9 @@ namespace MongoDB.Bson
                     }
                     break;
                 case BsonType.Document:
-                    if (value is IDictionary<string, object>)
+                    if (value is IEnumerable<KeyValuePair<string, object>>)
                     {
-                        return new BsonDocument((IDictionary<string, object>)value);
+                        return new BsonDocument((IEnumerable<KeyValuePair<string, object>>)value);
                     }
                     if (value is IDictionary)
                     {
@@ -466,9 +466,9 @@ namespace MongoDB.Bson
             }
 
             // these mappings can't be handled by the mappings table (because of the interfaces)
-            if (value is IDictionary<string, object>)
+            if (value is IEnumerable<KeyValuePair<string, object>>)
             {
-                bsonValue = new BsonDocument((IDictionary<string, object>)value);
+                bsonValue = new BsonDocument((IEnumerable<KeyValuePair<string, object>>)value);
                 return true;
             }
             if (value is IDictionary)

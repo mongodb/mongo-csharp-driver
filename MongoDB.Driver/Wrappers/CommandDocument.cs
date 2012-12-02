@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use CommandDocument<IEnumerable<BsonElement> elements) instead.")]
         public CommandDocument(Dictionary<string, object> dictionary, IEnumerable<string> keys)
             : base(dictionary, keys)
         {
@@ -80,7 +81,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the CommandDocument class and adds new elements from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
-        public CommandDocument(IDictionary<string, object> dictionary)
+        public CommandDocument(IEnumerable<KeyValuePair<string, object>> dictionary)
             : base(dictionary)
         {
         }
@@ -90,6 +91,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use CommandDocument<IEnumerable<BsonElement> elements) instead.")]
         public CommandDocument(IDictionary<string, object> dictionary, IEnumerable<string> keys)
             : base(dictionary, keys)
         {
@@ -109,6 +111,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="dictionary">A dictionary to initialize the document from.</param>
         /// <param name="keys">A list of keys to select values from the dictionary.</param>
+        [Obsolete("Use CommandDocument<IEnumerable<BsonElement> elements) instead.")]
         public CommandDocument(IDictionary dictionary, IEnumerable keys)
             : base(dictionary, keys)
         {
@@ -127,6 +130,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the CommandDocument class and adds one or more elements.
         /// </summary>
         /// <param name="elements">One or more elements to add to the document.</param>
+        [Obsolete("Use CommandDocument<IEnumerable<BsonElement> elements) instead.")]
         public CommandDocument(params BsonElement[] elements)
             : base(elements)
         {

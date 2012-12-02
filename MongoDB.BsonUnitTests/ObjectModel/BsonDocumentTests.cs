@@ -199,7 +199,9 @@ namespace MongoDB.BsonUnitTests
         {
             var element1 = new BsonElement("x", 1);
             var element2 = new BsonElement("y", 2);
+#pragma warning disable 618
             var document = new BsonDocument(element1, element2);
+#pragma warning restore
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(2, document["y"].AsInt32);
@@ -227,7 +229,9 @@ namespace MongoDB.BsonUnitTests
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
             var keys = new string[] { "x" };
+#pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
+#pragma warning restore
             Assert.AreEqual(1, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));
@@ -261,7 +265,9 @@ namespace MongoDB.BsonUnitTests
         {
             var dictionary = (IDictionary<string, object>)new Dictionary<string, object> { { "x", 1 }, { "y", 2 } };
             var keys = new string[] { "x" };
+#pragma warning disable 618
             var document = new BsonDocument(dictionary, keys);
+#pragma warning restore
             Assert.AreEqual(1, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));
@@ -273,7 +279,9 @@ namespace MongoDB.BsonUnitTests
         {
             var hashtable = (IDictionary)new Hashtable { { "x", 1 }, { "y", 2 } };
             var keys = new string[] { "x" };
+#pragma warning disable 618
             var document = new BsonDocument(hashtable, keys);
+#pragma warning restore
             Assert.AreEqual(1, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreEqual(true, document.Contains("x"));
