@@ -42,6 +42,24 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAll()
         {
+            var settings = new MongoCollectionSettings
+            {
+                AssignIdOnInsert = true,
+                GuidRepresentation = GuidRepresentation.PythonLegacy,
+                ReadPreference = ReadPreference.Primary,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+
+            Assert.AreEqual(true, settings.AssignIdOnInsert);
+            Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
+            Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
+            Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
+        }
+
+        [Test]
+        public void TestAllObsolete()
+        {
+#pragma warning disable 618
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection")
             {
                 AssignIdOnInsert = true,
@@ -56,13 +74,14 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
+#pragma warning restore
         }
 
         [Test]
         public void TestAssignIdOnInsert()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(MongoDefaults.AssignIdOnInsert, settings.AssignIdOnInsert);
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(false, settings.AssignIdOnInsert);
 
             var assignIdOnInsert = !settings.AssignIdOnInsert;
             settings.AssignIdOnInsert = assignIdOnInsert;
@@ -77,7 +96,7 @@ namespace MongoDB.DriverUnitTests
         public void TestClone()
         {
             // set everything to non default values to test that all settings are cloned
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection")
+            var settings = new MongoCollectionSettings
             {
                 AssignIdOnInsert = !MongoDefaults.AssignIdOnInsert,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
@@ -89,18 +108,31 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestCollectionName()
+        public void TestCollectionNameObsolete()
         {
+#pragma warning disable 618
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
             Assert.AreEqual("collection", settings.CollectionName);
 
             settings.Freeze();
             Assert.AreEqual("collection", settings.CollectionName);
+#pragma warning restore
         }
 
         [Test]
         public void TestConstructor()
         {
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(false, settings.AssignIdOnInsert);
+            Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
+            Assert.AreEqual(null, settings.ReadPreference);
+            Assert.AreEqual(null, settings.WriteConcern);
+        }
+
+        [Test]
+        public void TestConstructorObsolete()
+        {
+#pragma warning disable 618
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
             Assert.AreEqual("collection", settings.CollectionName);
             Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
@@ -108,22 +140,25 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(_database.Settings.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(_database.Settings.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(_database.Settings.WriteConcern, settings.WriteConcern);
+#pragma warning restore
         }
 
         [Test]
-        public void TestDefaultDocumentType()
+        public void TestDefaultDocumentTypeObsolete()
         {
+#pragma warning disable 618
             var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
             Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
 
             settings.Freeze();
             Assert.AreEqual(typeof(BsonDocument), settings.DefaultDocumentType);
+#pragma warning restore
         }
 
         [Test]
         public void TestEquals()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
+            var settings = new MongoCollectionSettings();
             var clone = settings.Clone();
             Assert.IsTrue(clone.Equals(settings));
 
@@ -161,7 +196,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFeeze()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection")
+            var settings = new MongoCollectionSettings
             {
                 ReadPreference = new ReadPreference(),
                 WriteConcern = new WriteConcern()
@@ -183,7 +218,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFrozenCopy()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
+            var settings = new MongoCollectionSettings();
             Assert.IsFalse(settings.IsFrozen);
 
             var frozenCopy = settings.FrozenCopy();
@@ -199,8 +234,8 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGuidRepresentation()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
 
             var guidRepresentation = GuidRepresentation.PythonLegacy;
             settings.GuidRepresentation = guidRepresentation;
@@ -214,8 +249,8 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestReadPreference()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(null, settings.ReadPreference);
 
             var readPreference = ReadPreference.Secondary;
             settings.ReadPreference = readPreference;
@@ -230,8 +265,8 @@ namespace MongoDB.DriverUnitTests
         public void TestSafeMode()
         {
 #pragma warning disable 618
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(SafeMode.True, settings.SafeMode);
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(null, settings.SafeMode);
 
             var safeMode = SafeMode.W2;
             settings.SafeMode = safeMode;
@@ -263,8 +298,8 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestWriteConcern()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "collection");
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            var settings = new MongoCollectionSettings();
+            Assert.AreEqual(null, settings.WriteConcern);
 
             var writeConcern = WriteConcern.W2;
             settings.WriteConcern = writeConcern;

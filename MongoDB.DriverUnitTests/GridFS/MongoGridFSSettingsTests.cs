@@ -39,6 +39,19 @@ namespace MongoDB.DriverUnitTests.GridFS
         [Test]
         public void TestDefaults()
         {
+            var settings = MongoGridFSSettings.Defaults;
+            Assert.AreEqual(256 * 1024, settings.ChunkSize);
+            Assert.AreEqual("fs", settings.Root);
+            Assert.AreEqual(true, settings.UpdateMD5);
+            Assert.AreEqual(true, settings.VerifyMD5);
+            Assert.AreEqual(true, settings.IsFrozen);
+            Assert.AreEqual(null, settings.WriteConcern);
+        }
+
+        [Test]
+        public void TestDefaultsObsolete()
+        {
+#pragma warning disable 618
             var settings = new MongoGridFSSettings(_database);
             Assert.IsFalse(settings.IsFrozen);
             Assert.AreEqual("fs.chunks", settings.ChunksCollectionName);
@@ -46,11 +59,43 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.AreEqual("fs.files", settings.FilesCollectionName);
             Assert.AreEqual("fs", settings.Root);
             Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+#pragma warning restore
+        }
+
+        public void TestCreation()
+        {
+            var settings = new MongoGridFSSettings()
+            {
+                ChunkSize = 64 * 1024,
+                Root = "root",
+                UpdateMD5 = true,
+                VerifyMD5 = true,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+            Assert.AreEqual(64 * 1024, settings.ChunkSize);
+            Assert.AreEqual("root", settings.Root);
+            Assert.AreEqual(true, settings.UpdateMD5);
+            Assert.AreEqual(true, settings.VerifyMD5);
+            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.AreEqual(false, settings.IsFrozen);
         }
 
         [Test]
-        public void TestCreation()
+        public void TestCreationEmpty()
         {
+            var settings = new MongoGridFSSettings();
+            Assert.AreEqual(0, settings.ChunkSize);
+            Assert.AreEqual(null, settings.Root);
+            Assert.AreEqual(false, settings.UpdateMD5);
+            Assert.AreEqual(false, settings.VerifyMD5);
+            Assert.AreEqual(false, settings.IsFrozen);
+            Assert.AreEqual(null, settings.WriteConcern);
+        }
+
+        [Test]
+        public void TestCreationObsolete()
+        {
+#pragma warning disable 618
             var settings = new MongoGridFSSettings(_database)
             {
                 ChunkSize = 64 * 1024,
@@ -63,12 +108,13 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.AreEqual("root.files", settings.FilesCollectionName);
             Assert.AreEqual("root", settings.Root);
             Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+#pragma warning restore
         }
 
         [Test]
         public void TestCloneAndEquals()
         {
-            var settings = new MongoGridFSSettings(_database)
+            var settings = new MongoGridFSSettings()
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",
@@ -84,9 +130,9 @@ namespace MongoDB.DriverUnitTests.GridFS
         [Test]
         public void TestEquals()
         {
-            var a = new MongoGridFSSettings(_database) { ChunkSize = 123 };
-            var b = new MongoGridFSSettings(_database) { ChunkSize = 123 };
-            var c = new MongoGridFSSettings(_database) { ChunkSize = 345 };
+            var a = new MongoGridFSSettings() { ChunkSize = 123 };
+            var b = new MongoGridFSSettings() { ChunkSize = 123 };
+            var c = new MongoGridFSSettings() { ChunkSize = 345 };
             var n = (WriteConcern)null;
 
             Assert.IsTrue(object.Equals(a, b));
@@ -112,7 +158,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         [Test]
         public void TestFreeze()
         {
-            var settings = new MongoGridFSSettings(_database);
+            var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
             settings.Freeze();
             Assert.IsTrue(settings.IsFrozen);

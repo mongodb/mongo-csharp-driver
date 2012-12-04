@@ -23,17 +23,17 @@ using MongoDB.Bson;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The settings used to access a collection (an abstract class, see MongoCollectionSettings{TDefaultDocument}).
+    /// The settings used to access a collection.
     /// </summary>
-    public abstract class MongoCollectionSettings
+    public class MongoCollectionSettings
     {
         // private fields
-        private string _collectionName;
-        private bool _assignIdOnInsert;
-        private Type _defaultDocumentType;
-        private GuidRepresentation _guidRepresentation;
-        private ReadPreference _readPreference;
-        private WriteConcern _writeConcern;
+        private Setting<string> _collectionName;
+        private Setting<bool> _assignIdOnInsert;
+        private Setting<Type> _defaultDocumentType;
+        private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<ReadPreference> _readPreference;
+        private Setting<WriteConcern> _writeConcern;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -44,9 +44,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the MongoCollectionSettings class.
         /// </summary>
+        public MongoCollectionSettings()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MongoCollectionSettings class.
+        /// </summary>
         /// <param name="database">The database that contains the collection (some collection settings will be inherited from the database settings).</param>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="defaultDocumentType">The default document type for the collection.</param>
+        [Obsolete("Use MongoCollectionSettings() instead.")]
         protected MongoCollectionSettings(MongoDatabase database, string collectionName, Type defaultDocumentType)
         {
             if (database == null)
@@ -63,12 +71,12 @@ namespace MongoDB.Driver
             }
 
             var databaseSettings = database.Settings;
-            _collectionName = collectionName;
-            _assignIdOnInsert = MongoDefaults.AssignIdOnInsert;
-            _defaultDocumentType = defaultDocumentType;
-            _guidRepresentation = databaseSettings.GuidRepresentation;
-            _readPreference = databaseSettings.ReadPreference;
-            _writeConcern = databaseSettings.WriteConcern;
+            _collectionName.Value = collectionName;
+            _assignIdOnInsert.Value = MongoDefaults.AssignIdOnInsert;
+            _defaultDocumentType.Value = defaultDocumentType;
+            _guidRepresentation.Value = databaseSettings.GuidRepresentation;
+            _readPreference.Value = databaseSettings.ReadPreference;
+            _writeConcern.Value = databaseSettings.WriteConcern;
         }
 
         /// <summary>
@@ -80,6 +88,7 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The GUID representation to use with this collection.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The WriteConcern to use with this collection.</param>
+        [Obsolete("Only used by the deprecated MongoCollectionSettings<TDefaultDocument> subclass.")]
         protected MongoCollectionSettings(
             string collectionName,
             bool assignIdOnInsert,
@@ -105,12 +114,12 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("writeConcern");
             }
 
-            _collectionName = collectionName;
-            _assignIdOnInsert = assignIdOnInsert;
-            _defaultDocumentType = defaultDocumentType;
-            _guidRepresentation = guidRepresentation;
-            _readPreference = readPreference;
-            _writeConcern = writeConcern;
+            _collectionName.Value = collectionName;
+            _assignIdOnInsert.Value = assignIdOnInsert;
+            _defaultDocumentType.Value = defaultDocumentType;
+            _guidRepresentation.Value = guidRepresentation;
+            _readPreference.Value = readPreference;
+            _writeConcern.Value = writeConcern;
         }
 
         // public properties
@@ -119,28 +128,30 @@ namespace MongoDB.Driver
         /// </summary>
         public bool AssignIdOnInsert
         {
-            get { return _assignIdOnInsert; }
+            get { return _assignIdOnInsert.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _assignIdOnInsert = value;
+                _assignIdOnInsert.Value = value;
             }
         }
 
         /// <summary>
         /// Gets the name of the collection.
         /// </summary>
+        [Obsolete("Provide the collection name on the call to GetCollection instead.")]
         public string CollectionName
         {
-            get { return _collectionName; }
+            get { return _collectionName.Value; }
         }
 
         /// <summary>
         /// Gets the default document type of the collection.
         /// </summary>
+        [Obsolete("Provide the default document type on the call to GetCollection instead.")]
         public Type DefaultDocumentType
         {
-            get { return _defaultDocumentType; }
+            get { return _defaultDocumentType.Value; }
         }
 
         /// <summary>
@@ -148,11 +159,11 @@ namespace MongoDB.Driver
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return _guidRepresentation; }
+            get { return _guidRepresentation.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _guidRepresentation = value;
+                _guidRepresentation.Value = value;
             }
         }
 
@@ -169,7 +180,7 @@ namespace MongoDB.Driver
         /// </summary>
         public ReadPreference ReadPreference
         {
-            get { return _readPreference; }
+            get { return _readPreference.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
@@ -177,7 +188,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _readPreference = value;
+                _readPreference.Value = value;
             }
         }
 
@@ -187,7 +198,7 @@ namespace MongoDB.Driver
         [Obsolete("Use WriteConcern instead.")]
         public SafeMode SafeMode
         {
-            get { return new SafeMode(_writeConcern); }
+            get { return (_writeConcern.Value == null) ? null : new SafeMode(_writeConcern.Value); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
@@ -195,7 +206,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value;
+                _writeConcern.Value = value.WriteConcern;
             }
         }
 
@@ -207,12 +218,12 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _readPreference.ToSlaveOk();
+                return (_readPreference.Value != null) ? _readPreference.Value.ToSlaveOk() : false;
             }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
+                _readPreference.Value = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -221,7 +232,7 @@ namespace MongoDB.Driver
         /// </summary>
         public WriteConcern WriteConcern
         {
-            get { return _writeConcern; }
+            get { return _writeConcern.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
@@ -229,7 +240,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value;
+                _writeConcern.Value = value;
             }
         }
 
@@ -238,7 +249,17 @@ namespace MongoDB.Driver
         /// Creates a clone of the settings.
         /// </summary>
         /// <returns>A clone of the settings.</returns>
-        public abstract MongoCollectionSettings Clone();
+        public virtual MongoCollectionSettings Clone()
+        {
+            var clone = new MongoCollectionSettings();
+            clone._collectionName = _collectionName.Clone();
+            clone._assignIdOnInsert = _assignIdOnInsert.Clone();
+            clone._defaultDocumentType = _defaultDocumentType.Clone();
+            clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readPreference = _readPreference.Clone();
+            clone._writeConcern = _writeConcern.Clone();
+            return clone;
+        }
 
         /// <summary>
         /// Compares two MongoCollectionSettings instances.
@@ -261,12 +282,12 @@ namespace MongoDB.Driver
                 else
                 {
                     return
-                        _collectionName == rhs._collectionName &&
-                        _assignIdOnInsert == rhs._assignIdOnInsert &&
-                        _defaultDocumentType == rhs._defaultDocumentType &&
-                        _guidRepresentation == rhs._guidRepresentation &&
-                        _readPreference == rhs._readPreference &&
-                        _writeConcern == rhs._writeConcern;
+                        _collectionName.Value == rhs._collectionName.Value &&
+                        _assignIdOnInsert.Value == rhs._assignIdOnInsert.Value &&
+                        _defaultDocumentType.Value == rhs._defaultDocumentType.Value &&
+                        _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                        _readPreference.Value == rhs._readPreference.Value &&
+                        _writeConcern.Value == rhs._writeConcern.Value;
                 }
             }
         }
@@ -279,8 +300,8 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _readPreference = _readPreference.FrozenCopy();
-                _writeConcern = _writeConcern.FrozenCopy();
+                if (_readPreference.Value != null) { _readPreference.Value = _readPreference.Value.FrozenCopy(); }
+                if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -317,12 +338,12 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _collectionName.GetHashCode();
-            hash = 37 * hash + _assignIdOnInsert.GetHashCode();
-            hash = 37 * hash + _defaultDocumentType.GetHashCode();
-            hash = 37 * hash + _guidRepresentation.GetHashCode();
-            hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + _writeConcern.GetHashCode();
+            hash = 37 * hash + ((_collectionName.Value == null) ? 0 : _collectionName.Value.GetHashCode());
+            hash = 37 * hash + _assignIdOnInsert.Value.GetHashCode();
+            hash = 37 * hash + ((_defaultDocumentType.Value == null) ? 0 : _defaultDocumentType.Value.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
+            hash = 37 * hash + ((_writeConcern.Value == null) ? 0 :_writeConcern.Value.GetHashCode());
             return hash;
         }
 
@@ -338,15 +359,39 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "CollectionName={0};AssignIdOnInsert={1};DefaultDocumentType={2};GuidRepresentation={3};ReadPreference={4};WriteConcern={5}",
-                _collectionName, _assignIdOnInsert, _defaultDocumentType, _guidRepresentation, _readPreference, _writeConcern);
+                "{4}AssignIdOnInsert={0};{5}GuidRepresentation={1};ReadPreference={2};WriteConcern={3}",
+                _assignIdOnInsert, _guidRepresentation, _readPreference, _writeConcern,
+                _collectionName.HasBeenSet ? string.Format("CollectionName={0};", _collectionName.Value) : "",
+                _defaultDocumentType.HasBeenSet ? string.Format("DefaultDocumentType={0};", _defaultDocumentType.Value) : "");
+        }
+
+        // internal methods
+        internal void ApplyDefaultValues(MongoDatabaseSettings databaseSettings)
+        {
+            if (!_assignIdOnInsert.HasBeenSet)
+            {
+                AssignIdOnInsert = MongoDefaults.AssignIdOnInsert;
+            }
+            if (!_guidRepresentation.HasBeenSet)
+            {
+                GuidRepresentation = databaseSettings.GuidRepresentation;
+            }
+            if (!_readPreference.HasBeenSet)
+            {
+                ReadPreference = databaseSettings.ReadPreference;
+            }
+            if (!_writeConcern.HasBeenSet)
+            {
+                WriteConcern = databaseSettings.WriteConcern;
+            }
         }
     }
 
     /// <summary>
-    /// Settings used to access a collection.
+    /// Settings used to access a collection (this class is obsolete, use the non-generic MongoCollectionSettings class instead).
     /// </summary>
     /// <typeparam name="TDefaultDocument">The default document type of the collection.</typeparam>
+    [Obsolete("Use the non-generic MongoCollectionSettings class instead and provide the default document type on the call to GetCollection.")]
     public class MongoCollectionSettings<TDefaultDocument> : MongoCollectionSettings
     {
         // constructors

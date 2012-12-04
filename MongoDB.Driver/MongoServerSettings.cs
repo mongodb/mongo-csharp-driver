@@ -173,6 +173,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the AddressFamily for the IPEndPoint (derived from the IPv6 setting).
         /// </summary>
+        [Obsolete("Use IPv6 instead.")]
         public AddressFamily AddressFamily
         {
             get { return _ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork; }

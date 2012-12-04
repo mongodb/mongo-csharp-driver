@@ -47,38 +47,47 @@ namespace MongoDB.Driver
         /// Protected constructor for abstract base class.
         /// </summary>
         /// <param name="database">The database that contains this collection.</param>
+        /// <param name="name">The name of the collection.</param>
         /// <param name="settings">The settings to use to access this collection.</param>
-        protected MongoCollection(MongoDatabase database, MongoCollectionSettings settings)
+        protected MongoCollection(MongoDatabase database, string name, MongoCollectionSettings settings)
         {
             if (database == null)
             {
                 throw new ArgumentNullException("database");
+            }
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
             }
             if (settings == null)
             {
                 throw new ArgumentNullException("settings");
             }
             string message;
-            if (!database.IsCollectionNameValid(settings.CollectionName, out message))
+            if (!database.IsCollectionNameValid(name, out message))
             {
-                throw new ArgumentOutOfRangeException("settings", message);
+                throw new ArgumentOutOfRangeException("name", message);
             }
+
+            settings = settings.Clone();
+            settings.ApplyDefaultValues(database.Settings);
+            settings.Freeze();
 
             _server = database.Server;
             _database = database;
-            _settings = settings.FrozenCopy();
-            _name = settings.CollectionName;
+            _settings = settings;
+            _name = name;
 
             if (_name != "$cmd")
             {
-                var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(_database, "$cmd")
+                var commandCollectionSettings = new MongoCollectionSettings
                 {
                     AssignIdOnInsert = false,
                     GuidRepresentation = _settings.GuidRepresentation,
                     ReadPreference = _settings.ReadPreference,
                     WriteConcern = _settings.WriteConcern
                 };
-                _commandCollection = _database.GetCollection(commandCollectionSettings);
+                _commandCollection = _database.GetCollection("$cmd", commandCollectionSettings);
             }
         }
 
@@ -1744,9 +1753,22 @@ namespace MongoDB.Driver
         /// of MongoDatabase instead.
         /// </summary>
         /// <param name="database">The database that contains this collection.</param>
+        /// <param name="name">The name of the collection.</param>
         /// <param name="settings">The settings to use to access this collection.</param>
+        public MongoCollection(MongoDatabase database, string name, MongoCollectionSettings settings)
+            : base(database, name, settings)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoCollection. Normally you would call one of the indexers or GetCollection methods
+        /// of MongoDatabase instead.
+        /// </summary>
+        /// <param name="database">The database that contains this collection.</param>
+        /// <param name="settings">The settings to use to access this collection.</param>
+        [Obsolete("Use MongoCollection(MongoDatabase database, string name, MongoCollectionSettings settings) instead.")]
         public MongoCollection(MongoDatabase database, MongoCollectionSettings<TDefaultDocument> settings)
-            : base(database, settings)
+            : this(database, settings.CollectionName, settings)
         {
         }
 

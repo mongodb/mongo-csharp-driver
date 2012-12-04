@@ -148,12 +148,10 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetDatabase()
         {
-            var settings = new MongoDatabaseSettings(_server, "test") { ReadPreference = ReadPreference.Primary };
-            var database1 = _server.GetDatabase(settings);
-            var database2 = _server.GetDatabase(settings);
-            Assert.AreSame(database1, database2);
-            Assert.AreEqual("test", database1.Name);
-            Assert.AreEqual(ReadPreference.Primary, database1.Settings.ReadPreference);
+            var settings = new MongoDatabaseSettings { ReadPreference = ReadPreference.Primary };
+            var database = _server.GetDatabase("test", settings);
+            Assert.AreEqual("test", database.Name);
+            Assert.AreEqual(ReadPreference.Primary, database.Settings.ReadPreference);
         }
 
         [Test]

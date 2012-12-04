@@ -33,10 +33,12 @@ namespace MongoDB.DriverUnitTests
         [Test]
         [TestCase(false, AddressFamily.InterNetwork)]
         [TestCase(true, AddressFamily.InterNetworkV6)]
-        public void TestAddressFamily(bool ipv6, AddressFamily addressFamily)
+        public void TestAddressFamilyObsolete(bool ipv6, AddressFamily addressFamily)
         {
+#pragma warning disable 618
             var settings = new MongoServerSettings { IPv6 = ipv6 };
             Assert.AreEqual(addressFamily, settings.AddressFamily);
+#pragma warning restore
         }
 
         [Test]

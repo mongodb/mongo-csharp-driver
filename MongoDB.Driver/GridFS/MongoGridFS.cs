@@ -42,7 +42,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         /// <param name="database">The database containing the GridFS collections.</param>
         public MongoGridFS(MongoDatabase database)
-            : this(database, new MongoGridFSSettings(database))
+            : this(database, new MongoGridFSSettings())
         {
         }
 
@@ -53,10 +53,14 @@ namespace MongoDB.Driver.GridFS
         /// <param name="settings">The GridFS settings.</param>
         public MongoGridFS(MongoDatabase database, MongoGridFSSettings settings)
         {
+            settings = settings.Clone();
+            settings.ApplyDefaultValues(database.Settings);
+            settings.Freeze();
+
             _database = database;
-            _settings = settings.FrozenCopy();
-            _chunks = database.GetCollection(settings.ChunksCollectionName);
-            _files = database.GetCollection(settings.FilesCollectionName);
+            _settings = settings;
+            _chunks = database.GetCollection(settings.Root + ".chunks");
+            _files = database.GetCollection(settings.Root + ".files");
         }
 
         // public properties
@@ -761,7 +765,7 @@ namespace MongoDB.Driver.GridFS
                 EnsureIndexes();
 
                 var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
-                var chunkSize = createOptions.ChunkSize == 0 ? _settings.ChunkSize : createOptions.ChunkSize;
+                var chunkSize = (createOptions.ChunkSize == 0) ? _settings.ChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
                 var length = 0L;
@@ -840,18 +844,19 @@ namespace MongoDB.Driver.GridFS
                     throw new MongoGridFSException("Upload client and server MD5 hashes are not equal.");
                 }
 
-                var uploadDate = createOptions.UploadDate == DateTime.MinValue ? DateTime.UtcNow : createOptions.UploadDate;
+                var uploadDate = (createOptions.UploadDate == DateTime.MinValue) ? DateTime.UtcNow : createOptions.UploadDate;
+                var aliases = (createOptions.Aliases != null) ? new BsonArray(createOptions.Aliases) : null;
                 BsonDocument fileInfo = new BsonDocument
                 {
                     { "_id", files_id },
-                    { "filename", remoteFileName },
+                    { "filename", remoteFileName, !string.IsNullOrEmpty(remoteFileName) }, // optional
                     { "length", length },
                     { "chunkSize", chunkSize },
                     { "uploadDate", uploadDate },
                     { "md5", (md5Server == null) ? (BsonValue)BsonNull.Value : new BsonString(md5Server) },
-                    { "contentType", createOptions.ContentType }, // optional
-                    { "aliases", BsonArray.Create(createOptions.Aliases) }, // optional
-                    { "metadata", createOptions.Metadata } // optional
+                    { "contentType", createOptions.ContentType, !string.IsNullOrEmpty(createOptions.ContentType) }, // optional
+                    { "aliases", aliases, aliases != null }, // optional
+                    { "metadata", createOptions.Metadata, createOptions.Metadata != null } // optional
                 };
                 _files.Insert(fileInfo, _settings.WriteConcern);
 

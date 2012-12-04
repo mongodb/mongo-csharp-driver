@@ -48,17 +48,18 @@ namespace MongoDB.DriverUnitTests
             var collectionName = "testcollectionexists";
             Assert.IsFalse(_database.CollectionExists(collectionName));
 
-            _database[collectionName].Insert(new BsonDocument());
+            _database.GetCollection(collectionName).Insert(new BsonDocument());
             Assert.IsTrue(_database.CollectionExists(collectionName));
         }
 
         [Test]
         public void TestConstructorArgumentChecking()
         {
-            var settings = new MongoDatabaseSettings(_server, "");
-            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(null, settings); });
-            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(_server, null); });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoDatabase(_server, settings); });
+            var settings = new MongoDatabaseSettings();
+            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(null, "name", settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(_server, null, settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoDatabase(_server, "name", null); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoDatabase(_server, "", settings); });
         }
 
         [Test]
@@ -77,7 +78,7 @@ namespace MongoDB.DriverUnitTests
             var collectionName = "testdropcollection";
             Assert.IsFalse(_database.CollectionExists(collectionName));
 
-            _database[collectionName].Insert(new BsonDocument());
+            _database.GetCollection(collectionName).Insert(new BsonDocument());
             Assert.IsTrue(_database.CollectionExists(collectionName));
 
             _database.DropCollection(collectionName);
@@ -162,9 +163,9 @@ namespace MongoDB.DriverUnitTests
         public void TestGetCollectionNames()
         {
             _database.Drop();
-            _database["a"].Insert(new BsonDocument("a", 1));
-            _database["b"].Insert(new BsonDocument("b", 1));
-            _database["c"].Insert(new BsonDocument("c", 1));
+            _database.GetCollection("a").Insert(new BsonDocument("a", 1));
+            _database.GetCollection("b").Insert(new BsonDocument("b", 1));
+            _database.GetCollection("c").Insert(new BsonDocument("c", 1));
             var collectionNames = _database.GetCollectionNames();
             Assert.AreEqual(new[] { "a", "b", "c", "system.indexes" }, collectionNames);
         }
@@ -208,7 +209,7 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(_database.CollectionExists(collectionName1));
             Assert.IsFalse(_database.CollectionExists(collectionName2));
 
-            _database[collectionName1].Insert(new BsonDocument());
+            _database.GetCollection(collectionName1).Insert(new BsonDocument());
             Assert.IsTrue(_database.CollectionExists(collectionName1));
             Assert.IsFalse(_database.CollectionExists(collectionName2));
 
@@ -233,8 +234,8 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(_database.CollectionExists(collectionName1));
             Assert.IsFalse(_database.CollectionExists(collectionName2));
 
-            _database[collectionName1].Insert(new BsonDocument());
-            _database[collectionName2].Insert(new BsonDocument());
+            _database.GetCollection(collectionName1).Insert(new BsonDocument());
+            _database.GetCollection(collectionName2).Insert(new BsonDocument());
             Assert.IsTrue(_database.CollectionExists(collectionName1));
             Assert.IsTrue(_database.CollectionExists(collectionName2));
 
@@ -288,7 +289,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestUserMethods()
         {
-            var collection = _database["system.users"];
+            var collection = _database.GetCollection("system.users");
             collection.RemoveAll();
             _database.AddUser(new MongoCredentials("username", "password"), true);
             Assert.AreEqual(1, collection.Count());

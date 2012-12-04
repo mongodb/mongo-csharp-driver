@@ -30,15 +30,27 @@ namespace MongoDB.Driver.GridFS
         private static MongoGridFSSettings __defaults = new MongoGridFSSettings();
 
         // private fields
-        private string _chunksCollectionName = "fs.chunks";
-        private int _chunkSize = 256 * 1024; // 256KiB
-        private string _filesCollectionName = "fs.files";
-        private string _root = "fs";
-        private bool _updateMD5 = true;
-        private bool _verifyMD5 = true;
-        private WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private Setting<int> _chunkSize;
+        private Setting<string> _root;
+        private Setting<bool> _updateMD5;
+        private Setting<bool> _verifyMD5;
+        private Setting<WriteConcern> _writeConcern;
+
         private bool _isFrozen;
         private int _frozenHashCode;
+
+        // static constructor
+        static MongoGridFSSettings()
+        {
+            __defaults = new MongoGridFSSettings
+            {
+                ChunkSize = 256 * 1024, // 256KiB
+                Root = "fs",
+                UpdateMD5 = true,
+                VerifyMD5 = true
+            };
+            __defaults.Freeze();
+        }
 
         // constructors
         /// <summary>
@@ -52,6 +64,7 @@ namespace MongoDB.Driver.GridFS
         /// Initializes a new instance of the MongoGridFSSettings class.
         /// </summary>
         /// <param name="database">The database from which to inherit some of the settings.</param>
+        [Obsolete("Use new MongoGridFSSettings() instead.")]
         public MongoGridFSSettings(MongoDatabase database)
         {
             if (database == null)
@@ -59,13 +72,11 @@ namespace MongoDB.Driver.GridFS
                 throw new ArgumentNullException("database");
             }
 
-            _chunksCollectionName = __defaults._chunksCollectionName;
-            _chunkSize = MongoGridFSSettings.Defaults.ChunkSize;
-            _filesCollectionName = __defaults._filesCollectionName;
-            _root = MongoGridFSSettings.Defaults.Root;
-            _updateMD5 = __defaults.UpdateMD5;
-            _verifyMD5 = __defaults.VerifyMD5;
-            _writeConcern = database.Settings.WriteConcern;
+            _chunkSize.Value = __defaults.ChunkSize;
+            _root.Value = __defaults.Root;
+            _updateMD5.Value = __defaults.UpdateMD5;
+            _verifyMD5.Value = __defaults.VerifyMD5;
+            _writeConcern.Value = database.Settings.WriteConcern;
         }
 
         /// <summary>
@@ -74,6 +85,7 @@ namespace MongoDB.Driver.GridFS
         /// <param name="chunkSize">The chunk size.</param>
         /// <param name="root">The root collection name.</param>
         /// <param name="writeConcern">The write concern.</param>
+        [Obsolete("Use new MongoGridFSSettings() instead.")]
         public MongoGridFSSettings(int chunkSize, string root, WriteConcern writeConcern)
         {
             if (root == null)
@@ -85,11 +97,11 @@ namespace MongoDB.Driver.GridFS
                 throw new ArgumentNullException("writeConcern");
             }
 
-            _chunkSize = chunkSize;
-            this.Root = root; // use property not field
-            _updateMD5 = __defaults.UpdateMD5;
-            _verifyMD5 = __defaults.VerifyMD5;
-            _writeConcern = writeConcern;
+            _chunkSize.Value = chunkSize;
+            _root.Value = root;
+            _updateMD5.Value = __defaults.UpdateMD5;
+            _verifyMD5.Value = __defaults.VerifyMD5;
+            _writeConcern.Value = writeConcern;
         }
 
         // public static properties
@@ -106,9 +118,10 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Gets the chunks collection name.
         /// </summary>
+        [Obsolete("Use Root instead.")]
         public string ChunksCollectionName
         {
-            get { return _chunksCollectionName; }
+            get { return (_root.Value == null) ? null : _root.Value + ".chunks"; }
         }
 
         /// <summary>
@@ -116,20 +129,21 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public int ChunkSize
         {
-            get { return _chunkSize; }
+            get { return _chunkSize.Value; }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
-                _chunkSize = value;
+                _chunkSize.Value = value;
             }
         }
 
         /// <summary>
         /// Gets the files collection name.
         /// </summary>
+        [Obsolete("Use Root instead.")]
         public string FilesCollectionName
         {
-            get { return _filesCollectionName; }
+            get { return (_root.Value == null) ? null : _root.Value + ".files"; }
         }
 
         /// <summary>
@@ -145,7 +159,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public string Root
         {
-            get { return _root; }
+            get { return _root.Value; }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
@@ -153,9 +167,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     throw new ArgumentNullException("value");
                 }
-                _root = value;
-                _filesCollectionName = value + ".files";
-                _chunksCollectionName = value + ".chunks";
+                _root.Value = value;
             }
         }
 
@@ -165,7 +177,7 @@ namespace MongoDB.Driver.GridFS
         [Obsolete("Use WriteConcern instead.")]
         public SafeMode SafeMode
         {
-            get { return new SafeMode(_writeConcern); }
+            get { return (_writeConcern.Value == null) ? null : new SafeMode(_writeConcern.Value); }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
@@ -173,7 +185,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value.WriteConcern;
+                _writeConcern.Value = (value == null) ? null : value.WriteConcern;
             }
         }
 
@@ -182,10 +194,10 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public bool UpdateMD5
         {
-            get { return _updateMD5; }
+            get { return _updateMD5.Value; }
             set {
                 if (_isFrozen) { ThrowFrozen(); }
-                _updateMD5 = value;
+                _updateMD5.Value = value;
             }
         }
 
@@ -194,10 +206,10 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public bool VerifyMD5
         {
-            get { return _verifyMD5; }
+            get { return _verifyMD5.Value; }
             set {
                 if (_isFrozen) { ThrowFrozen(); }
-                _verifyMD5 = value;
+                _verifyMD5.Value = value;
             }
         }
 
@@ -206,7 +218,7 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public WriteConcern WriteConcern
         {
-            get { return _writeConcern; }
+            get { return _writeConcern.Value; }
             set
             {
                 if (_isFrozen) { ThrowFrozen(); }
@@ -214,7 +226,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value;
+                _writeConcern.Value = value;
             }
         }
 
@@ -249,12 +261,10 @@ namespace MongoDB.Driver.GridFS
         public MongoGridFSSettings Clone()
         {
             var clone = new MongoGridFSSettings();
-            clone._chunksCollectionName = _chunksCollectionName;
-            clone._chunkSize = _chunkSize;
-            clone._filesCollectionName = _filesCollectionName;
-            clone._root = _root;
-            clone._updateMD5 = _updateMD5;
-            clone._verifyMD5 = _verifyMD5;
+            clone._chunkSize = _chunkSize.Clone();
+            clone._root = _root.Clone();
+            clone._updateMD5 = _updateMD5.Clone();
+            clone._verifyMD5 = _verifyMD5.Clone();
             clone._writeConcern = _writeConcern.Clone();
             return clone;
         }
@@ -268,11 +278,11 @@ namespace MongoDB.Driver.GridFS
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return
-                _chunkSize == rhs._chunkSize &&
-                _root == rhs._root &&
-                _updateMD5 == rhs._updateMD5 &&
-                _verifyMD5 == rhs._verifyMD5 &&
-                _writeConcern == rhs._writeConcern;
+                _chunkSize.Value == rhs._chunkSize.Value &&
+                _root.Value == rhs._root.Value &&
+                _updateMD5.Value == rhs._updateMD5.Value &&
+                _verifyMD5.Value == rhs._verifyMD5.Value &&
+                _writeConcern.Value == rhs._writeConcern.Value;
         }
 
         /// <summary>
@@ -293,7 +303,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (!_isFrozen)
             {
-                _writeConcern = _writeConcern.FrozenCopy();
+                if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _isFrozen = true;
             }
@@ -329,12 +339,37 @@ namespace MongoDB.Driver.GridFS
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _chunkSize.GetHashCode();
-            hash = 37 * hash + _root.GetHashCode();
-            hash = 37 * hash + _updateMD5.GetHashCode();
-            hash = 37 * hash + _verifyMD5.GetHashCode();
-            hash = 37 * hash + _writeConcern.GetHashCode();
+            hash = 37 * hash + _chunkSize.Value.GetHashCode();
+            hash = 37 * hash + ((_root.Value == null) ? 0 : _root.Value.GetHashCode());
+            hash = 37 * hash + _updateMD5.Value.GetHashCode();
+            hash = 37 * hash + _verifyMD5.Value.GetHashCode();
+            hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
             return hash;
+        }
+
+        // internal methods
+        internal void ApplyDefaultValues(MongoDatabaseSettings databaseSettings)
+        {
+            if (!_chunkSize.HasBeenSet)
+            {
+                ChunkSize = __defaults.ChunkSize;
+            }
+            if (!_root.HasBeenSet)
+            {
+                Root = __defaults.Root;
+            }
+            if (!_updateMD5.HasBeenSet)
+            {
+                UpdateMD5 = __defaults.UpdateMD5;
+            }
+            if (!_verifyMD5.HasBeenSet)
+            {
+                VerifyMD5 = __defaults.VerifyMD5;
+            }
+            if (!_writeConcern.HasBeenSet)
+            {
+                WriteConcern = databaseSettings.WriteConcern;
+            }
         }
 
         // private methods

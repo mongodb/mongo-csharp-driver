@@ -43,7 +43,6 @@ namespace MongoDB.Driver
         private readonly object _serverLock = new object();
         private readonly IMongoServerProxy _serverProxy;
         private readonly MongoServerSettings _settings;
-        private readonly Dictionary<MongoDatabaseSettings, MongoDatabase> _databases = new Dictionary<MongoDatabaseSettings, MongoDatabase>();
         private readonly Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private readonly IndexCache _indexCache = new IndexCache();
         private int _sequentialId;
@@ -397,6 +396,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase instead.")]
         public virtual MongoDatabase this[string databaseName]
         {
             get { return GetDatabase(databaseName); }
@@ -407,8 +407,9 @@ namespace MongoDB.Driver
         /// is created for each combination of database settings.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
-        /// <param name="credentials">The credentials to use with this database.</param>
+        /// <param name="credentials">The credentials to use with this database (null if none).</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase instead.")]
         public virtual MongoDatabase this[string databaseName, MongoCredentials credentials]
         {
             get { return GetDatabase(databaseName, credentials); }
@@ -420,6 +421,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase instead.")]
         public virtual MongoDatabase this[MongoDatabaseSettings databaseSettings]
         {
             get { return GetDatabase(databaseSettings); }
@@ -430,9 +432,10 @@ namespace MongoDB.Driver
         /// is created for each combination of database settings.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
-        /// <param name="credentials">The credentials to use with this database.</param>
+        /// <param name="credentials">The credentials to use with this database (null if none).</param>
         /// <param name="writeConcern">The write concern to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase instead.")]
         public virtual MongoDatabase this[string databaseName, MongoCredentials credentials, WriteConcern writeConcern]
         {
             get { return GetDatabase(databaseName, credentials, writeConcern); }
@@ -445,6 +448,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="writeConcern">The write concern to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase instead.")]
         public virtual MongoDatabase this[string databaseName, WriteConcern writeConcern]
         {
             get { return GetDatabase(databaseName, writeConcern); }
@@ -492,7 +496,6 @@ namespace MongoDB.Driver
             }
         }
 
-
         // public methods
         /// <summary>
         /// Connects to the server. Normally there is no need to call this method as
@@ -530,6 +533,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>An instance of MongoDatabase for <paramref name="databaseName"/>.</returns>
+        [Obsolete("Use new MongoDatabaseSettings() instead.")]
         public virtual MongoDatabaseSettings CreateDatabaseSettings(string databaseName)
         {
             if (databaseName == null)
@@ -586,7 +590,7 @@ namespace MongoDB.Driver
         /// Drops a database.
         /// </summary>
         /// <param name="databaseName">The name of the database to be dropped.</param>
-        /// <param name="credentials">Credentials for the database to be dropped (or admin credentials).</param>
+        /// <param name="credentials">Credentials for the database to be dropped or admin credentials (null if none).</param>
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropDatabase(string databaseName, MongoCredentials credentials)
         {
@@ -641,18 +645,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
+        [Obsolete("Use GetDatabase(string databaseName, MongoDatabaseSettings settings) instead.")]
         public virtual MongoDatabase GetDatabase(MongoDatabaseSettings databaseSettings)
         {
-            lock (_serverLock)
-            {
-                MongoDatabase database;
-                if (!_databases.TryGetValue(databaseSettings, out database))
-                {
-                    database = new MongoDatabase(this, databaseSettings);
-                    _databases.Add(databaseSettings, database);
-                }
-                return database;
-            }
+            return GetDatabase(databaseSettings.DatabaseName, databaseSettings);
         }
 
         /// <summary>
@@ -663,12 +659,8 @@ namespace MongoDB.Driver
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName)
         {
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-            var databaseSettings = new MongoDatabaseSettings(this, databaseName);
-            return GetDatabase(databaseSettings);
+            var databaseSettings = new MongoDatabaseSettings();
+            return GetDatabase(databaseName, databaseSettings);
         }
 
         /// <summary>
@@ -676,19 +668,12 @@ namespace MongoDB.Driver
         /// is created for each combination of database settings.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
-        /// <param name="credentials">The credentials to use with this database.</param>
+        /// <param name="credentials">The credentials to use with this database (null if none).</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName, MongoCredentials credentials)
         {
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-            var databaseSettings = new MongoDatabaseSettings(this, databaseName)
-            {
-                Credentials = credentials
-            };
-            return GetDatabase(databaseSettings);
+            var databaseSettings = new MongoDatabaseSettings { Credentials = credentials };
+            return GetDatabase(databaseName, databaseSettings);
         }
 
         /// <summary>
@@ -704,16 +689,36 @@ namespace MongoDB.Driver
             MongoCredentials credentials,
             WriteConcern writeConcern)
         {
-            if (databaseName == null)
+            if (writeConcern == null)
             {
-                throw new ArgumentNullException("databaseName");
+                throw new ArgumentNullException("writeConcern");
             }
-            var databaseSettings = new MongoDatabaseSettings(this, databaseName)
+            var databaseSettings = new MongoDatabaseSettings
             {
                 Credentials = credentials,
                 WriteConcern = writeConcern
             };
-            return GetDatabase(databaseSettings);
+            return GetDatabase(databaseName, databaseSettings);
+        }
+
+        /// <summary>
+        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
+        /// is created for each combination of database settings.
+        /// </summary>
+        /// <param name="databaseName">The name of the database.</param>
+        /// <param name="databaseSettings">The settings to use with this database.</param>
+        /// <returns>A new or existing instance of MongoDatabase.</returns>
+        public virtual MongoDatabase GetDatabase(string databaseName, MongoDatabaseSettings databaseSettings)
+        {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+            if (databaseSettings == null)
+            {
+                throw new ArgumentNullException("databaseSettings");
+            }
+            return new MongoDatabase(this, databaseName, databaseSettings);
         }
 
         /// <summary>
@@ -725,15 +730,12 @@ namespace MongoDB.Driver
         /// <returns>A new or existing instance of MongoDatabase.</returns>
         public virtual MongoDatabase GetDatabase(string databaseName, WriteConcern writeConcern)
         {
-            if (databaseName == null)
+            if (writeConcern == null)
             {
-                throw new ArgumentNullException("databaseName");
+                throw new ArgumentNullException("writeConcern");
             }
-            var databaseSettings = new MongoDatabaseSettings(this, databaseName)
-            {
-                WriteConcern = writeConcern
-            };
-            return GetDatabase(databaseSettings);
+            var databaseSettings = new MongoDatabaseSettings { WriteConcern = writeConcern };
+            return GetDatabase(databaseName, databaseSettings);
         }
 
         /// <summary>

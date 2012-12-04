@@ -82,10 +82,11 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestConstructorArgumentChecking()
         {
-            var settings = new MongoCollectionSettings<BsonDocument>(_database, "");
-            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(null, settings); });
-            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, null); });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoCollection<BsonDocument>(_database, settings); });
+            var settings = new MongoCollectionSettings();
+            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(null, "name", settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, null, settings); });
+            Assert.Throws<ArgumentNullException>(() => { new MongoCollection<BsonDocument>(_database, "name", null); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => { new MongoCollection<BsonDocument>(_database, "", settings); });
         }
 
         [Test]
@@ -130,7 +131,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
-            var collection = _database["cappedcollection"];
+            var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
             var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000).SetMaxDocuments(1000);
@@ -146,7 +147,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
-            var collection = _database["cappedcollection"];
+            var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             Assert.IsFalse(collection.Exists());
             var options = CollectionOptions.SetCapped(true).SetMaxSize(10000000);
@@ -1012,7 +1013,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestIsCappedFalse()
         {
-            var collection = _database["notcappedcollection"];
+            var collection = _database.GetCollection("notcappedcollection");
             collection.Drop();
             _database.CreateCollection("notcappedcollection");
 
@@ -1023,7 +1024,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestIsCappedTrue()
         {
-            var collection = _database["cappedcollection"];
+            var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             var options = CollectionOptions.SetCapped(true).SetMaxSize(100000);
             _database.CreateCollection("cappedcollection", options);
@@ -1093,7 +1094,7 @@ namespace MongoDB.DriverUnitTests
             };
 
             // read output collection ourselves
-            foreach (var document in _database[result.CollectionName].FindAll())
+            foreach (var document in _database.GetCollection(result.CollectionName).FindAll())
             {
                 var key = document["_id"].AsString;
                 var count = document["value"]["count"].ToInt32();

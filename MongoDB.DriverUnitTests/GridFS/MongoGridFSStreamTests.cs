@@ -40,7 +40,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
-            var settings = new MongoGridFSSettings(_database)
+            var settings = new MongoGridFSSettings
             {
                 ChunkSize = 16,
                 WriteConcern = WriteConcern.Acknowledged
@@ -278,13 +278,18 @@ namespace MongoDB.DriverUnitTests.GridFS
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
 
-            using (var stream = _gridFS.Create("test"))
+            var settings = new MongoGridFSSettings()
+            {
+                ChunkSize = 16,
+                UpdateMD5 = false,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+            var gridFS = _database.GetGridFS(settings);
+
+            using (var stream = gridFS.Create("test"))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);
-#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
-                stream.UpdateMD5 = false;
-#pragma warning restore
             }
 
             fileInfo = _gridFS.FindOne("test");
@@ -292,7 +297,15 @@ namespace MongoDB.DriverUnitTests.GridFS
             Assert.AreEqual(4, fileInfo.Length);
             Assert.IsNull(fileInfo.MD5);
 
-            using (var stream = _gridFS.Open("test", FileMode.Append, FileAccess.Write))
+            settings = new MongoGridFSSettings()
+            {
+                ChunkSize = 16,
+                UpdateMD5 = true,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+            gridFS = _database.GetGridFS(settings);
+
+            using (var stream = gridFS.Open("test", FileMode.Append, FileAccess.Write))
             {
                 var bytes = new byte[] { 1, 2, 3, 4 };
                 stream.Write(bytes, 0, 4);

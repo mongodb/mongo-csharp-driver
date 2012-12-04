@@ -139,6 +139,7 @@
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReplicaSetTag.cs" />
     <Compile Include="ReplicaSetTagSet.cs" />
+    <Compile Include="Setting.cs" />
     <Compile Include="SystemProfileInfo.cs" />
     <Compile Include="Wrappers\BaseWrapper.cs" />
     <Compile Include="Wrappers\CollectionOptionsDocument.cs" />

@@ -33,13 +33,10 @@ namespace MongoDB.Driver
     public class MongoDatabase
     {
         // private fields
-        private object _databaseLock = new object();
         private MongoServer _server;
         private MongoDatabaseSettings _settings;
         private string _name;
-        private Dictionary<MongoCollectionSettings, MongoCollection> _collections = new Dictionary<MongoCollectionSettings, MongoCollection>();
         private MongoCollection<BsonDocument> _commandCollection;
-        private MongoGridFS _gridFS;
 
         // constructors
         /// <summary>
@@ -48,31 +45,49 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="server">The server that contains this database.</param>
         /// <param name="settings">The settings to use to access this database.</param>
+        [Obsolete("Use MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings) instead.")]
         public MongoDatabase(MongoServer server, MongoDatabaseSettings settings)
+            : this(server, settings.DatabaseName, settings)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoDatabase. Normally you would call one of the indexers or GetDatabase methods
+        /// of MongoServer instead.
+        /// </summary>
+        /// <param name="server">The server that contains this database.</param>
+        /// <param name="name">The name of the database.</param>
+        /// <param name="settings">The settings to use to access this database.</param>
+        public MongoDatabase(MongoServer server, string name, MongoDatabaseSettings settings)
         {
             if (server == null)
             {
                 throw new ArgumentNullException("server");
+            }
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
             }
             if (settings == null)
             {
                 throw new ArgumentNullException("settings");
             }
             string message;
-            if (!server.IsDatabaseNameValid(settings.DatabaseName, out message))
+            if (!server.IsDatabaseNameValid(name, out message))
             {
-                throw new ArgumentOutOfRangeException("settings", message);
+                throw new ArgumentOutOfRangeException("name", message);
             }
 
-            _server = server;
-            _settings = settings.FrozenCopy();
-            _name = settings.DatabaseName;
+            settings = settings.Clone();
+            settings.ApplyDefaultValues(server.Settings);
+            settings.Freeze();
 
-            var commandCollectionSettings = new MongoCollectionSettings<BsonDocument>(this, "$cmd")
-            {
-                AssignIdOnInsert = false
-            };
-            _commandCollection = GetCollection(commandCollectionSettings);
+            _server = server;
+            _settings = settings;
+            _name = name;
+
+            var commandCollectionSettings = new MongoCollectionSettings { AssignIdOnInsert = false };
+            _commandCollection = GetCollection("$cmd", commandCollectionSettings);
         }
 
         // factory methods
@@ -193,17 +208,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoGridFS GridFS
         {
-            get
-            {
-                lock (_databaseLock)
-                {
-                    if (_gridFS == null)
-                    {
-                        _gridFS = new MongoGridFS(this);
-                    }
-                    return _gridFS;
-                }
-            }
+            get { return new MongoGridFS(this); }
         }
 
         /// <summary>
@@ -237,6 +242,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
+        [Obsolete("Use GetCollection instead.")]
         public virtual MongoCollection<BsonDocument> this[string collectionName]
         {
             get { return GetCollection(collectionName); }
@@ -249,6 +255,7 @@ namespace MongoDB.Driver
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="writeConcern">The write concern to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
+        [Obsolete("Use GetCollection instead.")]
         public virtual MongoCollection<BsonDocument> this[string collectionName, WriteConcern writeConcern]
         {
             get { return GetCollection(collectionName, writeConcern); }
@@ -337,6 +344,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
+        [Obsolete("Use new MongoCollectionSettings() instead.")]
         public virtual MongoCollectionSettings<TDefaultDocument> CreateCollectionSettings<TDefaultDocument>(
             string collectionName)
         {
@@ -350,6 +358,7 @@ namespace MongoDB.Driver
         /// <param name="defaultDocumentType">The default document type for this collection.</param>
         /// <param name="collectionName">The name of this collection.</param>
         /// <returns>A MongoCollectionSettings.</returns>
+        [Obsolete("Use new MongoCollectionSettings() instead.")]
         public virtual MongoCollectionSettings CreateCollectionSettings(
             Type defaultDocumentType,
             string collectionName)
@@ -401,10 +410,11 @@ namespace MongoDB.Driver
         /// <returns>The result of evaluating the code.</returns>
         public virtual BsonValue Eval(EvalFlags flags, BsonJavaScript code, params object[] args)
         {
+            var argsArray = (args != null && args.Length > 1) ? new BsonArray(args) : null;
             var command = new CommandDocument
             {
                 { "$eval", code },
-                { "args", BsonArray.Create(args), args != null && args.Length > 0 },
+                { "args", argsArray, argsArray != null },
                 { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
             };
             var result = RunCommand(command);
@@ -509,19 +519,11 @@ namespace MongoDB.Driver
         /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
+        [Obsolete("Use GetCollection<TDefaultDocument>(string collectionName, MongoCollectionSettings collectionSettings) instead.")]
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
             MongoCollectionSettings<TDefaultDocument> collectionSettings)
         {
-            lock (_databaseLock)
-            {
-                MongoCollection collection;
-                if (!_collections.TryGetValue(collectionSettings, out collection))
-                {
-                    collection = new MongoCollection<TDefaultDocument>(this, collectionSettings);
-                    _collections.Add(collectionSettings, collection);
-                }
-                return (MongoCollection<TDefaultDocument>)collection;
-            }
+            return GetCollection<TDefaultDocument>(collectionSettings.CollectionName, collectionSettings);
         }
 
         /// <summary>
@@ -533,8 +535,22 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(string collectionName)
         {
-            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName);
-            return GetCollection(collectionSettings);
+            var collectionSettings = new MongoCollectionSettings();
+            return GetCollection<TDefaultDocument>(collectionName, collectionSettings);
+        }
+
+        /// <summary>
+        /// Gets a MongoCollection instance representing a collection on this database
+        /// with a default document type of TDefaultDocument.
+        /// </summary>
+        /// <typeparam name="TDefaultDocument">The default document type for this collection.</typeparam>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
+        /// <returns>An instance of MongoCollection.</returns>
+        public virtual MongoCollection<TDefaultDocument> GetCollection<TDefaultDocument>(
+            string collectionName, MongoCollectionSettings collectionSettings)
+        {
+            return new MongoCollection<TDefaultDocument>(this, collectionName, collectionSettings);
         }
 
         /// <summary>
@@ -549,11 +565,8 @@ namespace MongoDB.Driver
             string collectionName,
             WriteConcern writeConcern)
         {
-            var collectionSettings = new MongoCollectionSettings<TDefaultDocument>(this, collectionName)
-            {
-                WriteConcern = writeConcern
-            };
-            return GetCollection(collectionSettings);
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = writeConcern };
+            return GetCollection<TDefaultDocument>(collectionName, collectionSettings);
         }
 
         /// <summary>
@@ -562,21 +575,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
         /// <returns>An instance of MongoCollection.</returns>
+        [Obsolete("Use GetCollection(Type defaultDocumentType, string collectionName, MongoCollectionSettings settings) instead.")]
         public virtual MongoCollection GetCollection(MongoCollectionSettings collectionSettings)
         {
-            lock (_databaseLock)
-            {
-                MongoCollection collection;
-                if (!_collections.TryGetValue(collectionSettings, out collection))
-                {
-                    var collectionDefinition = typeof(MongoCollection<>);
-                    var collectionType = collectionDefinition.MakeGenericType(collectionSettings.DefaultDocumentType);
-                    var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), collectionSettings.GetType() });
-                    collection = (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionSettings });
-                    _collections.Add(collectionSettings, collection);
-                }
-                return collection;
-            }
+            return GetCollection(collectionSettings.DefaultDocumentType, collectionSettings.CollectionName, collectionSettings);
         }
 
         /// <summary>
@@ -587,8 +589,19 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<BsonDocument> GetCollection(string collectionName)
         {
-            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName);
-            return GetCollection(collectionSettings);
+            return GetCollection<BsonDocument>(collectionName);
+        }
+
+        /// <summary>
+        /// Gets a MongoCollection instance representing a collection on this database
+        /// with a default document type of TDefaultDocument.
+        /// </summary>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
+        /// <returns>An instance of MongoCollection.</returns>
+        public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, MongoCollectionSettings collectionSettings)
+        {
+            return GetCollection<BsonDocument>(collectionName, collectionSettings);
         }
 
         /// <summary>
@@ -600,11 +613,7 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection<BsonDocument> GetCollection(string collectionName, WriteConcern writeConcern)
         {
-            var collectionSettings = new MongoCollectionSettings<BsonDocument>(this, collectionName)
-            {
-                WriteConcern = writeConcern
-            };
-            return GetCollection(collectionSettings);
+            return GetCollection<BsonDocument>(collectionName, writeConcern);
         }
 
         /// <summary>
@@ -616,8 +625,24 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoCollection.</returns>
         public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName)
         {
-            var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
-            return GetCollection(collectionSettings);
+            var collectionSettings = new MongoCollectionSettings();
+            return GetCollection(defaultDocumentType, collectionName, collectionSettings);
+        }
+
+        /// <summary>
+        /// Gets a MongoCollection instance representing a collection on this database
+        /// with a default document type of BsonDocument.
+        /// </summary>
+        /// <param name="defaultDocumentType">The default document type.</param>
+        /// <param name="collectionName">The name of the collection.</param>
+        /// <param name="collectionSettings">The settings to use when accessing this collection.</param>
+        /// <returns>An instance of MongoCollection.</returns>
+        public virtual MongoCollection GetCollection(Type defaultDocumentType, string collectionName, MongoCollectionSettings collectionSettings)
+        {
+            var collectionDefinition = typeof(MongoCollection<>);
+            var collectionType = collectionDefinition.MakeGenericType(defaultDocumentType);
+            var constructorInfo = collectionType.GetConstructor(new Type[] { typeof(MongoDatabase), typeof(string), typeof(MongoCollectionSettings) });
+            return (MongoCollection)constructorInfo.Invoke(new object[] { this, collectionName, collectionSettings });
         }
 
         /// <summary>
@@ -633,9 +658,8 @@ namespace MongoDB.Driver
             string collectionName,
             WriteConcern writeConcern)
         {
-            var collectionSettings = CreateCollectionSettings(defaultDocumentType, collectionName);
-            collectionSettings.WriteConcern = writeConcern;
-            return GetCollection(collectionSettings);
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = writeConcern };
+            return GetCollection(defaultDocumentType, collectionName, collectionSettings);
         }
 
         /// <summary>
@@ -702,8 +726,8 @@ namespace MongoDB.Driver
         /// <returns>A cursor.</returns>
         public MongoCursor<SystemProfileInfo> GetProfilingInfo(IMongoQuery query)
         {
-            var collectionSettings = new MongoCollectionSettings<SystemProfileInfo>(this, "system.profile") { ReadPreference = ReadPreference.Primary };
-            var collection = GetCollection<SystemProfileInfo>(collectionSettings);
+            var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
+            var collection = GetCollection<SystemProfileInfo>("system.profile", collectionSettings);
             return collection.Find(query);
         }
 

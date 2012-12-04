@@ -569,17 +569,18 @@ namespace MongoDB.Driver.GridFS
                 _fileInfo.SetId(ObjectId.GenerateNewId());
             }
 
+            var aliases = (_fileInfo.Aliases != null) ? new BsonArray(_fileInfo.Aliases) : null;
             var file = new BsonDocument
             {
                 { "_id", _fileInfo.Id },
-                { "filename", _fileInfo.Name },
+                { "filename", _fileInfo.Name, !string.IsNullOrEmpty(_fileInfo.Name) },
                 { "length", 0 },
                 { "chunkSize", _fileInfo.ChunkSize },
                 { "uploadDate", _fileInfo.UploadDate },
                 { "md5", BsonNull.Value }, // will be updated when the file is closed (unless UpdateMD5 is false)
                 { "contentType", _fileInfo.ContentType, !string.IsNullOrEmpty(_fileInfo.ContentType) }, // optional
-                { "aliases", BsonArray.Create(_fileInfo.Aliases), _fileInfo.Aliases != null && _fileInfo.Aliases.Length > 0 }, // optional
-                { "metadata", _fileInfo.Metadata } // optional
+                { "aliases", aliases, aliases != null }, // optional
+                { "metadata", _fileInfo.Metadata, _fileInfo.Metadata != null } // optional
             };
             _gridFS.Files.Insert(file);
             _length = 0;

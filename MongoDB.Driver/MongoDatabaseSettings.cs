@@ -28,11 +28,11 @@ namespace MongoDB.Driver
     public class MongoDatabaseSettings
     {
         // private fields
-        private string _databaseName;
-        private MongoCredentials _credentials;
-        private GuidRepresentation _guidRepresentation;
-        private ReadPreference _readPreference;
-        private WriteConcern _writeConcern;
+        private Setting<string> _databaseName;
+        private Setting<MongoCredentials> _credentials;
+        private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<ReadPreference> _readPreference;
+        private Setting<WriteConcern> _writeConcern;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -43,8 +43,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a new instance of MongoDatabaseSettings.
         /// </summary>
+        public MongoDatabaseSettings()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of MongoDatabaseSettings.
+        /// </summary>
         /// <param name="server">The server to inherit settings from.</param>
         /// <param name="databaseName">The name of the database.</param>
+        [Obsolete("Use MongoDatabaseSettings() instead.")]
         public MongoDatabaseSettings(MongoServer server, string databaseName)
         {
             if (server == null)
@@ -57,11 +65,11 @@ namespace MongoDB.Driver
             }
 
             var serverSettings = server.Settings;
-            _databaseName = databaseName;
-            _credentials = serverSettings.GetCredentials(databaseName);
-            _guidRepresentation = serverSettings.GuidRepresentation;
-            _readPreference = serverSettings.ReadPreference;
-            _writeConcern = serverSettings.WriteConcern;
+            _databaseName.Value = databaseName;
+            _credentials.Value = serverSettings.GetCredentials(databaseName);
+            _guidRepresentation.Value = serverSettings.GuidRepresentation;
+            _readPreference.Value = serverSettings.ReadPreference;
+            _writeConcern.Value = serverSettings.WriteConcern;
         }
 
         /// <summary>
@@ -72,6 +80,7 @@ namespace MongoDB.Driver
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="writeConcern">The write concern to use.</param>
+        [Obsolete("Use MongoDatabaseSettings() instead.")]
         public MongoDatabaseSettings(
             string databaseName,
             MongoCredentials credentials,
@@ -96,11 +105,11 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("writeConcern");
             }
 
-            _databaseName = databaseName;
-            _credentials = credentials;
-            _guidRepresentation = guidRepresentation;
-            _readPreference = readPreference;
-            _writeConcern = writeConcern;
+            _databaseName.Value = databaseName;
+            _credentials.Value = credentials;
+            _guidRepresentation.Value = guidRepresentation;
+            _readPreference.Value = readPreference;
+            _writeConcern.Value = writeConcern;
         }
 
         // public properties
@@ -109,20 +118,21 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoCredentials Credentials
         {
-            get { return _credentials; }
+            get { return _credentials.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _credentials = value;
+                _credentials.Value = value;
             }
         }
 
         /// <summary>
         /// Gets the name of the database.
         /// </summary>
+        [Obsolete("Provide the database name on the call to GetDatabase instead.")]
         public string DatabaseName
         {
-            get { return _databaseName; }
+            get { return _databaseName.Value; }
         }
 
         /// <summary>
@@ -130,11 +140,11 @@ namespace MongoDB.Driver
         /// </summary>
         public GuidRepresentation GuidRepresentation
         {
-            get { return _guidRepresentation; }
+            get { return _guidRepresentation.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _guidRepresentation = value;
+                _guidRepresentation.Value = value;
             }
         }
 
@@ -151,7 +161,7 @@ namespace MongoDB.Driver
         /// </summary>
         public ReadPreference ReadPreference
         {
-            get { return _readPreference; }
+            get { return _readPreference.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
@@ -159,17 +169,17 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _readPreference = value;
+                _readPreference.Value = value;
             }
         }
-  
+
         /// <summary>
         /// Gets or sets the SafeMode to use.
         /// </summary>
         [Obsolete("Use WriteConcern instead.")]
         public SafeMode SafeMode
         {
-            get { return new SafeMode(_writeConcern); }
+            get { return (_writeConcern.Value == null) ? null : new SafeMode(_writeConcern.Value); }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
@@ -177,7 +187,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value.WriteConcern;
+                _writeConcern.Value = value.WriteConcern;
             }
         }
 
@@ -189,12 +199,12 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _readPreference.ToSlaveOk();
+                return (_readPreference.Value != null) ? _readPreference.Value.ToSlaveOk() : false;
             }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _readPreference = ReadPreference.FromSlaveOk(value);
+                _readPreference.Value = ReadPreference.FromSlaveOk(value);
             }
         }
 
@@ -203,7 +213,7 @@ namespace MongoDB.Driver
         /// </summary>
         public WriteConcern WriteConcern
         {
-            get { return _writeConcern; }
+            get { return _writeConcern.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
@@ -211,7 +221,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _writeConcern = value;
+                _writeConcern.Value = value;
             }
         }
 
@@ -222,7 +232,13 @@ namespace MongoDB.Driver
         /// <returns>A clone of the settings.</returns>
         public MongoDatabaseSettings Clone()
         {
-            return new MongoDatabaseSettings(_databaseName, _credentials, _guidRepresentation, _readPreference, _writeConcern);
+            var clone =  new MongoDatabaseSettings();
+            clone._databaseName = _databaseName.Clone();
+            clone._credentials = _credentials.Clone();
+            clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readPreference = _readPreference.Clone();
+            clone._writeConcern = _writeConcern.Clone();
+            return clone;
         }
 
         /// <summary>
@@ -246,11 +262,11 @@ namespace MongoDB.Driver
                 else
                 {
                     return
-                        _databaseName == rhs._databaseName &&
-                        _credentials == rhs._credentials &&
-                        _guidRepresentation == rhs._guidRepresentation &&
-                        _readPreference == rhs._readPreference &&
-                        _writeConcern == rhs._writeConcern;
+                        _databaseName.Value == rhs._databaseName.Value &&
+                        _credentials.Value == rhs._credentials.Value &&
+                        _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                        _readPreference.Value == rhs._readPreference.Value &&
+                        _writeConcern.Value == rhs._writeConcern.Value;
                 }
             }
         }
@@ -263,8 +279,8 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _readPreference = _readPreference.FrozenCopy();
-                _writeConcern = _writeConcern.FrozenCopy();
+                if (_readPreference.Value != null) { _readPreference.Value = _readPreference.Value.FrozenCopy(); }
+                if (_writeConcern.Value != null) { _writeConcern.Value = _writeConcern.Value.FrozenCopy(); }
                 _frozenHashCode = GetHashCode();
                 _frozenStringRepresentation = ToString();
                 _isFrozen = true;
@@ -301,11 +317,11 @@ namespace MongoDB.Driver
 
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + _databaseName.GetHashCode();
-            hash = 37 * hash + ((_credentials != null) ? _credentials.GetHashCode() : 0);
-            hash = 37 * hash + _guidRepresentation.GetHashCode();
-            hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + _writeConcern.GetHashCode();
+            hash = 37 * hash + ((_databaseName.Value == null) ? 0 : _databaseName.GetHashCode());
+            hash = 37 * hash + ((_credentials.Value == null) ? 0 : _credentials.Value.GetHashCode());
+            hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
+            hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
             return hash;
         }
 
@@ -321,8 +337,30 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "DatabaseName={0};Credentials={1};GuidRepresentation={2};ReadPreference={3};WriteConcern={4}",
-                _databaseName, _credentials, _guidRepresentation, _readPreference, _writeConcern);
+                "{4}Credentials={0};GuidRepresentation={1};ReadPreference={2};WriteConcern={3}",
+                _credentials, _guidRepresentation, _readPreference, _writeConcern,
+                _databaseName.HasBeenSet ? string.Format("DatabaseName={0}", _databaseName.Value) : "");
+        }
+
+        // internal methods
+        internal void ApplyDefaultValues(MongoServerSettings serverSettings)
+        {
+            if (!_credentials.HasBeenSet)
+            {
+                Credentials = serverSettings.DefaultCredentials;
+            }
+            if (!_guidRepresentation.HasBeenSet)
+            {
+                GuidRepresentation = serverSettings.GuidRepresentation;
+            }
+            if (!_readPreference.HasBeenSet)
+            {
+                ReadPreference = serverSettings.ReadPreference;
+            }
+            if (!_writeConcern.HasBeenSet)
+            {
+                WriteConcern  = serverSettings.WriteConcern;
+            }
         }
     }
 }
