@@ -5,7 +5,10 @@ Properties {
 	$git_commit = Get-GitCommit
 
 	$version = "$base_version.$build_number"
-	$sem_version = "$base_version-$($version_status)$build_number"
+	$sem_version = $base_version
+	if(-not [string]::IsNullOrEmpty($version_status)) {
+		$sem_version = "$base_version-$($version_status)-$build_number"
+	}
 	$release_notes_version = Get-ShortenedVersion $base_version
 	$config = 'Release'
 	$installer_product_id = [System.Guid]::Parse($git_commit.Hash.SubString(0,32))
