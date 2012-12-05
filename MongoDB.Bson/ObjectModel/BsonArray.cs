@@ -195,6 +195,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the array elements as raw values (see BsonValue.RawValue).
         /// </summary>
+        [Obsolete("Use ToArray to ToList instead.")]
         public IEnumerable<object> RawValues
         {
             get { return _values.Select(v => v.RawValue); }
@@ -679,6 +680,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="array">The other array.</param>
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
+        [Obsolete("Use ToArray or ToList instead.")]
         public void CopyTo(object[] array, int arrayIndex)
         {
             for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)

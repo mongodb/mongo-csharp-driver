@@ -312,8 +312,10 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(false, document.IsBsonArray);
             Assert.AreEqual(true, document.IsBsonDocument);
             Assert.AreEqual(0, document.Names.Count());
+#pragma warning disable 618
             Assert.AreEqual(null, document.RawValue);
             Assert.AreEqual(0, document.RawValues.Count());
+#pragma warning restore
             Assert.AreEqual(true, document.ToBoolean());
             Assert.AreSame(document, document.ToBsonDocument());
             Assert.AreEqual("{ }", document.ToJson());

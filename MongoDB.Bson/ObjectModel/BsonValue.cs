@@ -538,6 +538,7 @@ namespace MongoDB.Bson
         /// Gets the raw value of this BsonValue (or null if this BsonValue doesn't have a single scalar value).
         /// </summary>
         // note: don't change return value to "this" or lots of things will break
+        [Obsolete("Use Value property of subclasses or BsonTypeMapper.MapToDotNetValue instead.")]
         public virtual object RawValue
         {
             get { return null; } // subclasses that have a single value (e.g. Int32) override this

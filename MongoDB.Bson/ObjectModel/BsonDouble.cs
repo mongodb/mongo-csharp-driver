@@ -46,6 +46,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the BsonDouble as a double.
         /// </summary>
+        [Obsolete("Use Value instead.")]
         public override object RawValue
         {
             get { return _value; }

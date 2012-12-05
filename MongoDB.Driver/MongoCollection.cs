@@ -1711,13 +1711,16 @@ namespace MongoDB.Driver
                 sb.Append(element.Name);
                 sb.Append("_");
                 var value = element.Value;
-                if (value.BsonType == BsonType.Int32 ||
-                    value.BsonType == BsonType.Int64 ||
-                    value.BsonType == BsonType.Double ||
-                    value.BsonType == BsonType.String)
+                string valueString;
+                switch (value.BsonType)
                 {
-                    sb.Append(value.RawValue.ToString().Replace(' ', '_'));
+                    case BsonType.Int32: valueString = ((BsonInt32)value).Value.ToString(); break;
+                    case BsonType.Int64: valueString = ((BsonInt64)value).Value.ToString(); break;
+                    case BsonType.Double: valueString = ((BsonDouble)value).Value.ToString(); break;
+                    case BsonType.String: valueString = ((BsonString)value).Value; break;
+                    default: valueString = "x"; break;
                 }
+                sb.Append(valueString.Replace(' ', '_'));
             }
             return sb.ToString();
         }

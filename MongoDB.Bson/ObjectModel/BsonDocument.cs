@@ -232,6 +232,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the raw values (see BsonValue.RawValue).
         /// </summary>
+        [Obsolete("Use Values instead.")]
         public IEnumerable<object> RawValues
         {
             get { return _elements.Select(e => e.Value.RawValue); }

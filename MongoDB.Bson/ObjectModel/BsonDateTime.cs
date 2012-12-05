@@ -76,6 +76,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the number of milliseconds since the Unix Epoch.
         /// </summary>
+        [Obsolete("Use MillisecondsSinceEpoch instead.")]
         public override object RawValue
         {
             get { return _millisecondsSinceEpoch; }

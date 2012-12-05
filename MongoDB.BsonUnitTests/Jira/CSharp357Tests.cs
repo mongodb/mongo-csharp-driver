@@ -123,7 +123,9 @@ namespace MongoDB.BsonUnitTests.Jira
             {
                 var bsonDateTime = new BsonDateTime(value);
                 Assert.AreEqual(value, bsonDateTime.MillisecondsSinceEpoch);
+#pragma warning disable 618
                 Assert.AreEqual(value, bsonDateTime.RawValue);
+#pragma warning restore
             }
         }
 

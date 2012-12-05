@@ -227,7 +227,9 @@ namespace MongoDB.BsonUnitTests
         {
             var bsonArray = new BsonArray { 1, 2 };
             var bsonValueArray = new object[2];
+#pragma warning disable 618
             bsonArray.CopyTo(bsonValueArray, 0);
+#pragma warning restore
             Assert.AreEqual(1, bsonValueArray[0]);
             Assert.AreEqual(2, bsonValueArray[1]);
         }
@@ -630,7 +632,9 @@ namespace MongoDB.BsonUnitTests
         {
             var array = new BsonArray { 1, "abc", new BsonDocument("x", 1) };
             var expectedRawValues = new object[] { 1, "abc", null };
+#pragma warning disable 618
             Assert.IsTrue(expectedRawValues.SequenceEqual(array.RawValues));
+#pragma warning restore
         }
 
         [Test]
