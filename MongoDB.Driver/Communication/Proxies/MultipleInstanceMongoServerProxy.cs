@@ -444,11 +444,12 @@ namespace MongoDB.Driver.Internal
                             return;
                         }
 
-                        if (instance.Address != instance.IsMasterResult.MyAddress)
+                        var myAddress = instance.IsMasterResult.MyAddress;
+                        if (myAddress != null && instance.Address != myAddress)
                         {
-                            if (!_instances.Any(x => x.Address == instance.IsMasterResult.MyAddress))
+                            if (!_instances.Any(x => x.Address == myAddress))
                             {
-                                instance.Address = instance.IsMasterResult.MyAddress;
+                                instance.Address = myAddress;
                             }
                             else
                             {
