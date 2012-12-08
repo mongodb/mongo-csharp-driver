@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Internal
                 if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
                 {
                     var document = BsonDocument.ReadFrom(bsonReader);
-                    var err = document["$err", null].AsString ?? "Unknown error.";
+                    var err = document.GetValue("$err", null).AsString ?? "Unknown error.";
                     var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
                     throw new MongoQueryException(message, document);
                 }

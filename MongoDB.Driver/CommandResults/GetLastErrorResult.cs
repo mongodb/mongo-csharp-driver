@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool HasLastErrorMessage
         {
-            get { return Response["err", false].ToBoolean(); }
+            get { return Response.GetValue("err", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var err = Response["err", false];
+                var err = Response.GetValue("err", false);
                 return (err.ToBoolean()) ? err.ToString() : null;
             }
         }
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var updatedExisting = Response["updatedExisting", false];
+                var updatedExisting = Response.GetValue("updatedExisting", false);
                 return updatedExisting.ToBoolean();
             }
         }

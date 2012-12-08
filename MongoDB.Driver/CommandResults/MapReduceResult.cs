@@ -47,7 +47,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = Response["result", null];
+                var result = Response.GetValue("result", null);
                 if (result != null)
                 {
                     if (result.IsString)
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
                     }
                     else
                     {
-                        return (string)result.AsBsonDocument["collection", null];
+                        return (string)result.AsBsonDocument.GetValue("collection", null);
                     }
                 }
                 return null;
@@ -70,10 +70,10 @@ namespace MongoDB.Driver
         {
             get
             {
-                var result = Response["result", null];
+                var result = Response.GetValue("result", null);
                 if (result != null && result.IsBsonDocument)
                 {
-                    return (string)result.AsBsonDocument["db", null];
+                    return (string)result.AsBsonDocument.GetValue("db", null);
                 }
                 return null;
             }

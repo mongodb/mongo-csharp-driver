@@ -51,7 +51,7 @@ namespace MongoDB.Driver
         /// </value>
         public bool IsArbiterOnly
         {
-            get { return Response["arbiterOnly", false].ToBoolean(); }
+            get { return Response.GetValue("arbiterOnly", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         /// </value>
         public bool IsPrimary
         {
-            get { return Response["ismaster", false].ToBoolean(); }
+            get { return Response.GetValue("ismaster", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace MongoDB.Driver
         public bool IsPassive
         {
             //!ArbiterOnly is a workaround for CSHARP-273
-            get { return Response["passive", false].ToBoolean() && !IsArbiterOnly; }
+            get { return Response.GetValue("passive", false).ToBoolean() && !IsArbiterOnly; }
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace MongoDB.Driver
         /// </value>
         public bool IsSecondary
         {
-            get { return Response["secondary", false].ToBoolean(); }
+            get { return Response.GetValue("secondary", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace MongoDB.Driver
         /// </value>
         public int MaxBsonObjectSize
         {
-            get { return Response["maxBsonObjectSize", MongoDefaults.MaxDocumentSize].ToInt32(); }
+            get { return Response.GetValue("maxBsonObjectSize", MongoDefaults.MaxDocumentSize).ToInt32(); }
         }
 
         /// <summary>

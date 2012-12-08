@@ -139,7 +139,7 @@ namespace MongoDB.Driver
         /// </summary>
         public bool IsCapped
         {
-            get { return Response["capped", false].ToBoolean(); }
+            get { return Response.GetValue("capped", false).ToBoolean(); }
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long MaxDocuments
         {
-            get { return Response["max", 0].ToInt32(); }
+            get { return Response.GetValue("max", 0).ToInt32(); }
         }
 
         /// <summary>

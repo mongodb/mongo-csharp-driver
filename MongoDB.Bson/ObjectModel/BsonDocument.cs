@@ -292,24 +292,10 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element.</param>
         /// <param name="defaultValue">The default value to return if the element is not found.</param>
         /// <returns>Teh value of the element or a default value if the element is not found.</returns>
+        [Obsolete("Use GetValue(string name, BsonValue defaultValue) instead.")]
         public BsonValue this[string name, BsonValue defaultValue]
         {
-            get
-            {
-                if (name == null)
-                {
-                    throw new ArgumentNullException("name");
-                }
-                int index;
-                if (_indexes.TryGetValue(name, out index))
-                {
-                    return _elements[index].Value;
-                }
-                else
-                {
-                    return defaultValue;
-                }
-            }
+            get { return GetValue(name, defaultValue); }
         }
 
         /// <summary>
@@ -998,7 +984,16 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            return this[name, defaultValue];
+
+            int index;
+            if (_indexes.TryGetValue(name, out index))
+            {
+                return _elements[index].Value;
+            }
+            else
+            {
+                return defaultValue;
+            }
         }
 
         /// <summary>
