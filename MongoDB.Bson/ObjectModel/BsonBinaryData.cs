@@ -173,7 +173,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonBinaryData.</returns>
         public static implicit operator BsonBinaryData(byte[] bytes)
         {
-            return BsonBinaryData.Create(bytes);
+            return new BsonBinaryData(bytes);
         }
 
         /// <summary>
@@ -215,6 +215,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bytes">The binary data.</param>
         /// <returns>A BsonBinaryData or null.</returns>
+        [Obsolete("Use new BsonBinaryData(byte[] bytes) instead.")]
         public static BsonBinaryData Create(byte[] bytes)
         {
             return Create(bytes, BsonBinarySubType.Binary);
@@ -226,6 +227,7 @@ namespace MongoDB.Bson
         /// <param name="bytes">The binary data.</param>
         /// <param name="subType">The binary data subtype.</param>
         /// <returns>A BsonBinaryData or null.</returns>
+        [Obsolete("Use new BsonBinaryData(byte[] bytes, BsonBinarySubtype subType) instead.")]
         public static BsonBinaryData Create(byte[] bytes, BsonBinarySubType subType)
         {
             if (bytes != null)
@@ -245,6 +247,7 @@ namespace MongoDB.Bson
         /// <param name="subType">The binary data subtype.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <returns>A BsonBinaryData or null.</returns>
+        [Obsolete("Use new BsonBinaryData(byte[] bytes, BsonBinarySubtype subType, GuidRepresentation guidRepresentation) instead.")]
         public static BsonBinaryData Create(
             byte[] bytes,
             BsonBinarySubType subType,
@@ -265,6 +268,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="guid">A Guid.</param>
         /// <returns>A BsonBinaryData.</returns>
+        [Obsolete("Use new BsonBinaryData(Guid guid) instead.")]
         public static BsonBinaryData Create(Guid guid)
         {
             return new BsonBinaryData(guid);
@@ -276,6 +280,7 @@ namespace MongoDB.Bson
         /// <param name="guid">A Guid.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <returns>A BsonBinaryData.</returns>
+        [Obsolete("Use new BsonBinaryData(Guid guid, GuidRepresentation guidRepresentation) instead.")]
         public static BsonBinaryData Create(Guid guid, GuidRepresentation guidRepresentation)
         {
             return new BsonBinaryData(guid, guidRepresentation);

@@ -98,6 +98,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A long.</param>
         /// <returns>A BsonInt64.</returns>
+        [Obsolete("Use new BsonInt64(long value) instead.")]
         public static BsonInt64 Create(long value)
         {
             return new BsonInt64(value);

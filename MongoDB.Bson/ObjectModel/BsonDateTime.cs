@@ -132,6 +132,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A DateTime.</param>
         /// <returns>A BsonDateTime.</returns>
+        [Obsolete("Use new BsonDateTime(DateTime value) instead.")]
         public static BsonDateTime Create(DateTime value)
         {
             return new BsonDateTime(value);
@@ -142,6 +143,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="millisecondsSinceEpoch">A DateTime.</param>
         /// <returns>Milliseconds since Unix Epoch.</returns>
+        [Obsolete("Use new BsonDateTime(long millisecondsSinceEpoch) instead.")]
         public static BsonDateTime Create(long millisecondsSinceEpoch)
         {
             return new BsonDateTime(millisecondsSinceEpoch);

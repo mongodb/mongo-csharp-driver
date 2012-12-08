@@ -120,11 +120,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 BsonDateTime bsonDateTime;
                 if (ticks.HasValue)
                 {
-                    bsonDateTime = BsonDateTime.Create(new DateTime(ticks.Value, DateTimeKind.Utc));
+                    bsonDateTime = new BsonDateTime(new DateTime(ticks.Value, DateTimeKind.Utc));
                 }
                 else
                 {
-                    bsonDateTime = BsonDateTime.Create(millisecondsSinceEpoch.Value);
+                    bsonDateTime = new BsonDateTime(millisecondsSinceEpoch.Value);
                 }
 
                 if (dateTimeSerializationOptions.DateOnly)
@@ -134,7 +134,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         throw new FileFormatException("TimeOfDay component for DateOnly DateTime value is not zero.");
                     }
-                    bsonDateTime = BsonDateTime.Create(DateTime.SpecifyKind(dateTime, dateTimeSerializationOptions.Kind)); // not ToLocalTime or ToUniversalTime!
+                    bsonDateTime = new BsonDateTime(DateTime.SpecifyKind(dateTime, dateTimeSerializationOptions.Kind)); // not ToLocalTime or ToUniversalTime!
                 }
                 else
                 {
@@ -151,7 +151,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 dateTime = BsonUtils.ToUniversalTime(dateTime);
                                 break;
                         }
-                        bsonDateTime = BsonDateTime.Create(dateTime);
+                        bsonDateTime = new BsonDateTime(dateTime);
                     }
                     else
                     {

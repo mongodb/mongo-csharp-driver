@@ -342,7 +342,7 @@ namespace MongoDB.BsonUnitTests
         public void TestCreateFromDictionary()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 }, { "n", null }, { "a", new object[] { 1, null } } }; // null will be mapped to BsonNull.Value
-            var document = BsonDocument.Create(dictionary);
+            var document = new BsonDocument(dictionary);
             Assert.AreEqual(3, document.ElementCount);
             Assert.AreEqual(1, document["x"].AsInt32);
             Assert.AreSame(BsonNull.Value, document["n"]);
@@ -1057,7 +1057,7 @@ namespace MongoDB.BsonUnitTests
                 { "MinKey", BsonMinKey.Value },
                 { "Null", BsonNull.Value },
                 { "RegularExpression", new BsonRegularExpression("abc") },
-                { "Symbol", BsonSymbol.Create("name") },
+                { "Symbol", BsonSymbolTable.Lookup("name") },
                 { "Timestamp", new BsonTimestamp(123L) },
                 { "Undefined", BsonUndefined.Value },
             };
@@ -1239,7 +1239,7 @@ namespace MongoDB.BsonUnitTests
                 { "MinKey", BsonMinKey.Value },
                 { "Null", BsonNull.Value },
                 { "RegularExpression", new BsonRegularExpression("abc") },
-                { "Symbol", BsonSymbol.Create("name") },
+                { "Symbol", BsonSymbolTable.Lookup("name") },
                 { "Timestamp", new BsonTimestamp(123L) },
                 { "Undefined", BsonUndefined.Value },
             };

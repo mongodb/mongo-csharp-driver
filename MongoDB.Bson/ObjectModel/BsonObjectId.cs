@@ -198,6 +198,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An ObjectId.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(ObjectId value) instead.")]
         public static BsonObjectId Create(ObjectId value)
         {
             return new BsonObjectId(value);
@@ -208,6 +209,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A byte array.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(byte[] value) instead.")]
         public static BsonObjectId Create(byte[] value)
         {
             if (value != null)
@@ -228,6 +230,7 @@ namespace MongoDB.Bson
         /// <param name="pid">The pid.</param>
         /// <param name="increment">The increment.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(int timestamp, int machine, short pid, int increment) instead.")]
         public static BsonObjectId Create(int timestamp, int machine, short pid, int increment)
         {
             return new BsonObjectId(timestamp, machine, pid, increment);
@@ -255,6 +258,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A string.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(string value) instead.")]
         public static BsonObjectId Create(string value)
         {
             if (value != null)

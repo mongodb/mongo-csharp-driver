@@ -703,7 +703,7 @@ namespace MongoDB.Driver.GridFS
         public void SetAliases(MongoGridFSFileInfo fileInfo, string[] aliases)
         {
             var query = Query.EQ("_id", fileInfo.Id);
-            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", BsonArray.Create(aliases));
+            var update = (aliases == null) ? Update.Unset("aliases") : Update.Set("aliases", new BsonArray(aliases));
             _files.Update(query, update, _settings.WriteConcern);
         }
 
@@ -804,7 +804,7 @@ namespace MongoDB.Driver.GridFS
                         {
                             { "_id", BsonObjectId.GenerateNewId() },
                             { "files_id", files_id },
-                            { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
+                            { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
                             { "data", new BsonBinaryData(data) }
                         };
                         _chunks.Insert(chunk, _settings.WriteConcern);

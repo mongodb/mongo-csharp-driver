@@ -130,7 +130,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(Regex value)
         {
-            return BsonRegularExpression.Create(value);
+            return new BsonRegularExpression(value);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression.</returns>
         public static implicit operator BsonRegularExpression(string value)
         {
-            return BsonRegularExpression.Create(value);
+            return new BsonRegularExpression(value);
         }
 
         /// <summary>
@@ -189,6 +189,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="regex">A Regex.</param>
         /// <returns>A BsonRegularExpression.</returns>
+        [Obsolete("Use new BsonRegularExpression(Regex regex) instead.")]
         public static BsonRegularExpression Create(Regex regex)
         {
             if (regex != null)
@@ -206,6 +207,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="pattern">A regular expression pattern.</param>
         /// <returns>A BsonRegularExpression.</returns>
+        [Obsolete("Use new BsonRegularExpression(string pattern) instead.")]
         public static BsonRegularExpression Create(string pattern)
         {
             if (pattern != null)
@@ -224,6 +226,7 @@ namespace MongoDB.Bson
         /// <param name="pattern">A regular expression pattern.</param>
         /// <param name="options">Regular expression options.</param>
         /// <returns>A BsonRegularExpression.</returns>
+        [Obsolete("Use new BsonRegularExpression(string pattern, string options) instead.")]
         public static BsonRegularExpression Create(string pattern, string options)
         {
             if (pattern != null)

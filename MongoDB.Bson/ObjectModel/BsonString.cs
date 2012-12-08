@@ -82,7 +82,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonString.</returns>
         public static implicit operator BsonString(string value)
         {
-            return BsonString.Create(value);
+            return new BsonString(value);
         }
 
         /// <summary>
@@ -131,6 +131,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A string.</param>
         /// <returns>A BsonString.</returns>
+        [Obsolete("Use new BsonString(string value) instead.")]
         public static BsonString Create(string value)
         {
             if (value != null)

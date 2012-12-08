@@ -35,8 +35,11 @@ namespace MongoDB.Bson
         private bool _value;
 
         // constructors
-        // private so that only the two official instances can be created
-        private BsonBoolean(bool value)
+        /// <summary>
+        /// Initializes a new instance of the BsonBoolean class.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        public BsonBoolean(bool value)
             : base(BsonType.Boolean)
         {
             _value = value;
@@ -84,7 +87,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonBoolean.</returns>
         public static implicit operator BsonBoolean(bool value)
         {
-            return BsonBoolean.Create(value);
+            return value ? __trueInstance : __falseInstance;
         }
 
         /// <summary>
@@ -116,6 +119,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The bool value.</param>
         /// <returns>The corresponding BsonBoolean value.</returns>
+        [Obsolete("Use implicit conversion to BsonBoolean or new BsonBoolean(bool value) instead.")]
         public static BsonBoolean Create(bool value)
         {
             return value ? __trueInstance : __falseInstance;

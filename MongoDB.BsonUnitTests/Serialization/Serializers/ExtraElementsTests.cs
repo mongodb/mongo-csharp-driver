@@ -232,15 +232,15 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.AreEqual("abc", ((BsonJavaScript)c.X["XJavaScript"]).Code);
             Assert.AreEqual("abc", ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Code);
             Assert.AreEqual(1, ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope.ElementCount);
-            Assert.AreEqual(BsonInt32.Create(1), ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope["x"]);
+            Assert.AreEqual(new BsonInt32(1), ((BsonJavaScriptWithScope)c.X["XJavaScriptWithScope"]).Scope["x"]);
             Assert.AreSame(BsonMaxKey.Value, c.X["XMaxKey"]);
             Assert.AreSame(BsonMinKey.Value, c.X["XMinKey"]);
             Assert.AreEqual(null, c.X["XNull"]);
             Assert.AreEqual(ObjectId.Parse("00112233445566778899aabb"), c.X["XObjectId"]);
             Assert.AreEqual(new BsonRegularExpression("abc"), c.X["XRegularExpression"]);
             Assert.AreEqual("abc", c.X["XString"]);
-            Assert.AreSame(BsonSymbol.Create("abc"), c.X["XSymbol"]);
-            Assert.AreEqual(BsonTimestamp.Create(1234), c.X["XTimestamp"]);
+            Assert.AreSame(BsonSymbolTable.Lookup("abc"), c.X["XSymbol"]);
+            Assert.AreEqual(new BsonTimestamp(1234), c.X["XTimestamp"]);
             Assert.AreSame(BsonUndefined.Value, c.X["XUndefined"]);
         }
     }

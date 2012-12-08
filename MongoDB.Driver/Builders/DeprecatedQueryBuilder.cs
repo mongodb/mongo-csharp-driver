@@ -931,7 +931,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryConditionList Exists(bool exists)
         {
-            _conditions.Add("$exists", BsonBoolean.Create(exists));
+            _conditions.Add("$exists", (BsonBoolean)exists);
             return this;
         }
 
@@ -1627,7 +1627,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public QueryNotConditionList Exists(bool exists)
         {
-            _conditions.Add("$exists", BsonBoolean.Create(exists));
+            _conditions.Add("$exists", (BsonBoolean)exists);
             return this;
         }
 

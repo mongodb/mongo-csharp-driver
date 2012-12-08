@@ -58,7 +58,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol.</returns>
         public static implicit operator BsonSymbol(string name)
         {
-            return BsonSymbol.Create(name);
+            return BsonSymbolTable.Lookup(name);
         }
 
         /// <summary>
@@ -107,6 +107,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="name">A string.</param>
         /// <returns>A BsonSymbol.</returns>
+        [Obsolete("Use BsonSymbolTable.Lookup(string name) instead.")]
         public static BsonSymbol Create(string name)
         {
             if (name != null)

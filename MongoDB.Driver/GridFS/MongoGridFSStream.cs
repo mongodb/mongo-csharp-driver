@@ -479,7 +479,7 @@ namespace MongoDB.Driver.GridFS
                     {
                         { "_id", ObjectId.GenerateNewId() },
                         { "files_id", _fileInfo.Id },
-                        { "n", (n < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)n) : BsonInt64.Create(n) },
+                        { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
                         { "data", zeros }
                     };
                     _gridFS.Chunks.Insert(missingChunk);
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.GridFS
             {
                 { "_id", _chunkId },
                 { "files_id", _fileInfo.Id },
-                { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)BsonInt32.Create((int)_chunkIndex) : BsonInt64.Create(_chunkIndex) },
+                { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)new BsonInt32((int)_chunkIndex) : new BsonInt64(_chunkIndex) },
                 { "data", data }
             };
             _gridFS.Chunks.Update(query, update, UpdateFlags.Upsert);

@@ -100,7 +100,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScript.</returns>
         public static implicit operator BsonJavaScript(string code)
         {
-            return BsonJavaScript.Create(code);
+            return new BsonJavaScript(code);
         }
 
         /// <summary>
@@ -108,6 +108,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="code">A string containing JavaScript code.</param>
         /// <returns>A BsonJavaScript.</returns>
+        [Obsolete("Use new BsonJavaScript(string code) instead.")]
         public static BsonJavaScript Create(string code)
         {
             if (code != null)

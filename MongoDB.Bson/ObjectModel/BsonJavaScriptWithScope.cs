@@ -102,6 +102,7 @@ namespace MongoDB.Bson
         /// <param name="code">A string containing JavaScript code.</param>
         /// <param name="scope">A scope (a set of variable with values).</param>
         /// <returns>A BsonJavaScript.</returns>
+        [Obsolete("Use new BsonJavaScriptWithScope(string code, BsonDocument scope) instead.")]
         public static BsonJavaScriptWithScope Create(string code, BsonDocument scope)
         {
             if (code != null)

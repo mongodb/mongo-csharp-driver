@@ -47,7 +47,7 @@ namespace MongoDB.BsonUnitTests.Jira
         public void TestSetDocumentIdBsonValue()
         {
             var document = new BsonDocument { { "x", "abc" } };
-            var id = BsonInt32.Create(1);
+            var id = new BsonInt32(1);
 #pragma warning disable 618 // SetDocumentId is obsolete
             document.SetDocumentId(id);
 #pragma warning restore

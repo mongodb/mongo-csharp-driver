@@ -119,6 +119,7 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The value of the element.</param>
         /// <returns>A BsonElement or null.</returns>
+        [Obsolete("Use new BsonElement(string name, BsonValue value) instead.")]
         public static BsonElement Create(bool condition, string name, BsonValue value)
         {
             if (name == null)
@@ -141,6 +142,7 @@ namespace MongoDB.Bson
         /// <param name="name">The name of the element.</param>
         /// <param name="value">The value of the element.</param>
         /// <returns>A BsonElement or null.</returns>
+        [Obsolete("Use new BsonElement(string name, BsonValue value) instead.")]
         public static BsonElement Create(string name, BsonValue value)
         {
             if (name == null)

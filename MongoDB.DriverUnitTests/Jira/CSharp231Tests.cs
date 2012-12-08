@@ -198,10 +198,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonBinaryData.Create(new byte[] { }) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonBinaryData(new byte[] { }) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonBinaryData.Create(new byte[] { 1, 2, 3 }) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonBinaryData(new byte[] { 1, 2, 3 }) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -210,10 +210,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonBoolean.Create(false) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", BsonBoolean.False }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonBoolean.Create(true) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", BsonBoolean.True }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -222,13 +222,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.MinValue) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonDateTime(DateTime.MinValue) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.UtcNow) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonDateTime(DateTime.UtcNow) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonDateTime.Create(DateTime.MaxValue) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonDateTime(DateTime.MaxValue) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -249,10 +249,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonDouble.Create(0.0) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonDouble(0.0) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonDouble.Create(1.0) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonDouble(1.0) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -261,10 +261,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonInt32.Create(0) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonInt32(0) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonInt32.Create(1) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonInt32(1) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -273,10 +273,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonInt64.Create(0) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonInt64(0) }, { "X", 1 } };
             _collection.Insert(doc);
 
-            doc = new BsonDocument { { "_id", BsonInt64.Create(1) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonInt64(1) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -330,11 +330,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonString.Create("") }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonString("") }, { "X", 1 } };
             _collection.Insert(doc);
             Assert.AreEqual("", doc["_id"].AsString);
 
-            doc = new BsonDocument { { "_id", BsonString.Create("123") }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonString("123") }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -343,11 +343,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", BsonTimestamp.Create(0, 0) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonTimestamp(0, 0) }, { "X", 1 } };
             _collection.Insert(doc);
-            Assert.AreEqual(BsonTimestamp.Create(0, 0), doc["_id"].AsBsonTimestamp);
+            Assert.AreEqual(new BsonTimestamp(0, 0), doc["_id"].AsBsonTimestamp);
 
-            doc = new BsonDocument { { "_id", BsonTimestamp.Create(1, 2) }, { "X", 1 } };
+            doc = new BsonDocument { { "_id", new BsonTimestamp(1, 2) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -412,10 +412,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonBinaryDataId { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonBinaryDataId { Id = BsonBinaryData.Create(new byte[] { }), X = 1 };
+            doc = new ClassWithBsonBinaryDataId { Id = new BsonBinaryData(new byte[] { }), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonBinaryDataId { Id = BsonBinaryData.Create(new byte[] { 1, 2, 3 }), X = 1 };
+            doc = new ClassWithBsonBinaryDataId { Id = new BsonBinaryData(new byte[] { 1, 2, 3 }), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -427,10 +427,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonBooleanId { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonBooleanId { Id = BsonBoolean.Create(false), X = 1 };
+            doc = new ClassWithBsonBooleanId { Id = BsonBoolean.False, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonBooleanId { Id = BsonBoolean.Create(true), X = 1 };
+            doc = new ClassWithBsonBooleanId { Id = BsonBoolean.True, X = 1 };
             _collection.Insert(doc);
         }
 
@@ -457,13 +457,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonDateTimeId { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonDateTimeId { Id = BsonDateTime.Create(DateTime.MinValue), X = 1 };
+            doc = new ClassWithBsonDateTimeId { Id = new BsonDateTime(DateTime.MinValue), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonDateTimeId { Id = BsonDateTime.Create(DateTime.UtcNow), X = 1 };
+            doc = new ClassWithBsonDateTimeId { Id = new BsonDateTime(DateTime.UtcNow), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonDateTimeId { Id = BsonDateTime.Create(DateTime.MaxValue), X = 1 };
+            doc = new ClassWithBsonDateTimeId { Id = new BsonDateTime(DateTime.MaxValue), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -475,10 +475,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonDoubleId { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonDoubleId { Id = BsonDouble.Create(0.0), X = 1 };
+            doc = new ClassWithBsonDoubleId { Id = new BsonDouble(0.0), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonDoubleId { Id = BsonDouble.Create(1.0), X = 1 };
+            doc = new ClassWithBsonDoubleId { Id = new BsonDouble(1.0), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -490,10 +490,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonInt32Id { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonInt32Id { Id = BsonInt32.Create(0), X = 1 };
+            doc = new ClassWithBsonInt32Id { Id = new BsonInt32(0), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonInt32Id { Id = BsonInt32.Create(1), X = 1 };
+            doc = new ClassWithBsonInt32Id { Id = new BsonInt32(1), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -505,10 +505,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             var doc = new ClassWithBsonInt64Id { Id = null, X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonInt64Id { Id = BsonInt64.Create(0), X = 1 };
+            doc = new ClassWithBsonInt64Id { Id = new BsonInt64(0), X = 1 };
             _collection.Insert(doc);
 
-            doc = new ClassWithBsonInt64Id { Id = BsonInt64.Create(1), X = 1 };
+            doc = new ClassWithBsonInt64Id { Id = new BsonInt64(1), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -596,11 +596,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             _collection.Insert(doc);
             Assert.IsNull(doc.Id);
 
-            doc = new ClassWithBsonTimestampId { Id = BsonTimestamp.Create(0, 0), X = 1 };
+            doc = new ClassWithBsonTimestampId { Id = new BsonTimestamp(0, 0), X = 1 };
             _collection.Insert(doc);
-            Assert.AreEqual(BsonTimestamp.Create(0, 0), doc.Id);
+            Assert.AreEqual(new BsonTimestamp(0, 0), doc.Id);
 
-            doc = new ClassWithBsonTimestampId { Id = BsonTimestamp.Create(1, 2), X = 1 };
+            doc = new ClassWithBsonTimestampId { Id = new BsonTimestamp(1, 2), X = 1 };
             _collection.Insert(doc);
         }
 
@@ -629,10 +629,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonBinaryData.Create(new byte[] { }), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonBinaryData(new byte[] { }), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonBinaryData.Create(new byte[] { 1, 2, 3 }), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonBinaryData(new byte[] { 1, 2, 3 }), X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -643,10 +643,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonBoolean.Create(false), X = 1 };
+                doc = new ClassWithBsonValueId { Id = BsonBoolean.False, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonBoolean.Create(true), X = 1 };
+                doc = new ClassWithBsonValueId { Id = BsonBoolean.True, X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -671,13 +671,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonDateTime.Create(DateTime.MinValue), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonDateTime(DateTime.MinValue), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonDateTime.Create(DateTime.UtcNow), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonDateTime(DateTime.UtcNow), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonDateTime.Create(DateTime.MaxValue), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonDateTime(DateTime.MaxValue), X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -688,10 +688,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonDouble.Create(0.0), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonDouble(0.0), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonDouble.Create(1.0), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonDouble(1.0), X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -702,10 +702,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonInt32.Create(0), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonInt32(0), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonInt32.Create(1), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonInt32(1), X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -716,10 +716,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonInt64.Create(0), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonInt64(0), X = 1 };
                 _collection.Insert(doc);
 
-                doc = new ClassWithBsonValueId { Id = BsonInt64.Create(1), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonInt64(1), X = 1 };
                 _collection.Insert(doc);
             }
 
@@ -799,11 +799,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 _collection.Insert(doc);
                 Assert.IsNull(doc.Id);
 
-                doc = new ClassWithBsonValueId { Id = BsonTimestamp.Create(0, 0), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonTimestamp(0, 0), X = 1 };
                 _collection.Insert(doc);
-                Assert.AreEqual(BsonTimestamp.Create(0, 0), doc.Id);
+                Assert.AreEqual(new BsonTimestamp(0, 0), doc.Id);
 
-                doc = new ClassWithBsonValueId { Id = BsonTimestamp.Create(1, 2), X = 1 };
+                doc = new ClassWithBsonValueId { Id = new BsonTimestamp(1, 2), X = 1 };
                 _collection.Insert(doc);
             }
         }

@@ -1266,7 +1266,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken(")");
-            return BsonInt64.Create(value);
+            return new BsonInt64(value);
         }
 
         private BsonValue ParseObjectIdConstructor()
@@ -1279,7 +1279,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken(")");
-            return BsonObjectId.Create(valueToken.StringValue);
+            return new BsonObjectId(ObjectId.Parse(valueToken.StringValue));
         }
 
         private BsonValue ParseObjectIdExtendedJson()
@@ -1292,7 +1292,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
-            return BsonObjectId.Create(valueToken.StringValue);
+            return new BsonObjectId(ObjectId.Parse(valueToken.StringValue));
         }
 
         private BsonValue ParseRegularExpressionConstructor()
@@ -1321,7 +1321,7 @@ namespace MongoDB.Bson.IO
                 PushToken(commaToken);
             }
             VerifyToken(")");
-            return BsonRegularExpression.Create(patternToken.StringValue, options);
+            return new BsonRegularExpression(patternToken.StringValue, options);
         }
 
         private BsonValue ParseRegularExpressionExtendedJson()
@@ -1352,7 +1352,7 @@ namespace MongoDB.Bson.IO
                 PushToken(commaToken);
             }
             VerifyToken("}");
-            return BsonRegularExpression.Create(patternToken.StringValue, options);
+            return new BsonRegularExpression(patternToken.StringValue, options);
         }
 
         private BsonValue ParseSymbolExtendedJson()
@@ -1365,7 +1365,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
-            return BsonString.Create(nameToken.StringValue); // will be converted to a BsonSymbol at a higher level
+            return new BsonString(nameToken.StringValue); // will be converted to a BsonSymbol at a higher level
         }
 
         private BsonValue ParseTimestampExtendedJson()
@@ -1387,7 +1387,7 @@ namespace MongoDB.Bson.IO
                 throw new FileFormatException(message);
             }
             VerifyToken("}");
-            return BsonTimestamp.Create(value);
+            return new BsonTimestamp(value);
         }
 
         private BsonValue ParseUUIDConstructor(string uuidConstructorName)

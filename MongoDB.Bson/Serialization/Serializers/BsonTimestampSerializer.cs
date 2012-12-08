@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return BsonTimestamp.Create(bsonReader.ReadTimestamp());
+                return new BsonTimestamp(bsonReader.ReadTimestamp());
             }
         }
 

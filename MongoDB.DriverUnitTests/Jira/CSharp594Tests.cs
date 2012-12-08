@@ -52,7 +52,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp594
                 new BsonObjectId(ObjectId.GenerateNewId()),
                 new BsonRegularExpression("pattern"),
                 new BsonString("abc"),
-                BsonSymbol.Create("xyz"),
+                BsonSymbolTable.Lookup("xyz"),
                 new BsonTimestamp(0),
                 BsonUndefined.Value
             };

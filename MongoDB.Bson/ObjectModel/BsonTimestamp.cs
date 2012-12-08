@@ -107,6 +107,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The combined timestamp/increment value.</param>
         /// <returns>A BsonTimestamp.</returns>
+        [Obsolete("Use new BsonTimestamp(long value) instead.")]
         public static BsonTimestamp Create(long value)
         {
             return new BsonTimestamp(value);
@@ -118,6 +119,7 @@ namespace MongoDB.Bson
         /// <param name="timestamp">The timestamp.</param>
         /// <param name="increment">The increment.</param>
         /// <returns>A BsonTimestamp.</returns>
+        [Obsolete("Use new BsonTimestamp(int timestamp, int increment) instead.")]
         public static BsonTimestamp Create(int timestamp, int increment)
         {
             return new BsonTimestamp(timestamp, increment);

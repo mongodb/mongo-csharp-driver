@@ -74,9 +74,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.String:
-                    return BsonSymbol.Create(bsonReader.ReadString());
+                    return BsonSymbolTable.Lookup(bsonReader.ReadString());
                 case BsonType.Symbol:
-                    return BsonSymbol.Create(bsonReader.ReadSymbol());
+                    return BsonSymbolTable.Lookup(bsonReader.ReadSymbol());
                 default:
                     var message = string.Format("Cannot deserialize BsonSymbol from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);

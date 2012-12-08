@@ -424,7 +424,7 @@ namespace MongoDB.Bson.IO
                     case RegularExpressionState.Done:
                         buffer.UnRead(c);
                         var lexeme = buffer.Substring(start, buffer.Position - start);
-                        var regex = BsonRegularExpression.Create(lexeme);
+                        var regex = new BsonRegularExpression(lexeme);
                         return new RegularExpressionJsonToken(lexeme, regex);
                     case RegularExpressionState.Invalid:
                         throw new FileFormatException(FormatMessage("Invalid JSON regular expression", buffer, start));

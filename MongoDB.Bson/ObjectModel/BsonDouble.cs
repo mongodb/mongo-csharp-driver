@@ -99,6 +99,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A double.</param>
         /// <returns>A BsonDouble.</returns>
+        [Obsolete("Use new BsonDouble(double value) instead.")]
         public static BsonDouble Create(double value)
         {
             return new BsonDouble(value);

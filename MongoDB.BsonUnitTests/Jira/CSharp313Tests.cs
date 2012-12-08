@@ -47,7 +47,7 @@ namespace MongoDB.BsonUnitTests.Jira
             new BsonRegularExpression("abc"),
             new BsonArray { 1, 2 },
             "abc",
-            BsonSymbol.Create("abc"),
+            BsonSymbolTable.Lookup("abc"),
             new BsonTimestamp(1234L),
             BsonUndefined.Value
         };

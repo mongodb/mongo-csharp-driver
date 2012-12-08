@@ -242,7 +242,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestMapBsonSymbol()
         {
-            var value = BsonSymbol.Create("symbol");
+            var value = BsonSymbolTable.Lookup("symbol");
             var bsonValue = (BsonSymbol)BsonTypeMapper.MapToBsonValue(value);
             Assert.AreSame(value, bsonValue);
             var bsonSymbol = (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
@@ -527,7 +527,7 @@ namespace MongoDB.BsonUnitTests
             var bsonString = (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
             Assert.AreEqual(value, bsonString.Value);
             var bsonSymbol = (BsonSymbol)BsonTypeMapper.MapToBsonValue("symbol", BsonType.Symbol);
-            Assert.AreSame(BsonSymbol.Create("symbol"), bsonSymbol);
+            Assert.AreSame(BsonSymbolTable.Lookup("symbol"), bsonSymbol);
         }
 
         [Test]

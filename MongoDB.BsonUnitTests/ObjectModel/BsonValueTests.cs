@@ -143,7 +143,7 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestAsBsonSymbol()
         {
-            BsonValue v = BsonSymbol.Create("name");
+            BsonValue v = BsonSymbolTable.Lookup("name");
             BsonValue s = "";
             var sym = v.AsBsonSymbol;
             Assert.AreEqual("name", sym.Name);
@@ -390,52 +390,52 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonRegularExpressionConstructors()
         {
-            var regex = BsonRegularExpression.Create("pattern");
+            var regex = new BsonRegularExpression("pattern");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("", regex.Options);
 
-            regex = BsonRegularExpression.Create("/pattern/i");
+            regex = new BsonRegularExpression("/pattern/i");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
 
-            regex = BsonRegularExpression.Create(@"/pattern\/withslash/i");
+            regex = new BsonRegularExpression(@"/pattern\/withslash/i");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern/withslash", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
 
-            regex = BsonRegularExpression.Create("pattern", "i");
+            regex = new BsonRegularExpression("pattern", "i");
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern"));
+            regex = new BsonRegularExpression(new Regex("pattern"));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline));
+            regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("imxs", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnoreCase));
+            regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnoreCase));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("i", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.Multiline));
+            regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.Multiline));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("m", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.IgnorePatternWhitespace));
+            regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.IgnorePatternWhitespace));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("x", regex.Options);
 
-            regex = BsonRegularExpression.Create(new Regex("pattern", RegexOptions.Singleline));
+            regex = new BsonRegularExpression(new Regex("pattern", RegexOptions.Singleline));
             Assert.IsInstanceOf<BsonRegularExpression>(regex);
             Assert.AreEqual("pattern", regex.Pattern);
             Assert.AreEqual("s", regex.Options);
