@@ -742,7 +742,7 @@ namespace MongoDB.Driver.GridFS
             var options = new MongoGridFSCreateOptions
             {
                 ChunkSize = _settings.ChunkSize,
-                Id = BsonObjectId.GenerateNewId(),
+                Id = ObjectId.GenerateNewId(),
                 UploadDate = DateTime.UtcNow
             };
             return Upload(stream, remoteFileName, options);
@@ -764,7 +764,7 @@ namespace MongoDB.Driver.GridFS
             {
                 EnsureIndexes();
 
-                var files_id = createOptions.Id ?? BsonObjectId.GenerateNewId();
+                var files_id = createOptions.Id ?? ObjectId.GenerateNewId();
                 var chunkSize = (createOptions.ChunkSize == 0) ? _settings.ChunkSize : createOptions.ChunkSize;
                 var buffer = new byte[chunkSize];
 
@@ -802,7 +802,7 @@ namespace MongoDB.Driver.GridFS
 
                         var chunk = new BsonDocument
                         {
-                            { "_id", BsonObjectId.GenerateNewId() },
+                            { "_id", ObjectId.GenerateNewId() },
                             { "files_id", files_id },
                             { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
                             { "data", new BsonBinaryData(data) }

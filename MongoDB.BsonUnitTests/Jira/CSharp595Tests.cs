@@ -30,7 +30,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp595
         [Test]
         public void TestDoesNotThrowStackOverflowExceptionWhenConvertingToSelfType()
         {
-            BsonObjectId id1 = BsonObjectId.GenerateNewId();
+            BsonObjectId id1 = new BsonObjectId(ObjectId.GenerateNewId());
             BsonObjectId id2 = null;
             Assert.DoesNotThrow(() =>
             {
@@ -43,7 +43,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp595
         [Test]
         public void TestDoesNotThrowStackOverflowExceptionWhenConvertingToBsonString()
         {
-            BsonObjectId id1 = BsonObjectId.GenerateNewId();
+            BsonObjectId id1 = new BsonObjectId(ObjectId.GenerateNewId());
             BsonString id2 = null;
             Assert.DoesNotThrow(() =>
             {

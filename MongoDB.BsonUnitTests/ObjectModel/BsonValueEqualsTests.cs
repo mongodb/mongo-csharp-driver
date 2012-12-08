@@ -573,9 +573,9 @@ namespace MongoDB.BsonUnitTests
         [Test]
         public void TestBsonObjectIdEquals()
         {
-            var a = BsonObjectId.GenerateNewId();
+            var a = new BsonObjectId(ObjectId.GenerateNewId());
             var b = new BsonObjectId(a.Value);
-            var c = BsonObjectId.GenerateNewId();
+            var c = new BsonObjectId(ObjectId.GenerateNewId());
             var n = (BsonObjectId)null;
 
             Assert.IsTrue(object.Equals(a, b));

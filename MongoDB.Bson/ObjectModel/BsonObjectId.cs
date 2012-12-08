@@ -50,6 +50,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonObjectId class.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
+        [Obsolete("Use new BsonObjectId(byte[] bytes) instead.")]
         public BsonObjectId(byte[] bytes)
             : base(BsonType.ObjectId)
         {
@@ -63,6 +64,7 @@ namespace MongoDB.Bson
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
+        [Obsolete("Use new BsonObjectId(new ObjectId(DateTime timestamp, int machine, short pid, int increment)) instead.")]
         public BsonObjectId(DateTime timestamp, int machine, short pid, int increment)
             : base(BsonType.ObjectId)
         {
@@ -76,6 +78,7 @@ namespace MongoDB.Bson
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
         /// <param name="increment">The increment.</param>
+        [Obsolete("Use new BsonObjectId(new ObjectId(int timestamp, int machine, short pid, int increment)) instead.")]
         public BsonObjectId(int timestamp, int machine, short pid, int increment)
             : base(BsonType.ObjectId)
         {
@@ -86,6 +89,7 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonObjectId class.
         /// </summary>
         /// <param name="value">The value.</param>
+        [Obsolete("Use new BsonObjectId(new ObjectId(string value)) instead.")]
         public BsonObjectId(string value)
             : base(BsonType.ObjectId)
         {
@@ -105,6 +109,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the timestamp.
         /// </summary>
+        [Obsolete("Use Value.Timestamp instead.")]
         public int Timestamp
         {
             get { return _value.Timestamp; }
@@ -113,6 +118,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the machine.
         /// </summary>
+        [Obsolete("Use Value.Machine instead.")]
         public int Machine
         {
             get { return _value.Machine; }
@@ -121,6 +127,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the PID.
         /// </summary>
+        [Obsolete("Use Value.Pid instead.")]
         public short Pid
         {
             get { return _value.Pid; }
@@ -129,6 +136,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the increment.
         /// </summary>
+        [Obsolete("Use Value.Increment instead.")]
         public int Increment
         {
             get { return _value.Increment; }
@@ -137,6 +145,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the creation time (derived from the timestamp).
         /// </summary>
+        [Obsolete("Use Value.CreationTime instead.")]
         public DateTime CreationTime
         {
             get { return _value.CreationTime; }
@@ -276,6 +285,7 @@ namespace MongoDB.Bson
         /// Generates a new BsonObjectId with a unique value.
         /// </summary>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(ObjectId.GenerateNewId()) instead.")]
         public static BsonObjectId GenerateNewId()
         {
             return new BsonObjectId(ObjectId.GenerateNewId());
@@ -286,6 +296,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="timestamp">The timestamp component (expressed as a DateTime).</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(ObjectId.GenerateNewId(DateTime timestamp)) instead.")]
         public static BsonObjectId GenerateNewId(DateTime timestamp)
         {
             return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
@@ -296,6 +307,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="timestamp">The timestamp component.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(ObjectId.GenerateNewId(int timestamp)) instead.")]
         public static BsonObjectId GenerateNewId(int timestamp)
         {
             return new BsonObjectId(ObjectId.GenerateNewId(timestamp));
@@ -306,6 +318,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="s">The string value.</param>
         /// <returns>A BsonObjectId.</returns>
+        [Obsolete("Use new BsonObjectId(ObjectId.Parse(string s)) instead.")]
         public static BsonObjectId Parse(string s)
         {
             return new BsonObjectId(ObjectId.Parse(s));
@@ -317,6 +330,7 @@ namespace MongoDB.Bson
         /// <param name="s">The string value.</param>
         /// <param name="value">The new BsonObjectId.</param>
         /// <returns>True if the string was parsed successfully.</returns>
+        [Obsolete("Use ObjectId.TryParse instead.")]
         public static bool TryParse(string s, out BsonObjectId value)
         {
             // don't throw ArgumentNullException if s is null
@@ -398,6 +412,7 @@ namespace MongoDB.Bson
         /// Converts the BsonObjectId to a byte array.
         /// </summary>
         /// <returns>A byte array.</returns>
+        [Obsolete("Use Value.ToByteArray() instead.")]
         public byte[] ToByteArray()
         {
             return _value.ToByteArray();
