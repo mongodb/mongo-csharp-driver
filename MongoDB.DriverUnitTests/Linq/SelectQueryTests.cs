@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using System.Linq.Expressions;
 
 namespace MongoDB.DriverUnitTests.Linq
 {
@@ -1339,6 +1340,32 @@ namespace MongoDB.DriverUnitTests.Linq
                           select c).Min(c => new { c.X, c.Y });
             Assert.AreEqual(1, result.X);
             Assert.AreEqual(11, result.Y);
+        }
+
+        [Test]
+        public void TestOrderByValueTypeWithObjectReturnType()
+        {
+            Expression<Func<C, object>> orderByClause = c => c.LX;
+            var query = _collection.AsQueryable<C>().OrderBy(orderByClause);
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (Object)c.LX");
+        }
+
+        [Test]
+        public void TestOrderByValueTypeWithIComparableReturnType()
+        {
+            Expression<Func<C, IComparable>> orderByClause = c => c.LX;
+            var query = _collection.AsQueryable<C>().OrderBy(orderByClause);
+
+            RunTestOrderByValueTypeWithMismatchingType(query, "(C c) => (IComparable)c.LX");
+        }
+
+        private void RunTestOrderByValueTypeWithMismatchingType(IOrderedQueryable query, string orderByString)
+        {
+            var mongoQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsInstanceOf<SelectQuery>(mongoQuery);
+            var selectQuery = (SelectQuery) mongoQuery;
+            Assert.AreEqual(orderByString, ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
         }
 
         [Test]
