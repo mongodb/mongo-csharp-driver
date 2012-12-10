@@ -79,6 +79,7 @@ namespace MongoDB.DriverUnitTests
                 NumberScanned = 6,
                 NumberToReturn = 7,
                 NumberToSkip = 8,
+                NumberUpdated = 9,
                 NumberOfYields = 10,
                 Op = "op",
                 Query = new BsonDocument("query", 1),
@@ -112,6 +113,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(info.NumberScanned, rehydrated.NumberScanned);
             Assert.AreEqual(info.NumberToReturn, rehydrated.NumberToReturn);
             Assert.AreEqual(info.NumberToSkip, rehydrated.NumberToSkip);
+            Assert.AreEqual(info.NumberUpdated, rehydrated.NumberUpdated);
             Assert.AreEqual(info.NumberOfYields, rehydrated.NumberOfYields);
             Assert.AreEqual(info.Op, rehydrated.Op);
             Assert.AreEqual(info.Query, rehydrated.Query);

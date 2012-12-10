@@ -242,6 +242,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the number of documents update by an update operation.
+        /// </summary>
+        public int NumberUpdated
+        {
+            get { return GetValue<int>("NumberUpdated", 0); }
+            set { SetValue("NumberUpdated", value); }
+        }
+
+        /// <summary>
         /// Gets or sets the number of yields.
         /// </summary>
         public int NumberOfYields
@@ -468,6 +477,7 @@ namespace MongoDB.Driver
             RegisterMember("NumberScanned", "nscanned", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberToReturn", "ntoreturn", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberToSkip", "ntoskip", Int32Serializer.Instance, typeof(int), null);
+            RegisterMember("NumberUpdated", "nupdated", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberOfYields", "numYield", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("Op", "op", StringSerializer.Instance, typeof(string), null);
             RegisterMember("Query", "query", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
