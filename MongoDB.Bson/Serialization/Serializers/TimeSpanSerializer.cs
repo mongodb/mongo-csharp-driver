@@ -114,6 +114,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case TimeSpanUnits.Minutes: return TimeSpan.FromMinutes(interval);
                     case TimeSpanUnits.Seconds: return TimeSpan.FromSeconds(interval);
                     case TimeSpanUnits.Milliseconds: return TimeSpan.FromMilliseconds(interval);
+                    case TimeSpanUnits.Microseconds: return TimeSpan.FromTicks((long)interval*10L);
                     case TimeSpanUnits.Nanoseconds: return TimeSpan.FromMilliseconds(interval / 1000.0);
                     default:
                         var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanSerializationOptions.Units);
@@ -172,6 +173,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case TimeSpanUnits.Minutes: interval = timeSpan.TotalMinutes; break;
                     case TimeSpanUnits.Seconds: interval = timeSpan.TotalSeconds; break;
                     case TimeSpanUnits.Milliseconds: interval = timeSpan.TotalMilliseconds; break;
+                    case TimeSpanUnits.Microseconds: interval = timeSpan.Ticks / 10d; break;
                     case TimeSpanUnits.Nanoseconds: interval = timeSpan.TotalMilliseconds * 1000.0; break;
                     default:
                         var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanSerializationOptions.Units);

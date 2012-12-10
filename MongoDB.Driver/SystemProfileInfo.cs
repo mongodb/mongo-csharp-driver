@@ -461,7 +461,7 @@ namespace MongoDB.Driver
             RegisterMember("IdHack", "idhack", BooleanSerializer.Instance, typeof(bool), null);
             RegisterMember("Info", "info", StringSerializer.Instance, typeof(string), null);
             RegisterMember("KeyUpdates", "keyUpdates", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("LockStatistics", "lockStatMillis", SystemProfileLockStatisticsSerializer.Instance, typeof(SystemProfileLockStatistics), null);
+            RegisterMember("LockStatistics", "lockStats", SystemProfileLockStatisticsSerializer.Instance, typeof(SystemProfileLockStatistics), null);
             RegisterMember("Moved", "moved", BooleanSerializer.Instance, typeof(bool), null);
             RegisterMember("Namespace", "ns", StringSerializer.Instance, typeof(string), null);
             RegisterMember("NumberReturned", "nreturned", Int32Serializer.Instance, typeof(int), null);
@@ -514,8 +514,8 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileLockStatisticsSerializer()
         {
-            RegisterMember("TimeAcquiring", "timeAcquiring", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
-            RegisterMember("TimeLocked", "timeLocked", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeAcquiring", "timeAcquiringMicros", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeLocked", "timeLockedMicros", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
         }
 
         // public static properties
@@ -553,7 +553,7 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileReadWriteLockStatisticsSerializer()
         { 
-            var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds);
+            var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Microseconds);
             RegisterMember("Read", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
             RegisterMember("Write", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
         }
