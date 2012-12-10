@@ -2661,7 +2661,7 @@ Namespace MongoDB.DriverUnitTests.Linq
             Assert.AreSame(GetType(C), translatedQuery.DocumentType)
 
             Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => Enumerable.Any<D>(c.DA, (D x) => (x.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where))
+            Assert.AreEqual("(C c) => Enumerable.Any<D>((IEnumerable<D>)c.DA, (D x) => (x.Z == 333))", ExpressionFormatter.ToString(selectQuery.Where))
             Assert.IsNull(selectQuery.OrderBy)
             Assert.IsNull(selectQuery.Projection)
             Assert.IsNull(selectQuery.Skip)

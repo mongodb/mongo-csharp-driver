@@ -145,11 +145,30 @@ namespace MongoDB.Driver.Linq
             if (newNode.NodeType == ExpressionType.Convert || newNode.NodeType == ExpressionType.ConvertChecked)
             {
                 var newUnaryNode = (UnaryExpression)newNode;
-                if (newUnaryNode.Type.IsAssignableFrom(newUnaryNode.Operand.Type))
+                var targetType = newUnaryNode.Type;
+                var sourceType = newUnaryNode.Operand.Type;
+
+                // get rid of a completely useless conversion.  This is caused by the removal
+                // of unlifting a binary expression that VB inserts into the expression tree.
+                if (targetType == sourceType)
                 {
-                    // ignore the unnecessary conversion added by VB
-                    newNode = newUnaryNode.Operand;
+                    return newUnaryNode.Operand;
                 }
+
+                // VB may add in extra casts that are unnecessary.  We'll remove the one in the middle.
+                if (newUnaryNode.Operand.NodeType == ExpressionType.Convert || newUnaryNode.Operand.NodeType == ExpressionType.ConvertChecked)
+                {
+                    var nestedUnaryNode = (UnaryExpression)newUnaryNode.Operand;
+                    return Expression.MakeUnary(newUnaryNode.NodeType, nestedUnaryNode.Operand, newNode.Type);
+                }
+
+                // VB really screws up some things by converting strings into enumerable chars...
+                if (targetType == typeof(IEnumerable<char>) && sourceType == typeof(string))
+                {
+                    return newUnaryNode.Operand;
+                }
+
+                return newNode;
             }
 
             return newNode;
