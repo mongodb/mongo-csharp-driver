@@ -33,7 +33,6 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
-        // default values are set in ResetValues
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private string _databaseName;
@@ -66,7 +65,31 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
-            ResetValues();
+            _connectionMode = ConnectionMode.Automatic;
+            _connectTimeout = MongoDefaults.ConnectTimeout;
+            _databaseName = null;
+            _defaultCredentials = null;
+            _fsync = null;
+            _guidRepresentation = MongoDefaults.GuidRepresentation;
+            _ipv6 = false;
+            _journal = null;
+            _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
+            _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
+            _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
+            _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readPreference = null;
+            _replicaSetName = null;
+            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
+            _servers = null;
+            _slaveOk = null;
+            _socketTimeout = MongoDefaults.SocketTimeout;
+            _useSsl = false;
+            _verifySslCertificate = true;
+            _w = null;
+            _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
+            _waitQueueSize = MongoDefaults.WaitQueueSize;
+            _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
+            _wTimeout = null;
         }
 
         /// <summary>
@@ -74,8 +97,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="url">The initial settings.</param>
         public MongoUrlBuilder(string url)
+            : this()
         {
-            Parse(url); // Parse calls ResetValues
+            Parse(url);
         }
 
         // public properties
@@ -705,7 +729,6 @@ namespace MongoDB.Driver
         /// <param name="url">The URL.</param>
         public void Parse(string url)
         {
-            ResetValues();
             const string serverPattern = @"((\[[^]]+?\]|[^:,/]+)(:\d+)?)";
             const string pattern =
                 @"^mongodb://" +
@@ -1041,35 +1064,6 @@ namespace MongoDB.Driver
         private bool AnyWriteConcernSettingsAreSet()
         {
             return _fsync != null || _journal != null || _w != null || _wTimeout != null;
-        }
-
-        private void ResetValues()
-        {
-            _connectionMode = ConnectionMode.Automatic;
-            _connectTimeout = MongoDefaults.ConnectTimeout;
-            _databaseName = null;
-            _defaultCredentials = null;
-            _fsync = null;
-            _guidRepresentation = MongoDefaults.GuidRepresentation;
-            _ipv6 = false;
-            _journal = null;
-            _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
-            _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
-            _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
-            _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
-            _readPreference = null;
-            _replicaSetName = null;
-            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
-            _servers = null;
-            _slaveOk = null;
-            _socketTimeout = MongoDefaults.SocketTimeout;
-            _useSsl = false;
-            _verifySslCertificate = true;
-            _w = null;
-            _waitQueueMultiple = MongoDefaults.WaitQueueMultiple;
-            _waitQueueSize = MongoDefaults.WaitQueueSize;
-            _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
-            _wTimeout = null;
         }
     }
 }
