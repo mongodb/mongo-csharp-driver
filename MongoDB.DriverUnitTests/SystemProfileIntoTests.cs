@@ -29,6 +29,19 @@ namespace MongoDB.DriverUnitTests
     [TestFixture]
     public class SystemProfileInfoTests
     {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoCollection<BsonDocument> _collection;
+
+        [TestFixtureSetUp]
+        public void Setup()
+        {
+            _server = Configuration.TestServer;
+            _server.Connect();
+            _database = Configuration.TestDatabase;
+            _collection = Configuration.TestCollection;
+        }
+
         [Test]
         public void TestMinimal()
         {
@@ -123,6 +136,44 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(info.UpdateObject, rehydrated.UpdateObject);
             Assert.AreEqual(info.Upsert, rehydrated.Upsert);
             Assert.AreEqual(info.User, rehydrated.User);
+        }
+
+        [Test]
+        public void LockStatsPropertyIsNotInMilliseconds()
+        {
+            _database.SetProfilingLevel(ProfilingLevel.All);
+            _collection.Insert(new BsonDocument("foo", 1));
+            var info = _database.GetCollection("system.profile").FindOneAs<SystemProfileInfo>();
+
+            Assert.IsTrue(info.RawDocument.Contains("lockStats"));
+            Assert.IsFalse(info.RawDocument.Contains("lockStatMillis"));
+        }
+
+        [Test]
+        public void LockStatsAreStoredInMicroSeconds()
+        {
+            string json = @"
+            {
+                ""lockStats"" : {
+                    ""timeLockedMicros"" : { 
+                        ""r"" : NumberLong(500), 
+                        ""w"" : NumberLong(1000) 
+                    },
+                    ""timeAcquiringMicros"" : { 
+                        ""r"" : NumberLong(2500), 
+                        ""w"" : NumberLong(10000) 
+                    }
+                }
+            }";
+            var rehydrated = BsonSerializer.Deserialize<SystemProfileInfo>(json);
+            
+            //1 tick = 10 microseconds. Can't use TimeSpan.FromMilliseconds(0.5) because
+            //TimeSpan.FromMilliseconds(0.5).TotalMilliseconds gives 1.0 (which makes no sense but that's the way it is)
+            //To get precision below 1 millisecond you must use ticks.
+            Assert.AreEqual(TimeSpan.FromTicks(5000), rehydrated.LockStatistics.TimeLocked.Read);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(1d), rehydrated.LockStatistics.TimeLocked.Write);
+            Assert.AreEqual(TimeSpan.FromTicks(25000), rehydrated.LockStatistics.TimeAcquiring.Read);
+            Assert.AreEqual(TimeSpan.FromMilliseconds(10d), rehydrated.LockStatistics.TimeAcquiring.Write);
         }
     }
 }
