@@ -42,10 +42,10 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp542
         public void TestNullableComparison()
         {
             var server = Configuration.TestServer;
-            var db = server.GetDatabase("test");
-            var col = db.GetCollection<Test>("foos");
+            var database = server.GetDatabase("test");
+            var collection = database.GetCollection<Test>("foos");
 
-            var query = col.AsQueryable().Where(p => p.MyNullableInt == 3);
+            var query = collection.AsQueryable().Where(p => p.MyNullableInt == 3);
 
             var list = query.ToList();
 

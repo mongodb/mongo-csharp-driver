@@ -167,8 +167,6 @@ namespace MongoDB.Driver.Linq
                 {
                     return newUnaryNode.Operand;
                 }
-
-                return newNode;
             }
 
             return newNode;
