@@ -1562,10 +1562,42 @@ namespace MongoDB.Bson.Serialization
             switch (memberInfo.MemberType)
             {
                 case MemberTypes.Field:
+                    memberInfo = typeof(TClass).GetField(
+                        memberInfo.Name,
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.NonPublic);
+                    break;
                 case MemberTypes.Property:
+                    // Handle interfaces and base classes; lambdas always
+                    // call the derived implementation.
+                    if (memberInfo.DeclaringType != typeof(TClass))
+                    {
+                        var memberInfo2 = typeof(TClass).GetProperty(
+                            memberInfo.Name,
+                            BindingFlags.Instance |
+                            BindingFlags.Public |
+                            BindingFlags.NonPublic);
+
+                        // Handle explicit interface implementations.
+                        if (memberInfo2 == null &&
+                            memberInfo.DeclaringType.IsInterface)
+                        {
+                            memberInfo2 = ResolveExplicitProperty(
+                                memberInfo,
+                                typeof(TClass));
+                        }
+
+                        memberInfo = memberInfo2;
+                    }
                     break;
                 default:
-                    throw new BsonSerializationException("Invalid lambda expression");
+                    memberInfo = null;
+                    break;
+            }
+            if (memberInfo == null)
+            {
+                throw new BsonSerializationException("Invalid lambda expression");
             }
             return memberInfo;
         }
@@ -1573,6 +1605,57 @@ namespace MongoDB.Bson.Serialization
         private static string GetMemberNameFromLambda<TMember>(Expression<Func<TClass, TMember>> memberLambda)
         {
             return GetMemberInfoFromLambda(memberLambda).Name;
+        }
+
+        private static PropertyInfo ResolveExplicitProperty(
+            MemberInfo interfaceMemberInfo,
+            Type targetType)
+        {
+            var interfaceType = interfaceMemberInfo.DeclaringType;
+
+            // An interface map must be used because because there is no
+            // other officially documented way to derive the explicitly
+            // implemented property name.
+            var interfaceMap = targetType.GetInterfaceMap(interfaceType);
+
+            var interfacePropertyAccessors =
+                ((PropertyInfo)interfaceMemberInfo).GetAccessors(true);
+
+            var targetPropertyAccessors =
+                interfacePropertyAccessors.Select(accessor =>
+            {
+                var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, accessor);
+
+                return interfaceMap.TargetMethods[index];
+            }).ToArray();
+
+            // Binding must be done by accessor methods because interface
+            // maps only map accessor methods and do not map properties.
+            return targetType.GetProperties(
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.NonPublic)
+                .Single(propertyInfo =>
+                {
+                    var accessors = propertyInfo.GetAccessors(true);
+
+                    if (accessors.Length != targetPropertyAccessors.Length)
+                    {
+                        return false;
+                    }
+
+                    for (var i = 0; i < accessors.Length; ++i)
+                    {
+                        if (Array.IndexOf<MethodInfo>(
+                            targetPropertyAccessors,
+                            accessors[i]) < 0)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
         }
     }
 }
