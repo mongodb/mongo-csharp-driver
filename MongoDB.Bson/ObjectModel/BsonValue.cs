@@ -1090,59 +1090,10 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bsonReader">The reader.</param>
         /// <returns>A BsonValue.</returns>
+        [Obsolete("Use BsonSerializer.Deserialize<BsonValue> instead.")]
         public static BsonValue ReadFrom(BsonReader bsonReader)
         {
-            BsonType bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Array:
-                    return BsonArray.ReadFrom(bsonReader);
-                case BsonType.Binary:
-                    return bsonReader.ReadBinaryData();
-                case BsonType.Boolean:
-                    return (BsonBoolean)bsonReader.ReadBoolean();
-                case BsonType.DateTime:
-                    return new BsonDateTime(bsonReader.ReadDateTime());
-                case BsonType.Document:
-                    return BsonDocument.ReadFrom(bsonReader);
-                case BsonType.Double:
-                    return new BsonDouble(bsonReader.ReadDouble());
-                case BsonType.Int32:
-                    return new BsonInt32(bsonReader.ReadInt32());
-                case BsonType.Int64:
-                    return new BsonInt64(bsonReader.ReadInt64());
-                case BsonType.JavaScript:
-                    return new BsonJavaScript(bsonReader.ReadJavaScript());
-                case BsonType.JavaScriptWithScope:
-                    string code = bsonReader.ReadJavaScriptWithScope();
-                    var scope = BsonDocument.ReadFrom(bsonReader);
-                    return new BsonJavaScriptWithScope(code, scope);
-                case BsonType.MaxKey:
-                    bsonReader.ReadMaxKey();
-                    return BsonMaxKey.Value;
-                case BsonType.MinKey:
-                    bsonReader.ReadMinKey();
-                    return BsonMinKey.Value;
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return BsonNull.Value;
-                case BsonType.ObjectId:
-                    return bsonReader.ReadObjectId();
-                case BsonType.RegularExpression:
-                    return bsonReader.ReadRegularExpression();
-                case BsonType.String:
-                    return new BsonString(bsonReader.ReadString());
-                case BsonType.Symbol:
-                    return BsonSymbolTable.Lookup(bsonReader.ReadSymbol());
-                case BsonType.Timestamp:
-                    return new BsonTimestamp(bsonReader.ReadTimestamp());
-                case BsonType.Undefined:
-                    bsonReader.ReadUndefined();
-                    return BsonUndefined.Value;
-                default:
-                    var message = string.Format("Invalid BsonType {0}.", bsonType);
-                    throw new BsonInternalException(message);
-            }
+            return BsonSerializer.Deserialize<BsonValue>(bsonReader);
         }
 
         // public methods
@@ -1255,110 +1206,10 @@ namespace MongoDB.Bson
         /// Writes the BsonValue to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
+        [Obsolete("Use BsonSerializer.Serialize<BsonValue> instead.")]
         public void WriteTo(BsonWriter bsonWriter)
         {
-            switch (_bsonType)
-            {
-                case BsonType.Array:
-                    ((BsonArray)this).WriteTo(bsonWriter);
-                    break;
-                case BsonType.Binary:
-                    var binaryData = (BsonBinaryData)this;
-                    var bytes = binaryData.Bytes;
-                    var subType = binaryData.SubType;
-                    var guidRepresentation = binaryData.GuidRepresentation;
-                    var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
-                    if (subType == BsonBinarySubType.UuidLegacy && writerGuidRepresentation != GuidRepresentation.Unspecified)
-                    {
-                        if (guidRepresentation != writerGuidRepresentation)
-                        {
-                            if (guidRepresentation == GuidRepresentation.Unspecified)
-                            {
-                                var message = string.Format("Cannot write binary data of sub type UuidLegacy and GuidRepresentation Unspecified to a collection with GuidRepresentation {0}.", writerGuidRepresentation);
-                                throw new BsonSerializationException(message);
-                            }
-                            var guid = GuidConverter.FromBytes(bytes, guidRepresentation);
-                            bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
-                            subType = (writerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
-                            guidRepresentation = writerGuidRepresentation;
-                        }
-                    }
-                    binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
-                    bsonWriter.WriteBinaryData(binaryData);
-                    break;
-                case BsonType.Boolean:
-                    bsonWriter.WriteBoolean(((BsonBoolean)this).Value);
-                    break;
-                case BsonType.DateTime:
-                    bsonWriter.WriteDateTime(((BsonDateTime)this).MillisecondsSinceEpoch);
-                    break;
-                case BsonType.Document:
-                    var document = this as BsonDocument;
-                    if (document != null)
-                    {
-                        document.WriteTo(bsonWriter);
-                    }
-                    else
-                    {
-                        var documentWrapper = this as BsonDocumentWrapper;
-                        if (documentWrapper != null)
-                        {
-                            ((IBsonSerializable)documentWrapper).Serialize(bsonWriter, typeof(BsonDocument), null);
-                        }
-                        else
-                        {
-                            var message = string.Format("BsonType Document can only be used with the classes BsonDocument or BsonDocumentWrapper, not with the class {0}.", this.GetType().FullName);
-                            throw new BsonInternalException(message);
-                        }
-                    }
-                    break;
-                case BsonType.Double:
-                    bsonWriter.WriteDouble(((BsonDouble)this).Value);
-                    break;
-                case BsonType.Int32:
-                    bsonWriter.WriteInt32(((BsonInt32)this).Value);
-                    break;
-                case BsonType.Int64:
-                    bsonWriter.WriteInt64(((BsonInt64)this).Value);
-                    break;
-                case BsonType.JavaScript:
-                    bsonWriter.WriteJavaScript(((BsonJavaScript)this).Code);
-                    break;
-                case BsonType.JavaScriptWithScope:
-                    var script = (BsonJavaScriptWithScope)this;
-                    bsonWriter.WriteJavaScriptWithScope(script.Code);
-                    script.Scope.WriteTo(bsonWriter);
-                    break;
-                case BsonType.MaxKey:
-                    bsonWriter.WriteMaxKey();
-                    break;
-                case BsonType.MinKey:
-                    bsonWriter.WriteMinKey();
-                    break;
-                case BsonType.Null:
-                    bsonWriter.WriteNull();
-                    break;
-                case BsonType.ObjectId:
-                    var objectId = ((BsonObjectId)this).Value;
-                    bsonWriter.WriteObjectId(objectId);
-                    break;
-                case BsonType.RegularExpression:
-                    BsonRegularExpression regex = (BsonRegularExpression)this;
-                    bsonWriter.WriteRegularExpression(regex);
-                    break;
-                case BsonType.String:
-                    bsonWriter.WriteString(((BsonString)this).Value);
-                    break;
-                case BsonType.Symbol:
-                    bsonWriter.WriteSymbol(((BsonSymbol)this).Name);
-                    break;
-                case BsonType.Timestamp:
-                    bsonWriter.WriteTimestamp(((BsonTimestamp)this).Value);
-                    break;
-                case BsonType.Undefined:
-                    bsonWriter.WriteUndefined();
-                    break;
-            }
+            BsonSerializer.Serialize(bsonWriter, this);
         }
 
         // protected methods

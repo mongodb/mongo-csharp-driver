@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.BsonUnitTests
 {
@@ -414,7 +415,7 @@ namespace MongoDB.BsonUnitTests
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
+            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
             Assert.IsInstanceOf<int>(id); // TODO: in a future release id will be an instance of BsonInt32
             Assert.AreEqual(1, id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
@@ -428,7 +429,7 @@ namespace MongoDB.BsonUnitTests
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
+            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
             Assert.IsInstanceOf<Guid>(id); // TODO: in a future release id will be an instance of BsonBinaryData
             Assert.AreEqual(Guid.Empty, id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
@@ -442,7 +443,7 @@ namespace MongoDB.BsonUnitTests
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-            Assert.IsTrue(((IBsonSerializable)document).GetDocumentId(out id, out nominalType, out idGenerator));
+            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
             Assert.IsNull(id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
             Assert.IsInstanceOf<ObjectIdGenerator>(idGenerator); // TODO: in a future release idGenerator will be an instance of BsonObjectIdGenerator
@@ -815,7 +816,7 @@ namespace MongoDB.BsonUnitTests
         public void TestSetDocumentId()
         {
             var document = new BsonDocument("_id", 1);
-            ((IBsonSerializable)document).SetDocumentId(BsonValue.Create(2));
+            ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, BsonValue.Create(2));
             Assert.AreEqual(2, document["_id"].AsInt32);
         }
 
@@ -823,7 +824,7 @@ namespace MongoDB.BsonUnitTests
         public void TestSetDocumentIdNewElement()
         {
             var document = new BsonDocument("x", 1);
-            ((IBsonSerializable)document).SetDocumentId(BsonValue.Create(2));
+            ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, BsonValue.Create(2));
             Assert.AreEqual(2, document.ElementCount);
             Assert.AreEqual("_id", document.GetElement(0).Name);
             Assert.AreEqual(2, document["_id"].AsInt32);

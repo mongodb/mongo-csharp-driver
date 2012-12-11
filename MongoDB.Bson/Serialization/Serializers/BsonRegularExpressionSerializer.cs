@@ -15,11 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonRegularExpressionSerializer class.
         /// </summary>
         public BsonRegularExpressionSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.RegularExpression))
         {
         }
 
@@ -67,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonRegularExpression));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return bsonReader.ReadRegularExpression();
+                case BsonType.RegularExpression:
+                    return bsonReader.ReadRegularExpression();
+                default:
+                    var message = string.Format("Cannot deserialize BsonRegularExpression from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var regex = (BsonRegularExpression)value;
-                bsonWriter.WriteRegularExpression(regex);
-            }
+
+            var regex = (BsonRegularExpression)value;
+            bsonWriter.WriteRegularExpression(regex);
         }
     }
 }

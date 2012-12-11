@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.BsonUnitTests.Jira
 {
@@ -34,9 +35,7 @@ namespace MongoDB.BsonUnitTests.Jira
             object id;
             Type nominalType;
             IIdGenerator idGenerator;
-#pragma warning disable 618 // GetDocumentId is obsolete
-            Assert.IsTrue(document.GetDocumentId(out id, out nominalType, out idGenerator));
-#pragma warning restore
+            Assert.IsTrue(((IBsonIdProvider)BsonDocumentSerializer.Instance).GetDocumentId(document, out id, out nominalType, out idGenerator));
             Assert.IsInstanceOf<int>(id); // TODO: in a future release id will be an instance of BsonInt32
             Assert.AreEqual(1, (int)id);
             Assert.AreEqual(typeof(BsonValue), nominalType);
@@ -48,9 +47,7 @@ namespace MongoDB.BsonUnitTests.Jira
         {
             var document = new BsonDocument { { "x", "abc" } };
             var id = new BsonInt32(1);
-#pragma warning disable 618 // SetDocumentId is obsolete
-            document.SetDocumentId(id);
-#pragma warning restore
+            ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, id);
             Assert.IsTrue(document["_id"].IsInt32);
             Assert.AreEqual(1, document["_id"].AsInt32);
         }
@@ -59,9 +56,7 @@ namespace MongoDB.BsonUnitTests.Jira
         public void TestSetDocumentIdInt32()
         {
             var document = new BsonDocument { { "x", "abc" } };
-#pragma warning disable 618 // SetDocumentId is obsolete
-            document.SetDocumentId(1); // in a future release this will be an error because 1 is not a BsonValue
-#pragma warning restore
+            ((IBsonIdProvider)BsonDocumentSerializer.Instance).SetDocumentId(document, 1); // 1 will be converted to a BsonInt32
             Assert.IsTrue(document["_id"].IsInt32);
             Assert.AreEqual(1, document["_id"].AsInt32);
         }

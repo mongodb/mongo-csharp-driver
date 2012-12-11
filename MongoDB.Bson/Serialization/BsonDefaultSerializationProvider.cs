@@ -128,6 +128,11 @@ namespace MongoDB.Bson.Serialization
                 return serializer;
             }
 
+            if (typeof(BsonDocument).IsAssignableFrom(type))
+            {
+                return BsonDocumentSerializer.Instance;
+            }
+
             if (type.IsGenericType)
             {
                 var genericTypeDefinition = type.GetGenericTypeDefinition();

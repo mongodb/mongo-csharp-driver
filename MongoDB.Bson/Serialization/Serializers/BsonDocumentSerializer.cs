@@ -15,10 +15,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -66,7 +68,36 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             VerifyTypes(nominalType, actualType, typeof(BsonDocument));
 
-            return BsonDocument.ReadFrom(bsonReader);
+            var bsonType = bsonReader.GetCurrentBsonType();
+            string message;
+            switch (bsonType)
+            {
+                case BsonType.Document:
+                    var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+                    if (documentSerializationOptions == null)
+                    {
+                        message = string.Format(
+                            "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                            BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                            BsonUtils.GetFriendlyTypeName(options.GetType()));
+                        throw new BsonSerializationException(message);
+                    }
+
+                    bsonReader.ReadStartDocument();
+                    var document = new BsonDocument(documentSerializationOptions.AllowDuplicateNames);
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        var name = bsonReader.ReadName();
+                        var value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
+                        document.Add(name, value);
+                    }
+                    bsonReader.ReadEndDocument();
+
+                    return document;
+                default:
+                    message = string.Format("Cannot deserialize BsonDocument from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
+            }
         }
 
         /// <summary>
@@ -84,7 +115,40 @@ namespace MongoDB.Bson.Serialization.Serializers
             out IIdGenerator idGenerator)
         {
             var bsonDocument = (BsonDocument)document;
-            return ((IBsonSerializable)bsonDocument).GetDocumentId(out id, out idNominalType, out idGenerator);
+
+            BsonElement idElement;
+            if (bsonDocument.TryGetElement("_id", out idElement))
+            {
+                // TODO: in a future release we will always return a BsonValue (GetDocumentId is not supposed to transform Id values in any way)
+                // we're returning the raw value in 1.4.2 to remain temporarily backward compatible with 1.4.0 and earlier
+#pragma warning disable 618
+                id = idElement.Value.RawValue;
+#pragma warning restore
+                if (id == null)
+                {
+                    id = idElement.Value;
+                }
+                idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
+
+                if (idGenerator == null)
+                {
+                    // note: in 1.4.2 this code isn't yet used because if the RawValue was a Guid then the GuidIdGenerator was found
+                    // but once we start returning BsonValue like we should this code will start being used
+                    var idBinaryData = id as BsonBinaryData;
+                    if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
+                    {
+                        idGenerator = BsonBinaryDataGuidGenerator.GetInstance(idBinaryData.GuidRepresentation);
+                    }
+                }
+            }
+            else
+            {
+                id = null;
+                idGenerator = ObjectIdGenerator.Instance; // TODO: in a future release we will return an instance of BsonObjectIdGenerator
+            }
+
+            idNominalType = typeof(BsonValue);
+            return true;
         }
 
         /// <summary>
@@ -102,13 +166,47 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
+
+            // could get here with a BsonDocumentWrapper from BsonValueSerializer switch statement
+            var wrapper = value as BsonDocumentWrapper;
+            if (wrapper != null)
             {
-                var bsonDocument = (BsonDocument)value;
-                ((IBsonSerializable)bsonDocument).Serialize(bsonWriter, nominalType, options);
+                BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, value, null);
+                return;
             }
+
+            var bsonDocument = (BsonDocument)value;
+            var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
+            if (documentSerializationOptions == null)
+            {
+                var message = string.Format(
+                    "Serialize method of BsonDocument expected serialization options of type {0}, not {1}.",
+                    BsonUtils.GetFriendlyTypeName(typeof(DocumentSerializationOptions)),
+                    BsonUtils.GetFriendlyTypeName(options.GetType()));
+                throw new BsonSerializationException(message);
+            }
+
+            bsonWriter.WriteStartDocument();
+            BsonElement idElement = null;
+            if (documentSerializationOptions.SerializeIdFirst && bsonDocument.TryGetElement("_id", out idElement))
+            {
+                bsonWriter.WriteName(idElement.Name);
+                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), idElement.Value, null);
+            }
+
+            foreach (var element in bsonDocument)
+            {
+                // if serializeIdFirst is false then idElement will be null and no elements will be skipped
+                if (!object.ReferenceEquals(element, idElement))
+                {
+                    bsonWriter.WriteName(element.Name);
+                    BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), element.Value, null);
+                }
+            }
+
+            bsonWriter.WriteEndDocument();
         }
 
         /// <summary>
@@ -118,8 +216,31 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="id">The Id.</param>
         public void SetDocumentId(object document, object id)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
+            if (id == null)
+            {
+                throw new ArgumentNullException("id");
+            }
+
             var bsonDocument = (BsonDocument)document;
-            ((IBsonSerializable)bsonDocument).SetDocumentId(id);
+            var idBsonValue = id as BsonValue;
+            if (idBsonValue == null)
+            {
+                idBsonValue = BsonValue.Create(id); // be helpful and provide automatic conversion to BsonValue if necessary
+            }
+
+            BsonElement idElement;
+            if (bsonDocument.TryGetElement("_id", out idElement))
+            {
+                idElement.Value = idBsonValue;
+            }
+            else
+            {
+                bsonDocument.InsertAt(0, new BsonElement("_id", idBsonValue));
+            }
         }
     }
 }

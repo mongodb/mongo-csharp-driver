@@ -40,6 +40,7 @@ namespace MongoDB.Bson.Serialization
         private int _order = int.MaxValue;
         private MemberInfo _memberInfo;
         private Type _memberType;
+        private bool _memberTypeIsBsonValue;
         private Func<object, object> _getter;
         private Action<object, object> _setter;
         private IBsonSerializationOptions _serializationOptions;
@@ -65,6 +66,7 @@ namespace MongoDB.Bson.Serialization
             _classMap = classMap;
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
+            _memberTypeIsBsonValue = typeof(BsonValue).IsAssignableFrom(_memberType);
             _defaultValue = GetDefaultValue(_memberType);
             _defaultValueSpecified = false;
         }
@@ -92,6 +94,14 @@ namespace MongoDB.Bson.Serialization
         public Type MemberType
         {
             get { return _memberType; }
+        }
+
+        /// <summary>
+        /// Gets whether the member type is a BsonValue.
+        /// </summary>
+        public bool MemberTypeIsBsonValue
+        {
+            get { return _memberTypeIsBsonValue; }
         }
 
         /// <summary>

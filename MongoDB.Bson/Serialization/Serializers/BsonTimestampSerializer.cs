@@ -15,11 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonTimestampSerializer class.
         /// </summary>
         public BsonTimestampSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.Timestamp))
         {
         }
 
@@ -67,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonTimestamp));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonTimestamp(bsonReader.ReadTimestamp());
+                case BsonType.Timestamp:
+                    return new BsonTimestamp(bsonReader.ReadTimestamp());
+                default:
+                    var message = string.Format("Cannot deserialize BsonTimestamp from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var timestamp = (BsonTimestamp)value;
-                bsonWriter.WriteTimestamp(timestamp.Value);
-            }
+
+            var timestamp = (BsonTimestamp)value;
+            bsonWriter.WriteTimestamp(timestamp.Value);
         }
     }
 }

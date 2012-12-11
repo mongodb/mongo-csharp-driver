@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -65,15 +66,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonMinKey));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadMinKey();
-                return BsonMinKey.Value;
+                case BsonType.MinKey:
+                    bsonReader.ReadMinKey();
+                    return BsonMinKey.Value;
+                default:
+                    var message = string.Format("Cannot deserialize BsonMinKey from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -92,12 +92,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                bsonWriter.WriteMinKey();
-            }
+
+            var bsonMinKey = (BsonMinKey)value; // check type by casting
+            bsonWriter.WriteMinKey();
         }
     }
 }

@@ -21,6 +21,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -412,17 +413,10 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="bsonReader">The reader.</param>
         /// <returns>A BsonArray.</returns>
+        [Obsolete("Use BsonSerializer.Deserialize<BsonArray> instead.")]
         public static new BsonArray ReadFrom(BsonReader bsonReader)
         {
-            var array = new BsonArray();
-            bsonReader.ReadStartArray();
-            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-            {
-                var value = BsonValue.ReadFrom(bsonReader);
-                array.Add(value);
-            }
-            bsonReader.ReadEndArray();
-            return array;
+            return BsonSerializer.Deserialize<BsonArray>(bsonReader);
         }
 
         // public methods
@@ -870,14 +864,10 @@ namespace MongoDB.Bson
         /// Writes the array to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
+        [Obsolete("Use BsonSerializer.Serialize<BsonArray> instead.")]
         public new void WriteTo(BsonWriter bsonWriter)
         {
-            bsonWriter.WriteStartArray();
-            for (int i = 0; i < _values.Count; i++)
-            {
-                _values[i].WriteTo(bsonWriter);
-            }
-            bsonWriter.WriteEndArray();
+            BsonSerializer.Serialize(bsonWriter, this);
         }
 
         // explicit interface implementations

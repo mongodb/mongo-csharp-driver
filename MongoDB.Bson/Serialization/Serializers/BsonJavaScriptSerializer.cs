@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -65,15 +66,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonJavaScript));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var code = bsonReader.ReadJavaScript();
-                return new BsonJavaScript(code);
+                case BsonType.JavaScript:
+                    var code = bsonReader.ReadJavaScript();
+                    return new BsonJavaScript(code);
+                default:
+                    var message = string.Format("Cannot deserialize BsonJavaScript from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -92,13 +92,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var script = (BsonJavaScript)value;
-                bsonWriter.WriteJavaScript(script.Code);
-            }
+
+            var script = (BsonJavaScript)value;
+            bsonWriter.WriteJavaScript(script.Code);
         }
     }
 }

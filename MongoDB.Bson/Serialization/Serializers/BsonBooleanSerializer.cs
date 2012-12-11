@@ -20,7 +20,6 @@ using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -37,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonBooleanSerializer class.
         /// </summary>
         public BsonBooleanSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.Boolean))
         {
         }
 
@@ -68,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonBoolean));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return (BsonBoolean)((bool)BooleanSerializer.Instance.Deserialize(bsonReader, typeof(bool), options));
+                case BsonType.Boolean:
+                    return (BsonBoolean)bsonReader.ReadBoolean();
+                default:
+                    var message = string.Format("Cannot deserialize BsonBoolean from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -94,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonBoolean = (BsonBoolean)value;
-                BooleanSerializer.Instance.Serialize(bsonWriter, nominalType, bsonBoolean.Value, options);
-            }
+
+            var bsonBoolean = (BsonBoolean)value;
+            bsonWriter.WriteBoolean(bsonBoolean.Value);
         }
     }
 }
