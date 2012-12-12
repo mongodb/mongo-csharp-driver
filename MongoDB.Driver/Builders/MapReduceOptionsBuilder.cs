@@ -21,6 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace MongoDB.Driver.Builders
@@ -338,7 +339,7 @@ namespace MongoDB.Driver.Builders
                     return new BsonDocument
                     {
                         { modeString, _collectionName },
-                        { "db", _databaseName }, // optional
+                        { "db", _databaseName, _databaseName != null }, // optional
                         { "sharded", true, _sharded } // optional
                     };
                 }
@@ -615,7 +616,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
         }
     }
 }

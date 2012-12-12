@@ -236,7 +236,7 @@ namespace MongoDB.Driver
                             collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            id = BsonValue.ReadFrom(bsonReader); ;
+                            id = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
                             break;
                         case "$db":
                             databaseName = bsonReader.ReadString();
@@ -313,7 +313,7 @@ namespace MongoDB.Driver
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("$ref", dbRef.CollectionName);
                 bsonWriter.WriteName("$id");
-                dbRef.Id.WriteTo(bsonWriter);
+                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), dbRef.Id, null);
                 if (dbRef.DatabaseName != null)
                 {
                     bsonWriter.WriteString("$db", dbRef.DatabaseName);

@@ -60,14 +60,30 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializationOptions options)
         {
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return BsonValue.ReadFrom(bsonReader);
+                case BsonType.Array: return (BsonValue)BsonArraySerializer.Instance.Deserialize(bsonReader, typeof(BsonArray), options);
+                case BsonType.Binary: return (BsonValue)BsonBinaryDataSerializer.Instance.Deserialize(bsonReader, typeof(BsonBinaryData), options);
+                case BsonType.Boolean: return (BsonValue)BsonBooleanSerializer.Instance.Deserialize(bsonReader, typeof(BsonBoolean), options);
+                case BsonType.DateTime: return (BsonValue)BsonDateTimeSerializer.Instance.Deserialize(bsonReader, typeof(BsonDateTime), options);
+                case BsonType.Document: return (BsonValue)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), options);
+                case BsonType.Double: return (BsonValue)BsonDoubleSerializer.Instance.Deserialize(bsonReader, typeof(BsonDouble), options);
+                case BsonType.Int32: return (BsonValue)BsonInt32Serializer.Instance.Deserialize(bsonReader, typeof(BsonInt32), options);
+                case BsonType.Int64: return (BsonValue)BsonInt64Serializer.Instance.Deserialize(bsonReader, typeof(BsonInt64), options);
+                case BsonType.JavaScript: return (BsonValue)BsonJavaScriptSerializer.Instance.Deserialize(bsonReader, typeof(BsonJavaScript), options);
+                case BsonType.JavaScriptWithScope: return (BsonValue)BsonJavaScriptWithScopeSerializer.Instance.Deserialize(bsonReader, typeof(BsonJavaScriptWithScope), options);
+                case BsonType.MaxKey: return (BsonValue)BsonMaxKeySerializer.Instance.Deserialize(bsonReader, typeof(BsonMaxKey), options);
+                case BsonType.MinKey: return (BsonValue)BsonMinKeySerializer.Instance.Deserialize(bsonReader, typeof(BsonMinKey), options);
+                case BsonType.Null: return (BsonValue)BsonNullSerializer.Instance.Deserialize(bsonReader, typeof(BsonNull), options);
+                case BsonType.ObjectId: return (BsonValue)BsonObjectIdSerializer.Instance.Deserialize(bsonReader, typeof(BsonObjectId), options);
+                case BsonType.RegularExpression: return (BsonValue)BsonRegularExpressionSerializer.Instance.Deserialize(bsonReader, typeof(BsonRegularExpression), options);
+                case BsonType.String: return (BsonValue)BsonStringSerializer.Instance.Deserialize(bsonReader, typeof(BsonString), options);
+                case BsonType.Symbol: return (BsonValue)BsonSymbolSerializer.Instance.Deserialize(bsonReader, typeof(BsonSymbol), options);
+                case BsonType.Timestamp: return (BsonValue)BsonTimestampSerializer.Instance.Deserialize(bsonReader, typeof(BsonTimestamp), options);
+                case BsonType.Undefined: return (BsonValue)BsonUndefinedSerializer.Instance.Deserialize(bsonReader, typeof(BsonUndefined), options);
+                default:
+                    var message = string.Format("Invalid BsonType {0}.", bsonType);
+                    throw new BsonInternalException(message);
             }
         }
 
@@ -86,12 +102,32 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
+
+            var bsonValue = (BsonValue)value;
+            switch (bsonValue.BsonType)
             {
-                var bsonValue = (BsonValue)value;
-                bsonValue.WriteTo(bsonWriter);
+                case BsonType.Array: BsonArraySerializer.Instance.Serialize(bsonWriter, typeof(BsonArray), bsonValue, options); break;
+                case BsonType.Binary: BsonBinaryDataSerializer.Instance.Serialize(bsonWriter, typeof(BsonBinaryData), bsonValue, options); break;
+                case BsonType.Boolean: BsonBooleanSerializer.Instance.Serialize(bsonWriter, typeof(BsonBoolean), bsonValue, options); break;
+                case BsonType.DateTime: BsonDateTimeSerializer.Instance.Serialize(bsonWriter, typeof(BsonDateTime), bsonValue, options); break;
+                case BsonType.Document: BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), bsonValue, options); break;
+                case BsonType.Double: BsonDoubleSerializer.Instance.Serialize(bsonWriter, typeof(BsonDouble), bsonValue, options); break;
+                case BsonType.Int32: BsonInt32Serializer.Instance.Serialize(bsonWriter, typeof(BsonInt32), bsonValue, options); break;
+                case BsonType.Int64: BsonInt64Serializer.Instance.Serialize(bsonWriter, typeof(BsonInt64), bsonValue, options); break;
+                case BsonType.JavaScript: BsonJavaScriptSerializer.Instance.Serialize(bsonWriter, typeof(BsonJavaScript), bsonValue, options); break;
+                case BsonType.JavaScriptWithScope: BsonJavaScriptWithScopeSerializer.Instance.Serialize(bsonWriter, typeof(BsonJavaScriptWithScope), bsonValue, options); break;
+                case BsonType.MaxKey: BsonMaxKeySerializer.Instance.Serialize(bsonWriter, typeof(BsonMaxKey), bsonValue, options); break;
+                case BsonType.MinKey: BsonMinKeySerializer.Instance.Serialize(bsonWriter, typeof(BsonMinKey), bsonValue, options); break;
+                case BsonType.Null: BsonNullSerializer.Instance.Serialize(bsonWriter, typeof(BsonNull), bsonValue, options); break;
+                case BsonType.ObjectId: BsonObjectIdSerializer.Instance.Serialize(bsonWriter, typeof(BsonObjectId), bsonValue, options); break;
+                case BsonType.RegularExpression: BsonRegularExpressionSerializer.Instance.Serialize(bsonWriter, typeof(BsonRegularExpression), bsonValue, options); break;
+                case BsonType.String: BsonStringSerializer.Instance.Serialize(bsonWriter, typeof(BsonString), bsonValue, options); break;
+                case BsonType.Symbol: BsonSymbolSerializer.Instance.Serialize(bsonWriter, typeof(BsonSymbol), bsonValue, options); break;
+                case BsonType.Timestamp: BsonTimestampSerializer.Instance.Serialize(bsonWriter, typeof(BsonTimestamp), bsonValue, options); break;
+                case BsonType.Undefined: BsonUndefinedSerializer.Instance.Serialize(bsonWriter, typeof(BsonUndefined), bsonValue, options); break;
+                default: throw new BsonInternalException("Invalid BsonType.");
             }
         }
     }

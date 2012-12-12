@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS
@@ -569,7 +570,7 @@ namespace MongoDB.Driver.GridFS
         object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             MongoGridFS gridFS = ((SerializationOptions)options).GridFS;
-            var fileInfo = BsonDocument.ReadFrom(bsonReader);
+            var fileInfo = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
             return new MongoGridFSFileInfo(gridFS, fileInfo);
         }
 

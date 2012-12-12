@@ -210,7 +210,6 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonBinaryData>[]
             {
-                new TestData<BsonBinaryData>(null, "null"),
                 new TestData<BsonBinaryData>(new byte[] { }, "new BinData(0, \"\")"),
                 new TestData<BsonBinaryData>(new byte[] { 1 }, "new BinData(0, \"AQ==\")"),
                 new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "new BinData(0, \"AQI=\")"),
@@ -230,7 +229,6 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonBinaryData>[]
             {
-                new TestData<BsonBinaryData>(null, "null"),
                 new TestData<BsonBinaryData>(new byte[] { }, "{ \"$binary\" : \"\", \"$type\" : \"00\" }"),
                 new TestData<BsonBinaryData>(new byte[] { 1 }, "{ \"$binary\" : \"AQ==\", \"$type\" : \"00\" }"),
                 new TestData<BsonBinaryData>(new byte[] { 1, 2 }, "{ \"$binary\" : \"AQI=\", \"$type\" : \"00\" }"),
@@ -420,7 +418,6 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonRegularExpression>[]
             {
-                new TestData<BsonRegularExpression>(null, "null"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression(""), "/(?:)/"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression("a"), "/a/"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression("a/b"), "/a\\/b/"),
@@ -444,7 +441,6 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var tests = new TestData<BsonRegularExpression>[]
             {
-                new TestData<BsonRegularExpression>(null, "null"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression(""), "{ \"$regex\" : \"\", \"$options\" : \"\" }"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression("a"), "{ \"$regex\" : \"a\", \"$options\" : \"\" }"),
                 new TestData<BsonRegularExpression>(new BsonRegularExpression("a/b"), "{ \"$regex\" : \"a/b\", \"$options\" : \"\" }"),

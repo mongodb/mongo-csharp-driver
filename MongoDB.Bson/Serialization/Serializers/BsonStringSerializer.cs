@@ -15,11 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonStringSerializer class.
         /// </summary>
         public BsonStringSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.String))
         {
         }
 
@@ -67,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonString));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonString((string)StringSerializer.Instance.Deserialize(bsonReader, typeof(string), options));
+                case BsonType.String:
+                    return new BsonString(bsonReader.ReadString());
+                default:
+                    var message = string.Format("Cannot deserialize BsonString from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonString = (BsonString)value;
-                StringSerializer.Instance.Serialize(bsonWriter, nominalType, bsonString.Value, options);
-            }
+
+            var bsonString = (BsonString)value;
+            bsonWriter.WriteString(bsonString.Value);
         }
     }
 }

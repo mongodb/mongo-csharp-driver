@@ -66,7 +66,7 @@ namespace MongoDB.BsonUnitTests.Serialization
             var c1 = new C { X = 1, NestedDocument = c2 };
 
             var json = c1.ToJson();
-            var expected = "{ 'X' : 1, 'NestedDocument' : { 'X' : 2, 'NestedDocument' : null, 'BsonArray' : null }, 'BsonArray' : null }".Replace("'", "\"");
+            var expected = "{ 'X' : 1, 'NestedDocument' : { 'X' : 2, 'NestedDocument' : null, 'BsonArray' : { '_csharpnull' : true } }, 'BsonArray' : { '_csharpnull' : true } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var memoryWriter = new MemoryStream();

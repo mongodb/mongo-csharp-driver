@@ -15,11 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonObjectIdSerializer class.
         /// </summary>
         public BsonObjectIdSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.ObjectId))
         {
         }
 
@@ -67,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonObjectId));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonObjectId((ObjectId)ObjectIdSerializer.Instance.Deserialize(bsonReader, typeof(ObjectId), options));
+                case BsonType.ObjectId:
+                    return new BsonObjectId(bsonReader.ReadObjectId());
+                default:
+                    var message = string.Format("Cannot deserialize BsonObjectId from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonObjectId = (BsonObjectId)value;
-                ObjectIdSerializer.Instance.Serialize(bsonWriter, nominalType, bsonObjectId.Value, options);
-            }
+
+            var objectId = ((BsonObjectId)value).Value;
+            bsonWriter.WriteObjectId(objectId);
         }
     }
 }

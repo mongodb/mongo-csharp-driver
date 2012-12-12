@@ -24,6 +24,7 @@ using System.Xml;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson
 {
@@ -84,6 +85,31 @@ namespace MongoDB.Bson
             _wrappedNominalType = wrappedNominalType;
             _wrappedObject = wrappedObject;
             _isUpdateDocument = isUpdateDocument;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets whether the wrapped document is an update document.
+        /// </summary>
+        public bool IsUpdateDocument
+        {
+            get { return _isUpdateDocument; }
+        }
+
+        /// <summary>
+        /// Gets the nominal type of the wrapped document.
+        /// </summary>
+        public Type WrappedNominalType
+        {
+            get { return _wrappedNominalType; }
+        }
+
+        /// <summary>
+        /// Gets the wrapped object.
+        /// </summary>
+        public object WrappedObject
+        {
+            get { return _wrappedObject; }
         }
 
         // public static methods
@@ -234,26 +260,7 @@ namespace MongoDB.Bson
         [Obsolete("Serialize was intended to be private and will become private in a future release.")]
         public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            if (_isUpdateDocument)
-            {
-                var savedCheckElementNames = bsonWriter.CheckElementNames;
-                var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
-                try
-                {
-                    bsonWriter.CheckElementNames = false;
-                    bsonWriter.CheckUpdateDocument = true;
-                    BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
-                }
-                finally
-                {
-                    bsonWriter.CheckElementNames = savedCheckElementNames;
-                    bsonWriter.CheckUpdateDocument = savedCheckUpdateDocument;
-                }
-            }
-            else
-            {
-                BsonSerializer.Serialize(bsonWriter, _wrappedNominalType, _wrappedObject, options);
-            }
+            BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, this, options);
         }
 
         /// <summary>

@@ -15,11 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -36,7 +36,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDoubleSerializer class.
         /// </summary>
         public BsonDoubleSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.Double))
         {
         }
 
@@ -67,14 +66,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonDouble));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                return new BsonDouble((double)DoubleSerializer.Instance.Deserialize(bsonReader, typeof(double), options));
+                case BsonType.Double:
+                    return new BsonDouble(bsonReader.ReadDouble());
+                default:
+                    var message = string.Format("Cannot deserialize BsonDouble from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -93,13 +91,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                var bsonDouble = (BsonDouble)value;
-                DoubleSerializer.Instance.Serialize(bsonWriter, nominalType, bsonDouble.Value, options);
-            }
+
+            var bsonDouble = (BsonDouble)value;
+            bsonWriter.WriteDouble(bsonDouble.Value);
         }
     }
 }

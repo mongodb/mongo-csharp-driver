@@ -20,6 +20,7 @@ using System.Text;
 using NUnit.Framework;
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.BsonUnitTests.IO
 {
@@ -37,7 +38,7 @@ namespace MongoDB.BsonUnitTests.IO
                 { "hello", "world" }
             };
             byte[] bytes1 = document.ToBson();
-            byte[] bytes2 = BsonDocument.ReadFrom(bytes1).ToBson();
+            byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
             Assert.AreEqual(bytes1, bytes2);
         }
 
@@ -49,7 +50,7 @@ namespace MongoDB.BsonUnitTests.IO
                 { "BSON", new BsonArray { "awesome", 5.05, 1986} }
             };
             byte[] bytes1 = document.ToBson();
-            byte[] bytes2 = BsonDocument.ReadFrom(bytes1).ToBson();
+            byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
             Assert.AreEqual(bytes1, bytes2);
         }
 
@@ -68,7 +69,7 @@ namespace MongoDB.BsonUnitTests.IO
                 { "boolean2", true }
             };
             byte[] bytes1 = document.ToBson();
-            byte[] bytes2 = BsonDocument.ReadFrom(bytes1).ToBson();
+            byte[] bytes2 = BsonSerializer.Deserialize<BsonDocument>(bytes1).ToBson();
             Assert.AreEqual(bytes1, bytes2);
         }
     }

@@ -25,6 +25,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -207,8 +208,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (nominalType == typeof(BsonDocument))
             {
-                var bsonDocument = new BsonDocument();
-                return ((IBsonSerializable)bsonDocument).Deserialize(bsonReader, nominalType, options);
+                return BsonDocumentSerializer.Instance.Deserialize(bsonReader, nominalType, options);
             }
 
             // if nominalType is an interface find out the actualType and use it instead
@@ -529,6 +529,12 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A serializer for the Type.</returns>
         public static IBsonSerializer LookupSerializer(Type type)
         {
+            // since we don't allow registering serializers for BsonDocument no lookup is needed
+            if (type == typeof(BsonDocument))
+            {
+                return BsonDocumentSerializer.Instance;
+            }
+
             // since we don't allow registering serializers for classes that implement IBsonSerializable no lookup is needed
             if (typeof(IBsonSerializable).IsAssignableFrom(type))
             {
@@ -734,6 +740,13 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
         {
+            // don't allow any serializers to be registered for subclasses of BsonDocument
+            if (typeof(BsonDocument).IsAssignableFrom(type))
+            {
+                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonDocument.", BsonUtils.GetFriendlyTypeName(type));
+                throw new BsonSerializationException(message);
+            }
+
             if (typeof(IBsonSerializable).IsAssignableFrom(type))
             {
                 var message = string.Format("A serializer cannot be registered for type {0} because it implements IBsonSerializable.", BsonUtils.GetFriendlyTypeName(type));
@@ -806,6 +819,13 @@ namespace MongoDB.Bson.Serialization
             object value,
             IBsonSerializationOptions options)
         {
+            // since we don't allow registering serializers for BsonDocument no lookup is needed
+            if (nominalType == typeof(BsonDocument))
+            {
+                BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
+                return;
+            }
+
             // since we don't allow registering serializers for classes that implement IBsonSerializable no lookup is needed
             var bsonSerializable = value as IBsonSerializable;
             if (bsonSerializable != null)

@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 using MongoDB.Driver.Wrappers;
 using MongoDB.Driver.Linq;
@@ -1163,7 +1164,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="options">The serialization options.</param>
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
-            ((IBsonSerializable)_document).Serialize(bsonWriter, nominalType, options);
+            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
         }
 
         // private methods
@@ -1201,7 +1202,6 @@ namespace MongoDB.Driver.Builders
             incDocument.Add(name, value);
         }
     }
-
 
     /// <summary>
     /// A builder for creating update modifiers.

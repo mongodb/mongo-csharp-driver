@@ -756,7 +756,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 Assert.AreEqual(null, doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = BsonNull.Value, X = 1 };
-                Assert.Throws<WriteConcernException>(() => { _collection.Insert(doc); });
+                _collection.Insert(doc);
+                Assert.AreEqual(BsonNull.Value, doc.Id);
             }
 
             {

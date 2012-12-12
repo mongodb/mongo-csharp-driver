@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -65,15 +66,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             VerifyTypes(nominalType, actualType, typeof(BsonUndefined));
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadUndefined();
-                return BsonUndefined.Value;
+                case BsonType.Undefined:
+                    bsonReader.ReadUndefined();
+                    return BsonUndefined.Value;
+                default:
+                    var message = string.Format("Cannot deserialize BsonUndefined from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -92,12 +92,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             if (value == null)
             {
-                bsonWriter.WriteNull();
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                bsonWriter.WriteUndefined();
-            }
+
+            bsonWriter.WriteUndefined();
         }
     }
 }
