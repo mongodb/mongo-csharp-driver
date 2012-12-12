@@ -119,21 +119,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             BsonElement idElement;
             if (bsonDocument.TryGetElement("_id", out idElement))
             {
-                // TODO: in a future release we will always return a BsonValue (GetDocumentId is not supposed to transform Id values in any way)
-                // we're returning the raw value in 1.4.2 to remain temporarily backward compatible with 1.4.0 and earlier
-#pragma warning disable 618
-                id = idElement.Value.RawValue;
-#pragma warning restore
-                if (id == null)
-                {
-                    id = idElement.Value;
-                }
+                id = idElement.Value;
                 idGenerator = BsonSerializer.LookupIdGenerator(id.GetType());
 
                 if (idGenerator == null)
                 {
-                    // note: in 1.4.2 this code isn't yet used because if the RawValue was a Guid then the GuidIdGenerator was found
-                    // but once we start returning BsonValue like we should this code will start being used
                     var idBinaryData = id as BsonBinaryData;
                     if (idBinaryData != null && (idBinaryData.SubType == BsonBinarySubType.UuidLegacy || idBinaryData.SubType == BsonBinarySubType.UuidStandard))
                     {
@@ -144,7 +134,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 id = null;
-                idGenerator = ObjectIdGenerator.Instance; // TODO: in a future release we will return an instance of BsonObjectIdGenerator
+                idGenerator = BsonObjectIdGenerator.Instance;
             }
 
             idNominalType = typeof(BsonValue);
