@@ -200,6 +200,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [Obsolete("Use ToUniversalTime instead.")]
         public DateTime AsDateTime
         {
             get { return AsUniversalTime; }
@@ -232,6 +233,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in the local timezone (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [Obsolete("Use ToLocalTime instead.")]
         public DateTime AsLocalTime
         {
             get { return ((BsonDateTime)this).ToLocalTime(); }
@@ -256,6 +258,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a Nullable{DateTime} (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [Obsolete("Use ToNullableUniversalTime instead.")]
         public DateTime? AsNullableDateTime
         {
             get { return (_bsonType == BsonType.Null) ? null : (DateTime?)AsDateTime; }
@@ -328,6 +331,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Casts the BsonValue to a DateTime in UTC (throws an InvalidCastException if the cast is not valid).
         /// </summary>
+        [Obsolete("Use ToUniversalTime instead.")]
         public DateTime AsUniversalTime
         {
             get { return ((BsonDateTime)this).ToUniversalTime(); }
@@ -456,9 +460,10 @@ namespace MongoDB.Bson
         /// <summary>
         /// Tests whether this BsonValue is a DateTime.
         /// </summary>
+        [Obsolete("Use IsValidDateTime instead.")]
         public bool IsDateTime
         {
-            get { return _bsonType == BsonType.DateTime && ((BsonDateTime)this).IsValidDateTime; }
+            get { return IsValidDateTime; }
         }
 
         /// <summary>
@@ -532,6 +537,14 @@ namespace MongoDB.Bson
         public bool IsString
         {
             get { return _bsonType == BsonType.String; }
+        }
+
+        /// <summary>
+        /// Tests whether this BsonValue is a valid DateTime.
+        /// </summary>
+        public virtual bool IsValidDateTime
+        {
+            get { return false; }
         }
 
         /// <summary>
@@ -770,7 +783,11 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("value");
             }
-            return value.AsDateTime;
+            if (!(value is BsonDateTime))
+            {
+                throw new InvalidCastException();
+            }
+            return value.ToUniversalTime();
         }
 
         /// <summary>
@@ -780,7 +797,11 @@ namespace MongoDB.Bson
         /// <returns>A DateTime?.</returns>
         public static explicit operator DateTime?(BsonValue value)
         {
-            return (value == null) ? null : value.AsNullableDateTime;
+            if (value != null && !((value is BsonDateTime) || (value is BsonNull)))
+            {
+                throw new InvalidCastException();
+            }
+            return (value == null) ? null : value.ToNullableUniversalTime();
         }
 
         /// <summary>
@@ -1252,6 +1273,46 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts this BsonValue to a DateTime in local time.
+        /// </summary>
+        /// <returns>A DateTime.</returns>
+        public virtual DateTime ToLocalTime()
+        {
+            var message = string.Format("{0} does not support ToLocalTime.", this.GetType().Name);
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime? in local time.
+        /// </summary>
+        /// <returns>A DateTime?.</returns>
+        public virtual DateTime? ToNullableLocalTime()
+        {
+            var message = string.Format("{0} does not support ToNullableLocalTime.", this.GetType().Name);
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime? in UTC.
+        /// </summary>
+        /// <returns>A DateTime?.</returns>
+        public virtual DateTime? ToNullableUniversalTime()
+        {
+            var message = string.Format("{0} does not support ToNullableUniversalTime.", this.GetType().Name);
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime in UTC.
+        /// </summary>
+        /// <returns>A DateTime.</returns>
+        public virtual DateTime ToUniversalTime()
+        {
+            var message = string.Format("{0} does not support ToUniversalTime.", this.GetType().Name);
+            throw new NotSupportedException(message);
+        }
+
+        /// <summary>
         /// Writes the BsonValue to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
@@ -1428,7 +1489,7 @@ namespace MongoDB.Bson
         {
             switch (_bsonType)
             {
-                case BsonType.DateTime: return this.AsDateTime;
+                case BsonType.DateTime: return this.ToUniversalTime();
                 case BsonType.String: return Convert.ToDateTime(this.AsString, provider);
                 default: throw new InvalidCastException();
             }
@@ -1544,7 +1605,7 @@ namespace MongoDB.Bson
             switch (_bsonType)
             {
                 case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
-                case BsonType.DateTime: return Convert.ChangeType(this.AsDateTime, conversionType, provider);
+                case BsonType.DateTime: return Convert.ChangeType(this.ToUniversalTime(), conversionType, provider);
                 case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
                 case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
                 case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);

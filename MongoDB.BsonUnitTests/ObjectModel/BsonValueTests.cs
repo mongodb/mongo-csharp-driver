@@ -179,9 +179,12 @@ namespace MongoDB.BsonUnitTests
             var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
             BsonValue v = utcNow;
             BsonValue s = "";
-            var dt = v.AsDateTime;
+            var dt = v.ToUniversalTime();
             Assert.AreEqual(utcNowTruncated, dt);
+#pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDateTime; });
+#pragma warning restore
+            Assert.Throws<NotSupportedException>(() => { var x = s.ToUniversalTime(); });
         }
 
         [Test]
@@ -244,9 +247,12 @@ namespace MongoDB.BsonUnitTests
             BsonValue v = utcNow;
             BsonValue n = BsonNull.Value;
             BsonValue s = "";
-            Assert.AreEqual(utcNowTruncated, v.AsNullableDateTime);
-            Assert.AreEqual(null, n.AsNullableDateTime);
+            Assert.AreEqual(utcNowTruncated, v.ToNullableUniversalTime());
+            Assert.AreEqual(null, n.ToNullableUniversalTime());
+#pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDateTime; });
+#pragma warning restore
+            Assert.Throws<NotSupportedException>(() => { var x = s.ToNullableUniversalTime(); });
         }
 
         [Test]

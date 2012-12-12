@@ -132,6 +132,24 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts this BsonValue to a DateTime? in local time.
+        /// </summary>
+        /// <returns>A DateTime?.</returns>
+        public override DateTime? ToNullableLocalTime()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime? in UTC.
+        /// </summary>
+        /// <returns>A DateTime?.</returns>
+        public override DateTime? ToNullableUniversalTime()
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Returns a string representation of the value.
         /// </summary>
         /// <returns>A string representation of the value.</returns>

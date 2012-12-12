@@ -49,7 +49,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(0) }";
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(BsonConstants.UnixEpoch, document["date"].AsDateTime);
+            Assert.AreEqual(BsonConstants.UnixEpoch, document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = string.Format("{{ date : new Date({0}) }}", millisecondsSinceEpoch);
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch), document["date"].AsDateTime);
+            Assert.AreEqual(BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(millisecondsSinceEpoch), document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = string.Format("{{ date : new Date('{0}') }}", dateTimeString);
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7, 18, 58, 59), document["date"].AsDateTime); // note date is now in UTC
+            Assert.AreEqual(new DateTime(2011, 7, 7, 18, 58, 59), document["date"].ToUniversalTime()); // note date is now in UTC
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(2011, 6, 7) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7), document["date"].AsDateTime);
+            Assert.AreEqual(new DateTime(2011, 7, 7), document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(2011, 6, 7, 1) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 0, 0), document["date"].AsDateTime);
+            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 0, 0), document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(2011, 6, 7, 1, 2) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 0), document["date"].AsDateTime);
+            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 0), document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(2011, 6, 7, 1, 2, 33) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 33), document["date"].AsDateTime);
+            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 33), document["date"].ToUniversalTime());
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp261
             var json = "{ date : new Date(2011, 6, 7, 1, 2, 33, 456) }"; // July = 6 in JavaScript
             var document = BsonDocument.Parse(json);
             Assert.AreEqual(BsonType.DateTime, document["date"].BsonType);
-            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 33, 456), document["date"].AsDateTime);
+            Assert.AreEqual(new DateTime(2011, 7, 7, 1, 2, 33, 456), document["date"].ToUniversalTime());
         }
     }
 }

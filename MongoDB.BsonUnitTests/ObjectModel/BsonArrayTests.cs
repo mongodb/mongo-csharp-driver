@@ -290,8 +290,8 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(2, array.Count);
             Assert.IsInstanceOf<BsonDateTime>(array[0]);
             Assert.IsInstanceOf<BsonDateTime>(array[1]);
-            Assert.AreEqual(value1, array[0].AsDateTime);
-            Assert.AreEqual(value2, array[1].AsDateTime);
+            Assert.AreEqual(value1, array[0].ToUniversalTime());
+            Assert.AreEqual(value2, array[1].ToUniversalTime());
         }
 
         [Test]

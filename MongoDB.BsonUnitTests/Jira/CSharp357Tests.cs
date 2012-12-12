@@ -35,7 +35,7 @@ namespace MongoDB.BsonUnitTests.Jira
             var now = DateTime.Now;
             var nowTruncated = now.AddTicks(-(now.Ticks % 10000));
             var bsonDateTime = new BsonDateTime(now);
-            var localDateTime = bsonDateTime.AsLocalTime;
+            var localDateTime = bsonDateTime.ToLocalTime();
             Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
             Assert.AreEqual(nowTruncated, localDateTime);
         }
@@ -63,7 +63,7 @@ namespace MongoDB.BsonUnitTests.Jira
                 Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
                 Assert.AreEqual(DateTime.MaxValue, utcDateTime);
 
-                var localDateTime = bsonDateTime.AsLocalTime;
+                var localDateTime = bsonDateTime.ToLocalTime();
                 Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
                 Assert.AreEqual(DateTime.MaxValue, localDateTime);
             }
@@ -81,7 +81,7 @@ namespace MongoDB.BsonUnitTests.Jira
                 Assert.AreEqual(DateTimeKind.Utc, utcDateTime.Kind);
                 Assert.AreEqual(DateTime.MinValue, utcDateTime);
 
-                var localDateTime = bsonDateTime.AsLocalTime;
+                var localDateTime = bsonDateTime.ToLocalTime();
                 Assert.AreEqual(DateTimeKind.Local, localDateTime.Kind);
                 Assert.AreEqual(DateTime.MinValue, localDateTime);
             }

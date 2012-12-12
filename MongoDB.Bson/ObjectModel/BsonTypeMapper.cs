@@ -315,7 +315,7 @@ namespace MongoDB.Bson
                 case BsonType.Boolean:
                     return bsonValue.AsBoolean;
                 case BsonType.DateTime:
-                    return bsonValue.AsUniversalTime;
+                    return bsonValue.ToUniversalTime();
                 case BsonType.Document:
                     var bsonDocument = (BsonDocument)bsonValue;
                     if (options.MapBsonDocumentTo == typeof(BsonDocument))

@@ -349,7 +349,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, result.ModifiedDocument["priority"].AsInt32);
             Assert.AreEqual(true, result.ModifiedDocument["inprogress"].AsBoolean);
             Assert.AreEqual("abc", result.ModifiedDocument["name"].AsString);
-            Assert.AreEqual(started, result.ModifiedDocument["started"].AsDateTime);
+            Assert.AreEqual(started, result.ModifiedDocument["started"].ToUniversalTime());
         }
 
         [Test]

@@ -138,7 +138,7 @@ namespace MongoDB.BsonUnitTests.Jira
                     var message = string.Format("Error parsing: new Date(\"{0}\"). Message: {1}.", test.Json, ex.Message);
                     Assert.Fail(message); // note: the test data for 2-digit years needs to be adjusted at the beginning of each year
                 }
-                var dateTime = document["date"].AsDateTime;
+                var dateTime = document["date"].ToUniversalTime();
                 var expected = DateTime.Parse(test.Iso).ToUniversalTime();
                 Assert.AreEqual(DateTimeKind.Utc, dateTime.Kind);
                 Assert.AreEqual(DateTimeKind.Utc, expected.Kind);

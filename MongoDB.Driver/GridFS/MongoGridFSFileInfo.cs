@@ -560,7 +560,7 @@ namespace MongoDB.Driver.GridFS
                 {
                     _name = null;
                 }
-                _uploadDate = fileInfo["uploadDate"].AsDateTime;
+                _uploadDate = fileInfo["uploadDate"].ToUniversalTime();
             }
             _cached = true;
         }

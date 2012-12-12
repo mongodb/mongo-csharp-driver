@@ -638,7 +638,7 @@ namespace MongoDB.BsonUnitTests
             var customDateTime = new CustomDateTime { DateTime = utcNow };
             BsonValue bsonValue;
             Assert.AreEqual(true, BsonTypeMapper.TryMapToBsonValue(customDateTime, out bsonValue));
-            Assert.AreEqual(utcNowTruncated, bsonValue.AsDateTime);
+            Assert.AreEqual(utcNowTruncated, bsonValue.ToUniversalTime());
         }
     }
 }

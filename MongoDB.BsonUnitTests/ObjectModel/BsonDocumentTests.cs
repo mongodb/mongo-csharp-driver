@@ -572,14 +572,17 @@ namespace MongoDB.BsonUnitTests
             Assert.AreEqual(null, (DateTime?)document["x", (DateTime?)null]);
             Assert.AreEqual(null, (DateTime?)document["x", BsonNull.Value]);
 #pragma warning restore
-            Assert.AreEqual(utcNowTruncated, document["v"].AsNullableDateTime);
-            Assert.AreEqual(null, document["n"].AsNullableDateTime);
+            Assert.AreEqual(utcNowTruncated, document["v"].ToNullableUniversalTime());
+            Assert.AreEqual(null, document["n"].ToNullableUniversalTime());
 #pragma warning disable 618
-            Assert.AreEqual(null, document["x", (DateTime?)null].AsNullableDateTime);
-            Assert.AreEqual(null, document["x", BsonNull.Value].AsNullableDateTime);
+            Assert.AreEqual(null, document["x", (DateTime?)null].ToNullableUniversalTime());
+            Assert.AreEqual(null, document["x", BsonNull.Value].ToNullableUniversalTime());
 #pragma warning restore
             Assert.Throws<InvalidCastException>(() => { var v = (DateTime?)document["s"]; });
+#pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDateTime; });
+#pragma warning restore
+            Assert.Throws<NotSupportedException>(() => { var v = document["s"].ToNullableUniversalTime(); });
         }
 
         [Test]

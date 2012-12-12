@@ -91,7 +91,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp258
                 });
 
             var document = _collection.FindOneAs<BsonDocument>();
-            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);
+            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
             Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }
 
@@ -107,7 +107,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp258
                 });
 
             var document = _collection.FindOneAs<BsonDocument>();
-            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].AsDateTime);
+            Assert.AreEqual(DateTime.MaxValue, document["DateTime"].ToUniversalTime());
             Assert.AreEqual(253402300799999, document["DateTime"].AsBsonDateTime.MillisecondsSinceEpoch);
         }
     }

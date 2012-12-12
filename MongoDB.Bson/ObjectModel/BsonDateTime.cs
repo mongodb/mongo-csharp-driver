@@ -55,7 +55,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets whether this BsonDateTime is a valid .NET DateTime.
         /// </summary>
-        public bool IsValidDateTime
+        public override bool IsValidDateTime
         {
             get
             {
@@ -236,20 +236,37 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Converts the BsonDateTime value to a .NET DateTime value in the local timezone.
+        /// Converts this BsonValue to a DateTime in local time.
         /// </summary>
-        /// <returns>A DateTime in the local timezone.</returns>
-        public DateTime ToLocalTime()
+        /// <returns>A DateTime.</returns>
+        public override DateTime ToLocalTime()
         {
-            var utcDateTime = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
-            return BsonUtils.ToLocalTime(utcDateTime);
+            return BsonUtils.ToLocalTime(ToUniversalTime());
         }
 
         /// <summary>
-        /// Converts the BsonDateTime value to a .NET DateTime value in UTC.
+        /// Converts this BsonValue to a DateTime? in local time.
         /// </summary>
-        /// <returns>A DateTime in UTC.</returns>
-        public DateTime ToUniversalTime()
+        /// <returns>A DateTime?.</returns>
+        public override DateTime? ToNullableLocalTime()
+        {
+            return ToLocalTime();
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime? in UTC.
+        /// </summary>
+        /// <returns>A DateTime?.</returns>
+        public override DateTime? ToNullableUniversalTime()
+        {
+            return ToUniversalTime();
+        }
+
+        /// <summary>
+        /// Converts this BsonValue to a DateTime in UTC.
+        /// </summary>
+        /// <returns>A DateTime.</returns>
+        public override DateTime ToUniversalTime()
         {
             return BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(_millisecondsSinceEpoch);
         }

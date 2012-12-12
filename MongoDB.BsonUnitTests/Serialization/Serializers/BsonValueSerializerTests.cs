@@ -339,7 +339,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestLocal()
         {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Local));
-            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.ToUniversalTime().ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             long milliseconds = (long)(obj.V.ToUniversalTime() - BsonConstants.UnixEpoch).TotalMilliseconds;
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
@@ -354,7 +354,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestUnspecified()
         {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Unspecified));
-            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.ToUniversalTime().ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
@@ -368,7 +368,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestUtc()
         {
             var obj = new TestClass(new DateTime(2010, 10, 08, 13, 30, 0, DateTimeKind.Utc));
-            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.AsDateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
+            var isoDate = string.Format("ISODate(\"{0}\")", obj.V.ToUniversalTime().ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ"));
             var json = obj.ToJson();
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", isoDate).Replace("'", "\"");
             Assert.AreEqual(expected, json);
