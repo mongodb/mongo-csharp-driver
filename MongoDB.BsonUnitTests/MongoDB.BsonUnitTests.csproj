@@ -100,6 +100,7 @@
     <Compile Include="Serialization\Serializers\JaggedArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ObjectSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ThreeDimensionalArraySerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\TimeSpanSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\TwoDimensionalArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\DateTimeSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\CollectionSerializerGenericTests.cs" />

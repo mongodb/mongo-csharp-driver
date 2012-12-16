@@ -76,50 +76,19 @@ namespace MongoDB.Bson.Serialization.Serializers
             var timeSpanSerializationOptions = EnsureSerializationOptions<TimeSpanSerializationOptions>(options);
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.String)
+            switch (bsonType)
             {
-                return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
-            }
-            else if (timeSpanSerializationOptions.Units == TimeSpanUnits.Ticks)
-            {
-                long ticks;
-                switch (bsonType)
-                {
-                    case BsonType.Double: ticks = (long)bsonReader.ReadDouble(); break;
-                    case BsonType.Int32: ticks = (long)bsonReader.ReadInt32(); break;
-                    case BsonType.Int64: ticks = bsonReader.ReadInt64(); break;
-                    default:
-                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
-                        throw new FileFormatException(message);
-                }
-                return new TimeSpan(ticks);
-            }
-            else
-            {
-                double interval;
-                switch (bsonType)
-                {
-                    case BsonType.Double: interval = bsonReader.ReadDouble(); break;
-                    case BsonType.Int32: interval = bsonReader.ReadInt32(); break;
-                    case BsonType.Int64: interval = bsonReader.ReadInt64(); break;
-                    default:
-                        var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
-                        throw new FileFormatException(message);
-                }
-
-                switch (timeSpanSerializationOptions.Units)
-                {
-                    case TimeSpanUnits.Days: return TimeSpan.FromDays(interval);
-                    case TimeSpanUnits.Hours: return TimeSpan.FromHours(interval);
-                    case TimeSpanUnits.Minutes: return TimeSpan.FromMinutes(interval);
-                    case TimeSpanUnits.Seconds: return TimeSpan.FromSeconds(interval);
-                    case TimeSpanUnits.Milliseconds: return TimeSpan.FromMilliseconds(interval);
-                    case TimeSpanUnits.Microseconds: return TimeSpan.FromTicks((long)interval*10L);
-                    case TimeSpanUnits.Nanoseconds: return TimeSpan.FromMilliseconds(interval / 1000.0);
-                    default:
-                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanSerializationOptions.Units);
-                        throw new BsonSerializationException(message);
-                }
+                case BsonType.Double:
+                    return FromDouble(bsonReader.ReadDouble(), timeSpanSerializationOptions.Units);
+                case BsonType.Int32:
+                    return FromInt32(bsonReader.ReadInt32(), timeSpanSerializationOptions.Units);
+                case BsonType.Int64:
+                    return FromInt64(bsonReader.ReadInt64(), timeSpanSerializationOptions.Units);
+                case BsonType.String:
+                    return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
+                default:
+                    var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
+                    throw new FileFormatException(message);
             }
         }
 
@@ -146,49 +115,113 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             var timeSpanSerializationOptions = EnsureSerializationOptions<TimeSpanSerializationOptions>(options);
 
-            if (timeSpanSerializationOptions.Representation == BsonType.String)
+            switch (timeSpanSerializationOptions.Representation)
             {
-                bsonWriter.WriteString(timeSpan.ToString()); // for TimeSpan use .NET's format instead of XmlConvert.ToString
+                case BsonType.Double:
+                    bsonWriter.WriteDouble(ToDouble(timeSpan, timeSpanSerializationOptions.Units));
+                    break;
+                case BsonType.Int32:
+                    bsonWriter.WriteInt32(ToInt32(timeSpan, timeSpanSerializationOptions.Units));
+                    break;
+                case BsonType.Int64:
+                    bsonWriter.WriteInt64(ToInt64(timeSpan, timeSpanSerializationOptions.Units));
+                    break;
+                case BsonType.String:
+                    bsonWriter.WriteString(timeSpan.ToString()); // not XmlConvert.ToString (we're using .NET's format for TimeSpan)
+                    break;
+                default:
+                    var message = string.Format("'{0}' is not a valid TimeSpan representation.", timeSpanSerializationOptions.Representation);
+                    throw new BsonSerializationException(message);
             }
-            else if (timeSpanSerializationOptions.Units == TimeSpanUnits.Ticks)
+        }
+
+        // private methods
+        private TimeSpan FromDouble(double value, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
             {
-                var ticks = timeSpan.Ticks;
-                switch (timeSpanSerializationOptions.Representation)
-                {
-                    case BsonType.Double: bsonWriter.WriteDouble((double)ticks); break;
-                    case BsonType.Int32: bsonWriter.WriteInt32((int)ticks); break;
-                    case BsonType.Int64: bsonWriter.WriteInt64(ticks); break;
-                    default:
-                        var message = string.Format("'{0}' is not a valid TimeSpan representation.", timeSpanSerializationOptions.Representation);
-                        throw new BsonSerializationException(message);
-                }
+                return TimeSpan.FromTicks((long)(value / 100.0)); // divide first then cast to reduce chance of overflow
             }
             else
             {
-                double interval;
-                switch (timeSpanSerializationOptions.Units)
-                {
-                    case TimeSpanUnits.Days: interval = timeSpan.TotalDays; break;
-                    case TimeSpanUnits.Hours: interval = timeSpan.TotalHours; break;
-                    case TimeSpanUnits.Minutes: interval = timeSpan.TotalMinutes; break;
-                    case TimeSpanUnits.Seconds: interval = timeSpan.TotalSeconds; break;
-                    case TimeSpanUnits.Milliseconds: interval = timeSpan.TotalMilliseconds; break;
-                    case TimeSpanUnits.Microseconds: interval = timeSpan.Ticks / 10d; break;
-                    case TimeSpanUnits.Nanoseconds: interval = timeSpan.TotalMilliseconds * 1000.0; break;
-                    default:
-                        var message = string.Format("'{0}' is not a valid TimeSpanUnits value.", timeSpanSerializationOptions.Units);
-                        throw new BsonSerializationException(message);
-                }
+                return TimeSpan.FromTicks((long)(value * TicksPerUnit(units))); // multiply first then cast to preserve fractional part of value
+            }
+        }
 
-                switch (timeSpanSerializationOptions.Representation)
-                {
-                    case BsonType.Double: bsonWriter.WriteDouble(interval); break;
-                    case BsonType.Int32: bsonWriter.WriteInt32((int)interval); break;
-                    case BsonType.Int64: bsonWriter.WriteInt64((long)interval); break;
-                    default:
-                        var message = string.Format("'{0}' is not a valid TimeSpan representation.", timeSpanSerializationOptions.Representation);
-                        throw new BsonSerializationException(message);
-                }
+        private TimeSpan FromInt32(int value, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
+            {
+                return TimeSpan.FromTicks(value / 100);
+            }
+            else
+            {
+                return TimeSpan.FromTicks(value * TicksPerUnit(units));
+            }
+        }
+
+        private TimeSpan FromInt64(long value, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
+            {
+                return TimeSpan.FromTicks(value / 100);
+            }
+            else
+            {
+                return TimeSpan.FromTicks(value * TicksPerUnit(units));
+            }
+        }
+
+        private long TicksPerUnit(TimeSpanUnits units)
+        {
+            switch (units)
+            {
+                case TimeSpanUnits.Days: return TimeSpan.TicksPerDay;
+                case TimeSpanUnits.Hours: return TimeSpan.TicksPerHour;
+                case TimeSpanUnits.Minutes: return TimeSpan.TicksPerMinute;
+                case TimeSpanUnits.Seconds: return TimeSpan.TicksPerSecond;
+                case TimeSpanUnits.Milliseconds: return TimeSpan.TicksPerMillisecond;
+                case TimeSpanUnits.Microseconds: return TimeSpan.TicksPerMillisecond / 1000;
+                case TimeSpanUnits.Ticks: return 1;
+                default:
+                    var message = string.Format("Invalid TimeSpanUnits value: {0}.", units);
+                    throw new ArgumentException(message);
+            }
+        }
+
+        private double ToDouble(TimeSpan timeSpan, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
+            {
+                return (double)(timeSpan.Ticks) * 100.0;
+            }
+            else
+            {
+                return (double)timeSpan.Ticks / (double)TicksPerUnit(units); // cast first then divide to preserve fractional part of result
+            }
+        }
+
+        private int ToInt32(TimeSpan timeSpan, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
+            {
+                return (int)(timeSpan.Ticks * 100); 
+            }
+            else
+            {
+                return (int)(timeSpan.Ticks / TicksPerUnit(units));
+            }
+        }
+
+        private long ToInt64(TimeSpan timeSpan, TimeSpanUnits units)
+        {
+            if (units == TimeSpanUnits.Nanoseconds)
+            {
+                return timeSpan.Ticks * 100;
+            }
+            else
+            {
+                return timeSpan.Ticks / TicksPerUnit(units);
             }
         }
     }

@@ -95,6 +95,14 @@ namespace MongoDB.Bson.Serialization.Options
                 return;
             }
 
+            var optionsAttribute = attribute as BsonTimeSpanOptionsAttribute;
+            if (optionsAttribute != null)
+            {
+                _representation = optionsAttribute.Representation;
+                _units = optionsAttribute.Units;
+                return;
+            }
+
             var message = string.Format("A serialization options attribute of type {0} cannot be applied to serialization options of type {1}.",
                 BsonUtils.GetFriendlyTypeName(attribute.GetType()), BsonUtils.GetFriendlyTypeName(GetType()));
             throw new NotSupportedException(message);

@@ -100,6 +100,7 @@
     <Compile Include="Serialization\Attributes\BsonRepresentationAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializationOptionsAttribute.cs" />
     <Compile Include="Serialization\Attributes\BsonSerializerAttribute.cs" />
+    <Compile Include="Serialization\Attributes\BsonTimeSpanOptionsAttribute.cs" />
     <Compile Include="Serialization\BsonClassMapSerializationProvider.cs" />
     <Compile Include="Serialization\BsonDocumentBackedClass.cs" />
     <Compile Include="Serialization\IdGenerators\BsonBinaryDataGuidGenerator.cs" />
