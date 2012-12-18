@@ -1052,7 +1052,7 @@ namespace MongoDB.Driver
             // check authentication outside of lock
             if (requestConnection != null)
             {
-                requestConnection.CheckAuthentication(database.Name, database.Credentials); // will throw exception if authentication fails
+                requestConnection.Authenticate(database.Name, database.Credentials); // will throw exception if authentication fails
                 return requestConnection;
             }
 
@@ -1084,7 +1084,7 @@ namespace MongoDB.Driver
             // check authentication outside of lock
             if (requestConnection != null)
             {
-                requestConnection.CheckAuthentication(database.Name, database.Credentials); // will throw exception if authentication fails
+                requestConnection.Authenticate(database.Name, database.Credentials); // will throw exception if authentication fails
                 return requestConnection;
             }
 

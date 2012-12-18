@@ -35,6 +35,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private MongoCredentialsStore _credentialsStore;
         private MongoCredentials _defaultCredentials;
+        private MongoClientIdentity _identity;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private TimeSpan _maxConnectionIdleTime;
@@ -67,6 +68,7 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentialsStore = new MongoCredentialsStore();
             _defaultCredentials = null;
+            _identity = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -152,6 +154,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _guidRepresentation = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the identity used to communicate with MongoDB.
+        /// </summary>
+        public MongoClientIdentity Identity
+        {
+            get { return _identity; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _identity = value;
             }
         }
 
