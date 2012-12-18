@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private object _connectionPoolLock = new object();
-        private MongoServer _server;
+        private MongoServerSettings _settings;
         private MongoServerInstance _serverInstance;
         private int _poolSize;
         private List<MongoConnection> _availableConnections = new List<MongoConnection>();
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Internal
         // constructors
         internal MongoConnectionPool(MongoServerInstance serverInstance)
         {
-            _server = serverInstance.Server;
+            _settings = serverInstance.Settings;
             _serverInstance = serverInstance;
             _poolSize = 0;
         }
@@ -81,16 +81,11 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal MongoConnection AcquireConnection(MongoDatabase database)
+        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials)
         {
-            if (database != null && database.Server != _server)
-            {
-                throw new ArgumentException("This connection pool is for a different server.", "database");
-            }
-
             lock (_connectionPoolLock)
             {
-                if (_waitQueueSize >= _server.Settings.WaitQueueSize)
+                if (_waitQueueSize >= _settings.WaitQueueSize)
                 {
                     throw new MongoConnectionException("Too many threads are already waiting for a connection.");
                 }
@@ -98,7 +93,7 @@ namespace MongoDB.Driver.Internal
                 _waitQueueSize += 1;
                 try
                 {
-                    DateTime timeoutAt = DateTime.UtcNow + _server.Settings.WaitQueueTimeout;
+                    DateTime timeoutAt = DateTime.UtcNow + _settings.WaitQueueTimeout;
                     while (true)
                     {
                         if (_availableConnections.Count > 0)
@@ -106,7 +101,7 @@ namespace MongoDB.Driver.Internal
                             // first try to find the most recently used connection that is already authenticated for this database
                             for (int i = _availableConnections.Count - 1; i >= 0; i--)
                             {
-                                if (_availableConnections[i].IsAuthenticated(database))
+                                if (_availableConnections[i].IsAuthenticated(databaseName, credentials))
                                 {
                                     var connection = _availableConnections[i];
                                     _availableConnections.RemoveAt(i);
@@ -117,7 +112,7 @@ namespace MongoDB.Driver.Internal
                             // otherwise find the most recently used connection that can be authenticated for this database
                             for (int i = _availableConnections.Count - 1; i >= 0; i--)
                             {
-                                if (_availableConnections[i].CanAuthenticate(database))
+                                if (_availableConnections[i].CanAuthenticate(databaseName, credentials))
                                 {
                                     var connection = _availableConnections[i];
                                     _availableConnections.RemoveAt(i);
@@ -133,7 +128,7 @@ namespace MongoDB.Driver.Internal
                         }
 
                         // create a new connection if maximum pool size has not been reached
-                        if (_poolSize < _server.Settings.MaxConnectionPoolSize)
+                        if (_poolSize < _settings.MaxConnectionPoolSize)
                         {
                             // make sure connection is created successfully before incrementing poolSize
                             // connection will be opened later outside of the lock
@@ -208,11 +203,11 @@ namespace MongoDB.Driver.Internal
 
                         // remove old connections before idle connections
                         var now = DateTime.UtcNow;
-                        if (oldestConnection != null && now > oldestConnection.CreatedAt + _server.Settings.MaxConnectionLifeTime)
+                        if (oldestConnection != null && now > oldestConnection.CreatedAt + _settings.MaxConnectionLifeTime)
                         {
                             connectionToRemove = oldestConnection;
                         }
-                        else if (_poolSize > _server.Settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + _server.Settings.MaxConnectionIdleTime)
+                        else if (_poolSize > _settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + _settings.MaxConnectionIdleTime)
                         {
                             connectionToRemove = lruConnection;
                         }
@@ -226,7 +221,7 @@ namespace MongoDB.Driver.Internal
                     RemoveConnection(connectionToRemove);
                 }
 
-                if (_poolSize < _server.Settings.MinConnectionPoolSize)
+                if (_poolSize < _settings.MinConnectionPoolSize)
                 {
                     ThreadPool.QueueUserWorkItem(EnsureMinConnectionPoolSizeWorkItem, _generationId);
                 }
@@ -255,7 +250,7 @@ namespace MongoDB.Driver.Internal
             // but only remove one connection at most per timer tick to avoid connection storms
             if (_connectionsRemovedSinceLastTimerTick == 0)
             {
-                if (DateTime.UtcNow - connection.CreatedAt > _server.Settings.MaxConnectionLifeTime)
+                if (DateTime.UtcNow - connection.CreatedAt > _settings.MaxConnectionLifeTime)
                 {
                     RemoveConnection(connection);
                     return;
@@ -303,7 +298,7 @@ namespace MongoDB.Driver.Internal
                     lock (_connectionPoolLock)
                     {
                         // stop if the connection pool generationId has changed or we have already reached MinConnectionPoolSize
-                        if (_generationId != forGenerationId || _poolSize >= _server.Settings.MinConnectionPoolSize)
+                        if (_generationId != forGenerationId || _poolSize >= _settings.MinConnectionPoolSize)
                         {
                             return;
                         }
@@ -320,7 +315,7 @@ namespace MongoDB.Driver.Internal
                         var added = false;
                         lock (_connectionPoolLock)
                         {
-                            if (_generationId == forGenerationId && _poolSize < _server.Settings.MaxConnectionPoolSize)
+                            if (_generationId == forGenerationId && _poolSize < _settings.MaxConnectionPoolSize)
                             {
                                 _availableConnections.Add(connection);
                                 _poolSize++;

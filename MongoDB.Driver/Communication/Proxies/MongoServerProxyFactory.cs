@@ -29,18 +29,18 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Creates an IMongoServerProxy of some type that depends on the server settings.
         /// </summary>
-        /// <param name="server">The server.</param>
+        /// <param name="settings">The settings.</param>
         /// <returns>An IMongoServerProxy.</returns>
-        public IMongoServerProxy Create(MongoServer server)
+        public IMongoServerProxy Create(MongoServerSettings settings)
         {
-            var connectionMode = server.Settings.ConnectionMode;
-            if (server.Settings.ConnectionMode == ConnectionMode.Automatic)
+            var connectionMode = settings.ConnectionMode;
+            if (settings.ConnectionMode == ConnectionMode.Automatic)
             {
-                if (server.Settings.ReplicaSetName != null)
+                if (settings.ReplicaSetName != null)
                 {
                     connectionMode = ConnectionMode.ReplicaSet;
                 }
-                else if (server.Settings.Servers.Count() == 1)
+                else if (settings.Servers.Count() == 1)
                 {
                     connectionMode = ConnectionMode.Direct;
                 }
@@ -49,13 +49,13 @@ namespace MongoDB.Driver.Internal
             switch (connectionMode)
             {
                 case ConnectionMode.Direct:
-                    return new DirectMongoServerProxy(server);
+                    return new DirectMongoServerProxy(settings);
                 case ConnectionMode.ReplicaSet:
-                    return new ReplicaSetMongoServerProxy(server);
+                    return new ReplicaSetMongoServerProxy(settings);
                 case ConnectionMode.ShardRouter:
-                    return new ShardedMongoServerProxy(server);
+                    return new ShardedMongoServerProxy(settings);
                 default:
-                    return new DiscoveringMongoServerProxy(server);
+                    return new DiscoveringMongoServerProxy(settings);
             }
         }
     }

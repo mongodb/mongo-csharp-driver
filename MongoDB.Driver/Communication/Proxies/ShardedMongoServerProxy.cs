@@ -34,20 +34,20 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="ShardedMongoServerProxy"/> class.
         /// </summary>
-        /// <param name="server">The server.</param>
-        public ShardedMongoServerProxy(MongoServer server)
-            : base(server)
+        /// <param name="settings">The settings.</param>
+        public ShardedMongoServerProxy(MongoServerSettings settings)
+            : base(settings)
         { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ShardedMongoServerProxy"/> class.
         /// </summary>
-        /// <param name="server">The server.</param>
+        /// <param name="settings">The settings.</param>
         /// <param name="instances">The instances.</param>
         /// <param name="stateChangedQueue">The state changed queue.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
-        public ShardedMongoServerProxy(MongoServer server, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
-            : base(server, instances, stateChangedQueue, connectionAttempt)
+        public ShardedMongoServerProxy(MongoServerSettings settings, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
+            : base(settings, instances, stateChangedQueue, connectionAttempt)
         { }
 
         // protected methods
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Internal
             }
             else
             {
-                var secondaryAcceptableLatency = Server.Settings.SecondaryAcceptableLatency;
+                var secondaryAcceptableLatency = Settings.SecondaryAcceptableLatency;
                 var minPingTime = instancesWithPingTime[0].CachedAveragePingTime;
                 var maxPingTime = minPingTime + secondaryAcceptableLatency;
                 var n = instancesWithPingTime.Count(i => i.CachedAveragePingTime <= maxPingTime);

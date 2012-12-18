@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private readonly object _stateLock = new object();
-        private readonly MongoServer _server;
+        private readonly MongoServerSettings _settings;
         private readonly MongoServerInstance _instance;
         private int _connectionAttempt;
 
@@ -35,22 +35,22 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectMongoServerProxy"/> class.
         /// </summary>
-        /// <param name="server">The server.</param>
-        public DirectMongoServerProxy(MongoServer server)
+        /// <param name="settings">The settings.</param>
+        public DirectMongoServerProxy(MongoServerSettings settings)
         {
-            _server = server;
-            _instance = new MongoServerInstance(server, server.Settings.Servers.First());
+            _settings = settings;
+            _instance = new MongoServerInstance(settings, settings.Servers.First());
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectMongoServerProxy"/> class.
         /// </summary>
-        /// <param name="server">The server.</param>
+        /// <param name="serverSettings">The server settings.</param>
         /// <param name="instance">The instance.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
-        public DirectMongoServerProxy(MongoServer server, MongoServerInstance instance, int connectionAttempt)
+        public DirectMongoServerProxy(MongoServerSettings serverSettings, MongoServerInstance instance, int connectionAttempt)
         {
-            _server = server;
+            _settings = serverSettings;
             _instance = instance;
             _connectionAttempt = connectionAttempt;
         }
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Internal
             {
                 lock (_stateLock)
                 {
-                    Connect(_server.Settings.ConnectTimeout, readPreference);
+                    Connect(_settings.ConnectTimeout, readPreference);
                 }
             }
 
@@ -139,17 +139,17 @@ namespace MongoDB.Driver.Internal
                     {
                         _connectionAttempt++;
                         var exceptions = new List<Exception>();
-                        foreach (var address in _server.Settings.Servers)
+                        foreach (var address in _settings.Servers)
                         {
                             try
                             {
                                 _instance.Address = address;
                                 _instance.Connect(); // TODO: what about timeout?
 
-                                if (_server.Settings.ReplicaSetName != null &&
-                                    (_instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _server.Settings.ReplicaSetName))
+                                if (_settings.ReplicaSetName != null &&
+                                    (_instance.InstanceType != MongoServerInstanceType.ReplicaSetMember || _instance.ReplicaSetInformation.Name != _settings.ReplicaSetName))
                                 {
-                                    exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' is not a member of replica set '{1}'.", address, _server.Settings.ReplicaSetName)));
+                                    exceptions.Add(new MongoConnectionException(string.Format("The server '{0}' is not a member of replica set '{1}'.", address, _settings.ReplicaSetName)));
                                     _instance.Disconnect();
                                     continue;
                                 }
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Internal
                             }
                         }
 
-                        var firstAddress = _server.Settings.Servers.First();
+                        var firstAddress = _settings.Servers.First();
                         var firstException = exceptions.First();
                         var message = string.Format("Unable to connect to server {0}: {1}.", firstAddress, firstException.Message);
                         var connectionException = new MongoConnectionException(message, firstException);

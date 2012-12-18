@@ -43,7 +43,7 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly object _serverInstanceLock = new object();
-        private readonly MongoServer _server;
+        private readonly MongoServerSettings _settings;
         private readonly MongoConnectionPool _connectionPool;
         private readonly PingTimeAggregator _pingTimeAggregator;
         private MongoServerAddress _address;
@@ -60,11 +60,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoServerInstance"/> class.
         /// </summary>
-        /// <param name="server">The server.</param>
+        /// <param name="settings">The settings.</param>
         /// <param name="address">The address.</param>
-        internal MongoServerInstance(MongoServer server, MongoServerAddress address)
+        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address)
         {
-            _server = server;
+            _settings = settings;
             _address = address;
             _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             _state = MongoServerState.Disconnected;
@@ -284,9 +284,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server for this server instance.
         /// </summary>
-        public MongoServer Server
+        public MongoServerSettings Settings
         {
-            get { return _server; }
+            get { return _settings; }
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace MongoDB.Driver
             var ipEndPoint = Interlocked.CompareExchange(ref _ipEndPoint, null, null);
             if (ipEndPoint == null)
             {
-                var addressFamily = _server.Settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+                var addressFamily = _settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
                 ipEndPoint = _address.ToIPEndPoint(addressFamily);
                 Interlocked.CompareExchange(ref _ipEndPoint, _ipEndPoint, null);
             }
@@ -369,9 +369,11 @@ namespace MongoDB.Driver
         /// <summary>
         /// Acquires the connection.
         /// </summary>
-        /// <param name="database">The database.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="credentials">The credentials.</param>
         /// <returns>A MongoConnection.</returns>
-        internal MongoConnection AcquireConnection(MongoDatabase database)
+        /// <exception cref="System.InvalidOperationException"></exception>
+        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials)
         {
             MongoConnection connection;
             lock (_serverInstanceLock)
@@ -383,11 +385,11 @@ namespace MongoDB.Driver
                 }
             }
 
-            connection = _connectionPool.AcquireConnection(database);
+            connection = _connectionPool.AcquireConnection(databaseName, credentials);
 
             try
             {
-                connection.CheckAuthentication(database); // will authenticate if necessary
+                connection.CheckAuthentication(databaseName, credentials); // will authenticate if necessary
             }
             catch (MongoAuthenticationException)
             {
@@ -424,7 +426,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var connection = _connectionPool.AcquireConnection(null);
+                var connection = _connectionPool.AcquireConnection(null, null);
                 try
                 {
                     Ping(connection);
