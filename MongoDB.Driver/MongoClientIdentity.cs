@@ -13,7 +13,7 @@ namespace MongoDB.Driver
     public class MongoClientIdentity
     {
         // private static fields
-        public readonly static MongoClientIdentity _system = SystemMongoClientIdentity.Instance;
+        private readonly static MongoClientIdentity _system = SystemMongoClientIdentity.Instance;
 
         // private fields
         private readonly MongoAuthenticationType _authenticationType;
@@ -51,7 +51,10 @@ namespace MongoDB.Driver
         public MongoClientIdentity(string username, SecureString password, MongoAuthenticationType authenticationType)
         {
             _username = username;
-            _password = password.Copy();
+            if (password != null)
+            {
+                _password = password.Copy();
+            }
             _authenticationType = authenticationType;
         }
 
@@ -67,12 +70,25 @@ namespace MongoDB.Driver
             get { return _authenticationType; }
         }
 
+        public bool HasPassword
+        {
+            get { return _password != null; }
+        }
+
         /// <summary>
         /// Gets the password.
         /// </summary>
         public string Password
         {
-            get { return CreateString(_password); }
+            get 
+            {
+                if (HasPassword)
+                {
+                    return CreateString(_password);
+                }
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -80,7 +96,15 @@ namespace MongoDB.Driver
         /// </summary>
         public SecureString SecurePassword
         {
-            get { return _password.Copy(); }
+            get 
+            {
+                if (HasPassword)
+                {
+                    return _password.Copy();
+                }
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -104,13 +128,17 @@ namespace MongoDB.Driver
         // private static methods
         private static SecureString CreateSecureString(string str)
         {
-            var secureStr = new SecureString();
-            foreach (var c in str)
+            if (str != null)
             {
-                secureStr.AppendChar(c);
+                var secureStr = new SecureString();
+                foreach (var c in str)
+                {
+                    secureStr.AppendChar(c);
+                }
+                return secureStr;
             }
 
-            return secureStr;
+            return null;
         }
 
         private static string CreateString(SecureString secureStr)

@@ -231,6 +231,7 @@ namespace MongoDB.DriverUnitTests
             {
                 Assert.AreEqual(defaultCredentials, builder.DefaultCredentials);
                 Assert.AreEqual(connectionString, builder.ToString());
+                Assert.AreEqual(null, builder.Identity);
             }
         }
 
@@ -249,6 +250,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(null, builder.DefaultCredentials);
                 Assert.AreEqual(null, builder.FSync);
                 Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
+                Assert.AreEqual(null, builder.Identity);
                 Assert.AreEqual(false, builder.IPv6);
                 Assert.AreEqual(null, builder.Journal);
                 Assert.AreEqual(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
@@ -390,6 +392,39 @@ namespace MongoDB.DriverUnitTests
             {
                 Assert.AreEqual(guidRepresentation ?? MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        [TestCase("user", null, MongoAuthenticationType.GSSAPI, "mongodb://user@localhost/?authType=GSSAPI")]
+        [TestCase("user", "", MongoAuthenticationType.GSSAPI, "mongodb://user:@localhost/?authType=GSSAPI")]
+        [TestCase("user", "pass", MongoAuthenticationType.GSSAPI, "mongodb://user:pass@localhost/?authType=GSSAPI")]
+        [TestCase("user@gmail.com", "pass", MongoAuthenticationType.GSSAPI, "mongodb://user@gmail.com:pass@localhost/?authType=GSSAPI")]
+        public void TestIdentity(string username, string password, MongoAuthenticationType authenticationType, string connectionString)
+        {
+            var identity = new MongoClientIdentity(username, password, authenticationType);
+            var built = new MongoUrlBuilder { Identity = identity };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.IsNotNull(builder.Identity);
+                Assert.AreEqual(identity.Username, builder.Identity.Username);
+                Assert.AreEqual(identity.Password, builder.Identity.Password);
+                Assert.AreEqual(identity.AuthenticationType, builder.Identity.AuthenticationType);
+            }
+        }
+
+        [Test]
+        [TestCase("mongodb://localhost/?authType=GSSAPI")]
+        public void TestIdentity_SystemGSSAPI(string connectionString)
+        {
+            var identity = MongoClientIdentity.System;
+            var built = new MongoUrlBuilder { Identity = MongoClientIdentity.System };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.IsNotNull(builder.Identity);
+                Assert.AreSame(identity, builder.Identity);
             }
         }
 

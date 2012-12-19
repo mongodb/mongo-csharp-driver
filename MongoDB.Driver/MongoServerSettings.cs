@@ -616,6 +616,7 @@ namespace MongoDB.Driver
             serverSettings.CredentialsStore = new MongoCredentialsStore();
             serverSettings.DefaultCredentials = url.DefaultCredentials;
             serverSettings.GuidRepresentation = url.GuidRepresentation;
+            serverSettings.Identity = url.Identity;
             serverSettings.IPv6 = url.IPv6;
             serverSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             serverSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
@@ -694,6 +695,7 @@ namespace MongoDB.Driver
                         _credentialsStore.Equals(rhs._credentialsStore) &&
                         _defaultCredentials == rhs._defaultCredentials &&
                         _guidRepresentation == rhs._guidRepresentation &&
+                        _identity == rhs._identity &&
                         _ipv6 == rhs._ipv6 &&
                         _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                         _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
@@ -795,6 +797,7 @@ namespace MongoDB.Driver
             hash = 37 * hash + _credentialsStore.GetHashCode();
             hash = 37 * hash + ((_defaultCredentials == null) ? 0 : _defaultCredentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
+            hash = 37 * hash + ((_identity == null) ? 0 : _identity.GetHashCode());
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
             hash = 37 * hash + _maxConnectionLifeTime.GetHashCode();
@@ -833,6 +836,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
             sb.AppendFormat("DefaultCredentials={0};", _defaultCredentials);
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
+            sb.AppendFormat("Identity={0};", _identity);
             sb.AppendFormat("IPv6={0};", _ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);

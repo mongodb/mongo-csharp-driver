@@ -32,6 +32,8 @@ namespace MongoDB.Driver
     [Serializable]
     public class MongoUrlBuilder
     {
+        private const string AUTH_TYPE_DEFAULT = "MONGO-CR";
+
         // private fields
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
@@ -39,6 +41,7 @@ namespace MongoDB.Driver
         private MongoCredentials _defaultCredentials;
         private bool? _fsync;
         private GuidRepresentation _guidRepresentation;
+        private MongoClientIdentity _identity;
         private bool _ipv6;
         private bool? _journal;
         private TimeSpan _maxConnectionIdleTime;
@@ -71,6 +74,7 @@ namespace MongoDB.Driver
             _defaultCredentials = null;
             _fsync = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
+            _identity = null;
             _ipv6 = false;
             _journal = null;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -183,6 +187,15 @@ namespace MongoDB.Driver
         {
             get { return _guidRepresentation; }
             set { _guidRepresentation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the identity.
+        /// </summary>
+        public MongoClientIdentity Identity
+        {
+            get { return _identity; }
+            set { _identity = value; }
         }
 
         /// <summary>
@@ -456,7 +469,7 @@ namespace MongoDB.Driver
             get { return _w; }
             set
             {
-                _w = value; 
+                _w = value;
             }
         }
 
@@ -729,29 +742,30 @@ namespace MongoDB.Driver
         /// <param name="url">The URL.</param>
         public void Parse(string url)
         {
-            const string serverPattern = @"((\[[^]]+?\]|[^:,/]+)(:\d+)?)";
+            const string serverPattern = @"((\[[^]]+?\]|[^:,/?#]+)(:\d+)?)";
             const string pattern =
                 @"^mongodb://" +
-                @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
-                @"(?<servers>" + serverPattern + "(," + serverPattern + ")*)?" +
+                @"((?<username>[^:]+)(:(?<password>.*?))?@)?" +
+                @"(?<servers>" + serverPattern + @"(," + serverPattern + ")*)?" +
                 @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
             Match match = Regex.Match(url, pattern);
             if (match.Success)
             {
-                string username = Uri.UnescapeDataString(match.Groups["username"].Value);
-                string password = Uri.UnescapeDataString(match.Groups["password"].Value);
+                string username = null;
+                string password = null;
+                var usernameGroup = match.Groups["username"];
+                if (usernameGroup.Success)
+                {
+                    username = Uri.UnescapeDataString(usernameGroup.Value);
+                }
+                var passwordGroup = match.Groups["password"];
+                if (passwordGroup.Success)
+                {
+                    password = Uri.UnescapeDataString(passwordGroup.Value);
+                }
                 string servers = match.Groups["servers"].Value;
                 string databaseName = match.Groups["database"].Value;
                 string query = match.Groups["query"].Value;
-
-                if (username != "" && password != "")
-                {
-                    _defaultCredentials = new MongoCredentials(username, password);
-                }
-                else
-                {
-                    _defaultCredentials = null;
-                }
 
                 if (servers != "")
                 {
@@ -766,6 +780,7 @@ namespace MongoDB.Driver
 
                 _databaseName = (databaseName != "") ? databaseName : null;
 
+                string authType = null;
                 if (!string.IsNullOrEmpty(query))
                 {
                     foreach (var pair in query.Split('&', ';'))
@@ -780,6 +795,9 @@ namespace MongoDB.Driver
 
                         switch (name.ToLower())
                         {
+                            case "authtype":
+                                authType = value;
+                                break;
                             case "connect":
                                 ConnectionMode = ParseConnectionMode(name, value);
                                 break;
@@ -891,10 +909,40 @@ namespace MongoDB.Driver
                         }
                     }
                 }
+
+                HandleCredentials(username, password, authType);
             }
             else
             {
                 throw new FormatException(string.Format("Invalid connection string '{0}'.", url));
+            }
+        }
+
+        private void HandleCredentials(string username, string password, string authType)
+        {
+            authType = authType ?? AUTH_TYPE_DEFAULT;
+            switch (authType.ToLower())
+            {
+                case "mongo-cr":
+                    _defaultCredentials = null;
+                    if (!string.IsNullOrEmpty(username))
+                    {
+                        _defaultCredentials = new MongoCredentials(username, password);
+                    }
+                    break;
+                case "gssapi":
+                    if (!string.IsNullOrEmpty(username))
+                    {
+                        _identity = new MongoClientIdentity(username, password, MongoAuthenticationType.GSSAPI);
+                    }
+                    else
+                    {
+                        _identity = MongoClientIdentity.System;
+                    }
+                    break;
+                default:
+                    var message = string.Format("{0} is not a valid authMechanism value. MONGO-CR and GSSAPI are the only valid authMechanism values.", authType);
+                    throw new ArgumentException(message);
             }
         }
 
@@ -929,6 +977,14 @@ namespace MongoDB.Driver
             {
                 url.AppendFormat("{0}:{1}@", Uri.EscapeDataString(_defaultCredentials.Username), Uri.EscapeDataString(_defaultCredentials.Password));
             }
+            else if (_identity != null && _identity != MongoClientIdentity.System)
+            {
+                url.Append(Uri.EscapeDataString(_identity.Username));
+                if (_identity.HasPassword)
+                {
+                    url.Append(":<password>");
+                }
+            }
             if (_servers != null)
             {
                 bool firstServer = true;
@@ -952,6 +1008,17 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
+            if (_identity != null)
+            {
+                switch (_identity.AuthenticationType)
+                {
+                    case MongoAuthenticationType.GSSAPI:
+                        query.Append("authType=GSSAPI;");
+                        break;
+                    default:
+                        throw new NotSupportedException(string.Format("Unknown MongoAuthenticationType {0}", _identity.AuthenticationType));
+                }
+            }
             if (_ipv6)
             {
                 query.AppendFormat("ipv6=true;");

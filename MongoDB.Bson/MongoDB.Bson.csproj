@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}</ProjectGuid>
+    <ProjectGuid>{525A4B3A-5011-4DE8-94F1-0B6DFC03BC61}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MongoDB.Bson</RootNamespace>
