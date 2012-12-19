@@ -24,6 +24,12 @@ namespace MongoDB.Driver.Communication.Security
                 throw new InvalidOperationException("Database cannot be authenticated using this connection.  Ensure that CanAuthenticate is called before calling Authenticate.");
             }
 
+            if (databaseName == null || credentials == null)
+            {
+                // nothing to do...
+                return;
+            }
+
             var nonceCommand = new CommandDocument("getnonce", 1);
             var commandResult = _connection.RunCommand(databaseName, QueryFlags.None, nonceCommand, false);
             if (!commandResult.Ok)

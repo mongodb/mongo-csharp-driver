@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Security.Mechanisms
             }
             catch (Win32Exception ex)
             {
-                throw new MongoSecurityException("Unable to acquire credentials.", ex);
+                throw new MongoSecurityException("Unable to acquire security credentials.", ex);
             }
 
             byte[] output;
@@ -67,7 +67,14 @@ namespace MongoDB.Driver.Security.Mechanisms
             }
             catch (Win32Exception ex)
             {
-                throw new MongoSecurityException("Unable to initialize security context", ex);
+                if (!(_identity is SystemMongoClientIdentity))
+                {
+                    throw new MongoSecurityException("Unable to initialize security context. Ensure the username and password are correct.", ex);
+                }
+                else
+                {
+                    throw new MongoSecurityException("Unable to initialize security context.", ex);
+                }
             }
 
             if (!context.IsInitialized)
@@ -75,7 +82,7 @@ namespace MongoDB.Driver.Security.Mechanisms
                 return new SspiInitializeStep(_servicePrincipalName, _authorizationId, context, output);
             }
 
-            return new SspiNegotiateStep(_authorizationId, context, new byte[0]);
+            return new SspiNegotiateStep(_authorizationId, context, output);
         }
 
         // nested classes
@@ -91,7 +98,7 @@ namespace MongoDB.Driver.Security.Mechanisms
                 _servicePrincipalName = servicePrincipalName;
                 _authorizationId = authorizationId;
                 _context = context;
-                _output = output;
+                _output = output ?? new byte[0];
             }
 
             public byte[] Output
@@ -116,7 +123,7 @@ namespace MongoDB.Driver.Security.Mechanisms
                     return new SspiInitializeStep(_servicePrincipalName, _authorizationId, _context, output);
                 }
 
-                return new SspiNegotiateStep(_authorizationId, _context, new byte[0]);
+                return new SspiNegotiateStep(_authorizationId, _context, output);
             }
         }
 
@@ -130,7 +137,7 @@ namespace MongoDB.Driver.Security.Mechanisms
             {
                 _authorizationId = authorizationId;
                 _context = context;
-                _output = output;
+                _output = output ?? new byte[0];
             }
 
             public byte[] Output

@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 
 namespace MongoDB.Driver.Security.Sspi
 {
@@ -6,7 +8,7 @@ namespace MongoDB.Driver.Security.Sspi
     /// SEC_WINNT_AUTH_IDENTITY
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct AuthIdentity
+    internal sealed class AuthIdentity : IDisposable
     {
         // public fields
         [MarshalAs(UnmanagedType.LPWStr)]
@@ -15,8 +17,7 @@ namespace MongoDB.Driver.Security.Sspi
         [MarshalAs(UnmanagedType.LPWStr)]
         public string Domain;
         public int DomainLength;
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string Password;
+        public IntPtr Password;
         public int PasswordLength;
         public AuthIdentityFlag Flags;
 
@@ -24,27 +25,45 @@ namespace MongoDB.Driver.Security.Sspi
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthIdentity" /> struct.
         /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="domain">The domain.</param>
-        public AuthIdentity(string username, string password)
+        /// <param name="identity">The identity.</param>
+        public AuthIdentity(MongoClientIdentity identity)
         {
-            Username = username;
+            Username = null;
             UsernameLength = 0;
-            if (username != null)
+            if (!string.IsNullOrEmpty(identity.Username))
             {
-                UsernameLength = username.Length;
+                Username = identity.Username;
+                UsernameLength = Username.Length;
             }
-            Password = password;
+
+            Password = IntPtr.Zero;
             PasswordLength = 0;
-            if (password != null)
+            
+            if (identity.SecurePassword != null && identity.SecurePassword.Length > 0)
             {
-                PasswordLength = password.Length;
+                Password = Marshal.SecureStringToGlobalAllocUnicode(identity.SecurePassword);
+                PasswordLength = identity.SecurePassword.Length;
             }
+
             Domain = null;
             DomainLength = 0;
 
             Flags = AuthIdentityFlag.Unicode;
+        }
+
+        ~AuthIdentity()
+        {
+            Dispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose()
+        {
+            if (Password != IntPtr.Zero)
+            {
+                Marshal.ZeroFreeGlobalAllocUnicode(Password);
+                Password = IntPtr.Zero;
+            }
         }
     }
 }

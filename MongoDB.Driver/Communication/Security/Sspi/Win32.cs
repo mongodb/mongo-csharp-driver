@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Security.Sspi
             string package,
             SecurityCredentialUse credentialUsage,
             IntPtr logonId,
-            ref AuthIdentity identity,
+            AuthIdentity identity,
             int keyCallback,
             IntPtr keyArgument,
             ref SspiHandle credentialHandle,

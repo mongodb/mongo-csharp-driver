@@ -485,6 +485,7 @@ namespace MongoDB.Driver
             clone._credentialsStore = _credentialsStore.Clone();
             clone._defaultCredentials = _defaultCredentials;
             clone._guidRepresentation = _guidRepresentation;
+            clone._identity = _identity;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;

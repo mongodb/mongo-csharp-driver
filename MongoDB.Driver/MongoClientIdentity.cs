@@ -8,24 +8,25 @@ using System.Text;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The authentication type used to communicate with MongoDB.
+    /// Represents the identity to be used when talking with mongodb.
     /// </summary>
-    public enum MongoAuthenticationType
-    {
-        /// <summary>
-        /// Authenticate to the server using GSSAPI.
-        /// </summary>
-        GSSAPI
-    }
-
     public class MongoClientIdentity
     {
+        // private static fields
+        public readonly static MongoClientIdentity _system = SystemMongoClientIdentity.Instance;
+
         // private fields
         private readonly MongoAuthenticationType _authenticationType;
         private SecureString _password;
         private readonly string _username;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoClientIdentity" /> class.
+        /// </summary>
+        /// <remarks>
+        /// This is here to support SystemMongoClientIdentity.
+        /// </remarks>
         internal MongoClientIdentity()
             : this("", "", MongoAuthenticationType.GSSAPI)
         { }
@@ -52,6 +53,12 @@ namespace MongoDB.Driver
             _username = username;
             _password = password.Copy();
             _authenticationType = authenticationType;
+        }
+
+        // public static properties
+        public static MongoClientIdentity System
+        {
+            get { return _system; }
         }
 
         // public properties
@@ -129,8 +136,14 @@ namespace MongoDB.Driver
         }
     }
 
-    public class SystemMongoClientIdentity : MongoClientIdentity
+    /// <summary>
+    /// Represents the process' identity.
+    /// </summary>
+    internal class SystemMongoClientIdentity : MongoClientIdentity
     {
         public readonly static SystemMongoClientIdentity Instance = new SystemMongoClientIdentity();
+
+        private SystemMongoClientIdentity()
+        { }
     }
 }

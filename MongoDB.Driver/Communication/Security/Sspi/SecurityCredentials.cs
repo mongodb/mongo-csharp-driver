@@ -73,18 +73,20 @@ namespace MongoDB.Driver.Security.Sspi
                 }
                 else
                 {
-                    // TODO: make this secure by using SecurePassword
-                    var authIdentity = new AuthIdentity(identity.Username, identity.Password);
-                    result = Win32.AcquireCredentialsHandle(
-                        null,
-                        package.ToString(),
-                        SecurityCredentialUse.Outbound,
-                        IntPtr.Zero,
-                        ref authIdentity,
-                        0,
-                        IntPtr.Zero,
-                        ref credentials._sspiHandle,
-                        out timestamp);
+                    using(var authIdentity = new AuthIdentity(identity))
+                    {
+                        // TODO: make this secure by using SecurePassword
+                        result = Win32.AcquireCredentialsHandle(
+                            null,
+                            package.ToString(),
+                            SecurityCredentialUse.Outbound,
+                            IntPtr.Zero,
+                            authIdentity,
+                            0,
+                            IntPtr.Zero,
+                            ref credentials._sspiHandle,
+                            out timestamp);
+                    }
                 }
                 if (result != Win32.SEC_E_OK)
                 {

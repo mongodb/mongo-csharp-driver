@@ -158,6 +158,7 @@
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
+    <Compile Include="MongoAuthenticationType.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientIdentity.cs" />
     <Compile Include="MongoClientSettings.cs" />
