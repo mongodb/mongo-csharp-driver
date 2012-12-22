@@ -339,6 +339,13 @@ namespace MongoDB.Driver.Internal
             }
         }
 
+        internal bool IsExpired()
+        {
+            var now = DateTime.UtcNow;
+            return now > _createdAt + _serverInstance.Settings.MaxConnectionLifeTime
+                || now > _lastUsedAt + _serverInstance.Settings.MaxConnectionIdleTime;
+        }
+
         internal void Logout(string databaseName)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
@@ -454,6 +461,7 @@ namespace MongoDB.Driver.Internal
             {
                 try
                 {
+                    _lastUsedAt = DateTime.UtcNow;
                     using (var buffer = new BsonBuffer())
                     {
                         var networkStream = GetNetworkStream();
@@ -481,6 +489,7 @@ namespace MongoDB.Driver.Internal
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
             {
+                _lastUsedAt = DateTime.UtcNow;
                 _requestId = message.RequestId;
 
                 message.WriteToBuffer();
