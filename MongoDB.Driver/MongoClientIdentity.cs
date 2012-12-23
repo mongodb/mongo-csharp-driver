@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="authenticationType">Type of the authentication.</param>
         public MongoClientIdentity(string username, string password, MongoAuthenticationType authenticationType)  
         {
             _username = username;
@@ -48,6 +49,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="authenticationType">Type of the authentication.</param>
         public MongoClientIdentity(string username, SecureString password, MongoAuthenticationType authenticationType)
         {
             _username = username;
@@ -59,17 +61,26 @@ namespace MongoDB.Driver
         }
 
         // public static properties
+        /// <summary>
+        /// Gets the system identity used to execute the current process.
+        /// </summary>
         public static MongoClientIdentity System
         {
             get { return _system; }
         }
 
         // public properties
+        /// <summary>
+        /// Gets the type of authentication used to confirm this identity.
+        /// </summary>
         public MongoAuthenticationType AuthenticationType
         {
             get { return _authenticationType; }
         }
 
+        /// <summary>
+        /// Indicates whether this instance has a password.
+        /// </summary>
         public bool HasPassword
         {
             get { return _password != null; }

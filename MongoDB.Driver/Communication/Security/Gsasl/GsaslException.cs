@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Security.Gsasl
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Win32Exception" /> class.
+        /// Initializes a new instance of the <see cref="GsaslException" /> class.
         /// </summary>
         /// <param name="info">The info.</param>
         /// <param name="context">The context.</param>
