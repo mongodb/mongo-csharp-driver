@@ -26,7 +26,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// <summary>
     /// Abstract base class for serialization options attributes.
     /// </summary>
-    public abstract class BsonSerializationOptionsAttribute : Attribute, IBsonMemberMapModifier
+#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
+    public abstract class BsonSerializationOptionsAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
+#pragma warning disable 618 
     {
         // constructors
         /// <summary>

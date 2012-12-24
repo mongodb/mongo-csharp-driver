@@ -44,12 +44,14 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         {
             var convention = new NamedExtraElementsMemberConvention("ExtraElements");
 
+#pragma warning disable 618
             var extraElementsMemberName = convention.FindExtraElementsMember(typeof(TestClassA));
             Assert.IsNotNull(extraElementsMemberName);
             Assert.AreEqual("ExtraElements", extraElementsMemberName);
 
             extraElementsMemberName = convention.FindExtraElementsMember(typeof(TestClassB));
             Assert.IsNull(extraElementsMemberName);
+#pragma warning restore 618
         }
     }
 }

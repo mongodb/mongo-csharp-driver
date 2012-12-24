@@ -19,36 +19,36 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-using MongoDB.Bson.Serialization;
-
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents an Id generator convention.
+    /// Represents a default value convention.
     /// </summary>
-    public interface IIdGeneratorConvention
+    [Obsolete("Use IMemberMapConvention instead.")]
+    public interface IDefaultValueConvention
     {
         /// <summary>
-        /// Gets the Id generator for an Id member.
+        /// Gets the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>An Id generator.</returns>
-        IIdGenerator GetIdGenerator(MemberInfo memberInfo);
+        /// <returns>The default value.</returns>
+        object GetDefaultValue(MemberInfo memberInfo);
     }
 
     /// <summary>
-    /// Represents an Id generator convention where the Id generator is looked up based on the member type.
+    /// Represents a default value convention of null.
     /// </summary>
-    public class LookupIdGeneratorConvention : IIdGeneratorConvention
+    [Obsolete("Use DelegateMemberMapConvention instead.")]
+    public class NullDefaultValueConvention : IDefaultValueConvention
     {
         /// <summary>
-        /// Gets the Id generator for an Id member.
+        /// Gets the default value for a member.
         /// </summary>
         /// <param name="memberInfo">The member.</param>
-        /// <returns>An Id generator.</returns>
-        public IIdGenerator GetIdGenerator(MemberInfo memberInfo)
+        /// <returns>null.</returns>
+        public object GetDefaultValue(MemberInfo memberInfo)
         {
-            return BsonSerializer.LookupIdGenerator(BsonClassMap.GetMemberInfoType(memberInfo));
+            return null;
         }
     }
 }

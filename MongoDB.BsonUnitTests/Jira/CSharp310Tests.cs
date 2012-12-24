@@ -35,30 +35,28 @@ namespace MongoDB.BsonUnitTests.Jira
             public Guid G = Guid.Empty;
         }
 
-        private class EmptyGuidDefaultValueConvention : IDefaultValueConvention
+        private class EmptyGuidDefaultValueConvention : IMemberMapConvention
         {
-            public object GetDefaultValue(MemberInfo memberInfo)
+            public string Name
             {
-                var type = (memberInfo.MemberType == MemberTypes.Field) ? ((FieldInfo)memberInfo).FieldType : ((PropertyInfo)memberInfo).PropertyType;
-                if (type == typeof(Guid))
+                get { return "EmptyGuidDefaultValue"; }
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                if (memberMap.MemberType == typeof(Guid))
                 {
-                    return Guid.Empty;
-                }
-                else
-                {
-                    return null;
+                    memberMap.SetDefaultValue(Guid.Empty);
                 }
             }
         }
 
         private static void InitializeSerialization()
         {
-            var conventions = new ConventionProfile();
-            conventions.SetDefaultValueConvention(new EmptyGuidDefaultValueConvention());
-#pragma warning disable 618 // SetSerializeDefaultValueConvention and NeverSerializeDefaultValueConvention are obsolete
-            conventions.SetSerializeDefaultValueConvention(new NeverSerializeDefaultValueConvention());
-#pragma warning restore 618
-            BsonClassMap.RegisterConventions(conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests", StringComparison.Ordinal));
+            var conventions = new ConventionPack();
+            conventions.Add(new EmptyGuidDefaultValueConvention());
+            conventions.Add(new IgnoreIfDefaultConvention(true));
+            ConventionRegistry.Register("CSharp310", conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests", StringComparison.Ordinal));
         }
 
         [Test]

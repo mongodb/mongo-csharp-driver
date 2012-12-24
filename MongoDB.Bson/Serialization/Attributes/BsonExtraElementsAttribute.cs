@@ -24,7 +24,10 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Indicates that this property or field will be used to hold any extra elements found during deserialization.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonExtraElementsAttribute : Attribute, IBsonMemberMapModifier
+    [BsonMemberMapAttributeUsage(AllowMultipleMembers = false)]
+#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
+    public class BsonExtraElementsAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
+#pragma warning restore 618 
     {
         // public methods
         /// <summary>

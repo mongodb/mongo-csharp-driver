@@ -22,31 +22,16 @@ using System.Reflection;
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// Represents a default value convention.
+    /// Represents an extra elements member convention.
     /// </summary>
-    public interface IDefaultValueConvention
+    [Obsolete("Use IClassMapConvention instead.")]
+    public interface IExtraElementsMemberConvention
     {
         /// <summary>
-        /// Gets the default value for a member.
+        /// Finds the extra elements member of a class.
         /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>The default value.</returns>
-        object GetDefaultValue(MemberInfo memberInfo);
-    }
-
-    /// <summary>
-    /// Represents a default value convention of null.
-    /// </summary>
-    public class NullDefaultValueConvention : IDefaultValueConvention
-    {
-        /// <summary>
-        /// Gets the default value for a member.
-        /// </summary>
-        /// <param name="memberInfo">The member.</param>
-        /// <returns>null.</returns>
-        public object GetDefaultValue(MemberInfo memberInfo)
-        {
-            return null;
-        }
+        /// <param name="type">The class.</param>
+        /// <returns>The extra elements member.</returns>
+        string FindExtraElementsMember(Type type);
     }
 }

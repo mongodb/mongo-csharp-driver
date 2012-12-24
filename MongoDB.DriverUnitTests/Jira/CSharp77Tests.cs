@@ -32,7 +32,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp77
     {
         private class Foo
         {
-            public ObjectId _id { get; set; }
+            public ObjectId FooId { get; set; }
             public string Name { get; set; }
             public string Summary { get; set; }
         }
@@ -44,16 +44,18 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp77
             var database = Configuration.TestDatabase;
             var collection = Configuration.GetTestCollection<Foo>();
 
-            var conventions = new ConventionProfile()
-                .SetIdMemberConvention(new NamedIdMemberConvention("_id"));
-            BsonClassMap.RegisterConventions(conventions, t => t == typeof(Foo));
+            var conventions = new ConventionPack();
+            conventions.Add(new NamedIdMemberConvention(new[] { "FooId" }));
+            ConventionRegistry.Register("test", conventions, t => t == typeof(Foo));
+
+            var classMap = new BsonClassMap<Foo>(cm => cm.AutoMap());
 
             collection.RemoveAll();
             for (int i = 0; i < 10; i++)
             {
                 var foo = new Foo
                 {
-                    _id = ObjectId.Empty,
+                    FooId = ObjectId.Empty,
                     Name = string.Format("Foo-{0}", i),
                     Summary = string.Format("Summary for Foo-{0}", i)
                 };

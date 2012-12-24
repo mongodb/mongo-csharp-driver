@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
@@ -23,7 +26,8 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a set of conventions.
     /// </summary>
-    public sealed class ConventionProfile
+    [Obsolete("Use IConventionPack instead.")]
+    public sealed class ConventionProfile : IConventionPack
     {
         // public properties
         /// <summary>
@@ -79,8 +83,17 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <summary>
         /// Gets the default value convention.
         /// </summary>
-        [Obsolete("SerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use IgnoreIfDefaultConvention instead.")]
+        [Obsolete("Use IgnoreIfDefaultConvention instead.")]
         public ISerializeDefaultValueConvention SerializeDefaultValueConvention { get; private set; }
+
+        // explicit properties
+        /// <summary>
+        /// Gets the conventions.
+        /// </summary>
+        IEnumerable<IConvention> IConventionPack.Conventions
+        {
+            get { return GetNewConventions(); }
+        }
 
         // public static methods
         /// <summary>
@@ -281,7 +294,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="convention">A serialize default value convention.</param>
         /// <returns>The convention profile.</returns>
-        [Obsolete("SetSerializeDefaultValueConvention is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefaultConvention instead.")]
+        [Obsolete("Use SetIgnoreIfDefaultConvention instead.")]
         public ConventionProfile SetSerializeDefaultValueConvention(ISerializeDefaultValueConvention convention)
         {
             if (convention != null && IgnoreIfDefaultConvention != null)
@@ -292,6 +305,287 @@ namespace MongoDB.Bson.Serialization.Conventions
             SerializeDefaultValueConvention = convention;
 #pragma warning restore 618
             return this;
+        }
+
+        // private methods
+        /// <summary>
+        /// Creates a convention pack from the ConventionProfile.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<IConvention> GetNewConventions()
+        {
+            var pack = new ConventionPack();
+
+            // class mapping conventions
+            if (MemberFinderConvention != null)
+            {
+                pack.Add(new MemberFinderConventionAdapter(MemberFinderConvention));
+            }
+            if (IdMemberConvention != null)
+            {
+                pack.Add(new IdMemberConventionAdapter(IdMemberConvention));
+            }
+            if (IdGeneratorConvention != null)
+            {
+                pack.Add(new IdGeneratorConventionAdapter(IdGeneratorConvention));
+            }
+            if (ExtraElementsMemberConvention != null)
+            {
+                pack.Add(new ExtraElementsConventionAdapter(ExtraElementsMemberConvention));
+            }
+            if (IgnoreExtraElementsConvention != null)
+            {
+                pack.Add(new IgnoreExtraElementsConventionAdapter(IgnoreExtraElementsConvention));
+            }
+
+            // member mapping conventions
+            if (DefaultValueConvention != null)
+            {
+                pack.Add(new DefaultValueConventionAdapter(DefaultValueConvention));
+            }
+            if (SerializeDefaultValueConvention != null)
+            {
+                pack.Add(new SerializeDefaultValueConventionAdapter(SerializeDefaultValueConvention));
+            }
+            if (IgnoreIfDefaultConvention != null)
+            {
+                pack.Add(new IgnoreIfDefaultConventionAdapter(IgnoreIfDefaultConvention));
+            }
+            if (IgnoreIfNullConvention != null)
+            {
+                pack.Add(new IgnoreIfNullConventionAdapter(IgnoreIfNullConvention));
+            }
+            if (SerializationOptionsConvention != null)
+            {
+                pack.Add(new SerializationOptionsConventionAdapter(SerializationOptionsConvention));
+            }
+            if (ElementNameConvention != null)
+            {
+                pack.Add(new ElementNameConventionAdapter(ElementNameConvention));
+            }
+
+            // still need to process attributes
+            pack.Append(AttributeConventionPack.Instance);
+            return pack.Conventions;
+        }
+
+        // nested classes
+        private class DefaultValueConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly IDefaultValueConvention _target;
+
+            public DefaultValueConventionAdapter(IDefaultValueConvention target)
+            {
+                _target = target;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var defaultValue = _target.GetDefaultValue(memberMap.MemberInfo);
+                if (defaultValue != null)
+                {
+                    memberMap.ApplyDefaultValue(defaultValue);
+                }
+            }
+        }
+
+        private class ElementNameConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly IElementNameConvention _convention;
+
+            public ElementNameConventionAdapter(IElementNameConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var name = _convention.GetElementName(memberMap.MemberInfo);
+                memberMap.SetElementName(name);
+            }
+        }
+
+        private class ExtraElementsConventionAdapter : ConventionBase, IPostProcessingConvention
+        {
+            private readonly IExtraElementsMemberConvention _convention;
+
+            public ExtraElementsConventionAdapter(IExtraElementsMemberConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void PostProcess(BsonClassMap classMap)
+            {
+                var memberName = _convention.FindExtraElementsMember(classMap.ClassType);
+                if (string.IsNullOrEmpty(memberName))
+                {
+                    return;
+                }
+
+                var memberInfo = classMap.ClassType.GetMember(memberName, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SingleOrDefault();
+                if (memberInfo == null)
+                {
+                    return;
+                }
+
+                classMap.MapExtraElementsMember(memberInfo);
+            }
+        }
+
+        private class IdGeneratorConventionAdapter : ConventionBase, IPostProcessingConvention
+        {
+            private readonly IIdGeneratorConvention _convention;
+
+            public IdGeneratorConventionAdapter(IIdGeneratorConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void PostProcess(BsonClassMap classMap)
+            {
+                var idMemberMap = classMap.IdMemberMap;
+                if (idMemberMap == null)
+                {
+                    return;
+                }
+
+                var representationOptions = idMemberMap.SerializationOptions as RepresentationSerializationOptions;
+                if (idMemberMap.MemberType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId)
+                {
+                    idMemberMap.SetIdGenerator(StringObjectIdGenerator.Instance);
+                }
+                else
+                {
+                    var generator = _convention.GetIdGenerator(classMap.IdMemberMap.MemberInfo);
+                    idMemberMap.SetIdGenerator(generator);
+                }
+            }
+        }
+
+        private class IdMemberConventionAdapter : ConventionBase, IClassMapConvention
+        {
+            private readonly IIdMemberConvention _convention;
+
+            public IdMemberConventionAdapter(IIdMemberConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonClassMap classMap)
+            {
+                var memberName = _convention.FindIdMember(classMap.ClassType);
+                if (string.IsNullOrEmpty(memberName))
+                {
+                    return;
+                }
+
+                var memberInfo = classMap.ClassType.GetMember(memberName, MemberTypes.Field | MemberTypes.Property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SingleOrDefault();
+                if (memberInfo == null)
+                {
+                    return;
+                }
+
+                classMap.SetIdMember(classMap.MapMember(memberInfo));
+            }
+        }
+
+        private class IgnoreExtraElementsConventionAdapter : ConventionBase, IClassMapConvention
+        {
+            private readonly IIgnoreExtraElementsConvention _convention;
+
+            public IgnoreExtraElementsConventionAdapter(IIgnoreExtraElementsConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonClassMap classMap)
+            {
+                var value = _convention.IgnoreExtraElements(classMap.ClassType);
+                classMap.SetIgnoreExtraElements(value);
+            }
+        }
+
+        private class IgnoreIfDefaultConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly IIgnoreIfDefaultConvention _convention;
+
+            public IgnoreIfDefaultConventionAdapter(IIgnoreIfDefaultConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var value = _convention.IgnoreIfDefault(memberMap.MemberInfo);
+                memberMap.SetIgnoreIfDefault(value);
+            }
+        }
+
+        private class IgnoreIfNullConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly IIgnoreIfNullConvention _convention;
+
+            public IgnoreIfNullConventionAdapter(IIgnoreIfNullConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var value = _convention.IgnoreIfNull(memberMap.MemberInfo);
+                memberMap.SetIgnoreIfNull(value);
+            }
+        }
+
+        private class MemberFinderConventionAdapter : ConventionBase, IClassMapConvention
+        {
+            private readonly IMemberFinderConvention _convention;
+
+            public MemberFinderConventionAdapter(IMemberFinderConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonClassMap classMap)
+            {
+                var members = _convention.FindMembers(classMap.ClassType);
+                foreach (var member in members)
+                {
+                    classMap.MapMember(member);
+                }
+            }
+        }
+
+        private class SerializeDefaultValueConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly ISerializeDefaultValueConvention _convention;
+
+            public SerializeDefaultValueConventionAdapter(ISerializeDefaultValueConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var value = _convention.SerializeDefaultValue(memberMap.MemberInfo);
+                memberMap.SetIgnoreIfDefault(value);
+            }
+        }
+
+        private class SerializationOptionsConventionAdapter : ConventionBase, IMemberMapConvention
+        {
+            private readonly ISerializationOptionsConvention _convention;
+
+            public SerializationOptionsConventionAdapter(ISerializationOptionsConvention convention)
+            {
+                _convention = convention;
+            }
+
+            public void Apply(BsonMemberMap memberMap)
+            {
+                var value = _convention.GetSerializationOptions(memberMap.MemberInfo);
+                memberMap.SetSerializationOptions(value);
+            }
         }
     }
 }

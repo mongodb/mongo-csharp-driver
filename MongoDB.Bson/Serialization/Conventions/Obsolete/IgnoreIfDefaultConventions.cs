@@ -21,6 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if default convention.
     /// </summary>
+    [Obsolete("Use IClassMapConvention instead.")]
     public interface IIgnoreIfDefaultConvention
     {
         /// <summary>
@@ -34,6 +35,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if default convention where default values are never ignored.
     /// </summary>
+    [Obsolete("NeverIgnoreIfDefaultConvention is obsolete and will be removed in a future version of the C# driver. Please use IgnoreDefaultValueConvention instead.")]
     public class NeverIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention
     {
         /// <summary>
@@ -50,7 +52,8 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if default convention where default values are always ignored.
     /// </summary>
-    public class AlwaysIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention 
+    [Obsolete("Use IgnoreDefaultValueConvention instead.")]
+    public class AlwaysIgnoreIfDefaultConvention : IIgnoreIfDefaultConvention
     {
         /// <summary>
         /// Determines whether to ignore nulls for a member.

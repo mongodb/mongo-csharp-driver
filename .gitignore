@@ -28,7 +28,7 @@ Help
 *.swp
 *~
 
-#Nupkg artifacts
+# Nupkg artifacts
 *.nupkg
 
 # NCrunch artifacts

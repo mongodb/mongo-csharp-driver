@@ -26,6 +26,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a BSON serialization options convention.
     /// </summary>
+    [Obsolete("Use IMemberMapConvention instead.")]
     public interface ISerializationOptionsConvention
     {
         /// <summary>
@@ -39,6 +40,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents BSON serialiation options that use default values.
     /// </summary>
+    [Obsolete("Use DelegateMemberMapConvention instead.")]
     public class NullSerializationOptionsConvention : ISerializationOptionsConvention
     {
         /// <summary>
@@ -50,13 +52,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </returns>
         public IBsonSerializationOptions GetSerializationOptions(MemberInfo memberInfo)
         {
-            return null;   
+            return null;
         }
     }
 
     /// <summary>
     /// Sets serialization options for a member of a given type.
     /// </summary>
+    [Obsolete("Use MemberSerializationOptionsConvention instead.")]
     public class TypeRepresentationSerializationOptionsConvention : ISerializationOptionsConvention
     {
         private readonly Type _type;

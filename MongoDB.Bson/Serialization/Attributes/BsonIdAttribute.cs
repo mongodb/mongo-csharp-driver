@@ -24,7 +24,10 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies that this is the Id field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonIdAttribute : Attribute, IBsonMemberMapModifier
+    [BsonMemberMapAttributeUsage(AllowMultipleMembers = false)]
+#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
+    public class BsonIdAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
+#pragma warning restore 618 
     {
         // private fields
         private Type _idGenerator;
@@ -64,7 +67,6 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <param name="memberMap">The member map.</param>
         public void Apply(BsonMemberMap memberMap)
         {
-            memberMap.SetElementName("_id");
             memberMap.SetOrder(_order);
             if (_idGenerator != null)
             {

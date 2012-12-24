@@ -24,7 +24,6 @@ using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization
@@ -37,7 +36,7 @@ namespace MongoDB.Bson.Serialization
         // private fields
         private BsonClassMap _classMap;
         private string _elementName;
-        private int _order = int.MaxValue;
+        private int _order;
         private MemberInfo _memberInfo;
         private Type _memberType;
         private bool _memberTypeIsBsonValue;
@@ -67,8 +66,8 @@ namespace MongoDB.Bson.Serialization
             _memberInfo = memberInfo;
             _memberType = BsonClassMap.GetMemberInfoType(memberInfo);
             _memberTypeIsBsonValue = typeof(BsonValue).IsAssignableFrom(_memberType);
-            _defaultValue = GetDefaultValue(_memberType);
-            _defaultValueSpecified = false;
+
+            Reset();
         }
 
         // public properties
@@ -109,14 +108,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public string ElementName
         {
-            get
-            {
-                if (_elementName == null)
-                {
-                    _elementName = _classMap.Conventions.ElementNameConvention.GetElementName(_memberInfo);
-                }
-                return _elementName;
-            }
+            get { return _elementName; }
         }
 
         /// <summary>
@@ -185,24 +177,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public IIdGenerator IdGenerator
         {
-            get
-            {
-                if (_idGenerator == null)
-                {
-                    // special case IdGenerator for strings represented externally as ObjectId
-                    var memberInfoType = BsonClassMap.GetMemberInfoType(_memberInfo);
-                    var representationOptions = _serializationOptions as RepresentationSerializationOptions;
-                    if (memberInfoType == typeof(string) && representationOptions != null && representationOptions.Representation == BsonType.ObjectId)
-                    {
-                        _idGenerator = StringObjectIdGenerator.Instance;
-                    }
-                    else
-                    {
-                        _idGenerator = _classMap.Conventions.IdGeneratorConvention.GetIdGenerator(_memberInfo);
-                    }
-                }
-                return _idGenerator;
-            }
+            get { return _idGenerator; }
         }
 
         /// <summary>
@@ -211,15 +186,6 @@ namespace MongoDB.Bson.Serialization
         public bool IsRequired
         {
             get { return _isRequired; }
-        }
-
-        /// <summary>
-        /// Gets whether the default value should be serialized.
-        /// </summary>
-        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# Driver. Please use IgnoreIfDefault instead.")]
-        public bool SerializeDefaultValue
-        {
-            get { return !_ignoreIfDefault; }
         }
 
         /// <summary>
@@ -329,6 +295,27 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Resets the member map back to its initial state.
+        /// </summary>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap Reset()
+        {
+            _defaultValue = GetDefaultValue(_memberType);
+            _defaultValueSpecified = false;
+            _elementName = _memberInfo.Name;
+            _idGenerator = null;
+            _ignoreIfDefault = false;
+            _ignoreIfNull = false;
+            _isRequired = false;
+            _order = int.MaxValue;
+            _serializationOptions = null;
+            _serializer = null;
+            _shouldSerializeMethod = null;
+
+            return this;
+        }
+
+        /// <summary>
         /// Sets the default value.
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
@@ -341,26 +328,17 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Sets the default value.
-        /// </summary>
-        /// <param name="defaultValue">The default value.</param>
-        /// <param name="serializeDefaultValue">Whether the default value shoudl be serialized.</param>
-        /// <returns>The member map.</returns>
-        [Obsolete("This overload of SetDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetDefaultValue(defaultValue) and SetIgnoreIfDefault instead.")]
-        public BsonMemberMap SetDefaultValue(object defaultValue, bool serializeDefaultValue)
-        {
-            SetDefaultValue(defaultValue);
-            SetIgnoreIfDefault(!serializeDefaultValue);
-            return this;
-        }
-
-        /// <summary>
         /// Sets the name of the element.
         /// </summary>
         /// <param name="elementName">The name of the element.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap SetElementName(string elementName)
         {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException("elementName");
+            }
+
             _elementName = elementName;
             return this;
         }
@@ -458,18 +436,6 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap SetSerializer(IBsonSerializer serializer)
         {
             _serializer = serializer;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets whether the default value should be serialized.
-        /// </summary>
-        /// <param name="serializeDefaultValue">Whether the default value should be serialized.</param>
-        /// <returns>The member map.</returns>
-        [Obsolete("SetSerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use SetIgnoreIfDefault instead.")]
-        public BsonMemberMap SetSerializeDefaultValue(bool serializeDefaultValue)
-        {
-            _ignoreIfDefault = !serializeDefaultValue;
             return this;
         }
 

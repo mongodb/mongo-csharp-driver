@@ -24,6 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a member finder convention.
     /// </summary>
+    [Obsolete("Use IClassMapConvention instead.")]
     public interface IMemberFinderConvention
     {
         /// <summary>
@@ -37,6 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents a member finder convention where all public read/write fields and properties are serialized.
     /// </summary>
+    [Obsolete("Use ReadWriteMemberFinderConvention instead.")]
     public class PublicMemberFinderConvention : IMemberFinderConvention
     {
         /// <summary>

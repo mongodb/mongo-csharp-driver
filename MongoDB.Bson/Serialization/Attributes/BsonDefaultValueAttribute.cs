@@ -24,7 +24,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the default value for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonDefaultValueAttribute : Attribute, IBsonMemberMapModifier
+#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
+    public class BsonDefaultValueAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
+#pragma warning restore 618
     {
         // private fields
         private object _defaultValue;
@@ -53,7 +55,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Gets or sets whether to serialize the default value.
         /// </summary>
-        [Obsolete("SerializeDefaultValue is obsolete and will be removed in a future version of the C# driver. Please use BsonIgnoreIfDefaultAttribute instead.")]
+        [Obsolete("Use BsonIgnoreIfDefaultAttribute instead.")]
         public bool SerializeDefaultValue
         {
             get { return _serializeDefaultValue; }

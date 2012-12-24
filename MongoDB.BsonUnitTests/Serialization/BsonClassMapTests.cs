@@ -124,7 +124,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdField()
         {
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdField("f"));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdField("f")).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -135,7 +135,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         public void TestMapIdMember()
         {
             var fieldInfo = typeof(C).GetField("f", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(fieldInfo));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(fieldInfo)).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -145,7 +145,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdProperty()
         {
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty("p"));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty("p")).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -198,7 +198,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdField()
         {
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdField(c => c.F));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdField(c => c.F)).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -208,7 +208,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdMember()
         {
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(c => c.F));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdMember(c => c.F)).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -218,7 +218,7 @@ namespace MongoDB.BsonUnitTests.Serialization
         [Test]
         public void TestMapIdProperty()
         {
-            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty(c => c.P));
+            var classMap = new BsonClassMap<C>(cm => cm.MapIdProperty(c => c.P)).Freeze();
             var idMemberMap = classMap.IdMemberMap;
             Assert.IsNotNull(idMemberMap);
             Assert.AreEqual("_id", idMemberMap.ElementName);
@@ -387,5 +387,73 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.AreEqual(expected, json);
         }
 
+    }
+
+    [TestFixture]
+    public class NonStandardIdTests
+    {
+        public class TestClass
+        {
+            [BsonId]
+            public int MyId;
+            public int Id;
+        }
+
+        [Test]
+        public void TestConventionsMapTheCorrectId()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+
+            Assert.AreEqual("MyId", classMap.IdMemberMap.MemberName);
+        }
+    }
+
+    [TestFixture]
+    public class BsonClassMapResetTests
+    {
+        [Test]
+        public void TestAllValuesGoBackToTheirDefaults()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                cm.SetCreator(() => { throw new Exception("will get reset."); });
+                cm.MapMember(x => x.String);
+                cm.SetDiscriminator("blah");
+                cm.SetDiscriminatorIsRequired(true);
+                cm.MapExtraElementsMember(x => x.ExtraElements);
+                cm.MapIdMember(x => x.OId);
+                cm.SetIgnoreExtraElements(false);
+                cm.SetIgnoreExtraElementsIsInherited(true);
+                cm.SetIsRootClass(true);
+                cm.AddKnownType(typeof(InheritedTestClass));
+            });
+
+            classMap.Reset();
+
+            classMap.Freeze();
+
+            Assert.DoesNotThrow(() => classMap.CreateInstance());
+            Assert.AreEqual(0, classMap.DeclaredMemberMaps.Count());
+            Assert.AreEqual("TestClass", classMap.Discriminator);
+            Assert.IsFalse(classMap.DiscriminatorIsRequired);
+            Assert.IsNull(classMap.ExtraElementsMemberMap);
+            Assert.IsNull(classMap.IdMemberMap);
+            Assert.IsTrue(classMap.IgnoreExtraElements);
+            Assert.IsFalse(classMap.IgnoreExtraElementsIsInherited);
+            Assert.IsFalse(classMap.IsRootClass);
+            Assert.AreEqual(0, classMap.KnownTypes.Count());
+        }
+
+        private class TestClass
+        {
+            public ObjectId OId { get; set; }
+
+            public string String { get; set; }
+
+            public Dictionary<string, object> ExtraElements { get; set; }
+        }
+
+        private class InheritedTestClass : TestClass
+        { }
     }
 }

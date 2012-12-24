@@ -44,8 +44,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
             var guidProperty = typeof(TestClass).GetProperty("GuidId");
             var objectIdProperty = typeof(TestClass).GetProperty("ObjectId");
 
+#pragma warning disable 618
             Assert.IsInstanceOf<GuidGenerator>(convention.GetIdGenerator(guidProperty));
             Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetIdGenerator(objectIdProperty));
+#pragma warning restore 618
         }
     }
 }

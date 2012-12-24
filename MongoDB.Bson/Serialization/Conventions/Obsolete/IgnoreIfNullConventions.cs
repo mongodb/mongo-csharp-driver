@@ -24,6 +24,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if null convention.
     /// </summary>
+    [Obsolete("Use IClassMapConvention instead.")]
     public interface IIgnoreIfNullConvention
     {
         /// <summary>
@@ -37,6 +38,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if null convention where nulls are never ignored.
     /// </summary>
+    [Obsolete("Use IgnoreIfNullConvention instead.")]
     public class NeverIgnoreIfNullConvention : IIgnoreIfNullConvention
     {
         /// <summary>
@@ -53,6 +55,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore if null convention where nulls are always ignored.
     /// </summary>
+    [Obsolete("Use IgnoreIfNullConvention instead.")]
     public class AlwaysIgnoreIfNullConvention : IIgnoreIfNullConvention
     {
         /// <summary>

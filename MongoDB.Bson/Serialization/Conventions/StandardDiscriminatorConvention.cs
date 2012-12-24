@@ -16,41 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using System.Text;
 
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {
-    /// <summary>
-    /// Represents a discriminator convention.
-    /// </summary>
-    public interface IDiscriminatorConvention
-    {
-        /// <summary>
-        /// Gets the discriminator element name.
-        /// </summary>
-        string ElementName { get; }
-
-        /// <summary>
-        /// Gets the actual type of an object by reading the discriminator from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The reader.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <returns>The actual type.</returns>
-        Type GetActualType(BsonReader bsonReader, Type nominalType);
-
-        /// <summary>
-        /// Gets the discriminator value for an actual type.
-        /// </summary>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The discriminator value.</returns>
-        BsonValue GetDiscriminator(Type nominalType, Type actualType);
-    }
-
     /// <summary>
     /// Represents the standard discriminator conventions (see ScalarDiscriminatorConvention and HierarchicalDiscriminatorConvention).
     /// </summary>
@@ -176,81 +149,5 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="actualType">The actual type.</param>
         /// <returns>The discriminator value.</returns>
         public abstract BsonValue GetDiscriminator(Type nominalType, Type actualType);
-    }
-
-    /// <summary>
-    /// Represents a discriminator convention where the discriminator is provided by the class map of the actual type.
-    /// </summary>
-    public class ScalarDiscriminatorConvention : StandardDiscriminatorConvention
-    {
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the ScalarDiscriminatorConvention class.
-        /// </summary>
-        /// <param name="elementName">The element name.</param>
-        public ScalarDiscriminatorConvention(string elementName)
-            : base(elementName)
-        {
-        }
-
-        // public methods
-        /// <summary>
-        /// Gets the discriminator value for an actual type.
-        /// </summary>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The discriminator value.</returns>
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
-        {
-            var classMap = BsonClassMap.LookupClassMap(actualType);
-            return classMap.Discriminator;
-        }
-    }
-
-    /// <summary>
-    /// Represents a discriminator convention where the discriminator is an array of all the discriminators provided by the class maps of the root class down to the actual type.
-    /// </summary>
-    public class HierarchicalDiscriminatorConvention : StandardDiscriminatorConvention
-    {
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the HierarchicalDiscriminatorConvention class.
-        /// </summary>
-        /// <param name="elementName">The element name.</param>
-        public HierarchicalDiscriminatorConvention(string elementName)
-            : base(elementName)
-        {
-        }
-
-        // public methods
-        /// <summary>
-        /// Gets the discriminator value for an actual type.
-        /// </summary>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The discriminator value.</returns>
-        public override BsonValue GetDiscriminator(Type nominalType, Type actualType)
-        {
-            var classMap = BsonClassMap.LookupClassMap(actualType);
-            if (actualType != nominalType || classMap.DiscriminatorIsRequired || classMap.HasRootClass)
-            {
-                if (classMap.HasRootClass && !classMap.IsRootClass)
-                {
-                    var values = new List<BsonValue>();
-                    for (; !classMap.IsRootClass; classMap = classMap.BaseClassMap)
-                    {
-                        values.Add(classMap.Discriminator);
-                    }
-                    values.Add(classMap.Discriminator); // add the root class's discriminator
-                    return new BsonArray(values.Reverse<BsonValue>()); // reverse to put leaf class last
-                }
-                else
-                {
-                    return classMap.Discriminator;
-                }
-            }
-
-            return null;
-        }
     }
 }

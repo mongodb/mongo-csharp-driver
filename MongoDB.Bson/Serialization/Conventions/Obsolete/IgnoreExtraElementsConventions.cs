@@ -23,6 +23,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore extra elements convention.
     /// </summary>
+    [Obsolete("Use IClassMapConvention instead.")]
     public interface IIgnoreExtraElementsConvention
     {
         /// <summary>
@@ -36,6 +37,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore extra elements convention where extra elements are never ignored.
     /// </summary>
+    [Obsolete("Use IgnoreExtraElementsConvention instead.")]
     public class NeverIgnoreExtraElementsConvention : IIgnoreExtraElementsConvention
     {
         /// <summary>
@@ -52,6 +54,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents an ignore extra elements convention where extra elements are always ignored.
     /// </summary>
+    [Obsolete("Use IgnoreExtraElementsConvention instead.")]
     public class AlwaysIgnoreExtraElementsConvention : IIgnoreExtraElementsConvention
     {
         /// <summary>

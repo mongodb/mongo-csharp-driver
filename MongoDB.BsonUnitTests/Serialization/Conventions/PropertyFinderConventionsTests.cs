@@ -39,9 +39,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         [Test]
         public void TestPublicPropertyFinderConvention()
         {
+#pragma warning disable 618 // obsoleted by IMemberFinderConvention
             var convention = new PublicMemberFinderConvention();
-
             var properties = convention.FindMembers(typeof(TestClass)).ToList();
+#pragma warning restore 618
 
             Assert.AreEqual(3, properties.Count);
             Assert.IsTrue(properties.Any(x => x.Name == "Public"));

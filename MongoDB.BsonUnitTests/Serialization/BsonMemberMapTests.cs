@@ -23,6 +23,9 @@ using NUnit.Framework;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {
@@ -237,6 +240,40 @@ namespace MongoDB.BsonUnitTests.Serialization
             var memberMap = classMap.GetMemberMap("ReadOnlyProperty");
 
             memberMap.Setter(instance, 12);
+        }
+
+        [Test]
+        public void TestReset()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm =>
+            {
+                var mm = cm.MapMember(c => c.Property);
+
+            });
+
+            var memberMap = classMap.GetMemberMap(x => x.Property);
+            memberMap.SetDefaultValue(42);
+            memberMap.SetElementName("oops");
+            memberMap.SetIdGenerator(new GuidGenerator());
+            memberMap.SetIgnoreIfDefault(true);
+            memberMap.SetIsRequired(true);
+            memberMap.SetOrder(21);
+            memberMap.SetSerializationOptions(new RepresentationSerializationOptions(BsonType.Int64));
+            memberMap.SetSerializer(new BsonInt64Serializer());
+            memberMap.SetShouldSerializeMethod(o => false);
+
+            memberMap.Reset();
+
+            Assert.AreEqual(0, (int)memberMap.DefaultValue);
+            Assert.AreEqual("Property", memberMap.ElementName);
+            Assert.IsNull(memberMap.IdGenerator);
+            Assert.IsFalse(memberMap.IgnoreIfDefault);
+            Assert.IsFalse(memberMap.IgnoreIfNull);
+            Assert.IsFalse(memberMap.IsRequired);
+            Assert.AreEqual(int.MaxValue, memberMap.Order);
+            Assert.IsNull(memberMap.SerializationOptions);
+            Assert.IsNotInstanceOf<BsonInt64Serializer>(memberMap.GetSerializer(memberMap.MemberType));
+            Assert.IsNull(memberMap.ShouldSerializeMethod);
         }
     }
 }

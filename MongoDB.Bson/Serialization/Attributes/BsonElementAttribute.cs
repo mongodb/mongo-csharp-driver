@@ -24,7 +24,9 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the element name and related options for a field or property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class BsonElementAttribute : Attribute, IBsonMemberMapModifier
+#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
+    public class BsonElementAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
+#pragma warning restore 618
     {
         // private fields
         private string _elementName;
