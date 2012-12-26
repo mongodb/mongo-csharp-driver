@@ -84,7 +84,7 @@ namespace MongoDB.Driver
         /// </summary>
         public long CursorId
         {
-            get { return (long)GetValue("CursorId", 0L); }
+            get { return (long)GetValue("CursorId", -1L); }
             set { SetValue("CursorId", value); }
         }
 
@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ExceptionCode
         {
-            get { return GetValue<int>("ExceptionCode", 0); }
+            get { return GetValue<int>("ExceptionCode", -1); }
             set { SetValue("ExceptionCode", value); }
         }
 
@@ -174,7 +174,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int KeyUpdates
         {
-            get { return GetValue<int>("KeyUpdates", 0); }
+            get { return GetValue<int>("KeyUpdates", -1); }
             set { SetValue("KeyUpdates", value); }
         }
 
@@ -206,11 +206,29 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the number of documents moved.
+        /// </summary>
+        public int NumberMoved
+        {
+            get { return GetValue<int>("NumberMoved", -1); }
+            set { SetValue("NumberMoved", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the number of yields.
+        /// </summary>
+        public int NumberOfYields
+        {
+            get { return GetValue<int>("NumberOfYields", -1); }
+            set { SetValue("NumberOfYields", value); }
+        }
+
+        /// <summary>
         /// Gets or sets the number of documents returned.
         /// </summary>
         public int NumberReturned
         {
-            get { return GetValue<int>("NumberReturned", 0); }
+            get { return GetValue<int>("NumberReturned", -1); }
             set { SetValue("NumberReturned", value); }
         }
 
@@ -219,7 +237,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberScanned
         {
-            get { return GetValue<int>("NumberScanned", 0); }
+            get { return GetValue<int>("NumberScanned", -1); }
             set { SetValue("NumberScanned", value); }
         }
 
@@ -228,7 +246,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToReturn
         {
-            get { return GetValue<int>("NumberToReturn", 0); }
+            get { return GetValue<int>("NumberToReturn", -1); }
             set { SetValue("NumberToReturn", value); }
         }
 
@@ -237,7 +255,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberToSkip
         {
-            get { return GetValue<int>("NumberToSkip", 0); }
+            get { return GetValue<int>("NumberToSkip", -1); }
             set { SetValue("NumberToSkip", value); }
         }
 
@@ -246,17 +264,8 @@ namespace MongoDB.Driver
         /// </summary>
         public int NumberUpdated
         {
-            get { return GetValue<int>("NumberUpdated", 0); }
+            get { return GetValue<int>("NumberUpdated", -1); }
             set { SetValue("NumberUpdated", value); }
-        }
-
-        /// <summary>
-        /// Gets or sets the number of yields.
-        /// </summary>
-        public int NumberOfYields
-        {
-            get { return GetValue<int>("NumberOfYields", 0); }
-            set { SetValue("NumberOfYields", value); }
         }
 
         /// <summary>
@@ -290,7 +299,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int ResponseLength
         {
-            get { return GetValue<int>("ResponseLength", 0); }
+            get { return GetValue<int>("ResponseLength", -1); }
             set { SetValue("ResponseLength", value); }
         }
 
@@ -416,6 +425,42 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
+        /// Gets or sets the time spent acquiring or holding the database read lock.
+        /// </summary>
+        public TimeSpan DatabaseReadLock
+        {
+            get { return GetValue("DatabaseReadLock", TimeSpan.Zero); }
+            set { SetValue("DatabaseReadLock", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the time spent acquiring or holding the database write lock.
+        /// </summary>
+        public TimeSpan DatabaseWriteLock
+        {
+            get { return GetValue("DatabaseWriteLock", TimeSpan.Zero); }
+            set { SetValue("DatabaseWriteLock", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the time spent acquiring or holding the gobal read lock.
+        /// </summary>
+        public TimeSpan GlobalReadLock
+        {
+            get { return GetValue("GlobalReadLock", TimeSpan.Zero); }
+            set { SetValue("GlobalReadLock", value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the time spent acquiring or holding the global write lock.
+        /// </summary>
+        public TimeSpan GlobalWriteLock
+        {
+            get { return GetValue("GlobalWriteLock", TimeSpan.Zero); }
+            set { SetValue("GlobalWriteLock", value); }
+        }
+
+        /// <summary>
         /// Gets the raw document.
         /// </summary>
         public BsonDocument RawDocument
@@ -424,21 +469,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the time spent for a read.
+        /// Gets or sets the time spent acquiring or holding the read lock.
         /// </summary>
+        [Obsolete("Use DatabaseReadLock or GlobalReadLock instead.")]
         public TimeSpan Read
         {
-            get { return GetValue("Read", TimeSpan.Zero); }
-            set { SetValue("Read", value); }
+            get { return DatabaseReadLock; }
+            set { DatabaseReadLock = value; }
         }
 
         /// <summary>
-        /// Gets or sets the time spent for a write.
+        /// Gets or sets the time spent acquiring or holding the write lock.
         /// </summary>
+        [Obsolete("Use DatabaseWriteLock or GlobalWriteLock instead.")]
         public TimeSpan Write
         {
-            get { return GetValue("Write", TimeSpan.Zero); }
-            set { SetValue("Write", value); }
+            get { return DatabaseWriteLock; }
+            set { DatabaseWriteLock = value; }
         }
     }
 
@@ -473,6 +520,7 @@ namespace MongoDB.Driver
             RegisterMember("LockStatistics", "lockStats", SystemProfileLockStatisticsSerializer.Instance, typeof(SystemProfileLockStatistics), null);
             RegisterMember("Moved", "moved", BooleanSerializer.Instance, typeof(bool), null);
             RegisterMember("Namespace", "ns", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("NumberMoved", "nmoved", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberReturned", "nreturned", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberScanned", "nscanned", Int32Serializer.Instance, typeof(int), null);
             RegisterMember("NumberToReturn", "ntoreturn", Int32Serializer.Instance, typeof(int), null);
@@ -564,8 +612,10 @@ namespace MongoDB.Driver
         public SystemProfileReadWriteLockStatisticsSerializer()
         { 
             var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Microseconds);
-            RegisterMember("Read", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("Write", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("DatabaseReadLock", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("GlobalReadLock", "R", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("DatabaseWriteLock", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("GlobalWriteLock", "W", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
         }
 
         // public static properties

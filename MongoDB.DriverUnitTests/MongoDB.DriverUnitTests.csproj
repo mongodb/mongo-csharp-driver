@@ -124,7 +124,7 @@
     <Compile Include="MongoUrlTests.cs" />
     <Compile Include="MongoUserTests.cs" />
     <Compile Include="SafeModeTests.cs" />
-    <Compile Include="SystemProfileIntoTests.cs" />
+    <Compile Include="SystemProfileInfoTests.cs" />
     <Compile Include="ExpectedErrorMessage.cs" />
     <Compile Include="GridFS\MongoGridFSFileInfoTests.cs" />
     <Compile Include="GridFS\MongoGridFSSettingsTests.cs" />
