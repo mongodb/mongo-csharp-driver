@@ -114,6 +114,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// Gets or sets the default Dictionary serialization options.
         /// </summary>
+        [Obsolete("Create and register a DictionarySerializer with the desired options instead.")]
         public static DictionarySerializationOptions Defaults
         {
             get { return __defaults; }

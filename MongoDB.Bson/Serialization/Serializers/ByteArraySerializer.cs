@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the ByteArraySerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static ByteArraySerializer Instance
         {
             get { return __instance; }

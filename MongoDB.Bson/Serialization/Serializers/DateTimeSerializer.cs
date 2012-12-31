@@ -38,7 +38,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the DateTimeSerializer class.
         /// </summary>
         public DateTimeSerializer()
-            : base(DateTimeSerializationOptions.Defaults)
+#pragma warning disable 618
+            : this(DateTimeSerializationOptions.Defaults)
+#pragma warning restore
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DateTimeSerializer class.
+        /// </summary>
+        /// <param name="defaultSerializationOptions">The default serialization options.</param>
+        public DateTimeSerializer(DateTimeSerializationOptions defaultSerializationOptions)
+            : base(defaultSerializationOptions)
         {
         }
 
@@ -46,6 +57,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the DateTimeSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static DateTimeSerializer Instance
         {
             get { return __instance; }

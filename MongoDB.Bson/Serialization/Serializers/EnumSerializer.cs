@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the EnumSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static EnumSerializer Instance
         {
             get { return __instance; }

@@ -268,12 +268,12 @@ namespace MongoDB.Driver
             {
                 case "DatabaseName":
                     elementName = "$db";
-                    serializer = StringSerializer.Instance;
+                    serializer = new StringSerializer();
                     nominalType = typeof(string);
                     break;
                 case "CollectionName":
                     elementName = "$ref";
-                    serializer = StringSerializer.Instance;
+                    serializer = new StringSerializer();
                     nominalType = typeof(string);
                     break;
                 case "Id":

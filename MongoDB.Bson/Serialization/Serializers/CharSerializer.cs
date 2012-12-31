@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the CharSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static CharSerializer Instance
         {
             get { return __instance; }

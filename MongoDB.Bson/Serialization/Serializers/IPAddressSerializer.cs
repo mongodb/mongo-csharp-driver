@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the IPAddressSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static IPAddressSerializer Instance
         {
             get { return __instance; }

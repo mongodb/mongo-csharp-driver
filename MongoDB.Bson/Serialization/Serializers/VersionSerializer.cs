@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the VersionSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static VersionSerializer Instance
         {
             get { return __instance; }

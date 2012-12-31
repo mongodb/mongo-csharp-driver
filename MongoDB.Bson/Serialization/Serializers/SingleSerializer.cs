@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the SingleSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static SingleSerializer Instance
         {
             get { return __instance; }

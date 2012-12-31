@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the UInt16Serializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static UInt16Serializer Instance
         {
             get { return __instance; }

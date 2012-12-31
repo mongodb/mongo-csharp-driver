@@ -40,7 +40,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the DictionarySerializer class.
         /// </summary>
         public DictionarySerializer()
-            : base(DictionarySerializationOptions.Defaults)
+#pragma warning disable 618
+            : this(DictionarySerializationOptions.Defaults)
+#pragma warning restore
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the DictionarySerializer class.
+        /// </summary>
+        /// <param name="defaultSerializationOptions">The default serialization options.</param>
+        public DictionarySerializer(DictionarySerializationOptions defaultSerializationOptions)
+            : base(defaultSerializationOptions)
         {
             _keyValuePairSerializer = new KeyValuePairSerializer<TKey, TValue>();
         }

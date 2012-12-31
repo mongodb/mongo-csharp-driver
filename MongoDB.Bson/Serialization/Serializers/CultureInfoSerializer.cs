@@ -44,6 +44,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the CultureInfoSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static CultureInfoSerializer Instance
         {
             get { return __instance; }

@@ -47,6 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the DateTimeOffsetSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static DateTimeOffsetSerializer Instance
         {
             get { return __instance; }

@@ -48,7 +48,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
         internal SystemProfileInfo(BsonDocument backingDocument)
-            : base(backingDocument, SystemProfileInfoSerializer.Instance)
+            : base(backingDocument, new SystemProfileInfoSerializer())
         { }
 
         // public properties
@@ -369,7 +369,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
         internal SystemProfileLockStatistics(BsonDocument backingDocument)
-            : base(backingDocument, SystemProfileLockStatisticsSerializer.Instance)
+            : base(backingDocument, new SystemProfileLockStatisticsSerializer())
         { }
 
         // public properties
@@ -420,7 +420,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="backingDocument">The backing document.</param>
         internal SystemProfileReadWriteLockStatistics(BsonDocument backingDocument)
-            : base(backingDocument, SystemProfileReadWriteLockStatisticsSerializer.Instance)
+            : base(backingDocument, new SystemProfileReadWriteLockStatisticsSerializer())
         { }
 
         // public properties
@@ -503,44 +503,45 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileInfoSerializer()
         {
-            RegisterMember("Abbreviated", "abbreviated", StringSerializer.Instance, typeof(string), null);
-            RegisterMember("Client", "client", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Abbreviated", "abbreviated", new StringSerializer(), typeof(string), null);
+            RegisterMember("Client", "client", new StringSerializer(), typeof(string), null);
             RegisterMember("Command", "command", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("CursorId", "cursorid", Int64Serializer.Instance, typeof(long), null);
-            RegisterMember("Duration", "millis", TimeSpanSerializer.Instance, typeof(TimeSpan), new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds));
-            RegisterMember("Error", "err", StringSerializer.Instance, typeof(string), null);
-            RegisterMember("Exception", "exception", StringSerializer.Instance, typeof(string), null);
-            RegisterMember("ExceptionCode", "exceptionCode", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("Exhaust", "exhaust", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("FastMod", "fastmod", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("FastModInsert", "fastmodinsert", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("IdHack", "idhack", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("Info", "info", StringSerializer.Instance, typeof(string), null);
-            RegisterMember("KeyUpdates", "keyUpdates", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("LockStatistics", "lockStats", SystemProfileLockStatisticsSerializer.Instance, typeof(SystemProfileLockStatistics), null);
-            RegisterMember("Moved", "moved", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("Namespace", "ns", StringSerializer.Instance, typeof(string), null);
-            RegisterMember("NumberMoved", "nmoved", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberReturned", "nreturned", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberScanned", "nscanned", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberToReturn", "ntoreturn", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberToSkip", "ntoskip", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberUpdated", "nupdated", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("NumberOfYields", "numYield", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("Op", "op", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("CursorId", "cursorid", new Int64Serializer(), typeof(long), null);
+            RegisterMember("Duration", "millis", new TimeSpanSerializer(), typeof(TimeSpan), new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds));
+            RegisterMember("Error", "err", new StringSerializer(), typeof(string), null);
+            RegisterMember("Exception", "exception", new StringSerializer(), typeof(string), null);
+            RegisterMember("ExceptionCode", "exceptionCode", new Int32Serializer(), typeof(int), null);
+            RegisterMember("Exhaust", "exhaust", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("FastMod", "fastmod", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("FastModInsert", "fastmodinsert", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("IdHack", "idhack", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("Info", "info", new StringSerializer(), typeof(string), null);
+            RegisterMember("KeyUpdates", "keyUpdates", new Int32Serializer(), typeof(int), null);
+            RegisterMember("LockStatistics", "lockStats", new SystemProfileLockStatisticsSerializer(), typeof(SystemProfileLockStatistics), null);
+            RegisterMember("Moved", "moved", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("Namespace", "ns", new StringSerializer(), typeof(string), null);
+            RegisterMember("NumberMoved", "nmoved", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberReturned", "nreturned", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberScanned", "nscanned", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberToReturn", "ntoreturn", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberToSkip", "ntoskip", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberUpdated", "nupdated", new Int32Serializer(), typeof(int), null);
+            RegisterMember("NumberOfYields", "numYield", new Int32Serializer(), typeof(int), null);
+            RegisterMember("Op", "op", new StringSerializer(), typeof(string), null);
             RegisterMember("Query", "query", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("ResponseLength", "responseLength", Int32Serializer.Instance, typeof(int), null);
-            RegisterMember("ScanAndOrder", "scanAndOrder", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("Timestamp", "ts", DateTimeSerializer.Instance, typeof(DateTime), null);
+            RegisterMember("ResponseLength", "responseLength", new Int32Serializer(), typeof(int), null);
+            RegisterMember("ScanAndOrder", "scanAndOrder", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("Timestamp", "ts", new DateTimeSerializer(), typeof(DateTime), null);
             RegisterMember("UpdateObject", "updateobj", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("Upsert", "upsert", BooleanSerializer.Instance, typeof(bool), null);
-            RegisterMember("User", "user", StringSerializer.Instance, typeof(string), null);
+            RegisterMember("Upsert", "upsert", new BooleanSerializer(), typeof(bool), null);
+            RegisterMember("User", "user", new StringSerializer(), typeof(string), null);
         }
 
         // public static properties
         /// <summary>
         /// Gets the instance.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static SystemProfileInfoSerializer Instance
         {
             get { return __instance; }
@@ -572,14 +573,15 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileLockStatisticsSerializer()
         {
-            RegisterMember("TimeAcquiring", "timeAcquiringMicros", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
-            RegisterMember("TimeLocked", "timeLockedMicros", SystemProfileReadWriteLockStatisticsSerializer.Instance, typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeAcquiring", "timeAcquiringMicros", new SystemProfileReadWriteLockStatisticsSerializer(), typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeLocked", "timeLockedMicros", new SystemProfileReadWriteLockStatisticsSerializer(), typeof(SystemProfileReadWriteLockStatistics), null);
         }
 
         // public static properties
         /// <summary>
         /// Gets the instance.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static SystemProfileLockStatisticsSerializer Instance
         {
             get { return __instance; }
@@ -612,16 +614,17 @@ namespace MongoDB.Driver
         public SystemProfileReadWriteLockStatisticsSerializer()
         { 
             var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Microseconds);
-            RegisterMember("DatabaseReadLock", "r", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("GlobalReadLock", "R", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("DatabaseWriteLock", "w", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("GlobalWriteLock", "W", TimeSpanSerializer.Instance, typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("DatabaseReadLock", "r", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("GlobalReadLock", "R", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("DatabaseWriteLock", "w", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
+            RegisterMember("GlobalWriteLock", "W", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
         }
 
         // public static properties
         /// <summary>
         /// Gets the instance.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static SystemProfileReadWriteLockStatisticsSerializer Instance
         {
             get { return __instance; }

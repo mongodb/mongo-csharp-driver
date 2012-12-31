@@ -469,7 +469,8 @@ namespace MongoDB.Driver.Linq
             var key = constantExpression.Value;
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Object);
-            var dictionarySerializationOptions = (DictionarySerializationOptions)serializationInfo.SerializationOptions ?? DictionarySerializationOptions.Defaults;
+            var serializer = serializationInfo.Serializer;
+            var dictionarySerializationOptions = (DictionarySerializationOptions)(serializationInfo.SerializationOptions ?? serializer.GetDefaultSerializationOptions());
 
             var keyActualType = (key != null) ? key.GetType() : keyNominalType;
             var keySerializer = BsonSerializer.LookupSerializer(keyActualType);

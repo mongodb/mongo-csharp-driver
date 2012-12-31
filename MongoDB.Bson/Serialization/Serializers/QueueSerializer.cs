@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the QueueSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static QueueSerializer Instance
         {
             get { return __instance; }

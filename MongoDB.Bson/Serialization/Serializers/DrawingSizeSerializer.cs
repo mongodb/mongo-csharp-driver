@@ -43,6 +43,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the DrawingSizeSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static DrawingSizeSerializer Instance
         {
             get { return __instance; }

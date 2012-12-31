@@ -96,6 +96,7 @@ namespace MongoDB.Bson.Serialization.Options
         /// <summary>
         /// Gets or sets the default DateTime serialization options.
         /// </summary>
+        [Obsolete("Create and register a DateTimeSerializer with the desired options instead.")]
         public static DateTimeSerializationOptions Defaults
         {
             get { return __defaults; }

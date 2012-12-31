@@ -45,6 +45,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets an instance of the TimeSpanSerializer class.
         /// </summary>
+        [Obsolete("Use constructor instead.")]
         public static TimeSpanSerializer Instance
         {
             get { return __instance; }
