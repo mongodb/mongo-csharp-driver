@@ -43,7 +43,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Wrappers" isDocumented="True">Wrapped versions of various classes for use in serialization are present in the MongoDB.Driver.Wrappers namespace.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
     </NamespaceSummaries>
-    <CopyrightText>Copyright &amp;#169%3b 2010-2012 10gen Inc.</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2010-2013 10gen Inc.</CopyrightText>
     <FeedbackEMailAddress>craig.wilson%4010gen.com,robert%4010gen.com,sridhar%4010gen.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>10gen</FeedbackEMailLinkText>
     <FrameworkVersion>.NET 3.5</FrameworkVersion>

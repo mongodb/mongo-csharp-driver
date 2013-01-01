@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2012 10gen Inc.
+﻿/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 
 [assembly: AssemblyCompany("10gen Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2012 10gen Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2010-2013 10gen Inc.")]
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
