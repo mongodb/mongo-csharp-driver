@@ -16,12 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric
 {
@@ -406,7 +404,6 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-
         [Test]
         public void TestTwoEs()
         {
@@ -516,7 +513,6 @@ namespace MongoDB.BsonUnitTests.Serialization.CollectionSerializersGeneric
             Assert.IsInstanceOf<List<string>>(rehydrated.IL);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
-
 
         [Test]
         public void TestTwoStrings()

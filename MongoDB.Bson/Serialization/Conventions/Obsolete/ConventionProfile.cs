@@ -13,13 +13,12 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {

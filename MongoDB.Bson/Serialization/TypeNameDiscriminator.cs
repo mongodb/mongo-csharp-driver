@@ -16,11 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-
-using MongoDB.Bson.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson.Serialization
 {

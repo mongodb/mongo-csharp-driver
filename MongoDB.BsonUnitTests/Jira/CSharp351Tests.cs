@@ -14,17 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Xml;
-using NUnit.Framework;
-
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Jira
 {

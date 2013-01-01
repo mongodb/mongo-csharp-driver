@@ -14,13 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver.GridFS
 {

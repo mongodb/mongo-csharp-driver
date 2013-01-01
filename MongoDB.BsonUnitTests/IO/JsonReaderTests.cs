@@ -14,15 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.IO
 {
@@ -81,7 +78,6 @@ namespace MongoDB.BsonUnitTests.IO
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonArray>(new StringReader(json)).ToJson());
         }
-
 
         [Test]
         public void TestBookmark()
@@ -171,7 +167,6 @@ namespace MongoDB.BsonUnitTests.IO
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<bool>(new StringReader(json)).ToJson());
         }
-
 
         [Test]
         public void TestDateTimeMinBson()

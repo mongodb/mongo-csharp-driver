@@ -14,13 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Internal

@@ -16,11 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Driver;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
 {
@@ -739,7 +737,6 @@ namespace MongoDB.DriverUnitTests
             }
 #pragma warning restore
         }
-
 
         [Test]
         [TestCase(false, null, "server=localhost;w=1", new[] { "" }, new[] { "" })]

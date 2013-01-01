@@ -15,19 +15,14 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Xml;
-using NUnit.Framework;
-
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {
@@ -507,7 +502,6 @@ namespace MongoDB.BsonUnitTests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
-
 
         [Test]
         public void TestEnUsUseUserOverrideFalse()

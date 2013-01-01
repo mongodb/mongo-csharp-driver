@@ -16,13 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
 {

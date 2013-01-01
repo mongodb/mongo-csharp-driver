@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 // don't add using statement for MongoDB.Bson.Serialization.Serializers to minimize dependencies on DefaultSerializer

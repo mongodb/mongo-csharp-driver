@@ -15,10 +15,6 @@
 
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MongoDB.Bson.Serialization.Conventions
 {

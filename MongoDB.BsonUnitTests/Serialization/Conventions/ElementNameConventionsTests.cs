@@ -13,14 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson.Serialization.Conventions;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization.Conventions
 {

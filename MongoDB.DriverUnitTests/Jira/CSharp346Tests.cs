@@ -13,18 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using NUnit.Framework;
-
-using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
-using MongoDB.Driver.Wrappers;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp346
 {
@@ -107,7 +98,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
             Assert.AreEqual(27017, servers[1].Port);
             Assert.AreEqual(true, builder.SafeMode.Enabled);
         }
-
 
         [Test]
         public void TestTwoIPv6AddressesWithDefaultCredentials()

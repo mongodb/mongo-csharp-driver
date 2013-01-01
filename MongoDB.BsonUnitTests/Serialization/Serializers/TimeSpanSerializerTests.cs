@@ -14,17 +14,13 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
+using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
-using System.Text.RegularExpressions;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {

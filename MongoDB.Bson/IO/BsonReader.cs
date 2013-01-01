@@ -14,10 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -693,7 +691,6 @@ namespace MongoDB.Bson.IO
             VerifyName(name);
             return ReadRegularExpression();
         }
-
 
         /// <summary>
         /// Reads a BSON regular expression element from the reader.

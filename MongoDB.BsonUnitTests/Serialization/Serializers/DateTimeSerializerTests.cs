@@ -14,15 +14,12 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationOptions
 {

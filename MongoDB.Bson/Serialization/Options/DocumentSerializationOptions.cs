@@ -15,9 +15,6 @@
 
 using System;
 
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>

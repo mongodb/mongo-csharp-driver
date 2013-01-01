@@ -14,13 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
-
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Options;
 

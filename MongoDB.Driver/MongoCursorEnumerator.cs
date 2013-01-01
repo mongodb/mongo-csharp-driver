@@ -16,14 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver

@@ -15,11 +15,10 @@
 
 using System;
 using System.Linq;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Jira
 {

@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MongoDB.Driver.Linq
 {
@@ -48,7 +47,6 @@ namespace MongoDB.Driver.Linq
         {
             return source.Any(s => values.Contains(s));
         }
-
 
         /// <summary>
         /// Determines whether a specified value is contained in a sequence.

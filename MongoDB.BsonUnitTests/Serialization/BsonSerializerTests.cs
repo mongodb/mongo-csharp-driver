@@ -14,20 +14,15 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Serialization
 {

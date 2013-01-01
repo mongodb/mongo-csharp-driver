@@ -17,12 +17,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Net;
-
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization

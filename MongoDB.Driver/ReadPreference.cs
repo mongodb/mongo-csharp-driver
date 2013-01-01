@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace MongoDB.Driver
 {
@@ -221,7 +220,6 @@ namespace MongoDB.Driver
             if ((object)lhs == null) { return (object)rhs == null; }
             return lhs.Equals(rhs);
         }
-
 
         // internal static methods
         internal static ReadPreference FromSlaveOk(bool slaveOk)

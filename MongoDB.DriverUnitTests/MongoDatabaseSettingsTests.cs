@@ -14,13 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Driver;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
 {

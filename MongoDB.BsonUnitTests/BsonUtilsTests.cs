@@ -14,9 +14,8 @@
 */
 
 using System;
-using NUnit.Framework;
-
 using MongoDB.Bson;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests
 {
