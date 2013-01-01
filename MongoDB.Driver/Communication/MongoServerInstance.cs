@@ -55,6 +55,7 @@ namespace MongoDB.Driver
         private int _sequentialId;
         private MongoServerState _state;
         private Timer _stateVerificationTimer;
+        private MongoConnectionPool.AcquireConnectionOptions _stateVerificationAcquireConnectionOptions;
 
         // constructors
         /// <summary>
@@ -78,6 +79,14 @@ namespace MongoDB.Driver
             _pingTimeAggregator = new PingTimeAggregator(5);
             _permanentlyDisconnected = false;
             // Console.WriteLine("MongoServerInstance[{0}]: {1}", sequentialId, address);
+
+            _stateVerificationAcquireConnectionOptions = new MongoConnectionPool.AcquireConnectionOptions
+            {
+                OkToAvoidWaitingByCreatingNewConnection = false,
+                OkToExceedMaxConnectionPoolSize = true,
+                OkToExceedWaitQueueSize = true,
+                WaitQueueTimeout = TimeSpan.FromSeconds(2)
+            };
         }
 
         // internal properties
@@ -327,15 +336,14 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            // use a new connection instead of one from the connection pool
-            var connection = new MongoConnection(this);
+            var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
             try
             {
                 Ping(connection);
             }
             finally
             {
-                connection.Close();
+                _connectionPool.ReleaseConnection(connection);
             }
         }
 
@@ -344,8 +352,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void VerifyState()
         {
-            // use a new connection instead of one from the connection pool
-            var connection = new MongoConnection(this);
+            var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
             try
             {
                 try
@@ -361,7 +368,7 @@ namespace MongoDB.Driver
             }
             finally
             {
-                connection.Close();
+                _connectionPool.ReleaseConnection(connection);
             }
         }
 
@@ -688,7 +695,7 @@ namespace MongoDB.Driver
             _inStateVerification = true;
             try
             {
-                var connection = new MongoConnection(this);
+                var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
                 try
                 {
                     Ping(connection);
@@ -698,7 +705,7 @@ namespace MongoDB.Driver
                 }
                 finally
                 {
-                    connection.Close();
+                    _connectionPool.ReleaseConnection(connection);
                 }
             }
             catch { } // this is called in a timer thread and we don't want any exceptions escaping

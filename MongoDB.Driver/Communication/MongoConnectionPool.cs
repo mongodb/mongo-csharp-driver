@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Internal
         private MongoServerInstance _serverInstance;
         private int _poolSize;
         private List<MongoConnection> _availableConnections = new List<MongoConnection>();
+        private AcquireConnectionOptions _defaultAcquireConnectionOptions;
         private int _generationId; // whenever the pool is cleared the generationId is incremented
         private int _waitQueueSize;
         private bool _inMaintainPoolSize;
@@ -44,6 +45,14 @@ namespace MongoDB.Driver.Internal
             _settings = serverInstance.Settings;
             _serverInstance = serverInstance;
             _poolSize = 0;
+
+            _defaultAcquireConnectionOptions = new AcquireConnectionOptions
+            {
+                OkToAvoidWaitingByCreatingNewConnection = true,
+                OkToExceedMaxConnectionPoolSize = false,
+                OkToExceedWaitQueueSize = false,
+                WaitQueueTimeout = _settings.WaitQueueTimeout
+            };
         }
 
         // public properties
@@ -82,12 +91,19 @@ namespace MongoDB.Driver.Internal
         // internal methods
         internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials)
         {
+            return AcquireConnection(databaseName, credentials, _defaultAcquireConnectionOptions);
+        }
+
+        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials, AcquireConnectionOptions options)
+        {
             MongoConnection connectionToClose = null;
             try
             {
+                DateTime timeoutAt = DateTime.UtcNow + options.WaitQueueTimeout;
+
                 lock (_connectionPoolLock)
                 {
-                    if (_waitQueueSize >= _settings.WaitQueueSize)
+                    if (_waitQueueSize >= _settings.WaitQueueSize && !options.OkToExceedWaitQueueSize)
                     {
                         throw new MongoConnectionException("Too many threads are already waiting for a connection.");
                     }
@@ -95,7 +111,6 @@ namespace MongoDB.Driver.Internal
                     _waitQueueSize += 1;
                     try
                     {
-                        DateTime timeoutAt = DateTime.UtcNow + _settings.WaitQueueTimeout;
                         while (true)
                         {
                             if (_availableConnections.Count > 0)
@@ -135,14 +150,17 @@ namespace MongoDB.Driver.Internal
                                 return new MongoConnection(this);
                             }
 
-                            // create a new connection if maximum pool size has not been reached
-                            if (_poolSize < _settings.MaxConnectionPoolSize)
+                            // avoid waiting by creating a new connection if options allow it
+                            if (options.OkToAvoidWaitingByCreatingNewConnection)
                             {
-                                // make sure connection is created successfully before incrementing poolSize
-                                // connection will be opened later outside of the lock
-                                var connection = new MongoConnection(this);
-                                _poolSize += 1;
-                                return connection;
+                                if (_poolSize < _settings.MaxConnectionPoolSize || options.OkToExceedMaxConnectionPoolSize)
+                                {
+                                    // make sure connection is created successfully before incrementing poolSize
+                                    // connection will be opened later outside of the lock
+                                    var connection = new MongoConnection(this);
+                                    _poolSize += 1;
+                                    return connection;
+                                }
                             }
 
                             // wait for a connection to be released
@@ -156,7 +174,18 @@ namespace MongoDB.Driver.Internal
                             }
                             else
                             {
-                                throw new TimeoutException("Timeout waiting for a MongoConnection.");
+                                if (options.OkToExceedMaxConnectionPoolSize)
+                                {
+                                    // make sure connection is created successfully before incrementing poolSize
+                                    // connection will be opened later outside of the lock
+                                    var connection = new MongoConnection(this);
+                                    _poolSize += 1;
+                                    return connection;
+                                }
+                                else
+                                {
+                                    throw new TimeoutException("Timeout waiting for a MongoConnection.");
+                                }
                             }
                         }
                     }
@@ -261,22 +290,30 @@ namespace MongoDB.Driver.Internal
                 return;
             }
 
-            var connectionIsFromAnotherGeneration = false;
+            var closeConnection = false;
             lock (_connectionPoolLock)
             {
                 if (connection.GenerationId == _generationId)
                 {
-                    _availableConnections.Add(connection);
+                    if (_poolSize <= _settings.MaxConnectionPoolSize)
+                    {
+                        _availableConnections.Add(connection);
+                    }
+                    else
+                    {
+                        _poolSize -= 1;
+                        closeConnection = true;
+                    }
                     Monitor.Pulse(_connectionPoolLock);
                 }
                 else
                 {
-                    connectionIsFromAnotherGeneration = true;
+                    closeConnection = true;
                 }
             }
 
             // if connection is from another generation of the pool just close it
-            if (connectionIsFromAnotherGeneration)
+            if (closeConnection)
             {
                 connection.Close();
             }
@@ -368,6 +405,15 @@ namespace MongoDB.Driver.Internal
 
             // close connection outside of lock
             connection.Close();
+        }
+
+        // internal classes
+        internal class AcquireConnectionOptions
+        {
+            public bool OkToAvoidWaitingByCreatingNewConnection;
+            public bool OkToExceedMaxConnectionPoolSize;
+            public bool OkToExceedWaitQueueSize;
+            public TimeSpan WaitQueueTimeout;
         }
     }
 }
