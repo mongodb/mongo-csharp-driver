@@ -487,19 +487,19 @@ namespace MongoDB.DriverUnitTests.Builders
             Assert.AreEqual(expected, query.ToJson());
 
             query = Query.Or(emptyQuery, Query.EQ("x", 1));
-            expected = "{ \"x\" : 1 }";
+            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
 
             query = Query.Or(Query.EQ("x", 1), emptyQuery);
-            expected = "{ \"x\" : 1 }";
+            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
 
             query = Query.Or(emptyQuery, Query.EQ("x", 1), emptyQuery);
-            expected = "{ \"x\" : 1 }";
+            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
 
             query = Query.Or(Query.EQ("x", 1), emptyQuery, Query.EQ("y", 2));
-            expected = "{ \"$or\" : [{ \"x\" : 1 }, { \"y\" : 2 }] }";
+            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

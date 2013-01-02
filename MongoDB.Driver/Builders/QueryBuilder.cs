@@ -524,10 +524,14 @@ namespace MongoDB.Driver.Builders
                 }
                 else
                 {
-                    // skip query like { } which matches everything
                     if (queryDocument.ElementCount != 0)
                     {
                         queryArray.Add(queryDocument);
+                    }
+                    else
+                    {
+                        // if any query is { } (which matches everything) then the overall Or matches everything also
+                        return new QueryDocument();
                     }
                 }
             }
