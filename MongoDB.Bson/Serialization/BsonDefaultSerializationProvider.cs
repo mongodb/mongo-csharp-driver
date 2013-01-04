@@ -72,7 +72,6 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Double), typeof(DoubleSerializer) },
                 { typeof(System.Drawing.Size), typeof(DrawingSizeSerializer) },
                 { typeof(Guid), typeof(GuidSerializer) },
-                { typeof(IBsonSerializable), typeof(BsonIBsonSerializableSerializer) },
                 { typeof(Image), typeof(ImageSerializer) },
                 { typeof(Int16), typeof(Int16Serializer) },
                 { typeof(Int32), typeof(Int32Serializer) },
@@ -125,9 +124,16 @@ namespace MongoDB.Bson.Serialization
                 return (IBsonSerializer)Activator.CreateInstance(serializerType);
             }
 
+            // use BsonDocumentSerializer for all subclasses of BsonDocument also
             if (typeof(BsonDocument).IsAssignableFrom(type))
             {
                 return BsonDocumentSerializer.Instance;
+            }
+
+            // use BsonIBsonSerializableSerializer for all classes that implement IBsonSerializable
+            if (typeof(IBsonSerializable).IsAssignableFrom(type))
+            {
+                return BsonIBsonSerializableSerializer.Instance;
             }
 
             if (type.IsGenericType)

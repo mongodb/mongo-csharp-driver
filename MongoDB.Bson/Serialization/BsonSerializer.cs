@@ -204,6 +204,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An object.</returns>
         public static object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
+            // since we don't allow registering serializers for BsonDocument no lookup is needed
             if (nominalType == typeof(BsonDocument))
             {
                 return BsonDocumentSerializer.Instance.Deserialize(bsonReader, nominalType, options);
@@ -738,13 +739,14 @@ namespace MongoDB.Bson.Serialization
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
         {
-            // don't allow any serializers to be registered for subclasses of BsonDocument
-            if (typeof(BsonDocument).IsAssignableFrom(type))
+            // don't allow a serializer to be registered for subclasses of BsonValue
+            if (typeof(BsonValue).IsAssignableFrom(type))
             {
-                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonDocument.", BsonUtils.GetFriendlyTypeName(type));
+                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
                 throw new BsonSerializationException(message);
             }
 
+            // don't allow a serializer to be registered for classes that implement IBsonSerializable
             if (typeof(IBsonSerializable).IsAssignableFrom(type))
             {
                 var message = string.Format("A serializer cannot be registered for type {0} because it implements IBsonSerializable.", BsonUtils.GetFriendlyTypeName(type));
