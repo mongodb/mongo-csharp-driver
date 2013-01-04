@@ -170,7 +170,7 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Gets the Id member map.
+        /// Gets the Id member map (null if none).
         /// </summary>
         public BsonMemberMap IdMemberMap
         {
@@ -892,14 +892,13 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Sets the Id member.
         /// </summary>
-        /// <param name="memberMap">The Id member.</param>
+        /// <param name="memberMap">The Id member (null if none).</param>
         public void SetIdMember(BsonMemberMap memberMap)
         {
-            if (memberMap == null)
+            if (memberMap != null)
             {
-                throw new ArgumentNullException("memberMap");
+                EnsureMemberMapIsForThisClass(memberMap);
             }
-            EnsureMemberMapIsForThisClass(memberMap);
 
             if (_frozen) { ThrowFrozenException(); }
 

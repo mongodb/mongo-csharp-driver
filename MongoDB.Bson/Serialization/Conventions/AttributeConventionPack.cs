@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // nested classes
-        private class AttributeConvention : ConventionBase, IClassMapConvention, IMemberMapConvention
+        private class AttributeConvention : ConventionBase, IClassMapConvention, IMemberMapConvention, IPostProcessingConvention
         {
             // public methods
             public void Apply(BsonClassMap classMap)
@@ -101,6 +101,14 @@ namespace MongoDB.Bson.Serialization.Conventions
                     }
                 }
 #pragma warning restore 618
+            }
+
+            public void PostProcess(BsonClassMap classMap)
+            {
+                foreach (IBsonPostProcessingAttribute attribute in classMap.ClassType.GetCustomAttributes(typeof(IBsonPostProcessingAttribute), false))
+                {
+                    attribute.PostProcess(classMap);
+                }
             }
 
             // private methods
