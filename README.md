@@ -27,6 +27,8 @@ http://jira.mongodb.org/browse/CSHARP
 * Teun Duynstee             teun@duynstee.com
 * Ken Egozi                 mail@kenegozi.com
 * Simon Green               simon@captaincodeman.com
+* Nik Kolev                 nkolev@gmail.com
+* Oleg Kosmakov             kosmakoff@gmail.com
 * Brian Knight              brianknight10@gmail.com  
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
@@ -36,5 +38,8 @@ http://jira.mongodb.org/browse/CSHARP
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Testo                     test1@doramail.com   
+* Alex Brown                https://github.com/alexjamesbrown
+* staywellandy              https://github.com/staywellandy
+* Einar Egilsson            https://github.com/einaregilsson
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).

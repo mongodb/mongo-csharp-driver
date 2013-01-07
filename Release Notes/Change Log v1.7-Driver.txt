@@ -1,0 +1,111 @@
+C#/.NET driver changes from 1.6.1 to 1.7
+
+SafeModeResult.cs
+    deprecated class
+    use WriteConcernResult instead
+
+WriteConcernResult.cs
+    new class
+    replaces SafeModeResult
+    derives from SafeModeResult for temporary backwards compatibiliy
+
+MongoClient.cs
+    new root class (see Release Notes)
+    use instead of MongoServer
+
+MongoClientSettings.cs
+    new class
+    use instead of MongoServerSettings
+
+MongoCollection.cs
+    all methods that used to return a SafeModeResult now return a WriteConcernResult
+    all methods that used to take a SafeMode parameter now take a WriteConcern parameter
+
+MongoCollectionSettings.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+
+MongoConnectionStringBuilder.cs
+    deprecated SafeMode property (use FSync, Journal, W and WTimeout instead)
+    added FSync, Journal, W and WTimeout properties
+    added argument checking to many property set methods
+    added GetWriteConcern method
+    remove use of safe=true (Parse still supports it for backwards compatibility)
+
+MongoCredentialsStore.cs
+    added IsFrozen property
+
+MongoDatabase.cs
+    deprecated Create methods (use MongoClient and GetDatabase instead)
+    all methods that used to take a SafeMode parameter now take a WriteConcern parameter
+
+MongoDatabaseSettings.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+
+MongoInsertOptions.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+
+MongoServer.cs
+    deprecated Create methods (use MongoClient and GetServer instead)
+    all methods that used to take a SafeMode parameter now take a WriteConcern parameter
+
+MongoServerAddress.cs
+    fixed exception message for invalid server address
+
+MongoServerSettings.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+    fixed default connection mode to be Automatic
+    deprecated one constructor that will be removed in a later version
+    added FromClientSettings method
+    added FromConnectionStringBuilder method
+    added FromUrl method
+    reimplemented Clone
+
+MongoUpdateOptions.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+
+MongoUrl.cs
+    added private fields for all values (instead of using an instance of MongoServerSettings to hold the values)
+    deprecated SafeMode property (use FSync, Journal, W and WTimeout instead)
+    added FSync, Journal, W and WTimeout properties
+    added GetWriteConcern method
+    deprecated ToServerSettings (use MongoServerSettings.FromUrl instead)
+
+MongoUrlBuilder.cs
+    deprecated SafeMode property (use FSync, Journal, W and WTimeout instead)
+    added FSync, Journal, W and WTimeout properties
+    added argument checking to many property set methods
+    added GetWriteConcern method
+    deprecated ToServerSettings (use MongoServerSettings.FromUrl instead)
+    remove use of safe=true (Parse still supports it for backwards compatibility)
+
+SafeMode.cs
+    deprecated class (use WriteConcern instead)
+    reimplemented to forward all operations to an underlying WriteConcern
+    
+WriteConcern.cs
+    new class (replaces SafeMode, see Release Notes)
+    new nested abstract class WValue and subclasses WCount and WMode
+
+MongoSafeModeException.cs
+    deprecated class (use WriteConcernException instead)
+
+WriteConcernException.cs
+    new class (replaces MongoSafeModeException)
+    derives from MongoSafeModeException for backward compatibility
+
+MongoGridFSSettings.cs
+    deprecated SafeMode property (use WriteConcern instead)
+    added WriteConcern property
+
+PredicateTranslator.cs
+    added support for ToLowerInvariant and ToUpperInvariant in LINQ queries
+    improved support for mapping array element references in LINQ queries to dotted field notation in more cases
+    improved support for type related LINQ queries
+
+MongoDefaults.cs
+    deprecated SafeMode property (no replacement, the default WriteConcern is always Acknowledged)

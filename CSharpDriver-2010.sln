@@ -1,13 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bson", "Bson\Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson", "MongoDB.Bson\MongoDB.Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsonUnitTests", "BsonUnitTests\BsonUnitTests.csproj", "{10A5FAC2-E26F-4726-B888-26D5B849F805}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.BsonUnitTests", "MongoDB.BsonUnitTests\MongoDB.BsonUnitTests.csproj", "{10A5FAC2-E26F-4726-B888-26D5B849F805}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver", "MongoDB.Driver\MongoDB.Driver.csproj", "{AE5166CD-76B0-4911-BD80-CED9521F37A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverUnitTests", "DriverUnitTests\DriverUnitTests.csproj", "{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.DriverUnitTests", "MongoDB.DriverUnitTests\MongoDB.DriverUnitTests.csproj", "{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00502D63-7789-410D-B6BE-5F16327FF810}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,6 +30,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Change Log v1.5-Driver.txt = Release Notes\Change Log v1.5-Driver.txt
 		Release Notes\Change Log v1.6-Bson.txt = Release Notes\Change Log v1.6-Bson.txt
 		Release Notes\Change Log v1.6-Driver.txt = Release Notes\Change Log v1.6-Driver.txt
+		Release Notes\Change Log v1.6.1-Bson.txt = Release Notes\Change Log v1.6.1-Bson.txt
+		Release Notes\Change Log v1.6.1-Driver.txt = Release Notes\Change Log v1.6.1-Driver.txt
+		Release Notes\Change Log v1.7-Bson.txt = Release Notes\Change Log v1.7-Bson.txt
+		Release Notes\Change Log v1.7-Driver.txt = Release Notes\Change Log v1.7-Driver.txt
 		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
 		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
 		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
@@ -42,10 +46,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.4.2.md = Release Notes\Release Notes v1.4.2.md
 		Release Notes\Release Notes v1.4.md = Release Notes\Release Notes v1.4.md
 		Release Notes\Release Notes v1.5.md = Release Notes\Release Notes v1.5.md
+		Release Notes\Release Notes v1.6.1.md = Release Notes\Release Notes v1.6.1.md
 		Release Notes\Release Notes v1.6.md = Release Notes\Release Notes v1.6.md
+		Release Notes\Release Notes v1.7.md = Release Notes\Release Notes v1.7.md
+		Release Notes\Release Notes v1.8.md = Release Notes\Release Notes v1.8.md
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "DriverUnitTestsVB", "DriverUnitTestsVB\DriverUnitTestsVB.vbproj", "{19ED9AD5-A2CA-4F1B-9BE4-96450382F404}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MongoDB.DriverUnitTestsVB", "MongoDB.DriverUnitTestsVB\MongoDB.DriverUnitTestsVB.vbproj", "{19ED9AD5-A2CA-4F1B-9BE4-96450382F404}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,37 @@
+C# driver changes from 1.6 to 1.6.1
+
+MongoCollection.cs
+    Commands are now sent using the collection's settings (not the database's)
+
+MongoConnectionStringBuilder.cs
+MongoDefaults.cs
+MongoServerSettings.cs
+MongoUrl.cs
+MongoUrlBuilder.cs
+    Made secondaryAcceptableLatency configurable
+
+MongoCursorEnumerator.cs
+    Added white list of commands that can be sent to secondaries (all others are sent to the primary)
+    ReadPreferences of Primary and SecondaryPreferred (without tags) are now encoded on the wire using only the slaveOk bit
+        all other ReadPreferences are encoded using $readPreference
+    Fixed wrapping of queries so $query always goes first and not $readPreference
+
+MongoDatabase.cs
+    RunCommandAs now delegates to new RunCommandAs method in MongoCollection
+
+ReadPreference.cs
+    Removed ChooseServerInstance and moved logic to MongoServerProxies
+
+ConnectedInstanceCollection.cs
+    Removed ChooseServerInstance and moved logic to MongoServerProxies
+    Added GetAllInstances
+    Added GetPrimary
+    Added GetPrimaryAndSecondaries
+    Added GetSecondaries
+
+ReplicaSetMongoServerProxy.cs
+ShardedMongoServerProxy.cs
+    Implemented proxy specific implementations of ChooseServerInstance
+
+BsonSerializationInfoHelper.cs
+    GetSerializationInfo now partially evaluates the node to support more LINQ queries correctly

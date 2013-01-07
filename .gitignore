@@ -28,7 +28,7 @@ Help
 *.swp
 *~
 
-#Nupkg artifacts
+# Nupkg artifacts
 *.nupkg
 
 # NCrunch artifacts
@@ -37,3 +37,6 @@ Help
 # Merge tool artifacts
 *.cs.orig
 *.vb.orig
+
+# Other
+artifacts
