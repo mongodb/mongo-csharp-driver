@@ -513,7 +513,6 @@ namespace MongoDB.Driver
             _serverProxy.Connect(timeout, _settings.ReadPreference);
         }
 
-        // TODO: fromHost parameter?
         /// <summary>
         /// Copies a database.
         /// </summary>
@@ -521,7 +520,22 @@ namespace MongoDB.Driver
         /// <param name="to">The name of the new database.</param>
         public virtual void CopyDatabase(string from, string to)
         {
-            throw new NotImplementedException();
+            var adminCredentials = _settings.GetCredentials("admin");
+            CopyDatabase(from, to, adminCredentials);
+        }
+
+        /// <summary>
+        /// Copies a database.
+        /// </summary>
+        /// <param name="from">The name of an existing database.</param>
+        /// <param name="to">The name of the new database.</param>
+        /// <param name="adminCredentials">Credentials for the admin database.</param>
+        public virtual void CopyDatabase(string from, string to, MongoCredentials adminCredentials)
+        {
+            var adminDatabase = GetDatabase("admin", adminCredentials);
+            var command = new CommandDocument("copydb", 1) { { "fromdb", from }, { "todb", to } };
+
+            adminDatabase.RunCommand(command);
         }
 
         /// <summary>

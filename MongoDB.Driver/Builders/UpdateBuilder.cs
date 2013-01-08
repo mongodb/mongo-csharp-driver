@@ -258,6 +258,17 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Removes all values from the named array element that match some query (see $pull).
+        /// </summary>
+        /// <param name="query">A query that specifies which elements to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Pull(
+            IMongoQuery query
+        ) {
+            return new UpdateBuilder().Pull(query);
+        }
+
+        /// <summary>
         /// Removes all values from the named array element that are equal to any of a list of values (see $pullAll).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
@@ -812,6 +823,24 @@ namespace MongoDB.Driver.Builders
             else
             {
                 _document.Add("$pull", new BsonDocument(name, wrappedQuery));
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Removes all values from the named array element that match some query (see $pull).
+        /// </summary>
+        /// <param name="query">A query that specifies which elements to remove.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Pull(
+            IMongoQuery query
+        ) {
+            BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
+            BsonElement element;
+            if (_document.TryGetElement("$pull", out element)) {
+                element.Value.AsBsonDocument.AddRange(query.ToBsonDocument());
+            } else {
+                _document.Add("$pull", wrappedQuery);
             }
             return this;
         }
