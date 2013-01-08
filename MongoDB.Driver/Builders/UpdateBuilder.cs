@@ -837,10 +837,10 @@ namespace MongoDB.Driver.Builders
         ) {
             BsonValue wrappedQuery = BsonDocumentWrapper.Create(query);
             BsonElement element;
-            if (document.TryGetElement("$pull", out element)) {
-                element.Value.AsBsonDocument.Add(query.ToBsonDocument());
+            if (_document.TryGetElement("$pull", out element)) {
+                element.Value.AsBsonDocument.AddRange(query.ToBsonDocument());
             } else {
-                document.Add("$pull", wrappedQuery);
+                _document.Add("$pull", wrappedQuery);
             }
             return this;
         }
