@@ -175,6 +175,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Gets whether a default value was specified.
+        /// </summary>
+        public bool IsDefaultValueSpecified
+        {
+            get { return _defaultValueSpecified; }
+        }
+
+        /// <summary>
         /// Gets whether an element is required for this member when deserialized.
         /// </summary>
         public bool IsRequired

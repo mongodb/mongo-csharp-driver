@@ -42,6 +42,7 @@ namespace MongoDB.Bson.Serialization
         private BsonClassMap _baseClassMap; // null for class object and interfaces
         private Type _classType;
         private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
+        private readonly List<BsonCreatorMap> _creatorMaps;
         private Func<object> _creator;
         private IConventionPack _conventionPack;
         private string _discriminator;
@@ -68,6 +69,7 @@ namespace MongoDB.Bson.Serialization
         protected BsonClassMap(Type classType)
         {
             _classType = classType;
+            _creatorMaps = new List<BsonCreatorMap>();
             _conventionPack = ConventionRegistry.Lookup(classType);
             _isAnonymous = IsAnonymousType(classType);
             _allMemberMaps = new List<BsonMemberMap>();
@@ -101,6 +103,14 @@ namespace MongoDB.Bson.Serialization
         public Type ClassType
         {
             get { return _classType; }
+        }
+
+        /// <summary>
+        /// Gets the constructor maps.
+        /// </summary>
+        public IEnumerable<BsonCreatorMap> CreatorMaps
+        {
+            get { return _creatorMaps; }
         }
 
         /// <summary>
@@ -159,6 +169,14 @@ namespace MongoDB.Bson.Serialization
         public BsonMemberMap ExtraElementsMemberMap
         {
             get { return _extraElementsMemberMap; }
+        }
+
+        /// <summary>
+        /// Gets whether this class map has any creator maps.
+        /// </summary>
+        public bool HasCreatorMaps
+        {
+            get { return _creatorMaps.Count > 0; }
         }
 
         /// <summary>
@@ -553,6 +571,11 @@ namespace MongoDB.Bson.Serialization
                         // because we might get back to this same classMap while processing knownTypes
                         _frozen = true;
 
+                        foreach (var creatorMap in _creatorMaps)
+                        {
+                            creatorMap.Freeze();
+                        }
+
                         // use a queue to postpone processing of known types until we get back to the first level call to Freeze
                         // this avoids infinite recursion when going back down the inheritance tree while processing known types
                         foreach (var knownType in _knownTypes)
@@ -622,6 +645,74 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Creates a creator map for a constructor and adds it to the class map.
+        /// </summary>
+        /// <param name="constructorInfo">The constructor info.</param>
+        /// <returns>The creator map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapConstructor(ConstructorInfo constructorInfo)
+        {
+            if (constructorInfo == null)
+            {
+                throw new ArgumentNullException("constructorInfo");
+            }
+            EnsureMemberInfoIsForThisClass(constructorInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
+            var creatorMap = _creatorMaps.FirstOrDefault(m => m.MemberInfo == constructorInfo);
+            if (creatorMap == null)
+            {
+                var @delegate = new CreatorMapDelegateCompiler().CompileConstructorDelegate(constructorInfo);
+                creatorMap = new BsonCreatorMap(this, constructorInfo, @delegate);
+                _creatorMaps.Add(creatorMap);
+            }
+            return creatorMap;
+        }
+
+        /// <summary>
+        /// Creates a creator map for a constructor and adds it to the class map.
+        /// </summary>
+        /// <param name="constructorInfo">The constructor info.</param>
+        /// <param name="argumentNames">The argument names.</param>
+        /// <returns>The creator map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapConstructor(ConstructorInfo constructorInfo, params string[] argumentNames)
+        {
+            var creatorMap = MapConstructor(constructorInfo);
+            creatorMap.SetArguments(argumentNames);
+            return creatorMap;
+        }
+
+        /// <summary>
+        /// Creates a creator map and adds it to the class.
+        /// </summary>
+        /// <param name="delegate">The delegate.</param>
+        /// <returns>The factory method map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapCreator(Delegate @delegate)
+        {
+            if (@delegate == null)
+            {
+                throw new ArgumentNullException("delegate");
+            }
+
+            if (_frozen) { ThrowFrozenException(); }
+            var creatorMap = new BsonCreatorMap(this, null, @delegate);
+            _creatorMaps.Add(creatorMap);
+            return creatorMap;
+        }
+
+        /// <summary>
+        /// Creates a creator map and adds it to the class.
+        /// </summary>
+        /// <param name="delegate">The delegate.</param>
+        /// <param name="argumentNames">The argument names.</param>
+        /// <returns>The factory method map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapCreator(Delegate @delegate, params string[] argumentNames)
+        {
+            var creatorMap = MapCreator(@delegate);
+            creatorMap.SetArguments(argumentNames);
+            return creatorMap;
+        }
+
+        /// <summary>
         /// Creates a member map for the extra elements field and adds it to the class map.
         /// </summary>
         /// <param name="fieldName">The name of the extra elements field.</param>
@@ -673,6 +764,43 @@ namespace MongoDB.Bson.Serialization
             var propertyMap = MapProperty(propertyName);
             SetExtraElementsMember(propertyMap);
             return propertyMap;
+        }
+
+        /// <summary>
+        /// Creates a creator map for a factory method and adds it to the class.
+        /// </summary>
+        /// <param name="methodInfo">The method info.</param>
+        /// <returns>The creator map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapFactoryMethod(MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException("methodInfo");
+            }
+            EnsureMemberInfoIsForThisClass(methodInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
+            var creatorMap = _creatorMaps.FirstOrDefault(m => m.MemberInfo == methodInfo);
+            if (creatorMap == null)
+            {
+                var @delegate = new CreatorMapDelegateCompiler().CompileFactoryMethodDelegate(methodInfo);
+                creatorMap = new BsonCreatorMap(this, methodInfo, @delegate);
+                _creatorMaps.Add(creatorMap);
+            }
+            return creatorMap;
+        }
+
+        /// <summary>
+        /// Creates a creator map for a factory method and adds it to the class.
+        /// </summary>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="argumentNames">The argument names.</param>
+        /// <returns>The creator map (so method calls can be chained).</returns>
+        public BsonCreatorMap MapFactoryMethod(MethodInfo methodInfo, params string[] argumentNames)
+        {
+            var creatorMap = MapFactoryMethod(methodInfo);
+            creatorMap.SetArguments(argumentNames);
+            return creatorMap;
         }
 
         /// <summary>
@@ -762,6 +890,10 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("memberInfo");
             }
+            if (!(memberInfo is FieldInfo) && !(memberInfo is PropertyInfo))
+            {
+                throw new ArgumentException("MemberInfo must be either a FieldInfo or a PropertyInfo.", "memberInfo");
+            }
             EnsureMemberInfoIsForThisClass(memberInfo);
 
             if (_frozen) { ThrowFrozenException(); }
@@ -803,6 +935,7 @@ namespace MongoDB.Bson.Serialization
         {
             if (_frozen) { ThrowFrozenException(); }
 
+            _creatorMaps.Clear();
             _creator = null;
             _declaredMemberMaps.Clear();
             _discriminator = _classType.Name;
@@ -933,6 +1066,46 @@ namespace MongoDB.Bson.Serialization
         {
             if (_frozen) { ThrowFrozenException(); }
             _isRootClass = isRootClass;
+        }
+
+        /// <summary>
+        /// Removes a creator map for a constructor from the class map.
+        /// </summary>
+        /// <param name="constructorInfo">The constructor info.</param>
+        public void UnmapConstructor(ConstructorInfo constructorInfo)
+        {
+            if (constructorInfo == null)
+            {
+                throw new ArgumentNullException("constructorInfo");
+            }
+            EnsureMemberInfoIsForThisClass(constructorInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
+            var creatorMap = _creatorMaps.FirstOrDefault(m => m.MemberInfo == constructorInfo);
+            if (creatorMap != null)
+            {
+                _creatorMaps.Remove(creatorMap);
+            }
+        }
+
+        /// <summary>
+        /// Removes a creator map for a factory method from the class map.
+        /// </summary>
+        /// <param name="methodInfo">The method info.</param>
+        public void UnmapFactoryMethod(MethodInfo methodInfo)
+        {
+            if (methodInfo == null)
+            {
+                throw new ArgumentNullException("methodInfo");
+            }
+            EnsureMemberInfoIsForThisClass(methodInfo);
+
+            if (_frozen) { ThrowFrozenException(); }
+            var creatorMap = _creatorMaps.FirstOrDefault(m => m.MemberInfo == methodInfo);
+            if (creatorMap != null)
+            {
+                _creatorMaps.Remove(creatorMap);
+            }
         }
 
         /// <summary>
@@ -1204,6 +1377,25 @@ namespace MongoDB.Bson.Serialization
         {
             var memberName = GetMemberNameFromLambda(memberLambda);
             return GetMemberMap(memberName);
+        }
+
+        /// <summary>
+        /// Creates a creator map and adds it to the class map.
+        /// </summary>
+        /// <param name="creatorLambda">Lambda expression specifying the creator code and parameters to use.</param>
+        /// <returns>The member map.</returns>
+        public BsonCreatorMap MapCreator(Expression<Func<TClass, TClass>> creatorLambda)
+        {
+            if (creatorLambda == null)
+            {
+                throw new ArgumentNullException("creatorLambda");
+            }
+
+            IEnumerable<MemberInfo> arguments;
+            var @delegate = new CreatorMapDelegateCompiler().CompileCreatorDelegate(creatorLambda, out arguments);
+            var creatorMap = MapCreator(@delegate);
+            creatorMap.SetArguments(arguments);
+            return creatorMap;
         }
 
         /// <summary>

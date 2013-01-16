@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
+    <Compile Include="Jira\CSharp476Tests.cs" />
     <Compile Include="Jira\CSharp624Tests.cs" />
     <Compile Include="Jira\CSharp648Tests.cs" />
     <Compile Include="Serialization\Attributes\BsonRepresentationAttributeTests.cs" />

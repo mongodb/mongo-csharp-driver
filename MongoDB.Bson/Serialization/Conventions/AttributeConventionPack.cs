@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         }
 
         // nested classes
-        private class AttributeConvention : ConventionBase, IClassMapConvention, IMemberMapConvention, IPostProcessingConvention
+        private class AttributeConvention : ConventionBase, IClassMapConvention, ICreatorMapConvention, IMemberMapConvention, IPostProcessingConvention
         {
             // public methods
             public void Apply(BsonClassMap classMap)
@@ -81,8 +81,20 @@ namespace MongoDB.Bson.Serialization.Conventions
 #pragma warning restore 618
 
                 OptInMembersWithBsonMemberMapModifierAttribute(classMap);
+                OptInMembersWithBsonCreatorMapModifierAttribute(classMap);
                 IgnoreMembersWithBsonIgnoreAttribute(classMap);
                 ThrowForDuplicateMemberMapAttributes(classMap);
+            }
+
+            public void Apply(BsonCreatorMap creatorMap)
+            {
+                if (creatorMap.MemberInfo != null)
+                {
+                    foreach (IBsonCreatorMapAttribute attribute in creatorMap.MemberInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false))
+                    {
+                        attribute.Apply(creatorMap);
+                    }
+                }
             }
 
             public void Apply(BsonMemberMap memberMap)
@@ -119,6 +131,29 @@ namespace MongoDB.Bson.Serialization.Conventions
                     .SingleOrDefault();
 
                 return usageAttribute == null || usageAttribute.AllowMultipleMembers;
+            }
+
+            private void OptInMembersWithBsonCreatorMapModifierAttribute(BsonClassMap classMap)
+            {
+                // let other constructors opt-in if they have any IBsonCreatorMapAttribute attributes
+                foreach (var constructorInfo in classMap.ClassType.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                {
+                    var hasAttribute = constructorInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+                    if (hasAttribute)
+                    {
+                        classMap.MapConstructor(constructorInfo);
+                    }
+                }
+
+                // let other static factory methods opt-in if they have any IBsonCreatorMapAttribute attributes
+                foreach (var methodInfo in classMap.ClassType.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                {
+                    var hasAttribute = methodInfo.GetCustomAttributes(typeof(IBsonCreatorMapAttribute), false).Any();
+                    if (hasAttribute)
+                    {
+                        classMap.MapFactoryMethod(methodInfo);
+                    }
+                }
             }
 
             private void OptInMembersWithBsonMemberMapModifierAttribute(BsonClassMap classMap)
