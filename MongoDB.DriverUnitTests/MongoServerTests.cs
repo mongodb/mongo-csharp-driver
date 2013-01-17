@@ -78,7 +78,6 @@ namespace MongoDB.DriverUnitTests
         {
 #pragma warning disable 618
             var server = MongoServer.Create(); // no args!
-            Assert.IsNull(server.Settings.DefaultCredentials);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, server.Settings.GuidRepresentation);
             Assert.AreEqual(SafeMode.False, server.Settings.SafeMode);
             Assert.AreEqual(ReadPreference.Primary, server.Settings.ReadPreference);

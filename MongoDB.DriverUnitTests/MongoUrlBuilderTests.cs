@@ -37,10 +37,11 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoUrlBuilder()
             {
+                AuthenticationProtocol = MongoAuthenticationProtocol.Gssapi,
+                AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
-                DefaultCredentials = new MongoCredentials("username", "password"),
                 FSync = true,
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
@@ -49,11 +50,13 @@ namespace MongoDB.DriverUnitTests
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
                 MaxConnectionPoolSize = 4,
                 MinConnectionPoolSize = 5,
+                Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
                 SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
+                Username = "username",
                 UseSsl = true,
                 VerifySslCertificate = false,
                 W = 2,
@@ -63,6 +66,8 @@ namespace MongoDB.DriverUnitTests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
+                "authProtocol=GSSAPI",
+                "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
                 "sslVerifyCertificate=false", // VerifySslCertificate
@@ -87,11 +92,12 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.AreEqual(MongoAuthenticationProtocol.Gssapi, builder.AuthenticationProtocol);
+                Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
-                Assert.AreEqual(new MongoCredentials("username", "password"), builder.DefaultCredentials);
                 Assert.AreEqual(true, builder.FSync);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
@@ -100,6 +106,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
                 Assert.AreEqual(4, builder.MaxConnectionPoolSize);
                 Assert.AreEqual(5, builder.MinConnectionPoolSize);
+                Assert.AreEqual("password", builder.Password);
                 Assert.AreEqual(readPreference, builder.ReadPreference);
                 Assert.AreEqual("name", builder.ReplicaSetName);
 #pragma warning disable 618
@@ -111,6 +118,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(true, builder.SlaveOk);
 #pragma warning restore
                 Assert.AreEqual(TimeSpan.FromSeconds(7), builder.SocketTimeout);
+                Assert.AreEqual("username", builder.Username);
                 Assert.AreEqual(true, builder.UseSsl);
                 Assert.AreEqual(false, builder.VerifySslCertificate);
                 Assert.AreEqual(2, ((WriteConcern.WCount)builder.W).Value);
@@ -118,6 +126,34 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(123, builder.WaitQueueSize);
                 Assert.AreEqual(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.AreEqual(TimeSpan.FromSeconds(9), builder.WTimeout);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        [TestCase(MongoAuthenticationProtocol.Strongest, "mongodb://localhost")]
+        [TestCase(MongoAuthenticationProtocol.Gssapi, "mongodb://localhost/?authProtocol=GSSAPI")]
+        public void TestAuthProtocol(MongoAuthenticationProtocol authProtocol, string connectionString)
+        {
+            var built = new MongoUrlBuilder { Server = _localhost, AuthenticationProtocol = authProtocol };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(authProtocol, builder.AuthenticationProtocol);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        [TestCase(null, "mongodb://localhost")]
+        [TestCase("db", "mongodb://localhost/?authSource=db")]
+        public void TestAuthSource(string authSource, string connectionString)
+        {
+            var built = new MongoUrlBuilder { Server = _localhost, AuthenticationSource = authSource };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(authSource, builder.AuthenticationSource);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -203,6 +239,25 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [TestCase(null, null, "mongodb://localhost")]
+        [TestCase("username@domain.com", "password", "mongodb://username%40domain.com:password@localhost")]
+        [TestCase("username", "password", "mongodb://username:password@localhost")]
+        [TestCase("usern;me", "p;ssword", "mongodb://usern%3Bme:p%3Bssword@localhost")]
+        [TestCase("usern;me", null, "mongodb://usern%3Bme@localhost")]
+        [TestCase("usern;me", "", "mongodb://usern%3Bme:@localhost")]
+        public void TestCredentials(string username, string password, string connectionString)
+        {
+            var built = new MongoUrlBuilder { Server = _localhost, Username = username, Password = password };
+
+            foreach (var url in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(password, url.Password);
+                Assert.AreEqual(username, url.Username);
+                Assert.AreEqual(connectionString, url.ToString());
+            }
+        }
+
+        [Test]
         [TestCase(null, "mongodb://localhost")]
         [TestCase("database", "mongodb://localhost/database")]
         public void TestDatabaseName(string databaseName, string connectionString)
@@ -217,22 +272,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(null, null, "mongodb://localhost")]
-        [TestCase("username", "password", "mongodb://username:password@localhost")]
-        [TestCase("usern;me", "p;ssword", "mongodb://usern%3Bme:p%3Bssword@localhost")]
-        public void TestDefaultCredentials(string username, string password, string connectionString)
-        {
-            var defaultCredentials = (username == null) ? null : new MongoCredentials(username, password);
-            var built = new MongoUrlBuilder { Server = _localhost, DefaultCredentials = defaultCredentials };
-
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
-            {
-                Assert.AreEqual(defaultCredentials, builder.DefaultCredentials);
-                Assert.AreEqual(connectionString, builder.ToString());
-            }
-        }
-
-        [Test]
         public void TestDefaults()
         {
             var built = new MongoUrlBuilder();
@@ -240,11 +279,12 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.AreEqual(MongoAuthenticationProtocol.Strongest, builder.AuthenticationProtocol);
+                Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
                 Assert.AreEqual(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.AreEqual(null, builder.DatabaseName);
-                Assert.AreEqual(null, builder.DefaultCredentials);
                 Assert.AreEqual(null, builder.FSync);
                 Assert.AreEqual(MongoDefaults.GuidRepresentation, builder.GuidRepresentation);
                 Assert.AreEqual(false, builder.IPv6);
@@ -253,6 +293,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
                 Assert.AreEqual(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
                 Assert.AreEqual(MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
+                Assert.AreEqual(null, builder.Password);
                 Assert.AreEqual(null, builder.ReadPreference);
                 Assert.AreEqual(null, builder.ReplicaSetName);
 #pragma warning disable 618
@@ -265,6 +306,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(false, builder.SlaveOk);
 #pragma warning restore
                 Assert.AreEqual(MongoDefaults.SocketTimeout, builder.SocketTimeout);
+                Assert.AreEqual(null, builder.Username);
                 Assert.AreEqual(false, builder.UseSsl);
                 Assert.AreEqual(true, builder.VerifySslCertificate);
                 Assert.AreEqual(null, builder.W);

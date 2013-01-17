@@ -38,13 +38,11 @@ namespace MongoDB.DriverUnitTests
         {
             var settings = new MongoDatabaseSettings
             {
-                Credentials = MongoCredentials.Create("username", "password"),
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
 
-            Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
 #pragma warning disable 618
@@ -59,14 +57,12 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618
             var settings = new MongoDatabaseSettings(_server, "database")
             {
-                Credentials = MongoCredentials.Create("username", "password"),
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 ReadPreference = ReadPreference.Primary,
                 WriteConcern = WriteConcern.Acknowledged
             };
 
             Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(MongoCredentials.Create("username", "password"), settings.Credentials);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
@@ -81,7 +77,6 @@ namespace MongoDB.DriverUnitTests
             // set everything to non default values to test that all settings are cloned
             var settings = new MongoDatabaseSettings
             {
-                Credentials = MongoCredentials.Create("username", "password"),
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 ReadPreference = ReadPreference.Secondary,
                 WriteConcern = WriteConcern.W2
@@ -94,7 +89,6 @@ namespace MongoDB.DriverUnitTests
         public void TestConstructor()
         {
             var settings = new MongoDatabaseSettings();
-            Assert.AreEqual(null, settings.Credentials);
             Assert.AreEqual(GuidRepresentation.Unspecified, settings.GuidRepresentation);
             Assert.AreEqual(null, settings.ReadPreference);
 #pragma warning disable 618
@@ -109,28 +103,12 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618
             var settings = new MongoDatabaseSettings(_server, "database");
             Assert.AreEqual("database", settings.DatabaseName);
-            Assert.AreEqual(null, settings.Credentials);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
             Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
             Assert.AreEqual(false, settings.SlaveOk);
             Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
 #pragma warning restore
-        }
-
-        [Test]
-        public void TestCredentials()
-        {
-            var settings = new MongoDatabaseSettings();
-            Assert.AreEqual(null, settings.Credentials);
-
-            var credentials = new MongoCredentials("username", "password");
-            settings.Credentials = credentials;
-            Assert.AreEqual(credentials, settings.Credentials);
-
-            settings.Freeze();
-            Assert.AreEqual(credentials, settings.Credentials);
-            Assert.Throws<InvalidOperationException>(() => { settings.Credentials = credentials; });
         }
 
         [Test]
@@ -155,10 +133,6 @@ namespace MongoDB.DriverUnitTests
             settings.Freeze();
             clone.Freeze();
             Assert.IsTrue(clone.Equals(settings));
-
-            clone = settings.Clone();
-            clone.Credentials = new MongoCredentials("username", "password");
-            Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
             clone.GuidRepresentation = GuidRepresentation.PythonLegacy;

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using MongoDB.Driver.Communication;
 
 namespace MongoDB.Driver.Internal
 {
@@ -86,12 +87,12 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials)
+        internal MongoConnection AcquireConnection()
         {
-            return AcquireConnection(databaseName, credentials, _defaultAcquireConnectionOptions);
+            return AcquireConnection(_defaultAcquireConnectionOptions);
         }
 
-        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials, AcquireConnectionOptions options)
+        internal MongoConnection AcquireConnection(AcquireConnectionOptions options)
         {
             MongoConnection connectionToClose = null;
             try
@@ -112,39 +113,15 @@ namespace MongoDB.Driver.Internal
                         {
                             if (_availableConnections.Count > 0)
                             {
-                                // first try to find the most recently used connection that is already authenticated for this database
-                                for (int i = _availableConnections.Count - 1; i >= 0; i--)
+                                var connection = _availableConnections[_availableConnections.Count - 1];
+                                if (connection.IsExpired())
                                 {
-                                    var connection = _availableConnections[i];
-                                    if (connection.IsExpired())
-                                    {
-                                        _availableConnections.RemoveAt(i);
-                                        connectionToClose = connection;
-                                        return new MongoConnection(this);
-                                    }
-                                    else if (connection.IsAuthenticated(databaseName, credentials))
-                                    {
-                                        _availableConnections.RemoveAt(i);
-                                        return connection;
-                                    }
+                                    connectionToClose = connection;
+                                    connection = new MongoConnection(this);
                                 }
 
-                                // otherwise find the most recently used connection that can be authenticated for this database
-                                for (int i = _availableConnections.Count - 1; i >= 0; i--)
-                                {
-                                    var connection = _availableConnections[i];
-                                    if (connection.CanAuthenticate(databaseName, credentials))
-                                    {
-                                        _availableConnections.RemoveAt(i);
-                                        return connection;
-                                    }
-                                }
-
-                                // otherwise replace the least recently used connection with a brand new one
-                                // if this happens a lot the connection pool size should be increased
-                                connectionToClose = _availableConnections[0];
-                                _availableConnections.RemoveAt(0);
-                                return new MongoConnection(this);
+                                _availableConnections.RemoveAt(_availableConnections.Count - 1);
+                                return connection;
                             }
 
                             // avoid waiting by creating a new connection if options allow it

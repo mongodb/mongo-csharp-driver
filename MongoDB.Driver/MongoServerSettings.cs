@@ -32,7 +32,6 @@ namespace MongoDB.Driver
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialsStore _credentialsStore;
-        private MongoCredentials _defaultCredentials;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private TimeSpan _maxConnectionIdleTime;
@@ -64,7 +63,6 @@ namespace MongoDB.Driver
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentialsStore = new MongoCredentialsStore();
-            _defaultCredentials = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -148,7 +146,7 @@ namespace MongoDB.Driver
             _connectionMode = connectionMode;
             _connectTimeout = connectTimeout;
             _credentialsStore = credentialsStore ?? new MongoCredentialsStore();
-            _defaultCredentials = defaultCredentials;
+            _credentialsStore.Add(defaultCredentials);
             _guidRepresentation = guidRepresentation;
             _ipv6 = ipv6;
             _maxConnectionIdleTime = maxConnectionIdleTime;
@@ -217,19 +215,6 @@ namespace MongoDB.Driver
                     throw new ArgumentNullException("value");
                 }
                 _credentialsStore = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the default credentials.
-        /// </summary>
-        public MongoCredentials DefaultCredentials
-        {
-            get { return _defaultCredentials; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
-                _defaultCredentials = value;
             }
         }
 
@@ -525,15 +510,14 @@ namespace MongoDB.Driver
             var serverSettings = new MongoServerSettings();
             serverSettings.ConnectionMode = clientSettings.ConnectionMode;
             serverSettings.ConnectTimeout = clientSettings.ConnectTimeout;
-            serverSettings.CredentialsStore = clientSettings.CredentialsStore;
-            serverSettings.DefaultCredentials = clientSettings.DefaultCredentials;
+            serverSettings.CredentialsStore = clientSettings.CredentialsStore.Clone();
             serverSettings.GuidRepresentation = clientSettings.GuidRepresentation;
             serverSettings.IPv6 = clientSettings.IPv6;
             serverSettings.MaxConnectionIdleTime = clientSettings.MaxConnectionIdleTime;
             serverSettings.MaxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = clientSettings.MinConnectionPoolSize;
-            serverSettings.ReadPreference = clientSettings.ReadPreference;
+            serverSettings.ReadPreference = clientSettings.ReadPreference.Clone();
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
             serverSettings.SecondaryAcceptableLatency = clientSettings.SecondaryAcceptableLatency;
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
@@ -542,7 +526,7 @@ namespace MongoDB.Driver
             serverSettings.VerifySslCertificate = clientSettings.VerifySslCertificate;
             serverSettings.WaitQueueSize = clientSettings.WaitQueueSize;
             serverSettings.WaitQueueTimeout = clientSettings.WaitQueueTimeout;
-            serverSettings.WriteConcern = clientSettings.WriteConcern;
+            serverSettings.WriteConcern = clientSettings.WriteConcern.Clone();
             return serverSettings;
         }
 
@@ -553,17 +537,20 @@ namespace MongoDB.Driver
         /// <returns>A MongoServerSettings.</returns>
         public static MongoServerSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
-            MongoCredentials defaultCredentials = null;
-            if (builder.Username != null && builder.Password != null)
-            {
-                defaultCredentials = new MongoCredentials(builder.Username, builder.Password);
-            }
+            var credentials = MongoCredentials.FromComponents(
+                builder.AuthenticationProtocol, 
+                builder.AuthenticationSource, 
+                builder.DatabaseName, 
+                builder.Username, 
+                builder.Password);
 
             var serverSettings = new MongoServerSettings();
             serverSettings.ConnectionMode = builder.ConnectionMode;
             serverSettings.ConnectTimeout = builder.ConnectTimeout;
-            serverSettings.CredentialsStore = new MongoCredentialsStore();
-            serverSettings.DefaultCredentials = defaultCredentials;
+            if (credentials != null)
+            {
+                serverSettings.CredentialsStore.Add(credentials);
+            }
             serverSettings.GuidRepresentation = builder.GuidRepresentation;
             serverSettings.IPv6 = builder.IPv6;
             serverSettings.MaxConnectionIdleTime = builder.MaxConnectionIdleTime;
@@ -592,11 +579,20 @@ namespace MongoDB.Driver
         /// <returns>A MongoServerSettings.</returns>
         public static MongoServerSettings FromUrl(MongoUrl url)
         {
+            var credentials = MongoCredentials.FromComponents(
+                url.AuthenticationProtocol,
+                url.AuthenticationSource,
+                url.DatabaseName,
+                url.Username,
+                url.Password);
+
             var serverSettings = new MongoServerSettings();
             serverSettings.ConnectionMode = url.ConnectionMode;
             serverSettings.ConnectTimeout = url.ConnectTimeout;
-            serverSettings.CredentialsStore = new MongoCredentialsStore();
-            serverSettings.DefaultCredentials = url.DefaultCredentials;
+            if (credentials != null)
+            {
+                serverSettings.CredentialsStore.Add(credentials);
+            }
             serverSettings.GuidRepresentation = url.GuidRepresentation;
             serverSettings.IPv6 = url.IPv6;
             serverSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
@@ -629,7 +625,6 @@ namespace MongoDB.Driver
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
             clone._credentialsStore = _credentialsStore.Clone();
-            clone._defaultCredentials = _defaultCredentials;
             clone._guidRepresentation = _guidRepresentation;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
@@ -673,7 +668,6 @@ namespace MongoDB.Driver
                         _connectionMode == rhs._connectionMode &&
                         _connectTimeout == rhs._connectTimeout &&
                         _credentialsStore.Equals(rhs._credentialsStore) &&
-                        _defaultCredentials == rhs._defaultCredentials &&
                         _guidRepresentation == rhs._guidRepresentation &&
                         _ipv6 == rhs._ipv6 &&
                         _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
@@ -729,36 +723,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets credentials for a particular database.
-        /// </summary>
-        /// <param name="databaseName">The database name.</param>
-        /// <returns>The credentials for that database (or null).</returns>
-        public MongoCredentials GetCredentials(string databaseName)
-        {
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-
-            MongoCredentials credentials;
-            if (_credentialsStore.TryGetCredentials(databaseName, out credentials))
-            {
-                return credentials;
-            }
-
-            if (databaseName == "admin" && _defaultCredentials != null && _defaultCredentials.Admin)
-            {
-                return _defaultCredentials;
-            }
-            if (databaseName != "admin")
-            {
-                return _defaultCredentials;
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Gets the hash code.
         /// </summary>
         /// <returns>The hash code.</returns>
@@ -774,7 +738,6 @@ namespace MongoDB.Driver
             hash = 37 * hash + _connectionMode.GetHashCode();
             hash = 37 * hash + _connectTimeout.GetHashCode();
             hash = 37 * hash + _credentialsStore.GetHashCode();
-            hash = 37 * hash + ((_defaultCredentials == null) ? 0 : _defaultCredentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
@@ -812,7 +775,6 @@ namespace MongoDB.Driver
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
-            sb.AppendFormat("DefaultCredentials={0};", _defaultCredentials);
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("IPv6={0};", _ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);

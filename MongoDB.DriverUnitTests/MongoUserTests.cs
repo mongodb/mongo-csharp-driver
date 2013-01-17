@@ -21,16 +21,16 @@ namespace MongoDB.DriverUnitTests
     [TestFixture]
     public class MongoUserTests
     {
-        private MongoUser a = new MongoUser(new MongoCredentials("a", "p"), false);
-        private MongoUser b = new MongoUser(new MongoCredentials("a", "p"), false);
-        private MongoUser c = new MongoUser(new MongoCredentials("c", "p"), false);
-        private MongoUser q = new MongoUser(new MongoCredentials("a", "q"), false);
-        private MongoUser r = new MongoUser(new MongoCredentials("a", "p"), true);
+        private MongoUser a = new MongoUser("a", new PasswordEvidence("p"), false);
+        private MongoUser b = new MongoUser("a", new PasswordEvidence("p"), false);
+        private MongoUser c = new MongoUser("c", new PasswordEvidence("p"), false);
+        private MongoUser q = new MongoUser("a", new PasswordEvidence("q"), false);
+        private MongoUser r = new MongoUser("a", new PasswordEvidence("p"), true);
 
         [Test]
         public void TestConstructor1()
         {
-            var u = new MongoUser(new MongoCredentials("u", "p"), true);
+            var u = new MongoUser("u", new PasswordEvidence("p"), true);
             var ph = MongoUser.HashPassword("u", "p");
             Assert.AreEqual("u", u.Username);
             Assert.AreEqual(ph, u.PasswordHash);

@@ -288,7 +288,7 @@ namespace MongoDB.DriverUnitTests
         {
             var collection = _database.GetCollection("system.users");
             collection.RemoveAll();
-            _database.AddUser(new MongoCredentials("username", "password"), true);
+            _database.AddUser(new MongoUser("username", new PasswordEvidence("password"), true));
             Assert.AreEqual(1, collection.Count());
 
             var user = _database.FindUser("username");

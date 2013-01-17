@@ -31,10 +31,11 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
+        private MongoAuthenticationProtocol _authenticationProtocol;
+        private string _authenticationSource;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private string _databaseName;
-        private MongoCredentials _defaultCredentials;
         private bool? _fsync;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
@@ -43,12 +44,14 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private string _password;
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
+        private string _username;
         private bool _useSsl;
         private bool _verifySslCertificate;
         private WriteConcern.WValue _w;
@@ -63,10 +66,11 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
+            _authenticationProtocol = MongoAuthenticationProtocol.Strongest;
+            _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
-            _defaultCredentials = null;
             _fsync = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
@@ -75,12 +79,14 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _password = null;
             _readPreference = null;
             _replicaSetName = null;
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = null;
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _username = null;
             _useSsl = false;
             _verifySslCertificate = true;
             _w = null;
@@ -101,6 +107,24 @@ namespace MongoDB.Driver
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the authentication protocol.
+        /// </summary>
+        public MongoAuthenticationProtocol AuthenticationProtocol
+        {
+            get { return _authenticationProtocol; }
+            set { _authenticationProtocol = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the authentication source.
+        /// </summary>
+        public string AuthenticationSource
+        {
+            get { return _authenticationSource; }
+            set { _authenticationSource = value; }
+        }
+
         /// <summary>
         /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
         /// </summary>
@@ -151,15 +175,6 @@ namespace MongoDB.Driver
         {
             get { return _databaseName; }
             set { _databaseName = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the default credentials.
-        /// </summary>
-        public MongoCredentials DefaultCredentials
-        {
-            get { return _defaultCredentials; }
-            set { _defaultCredentials = value; }
         }
 
         /// <summary>
@@ -266,6 +281,15 @@ namespace MongoDB.Driver
                 }
                 _minConnectionPoolSize = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
+        public string Password
+        {
+            get { return _password; }
+            set { _password = value; }
         }
 
         /// <summary>
@@ -429,6 +453,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the username.
+        /// </summary>
+        public string Username
+        {
+            get { return _username; }
+            set { _username = value; }
+        }
+
+        /// <summary>
         /// Gets or sets whether to use SSL.
         /// </summary>
         public bool UseSsl
@@ -454,7 +487,7 @@ namespace MongoDB.Driver
             get { return _w; }
             set
             {
-                _w = value; 
+                _w = value;
             }
         }
 
@@ -552,6 +585,18 @@ namespace MongoDB.Driver
             else
             {
                 return value.ToString();
+            }
+        }
+
+        internal static MongoAuthenticationProtocol ParseAuthenticationProtocol(string name, string s)
+        {
+            try
+            {
+                return (MongoAuthenticationProtocol)Enum.Parse(typeof(MongoAuthenticationProtocol), s, true); // ignoreCase
+            }
+            catch (ArgumentException)
+            {
+                throw new FormatException(FormatMessage(name, s));
             }
         }
 
@@ -727,29 +772,32 @@ namespace MongoDB.Driver
         /// <param name="url">The URL.</param>
         public void Parse(string url)
         {
-            const string serverPattern = @"((\[[^]]+?\]|[^:,/]+)(:\d+)?)";
+            const string serverPattern = @"((\[[^]]+?\]|[^:,/?#]+)(:\d+)?)";
             const string pattern =
                 @"^mongodb://" +
-                @"((?<username>[^:]+):(?<password>[^@]+)@)?" +
-                @"(?<servers>" + serverPattern + "(," + serverPattern + ")*)?" +
+                @"((?<username>[^:]+)(:(?<password>.*?))?@)?" +
+                @"(?<servers>" + serverPattern + @"(," + serverPattern + ")*)?" +
                 @"(/(?<database>[^?]+)?(\?(?<query>.*))?)?$";
             Match match = Regex.Match(url, pattern);
             if (match.Success)
             {
-                string username = Uri.UnescapeDataString(match.Groups["username"].Value);
-                string password = Uri.UnescapeDataString(match.Groups["password"].Value);
+                var usernameGroup = match.Groups["username"];
+                if (usernameGroup.Success)
+                {
+                    _username = Uri.UnescapeDataString(usernameGroup.Value);
+                }
+                var passwordGroup = match.Groups["password"];
+                if (passwordGroup.Success)
+                {
+                    _password = Uri.UnescapeDataString(passwordGroup.Value);
+                }
                 string servers = match.Groups["servers"].Value;
-                string databaseName = match.Groups["database"].Value;
+                var databaseGroup = match.Groups["database"];
+                if (databaseGroup.Success)
+                {
+                    _databaseName = databaseGroup.Value;
+                }
                 string query = match.Groups["query"].Value;
-
-                if (username != "" && password != "")
-                {
-                    _defaultCredentials = new MongoCredentials(username, password);
-                }
-                else
-                {
-                    _defaultCredentials = null;
-                }
 
                 if (servers != "")
                 {
@@ -761,8 +809,6 @@ namespace MongoDB.Driver
                     }
                     _servers = addresses;
                 }
-
-                _databaseName = (databaseName != "") ? databaseName : null;
 
                 if (!string.IsNullOrEmpty(query))
                 {
@@ -778,6 +824,12 @@ namespace MongoDB.Driver
 
                         switch (name.ToLower())
                         {
+                            case "authprotocol":
+                                _authenticationProtocol = ParseAuthenticationProtocol(name, value);
+                                break;
+                            case "authsource":
+                                _authenticationSource = value;
+                                break;
                             case "connect":
                                 ConnectionMode = ParseConnectionMode(name, value);
                                 break;
@@ -923,9 +975,19 @@ namespace MongoDB.Driver
         {
             StringBuilder url = new StringBuilder();
             url.Append("mongodb://");
-            if (_defaultCredentials != null)
+            if (!string.IsNullOrEmpty(_username))
             {
-                url.AppendFormat("{0}:{1}@", Uri.EscapeDataString(_defaultCredentials.Username), Uri.EscapeDataString(_defaultCredentials.Password));
+                url.Append(Uri.EscapeDataString(_username));
+                if (_password != null)
+                {
+                    url.AppendFormat(":{0}", Uri.EscapeDataString(_password));
+                }
+                url.Append("@");
+            }
+            else if (_password != null)
+            {
+                // this would be weird and we really shouldn't be here...
+                url.AppendFormat(":{0}@", _password);
             }
             if (_servers != null)
             {
@@ -950,6 +1012,14 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
+            if (_authenticationProtocol != MongoAuthenticationProtocol.Strongest)
+            {
+                query.Append("authProtocol=GSSAPI;");
+            }
+            if (_authenticationSource != null)
+            {
+                query.AppendFormat("authSource={0};", _authenticationSource);
+            }
             if (_ipv6)
             {
                 query.AppendFormat("ipv6=true;");

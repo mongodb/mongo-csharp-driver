@@ -1133,7 +1133,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
+            var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
                 var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
@@ -1322,7 +1322,7 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
+            var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);
@@ -1552,7 +1552,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var connection = _server.AcquireConnection(_database, ReadPreference.Primary);
+            var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
                 var writerSettings = GetWriterSettings(connection);

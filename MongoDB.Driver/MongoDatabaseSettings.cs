@@ -25,7 +25,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private Setting<string> _databaseName;
-        private Setting<MongoCredentials> _credentials;
         private Setting<GuidRepresentation> _guidRepresentation;
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
@@ -62,66 +61,12 @@ namespace MongoDB.Driver
 
             var serverSettings = server.Settings;
             _databaseName.Value = databaseName;
-            _credentials.Value = serverSettings.GetCredentials(databaseName);
             _guidRepresentation.Value = serverSettings.GuidRepresentation;
             _readPreference.Value = serverSettings.ReadPreference;
             _writeConcern.Value = serverSettings.WriteConcern;
         }
 
-        /// <summary>
-        /// Creates a new instance of MongoDatabaseSettings.
-        /// </summary>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <param name="credentials">The credentials to access the database.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="writeConcern">The write concern to use.</param>
-        [Obsolete("Use MongoDatabaseSettings() instead.")]
-        public MongoDatabaseSettings(
-            string databaseName,
-            MongoCredentials credentials,
-            GuidRepresentation guidRepresentation,
-            ReadPreference readPreference,
-            WriteConcern writeConcern)
-        {
-            if (databaseName == null)
-            {
-                throw new ArgumentNullException("databaseName");
-            }
-            if (databaseName == "admin" && credentials != null && !credentials.Admin)
-            {
-                throw new ArgumentOutOfRangeException("credentials", "Credentials for the admin database must have the admin flag set to true.");
-            }
-            if (readPreference == null)
-            {
-                throw new ArgumentNullException("readPreference");
-            }
-            if (writeConcern == null)
-            {
-                throw new ArgumentNullException("writeConcern");
-            }
-
-            _databaseName.Value = databaseName;
-            _credentials.Value = credentials;
-            _guidRepresentation.Value = guidRepresentation;
-            _readPreference.Value = readPreference;
-            _writeConcern.Value = writeConcern;
-        }
-
         // public properties
-        /// <summary>
-        /// Gets or sets the credentials to access the database.
-        /// </summary>
-        public MongoCredentials Credentials
-        {
-            get { return _credentials.Value; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
-                _credentials.Value = value;
-            }
-        }
-
         /// <summary>
         /// Gets the name of the database.
         /// </summary>
@@ -230,7 +175,6 @@ namespace MongoDB.Driver
         {
             var clone =  new MongoDatabaseSettings();
             clone._databaseName = _databaseName.Clone();
-            clone._credentials = _credentials.Clone();
             clone._guidRepresentation = _guidRepresentation.Clone();
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
@@ -259,7 +203,6 @@ namespace MongoDB.Driver
                 {
                     return
                         _databaseName.Value == rhs._databaseName.Value &&
-                        _credentials.Value == rhs._credentials.Value &&
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
                         _readPreference.Value == rhs._readPreference.Value &&
                         _writeConcern.Value == rhs._writeConcern.Value;
@@ -314,7 +257,6 @@ namespace MongoDB.Driver
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + ((_databaseName.Value == null) ? 0 : _databaseName.GetHashCode());
-            hash = 37 * hash + ((_credentials.Value == null) ? 0 : _credentials.Value.GetHashCode());
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
@@ -333,18 +275,14 @@ namespace MongoDB.Driver
             }
 
             return string.Format(
-                "{4}Credentials={0};GuidRepresentation={1};ReadPreference={2};WriteConcern={3}",
-                _credentials, _guidRepresentation, _readPreference, _writeConcern,
+                "{3}GuidRepresentation={0};ReadPreference={1};WriteConcern={2}",
+                _guidRepresentation, _readPreference, _writeConcern,
                 _databaseName.HasBeenSet ? string.Format("DatabaseName={0}", _databaseName.Value) : "");
         }
 
         // internal methods
         internal void ApplyDefaultValues(MongoServerSettings serverSettings)
         {
-            if (!_credentials.HasBeenSet)
-            {
-                Credentials = serverSettings.DefaultCredentials;
-            }
             if (!_guidRepresentation.HasBeenSet)
             {
                 GuidRepresentation = serverSettings.GuidRepresentation;

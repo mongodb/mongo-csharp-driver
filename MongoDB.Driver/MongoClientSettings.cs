@@ -31,7 +31,6 @@ namespace MongoDB.Driver
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
         private MongoCredentialsStore _credentialsStore;
-        private MongoCredentials _defaultCredentials;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private TimeSpan _maxConnectionIdleTime;
@@ -63,7 +62,6 @@ namespace MongoDB.Driver
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentialsStore = new MongoCredentialsStore();
-            _defaultCredentials = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -123,19 +121,6 @@ namespace MongoDB.Driver
                     throw new ArgumentNullException("value");
                 }
                 _credentialsStore = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the default credentials.
-        /// </summary>
-        public MongoCredentials DefaultCredentials
-        {
-            get { return _defaultCredentials; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _defaultCredentials = value;
             }
         }
 
@@ -393,17 +378,20 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
-            MongoCredentials defaultCredentials = null;
-            if (builder.Username != null && builder.Password != null)
-            {
-                defaultCredentials = new MongoCredentials(builder.Username, builder.Password);
-            }
+            var credentials = MongoCredentials.FromComponents(
+                builder.AuthenticationProtocol,
+                builder.AuthenticationSource,
+                builder.DatabaseName,
+                builder.Username,
+                builder.Password);
 
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = builder.ConnectionMode;
             clientSettings.ConnectTimeout = builder.ConnectTimeout;
-            clientSettings.CredentialsStore = new MongoCredentialsStore();
-            clientSettings.DefaultCredentials = defaultCredentials;
+            if (credentials != null)
+            {
+                clientSettings.CredentialsStore.Add(credentials);
+            }
             clientSettings.GuidRepresentation = builder.GuidRepresentation;
             clientSettings.IPv6 = builder.IPv6;
             clientSettings.MaxConnectionIdleTime = builder.MaxConnectionIdleTime;
@@ -430,11 +418,20 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
+            var credentials = MongoCredentials.FromComponents(
+                url.AuthenticationProtocol,
+                url.AuthenticationSource,
+                url.DatabaseName,
+                url.Username,
+                url.Password);
+
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = url.ConnectionMode;
             clientSettings.ConnectTimeout = url.ConnectTimeout;
-            clientSettings.CredentialsStore = new MongoCredentialsStore();
-            clientSettings.DefaultCredentials = url.DefaultCredentials;
+            if (credentials != null)
+            {
+                clientSettings.CredentialsStore.Add(credentials);
+            }
             clientSettings.GuidRepresentation = url.GuidRepresentation;
             clientSettings.IPv6 = url.IPv6;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
@@ -465,7 +462,6 @@ namespace MongoDB.Driver
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
             clone._credentialsStore = _credentialsStore.Clone();
-            clone._defaultCredentials = _defaultCredentials;
             clone._guidRepresentation = _guidRepresentation;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
@@ -509,7 +505,6 @@ namespace MongoDB.Driver
                         _connectionMode == rhs._connectionMode &&
                         _connectTimeout == rhs._connectTimeout &&
                         _credentialsStore.Equals(rhs._credentialsStore) &&
-                        _defaultCredentials == rhs._defaultCredentials &&
                         _guidRepresentation == rhs._guidRepresentation &&
                         _ipv6 == rhs._ipv6 &&
                         _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
@@ -580,7 +575,6 @@ namespace MongoDB.Driver
             hash = 37 * hash + _connectionMode.GetHashCode();
             hash = 37 * hash + _connectTimeout.GetHashCode();
             hash = 37 * hash + _credentialsStore.GetHashCode();
-            hash = 37 * hash + ((_defaultCredentials == null) ? 0 : _defaultCredentials.GetHashCode());
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
@@ -618,7 +612,6 @@ namespace MongoDB.Driver
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
             sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
-            sb.AppendFormat("DefaultCredentials={0};", _defaultCredentials);
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("IPv6={0};", _ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);

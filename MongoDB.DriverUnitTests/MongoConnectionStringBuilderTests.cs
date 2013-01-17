@@ -37,6 +37,8 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoConnectionStringBuilder()
             {
+                AuthenticationProtocol = MongoAuthenticationProtocol.Gssapi,
+                AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
@@ -64,6 +66,8 @@ namespace MongoDB.DriverUnitTests
             };
 
             var connectionString = string.Join(";", new[] {
+                "authProtocol=GSSAPI",
+                "authSource=db",
                 "connect=replicaSet",
                 "connectTimeout=1s",
                 "database=database",
@@ -92,6 +96,8 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
+                Assert.AreEqual(MongoAuthenticationProtocol.Gssapi, builder.AuthenticationProtocol);
+                Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
@@ -124,6 +130,34 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(123, builder.WaitQueueSize);
                 Assert.AreEqual(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.AreEqual(TimeSpan.FromSeconds(9), builder.WTimeout);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        [TestCase(MongoAuthenticationProtocol.Strongest, "server=localhost;authProtocol=STRONGEST")]
+        [TestCase(MongoAuthenticationProtocol.Gssapi, "server=localhost;authProtocol=GSSAPI")]
+        public void TestAuthProtocol(MongoAuthenticationProtocol authProtocol, string connectionString)
+        {
+            var built = new MongoConnectionStringBuilder { Server = _localhost, AuthenticationProtocol = authProtocol };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(authProtocol, builder.AuthenticationProtocol);
+                Assert.AreEqual(connectionString, builder.ToString());
+            }
+        }
+
+        [Test]
+        [TestCase(null, "server=localhost")]
+        [TestCase("db", "server=localhost;authSource=db")]
+        public void TestAuthSource(string authSource, string connectionString)
+        {
+            var built = new MongoConnectionStringBuilder { Server = _localhost, AuthenticationSource = authSource };
+
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
+            {
+                Assert.AreEqual(authSource, builder.AuthenticationSource);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -1023,6 +1057,7 @@ namespace MongoDB.DriverUnitTests
         [TestCase(null, "server=localhost")]
         [TestCase("username", "server=localhost;username=username")]
         [TestCase("usern;me", "server=localhost;username=\"usern;me\"")]
+        [TestCase("username@domain.com", "server=localhost;username=username@domain.com")]
         public void TestUsername(string username, string connectionString)
         {
             var built = new MongoConnectionStringBuilder { Server = _localhost, Username = username };

@@ -335,7 +335,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void Ping()
         {
-            var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
+            var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
             try
             {
                 Ping(connection);
@@ -351,7 +351,7 @@ namespace MongoDB.Driver
         /// </summary>
         public void VerifyState()
         {
-            var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
+            var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
             try
             {
                 try
@@ -375,13 +375,9 @@ namespace MongoDB.Driver
         /// <summary>
         /// Acquires the connection.
         /// </summary>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <param name="credentials">The credentials.</param>
         /// <returns>A MongoConnection.</returns>
-        /// <exception cref="System.InvalidOperationException"></exception>
-        internal MongoConnection AcquireConnection(string databaseName, MongoCredentials credentials)
+        internal MongoConnection AcquireConnection()
         {
-            MongoConnection connection;
             lock (_serverInstanceLock)
             {
                 if (_state != MongoServerState.Connected)
@@ -391,20 +387,7 @@ namespace MongoDB.Driver
                 }
             }
 
-            connection = _connectionPool.AcquireConnection(databaseName, credentials);
-
-            try
-            {
-                connection.CheckAuthentication(databaseName, credentials); // will authenticate if necessary
-            }
-            catch (MongoAuthenticationException)
-            {
-                // don't let the connection go to waste just because authentication failed
-                _connectionPool.ReleaseConnection(connection);
-                throw;
-            }
-
-            return connection;
+            return _connectionPool.AcquireConnection();
         }
 
         /// <summary>
@@ -432,7 +415,7 @@ namespace MongoDB.Driver
 
             try
             {
-                var connection = _connectionPool.AcquireConnection(null, null);
+                var connection = _connectionPool.AcquireConnection();
                 try
                 {
                     Ping(connection);
@@ -694,7 +677,7 @@ namespace MongoDB.Driver
             _inStateVerification = true;
             try
             {
-                var connection = _connectionPool.AcquireConnection(null, null, _stateVerificationAcquireConnectionOptions);
+                var connection = _connectionPool.AcquireConnection(_stateVerificationAcquireConnectionOptions);
                 try
                 {
                     Ping(connection);

@@ -191,14 +191,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the credentials being used to access this database.
-        /// </summary>
-        public virtual MongoCredentials Credentials
-        {
-            get { return _settings.Credentials; }
-        }
-
-        /// <summary>
         /// Gets the default GridFS instance for this database. The default GridFS instance uses default GridFS
         /// settings. See also GetGridFS if you need to use GridFS with custom settings.
         /// </summary>
@@ -258,26 +250,6 @@ namespace MongoDB.Driver
         }
 
         // public methods
-        /// <summary>
-        /// Adds a user to this database.
-        /// </summary>
-        /// <param name="credentials">The user's credentials.</param>
-        public virtual void AddUser(MongoCredentials credentials)
-        {
-            AddUser(credentials, false);
-        }
-
-        /// <summary>
-        /// Adds a user to this database.
-        /// </summary>
-        /// <param name="credentials">The user's credentials.</param>
-        /// <param name="readOnly">True if the user is a read-only user.</param>
-        public virtual void AddUser(MongoCredentials credentials, bool readOnly)
-        {
-            var user = new MongoUser(credentials, readOnly);
-            AddUser(user);
-        }
-
         /// <summary>
         /// Adds a user to this database.
         /// </summary>
@@ -370,7 +342,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual void Drop()
         {
-            _server.DropDatabase(_name, _settings.Credentials);
+            _server.DropDatabase(_name);
         }
 
         /// <summary>
@@ -832,24 +804,6 @@ namespace MongoDB.Driver
         /// <returns>A CommandResult.</returns>
         public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, bool dropTarget)
         {
-            var adminCredentials = _server.Settings.GetCredentials("admin");
-            return RenameCollection(oldCollectionName, newCollectionName, dropTarget, adminCredentials);
-        }
-
-        /// <summary>
-        /// Renames a collection on this database.
-        /// </summary>
-        /// <param name="oldCollectionName">The old name for the collection.</param>
-        /// <param name="newCollectionName">The new name for the collection.</param>
-        /// <param name="dropTarget">Whether to drop the target collection first if it already exists.</param>
-        /// <param name="adminCredentials">Credentials for the admin database.</param>
-        /// <returns>A CommandResult.</returns>
-        public virtual CommandResult RenameCollection(
-            string oldCollectionName,
-            string newCollectionName,
-            bool dropTarget,
-            MongoCredentials adminCredentials)
-        {
             if (oldCollectionName == null)
             {
                 throw new ArgumentNullException("oldCollectionName");
@@ -870,20 +824,8 @@ namespace MongoDB.Driver
                 { "to", string.Format("{0}.{1}", _name, newCollectionName) },
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
-            var adminDatabase = _server.GetDatabase("admin", adminCredentials);
+            var adminDatabase = _server.GetDatabase("admin");
             return adminDatabase.RunCommand(command);
-        }
-
-        /// <summary>
-        /// Renames a collection on this database.
-        /// </summary>
-        /// <param name="oldCollectionName">The old name for the collection.</param>
-        /// <param name="newCollectionName">The new name for the collection.</param>
-        /// <param name="adminCredentials">Credentials for the admin database.</param>
-        /// <returns>A CommandResult.</returns>
-        public virtual CommandResult RenameCollection(string oldCollectionName, string newCollectionName, MongoCredentials adminCredentials)
-        {
-            return RenameCollection(oldCollectionName, newCollectionName, false, adminCredentials); // dropTarget = false
         }
 
         /// <summary>

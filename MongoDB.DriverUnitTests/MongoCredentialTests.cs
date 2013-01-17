@@ -22,50 +22,27 @@ namespace MongoDB.DriverUnitTests
     public class MongoCredentialsTests
     {
         [Test]
-        public void TestCreateAdminCredentials()
-        {
-            var credentials = MongoCredentials.Create("username(admin)", "password");
-            Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", credentials.Password);
-            Assert.IsTrue(credentials.Admin);
-
-            credentials = new MongoCredentials("username(admin)", "password");
-            Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", credentials.Password);
-            Assert.IsTrue(credentials.Admin);
-
-            credentials = new MongoCredentials("username", "password", true);
-            Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", credentials.Password);
-            Assert.IsTrue(credentials.Admin);
-        }
-
-        [Test]
         public void TestCreateCredentials()
         {
-            var credentials = new MongoCredentials("username", "password");
+            var credentials = MongoCredentials.CreateStrongestCredentials("db", "username", "password");
             Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", credentials.Password);
-            Assert.IsFalse(credentials.Admin);
-
-            credentials = new MongoCredentials("username", "password", false);
-            Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", credentials.Password);
-            Assert.IsFalse(credentials.Admin);
+            Assert.AreEqual("password", ((PasswordEvidence)credentials.Evidence).Password);
         }
 
         [Test]
         public void TestEquals()
         {
-            var a = new MongoCredentials("user1", "password");
-            var b = new MongoCredentials("user1", "password");
-            var c = new MongoCredentials("user2", "password");
+            var a = MongoCredentials.CreateStrongestCredentials("db", "user1", "password");
+            var b = MongoCredentials.CreateStrongestCredentials("db", "user1", "password");
+            var c = MongoCredentials.CreateStrongestCredentials("db", "user2", "password");
+            var d = MongoCredentials.CreateStrongestCredentials("db", "user2", "password1");
             var n = (MongoCredentials)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));
             Assert.IsFalse(a.Equals(n));
             Assert.IsFalse(a.Equals(null));
+            Assert.IsFalse(c.Equals(d));
 
             Assert.IsTrue(a == b);
             Assert.IsFalse(a == c);
@@ -73,6 +50,7 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(null == a);
             Assert.IsTrue(n == null);
             Assert.IsTrue(null == n);
+            Assert.IsFalse(c == d);
 
             Assert.IsFalse(a != b);
             Assert.IsTrue(a != c);
@@ -80,6 +58,7 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(null != a);
             Assert.IsFalse(n != null);
             Assert.IsFalse(null != n);
+            Assert.IsTrue(c != d);
         }
     }
 }
