@@ -1575,17 +1575,12 @@ namespace MongoDB.Bson.Serialization
                     {
                         var memberInfo2 = typeof(TClass).GetProperty(
                             memberInfo.Name,
-                            BindingFlags.Instance |
-                            BindingFlags.Public |
-                            BindingFlags.NonPublic);
+                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
                         // Handle explicit interface implementations.
-                        if (memberInfo2 == null &&
-                            memberInfo.DeclaringType.IsInterface)
+                        if (memberInfo2 == null && memberInfo.DeclaringType.IsInterface)
                         {
-                            memberInfo2 = ResolveExplicitProperty(
-                                memberInfo,
-                                typeof(TClass));
+                            memberInfo2 = ResolveExplicitProperty(memberInfo, typeof(TClass));
                         }
 
                         memberInfo = memberInfo2;
@@ -1607,9 +1602,7 @@ namespace MongoDB.Bson.Serialization
             return GetMemberInfoFromLambda(memberLambda).Name;
         }
 
-        private static PropertyInfo ResolveExplicitProperty(
-            MemberInfo interfaceMemberInfo,
-            Type targetType)
+        private static PropertyInfo ResolveExplicitProperty(MemberInfo interfaceMemberInfo, Type targetType)
         {
             var interfaceType = interfaceMemberInfo.DeclaringType;
 
@@ -1618,11 +1611,9 @@ namespace MongoDB.Bson.Serialization
             // implemented property name.
             var interfaceMap = targetType.GetInterfaceMap(interfaceType);
 
-            var interfacePropertyAccessors =
-                ((PropertyInfo)interfaceMemberInfo).GetAccessors(true);
+            var interfacePropertyAccessors = ((PropertyInfo)interfaceMemberInfo).GetAccessors(true);
 
-            var targetPropertyAccessors =
-                interfacePropertyAccessors.Select(accessor =>
+            var targetPropertyAccessors = interfacePropertyAccessors.Select(accessor =>
             {
                 var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, accessor);
 
@@ -1631,10 +1622,7 @@ namespace MongoDB.Bson.Serialization
 
             // Binding must be done by accessor methods because interface
             // maps only map accessor methods and do not map properties.
-            return targetType.GetProperties(
-                BindingFlags.Instance |
-                BindingFlags.Public |
-                BindingFlags.NonPublic)
+            return targetType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Single(propertyInfo =>
                 {
                     var accessors = propertyInfo.GetAccessors(true);
@@ -1646,9 +1634,7 @@ namespace MongoDB.Bson.Serialization
 
                     for (var i = 0; i < accessors.Length; ++i)
                     {
-                        if (Array.IndexOf<MethodInfo>(
-                            targetPropertyAccessors,
-                            accessors[i]) < 0)
+                        if(!targetPropertyAccessors.Contains(accessors[i]))
                         {
                             return false;
                         }
