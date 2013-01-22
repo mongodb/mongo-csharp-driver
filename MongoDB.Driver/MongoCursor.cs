@@ -584,6 +584,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Attaches a comment to the query. The comment can be seen in profiling
+        /// as a $comment field in the system.profile collection.
+        /// </summary>
+        /// <param name="comment">The comment to attach to the query.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public virtual MongoCursor SetComment(string comment)
+        {
+            if (comment == null)
+            {
+                throw new ArgumentNullException("comment");
+            }
+            if (_isFrozen) { ThrowFrozen(); }
+            SetOption("$comment", comment);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the sort order for the server to sort the documents by before returning them.
         /// </summary>
         /// <param name="keys">The names of the fields to sort by.</param>
@@ -858,6 +875,18 @@ namespace MongoDB.Driver
         {
             return (MongoCursor<TDocument>)base.SetSortOrder(sortBy);
         }
+
+        /// <summary>
+        /// Attaches a comment to the query. The comment can be seen in profiling
+        /// as a $comment field in the system.profile collection.
+        /// </summary>
+        /// <param name="comment">The comment to attach to the query.</param>
+        /// <returns>The cursor (so you can chain method calls to it).</returns>
+        public new virtual MongoCursor<TDocument> SetComment(string comment)
+        {
+            return (MongoCursor<TDocument>)base.SetComment(comment);
+        }
+
 
         /// <summary>
         /// Sets the sort order for the server to sort the documents by before returning them.
