@@ -23,7 +23,7 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver.Communication.Security.Mechanisms
 {
     /// <summary>
-    /// A mechanism for CRAM-MD5.
+    /// A mechanism for CRAM-MD5 (http://tools.ietf.org/html/draft-ietf-sasl-crammd5-10).
     /// </summary>
     internal class CramMD5Mechanism : ISaslMechanism
     {
@@ -60,7 +60,52 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
             return new ManagedCramMD5Implementation(credential.Username, ((PasswordEvidence)credential.Evidence).Password);
-            //return new GsaslCramMD5Implementation(identity);
+        }
+        
+        // nested classes
+        private class ManagedCramMD5Implementation : SaslImplementationBase, ISaslStep
+        {
+            // private fields
+            private readonly string _username;
+            private readonly string _password;
+    
+            // constructors
+            public ManagedCramMD5Implementation(string username, string password)
+            {
+                _username = username;
+                _password = password;
+            }
+    
+            // public methods
+            public byte[] BytesToSendToServer
+            {
+                get { return new byte[0]; }
+            }
+    
+            // public methods
+            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            {
+                var encoding = Encoding.UTF8;
+                var mongoPassword = _username + ":mongo:" + _password;
+                byte[] password;
+                using (var md5 = MD5.Create())
+                {
+                    password = GetMongoPassword(md5, encoding, _username, _password);
+                    var temp = ToHexString(password);
+                    password = encoding.GetBytes(temp);
+                }
+    
+                byte[] digest;
+                using (var hmacMd5 = new HMACMD5(password))
+                {
+                    digest = hmacMd5.ComputeHash(bytesReceivedFromServer);
+                }
+    
+                var response = _username + " " + ToHexString(digest);
+                var bytesToSendToServer = encoding.GetBytes(response);
+    
+                return new SaslCompletionStep(bytesToSendToServer);
+            }
         }
     }
 }

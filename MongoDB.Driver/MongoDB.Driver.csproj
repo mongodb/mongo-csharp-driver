@@ -122,9 +122,7 @@
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="Communication\Security\IAuthenticationMethod.cs" />
     <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
-    <Compile Include="Communication\Security\Mechanisms\CramMD5Mechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\DigestMD5Mechanism.cs" />
-    <Compile Include="Communication\Security\Mechanisms\GsaslCramMD5Implementation.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslContext.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslException.cs" />
@@ -136,8 +134,6 @@
     <Compile Include="Communication\Security\Mechanisms\GsaslGssapiImplementation.cs" />
     <Compile Include="Communication\Security\Mechanisms\GssapiMechanism.cs" />
     <Compile Include="Communication\Security\ISaslMechanism.cs" />
-    <Compile Include="Communication\Security\Mechanisms\ManagedCramMD5Implementation.cs" />
-    <Compile Include="Communication\Security\Mechanisms\ManagedDigestMD5Implementation.cs" />
     <Compile Include="Communication\Security\Mechanisms\WindowsGssapiImplementation.cs" />
     <Compile Include="Communication\Security\MongoSecurityException.cs" />
     <Compile Include="Communication\Security\SaslAuthenticationMethod.cs" />
@@ -194,7 +190,6 @@
     <Compile Include="MongoUrlBuilder.cs" />
     <Compile Include="MongoUser.cs" />
     <Compile Include="PasswordEvidence.cs" />
-    <Compile Include="ProcessEvidence.cs" />
     <Compile Include="ProfilingLevel.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReplicaSetTag.cs" />
@@ -312,6 +307,8 @@
     <Compile Include="RemoveFlags.cs" />
     <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
+    <Compile Include="Communication\Security\Mechanisms\CramMD5Mechanism.cs" />
+    <Compile Include="ExternalEvidence.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

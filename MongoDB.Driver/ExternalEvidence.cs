@@ -23,12 +23,12 @@ namespace MongoDB.Driver
     /// <summary>
     /// Evidence of a MongoIdentity via the currently executing process.
     /// </summary>
-    public sealed class ProcessEvidence : MongoIdentityEvidence
+    public sealed class ExternalEvidence : MongoIdentityEvidence
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProcessEvidence" /> class.
+        /// Initializes a new instance of the <see cref="ExternalEvidence" /> class.
         /// </summary>
-        public ProcessEvidence()
+        public ExternalEvidence()
         { }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace MongoDB.Driver
         /// </returns>
         public override bool Equals(object obj)
         {
-            return obj is ProcessEvidence;
+            return obj is ExternalEvidence;
         }
 
         /// <summary>

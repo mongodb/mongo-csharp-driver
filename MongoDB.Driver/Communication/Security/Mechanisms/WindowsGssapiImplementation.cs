@@ -33,14 +33,14 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowsGssapiImplementation" /> class.
         /// </summary>
-        /// <param name="serverName">Name of the server.</param>
+        /// <param name="hostName">Name of the host.</param>
         /// <param name="username">The username.</param>
         /// <param name="evidence">The evidence.</param>
-        public WindowsGssapiImplementation(string serverName, string username, MongoIdentityEvidence evidence)
+        public WindowsGssapiImplementation(string hostName, string username, MongoIdentityEvidence evidence)
         {
             _authorizationId = username;
             _evidence = evidence;
-            _servicePrincipalName = "mongodb/" + serverName;
+            _servicePrincipalName = "mongodb/" + hostName;
         }
 
         // properties

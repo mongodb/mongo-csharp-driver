@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Communication.Security
                 }
             }
 
-            var message = string.Format("Unable to negotiate a protocol to authenticate. Credential for source {0}, username {1} over protocol {2} could not be authenticated", credential.Source, credential.Username, credential.AuthenticationProtocol);
+            var message = string.Format("Unable to negotiate a protocol to authenticate. The credential for source {0}, username {1} over protocol {2} could not be authenticated.", credential.Source, credential.Username, credential.AuthenticationProtocol);
             throw new MongoSecurityException(message);
         }
 

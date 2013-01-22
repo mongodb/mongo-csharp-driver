@@ -26,6 +26,9 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     /// </summary>
     internal class GssapiMechanism : ISaslMechanism
     {
+        // private static methods
+        private static bool __useGsasl = !Environment.OSVersion.Platform.ToString().Contains("Win");
+		
         // public properties
         /// <summary>
         /// Gets the name of the mechanism.
@@ -46,8 +49,16 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <exception cref="System.NotImplementedException"></exception>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.AuthenticationProtocol == MongoAuthenticationProtocol.Gssapi && 
-                credential.Identity is MongoExternalIdentity;
+            if(credential.AuthenticationProtocol != MongoAuthenticationProtocol.Gssapi || !(credential.Identity is MongoExternalIdentity))
+            {
+                return false;	
+            }
+            if(__useGsasl)
+            {
+                // GSASL relies on kinit to work properly and hence, the evidence is external.
+                return credential.Evidence is ExternalEvidence;
+            }
+            return true;
         }
 
         /// <summary>
@@ -59,14 +70,12 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
             // TODO: provide an override to force the use of gsasl?
-            bool useGsasl = !Environment.OSVersion.Platform.ToString().Contains("Win");
-            if (useGsasl)
+            if (__useGsasl)
             {
-                throw new NotImplementedException("Gssapi Support on Non-Windows Machinse is Not Implemented.");
-                //return new GsaslGssapiImplementation(
-                //    connection.ServerInstance.Address.Host,
-                //    credential.Username,
-                //    credential.Evidence);
+                return new GsaslGssapiImplementation(
+                    connection.ServerInstance.Address.Host,
+                    credential.Username,
+                    credential.Evidence);
             }
 
             return new WindowsGssapiImplementation(
