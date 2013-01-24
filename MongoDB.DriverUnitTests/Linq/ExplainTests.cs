@@ -47,8 +47,12 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
         {
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
-            var queryExplain =
-                _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
+            var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
+
+            // millis could be different, so we'll ignore that difference.
+            linqExplain.Remove("millis");
+            queryExplain.Remove("millis");
+
             Assert.AreEqual(linqExplain, queryExplain);
         }
 
@@ -56,8 +60,12 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestVerboseExplainFromLinqQueryEqualsVerboseExplainFromCursor()
         {
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain(true);
-            var queryExplain =
-                _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
+            var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
+
+            // millis could be different, so we'll ignore that difference.
+            linqExplain.Remove("millis");
+            queryExplain.Remove("millis");
+
             Assert.AreEqual(linqExplain, queryExplain);
         }
 
