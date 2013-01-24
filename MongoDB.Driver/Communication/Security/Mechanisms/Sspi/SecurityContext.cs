@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
     internal class SecurityContext : SafeHandle
     {
         // private fields
-        private SecurityCredentials _credentials;
+        private SecurityCredential _credential;
         private SspiHandle _sspiHandle;
         private bool _isInitialized;
 
@@ -43,15 +43,15 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <summary>
         /// Initializes the context.
         /// </summary>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <param name="servicePrincipalName">Name of the service principal.</param>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <returns></returns>
-        public static SecurityContext Initialize(SecurityCredentials credentials, string servicePrincipalName, byte[] input, out byte[] output)
+        public static SecurityContext Initialize(SecurityCredential credential, string servicePrincipalName, byte[] input, out byte[] output)
         {
             var context = new SecurityContext();
-            context._credentials = credentials;
+            context._credential = credential;
 
             context.Initialize(servicePrincipalName, input, out output);
             return context;
@@ -261,21 +261,21 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 
             var outputBuffer = new SecurityBufferDescriptor(Win32.MAX_TOKEN_SIZE);
             
-            bool credentialsAddRefSuccess = false;
+            bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
             
             RuntimeHelpers.PrepareConstrainedRegions();
             try
             {
-                _credentials.DangerousAddRef(ref credentialsAddRefSuccess);
+                _credential.DangerousAddRef(ref credentialAddRefSuccess);
                 DangerousAddRef(ref contextAddRefSuccess);
             }
             catch (Exception ex)
             {
-                if (credentialsAddRefSuccess)
+                if (credentialAddRefSuccess)
                 {
-                    _credentials.DangerousRelease();
-                    credentialsAddRefSuccess = false;
+                    _credential.DangerousRelease();
+                    credentialAddRefSuccess = false;
                 }
                 if (contextAddRefSuccess)
                 {
@@ -296,11 +296,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 
                     uint result;
                     long timestamp;
-                    var credentialsHandle = _credentials._sspiHandle;
+                    var credentialHandle = _credential._sspiHandle;
                     if (inBytes == null || inBytes.Length == 0)
                     {
                         result = Win32.InitializeSecurityContext(
-                            ref credentialsHandle,
+                            ref credentialHandle,
                             IntPtr.Zero,
                             servicePrincipalName,
                             flags,
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                         try
                         {
                             result = Win32.InitializeSecurityContext(
-                                ref credentialsHandle,
+                                ref credentialHandle,
                                 ref _sspiHandle,
                                 servicePrincipalName,
                                 flags,
@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                         }
                     }
 
-                    _credentials.DangerousRelease();
+                    _credential.DangerousRelease();
                     DangerousRelease();
 
                     if (result != Win32.SEC_E_OK && result != Win32.SEC_I_CONTINUE_NEEDED)

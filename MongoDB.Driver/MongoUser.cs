@@ -35,8 +35,6 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <param name="isReadOnly">Whether the user has read-only access.</param>
-        /// <exception cref="System.ArgumentNullException">credentials</exception>
-        /// <exception cref="System.ArgumentException">Credentials must have password evidence to create a user.</exception>
         public MongoUser(string username, PasswordEvidence password, bool isReadOnly)
         {
             if (username == null)
@@ -198,7 +196,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a string representation of the credentials.
+        /// Returns a string representation of the user.
         /// </summary>
         /// <returns>A string representation of the user.</returns>
         public override string ToString()

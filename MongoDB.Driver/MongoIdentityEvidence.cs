@@ -34,22 +34,22 @@ namespace MongoDB.Driver
 
         // public operators
         /// <summary>
-        /// Compares two MongoCredentials.
+        /// Compares two MongoIdentityEvidences.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
-        /// <returns>True if the two MongoCredentials are equal (or both null).</returns>
+        /// <param name="lhs">The first MongoIdentityEvidence.</param>
+        /// <param name="rhs">The other MongoIdentityEvidence.</param>
+        /// <returns>True if the two MongoIdentityEvidences are equal (or both null).</returns>
         public static bool operator ==(MongoIdentityEvidence lhs, MongoIdentityEvidence rhs)
         {
             return object.Equals(lhs, rhs);
         }
 
         /// <summary>
-        /// Compares two MongoCredentials.
+        /// Compares two MongoIdentityEvidences.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
-        /// <returns>True if the two MongoCredentials are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first MongoIdentityEvidence.</param>
+        /// <param name="rhs">The other MongoIdentityEvidence.</param>
+        /// <returns>True if the two MongoIdentityEvidences are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(MongoIdentityEvidence lhs, MongoIdentityEvidence rhs)
         {
             return !(lhs == rhs);

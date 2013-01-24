@@ -134,7 +134,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a string representation of the credentials.
+        /// Returns a string representation of the replica set tags.
         /// </summary>
         /// <returns>A string representation of the user.</returns>
         public override string ToString()

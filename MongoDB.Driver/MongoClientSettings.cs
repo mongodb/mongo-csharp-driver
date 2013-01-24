@@ -30,7 +30,7 @@ namespace MongoDB.Driver
         // private fields
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
-        private MongoCredentialsStore _credentialsStore;
+        private MongoCredentialStore _credentials;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private TimeSpan _maxConnectionIdleTime;
@@ -61,7 +61,7 @@ namespace MongoDB.Driver
         {
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
-            _credentialsStore = new MongoCredentialsStore();
+            _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
@@ -108,11 +108,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the credentials store.
+        /// Gets or sets the credentials.
         /// </summary>
-        public MongoCredentialsStore CredentialsStore
+        public IEnumerable<MongoCredential> Credentials
         {
-            get { return _credentialsStore; }
+            get { return _credentials; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
@@ -120,7 +120,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _credentialsStore = value;
+                _credentials = new MongoCredentialStore(value);
             }
         }
 
@@ -378,7 +378,7 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
-            var credentials = MongoCredentials.FromComponents(
+            var credential = MongoCredential.FromComponents(
                 builder.AuthenticationProtocol,
                 builder.AuthenticationSource,
                 builder.DatabaseName,
@@ -388,9 +388,9 @@ namespace MongoDB.Driver
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = builder.ConnectionMode;
             clientSettings.ConnectTimeout = builder.ConnectTimeout;
-            if (credentials != null)
+            if (credential != null)
             {
-                clientSettings.CredentialsStore.Add(credentials);
+                clientSettings.Credentials = new[] { credential };
             }
             clientSettings.GuidRepresentation = builder.GuidRepresentation;
             clientSettings.IPv6 = builder.IPv6;
@@ -418,7 +418,7 @@ namespace MongoDB.Driver
         /// <returns>A MongoClientSettings.</returns>
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
-            var credentials = MongoCredentials.FromComponents(
+            var credential = MongoCredential.FromComponents(
                 url.AuthenticationProtocol,
                 url.AuthenticationSource,
                 url.DatabaseName,
@@ -428,9 +428,9 @@ namespace MongoDB.Driver
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = url.ConnectionMode;
             clientSettings.ConnectTimeout = url.ConnectTimeout;
-            if (credentials != null)
+            if (credential != null)
             {
-                clientSettings.CredentialsStore.Add(credentials);
+                clientSettings.Credentials = new[] { credential };
             }
             clientSettings.GuidRepresentation = url.GuidRepresentation;
             clientSettings.IPv6 = url.IPv6;
@@ -461,7 +461,7 @@ namespace MongoDB.Driver
             var clone = new MongoClientSettings();
             clone._connectionMode = _connectionMode;
             clone._connectTimeout = _connectTimeout;
-            clone._credentialsStore = _credentialsStore.Clone();
+            clone._credentials = _credentials;
             clone._guidRepresentation = _guidRepresentation;
             clone._ipv6 = _ipv6;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
@@ -504,7 +504,7 @@ namespace MongoDB.Driver
                     return
                         _connectionMode == rhs._connectionMode &&
                         _connectTimeout == rhs._connectTimeout &&
-                        _credentialsStore.Equals(rhs._credentialsStore) &&
+                        _credentials == rhs._credentials &&
                         _guidRepresentation == rhs._guidRepresentation &&
                         _ipv6 == rhs._ipv6 &&
                         _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
@@ -533,7 +533,6 @@ namespace MongoDB.Driver
         {
             if (!_isFrozen)
             {
-                _credentialsStore.Freeze();
                 _readPreference = _readPreference.FrozenCopy();
                 _writeConcern = _writeConcern.FrozenCopy();
                 _frozenHashCode = GetHashCode();
@@ -574,7 +573,7 @@ namespace MongoDB.Driver
             int hash = 17;
             hash = 37 * hash + _connectionMode.GetHashCode();
             hash = 37 * hash + _connectTimeout.GetHashCode();
-            hash = 37 * hash + _credentialsStore.GetHashCode();
+            hash = 37 * hash + _credentials.GetHashCode();
             hash = 37 * hash + _guidRepresentation.GetHashCode();
             hash = 37 * hash + _ipv6.GetHashCode();
             hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
@@ -611,7 +610,7 @@ namespace MongoDB.Driver
             var sb = new StringBuilder();
             sb.AppendFormat("ConnectionMode={0};", _connectionMode);
             sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
-            sb.AppendFormat("Credentials={{{0}}};", _credentialsStore);
+            sb.AppendFormat("Credentials={{{0}}};", _credentials);
             sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
             sb.AppendFormat("IPv6={0};", _ipv6);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);

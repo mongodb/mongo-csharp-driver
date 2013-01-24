@@ -72,22 +72,22 @@ namespace MongoDB.Driver
 
         // public operators
         /// <summary>
-        /// Compares two MongoCredentials.
+        /// Compares two MongoIdentity values.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
-        /// <returns>True if the two MongoCredentials are equal (or both null).</returns>
+        /// <param name="lhs">The first MongoIdentity.</param>
+        /// <param name="rhs">The other MongoIdentity.</param>
+        /// <returns>True if the two MongoIdentity values are equal (or both null).</returns>
         public static bool operator ==(MongoIdentity lhs, MongoIdentity rhs)
         {
             return object.Equals(lhs, rhs);
         }
 
         /// <summary>
-        /// Compares two MongoCredentials.
+        /// Compares two MongoIdentity values.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
-        /// <returns>True if the two MongoCredentials are not equal (or one is null and the other is not).</returns>
+        /// <param name="lhs">The first MongoIdentity.</param>
+        /// <param name="rhs">The other MongoIdentity.</param>
+        /// <returns>True if the two MongoIdentity values are not equal (or one is null and the other is not).</returns>
         public static bool operator !=(MongoIdentity lhs, MongoIdentity rhs)
         {
             return !(lhs == rhs);

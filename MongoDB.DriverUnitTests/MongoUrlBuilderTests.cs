@@ -245,7 +245,7 @@ namespace MongoDB.DriverUnitTests
         [TestCase("usern;me", "p;ssword", "mongodb://usern%3Bme:p%3Bssword@localhost")]
         [TestCase("usern;me", null, "mongodb://usern%3Bme@localhost")]
         [TestCase("usern;me", "", "mongodb://usern%3Bme:@localhost")]
-        public void TestCredentials(string username, string password, string connectionString)
+        public void TestCredential(string username, string password, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, Username = username, Password = password };
 

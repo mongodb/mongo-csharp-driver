@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Communication.Security
 
         // private fields
         private readonly MongoConnection _connection;
-        private readonly IEnumerable<MongoCredentials> _credentials;
+        private readonly IEnumerable<MongoCredential> _credentials;
 
         // constructors
         /// <summary>
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Communication.Security
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="credentials">The credentials.</param>
-        public Authenticator(MongoConnection connection, IEnumerable<MongoCredentials> credentials)
+        public Authenticator(MongoConnection connection, IEnumerable<MongoCredential> credentials)
         {
             _connection = connection;
             _credentials = credentials;
@@ -71,18 +71,18 @@ namespace MongoDB.Driver.Communication.Security
         }
 
         // private methods
-        private void Authenticate(MongoCredentials credentials, List<string> serverSupportedMethods)
+        private void Authenticate(MongoCredential credential, List<string> serverSupportedMethods)
         {
             foreach (var clientSupportedMethod in __clientSupportedMethods)
             {
-                if (serverSupportedMethods.Contains(clientSupportedMethod.Name) && clientSupportedMethod.CanUse(credentials))
+                if (serverSupportedMethods.Contains(clientSupportedMethod.Name) && clientSupportedMethod.CanUse(credential))
                 {
-                    clientSupportedMethod.Authenticate(_connection, credentials);
+                    clientSupportedMethod.Authenticate(_connection, credential);
                     return;
                 }
             }
 
-            var message = string.Format("Unable to negotiate a protocol to authenticate. Credentials for source {0}, username {1} over protocol {2} could not be authenticated", credentials.Source, credentials.Username, credentials.AuthenticationProtocol);
+            var message = string.Format("Unable to negotiate a protocol to authenticate. Credential for source {0}, username {1} over protocol {2} could not be authenticated", credential.Source, credential.Username, credential.AuthenticationProtocol);
             throw new MongoSecurityException(message);
         }
 

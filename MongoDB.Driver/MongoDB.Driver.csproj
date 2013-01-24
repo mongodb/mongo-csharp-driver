@@ -140,7 +140,7 @@
     <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityBufferDescriptor.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityBufferType.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityContext.cs" />
-    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityCredentials.cs" />
+    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityCredential.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityCredentialUse.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityPackageContextSizes.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\SspiContextFlags.cs" />
@@ -167,7 +167,7 @@
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />
-    <Compile Include="MongoCredentialsStore.cs" />
+    <Compile Include="MongoCredentialStore.cs" />
     <Compile Include="MongoDatabaseSettings.cs" />
     <Compile Include="MongoDBRef.cs" />
     <Compile Include="MongoExternalIdentity.cs" />
@@ -287,7 +287,7 @@
     <Compile Include="MongoConnectionStringBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MongoCredentials.cs" />
+    <Compile Include="MongoCredential.cs" />
     <Compile Include="CommandResults\MapReduceResult.cs" />
     <Compile Include="MongoServer.cs" />
     <Compile Include="MongoCursor.cs" />

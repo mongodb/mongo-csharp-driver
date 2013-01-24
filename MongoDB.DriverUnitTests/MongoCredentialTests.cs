@@ -19,24 +19,24 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests
 {
     [TestFixture]
-    public class MongoCredentialsTests
+    public class MongoCredentialTests
     {
         [Test]
-        public void TestCreateCredentials()
+        public void TestCreateCredential()
         {
-            var credentials = MongoCredentials.CreateStrongestCredentials("db", "username", "password");
-            Assert.AreEqual("username", credentials.Username);
-            Assert.AreEqual("password", ((PasswordEvidence)credentials.Evidence).Password);
+            var credential = MongoCredential.CreateStrongestCredential("db", "username", "password");
+            Assert.AreEqual("username", credential.Username);
+            Assert.AreEqual("password", ((PasswordEvidence)credential.Evidence).Password);
         }
 
         [Test]
         public void TestEquals()
         {
-            var a = MongoCredentials.CreateStrongestCredentials("db", "user1", "password");
-            var b = MongoCredentials.CreateStrongestCredentials("db", "user1", "password");
-            var c = MongoCredentials.CreateStrongestCredentials("db", "user2", "password");
-            var d = MongoCredentials.CreateStrongestCredentials("db", "user2", "password1");
-            var n = (MongoCredentials)null;
+            var a = MongoCredential.CreateStrongestCredential("db", "user1", "password");
+            var b = MongoCredential.CreateStrongestCredential("db", "user1", "password");
+            var c = MongoCredential.CreateStrongestCredential("db", "user2", "password");
+            var d = MongoCredential.CreateStrongestCredential("db", "user2", "password1");
+            var n = (MongoCredential)null;
 
             Assert.IsTrue(object.Equals(a, b));
             Assert.IsFalse(object.Equals(a, c));

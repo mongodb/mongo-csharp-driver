@@ -20,18 +20,18 @@ using System.Runtime.InteropServices;
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 {
     /// <summary>
-    /// A wrapper around the SspiHandle structure specificly used as a credentials handle.
+    /// A wrapper around the SspiHandle structure specificly used as a credential handle.
     /// </summary>
-    internal class SecurityCredentials : SafeHandle
+    internal class SecurityCredential : SafeHandle
     {
         // internal fields
         internal SspiHandle _sspiHandle;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityCredentials" /> class.
+        /// Initializes a new instance of the <see cref="SecurityCredential" /> class.
         /// </summary>
-        public SecurityCredentials()
+        public SecurityCredential()
             : base(IntPtr.Zero, true)
         {
             _sspiHandle = new SspiHandle();
@@ -52,17 +52,17 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 
         // public methods
         /// <summary>
-        /// Acquires the credentials handle.
+        /// Acquires the credential handle.
         /// </summary>
         /// <param name="package">The package.</param>
         /// <param name="username">The username.</param>
         /// <param name="evidence">The evidence.</param>
         /// <returns>A security credential.</returns>
-        public static SecurityCredentials Acquire(SspiPackage package, string username, MongoIdentityEvidence evidence)
+        public static SecurityCredential Acquire(SspiPackage package, string username, MongoIdentityEvidence evidence)
         {
             long timestamp;
 
-            var credentials = new SecurityCredentials();
+            var credential = new SecurityCredential();
             RuntimeHelpers.PrepareConstrainedRegions();
             try { }
             finally
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                         IntPtr.Zero,
                         0,
                         IntPtr.Zero,
-                        ref credentials._sspiHandle,
+                        ref credential._sspiHandle,
                         out timestamp);
 
                 }
@@ -96,17 +96,17 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                             authIdentity,
                             0,
                             IntPtr.Zero,
-                            ref credentials._sspiHandle,
+                            ref credential._sspiHandle,
                             out timestamp);
                     }
                 }
                 if (result != Win32.SEC_E_OK)
                 {
-                    credentials.SetHandleAsInvalid();
-                    throw Win32.CreateException(result, "Unable to acquire credentials.");
+                    credential.SetHandleAsInvalid();
+                    throw Win32.CreateException(result, "Unable to acquire credential.");
                 }
             }
-            return credentials;
+            return credential;
         }
 
         // protected methods

@@ -40,7 +40,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         }
 
         [Test]
-        public void TestOneIPv6AddressWithDefaultCredentials()
+        public void TestOneIPv6AddressWithCredential()
         {
             var connectionString = "mongodb://username:password@[::1:]/?w=1";
             var url = new MongoUrl(connectionString);
@@ -100,7 +100,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp346
         }
 
         [Test]
-        public void TestTwoIPv6AddressesWithDefaultCredentials()
+        public void TestTwoIPv6AddressesWithCredential()
         {
             var connectionString = "mongodb://username:password@[::1:],[::2:]/?w=1";
             var url = new MongoUrl(connectionString);

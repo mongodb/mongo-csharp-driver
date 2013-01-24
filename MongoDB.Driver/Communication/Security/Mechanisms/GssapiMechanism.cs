@@ -37,26 +37,26 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
 
         // public methods
         /// <summary>
-        /// Determines whether this instance can authenticate with the specified credentials.
+        /// Determines whether this instance can authenticate with the specified credential.
         /// </summary>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns>
-        ///   <c>true</c> if this instance can authenticate with the specified credentials; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance can authenticate with the specified credential; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="System.NotImplementedException"></exception>
-        public bool CanUse(MongoCredentials credentials)
+        public bool CanUse(MongoCredential credential)
         {
-            return credentials.AuthenticationProtocol == MongoAuthenticationProtocol.Gssapi && 
-                credentials.Identity is MongoExternalIdentity;
+            return credential.AuthenticationProtocol == MongoAuthenticationProtocol.Gssapi && 
+                credential.Identity is MongoExternalIdentity;
         }
 
         /// <summary>
         /// Initializes the mechanism.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns>The initial step.</returns>
-        public ISaslStep Initialize(MongoConnection connection, MongoCredentials credentials)
+        public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
             // TODO: provide an override to force the use of gsasl?
             bool useGsasl = !Environment.OSVersion.Platform.ToString().Contains("Win");
@@ -65,14 +65,14 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                 throw new NotImplementedException("Gssapi Support on Non-Windows Machinse is Not Implemented.");
                 //return new GsaslGssapiImplementation(
                 //    connection.ServerInstance.Address.Host,
-                //    credentials.Username,
-                //    credentials.Evidence);
+                //    credential.Username,
+                //    credential.Evidence);
             }
 
             return new WindowsGssapiImplementation(
                 connection.ServerInstance.Address.Host,
-                credentials.Username,
-                credentials.Evidence);
+                credential.Username,
+                credential.Evidence);
         }
     }
 }

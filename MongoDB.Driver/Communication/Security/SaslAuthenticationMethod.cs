@@ -23,7 +23,7 @@ using MongoDB.Driver.Communication.Security.Mechanisms;
 namespace MongoDB.Driver.Communication.Security
 {
     /// <summary>
-    /// Authenticates credentials using the SASL protocol.
+    /// Authenticates a credential using the SASL protocol.
     /// </summary>
     internal class SaslAuthenticationMethod : IAuthenticationMethod
     {
@@ -54,12 +54,12 @@ namespace MongoDB.Driver.Communication.Security
         /// Authenticates the connection against the given database.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <param name="credentials">The credentials.</param>
-        public void Authenticate(MongoConnection connection, MongoCredentials credentials)
+        /// <param name="credential">The credential.</param>
+        public void Authenticate(MongoConnection connection, MongoCredential credential)
         {
             using (var conversation = new SaslConversation())
             {
-                var currentStep = _mechanism.Initialize(connection, credentials);
+                var currentStep = _mechanism.Initialize(connection, credential);
 
                 var command = new CommandDocument
                 {
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Communication.Security
 
                 while (true)
                 {
-                    var result = connection.RunCommand(credentials.Source, QueryFlags.SlaveOk, command, true);
+                    var result = connection.RunCommand(credential.Source, QueryFlags.SlaveOk, command, true);
                     var code = result.Response["code"].AsInt32;
                     if (code != 0)
                     {
@@ -94,15 +94,15 @@ namespace MongoDB.Driver.Communication.Security
         }
 
         /// <summary>
-        /// Determines whether this instance can use the specified credentials.
+        /// Determines whether this instance can use the specified credential.
         /// </summary>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns>
-        ///   <c>true</c> if this instance can use the specified credentials; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance can use the specified credential; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanUse(MongoCredentials credentials)
+        public bool CanUse(MongoCredential credential)
         {
-            return _mechanism.CanUse(credentials);
+            return _mechanism.CanUse(credential);
         }
 
         // private methods

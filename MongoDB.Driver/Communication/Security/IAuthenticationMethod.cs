@@ -32,19 +32,19 @@ namespace MongoDB.Driver.Communication.Security
         string Name { get; }
 
         /// <summary>
-        /// Authenticates the specified connection with the given credentials.
+        /// Authenticates the specified connection with the given credential.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <param name="credentials">The credentials.</param>
-        void Authenticate(MongoConnection connection, MongoCredentials credentials);
+        /// <param name="credential">The credential.</param>
+        void Authenticate(MongoConnection connection, MongoCredential credential);
 
         /// <summary>
-        /// Determines whether this instance can use the specified credentials.
+        /// Determines whether this instance can use the specified credential.
         /// </summary>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns>
-        ///   <c>true</c> if this instance can use the specified credentials; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance can use the specified credential; otherwise, <c>false</c>.
         /// </returns>
-        bool CanUse(MongoCredentials credentials);
+        bool CanUse(MongoCredential credential);
     }
 }

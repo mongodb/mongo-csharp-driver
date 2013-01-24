@@ -61,22 +61,22 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <returns>An ISaslStep.</returns>
         public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
         {
-            SecurityCredentials securityCredentials;
+            SecurityCredential securityCredential;
             try
             {
-                securityCredentials = SecurityCredentials.Acquire(SspiPackage.Kerberos, _authorizationId, _evidence);
-                conversation.RegisterItemForDisposal(securityCredentials);
+                securityCredential = SecurityCredential.Acquire(SspiPackage.Kerberos, _authorizationId, _evidence);
+                conversation.RegisterItemForDisposal(securityCredential);
             }
             catch (Win32Exception ex)
             {
-                throw new MongoSecurityException("Unable to acquire security credentials.", ex);
+                throw new MongoSecurityException("Unable to acquire security credential.", ex);
             }
 
             byte[] bytesToSendToServer;
             SecurityContext context;
             try
             {
-                context = SecurityContext.Initialize(securityCredentials, _servicePrincipalName, bytesReceivedFromServer, out bytesToSendToServer);
+                context = SecurityContext.Initialize(securityCredential, _servicePrincipalName, bytesReceivedFromServer, out bytesToSendToServer);
             }
             catch (Win32Exception ex)
             {

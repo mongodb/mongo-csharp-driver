@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Internal
             _stream = stream;
             _state = MongoConnectionState.Open;
 
-            new Authenticator(this, _serverInstance.Settings.CredentialsStore)
+            new Authenticator(this, _serverInstance.Settings.Credentials)
                 .Authenticate();
         }
 

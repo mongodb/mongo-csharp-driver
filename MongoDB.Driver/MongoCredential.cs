@@ -21,10 +21,10 @@ using System.Security.Principal;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Credentials to access a MongoDB database.
+    /// Credential to access a MongoDB database.
     /// </summary>
     [Serializable]
-    public class MongoCredentials : IEquatable<MongoCredentials>
+    public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields
         private readonly MongoAuthenticationProtocol _authenticationProtocol;
@@ -33,12 +33,12 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoCredentials" /> class.
+        /// Initializes a new instance of the <see cref="MongoCredential" /> class.
         /// </summary>
         /// <param name="authenticationProtocol">Protocol to authenticate with.</param>
         /// <param name="identity">The identity.</param>
         /// <param name="evidence">The evidence.</param>
-        public MongoCredentials(MongoAuthenticationProtocol authenticationProtocol, MongoIdentity identity, MongoIdentityEvidence evidence)
+        public MongoCredential(MongoAuthenticationProtocol authenticationProtocol, MongoIdentity identity, MongoIdentityEvidence evidence)
         {
             if (identity == null)
             {
@@ -117,10 +117,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// Compares two MongoCredentials.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
+        /// <param name="lhs">The first MongoCredential.</param>
+        /// <param name="rhs">The other MongoCredential.</param>
         /// <returns>True if the two MongoCredentials are equal (or both null).</returns>
-        public static bool operator ==(MongoCredentials lhs, MongoCredentials rhs)
+        public static bool operator ==(MongoCredential lhs, MongoCredential rhs)
         {
             return object.Equals(lhs, rhs);
         }
@@ -128,81 +128,81 @@ namespace MongoDB.Driver
         /// <summary>
         /// Compares two MongoCredentials.
         /// </summary>
-        /// <param name="lhs">The first MongoCredentials.</param>
-        /// <param name="rhs">The other MongoCredentials.</param>
+        /// <param name="lhs">The first MongoCredential.</param>
+        /// <param name="rhs">The other MongoCredential.</param>
         /// <returns>True if the two MongoCredentials are not equal (or one is null and the other is not).</returns>
-        public static bool operator !=(MongoCredentials lhs, MongoCredentials rhs)
+        public static bool operator !=(MongoCredential lhs, MongoCredential rhs)
         {
             return !(lhs == rhs);
         }
 
         // public static methods
         /// <summary>
-        /// Creates GSSAPI credentials.
+        /// Creates a GSSAPI credential.
         /// </summary>
-        /// <returns>Credentials for GSSAPI.</returns>
-        public static MongoCredentials CreateGssapiCredentials()
+        /// <returns>A credential for GSSAPI.</returns>
+        public static MongoCredential CreateGssapiCredential()
         {
             var username = string.Format("{0}@{1}", Environment.UserName, Environment.UserDomainName);
-            return new MongoCredentials(
+            return new MongoCredential(
                 MongoAuthenticationProtocol.Gssapi,
                 new MongoExternalIdentity(username),
                 new ProcessEvidence());
         }
 
         /// <summary>
-        /// Creates GSSAPI credentials.
+        /// Creates a GSSAPI credential.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns>Credentials for GSSAPI.</returns>
-        public static MongoCredentials CreateGssapiCredentials(string username, string password)
+        /// <returns>A credential for GSSAPI.</returns>
+        public static MongoCredential CreateGssapiCredential(string username, string password)
         {
-            return new MongoCredentials(
+            return new MongoCredential(
                 MongoAuthenticationProtocol.Gssapi,
                 new MongoExternalIdentity(username),
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates GSSAPI credentials.
+        /// Creates a GSSAPI credential.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns>Credentials for GSSAPI.</returns>
-        public static MongoCredentials CreateGssapiCredentials(string username, SecureString password)
+        /// <returns>A credential for GSSAPI.</returns>
+        public static MongoCredential CreateGssapiCredential(string username, SecureString password)
         {
-            return new MongoCredentials(
+            return new MongoCredential(
                 MongoAuthenticationProtocol.Gssapi,
                 new MongoExternalIdentity(username),
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates credentials used in negotiated authentication.
+        /// Creates a credential used in negotiated authentication.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        public static MongoCredentials CreateStrongestCredentials(string databaseName, string username, string password)
+        public static MongoCredential CreateStrongestCredential(string databaseName, string username, string password)
         {
-            return new MongoCredentials(
+            return new MongoCredential(
                 MongoAuthenticationProtocol.Strongest,
                 new MongoInternalIdentity(databaseName, username),
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates credentials used in negotiated authentication.
+        /// Creates a credential used in negotiated authentication.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        public static MongoCredentials CreateStrongestCredentials(string databaseName, string username, SecureString password)
+        public static MongoCredential CreateStrongestCredential(string databaseName, string username, SecureString password)
         {
-            return new MongoCredentials(
+            return new MongoCredential(
                 MongoAuthenticationProtocol.Strongest,
                 new MongoInternalIdentity(databaseName, username),
                 new PasswordEvidence(password));
@@ -210,28 +210,28 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Compares this MongoCredentials to another MongoCredentials.
+        /// Compares this MongoCredential to another MongoCredential.
         /// </summary>
-        /// <param name="rhs">The other credentials.</param>
+        /// <param name="rhs">The other credential.</param>
         /// <returns>True if the two credentials are equal.</returns>
-        public bool Equals(MongoCredentials rhs)
+        public bool Equals(MongoCredential rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return _identity == rhs._identity && _evidence == rhs._evidence && _authenticationProtocol == rhs._authenticationProtocol;
         }
 
         /// <summary>
-        /// Compares this MongoCredentials to another MongoCredentials.
+        /// Compares this MongoCredential to another MongoCredential.
         /// </summary>
-        /// <param name="obj">The other credentials.</param>
+        /// <param name="obj">The other credential.</param>
         /// <returns>True if the two credentials are equal.</returns>
         public override bool Equals(object obj)
         {
-            return Equals(obj as MongoCredentials); // works even if obj is null or of a different type
+            return Equals(obj as MongoCredential); // works even if obj is null or of a different type
         }
 
         /// <summary>
-        /// Gets the hashcode for the credentials.
+        /// Gets the hashcode for the credential.
         /// </summary>
         /// <returns>The hashcode.</returns>
         public override int GetHashCode()
@@ -245,16 +245,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a string representation of the credentials.
+        /// Returns a string representation of the credential.
         /// </summary>
-        /// <returns>A string representation of the credentials.</returns>
+        /// <returns>A string representation of the credential.</returns>
         public override string ToString()
         {
             return string.Format("{0}@{1}", _identity.Username, _identity.Source);
         }
 
         // internal static methods
-        internal static MongoCredentials FromComponents(MongoAuthenticationProtocol protocol, string source, string databaseName, string username, string password)
+        internal static MongoCredential FromComponents(MongoAuthenticationProtocol protocol, string source, string databaseName, string username, string password)
         {
             source = source ?? databaseName ?? "admin";
             switch (protocol)
@@ -265,18 +265,18 @@ namespace MongoDB.Driver
                     {
                         return null;
                     }
-                    return MongoCredentials.CreateStrongestCredentials(source, username, password);
+                    return MongoCredential.CreateStrongestCredential(source, username, password);
                 case MongoAuthenticationProtocol.Gssapi:
                     if (source != null && source != "$external")
                     {
-                        throw new ArgumentException("Cannot specify source for GSSAPI Credentials.");
+                        throw new ArgumentException("Cannot specify source for a GSSAPI credential.");
                     }
                     // it is allowed for a password to be an empty string, but not a username
                     if (string.IsNullOrEmpty(username) || password == null)
                     {
-                        return MongoCredentials.CreateGssapiCredentials();
+                        return MongoCredential.CreateGssapiCredential();
                     }
-                    return MongoCredentials.CreateGssapiCredentials(username, password);
+                    return MongoCredential.CreateGssapiCredential(username, password);
                 default:
                     throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationProtocol {0}.", protocol));
             }

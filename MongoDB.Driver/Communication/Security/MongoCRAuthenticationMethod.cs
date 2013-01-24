@@ -20,7 +20,7 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver.Communication.Security
 {
     /// <summary>
-    /// Authenticates credentials using the MONGO-CR protocol.
+    /// Authenticates a credential using the MONGO-CR protocol.
     /// </summary>
     internal class MongoCRAuthenticationMethod : IAuthenticationMethod
     {
@@ -35,11 +35,11 @@ namespace MongoDB.Driver.Communication.Security
         /// Authenticates the connection against the given database.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <param name="credentials">The credentials.</param>
-        public void Authenticate(MongoConnection connection, MongoCredentials credentials)
+        /// <param name="credential">The credential.</param>
+        public void Authenticate(MongoConnection connection, MongoCredential credential)
         {
             var nonceCommand = new CommandDocument("getnonce", 1);
-            var commandResult = connection.RunCommand(credentials.Source, QueryFlags.None, nonceCommand, false);
+            var commandResult = connection.RunCommand(credential.Source, QueryFlags.None, nonceCommand, false);
             if (!commandResult.Ok)
             {
                 throw new MongoAuthenticationException(
@@ -48,20 +48,20 @@ namespace MongoDB.Driver.Communication.Security
             }
 
             var nonce = commandResult.Response["nonce"].AsString;
-            var passwordDigest = MongoUtils.Hash(credentials.Username + ":mongo:" + ((PasswordEvidence)credentials.Evidence).Password);
-            var digest = MongoUtils.Hash(nonce + credentials.Username + passwordDigest);
+            var passwordDigest = MongoUtils.Hash(credential.Username + ":mongo:" + ((PasswordEvidence)credential.Evidence).Password);
+            var digest = MongoUtils.Hash(nonce + credential.Username + passwordDigest);
             var authenticateCommand = new CommandDocument
                 {
                     { "authenticate", 1 },
-                    { "user", credentials.Username },
+                    { "user", credential.Username },
                     { "nonce", nonce },
                     { "key", digest }
                 };
 
-            commandResult = connection.RunCommand(credentials.Source, QueryFlags.None, authenticateCommand, false);
+            commandResult = connection.RunCommand(credential.Source, QueryFlags.None, authenticateCommand, false);
             if (!commandResult.Ok)
             {
-                var message = string.Format("Invalid credentials for database '{0}'.", credentials.Source);
+                var message = string.Format("Invalid credential for database '{0}'.", credential.Source);
                 throw new MongoAuthenticationException(
                     message,
                     new MongoCommandException(commandResult));
@@ -69,16 +69,16 @@ namespace MongoDB.Driver.Communication.Security
         }
 
         /// <summary>
-        /// Determines whether this instance can use the specified credentials.
+        /// Determines whether this instance can use the specified credential.
         /// </summary>
-        /// <param name="credentials">The credentials.</param>
+        /// <param name="credential">The credential.</param>
         /// <returns>
-        ///   <c>true</c> if this instance can use the specified credentials; otherwise, <c>false</c>.
+        ///   <c>true</c> if this instance can use the specified credential; otherwise, <c>false</c>.
         /// </returns>
-        public bool CanUse(MongoCredentials credentials)
+        public bool CanUse(MongoCredential credential)
         {
-            return credentials.AuthenticationProtocol == MongoAuthenticationProtocol.Strongest &&
-                credentials.Evidence is PasswordEvidence;
+            return credential.AuthenticationProtocol == MongoAuthenticationProtocol.Strongest &&
+                credential.Evidence is PasswordEvidence;
         }
     }
 }
