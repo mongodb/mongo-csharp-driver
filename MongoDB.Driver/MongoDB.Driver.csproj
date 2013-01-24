@@ -80,6 +80,9 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\Hasher.cs">
+      <Link>Hasher.cs</Link>
+    </Compile>
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
@@ -188,6 +191,7 @@
     <Compile Include="ReplicaSetTag.cs" />
     <Compile Include="ReplicaSetTagSet.cs" />
     <Compile Include="Setting.cs" />
+    <Compile Include="SslSettings.cs" />
     <Compile Include="SystemProfileInfo.cs" />
     <Compile Include="Wrappers\BaseWrapper.cs" />
     <Compile Include="Wrappers\CollectionOptionsDocument.cs" />

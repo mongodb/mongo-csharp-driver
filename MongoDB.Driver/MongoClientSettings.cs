@@ -19,13 +19,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// The settings for a MongoDB client.
     /// </summary>
-    public class MongoClientSettings
+    public class MongoClientSettings : IEquatable<MongoClientSettings>
     {
         // private fields
         private ConnectionMode _connectionMode;
@@ -42,6 +43,7 @@ namespace MongoDB.Driver
         private TimeSpan _secondaryAcceptableLatency;
         private List<MongoServerAddress> _servers;
         private TimeSpan _socketTimeout;
+        private SslSettings _sslSettings;
         private bool _useSsl;
         private bool _verifySslCertificate;
         private int _waitQueueSize;
@@ -73,6 +75,7 @@ namespace MongoDB.Driver
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _sslSettings = null;
             _useSsl = false;
             _verifySslCertificate = true;
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
@@ -302,6 +305,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the SSL settings.
+        /// </summary>
+        public SslSettings SslSettings
+        {
+            get { return _sslSettings; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _sslSettings = value;
+            }
+        }
+        
+        /// <summary>
         /// Gets or sets whether to use SSL.
         /// </summary>
         public bool UseSsl
@@ -370,6 +386,33 @@ namespace MongoDB.Driver
             }
         }
 
+        // public operators
+        /// <summary>
+        /// Determines whether two <see cref="MongoClientSettings"/> instances are equal.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        ///   <c>true</c> if the left hand side is equal to the right hand side; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator ==(MongoClientSettings lhs, MongoClientSettings rhs)
+        {
+            return object.Equals(lhs, rhs); // handles lhs == null correctly
+        }
+
+        /// <summary>
+        /// Determines whether two <see cref="MongoClientSettings"/> instances are not equal.
+        /// </summary>
+        /// <param name="lhs">The LHS.</param>
+        /// <param name="rhs">The RHS.</param>
+        /// <returns>
+        ///   <c>true</c> if the left hand side is not equal to the right hand side; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator !=(MongoClientSettings lhs, MongoClientSettings rhs)
+        {
+            return !(lhs == rhs);
+        }
+
         // public static methods
         /// <summary>
         /// Gets a MongoClientSettings object intialized with values from a connection string builder.
@@ -403,6 +446,7 @@ namespace MongoDB.Driver
             clientSettings.SecondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
             clientSettings.Servers = new List<MongoServerAddress>(builder.Servers);
             clientSettings.SocketTimeout = builder.SocketTimeout;
+            clientSettings.SslSettings = null; // SSL settings must be provided in code
             clientSettings.UseSsl = builder.UseSsl;
             clientSettings.VerifySslCertificate = builder.VerifySslCertificate;
             clientSettings.WaitQueueSize = builder.ComputedWaitQueueSize;
@@ -443,6 +487,7 @@ namespace MongoDB.Driver
             clientSettings.SecondaryAcceptableLatency = url.SecondaryAcceptableLatency;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.SocketTimeout = url.SocketTimeout;
+            clientSettings.SslSettings = null; // SSL settings must be provided in code
             clientSettings.UseSsl = url.UseSsl;
             clientSettings.VerifySslCertificate = url.VerifySslCertificate;
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
@@ -473,6 +518,7 @@ namespace MongoDB.Driver
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._socketTimeout = _socketTimeout;
+            clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
             clone._useSsl = _useSsl;
             clone._verifySslCertificate = _verifySslCertificate;
             clone._waitQueueSize = _waitQueueSize;
@@ -482,47 +528,49 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Compares two MongoClientSettings instances.
+        /// Determines whether the specified <see cref="MongoClientSettings" /> is equal to this instance.
         /// </summary>
-        /// <param name="obj">The other instance.</param>
-        /// <returns>True if the two instances are equal.</returns>
+        /// <param name="obj">The <see cref="MongoClientSettings" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="MongoClientSettings" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(MongoClientSettings obj)
+        {
+            return Equals((object)obj); // handles obj == null correctly
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" /> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object obj)
         {
-            var rhs = obj as MongoClientSettings;
-            if (rhs == null)
-            {
-                return false;
-            }
-            else
-            {
-                if (_isFrozen && rhs._isFrozen)
-                {
-                    return _frozenStringRepresentation == rhs._frozenStringRepresentation;
-                }
-                else
-                {
-                    return
-                        _connectionMode == rhs._connectionMode &&
-                        _connectTimeout == rhs._connectTimeout &&
-                        _credentials == rhs._credentials &&
-                        _guidRepresentation == rhs._guidRepresentation &&
-                        _ipv6 == rhs._ipv6 &&
-                        _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
-                        _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
-                        _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
-                        _minConnectionPoolSize == rhs._minConnectionPoolSize &&
-                        _readPreference == rhs._readPreference &&
-                        _replicaSetName == rhs._replicaSetName &&
-                        _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
-                        _servers.SequenceEqual(rhs._servers) &&
-                        _socketTimeout == rhs._socketTimeout &&
-                        _useSsl == rhs._useSsl &&
-                        _verifySslCertificate == rhs._verifySslCertificate &&
-                        _waitQueueSize == rhs._waitQueueSize &&
-                        _waitQueueTimeout == rhs._waitQueueTimeout &&
-                        _writeConcern == rhs._writeConcern;
-                }
-            }
+            if (object.ReferenceEquals(obj, null) || GetType() != obj.GetType()) { return false; }
+            var rhs = (MongoClientSettings)obj;
+            return
+                _connectionMode == rhs._connectionMode &&
+                _connectTimeout == rhs._connectTimeout &&
+                _credentials == rhs._credentials &&
+                _guidRepresentation == rhs._guidRepresentation &&
+                _ipv6 == rhs._ipv6 &&
+                _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
+                _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
+                _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
+                _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+                _readPreference == rhs._readPreference &&
+                _replicaSetName == rhs._replicaSetName &&
+                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
+                _servers.SequenceEqual(rhs._servers) &&
+                _socketTimeout == rhs._socketTimeout &&
+                _sslSettings == rhs._sslSettings &&
+                _useSsl == rhs._useSsl &&
+                _verifySslCertificate == rhs._verifySslCertificate &&
+                _waitQueueSize == rhs._waitQueueSize &&
+                _waitQueueTimeout == rhs._waitQueueTimeout &&
+                _writeConcern == rhs._writeConcern;
         }
 
         /// <summary>
@@ -569,31 +617,28 @@ namespace MongoDB.Driver
                 return _frozenHashCode;
             }
 
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + _connectionMode.GetHashCode();
-            hash = 37 * hash + _connectTimeout.GetHashCode();
-            hash = 37 * hash + _credentials.GetHashCode();
-            hash = 37 * hash + _guidRepresentation.GetHashCode();
-            hash = 37 * hash + _ipv6.GetHashCode();
-            hash = 37 * hash + _maxConnectionIdleTime.GetHashCode();
-            hash = 37 * hash + _maxConnectionLifeTime.GetHashCode();
-            hash = 37 * hash + _maxConnectionPoolSize.GetHashCode();
-            hash = 37 * hash + _minConnectionPoolSize.GetHashCode();
-            hash = 37 * hash + _readPreference.GetHashCode();
-            hash = 37 * hash + ((_replicaSetName == null) ? 0 : _replicaSetName.GetHashCode());
-            hash = 37 * hash + _secondaryAcceptableLatency.GetHashCode();
-            foreach (var server in _servers)
-            {
-                hash = 37 * hash + server.GetHashCode();
-            }
-            hash = 37 * hash + _socketTimeout.GetHashCode();
-            hash = 37 * hash + _useSsl.GetHashCode();
-            hash = 37 * hash + _verifySslCertificate.GetHashCode();
-            hash = 37 * hash + _waitQueueSize.GetHashCode();
-            hash = 37 * hash + _waitQueueTimeout.GetHashCode();
-            hash = 37 * hash + _writeConcern.GetHashCode();
-            return hash;
+            return new Hasher()
+                .Hash(_connectionMode)
+                .Hash(_connectTimeout)
+                .Hash(_credentials)
+                .Hash(_guidRepresentation)
+                .Hash(_ipv6)
+                .Hash(_maxConnectionIdleTime)
+                .Hash(_maxConnectionLifeTime)
+                .Hash(_maxConnectionPoolSize)
+                .Hash(_minConnectionPoolSize)
+                .Hash(_readPreference)
+                .Hash(_replicaSetName)
+                .Hash(_secondaryAcceptableLatency)
+                .HashElements(_servers)
+                .Hash(_socketTimeout)
+                .Hash(_sslSettings)
+                .Hash(_useSsl)
+                .Hash(_verifySslCertificate)
+                .Hash(_waitQueueSize)
+                .Hash(_waitQueueTimeout)
+                .Hash(_writeConcern)
+                .GetHashCode();
         }
 
         /// <summary>
@@ -622,6 +667,10 @@ namespace MongoDB.Driver
             sb.AppendFormat("SecondaryAcceptableLatency={0};", _secondaryAcceptableLatency);
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            if (_sslSettings != null)
+            {
+                sb.AppendFormat("SslSettings={0};", _sslSettings);
+            }
             sb.AppendFormat("Ssl={0};", _useSsl);
             sb.AppendFormat("SslVerifyCertificate={0};", _verifySslCertificate);
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);

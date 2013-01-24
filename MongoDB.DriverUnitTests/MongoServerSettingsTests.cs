@@ -53,6 +53,10 @@ namespace MongoDB.DriverUnitTests
             var url = builder.ToMongoUrl();
             var settings = MongoServerSettings.FromUrl(url);
 
+            // a few settings can only be made in code
+            settings.Credentials = new [] { MongoCredential.CreateStrongestCredential("database", "username", "password") };
+            settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+
             var clone = settings.Clone();
             Assert.AreEqual(settings, clone);
         }
@@ -113,6 +117,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(_localHost, settings.Servers.First());
             Assert.AreEqual(1, settings.Servers.Count());
             Assert.AreEqual(MongoDefaults.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(false, settings.UseSsl);
             Assert.AreEqual(true, settings.VerifySslCertificate);
             Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
@@ -185,6 +190,10 @@ namespace MongoDB.DriverUnitTests
 
             clone = settings.Clone();
             clone.SocketTimeout = new TimeSpan(1, 2, 3);
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
+            clone.SslSettings = new SslSettings { CheckCertificateRevocation = false };
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -263,6 +272,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(url.UseSsl, settings.UseSsl);
             Assert.AreEqual(url.VerifySslCertificate, settings.VerifySslCertificate);
             Assert.AreEqual(url.ComputedWaitQueueSize, settings.WaitQueueSize);
@@ -301,6 +311,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(builder.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(builder.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(builder.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(builder.UseSsl, settings.UseSsl);
             Assert.AreEqual(builder.VerifySslCertificate, settings.VerifySslCertificate);
             Assert.AreEqual(builder.ComputedWaitQueueSize, settings.WaitQueueSize);
@@ -343,6 +354,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
+            Assert.AreEqual(null, settings.SslSettings);
             Assert.AreEqual(url.UseSsl, settings.UseSsl);
             Assert.AreEqual(url.VerifySslCertificate, settings.VerifySslCertificate);
             Assert.AreEqual(url.ComputedWaitQueueSize, settings.WaitQueueSize);
@@ -577,6 +589,21 @@ namespace MongoDB.DriverUnitTests
             settings.Freeze();
             Assert.AreEqual(socketTimeout, settings.SocketTimeout);
             Assert.Throws<InvalidOperationException>(() => { settings.SocketTimeout = socketTimeout; });
+        }
+
+        [Test]
+        public void TestSslSettings()
+        {
+            var settings = new MongoServerSettings();
+            Assert.AreEqual(null, settings.SslSettings);
+
+            var sslSettings = new SslSettings { CheckCertificateRevocation = false };
+            settings.SslSettings = sslSettings;
+            Assert.AreEqual(sslSettings, settings.SslSettings);
+
+            settings.Freeze();
+            Assert.AreEqual(sslSettings, settings.SslSettings);
+            Assert.Throws<InvalidOperationException>(() => { settings.SslSettings = sslSettings; });
         }
 
         [Test]
