@@ -1,4 +1,4 @@
-/* Copyright 2010-2012 10gen Inc.
+/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
 
 using System;
 using System.Linq;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Linq
 {
@@ -41,7 +40,6 @@ namespace MongoDB.DriverUnitTests.Linq
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _server.Connect();
             _collection = Configuration.TestCollection;
         }
 

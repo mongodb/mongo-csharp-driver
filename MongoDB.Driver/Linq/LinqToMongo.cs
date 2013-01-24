@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2012 10gen Inc.
+﻿/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -55,22 +55,28 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// Returns an explanation of how the query was executed (instead of the results).
         /// </summary>
-        /// <param name="query">The LINQ query to explain</param>
+        /// <param name="source">The LINQ query to explain.</param>
         /// <returns>An explanation of thow the query was executed.</returns>
-        public static BsonDocument Explain<T>(this IQueryable<T> query)
+        public static BsonDocument Explain<T>(this IQueryable<T> source)
         {
-            return Explain(query, false);
+            return Explain(source, false);
         }
 
         /// <summary>
         /// Returns an explanation of how the query was executed (instead of the results).
         /// </summary>
-        /// <param name="query">The LINQ query to explain</param>
+        /// <param name="source">The LINQ query to explain</param>
         /// <param name="verbose">Whether the explanation should contain more details.</param>
         /// <returns>An explanation of thow the query was executed.</returns>
-        public static BsonDocument Explain<T>(this IQueryable<T> query, bool verbose)
+        public static BsonDocument Explain<T>(this IQueryable<T> source, bool verbose)
         {
-            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
+            var queryProvider = source.Provider as MongoQueryProvider;
+            if (queryProvider == null)
+            {
+                throw new NotSupportedException("Explain can only be called on a Linq to Mongo queryable.");
+            }
+
+            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(queryProvider, source.Expression);
             if (selectQuery.Take.HasValue && selectQuery.Take.Value == 0)
             {
                 throw new NotSupportedException("A query that has a .Take(0) expression will not be sent to the server and can't be explained");
@@ -78,8 +84,8 @@ namespace MongoDB.Driver.Linq
             var projector = selectQuery.Execute() as IProjector;
             if (projector == null)
             {
-                //This is mainly for .Distinct() queries. First, Last, FirstOrDefault, LastOrDefault don't return
-                //IQueryable<T>, so .Explain() can't be called on them anyway.
+                // this is mainly for .Distinct() queries. First, Last, FirstOrDefault, LastOrDefault don't return
+                // IQueryable<T>, so .Explain() can't be called on them anyway.
                 throw new NotSupportedException("Explain can only be called on Linq queries that return an IProjector");
             }
             return projector.Cursor.Explain(verbose);
@@ -111,31 +117,31 @@ namespace MongoDB.Driver.Linq
         /// Sets an index hint on the query that's being built.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-        /// <param name="query">The query being built.</param>
+        /// <param name="source">The query being built.</param>
         /// <param name="indexName">The name of the index to use.</param>
         /// <returns>New query where the expression includes a WithIndex method call.</returns>
-        public static IQueryable<TSource> WithIndex<TSource>(this IQueryable<TSource> query, string indexName)
+        public static IQueryable<TSource> WithIndex<TSource>(this IQueryable<TSource> source, string indexName)
         {
-            return WithIndex(query, (BsonValue)indexName);
+            return WithIndex(source, (BsonValue)indexName);
         }
 
         /// <summary>
         /// Sets an index hint on the query that's being built.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-        /// <param name="query">The query being built.</param>
+        /// <param name="source">The query being built.</param>
         /// <param name="indexHint">Hint for what index to use.</param>
         /// <returns>New query where the expression includes a WithIndex method call.</returns>
-        public static IQueryable<TSource> WithIndex<TSource>(this IQueryable<TSource> query, BsonDocument indexHint)
+        public static IQueryable<TSource> WithIndex<TSource>(this IQueryable<TSource> source, BsonDocument indexHint)
         {
-            return WithIndex(query, (BsonValue)indexHint);
+            return WithIndex(source, (BsonValue)indexHint);
         }
 
         // private static methods
-        private static IQueryable<TSource> WithIndex<TSource>(IQueryable<TSource> query, BsonValue index)
+        private static IQueryable<TSource> WithIndex<TSource>(IQueryable<TSource> query, BsonValue indexHint)
         {
             var method = ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(typeof(TSource));
-            var args = new[] { query.Expression, Expression.Constant(index) };
+            var args = new[] { query.Expression, Expression.Constant(indexHint) };
             var expression = Expression.Call(null, method, args);
             return query.Provider.CreateQuery<TSource>(expression);
         }

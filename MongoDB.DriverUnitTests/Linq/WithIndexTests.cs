@@ -1,4 +1,4 @@
-/* Copyright 2010-2012 10gen Inc.
+/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
 
 using System;
 using System.Linq;
-using MongoDB.Driver.Builders;
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Linq
 {
@@ -47,6 +46,9 @@ namespace MongoDB.DriverUnitTests.Linq
             _collection = Configuration.GetTestCollection<B>();
 
             _collection.Drop();
+            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 1, b = 10, c = 100 });
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 2, b = 20, c = 200 });
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 3, b = 30, c = 300 });
@@ -103,7 +105,6 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestIndexNameHintIsUsedInQuery()
         {
-            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i") );
             var query = _collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             Assert.AreEqual("BasicCursor", plan["cursor"].AsString); //Normally this query would use no index
@@ -164,7 +165,6 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestIndexDocumentHintIsUsedInQuery()
         {
-            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
             var query = _collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             Assert.AreEqual("BasicCursor", plan["cursor"].AsString); //Normally this query would use no index
