@@ -1562,28 +1562,11 @@ namespace MongoDB.Bson.Serialization
             switch (memberInfo.MemberType)
             {
                 case MemberTypes.Field:
-                    memberInfo = typeof(TClass).GetField(
-                        memberInfo.Name,
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic);
                     break;
                 case MemberTypes.Property:
-                    // Handle interfaces and base classes; lambdas always
-                    // call the derived implementation.
-                    if (memberInfo.DeclaringType != typeof(TClass))
+                    if (memberInfo.DeclaringType.IsInterface)
                     {
-                        var memberInfo2 = typeof(TClass).GetProperty(
-                            memberInfo.Name,
-                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                        // Handle explicit interface implementations.
-                        if (memberInfo2 == null && memberInfo.DeclaringType.IsInterface)
-                        {
-                            memberInfo2 = ResolveExplicitProperty(memberInfo, typeof(TClass));
-                        }
-
-                        memberInfo = memberInfo2;
+                        memberInfo = ResolveExplicitProperty(memberInfo, typeof(TClass));
                     }
                     break;
                 default:

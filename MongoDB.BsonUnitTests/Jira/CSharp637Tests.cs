@@ -1,4 +1,4 @@
-/* Copyright 2010-2012 10gen Inc.
+/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
 * limitations under the License.
 */
 
-using NUnit.Framework;
-
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Jira.CSharp637
 {
