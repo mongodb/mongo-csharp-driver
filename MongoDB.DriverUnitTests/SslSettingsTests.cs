@@ -66,7 +66,7 @@ namespace MongoDB.DriverUnitTests
             var settings = new SslSettings();
             Assert.AreEqual(null, settings.ClientCertificates);
 
-            var clientCertificates = new[] { new X509Certificate(), new X509Certificate() };
+            var clientCertificates = new[] { new X509Certificate2("testcert.pfx", "password"), new X509Certificate2("testcert.pfx", "password") };
             settings.ClientCertificates = clientCertificates;
             Assert.IsTrue(clientCertificates.SequenceEqual(settings.ClientCertificates));
             Assert.AreNotSame(clientCertificates[0], settings.ClientCertificates.ElementAt(0));
@@ -98,7 +98,7 @@ namespace MongoDB.DriverUnitTests
             var settings = new SslSettings
             {
                 CheckCertificateRevocation = false,
-                ClientCertificates = new[] { new X509Certificate() },
+                ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") },
                 ClientCertificateSelectionCallback = ClientCertificateSelectionCallback,
                 EnabledSslProtocols = SslProtocols.Tls,
                 ServerCertificateValidationCallback = ServerCertificateValidationCallback
@@ -131,7 +131,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreNotEqual(settings, clone);
 
             clone = settings.Clone();
-            clone.ClientCertificates = new[] { new X509Certificate() };
+            clone.ClientCertificates = new[] { new X509Certificate2("testcert.pfx", "password") };
             Assert.AreNotEqual(settings, clone);
 
             clone = settings.Clone();
