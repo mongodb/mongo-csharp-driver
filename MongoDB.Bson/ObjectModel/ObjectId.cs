@@ -95,6 +95,15 @@ namespace MongoDB.Bson
         /// <param name="increment">The increment.</param>
         public ObjectId(int timestamp, int machine, short pid, int increment)
         {
+            if ((machine & 0xff000000) != 0)
+            {
+                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+            }
+            if ((increment & 0xff000000) != 0)
+            {
+                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+            }
+
             _timestamp = timestamp;
             _machine = machine;
             _pid = pid;
@@ -272,6 +281,15 @@ namespace MongoDB.Bson
         /// <returns>A byte array.</returns>
         public static byte[] Pack(int timestamp, int machine, short pid, int increment)
         {
+            if ((machine & 0xff000000) != 0)
+            {
+                throw new ArgumentOutOfRangeException("machine", "The machine value must be between 0 and 16777215 (it must fit in 3 bytes).");
+            }
+            if ((increment & 0xff000000) != 0)
+            {
+                throw new ArgumentOutOfRangeException("increment", "The increment value must be between 0 and 16777215 (it must fit in 3 bytes).");
+            }
+
             byte[] bytes = new byte[12];
             bytes[0] = (byte)(timestamp >> 24);
             bytes[1] = (byte)(timestamp >> 16);

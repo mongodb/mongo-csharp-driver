@@ -58,6 +58,38 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestIntIntShortIntConstructorWithInvalidIncrement()
+        {
+            var objectId = new ObjectId(0, 0, 0, 0x00ffffff);
+            Assert.AreEqual(0x00ffffff, objectId.Increment);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(0, 0, 0, 0x01000000); });
+        }
+
+        [Test]
+        public void TestIntIntShortIntConstructorWithInvalidMachine()
+        {
+            var objectId = new ObjectId(0, 0x00ffffff, 0, 0);
+            Assert.AreEqual(0x00ffffff, objectId.Machine);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(0, 0x01000000, 0, 0); });
+        }
+
+        [Test]
+        public void TestPackWithInvalidIncrement()
+        {
+            var objectId = new ObjectId(ObjectId.Pack(0, 0, 0, 0x00ffffff));
+            Assert.AreEqual(0x00ffffff, objectId.Increment);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(ObjectId.Pack(0, 0, 0, 0x01000000)); });
+        }
+
+        [Test]
+        public void TestPackWithInvalidMachine()
+        {
+            var objectId = new ObjectId(ObjectId.Pack(0, 0x00ffffff, 0, 0));
+            Assert.AreEqual(0x00ffffff, objectId.Machine);
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(ObjectId.Pack(0, 0x01000000, 0, 0)); });
+        }
+
+        [Test]
         public void TestDateTimeConstructor()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
