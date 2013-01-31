@@ -77,6 +77,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is replica set.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is replica set; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsReplicaSet
+        {
+            get { return ReplicaSetName != null || Response.GetValue("isreplicaset", false).ToBoolean(); }
+        }
+
+        /// <summary>
         /// Gets whether the server is secondary.
         /// </summary>
         /// <value>

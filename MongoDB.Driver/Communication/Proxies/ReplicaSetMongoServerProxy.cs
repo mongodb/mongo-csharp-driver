@@ -179,7 +179,9 @@ namespace MongoDB.Driver.Internal
             // read _replicaSetName in a thread-safe way
             var replicaSetName = Interlocked.CompareExchange(ref _replicaSetName, null, null);
 
-            return replicaSetName == null || replicaSetName == instance.ReplicaSetInformation.Name;
+            return replicaSetName == null || 
+                instance.ReplicaSetInformation.Name == null || 
+                replicaSetName == instance.ReplicaSetInformation.Name;
         }
 
         /// <summary>

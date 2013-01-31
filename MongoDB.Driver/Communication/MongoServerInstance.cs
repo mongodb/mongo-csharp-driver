@@ -562,7 +562,7 @@ namespace MongoDB.Driver
 
                 ReplicaSetInformation replicaSetInformation = null;
                 MongoServerInstanceType instanceType = MongoServerInstanceType.StandAlone;
-                if (isMasterResult.ReplicaSetName != null)
+                if (isMasterResult.IsReplicaSet)
                 {
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
                     replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags);
