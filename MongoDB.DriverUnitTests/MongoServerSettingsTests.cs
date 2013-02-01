@@ -54,7 +54,7 @@ namespace MongoDB.DriverUnitTests
             var settings = MongoServerSettings.FromUrl(url);
 
             // a few settings can only be made in code
-            settings.Credentials = new [] { MongoCredential.CreateStrongestCredential("database", "username", "password") };
+            settings.Credentials = new[] { MongoCredential.CreateMongoCRCredential("database", "username", "password") };
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
 
             var clone = settings.Clone();
@@ -141,11 +141,11 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.Credentials = new[] { MongoCredential.CreateStrongestCredential("db2", "user2", "password2") };
+            clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db2", "user2", "password2") };
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
-            clone.Credentials = new[] { MongoCredential.CreateStrongestCredential("db1", "user2", "password2") };
+            clone.Credentials = new[] { MongoCredential.CreateMongoCRCredential("db1", "user2", "password2") };
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -258,7 +258,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.ConnectTimeout, settings.ConnectTimeout);
             Assert.AreEqual(1, settings.Credentials.Count());
             Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
-            Assert.AreEqual(url.AuthenticationProtocol, settings.Credentials.Single().AuthenticationProtocol);
+            Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.AreEqual(url.Password, ((PasswordEvidence)settings.Credentials.Single().Evidence).Password);
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
@@ -340,7 +340,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.ConnectTimeout, settings.ConnectTimeout);
             Assert.AreEqual(1, settings.Credentials.Count());
             Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
-            Assert.AreEqual(url.AuthenticationProtocol, settings.Credentials.Single().AuthenticationProtocol);
+            Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.AreEqual(url.Password, ((PasswordEvidence)settings.Credentials.Single().Evidence).Password);
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);

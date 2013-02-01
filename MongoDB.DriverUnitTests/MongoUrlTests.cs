@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoUrlBuilder()
             {
-                AuthenticationProtocol = MongoAuthenticationProtocol.Gssapi,
+                AuthenticationMechanism = MongoAuthenticationMechanism.GSSAPI,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
@@ -66,7 +66,7 @@ namespace MongoDB.DriverUnitTests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
-                "authProtocol=GSSAPI",
+                "authMechanism=GSSAPI",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -92,7 +92,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var url in EnumerateBuiltAndParsedUrls(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationProtocol.Gssapi, url.AuthenticationProtocol);
+                Assert.AreEqual(MongoAuthenticationMechanism.GSSAPI, url.AuthenticationMechanism);
                 Assert.AreEqual("db", url.AuthenticationSource);
                 Assert.AreEqual(123, url.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, url.ConnectionMode);

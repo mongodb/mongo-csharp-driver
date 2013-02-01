@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoUrlBuilder()
             {
-                AuthenticationProtocol = MongoAuthenticationProtocol.Gssapi,
+                AuthenticationMechanism = MongoAuthenticationMechanism.GSSAPI,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
@@ -66,7 +66,7 @@ namespace MongoDB.DriverUnitTests
             };
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
-                "authProtocol=GSSAPI",
+                "authMechanism=GSSAPI",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -92,7 +92,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationProtocol.Gssapi, builder.AuthenticationProtocol);
+                Assert.AreEqual(MongoAuthenticationMechanism.GSSAPI, builder.AuthenticationMechanism);
                 Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
@@ -131,15 +131,17 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(MongoAuthenticationProtocol.Strongest, "mongodb://localhost")]
-        [TestCase(MongoAuthenticationProtocol.Gssapi, "mongodb://localhost/?authProtocol=GSSAPI")]
-        public void TestAuthProtocol(MongoAuthenticationProtocol authProtocol, string connectionString)
+        [TestCase(MongoAuthenticationMechanism.MONGO_CR, "mongodb://localhost")]
+        [TestCase(MongoAuthenticationMechanism.CRAM_MD5, "mongodb://localhost/?authMechanism=CRAM-MD5")]
+        [TestCase(MongoAuthenticationMechanism.DIGEST_MD5, "mongodb://localhost/?authMechanism=DIGEST-MD5")]
+        [TestCase(MongoAuthenticationMechanism.GSSAPI, "mongodb://localhost/?authMechanism=GSSAPI")]
+        public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
         {
-            var built = new MongoUrlBuilder { Server = _localhost, AuthenticationProtocol = authProtocol };
+            var built = new MongoUrlBuilder { Server = _localhost, AuthenticationMechanism = mechanism };
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(authProtocol, builder.AuthenticationProtocol);
+                Assert.AreEqual(mechanism, builder.AuthenticationMechanism);
                 Assert.AreEqual(connectionString, builder.ToString());
             }
         }
@@ -279,7 +281,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationProtocol.Strongest, builder.AuthenticationProtocol);
+                Assert.AreEqual(MongoAuthenticationMechanism.MONGO_CR, builder.AuthenticationMechanism);
                 Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);

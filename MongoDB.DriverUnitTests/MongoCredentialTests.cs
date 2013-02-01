@@ -24,7 +24,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCreateCredential()
         {
-            var credential = MongoCredential.CreateStrongestCredential("db", "username", "password");
+            var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
             Assert.AreEqual("username", credential.Username);
             Assert.AreEqual("password", ((PasswordEvidence)credential.Evidence).Password);
         }
@@ -32,10 +32,10 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEquals()
         {
-            var a = MongoCredential.CreateStrongestCredential("db", "user1", "password");
-            var b = MongoCredential.CreateStrongestCredential("db", "user1", "password");
-            var c = MongoCredential.CreateStrongestCredential("db", "user2", "password");
-            var d = MongoCredential.CreateStrongestCredential("db", "user2", "password1");
+            var a = MongoCredential.CreateMongoCRCredential("db", "user1", "password");
+            var b = MongoCredential.CreateMongoCRCredential("db", "user1", "password");
+            var c = MongoCredential.CreateMongoCRCredential("db", "user2", "password");
+            var d = MongoCredential.CreateMongoCRCredential("db", "user2", "password1");
             var n = (MongoCredential)null;
 
             Assert.IsTrue(object.Equals(a, b));

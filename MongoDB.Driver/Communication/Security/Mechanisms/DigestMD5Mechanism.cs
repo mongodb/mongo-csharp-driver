@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <exception cref="System.NotImplementedException"></exception>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.AuthenticationProtocol == MongoAuthenticationProtocol.Strongest &&
+            return credential.Mechanism == MongoAuthenticationMechanism.DIGEST_MD5 &&
                 credential.Evidence is PasswordEvidence;
         }
 

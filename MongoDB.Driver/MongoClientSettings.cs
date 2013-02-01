@@ -422,7 +422,7 @@ namespace MongoDB.Driver
         public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
         {
             var credential = MongoCredential.FromComponents(
-                builder.AuthenticationProtocol,
+                builder.AuthenticationMechanism,
                 builder.AuthenticationSource ?? builder.DatabaseName,
                 builder.Username,
                 builder.Password);
@@ -462,7 +462,7 @@ namespace MongoDB.Driver
         public static MongoClientSettings FromUrl(MongoUrl url)
         {
             var credential = MongoCredential.FromComponents(
-                url.AuthenticationProtocol,
+                url.AuthenticationMechanism,
                 url.AuthenticationSource ?? url.DatabaseName,
                 url.Username,
                 url.Password);

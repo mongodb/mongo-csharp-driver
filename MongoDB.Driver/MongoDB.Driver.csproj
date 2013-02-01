@@ -120,7 +120,7 @@
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />
     <Compile Include="Communication\Security\Authenticator.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
-    <Compile Include="Communication\Security\IAuthenticationMethod.cs" />
+    <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />
     <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
     <Compile Include="Communication\Security\Mechanisms\DigestMD5Mechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
@@ -129,14 +129,14 @@
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslProperty.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslSession.cs" />
     <Compile Include="Communication\Security\ISaslStep.cs" />
-    <Compile Include="Communication\Security\MongoCRAuthenticationMethod.cs" />
+    <Compile Include="Communication\Security\MongoCRAuthenticationProtocol.cs" />
     <Compile Include="Communication\Security\Mechanisms\GsaslImplementationBase.cs" />
     <Compile Include="Communication\Security\Mechanisms\GsaslGssapiImplementation.cs" />
     <Compile Include="Communication\Security\Mechanisms\GssapiMechanism.cs" />
     <Compile Include="Communication\Security\ISaslMechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\WindowsGssapiImplementation.cs" />
     <Compile Include="Communication\Security\MongoSecurityException.cs" />
-    <Compile Include="Communication\Security\SaslAuthenticationMethod.cs" />
+    <Compile Include="Communication\Security\SaslAuthenticationProtocol.cs" />
     <Compile Include="Communication\Security\SaslCompletionStep.cs" />
     <Compile Include="Communication\Security\SaslConversation.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\AuthIdentity.cs" />
@@ -171,7 +171,7 @@
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
-    <Compile Include="MongoAuthenticationProtocol.cs" />
+    <Compile Include="MongoAuthenticationMechanism.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />

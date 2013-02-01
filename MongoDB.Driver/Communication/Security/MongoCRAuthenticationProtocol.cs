@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Communication.Security
     /// <summary>
     /// Authenticates a credential using the MONGO-CR protocol.
     /// </summary>
-    internal class MongoCRAuthenticationMethod : IAuthenticationMethod
+    internal class MongoCRAuthenticationProtocol : IAuthenticationProtocol
     {
         // public properties
         public string Name
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Communication.Security
         /// </returns>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.AuthenticationProtocol == MongoAuthenticationProtocol.Strongest &&
+            return credential.Mechanism == MongoAuthenticationMechanism.MONGO_CR &&
                 credential.Evidence is PasswordEvidence;
         }
     }

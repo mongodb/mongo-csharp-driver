@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
-        private MongoAuthenticationProtocol _authenticationProtocol;
+        private MongoAuthenticationMechanism _authenticationMechanism;
         private string _authenticationSource;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
-            _authenticationProtocol = MongoAuthenticationProtocol.Strongest;
+            _authenticationMechanism = MongoAuthenticationMechanism.MONGO_CR;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
@@ -108,12 +108,12 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets the authentication protocol.
+        /// Gets or sets the authentication mechanism.
         /// </summary>
-        public MongoAuthenticationProtocol AuthenticationProtocol
+        public MongoAuthenticationMechanism AuthenticationMechanism
         {
-            get { return _authenticationProtocol; }
-            set { _authenticationProtocol = value; }
+            get { return _authenticationMechanism; }
+            set { _authenticationMechanism = value; }
         }
 
         /// <summary>
@@ -588,11 +588,13 @@ namespace MongoDB.Driver
             }
         }
 
-        internal static MongoAuthenticationProtocol ParseAuthenticationProtocol(string name, string s)
+        internal static MongoAuthenticationMechanism ParseAuthenticationMechanism(string name, string s)
         {
             try
             {
-                return (MongoAuthenticationProtocol)Enum.Parse(typeof(MongoAuthenticationProtocol), s, true); // ignoreCase
+                // enumerations cannot use -'s, so we replace them with _'s.
+                s = s.Replace("-", "_");
+                return (MongoAuthenticationMechanism)Enum.Parse(typeof(MongoAuthenticationMechanism), s, true); // ignoreCase
             }
             catch (ArgumentException)
             {
@@ -824,8 +826,8 @@ namespace MongoDB.Driver
 
                         switch (name.ToLower())
                         {
-                            case "authprotocol":
-                                _authenticationProtocol = ParseAuthenticationProtocol(name, value);
+                            case "authmechanism":
+                                _authenticationMechanism = ParseAuthenticationMechanism(name, value);
                                 break;
                             case "authsource":
                                 _authenticationSource = value;
@@ -1012,9 +1014,13 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (_authenticationProtocol != MongoAuthenticationProtocol.Strongest)
+            if (_authenticationMechanism != MongoAuthenticationMechanism.MONGO_CR)
             {
-                query.Append("authProtocol=GSSAPI;");
+                string mechanismName = _authenticationMechanism
+                    .ToString()
+                    .Replace("_", "-");
+
+                query.AppendFormat("authMechanism={0};", mechanismName);
             }
             if (_authenticationSource != null)
             {

@@ -27,18 +27,18 @@ namespace MongoDB.Driver
     public class MongoCredential : IEquatable<MongoCredential>
     {
         // private fields
-        private readonly MongoAuthenticationProtocol _authenticationProtocol;
-        private readonly MongoIdentity _identity;
         private readonly MongoIdentityEvidence _evidence;
-
+        private readonly MongoIdentity _identity;
+        private readonly MongoAuthenticationMechanism _mechanism;
+        
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCredential" /> class.
         /// </summary>
-        /// <param name="authenticationProtocol">Protocol to authenticate with.</param>
+        /// <param name="mechanism">Mechanism to authenticate with.</param>
         /// <param name="identity">The identity.</param>
         /// <param name="evidence">The evidence.</param>
-        public MongoCredential(MongoAuthenticationProtocol authenticationProtocol, MongoIdentity identity, MongoIdentityEvidence evidence)
+        public MongoCredential(MongoAuthenticationMechanism mechanism, MongoIdentity identity, MongoIdentityEvidence evidence)
         {
             if (identity == null)
             {
@@ -49,20 +49,12 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("evidence");
             }
 
-            _authenticationProtocol = authenticationProtocol;
+            _mechanism = mechanism;
             _identity = identity;
             _evidence = evidence;
         }
 
         // public properties
-        /// <summary>
-        /// Gets the protocol to authenticate with.
-        /// </summary>
-        public MongoAuthenticationProtocol AuthenticationProtocol
-        {
-            get { return _authenticationProtocol; }
-        }
-
         /// <summary>
         /// Gets the evidence.
         /// </summary>
@@ -77,6 +69,14 @@ namespace MongoDB.Driver
         public MongoIdentity Identity
         {
             get { return _identity; }
+        }
+
+        /// <summary>
+        /// Gets the mechanism to authenticate with.
+        /// </summary>
+        public MongoAuthenticationMechanism Mechanism
+        {
+            get { return _mechanism; }
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         /// <returns>A credential for GSSAPI.</returns>
         public static MongoCredential CreateGssapiCredential()
         {
-            return FromComponents(MongoAuthenticationProtocol.Gssapi,
+            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
                 "$external",
                 null,
                 (PasswordEvidence)null);
@@ -157,7 +157,7 @@ namespace MongoDB.Driver
         /// <remarks>This overload is used primarily on linux.</remarks>
         public static MongoCredential CreateGssapiCredential(string username)
         {
-            return FromComponents(MongoAuthenticationProtocol.Gssapi,
+            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
                 "$external",
                 username,
                 (PasswordEvidence)null);
@@ -171,7 +171,7 @@ namespace MongoDB.Driver
         /// <returns>A credential for GSSAPI.</returns>
         public static MongoCredential CreateGssapiCredential(string username, string password)
         {
-            return FromComponents(MongoAuthenticationProtocol.Gssapi,
+            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
                 "$external",
                 username,
                 new PasswordEvidence(password));
@@ -185,37 +185,37 @@ namespace MongoDB.Driver
         /// <returns>A credential for GSSAPI.</returns>
         public static MongoCredential CreateGssapiCredential(string username, SecureString password)
         {
-            return FromComponents(MongoAuthenticationProtocol.Gssapi,
+            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
                 "$external",
                 username,
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates a credential used in negotiated authentication.
+        /// Creates a credential used with MONGO-CR.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        public static MongoCredential CreateStrongestCredential(string databaseName, string username, string password)
+        public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
-            return FromComponents(MongoAuthenticationProtocol.Strongest,
+            return FromComponents(MongoAuthenticationMechanism.MONGO_CR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates a credential used in negotiated authentication.
+        /// Creates a credential used with MONGO-CR.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns></returns>
-        public static MongoCredential CreateStrongestCredential(string databaseName, string username, SecureString password)
+        public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
-            return FromComponents(MongoAuthenticationProtocol.Strongest,
+            return FromComponents(MongoAuthenticationMechanism.MONGO_CR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -230,7 +230,7 @@ namespace MongoDB.Driver
         public bool Equals(MongoCredential rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _identity == rhs._identity && _evidence == rhs._evidence && _authenticationProtocol == rhs._authenticationProtocol;
+            return _identity == rhs._identity && _evidence == rhs._evidence && _mechanism == rhs._mechanism;
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace MongoDB.Driver
             int hash = 17;
             hash = 37 * hash + _identity.GetHashCode();
             hash = 37 * hash + _evidence.GetHashCode();
-            hash = 37 * hash + _authenticationProtocol.GetHashCode();
+            hash = 37 * hash + _mechanism.GetHashCode();
             return hash;
         }
 
@@ -267,10 +267,10 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
-        internal static MongoCredential FromComponents(MongoAuthenticationProtocol protocol, string source, string username, string password)
+        internal static MongoCredential FromComponents(MongoAuthenticationMechanism mechanism, string source, string username, string password)
         {
             var evidence = password == null ? (MongoIdentityEvidence)new ExternalEvidence() : new PasswordEvidence(password);
-            return FromComponents(protocol, source, username, evidence);
+            return FromComponents(mechanism, source, username, evidence);
         }
 
         // private methods
@@ -287,11 +287,13 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-        private static MongoCredential FromComponents(MongoAuthenticationProtocol protocol, string source, string username, MongoIdentityEvidence evidence)
+        private static MongoCredential FromComponents(MongoAuthenticationMechanism mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
-            switch (protocol)
+            switch (mechanism)
             {
-                case MongoAuthenticationProtocol.Strongest:
+                case MongoAuthenticationMechanism.MONGO_CR:
+                case MongoAuthenticationMechanism.CRAM_MD5:
+                case MongoAuthenticationMechanism.DIGEST_MD5:
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (string.IsNullOrEmpty(username))
@@ -300,14 +302,14 @@ namespace MongoDB.Driver
                     }
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        throw new ArgumentException("A strongest credential must have a password.");
+                        throw new ArgumentException(string.Format("A {0} credential must have a password.", mechanism));
                     }
 
                     return new MongoCredential(
-                        MongoAuthenticationProtocol.Strongest,
+                        mechanism,
                         new MongoInternalIdentity(source, username),
                         evidence);
-                case MongoAuthenticationProtocol.Gssapi:
+                case MongoAuthenticationMechanism.GSSAPI:
                     source = source ?? "$external";
                     if (source != "$external")
                     {
@@ -325,11 +327,11 @@ namespace MongoDB.Driver
                     }
 
                     return new MongoCredential(
-                        MongoAuthenticationProtocol.Gssapi,
+                        MongoAuthenticationMechanism.GSSAPI,
                         new MongoExternalIdentity(source, username),
                         evidence);
                 default:
-                    throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationProtocol {0}.", protocol));
+                    throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationMechanism {0}.", mechanism));
             }
         }
     }

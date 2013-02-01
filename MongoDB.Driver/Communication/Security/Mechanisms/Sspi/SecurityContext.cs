@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
             {
                 try
                 {
-                    var flags = SspiContextFlags.MutualAuth | SspiContextFlags.Confidentiality | SspiContextFlags.InitIntegrity;
+                    var flags = SspiContextFlags.MutualAuth;
 
                     uint result;
                     long timestamp;

@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
-        private readonly MongoAuthenticationProtocol _authenticationProtocol;
+        private readonly MongoAuthenticationMechanism _authenticationMechanism;
         private readonly string _authenticationSource;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         public MongoUrl(string url)
         {
             var builder = new MongoUrlBuilder(url); // parses url
-            _authenticationProtocol = builder.AuthenticationProtocol;
+            _authenticationMechanism = builder.AuthenticationMechanism;
             _authenticationSource = builder.AuthenticationSource;
             _connectionMode = builder.ConnectionMode;
             _connectTimeout = builder.ConnectTimeout;
@@ -128,11 +128,11 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets the authentication protocol.
+        /// Gets the authentication mechanism.
         /// </summary>
-        public MongoAuthenticationProtocol AuthenticationProtocol
+        public MongoAuthenticationMechanism AuthenticationMechanism
         {
-            get { return _authenticationProtocol; }
+            get { return _authenticationMechanism; }
         }
 
         /// <summary>

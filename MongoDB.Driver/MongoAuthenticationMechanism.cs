@@ -16,17 +16,25 @@
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// The protocol used to authenticate with MongoDB.
+    /// The mechanism used to authenticate with MongoDB.
     /// </summary>
-    public enum MongoAuthenticationProtocol
+    public enum MongoAuthenticationMechanism
     {
         /// <summary>
-        /// Authenticate to the server using the strongest means possible.
+        /// Authenticate to the server using the Mongo Challenge Response (MONGO-CR) protocol.
         /// </summary>
-        Strongest,
+        MONGO_CR,
+        /// <summary>
+        /// Authenticate to the server using CRAM-MD5.
+        /// </summary>
+        CRAM_MD5,
+        /// <summary>
+        /// Authenticate to the server using DIGEST-MD5.
+        /// </summary>
+        DIGEST_MD5,
         /// <summary>
         /// Authenticate to the server using GSSAPI.
         /// </summary>
-        Gssapi
+        GSSAPI
     }
 }
