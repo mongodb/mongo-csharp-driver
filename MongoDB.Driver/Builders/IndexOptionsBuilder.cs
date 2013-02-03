@@ -138,6 +138,19 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexOptionsBuilder().SetUnique(value);
         }
+
+        /// <summary>
+        /// Sets the weight of a field for the text index.
+        /// </summary>
+        /// <param name="name">The name of the field.</param>
+        /// <param name="value">The weight.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexOptionsBuilder SetWeight(string name, int value)
+        {
+            return new IndexOptionsBuilder().SetWeight(name, value);
+        }
     }
 
     /// <summary>
@@ -268,6 +281,23 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetUnique(bool value)
         {
             _document["unique"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the weight of a field for the text index.
+        /// </summary>
+        /// <param name="name">The field name.</param>
+        /// <param name="value">The weight.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexOptionsBuilder SetWeight(string name, int value)
+        {
+            if (!_document.Contains("weights"))
+                _document.Add("weights", new BsonDocument());
+
+            _document["weights"][name] = value;
             return this;
         }
 
@@ -411,6 +441,20 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexOptionsBuilder<TDocument>().SetUnique(value);
         }
+
+        /// <summary>
+        /// Sets the weight of a field for the text index.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexOptionsBuilder<TDocument> SetWeight<TMember>(Expression<Func<TDocument, TMember>> memberExpression, int value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetWeight(memberExpression, value);
+        }
     }
 
     /// <summary>
@@ -546,6 +590,22 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetUnique(bool value)
         {
             _indexOptionsBuilder.SetUnique(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the weight of a field for the text index.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexOptionsBuilder<TDocument> SetWeight<TMember>(Expression<Func<TDocument, TMember>> memberExpression, int value)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _indexOptionsBuilder = _indexOptionsBuilder.SetWeight(serializationInfo.ElementName, value);
             return this;
         }
 

@@ -226,5 +226,53 @@ namespace MongoDB.DriverUnitTests.Builders
                 }
             }
         }
+
+        [Test]
+        public void TestText()
+        {
+            var keys = IndexKeys.Text("a");
+            string expected = "{ \"a\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestMultipleText()
+        {
+            var keys = IndexKeys.Text("a", "b");
+            string expected = "{ \"a\" : \"text\", \"b\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestTextAll()
+        {
+            var keys = IndexKeys.Text();
+            string expected = "{ \"$**\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestText_Typed()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.A);
+            string expected = "{ \"a\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestMultipleText_Typed()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.A, x => x.B);
+            string expected = "{ \"a\" : \"text\", \"b\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+         
+        [Test]
+        public void TestTextAll_Typed()
+        {
+            var keys = IndexKeys<Test>.Text();
+            string expected = "{ \"$**\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
     }
 }
