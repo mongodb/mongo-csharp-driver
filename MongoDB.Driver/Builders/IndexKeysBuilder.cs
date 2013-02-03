@@ -81,6 +81,16 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder().GeoSpatialHaystack(name, additionalName);
         }
+
+        /// <summary>
+        /// Sets one or more key names to index as text.
+        /// </summary>
+        /// <param name="names">One or more key names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder Text(params string[] names)
+        {
+            return new IndexKeysBuilder().Text(names);
+        }
     }
 
     /// <summary>
@@ -161,6 +171,28 @@ namespace MongoDB.Driver.Builders
         {
             _document.Add(name, "geoHaystack");
             _document.Add(additionalName, 1, additionalName != null);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets one or more key names to index as text.
+        /// </summary>
+        /// <param name="names">One or more key names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder Text(params string[] names)
+        {
+            if (names.Length == 0)
+            {
+                // special case to build text index on *all* string fields
+                _document.Add("$**", "text");
+            }
+            else
+            {
+                foreach (var name in names)
+                {
+                    _document.Add(name, "text");
+                }
+            }
             return this;
         }
 
@@ -257,6 +289,16 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression, additionalMemberExpression);
         }
+
+        /// <summary>
+        /// Sets one or more key names to index as text.
+        /// </summary>
+        /// <param name="memberExpressions">The member expressions.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new IndexKeysBuilder<TDocument>().Text(memberExpressions);
+        }
     }
 
     /// <summary>
@@ -352,6 +394,17 @@ namespace MongoDB.Driver.Builders
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var additionalSerializationInfo = _serializationInfoHelper.GetSerializationInfo(additionalMemberExpression);
             _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(serializationInfo.ElementName, additionalSerializationInfo.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets one or more key names to index as text.
+        /// </summary>
+        /// <param name="memberExpressions">One or more key names.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.Text(GetElementNames(memberExpressions).ToArray());
             return this;
         }
 
