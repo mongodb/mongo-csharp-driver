@@ -312,12 +312,13 @@ namespace MongoDB.Driver.Linq
             var unaryExpression = variableExpression as UnaryExpression;
             if (unaryExpression != null && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
+                serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
+
                 if (unaryExpression.Operand.Type.IsEnum)
                 {
                     var enumType = unaryExpression.Operand.Type;
                     if (unaryExpression.Type == Enum.GetUnderlyingType(enumType))
                     {
-                        serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
                         value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
                     }
                 }
@@ -331,7 +332,6 @@ namespace MongoDB.Driver.Linq
                     var enumType = unaryExpression.Operand.Type.GetGenericArguments()[0];
                     if (unaryExpression.Type.GetGenericArguments()[0] == Enum.GetUnderlyingType(enumType))
                     {
-                        serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
                         if (value != null)
                         {
                             value = Enum.ToObject(enumType, value); // serialize enum instead of underlying integer
