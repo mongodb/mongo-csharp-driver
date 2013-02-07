@@ -292,8 +292,6 @@ namespace MongoDB.Driver
             switch (mechanism)
             {
                 case MongoAuthenticationMechanism.MONGO_CR:
-                case MongoAuthenticationMechanism.CRAM_MD5:
-                case MongoAuthenticationMechanism.DIGEST_MD5:
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (string.IsNullOrEmpty(username))

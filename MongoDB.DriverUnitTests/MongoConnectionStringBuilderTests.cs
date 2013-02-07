@@ -136,8 +136,6 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(MongoAuthenticationMechanism.MONGO_CR, "server=localhost;authMechanism=MONGO-CR")]
-        [TestCase(MongoAuthenticationMechanism.CRAM_MD5, "server=localhost;authMechanism=CRAM-MD5")]
-        [TestCase(MongoAuthenticationMechanism.DIGEST_MD5, "server=localhost;authMechanism=DIGEST-MD5")]
         [TestCase(MongoAuthenticationMechanism.GSSAPI, "server=localhost;authMechanism=GSSAPI")]
         public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
         {

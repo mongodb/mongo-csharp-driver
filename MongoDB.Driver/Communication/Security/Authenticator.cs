@@ -33,8 +33,6 @@ namespace MongoDB.Driver.Communication.Security
             // when we start negotiating, MONGO-CR should be moved to the bottom of the list...
             new MongoCRAuthenticationProtocol(),
             new SaslAuthenticationProtocol(new GssapiMechanism()),
-            new SaslAuthenticationProtocol(new CramMD5Mechanism()),
-            new SaslAuthenticationProtocol(new DigestMD5Mechanism())
         };
 
         // private fields

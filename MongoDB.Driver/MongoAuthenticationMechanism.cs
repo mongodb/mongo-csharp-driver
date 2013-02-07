@@ -25,14 +25,6 @@ namespace MongoDB.Driver
         /// </summary>
         MONGO_CR,
         /// <summary>
-        /// Authenticate to the server using CRAM-MD5.
-        /// </summary>
-        CRAM_MD5,
-        /// <summary>
-        /// Authenticate to the server using DIGEST-MD5.
-        /// </summary>
-        DIGEST_MD5,
-        /// <summary>
         /// Authenticate to the server using GSSAPI.
         /// </summary>
         GSSAPI

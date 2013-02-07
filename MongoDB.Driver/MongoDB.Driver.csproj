@@ -122,7 +122,6 @@
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />
     <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
-    <Compile Include="Communication\Security\Mechanisms\DigestMD5Mechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslContext.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslException.cs" />
@@ -307,7 +306,6 @@
     <Compile Include="RemoveFlags.cs" />
     <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
-    <Compile Include="Communication\Security\Mechanisms\CramMD5Mechanism.cs" />
     <Compile Include="ExternalEvidence.cs" />
   </ItemGroup>
   <ItemGroup>
