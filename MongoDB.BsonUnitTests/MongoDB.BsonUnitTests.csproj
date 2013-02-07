@@ -113,6 +113,7 @@
     <Compile Include="Serialization\LegacyBsonClassMapTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptionsTests.cs" />
+    <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\SerializeFlagsTests.cs" />
     <Compile Include="Serialization\Serializers\AnimalHierarchyWithAttributesTests.cs" />
     <Compile Include="Serialization\Serializers\AnimalHierarchyWithoutAttributesTests.cs" />

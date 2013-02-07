@@ -1,4 +1,4 @@
-/* Copyright 2010-2012 10gen Inc.
+/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,17 +13,11 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers
 {
@@ -31,11 +25,24 @@ namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers
     public class KeyValuePairSerializerTests
     {
         [Test]
+        public void TestNullKey()
+        {
+            var kvp = new KeyValuePair<string, object>(null, "value");
+            var json = kvp.ToJson();
+            var expected = "{ 'k' : null, 'v' : 'value' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = kvp.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<KeyValuePair<string, object>>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
         public void TestNullValue()
         {
-            KeyValuePair<string, object> kvp = new KeyValuePair<string, object>("Value", null);
+            var kvp = new KeyValuePair<string, object>("key", null);
             var json = kvp.ToJson();
-            var expected = "{ 'k' : 'Value', 'v' : null }".Replace("'", "\"");
+            var expected = "{ 'k' : 'key', 'v' : null }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = kvp.ToBson();

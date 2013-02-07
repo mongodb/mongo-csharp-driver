@@ -166,17 +166,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             var keyValuePair = (KeyValuePair<TKey, TValue>)value;
             var keyValuePairSerializationOptions = EnsureSerializationOptions<KeyValuePairSerializationOptions>(options);
 
-            var keySerializer = GetKeySerializer(keyValuePair.Key.GetType());
-            
-            IBsonSerializer valueSerializer;
-            if (null == keyValuePair.Value)
-            {
-                valueSerializer = GetValueSerializer(typeof(object));
-            }
-            else
-            {
-                valueSerializer = GetValueSerializer(keyValuePair.Value.GetType());
-            }
+            var keyType = (keyValuePair.Key == null) ? typeof(TKey) : keyValuePair.Key.GetType();
+            var keySerializer = GetKeySerializer(keyType);
+            var valueType = (keyValuePair.Value == null) ? typeof(TValue) : keyValuePair.Value.GetType();
+            var valueSerializer = GetValueSerializer(valueType);
+
             switch (keyValuePairSerializationOptions.Representation)
             {
                 case BsonType.Array:
