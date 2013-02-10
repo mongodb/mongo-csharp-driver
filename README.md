@@ -26,6 +26,7 @@ http://jira.mongodb.org/browse/CSHARP
 * Justin Dearing            zippy1981@gmail.com
 * Teun Duynstee             teun@duynstee.com
 * Ken Egozi                 mail@kenegozi.com
+* Daniel Goldman            daniel@stackwave.com
 * Simon Green               simon@captaincodeman.com
 * Nik Kolev                 nkolev@gmail.com
 * Oleg Kosmakov             kosmakoff@gmail.com
