@@ -256,10 +256,9 @@ namespace MongoDB.Driver.Internal
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
-            using (var message = new MongoQueryMessage(writerSettings, databaseName + ".$cmd", queryFlags, 0, 1, command, null))
-            {
-                SendMessage(message, null, databaseName); // write concern doesn't apply to queries
-            }
+
+            var queryMessage = new MongoQueryMessage(writerSettings, databaseName + ".$cmd", queryFlags, 0, 1, command, null);
+            SendMessage(queryMessage, null, databaseName); // write concern doesn't apply to queries
 
             var readerSettings = new BsonBinaryReaderSettings
             {
@@ -292,17 +291,19 @@ namespace MongoDB.Driver.Internal
                 try
                 {
                     _lastUsedAt = DateTime.UtcNow;
-                    using (var buffer = new BsonBuffer())
+                    var networkStream = GetNetworkStream();
+                    var readTimeout = (int)_serverInstance.Settings.SocketTimeout.TotalMilliseconds;
+                    if (readTimeout != 0)
                     {
-                        var networkStream = GetNetworkStream();
-                        var readTimeout = (int)_serverInstance.Settings.SocketTimeout.TotalMilliseconds;
-                        if (readTimeout != 0)
-                        {
-                            networkStream.ReadTimeout = readTimeout;
-                        }
-                        buffer.LoadFrom(networkStream);
+                        networkStream.ReadTimeout = readTimeout;
+                    }
+
+                    using (var byteBuffer = ByteBufferFactory.LoadFrom(networkStream))
+                    using (var bsonBuffer = new BsonBuffer(byteBuffer, true))
+                    {
+                        byteBuffer.MakeReadOnly();
                         var reply = new MongoReplyMessage<TDocument>(readerSettings);
-                        reply.ReadFrom(buffer, serializationOptions);
+                        reply.ReadFrom(bsonBuffer, serializationOptions);
                         return reply;
                     }
                 }
@@ -314,7 +315,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal WriteConcernResult SendMessage(MongoRequestMessage message, WriteConcern writeConcern, string databaseName)
+        internal WriteConcernResult SendMessage(BsonBuffer buffer, MongoRequestMessage message, WriteConcern writeConcern, string databaseName)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -322,7 +323,6 @@ namespace MongoDB.Driver.Internal
                 _lastUsedAt = DateTime.UtcNow;
                 _requestId = message.RequestId;
 
-                message.WriteToBuffer();
                 CommandDocument getLastErrorCommand = null;
                 if (writeConcern != null && writeConcern.Enabled)
                 {
@@ -332,18 +332,17 @@ namespace MongoDB.Driver.Internal
                     var wTimeout = (writeConcern.WTimeout == null) ? null : (BsonValue)(int)writeConcern.WTimeout.Value.TotalMilliseconds;
 
                     getLastErrorCommand = new CommandDocument
-                    {
-                        { "getlasterror", 1 }, // use all lowercase for backward compatibility
-                        { "fsync", fsync, fsync != null },
-                        { "j", journal, journal != null },
-                        { "w", w, w != null },
-                        { "wtimeout", wTimeout, wTimeout != null }
-                    };
+                        {
+                            { "getlasterror", 1 }, // use all lowercase for backward compatibility
+                            { "fsync", fsync, fsync != null },
+                            { "j", journal, journal != null },
+                            { "w", w, w != null },
+                            { "wtimeout", wTimeout, wTimeout != null }
+                        };
+
                     // piggy back on network transmission for message
-                    using (var getLastErrorMessage = new MongoQueryMessage(message.Buffer, message.WriterSettings, databaseName + ".$cmd", QueryFlags.None, 0, 1, getLastErrorCommand, null))
-                    {
-                        getLastErrorMessage.WriteToBuffer();
-                    }
+                    var getLastErrorMessage = new MongoQueryMessage(message.WriterSettings, databaseName + ".$cmd", QueryFlags.None, 0, 1, getLastErrorCommand, null);
+                    getLastErrorMessage.WriteToBuffer(buffer);
                 }
 
                 try
@@ -354,7 +353,7 @@ namespace MongoDB.Driver.Internal
                     {
                         networkStream.WriteTimeout = writeTimeout;
                     }
-                    message.Buffer.WriteTo(networkStream);
+                    buffer.WriteTo(networkStream);
                     _messageCounter++;
                 }
                 catch (Exception ex)
@@ -393,6 +392,15 @@ namespace MongoDB.Driver.Internal
                 }
 
                 return writeConcernResult;
+            }
+        }
+
+        internal WriteConcernResult SendMessage(MongoRequestMessage message, WriteConcern writeConcern, string databaseName)
+        {
+            using (var buffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
+            {
+                message.WriteToBuffer(buffer);
+                return SendMessage(buffer, message, writeConcern, databaseName);
             }
         }
 

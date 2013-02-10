@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Internal
             string collectionFullName,
             bool checkElementNames,
             InsertFlags flags)
-            : base(MessageOpcode.Insert, null, writerSettings)
+            : base(MessageOpcode.Insert, writerSettings)
         {
             _collectionFullName = collectionFullName;
             _checkElementNames = checkElementNames;
@@ -43,41 +43,40 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal void AddDocument(Type nominalType, object document)
+        internal void AddDocument(BsonBuffer buffer, Type nominalType, object document)
         {
-            _lastDocumentStartPosition = Buffer.Position;
-            using (var bsonWriter = BsonWriter.Create(Buffer, WriterSettings))
+            _lastDocumentStartPosition = buffer.Position;
+            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
                 bsonWriter.CheckElementNames = _checkElementNames;
                 BsonSerializer.Serialize(bsonWriter, nominalType, document, DocumentSerializationOptions.SerializeIdFirstInstance);
             }
-            BackpatchMessageLength();
+            BackpatchMessageLength(buffer);
         }
 
-        internal byte[] RemoveLastDocument()
+        internal byte[] RemoveLastDocument(BsonBuffer buffer)
         {
-            var lastDocumentLength = (int)(Buffer.Position - _lastDocumentStartPosition);
-            var lastDocument = new byte[lastDocumentLength];
-            Buffer.CopyTo(_lastDocumentStartPosition, lastDocument, 0, lastDocumentLength);
-            Buffer.Position = _lastDocumentStartPosition;
-            BackpatchMessageLength();
-
+            var lastDocumentLength = buffer.Position - _lastDocumentStartPosition;
+            buffer.Position = _lastDocumentStartPosition;
+            var lastDocument = buffer.ReadBytes(lastDocumentLength);
+            buffer.Length = _lastDocumentStartPosition;
+            BackpatchMessageLength(buffer);
             return lastDocument;
         }
 
-        internal void ResetBatch(byte[] lastDocument)
+        internal void ResetBatch(BsonBuffer buffer, byte[] lastDocument)
         {
-            Buffer.Position = _firstDocumentStartPosition;
-            Buffer.WriteBytes(lastDocument);
-            BackpatchMessageLength();
+            buffer.Position = _firstDocumentStartPosition;
+            buffer.WriteBytes(lastDocument);
+            BackpatchMessageLength(buffer);
         }
 
         // protected methods
-        protected override void WriteBody()
+        protected override void WriteBody(BsonBuffer buffer)
         {
-            Buffer.WriteInt32((int)_flags);
-            Buffer.WriteCString(_collectionFullName);
-            _firstDocumentStartPosition = Buffer.Position;
+            buffer.WriteInt32((int)_flags);
+            buffer.WriteCString(_collectionFullName);
+            _firstDocumentStartPosition = buffer.Position;
             // documents to be added later by calling AddDocument
         }
     }

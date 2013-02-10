@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Internal
 {
@@ -26,7 +27,7 @@ namespace MongoDB.Driver.Internal
 
         // constructors
         internal MongoGetMoreMessage(string collectionFullName, int numberToReturn, long cursorId)
-            : base(MessageOpcode.GetMore, null, null)
+            : base(MessageOpcode.GetMore, null)
         {
             _collectionFullName = collectionFullName;
             _numberToReturn = numberToReturn;
@@ -34,12 +35,12 @@ namespace MongoDB.Driver.Internal
         }
 
         // protected methods
-        protected override void WriteBody()
+        protected override void WriteBody(BsonBuffer buffer)
         {
-            Buffer.WriteInt32(0); // reserved
-            Buffer.WriteCString(_collectionFullName);
-            Buffer.WriteInt32(_numberToReturn);
-            Buffer.WriteInt64(_cursorId);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteCString(_collectionFullName);
+            buffer.WriteInt32(_numberToReturn);
+            buffer.WriteInt64(_cursorId);
         }
     }
 }

@@ -80,6 +80,15 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\MongoDB.Shared\CanonicalDisposableClass.cs">
+      <Link>CanonicalDisposableClass.cs</Link>
+    </Compile>
+    <Compile Include="..\MongoDB.Shared\CanonicalDisposableDerivedClass.cs">
+      <Link>CanonicalDisposableDerivedClass.cs</Link>
+    </Compile>
+    <Compile Include="..\MongoDB.Shared\CanonicalDisposableStruct.cs">
+      <Link>CanonicalDisposableStruct.cs</Link>
+    </Compile>
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>

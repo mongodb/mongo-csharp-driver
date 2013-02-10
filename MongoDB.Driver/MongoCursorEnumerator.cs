@@ -330,10 +330,8 @@ namespace MongoDB.Driver
                 }
 
                 var writerSettings = _cursor.Collection.GetWriterSettings(connection);
-                using (var message = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _queryFlags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields))
-                {
-                    return GetReply(connection, message);
-                }
+                var queryMessage = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _queryFlags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields);
+                return GetReply(connection, queryMessage);
             }
             finally
             {
@@ -360,10 +358,8 @@ namespace MongoDB.Driver
                     numberToReturn = _cursor.BatchSize;
                 }
 
-                using (var message = new MongoGetMoreMessage(_cursor.Collection.FullName, numberToReturn, _openCursorId))
-                {
-                    return GetReply(connection, message);
-                }
+                var getMoreMessage = new MongoGetMoreMessage(_cursor.Collection.FullName, numberToReturn, _openCursorId);
+                return GetReply(connection, getMoreMessage);
             }
             finally
             {
@@ -392,10 +388,8 @@ namespace MongoDB.Driver
                         var connection = _cursor.Server.AcquireConnection(_serverInstance);
                         try
                         {
-                            using (var message = new MongoKillCursorsMessage(_openCursorId))
-                            {
-                                connection.SendMessage(message, WriteConcern.Unacknowledged, _cursor.Database.Name);
-                            }
+                            var killCursorsMessage = new MongoKillCursorsMessage(_openCursorId);
+                            connection.SendMessage(killCursorsMessage, WriteConcern.Unacknowledged, _cursor.Database.Name);
                         }
                         finally
                         {

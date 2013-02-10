@@ -39,20 +39,7 @@ namespace MongoDB.Driver.Internal
             int numberToReturn,
             IMongoQuery query,
             IMongoFields fields)
-            : this(null, writerSettings, collectionFullName, flags, numberToSkip, numberToReturn, query, fields)
-        {
-        }
-
-        internal MongoQueryMessage(
-            BsonBuffer buffer,
-            BsonBinaryWriterSettings writerSettings,
-            string collectionFullName,
-            QueryFlags flags,
-            int numberToSkip,
-            int numberToReturn,
-            IMongoQuery query,
-            IMongoFields fields)
-            : base(MessageOpcode.Query, buffer, writerSettings)
+            : base(MessageOpcode.Query, writerSettings)
         {
             _collectionFullName = collectionFullName;
             _flags = flags;
@@ -63,14 +50,14 @@ namespace MongoDB.Driver.Internal
         }
 
         // protected methods
-        protected override void WriteBody()
+        protected override void WriteBody(BsonBuffer buffer)
         {
-            Buffer.WriteInt32((int)_flags);
-            Buffer.WriteCString(_collectionFullName);
-            Buffer.WriteInt32(_numberToSkip);
-            Buffer.WriteInt32(_numberToReturn);
+            buffer.WriteInt32((int)_flags);
+            buffer.WriteCString(_collectionFullName);
+            buffer.WriteInt32(_numberToSkip);
+            buffer.WriteInt32(_numberToReturn);
 
-            using (var bsonWriter = BsonWriter.Create(Buffer, WriterSettings))
+            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
                 if (_query == null)
                 {

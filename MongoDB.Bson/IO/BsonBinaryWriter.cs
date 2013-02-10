@@ -38,19 +38,36 @@ namespace MongoDB.Bson.IO
         /// <param name="buffer">A BsonBuffer.</param>
         /// <param name="settings">Optional BsonBinaryWriter settings.</param>
         public BsonBinaryWriter(Stream stream, BsonBuffer buffer, BsonBinaryWriterSettings settings)
-            : base(settings)
+            : this(buffer ?? new BsonBuffer(), buffer == null, settings)
         {
             _stream = stream;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryWriter class.
+        /// </summary>
+        /// <param name="buffer">A BsonBuffer.</param>
+        /// <param name="disposeBuffer">if set to <c>true</c> this BsonBinaryReader will own the buffer and when Dispose is called the buffer will be Disposed also.</param>
+        /// <param name="settings">Optional BsonBinaryWriter settings.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// encoder
+        /// or
+        /// settings
+        /// </exception>
+        public BsonBinaryWriter(BsonBuffer buffer, bool disposeBuffer, BsonBinaryWriterSettings settings)
+            : base(settings)
+        {
             if (buffer == null)
             {
-                _buffer = new BsonBuffer();
-                _disposeBuffer = true; // only call Dispose if we allocated the buffer
+                throw new ArgumentNullException("encoder");
             }
-            else
+            if (settings == null)
             {
-                _buffer = buffer;
-                _disposeBuffer = false;
+                throw new ArgumentNullException("settings");
             }
+
+            _buffer = buffer;
+            _disposeBuffer = disposeBuffer;
             _binaryWriterSettings = settings; // already frozen by base class
 
             _context = null;
@@ -462,6 +479,60 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Writes a raw BSON array.
+        /// </summary>
+        /// <param name="slice">The byte buffer containing the raw BSON array.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public override void WriteRawBsonArray(IByteBuffer slice)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Value)
+            {
+                ThrowInvalidState("WriteRawBsonArray", BsonWriterState.Value);
+            }
+
+            _buffer.WriteByte((byte)BsonType.Array);
+            WriteNameHelper();
+            _buffer.ByteBuffer.WriteBytes(slice); // assumes byteBuffer is a valid raw BSON document
+
+            State = GetNextState();
+        }
+
+        /// <summary>
+        /// Writes a raw BSON document.
+        /// </summary>
+        /// <param name="slice">The byte buffer containing the raw BSON document.</param>
+        public override void WriteRawBsonDocument(IByteBuffer slice)
+        {
+            if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
+            if (State != BsonWriterState.Initial && State != BsonWriterState.Value && State != BsonWriterState.ScopeDocument && State != BsonWriterState.Done)
+            {
+                ThrowInvalidState("WriteRawBsonDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
+            }
+
+            if (State == BsonWriterState.Value)
+            {
+                _buffer.WriteByte((byte)BsonType.Document);
+                WriteNameHelper();
+            }
+            _buffer.ByteBuffer.WriteBytes(slice); // assumes byteBuffer is a valid raw BSON document
+
+            if (_context == null)
+            {
+                State = BsonWriterState.Done;
+            }
+            else
+            {
+                if (_context.ContextType == ContextType.JavaScriptWithScope)
+                {
+                    BackpatchSize(); // size of the JavaScript with scope value
+                    _context = _context.ParentContext;
+                }
+                State = GetNextState();
+            }
+        }
+
+        /// <summary>
         /// Writes a BSON regular expression to the writer.
         /// </summary>
         /// <param name="regex">A BsonRegularExpression.</param>
@@ -612,9 +683,10 @@ namespace MongoDB.Bson.IO
                 if (_disposeBuffer)
                 {
                     _buffer.Dispose();
-                    _buffer = null;
                 }
+                _buffer = null;
             }
+            base.Dispose(disposing);
         }
 
         // private methods

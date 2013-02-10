@@ -1141,9 +1141,10 @@ namespace MongoDB.Driver
                 List<WriteConcernResult> results = (writeConcern.Enabled) ? new List<WriteConcernResult>() : null;
 
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags))
+                using (var bsonBuffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
                 {
-                    message.WriteToBuffer(); // must be called before AddDocument
+                    var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags);
+                    message.WriteToBuffer(bsonBuffer); // must be called before AddDocument
 
                     foreach (var document in documents)
                     {
@@ -1171,18 +1172,18 @@ namespace MongoDB.Driver
                                 }
                             }
                         }
-                        message.AddDocument(nominalType, document);
+                        message.AddDocument(bsonBuffer, nominalType, document);
 
                         if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
                         {
-                            byte[] lastDocument = message.RemoveLastDocument();
-                            var intermediateResult = connection.SendMessage(message, writeConcern, _database.Name);
+                            byte[] lastDocument = message.RemoveLastDocument(bsonBuffer);
+                            var intermediateResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
                             if (writeConcern.Enabled) { results.Add(intermediateResult); }
-                            message.ResetBatch(lastDocument);
+                            message.ResetBatch(bsonBuffer, lastDocument);
                         }
                     }
 
-                    var finalResult = connection.SendMessage(message, writeConcern, _database.Name);
+                    var finalResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
                     if (writeConcern.Enabled) { results.Add(finalResult); }
 
                     return results;
@@ -1326,10 +1327,8 @@ namespace MongoDB.Driver
             try
             {
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoDeleteMessage(writerSettings, FullName, flags, query))
-                {
-                    return connection.SendMessage(message, writeConcern ?? _settings.WriteConcern, _database.Name);
-                }
+                var message = new MongoDeleteMessage(writerSettings, FullName, flags, query);
+                return connection.SendMessage(message, writeConcern ?? _settings.WriteConcern, _database.Name);
             }
             finally
             {
@@ -1464,7 +1463,7 @@ namespace MongoDB.Driver
                         {
                             GuidRepresentation = _settings.GuidRepresentation
                         };
-                        var bsonWriter = BsonWriter.Create(bsonDocument, bsonDocumentWriterSettings);
+                        var bsonWriter = new BsonDocumentWriter(bsonDocument, bsonDocumentWriterSettings);
                         bsonWriter.WriteStartDocument();
                         bsonWriter.WriteName("_id");
                         idSerializer.Serialize(bsonWriter, id.GetType(), id, idMemberMap.SerializationOptions);
@@ -1556,11 +1555,9 @@ namespace MongoDB.Driver
             try
             {
                 var writerSettings = GetWriterSettings(connection);
-                using (var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update))
-                {
-                    var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
-                    return connection.SendMessage(message, writeConcern, _database.Name);
-                }
+                var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update);
+                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+                return connection.SendMessage(message, writeConcern, _database.Name);
             }
             finally
             {

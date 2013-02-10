@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.IO
 {
@@ -106,7 +107,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonReader.</returns>
         public static BsonReader Create(BsonBuffer buffer, BsonBinaryReaderSettings settings)
         {
-            return new BsonBinaryReader(buffer, settings);
+            return new BsonBinaryReader(buffer, false, settings);
         }
 
         /// <summary>
@@ -169,9 +170,8 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonReader.</returns>
         public static BsonReader Create(Stream stream, BsonBinaryReaderSettings settings)
         {
-            var reader = new BsonBinaryReader(null, settings);
-            reader.Buffer.LoadFrom(stream);
-            return reader;
+            var byteBuffer = ByteBufferFactory.LoadFrom(stream);
+            return new BsonBinaryReader(new BsonBuffer(byteBuffer, true), true, settings);
         }
 
         /// <summary>
@@ -660,6 +660,54 @@ namespace MongoDB.Bson.IO
         {
             VerifyName(name);
             ReadObjectId(out timestamp, out machine, out pid, out increment);
+        }
+
+        /// <summary>
+        /// Reads a raw BSON array.
+        /// </summary>
+        /// <returns>The raw BSON array.</returns>
+        public virtual IByteBuffer ReadRawBsonArray()
+        {
+            // overridden in BsonBinaryReader
+            var array = BsonDocumentSerializer.Instance.Deserialize(this, typeof(BsonArray), null);
+            var bytes = array.ToBson();
+            return new ByteArrayBuffer(bytes, 0, bytes.Length, true);
+        }
+
+        /// <summary>
+        /// Reads a raw BSON array.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>
+        /// The raw BSON array.
+        /// </returns>
+        public IByteBuffer ReadRawBsonArray(string name)
+        {
+            VerifyName(name);
+            return ReadRawBsonArray();
+        }
+
+        /// <summary>
+        /// Reads a raw BSON document.
+        /// </summary>
+        /// <returns>The raw BSON document.</returns>
+        public virtual IByteBuffer ReadRawBsonDocument()
+        {
+            // overridden in BsonBinaryReader
+            var document = BsonDocumentSerializer.Instance.Deserialize(this, typeof(BsonDocument), null);
+            var bytes = document.ToBson();
+            return new ByteArrayBuffer(bytes, 0, bytes.Length, true);
+        }
+
+        /// <summary>
+        /// Reads a raw BSON document.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>The raw BSON document.</returns>
+        public IByteBuffer ReadRawBsonDocument(string name)
+        {
+            VerifyName(name);
+            return ReadRawBsonDocument();
         }
 
         /// <summary>

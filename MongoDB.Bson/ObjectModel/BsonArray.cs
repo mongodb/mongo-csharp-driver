@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson
 {
@@ -161,15 +162,14 @@ namespace MongoDB.Bson
         /// <returns>True if the two BsonArray values are equal according to ==.</returns>
         public static bool operator ==(BsonArray lhs, BsonArray rhs)
         {
-            if (object.ReferenceEquals(lhs, null)) { return object.ReferenceEquals(rhs, null); }
-            return lhs.Equals(rhs);
+            return object.Equals(lhs, rhs); // handles lhs == null correctly
         }
 
         // public properties
         /// <summary>
         /// Gets or sets the total number of elements the internal data structure can hold without resizing.
         /// </summary>
-        public int Capacity
+        public virtual int Capacity
         {
             get { return _values.Capacity; }
             set { _values.Capacity = value; }
@@ -178,7 +178,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the count of array elements.
         /// </summary>
-        public int Count
+        public virtual int Count
         {
             get { return _values.Count; }
         }
@@ -186,7 +186,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets whether the array is read-only.
         /// </summary>
-        public bool IsReadOnly
+        public virtual bool IsReadOnly
         {
             get { return false; }
         }
@@ -195,7 +195,7 @@ namespace MongoDB.Bson
         /// Gets the array elements as raw values (see BsonValue.RawValue).
         /// </summary>
         [Obsolete("Use ToArray to ToList instead.")]
-        public IEnumerable<object> RawValues
+        public virtual IEnumerable<object> RawValues
         {
             get { return _values.Select(v => v.RawValue); }
         }
@@ -203,7 +203,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the array elements.
         /// </summary>
-        public IEnumerable<BsonValue> Values
+        public virtual IEnumerable<BsonValue> Values
         {
             get { return _values; }
         }
@@ -423,7 +423,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray Add(BsonValue value)
+        public virtual BsonArray Add(BsonValue value)
         {
             if (value != null)
             {
@@ -437,7 +437,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<bool> values)
+        public virtual BsonArray AddRange(IEnumerable<bool> values)
         {
             if (values != null)
             {
@@ -454,7 +454,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<BsonValue> values)
+        public virtual BsonArray AddRange(IEnumerable<BsonValue> values)
         {
             if (values != null)
             {
@@ -474,7 +474,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<DateTime> values)
+        public virtual BsonArray AddRange(IEnumerable<DateTime> values)
         {
             if (values != null)
             {
@@ -491,7 +491,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<double> values)
+        public virtual BsonArray AddRange(IEnumerable<double> values)
         {
             if (values != null)
             {
@@ -508,7 +508,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<int> values)
+        public virtual BsonArray AddRange(IEnumerable<int> values)
         {
             if (values != null)
             {
@@ -525,7 +525,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<long> values)
+        public virtual BsonArray AddRange(IEnumerable<long> values)
         {
             if (values != null)
             {
@@ -542,7 +542,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<ObjectId> values)
+        public virtual BsonArray AddRange(IEnumerable<ObjectId> values)
         {
             if (values != null)
             {
@@ -559,7 +559,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable<string> values)
+        public virtual BsonArray AddRange(IEnumerable<string> values)
         {
             if (values != null)
             {
@@ -576,7 +576,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="values">A list of values to add to the array.</param>
         /// <returns>The array (so method calls can be chained).</returns>
-        public BsonArray AddRange(IEnumerable values)
+        public virtual BsonArray AddRange(IEnumerable values)
         {
             if (values != null)
             {
@@ -605,7 +605,7 @@ namespace MongoDB.Bson
         /// <summary>
         /// Clears the array.
         /// </summary>
-        public void Clear()
+        public virtual void Clear()
         {
             _values.Clear();
         }
@@ -613,17 +613,30 @@ namespace MongoDB.Bson
         /// <summary>
         /// Compares the array to another array.
         /// </summary>
-        /// <param name="other">The other array.</param>
+        /// <param name="rhs">The other array.</param>
         /// <returns>A 32-bit signed integer that indicates whether this array is less than, equal to, or greather than the other.</returns>
-        public int CompareTo(BsonArray other)
+        public virtual int CompareTo(BsonArray rhs)
         {
-            if (other == null) { return 1; }
-            for (int i = 0; i < _values.Count && i < other._values.Count; i++)
+            if (rhs == null) { return 1; }
+
+            // lhs and rhs might be subclasses of BsonArray
+            using (var lhsEnumerator = GetEnumerator())
+            using (var rhsEnumerator = rhs.GetEnumerator())
             {
-                int r = _values[i].CompareTo(other._values[i]);
-                if (r != 0) { return r; }
+                while (true)
+                {
+                    var lhsHasNext = lhsEnumerator.MoveNext();
+                    var rhsHasNext = rhsEnumerator.MoveNext();
+                    if (!lhsHasNext && !rhsHasNext) { return 0; }
+                    if (!lhsHasNext) { return -1; }
+                    if (!rhsHasNext) { return 1; }
+
+                    var lhsValue = lhsEnumerator.Current;
+                    var rhsValue = rhsEnumerator.Current;
+                    var result = lhsValue.CompareTo(rhsValue);
+                    if (result != 0) { return result; }
+                }
             }
-            return _values.Count.CompareTo(other._values.Count);
         }
 
         /// <summary>
@@ -647,7 +660,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value to test for.</param>
         /// <returns>True if the array contains the value.</returns>
-        public bool Contains(BsonValue value)
+        public virtual bool Contains(BsonValue value)
         {
             // don't throw ArgumentNullException if value is null
             // just let _values.Contains return false
@@ -659,7 +672,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="array">The other array.</param>
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
-        public void CopyTo(BsonValue[] array, int arrayIndex)
+        public virtual void CopyTo(BsonValue[] array, int arrayIndex)
         {
             for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
             {
@@ -673,7 +686,7 @@ namespace MongoDB.Bson
         /// <param name="array">The other array.</param>
         /// <param name="arrayIndex">The zero based index of the other array at which to start copying.</param>
         [Obsolete("Use ToArray or ToList instead.")]
-        public void CopyTo(object[] array, int arrayIndex)
+        public virtual void CopyTo(object[] array, int arrayIndex)
         {
             for (int i = 0, j = arrayIndex; i < _values.Count; i++, j++)
             {
@@ -698,12 +711,11 @@ namespace MongoDB.Bson
         /// <summary>
         /// Compares this array to another array.
         /// </summary>
-        /// <param name="rhs">The other array.</param>
+        /// <param name="obj">The other array.</param>
         /// <returns>True if the two arrays are equal.</returns>
-        public bool Equals(BsonArray rhs)
+        public bool Equals(BsonArray obj)
         {
-            if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return object.ReferenceEquals(this, rhs) || _values.SequenceEqual(rhs._values);
+            return Equals((object)obj); // handles obj == null correctly
         }
 
         /// <summary>
@@ -713,14 +725,18 @@ namespace MongoDB.Bson
         /// <returns>True if the other object is a BsonArray and equal to this one.</returns>
         public override bool Equals(object obj)
         {
-            return Equals(obj as BsonArray); // works even if obj is null
+            if (object.ReferenceEquals(obj, null) || !(obj is BsonArray)) { return false; }
+
+            // lhs and rhs might be subclasses of BsonArray
+            var rhs = (BsonArray)obj;
+            return Values.SequenceEqual(rhs.Values);
         }
 
         /// <summary>
         /// Gets an enumerator that can enumerate the elements of the array.
         /// </summary>
         /// <returns>An enumerator.</returns>
-        public IEnumerator<BsonValue> GetEnumerator()
+        public virtual IEnumerator<BsonValue> GetEnumerator()
         {
             return _values.GetEnumerator();
         }
@@ -731,14 +747,10 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + BsonType.GetHashCode();
-            foreach (var value in _values)
-            {
-                hash = 37 * hash + value.GetHashCode();
-            }
-            return hash;
+            return new Hasher()
+                .Hash(BsonType)
+                .HashElements(Values)
+                .GetHashCode();
         }
 
         /// <summary>
@@ -746,7 +758,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value to search for.</param>
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
-        public int IndexOf(BsonValue value)
+        public virtual int IndexOf(BsonValue value)
         {
             if (value == null)
             {
@@ -761,7 +773,7 @@ namespace MongoDB.Bson
         /// <param name="value">The value to search for.</param>
         /// <param name="index">The zero based index at which to start the search.</param>
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
-        public int IndexOf(BsonValue value, int index)
+        public virtual int IndexOf(BsonValue value, int index)
         {
             if (value == null)
             {
@@ -777,7 +789,7 @@ namespace MongoDB.Bson
         /// <param name="index">The zero based index at which to start the search.</param>
         /// <param name="count">The number of elements to search.</param>
         /// <returns>The zero based index of the value (or -1 if not found).</returns>
-        public int IndexOf(BsonValue value, int index, int count)
+        public virtual int IndexOf(BsonValue value, int index, int count)
         {
             if (value == null)
             {
@@ -791,7 +803,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="index">The zero based index at which to insert the new value.</param>
         /// <param name="value">The new value.</param>
-        public void Insert(int index, BsonValue value)
+        public virtual void Insert(int index, BsonValue value)
         {
             if (value == null)
             {
@@ -805,7 +817,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value to remove.</param>
         /// <returns>True if the value was removed.</returns>
-        public bool Remove(BsonValue value)
+        public virtual bool Remove(BsonValue value)
         {
             if (value == null)
             {
@@ -818,7 +830,7 @@ namespace MongoDB.Bson
         /// Removes an element from the array.
         /// </summary>
         /// <param name="index">The zero based index of the element to remove.</param>
-        public void RemoveAt(int index)
+        public virtual void RemoveAt(int index)
         {
             _values.RemoveAt(index);
         }
@@ -827,7 +839,7 @@ namespace MongoDB.Bson
         /// Converts the BsonArray to an array of BsonValues.
         /// </summary>
         /// <returns>An array of BsonValues.</returns>
-        public BsonValue[] ToArray()
+        public virtual BsonValue[] ToArray()
         {
             return _values.ToArray();
         }
@@ -836,7 +848,7 @@ namespace MongoDB.Bson
         /// Converts the BsonArray to a list of BsonValues.
         /// </summary>
         /// <returns>A list of BsonValues.</returns>
-        public List<BsonValue> ToList()
+        public virtual List<BsonValue> ToList()
         {
             return _values.ToList();
         }

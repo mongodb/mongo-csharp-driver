@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -35,18 +36,35 @@ namespace MongoDB.Bson.IO
         /// <param name="buffer">A BsonBuffer.</param>
         /// <param name="settings">A BsonBinaryReaderSettings.</param>
         public BsonBinaryReader(BsonBuffer buffer, BsonBinaryReaderSettings settings)
+            : this(buffer ?? new BsonBuffer(), buffer == null, settings)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryReader class.
+        /// </summary>
+        /// <param name="buffer">A BsonBuffer.</param>
+        /// <param name="disposeBuffer">if set to <c>true</c> this BsonBinaryReader will own the buffer and when Dispose is called the buffer will be Disposed also.</param>
+        /// <param name="settings">A BsonBinaryReaderSettings.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// buffer
+        /// or
+        /// settings
+        /// </exception>
+        public BsonBinaryReader(BsonBuffer buffer, bool disposeBuffer, BsonBinaryReaderSettings settings)
             : base(settings)
         {
             if (buffer == null)
             {
-                _buffer = new BsonBuffer();
-                _disposeBuffer = true; // only call Dispose if we allocated the buffer
+                throw new ArgumentNullException("buffer");
             }
-            else
+            if (settings == null)
             {
-                _buffer = buffer;
-                _disposeBuffer = false;
+                throw new ArgumentNullException("settings");
             }
+
+            _buffer = buffer;
+            _disposeBuffer = disposeBuffer;
             _binaryReaderSettings = settings; // already frozen by base class
             _context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }
@@ -316,7 +334,7 @@ namespace MongoDB.Bson.IO
             }
 
             _context = _context.PopContext(_buffer.Position);
-            if (_context != null && _context.ContextType == ContextType.JavaScriptWithScope)
+            if (_context.ContextType == ContextType.JavaScriptWithScope)
             {
                 _context = _context.PopContext(_buffer.Position); // JavaScriptWithScope
             }
@@ -423,6 +441,64 @@ namespace MongoDB.Bson.IO
             VerifyBsonType("ReadObjectId", BsonType.ObjectId);
             State = GetNextState();
             return _buffer.ReadObjectId();
+        }
+
+        /// <summary>
+        /// Reads a raw BSON array.
+        /// </summary>
+        /// <returns>
+        /// The raw BSON array.
+        /// </returns>
+        public override IByteBuffer ReadRawBsonArray()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadStartArray", BsonType.Array);
+
+            var position = _buffer.Position;
+            var length = _buffer.ReadInt32();
+            var slice = _buffer.ByteBuffer.GetSlice(position, length);
+            _buffer.Position = position + length;
+
+            switch (_context.ContextType)
+            {
+                case ContextType.Array: State = BsonReaderState.Type; break;
+                case ContextType.Document: State = BsonReaderState.Type; break;
+                case ContextType.TopLevel: State = BsonReaderState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType.");
+            }
+
+            return slice;
+        }
+
+        /// <summary>
+        /// Reads a raw BSON document.
+        /// </summary>
+        /// <returns>
+        /// The raw BSON document.
+        /// </returns>
+        public override IByteBuffer ReadRawBsonDocument()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            VerifyBsonType("ReadRawBsonDocument", BsonType.Document);
+
+            var position = _buffer.Position;
+            var length = _buffer.ReadInt32();
+            var slice = _buffer.ByteBuffer.GetSlice(position, length);
+            _buffer.Position = position + length;
+
+            if (_context.ContextType == ContextType.JavaScriptWithScope)
+            {
+                _context = _context.PopContext(_buffer.Position); // JavaScriptWithScope
+            }
+            switch (_context.ContextType)
+            {
+                case ContextType.Array: State = BsonReaderState.Type; break;
+                case ContextType.Document: State = BsonReaderState.Type; break;
+                case ContextType.TopLevel: State = BsonReaderState.Done; break;
+                default: throw new BsonInternalException("Unexpected ContextType.");
+            }
+
+            return slice;
         }
 
         /// <summary>
@@ -597,8 +673,8 @@ namespace MongoDB.Bson.IO
                     if (_disposeBuffer)
                     {
                         _buffer.Dispose();
-                        _buffer = null;
                     }
+                    _buffer = null;
                 }
                 catch { } // ignore exceptions
             }

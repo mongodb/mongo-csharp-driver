@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Internal
 {
@@ -24,19 +24,19 @@ namespace MongoDB.Driver.Internal
 
         // constructors
         internal MongoKillCursorsMessage(params long[] cursorIds)
-            : base(MessageOpcode.KillCursors, null, null)
+            : base(MessageOpcode.KillCursors, null)
         {
             _cursorIds = cursorIds;
         }
 
         // protected methods
-        protected override void WriteBody()
+        protected override void WriteBody(BsonBuffer buffer)
         {
-            Buffer.WriteInt32(0); // reserved
-            Buffer.WriteInt32(_cursorIds.Length);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteInt32(_cursorIds.Length);
             foreach (long cursorId in _cursorIds)
             {
-                Buffer.WriteInt64(cursorId);
+                buffer.WriteInt64(cursorId);
             }
         }
     }

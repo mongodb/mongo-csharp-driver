@@ -81,22 +81,41 @@ namespace MongoDB.Driver.Internal
             _startingFrom = buffer.ReadInt32();
             _numberReturned = buffer.ReadInt32();
 
-            using (BsonReader bsonReader = BsonReader.Create(buffer, _readerSettings))
+            if ((_responseFlags & ResponseFlags.CursorNotFound) != 0)
             {
-                if ((_responseFlags & ResponseFlags.CursorNotFound) != 0)
+                throw new MongoQueryException("Cursor not found.");
+            }
+            if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
+            {
+                BsonDocument document;
+                using (BsonReader bsonReader = new BsonBinaryReader(buffer, false, _readerSettings))
                 {
-                    throw new MongoQueryException("Cursor not found.");
+                    document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
                 }
-                if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
+                var err = document.GetValue("$err", "Unknown error.");
+                var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
+                throw new MongoQueryException(message, document);
+            }
+
+            _documents = new List<TDocument>(_numberReturned);
+            for (int i = 0; i < _numberReturned; i++)
+            {
+                BsonBuffer sliceBuffer;
+                if (buffer.ByteBuffer is MultiChunkBuffer)
                 {
-                    var document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
-                    var err = document.GetValue("$err", "Unknown error.");
-                    var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
-                    throw new MongoQueryException(message, document);
+                    // we can use slightly faster SingleChunkBuffers for all documents that don't span chunk boundaries
+                    var position = buffer.Position;
+                    var length = buffer.ReadInt32();
+                    var slice = buffer.ByteBuffer.GetSlice(position, length);
+                    buffer.Position = position + length;
+                    sliceBuffer = new BsonBuffer(slice, true);
+                }
+                else
+                {
+                    sliceBuffer = new BsonBuffer(buffer.ByteBuffer, false);
                 }
 
-                _documents = new List<TDocument>(_numberReturned);
-                while (buffer.Position - messageStartPosition < MessageLength)
+                using (var bsonReader = new BsonBinaryReader(sliceBuffer, true, _readerSettings))
                 {
                     var document = (TDocument)BsonSerializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
                     _documents.Add(document);

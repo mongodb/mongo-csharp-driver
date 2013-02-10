@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Internal
             UpdateFlags flags,
             IMongoQuery query,
             IMongoUpdate update)
-            : base(MessageOpcode.Update, null, writerSettings)
+            : base(MessageOpcode.Update, writerSettings)
         {
             _collectionFullName = collectionFullName;
             _checkUpdateDocument = checkUpdateDocument;
@@ -47,13 +47,13 @@ namespace MongoDB.Driver.Internal
         }
 
         // protected methods
-        protected override void WriteBody()
+        protected override void WriteBody(BsonBuffer buffer)
         {
-            Buffer.WriteInt32(0); // reserved
-            Buffer.WriteCString(_collectionFullName);
-            Buffer.WriteInt32((int)_flags);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteCString(_collectionFullName);
+            buffer.WriteInt32((int)_flags);
 
-            using (var bsonWriter = BsonWriter.Create(Buffer, WriterSettings))
+            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
                 if (_query == null)
                 {

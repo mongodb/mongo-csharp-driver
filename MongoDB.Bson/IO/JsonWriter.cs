@@ -678,6 +678,7 @@ namespace MongoDB.Bson.IO
                 Close();
                 _textWriter.Dispose();
             }
+            base.Dispose(disposing);
         }
 
         // private methods

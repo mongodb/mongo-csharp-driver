@@ -16,6 +16,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.IO
 {
@@ -177,7 +179,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonWriter.</returns>
         public static BsonWriter Create(Stream stream, BsonBinaryWriterSettings settings)
         {
-            return new BsonBinaryWriter(stream, null, BsonBinaryWriterSettings.Defaults);
+            return new BsonBinaryWriter(stream, null, settings);
         }
 
         /// <summary>
@@ -561,6 +563,56 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Writes a raw BSON array.
+        /// </summary>
+        /// <param name="slice">The byte buffer containing the raw BSON array.</param>
+        public virtual void WriteRawBsonArray(IByteBuffer slice)
+        {
+            // overridden in BsonBinaryWriter
+            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(slice, false), true, BsonBinaryReaderSettings.Defaults))
+            {
+                var array = BsonSerializer.Deserialize<BsonArray>(bsonReader);
+                BsonArraySerializer.Instance.Serialize(this, typeof(BsonArray), array, null);
+            }
+        }
+
+        /// <summary>
+        /// Writes a raw BSON array.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="slice">The byte buffer containing the raw BSON array.</param>
+        public void WriteRawBsonArray(string name, IByteBuffer slice)
+        {
+            WriteName(name);
+            WriteRawBsonArray(slice);
+        }
+
+        /// <summary>
+        /// Writes a raw BSON document.
+        /// </summary>
+        /// <param name="slice">The byte buffer containing the raw BSON document.</param>
+        public virtual void WriteRawBsonDocument(IByteBuffer slice)
+        {
+            // overridden in BsonBinaryWriter
+            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(slice, false), true, BsonBinaryReaderSettings.Defaults))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(bsonReader);
+                BsonDocumentSerializer.Instance.Serialize(this, typeof(BsonDocument), document, null);
+            }
+        }
+
+        /// <summary>
+        /// Writes a raw BSON document.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="slice">The byte buffer containing the raw BSON document.</param>
+        public void WriteRawBsonDocument(string name, IByteBuffer slice)
+        {
+            WriteName(name);
+            WriteRawBsonDocument(slice);
+        }
+
+        /// <summary>
         /// Writes a BSON regular expression to the writer.
         /// </summary>
         /// <param name="regex">A BsonRegularExpression.</param>
@@ -756,7 +808,9 @@ namespace MongoDB.Bson.IO
         /// Disposes of any resources used by the writer.
         /// </summary>
         /// <param name="disposing">True if called from Dispose.</param>
-        protected abstract void Dispose(bool disposing);
+        protected virtual void Dispose(bool disposing)
+        {
+        }
 
         /// <summary>
         /// Throws an InvalidOperationException when the method called is not valid for the current ContextType.
