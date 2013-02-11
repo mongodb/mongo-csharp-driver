@@ -135,6 +135,7 @@ namespace MongoDB.Driver
                 _authenticationMechanism = value;
                 base["authMechanism"] = value
                     .ToString()
+                    .ToUpper()
                     .Replace("_", "-");
             }
         }
@@ -965,7 +966,7 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            _authenticationMechanism = MongoAuthenticationMechanism.MongoCR;
+            _authenticationMechanism = MongoAuthenticationMechanism.Mongo_CR;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;

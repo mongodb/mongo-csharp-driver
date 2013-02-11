@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
-            _authenticationMechanism = MongoAuthenticationMechanism.MongoCR;
+            _authenticationMechanism = MongoAuthenticationMechanism.Mongo_CR;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
@@ -1014,10 +1014,11 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (_authenticationMechanism != MongoAuthenticationMechanism.MongoCR)
+            if (_authenticationMechanism != MongoAuthenticationMechanism.Mongo_CR)
             {
                 string mechanismName = _authenticationMechanism
                     .ToString()
+                    .ToUpper()
                     .Replace("_", "-");
 
                 query.AppendFormat("authMechanism={0};", mechanismName);

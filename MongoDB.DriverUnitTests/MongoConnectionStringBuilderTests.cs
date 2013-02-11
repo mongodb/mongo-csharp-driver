@@ -135,7 +135,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(MongoAuthenticationMechanism.MongoCR, "server=localhost;authMechanism=MONGO-CR")]
+        [TestCase(MongoAuthenticationMechanism.Mongo_CR, "server=localhost;authMechanism=MONGO-CR")]
         [TestCase(MongoAuthenticationMechanism.Gssapi, "server=localhost;authMechanism=GSSAPI")]
         public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
         {

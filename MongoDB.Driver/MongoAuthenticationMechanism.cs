@@ -23,7 +23,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Authenticate to the server using the Mongo Challenge Response (MONGO-CR) protocol.
         /// </summary>
-        MongoCR,
+        Mongo_CR,
         /// <summary>
         /// Authenticate to the server using GSSAPI.
         /// </summary>

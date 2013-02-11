@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
-            return FromComponents(MongoAuthenticationMechanism.MongoCR,
+            return FromComponents(MongoAuthenticationMechanism.Mongo_CR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
-            return FromComponents(MongoAuthenticationMechanism.MongoCR,
+            return FromComponents(MongoAuthenticationMechanism.Mongo_CR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -284,7 +284,7 @@ namespace MongoDB.Driver
 
             switch (mechanism)
             {
-                case MongoAuthenticationMechanism.MongoCR:
+                case MongoAuthenticationMechanism.Mongo_CR:
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))

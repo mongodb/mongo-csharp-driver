@@ -131,7 +131,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(MongoAuthenticationMechanism.MongoCR, "mongodb://localhost")]
+        [TestCase(MongoAuthenticationMechanism.Mongo_CR, "mongodb://localhost")]
         [TestCase(MongoAuthenticationMechanism.Gssapi, "mongodb://localhost/?authMechanism=GSSAPI")]
         public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
         {
@@ -279,7 +279,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationMechanism.MongoCR, builder.AuthenticationMechanism);
+                Assert.AreEqual(MongoAuthenticationMechanism.Mongo_CR, builder.AuthenticationMechanism);
                 Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);
