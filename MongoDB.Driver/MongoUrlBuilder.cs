@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     public class MongoUrlBuilder
     {
         // private fields
-        private MongoAuthenticationMechanism _authenticationMechanism;
+        private string _authenticationMechanism;
         private string _authenticationSource;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
@@ -66,7 +66,7 @@ namespace MongoDB.Driver
         /// </summary>
         public MongoUrlBuilder()
         {
-            _authenticationMechanism = MongoAuthenticationMechanism.Mongo_CR;
+            _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;
@@ -110,7 +110,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the authentication mechanism.
         /// </summary>
-        public MongoAuthenticationMechanism AuthenticationMechanism
+        public string AuthenticationMechanism
         {
             get { return _authenticationMechanism; }
             set { _authenticationMechanism = value; }
@@ -588,20 +588,6 @@ namespace MongoDB.Driver
             }
         }
 
-        internal static MongoAuthenticationMechanism ParseAuthenticationMechanism(string name, string s)
-        {
-            try
-            {
-                // enumerations cannot use -'s, so we replace them with _'s.
-                s = s.Replace("-", "_");
-                return (MongoAuthenticationMechanism)Enum.Parse(typeof(MongoAuthenticationMechanism), s, true); // ignoreCase
-            }
-            catch (ArgumentException)
-            {
-                throw new FormatException(FormatMessage(name, s));
-            }
-        }
-
         internal static ConnectionMode ParseConnectionMode(string name, string s)
         {
             try
@@ -827,7 +813,7 @@ namespace MongoDB.Driver
                         switch (name.ToLower())
                         {
                             case "authmechanism":
-                                _authenticationMechanism = ParseAuthenticationMechanism(name, value);
+                                _authenticationMechanism = value;
                                 break;
                             case "authsource":
                                 _authenticationSource = value;
@@ -1014,14 +1000,9 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (_authenticationMechanism != MongoAuthenticationMechanism.Mongo_CR)
+            if (!_authenticationMechanism.Equals("MONGO-CR", StringComparison.InvariantCultureIgnoreCase))
             {
-                string mechanismName = _authenticationMechanism
-                    .ToString()
-                    .ToUpper()
-                    .Replace("_", "-");
-
-                query.AppendFormat("authMechanism={0};", mechanismName);
+                query.AppendFormat("authMechanism={0};", _authenticationMechanism);
             }
             if (_authenticationSource != null)
             {

@@ -75,7 +75,7 @@ namespace MongoDB.Driver
 
         // private fields
         // default values are set in ResetValues
-        private MongoAuthenticationMechanism _authenticationMechanism;
+        private string _authenticationMechanism;
         private string _authenticationSource;
         private ConnectionMode _connectionMode;
         private TimeSpan _connectTimeout;
@@ -127,16 +127,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the authentication mechanism.
         /// </summary>
-        public MongoAuthenticationMechanism AuthenticationMechanism
+        public string AuthenticationMechanism
         {
             get { return _authenticationMechanism; }
             set 
             {
-                _authenticationMechanism = value;
-                base["authMechanism"] = value
-                    .ToString()
-                    .ToUpper()
-                    .Replace("_", "-");
+                base["authMechanism"] = _authenticationMechanism = value;
             }
         }
 
@@ -674,15 +670,7 @@ namespace MongoDB.Driver
                 switch (keyword.ToLower())
                 {
                     case "authmechanism":
-                        if (value is string)
-                        {
-                            string mechanism = ((string)value).Replace("-", "_");
-                            AuthenticationMechanism = (MongoAuthenticationMechanism)Enum.Parse(typeof(MongoAuthenticationMechanism), mechanism, true);
-                        }
-                        else
-                        {
-                            AuthenticationMechanism = (MongoAuthenticationMechanism)value;
-                        }
+                        AuthenticationMechanism = (string)value;
                         break;
                     case "authsource":
                         AuthenticationSource = (string)value;
@@ -966,7 +954,7 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            _authenticationMechanism = MongoAuthenticationMechanism.Mongo_CR;
+            _authenticationMechanism = MongoDefaults.AuthenticationMechanism;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;

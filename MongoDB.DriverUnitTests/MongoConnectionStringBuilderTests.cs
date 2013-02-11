@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoConnectionStringBuilder()
             {
-                AuthenticationMechanism = MongoAuthenticationMechanism.Gssapi,
+                AuthenticationMechanism = "GSSAPI",
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
@@ -96,7 +96,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationMechanism.Gssapi, builder.AuthenticationMechanism);
+                Assert.AreEqual("GSSAPI", builder.AuthenticationMechanism);
                 Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
@@ -135,9 +135,9 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(MongoAuthenticationMechanism.Mongo_CR, "server=localhost;authMechanism=MONGO-CR")]
-        [TestCase(MongoAuthenticationMechanism.Gssapi, "server=localhost;authMechanism=GSSAPI")]
-        public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
+        [TestCase("MONGO-CR", "server=localhost;authMechanism=MONGO-CR")]
+        [TestCase("GSSAPI", "server=localhost;authMechanism=GSSAPI")]
+        public void TestAuthMechanism(string mechanism, string connectionString)
         {
             var built = new MongoConnectionStringBuilder { Server = _localhost, AuthenticationMechanism = mechanism };
 

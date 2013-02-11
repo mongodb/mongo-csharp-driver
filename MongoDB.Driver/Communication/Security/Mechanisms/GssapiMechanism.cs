@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <exception cref="System.NotImplementedException"></exception>
         public bool CanUse(MongoCredential credential)
         {
-            if (credential.Mechanism != MongoAuthenticationMechanism.Gssapi || !(credential.Identity is MongoExternalIdentity))
+            if (!credential.Mechanism.Equals("GSSAPI", StringComparison.InvariantCultureIgnoreCase) || !(credential.Identity is MongoExternalIdentity))
             {
                 return false;
             }

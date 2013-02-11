@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Communication.Security
         /// </returns>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.Mechanism == MongoAuthenticationMechanism.Mongo_CR &&
+            return credential.Mechanism.Equals("MONGO-CR", StringComparison.InvariantCultureIgnoreCase) &&
                 credential.Evidence is PasswordEvidence;
         }
     }

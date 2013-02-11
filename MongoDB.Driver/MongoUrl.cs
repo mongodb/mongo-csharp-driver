@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
-        private readonly MongoAuthenticationMechanism _authenticationMechanism;
+        private readonly string _authenticationMechanism;
         private readonly string _authenticationSource;
         private readonly ConnectionMode _connectionMode;
         private readonly TimeSpan _connectTimeout;
@@ -130,7 +130,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the authentication mechanism.
         /// </summary>
-        public MongoAuthenticationMechanism AuthenticationMechanism
+        public string AuthenticationMechanism
         {
             get { return _authenticationMechanism; }
         }

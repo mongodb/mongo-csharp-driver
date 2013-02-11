@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static bool __assignIdOnInsert = true;
+        private static string __authenticationMechanism = "MONGO-CR";
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
@@ -50,6 +51,15 @@ namespace MongoDB.Driver
         {
             get { return __assignIdOnInsert; }
             set { __assignIdOnInsert = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the default authentication mechanism.
+        /// </summary>
+        public static string AuthenticationMechanism
+        {
+            get { return __authenticationMechanism; }
+            set { __authenticationMechanism = value; }
         }
 
         /// <summary>
