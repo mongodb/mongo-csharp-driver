@@ -675,7 +675,7 @@ namespace MongoDB.Driver
                     case "authmechanism":
                         if (value is string)
                         {
-                            string mechanism = value.ToString().Replace("-", "_");
+                            string mechanism = ((string)value).Replace("-", "_");
                             AuthenticationMechanism = (MongoAuthenticationMechanism)Enum.Parse(typeof(MongoAuthenticationMechanism), mechanism, true);
                         }
                         else
@@ -965,7 +965,7 @@ namespace MongoDB.Driver
         private void ResetValues()
         {
             // set fields and not properties so base class items aren't set
-            _authenticationMechanism = MongoAuthenticationMechanism.MONGO_CR;
+            _authenticationMechanism = MongoAuthenticationMechanism.MongoCR;
             _authenticationSource = null;
             _connectionMode = ConnectionMode.Automatic;
             _connectTimeout = MongoDefaults.ConnectTimeout;

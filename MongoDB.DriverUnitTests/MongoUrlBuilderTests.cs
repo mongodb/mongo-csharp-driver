@@ -37,7 +37,7 @@ namespace MongoDB.DriverUnitTests
             };
             var built = new MongoUrlBuilder()
             {
-                AuthenticationMechanism = MongoAuthenticationMechanism.GSSAPI,
+                AuthenticationMechanism = MongoAuthenticationMechanism.Gssapi,
                 AuthenticationSource = "db",
                 ConnectionMode = ConnectionMode.ReplicaSet,
                 ConnectTimeout = TimeSpan.FromSeconds(1),
@@ -92,7 +92,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationMechanism.GSSAPI, builder.AuthenticationMechanism);
+                Assert.AreEqual(MongoAuthenticationMechanism.Gssapi, builder.AuthenticationMechanism);
                 Assert.AreEqual("db", builder.AuthenticationSource);
                 Assert.AreEqual(123, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.ReplicaSet, builder.ConnectionMode);
@@ -131,8 +131,8 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase(MongoAuthenticationMechanism.MONGO_CR, "mongodb://localhost")]
-        [TestCase(MongoAuthenticationMechanism.GSSAPI, "mongodb://localhost/?authMechanism=GSSAPI")]
+        [TestCase(MongoAuthenticationMechanism.MongoCR, "mongodb://localhost")]
+        [TestCase(MongoAuthenticationMechanism.Gssapi, "mongodb://localhost/?authMechanism=GSSAPI")]
         public void TestAuthMechanism(MongoAuthenticationMechanism mechanism, string connectionString)
         {
             var built = new MongoUrlBuilder { Server = _localhost, AuthenticationMechanism = mechanism };
@@ -279,7 +279,7 @@ namespace MongoDB.DriverUnitTests
 
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
-                Assert.AreEqual(MongoAuthenticationMechanism.MONGO_CR, builder.AuthenticationMechanism);
+                Assert.AreEqual(MongoAuthenticationMechanism.MongoCR, builder.AuthenticationMechanism);
                 Assert.AreEqual(null, builder.AuthenticationSource);
                 Assert.AreEqual(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
                 Assert.AreEqual(ConnectionMode.Automatic, builder.ConnectionMode);

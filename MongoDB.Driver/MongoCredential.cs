@@ -140,24 +140,12 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a GSSAPI credential.
         /// </summary>
-        /// <returns>A credential for GSSAPI.</returns>
-        public static MongoCredential CreateGssapiCredential()
-        {
-            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
-                "$external",
-                null,
-                (PasswordEvidence)null);
-        }
-        
-        /// <summary>
-        /// Creates a GSSAPI credential.
-        /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A credential for GSSAPI.</returns>
         /// <remarks>This overload is used primarily on linux.</remarks>
         public static MongoCredential CreateGssapiCredential(string username)
         {
-            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
+            return FromComponents(MongoAuthenticationMechanism.Gssapi,
                 "$external",
                 username,
                 (PasswordEvidence)null);
@@ -171,7 +159,7 @@ namespace MongoDB.Driver
         /// <returns>A credential for GSSAPI.</returns>
         public static MongoCredential CreateGssapiCredential(string username, string password)
         {
-            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
+            return FromComponents(MongoAuthenticationMechanism.Gssapi,
                 "$external",
                 username,
                 new PasswordEvidence(password));
@@ -185,7 +173,7 @@ namespace MongoDB.Driver
         /// <returns>A credential for GSSAPI.</returns>
         public static MongoCredential CreateGssapiCredential(string username, SecureString password)
         {
-            return FromComponents(MongoAuthenticationMechanism.GSSAPI,
+            return FromComponents(MongoAuthenticationMechanism.Gssapi,
                 "$external",
                 username,
                 new PasswordEvidence(password));
@@ -200,7 +188,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
-            return FromComponents(MongoAuthenticationMechanism.MONGO_CR,
+            return FromComponents(MongoAuthenticationMechanism.MongoCR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -215,7 +203,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
-            return FromComponents(MongoAuthenticationMechanism.MONGO_CR,
+            return FromComponents(MongoAuthenticationMechanism.MongoCR,
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -289,15 +277,16 @@ namespace MongoDB.Driver
         // private static methods
         private static MongoCredential FromComponents(MongoAuthenticationMechanism mechanism, string source, string username, MongoIdentityEvidence evidence)
         {
+            if (string.IsNullOrEmpty(username))
+            {
+                return null;
+            }
+
             switch (mechanism)
             {
-                case MongoAuthenticationMechanism.MONGO_CR:
+                case MongoAuthenticationMechanism.MongoCR:
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
-                    if (string.IsNullOrEmpty(username))
-                    {
-                        return null;
-                    }
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
                         throw new ArgumentException(string.Format("A {0} credential must have a password.", mechanism));
@@ -307,25 +296,15 @@ namespace MongoDB.Driver
                         mechanism,
                         new MongoInternalIdentity(source, username),
                         evidence);
-                case MongoAuthenticationMechanism.GSSAPI:
+                case MongoAuthenticationMechanism.Gssapi:
                     source = source ?? "$external";
                     if (source != "$external")
                     {
                         throw new ArgumentException("The source for GSSAPI must be $external.");
                     }
 
-                    if (string.IsNullOrEmpty(username))
-                    {
-                        username = Environment.UserName;
-                        if (!string.IsNullOrEmpty(Environment.UserDomainName))
-                        {
-                            // DOMAIN\username
-                            username = Environment.UserDomainName + "\\" + username;
-                        }
-                    }
-
                     return new MongoCredential(
-                        MongoAuthenticationMechanism.GSSAPI,
+                        MongoAuthenticationMechanism.Gssapi,
                         new MongoExternalIdentity(source, username),
                         evidence);
                 default:

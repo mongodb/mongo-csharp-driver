@@ -21,7 +21,8 @@ using System.Text;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Evidence of a MongoIdentity via the currently executing process.
+    /// Evidence of a MongoIdentity via an external mechanism.  For example, on windows this may 
+    /// be the current process' user or, on linux, via kinit.
     /// </summary>
     public sealed class ExternalEvidence : MongoIdentityEvidence
     {

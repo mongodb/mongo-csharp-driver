@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     /// </summary>
     internal class GssapiMechanism : ISaslMechanism
     {
-        // private static methods
+        // private static fields
         private static bool __useGsasl = !Environment.OSVersion.Platform.ToString().Contains("Win");
-		
+
         // public properties
         /// <summary>
         /// Gets the name of the mechanism.
@@ -49,11 +49,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <exception cref="System.NotImplementedException"></exception>
         public bool CanUse(MongoCredential credential)
         {
-            if(credential.Mechanism != MongoAuthenticationMechanism.GSSAPI || !(credential.Identity is MongoExternalIdentity))
+            if (credential.Mechanism != MongoAuthenticationMechanism.Gssapi || !(credential.Identity is MongoExternalIdentity))
             {
-                return false;	
+                return false;
             }
-            if(__useGsasl)
+            if (__useGsasl)
             {
                 // GSASL relies on kinit to work properly and hence, the evidence is external.
                 return credential.Evidence is ExternalEvidence;
