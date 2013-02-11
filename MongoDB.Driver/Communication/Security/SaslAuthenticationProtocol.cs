@@ -70,12 +70,24 @@ namespace MongoDB.Driver.Communication.Security
 
                 while (true)
                 {
-                    var result = connection.RunCommand(credential.Source, QueryFlags.SlaveOk, command, true);
-                    var code = result.Response["code"].AsInt32;
-                    if (code != 0)
+                    CommandResult result;
+                    try
                     {
-                        HandleError(result, code);
+                        result = connection.RunCommand(credential.Source, QueryFlags.SlaveOk, command, true);
                     }
+                    catch (MongoCommandException ex)
+                    {
+                        var message = "Unknown error occured during authentication.";
+                        var code = ex.CommandResult.Code;
+                        var errmsg = ex.CommandResult.ErrorMessage;
+                        if(code.HasValue && errmsg != null)
+                        {
+                            message = string.Format("Error: {0} - {1}", code, errmsg);
+                        }
+
+                        throw new MongoSecurityException(message, ex);
+                    }
+
                     if (result.Response["done"].AsBoolean)
                     {
                         break;
@@ -103,12 +115,6 @@ namespace MongoDB.Driver.Communication.Security
         public bool CanUse(MongoCredential credential)
         {
             return _mechanism.CanUse(credential);
-        }
-
-        // private methods
-        private void HandleError(CommandResult result, int code)
-        {
-            throw new MongoSecurityException(string.Format("Error: {0} - {1}", code, result.Response["errmsg"].AsString));
         }
     }
 }

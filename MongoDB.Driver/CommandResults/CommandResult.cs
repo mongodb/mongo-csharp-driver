@@ -51,6 +51,14 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
+        /// Gets the code.
+        /// </summary>
+        public int? Code
+        {
+            get { return _response.GetValue("code", null).AsNullableInt32; }
+        }
+
+        /// <summary>
         /// Gets the command.
         /// </summary>
         public IMongoCommand Command
