@@ -39,6 +39,11 @@ namespace MongoDB.Bson.IO
         public JsonWriter(TextWriter writer, JsonWriterSettings settings)
             : base(settings)
         {
+            if (writer == null)
+            {
+                throw new ArgumentNullException("writer");
+            }
+
             _textWriter = writer;
             _jsonWriterSettings = settings; // already frozen by base class
             _context = new JsonWriterContext(null, ContextType.TopLevel, "");

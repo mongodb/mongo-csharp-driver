@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 
 namespace MongoDB.Bson.IO
@@ -36,6 +37,11 @@ namespace MongoDB.Bson.IO
         public BsonDocumentReader(BsonDocument document, BsonDocumentReaderSettings settings)
             : base(settings)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
+
             _context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
             _currentValue = document;
             _documentReaderSettings = settings; // already frozen by base class

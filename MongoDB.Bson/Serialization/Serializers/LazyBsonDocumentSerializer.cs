@@ -83,7 +83,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    bsonWriter.WriteRawBsonDocument(slice);
+                    using (var clonedSlice = slice.GetSlice(0, slice.Length))
+                    {
+                        bsonWriter.WriteRawBsonDocument(clonedSlice);
+                    }
                 }
             }
         }

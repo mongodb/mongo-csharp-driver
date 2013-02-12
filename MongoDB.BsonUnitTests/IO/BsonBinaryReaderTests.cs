@@ -13,10 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.IO
@@ -63,6 +66,36 @@ namespace MongoDB.BsonUnitTests.IO
             }
         }
 
+        [Test]
+        public void TestReadRawBsonArray()
+        {
+            var bsonDocument = new BsonDocument { { "_id", 1 }, { "A", new BsonArray { 1, 2 } } };
+            var bson = bsonDocument.ToBson();
+
+            using (var document = BsonSerializer.Deserialize<CWithRawBsonArray>(bson))
+            {
+                Assert.AreEqual(1, document.Id);
+                Assert.AreEqual(2, document.A.Count);
+                Assert.AreEqual(1, document.A[0].AsInt32);
+                Assert.AreEqual(2, document.A[1].AsInt32);
+                Assert.IsTrue(bson.SequenceEqual(document.ToBson()));
+            }
+        }
+
+        [Test]
+        public void TestReadRawBsonDocument()
+        {
+            var document = new BsonDocument { { "x", 1 }, { "y", 2 } };
+            var bson = document.ToBson();
+
+            using (var rawDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
+            {
+                Assert.AreEqual(1, rawDocument["x"].ToInt32());
+                Assert.AreEqual(2, rawDocument["y"].ToInt32());
+                Assert.IsTrue(bson.SequenceEqual(rawDocument.ToBson()));
+            }
+        }
+
         private static string __hexDigits = "0123456789abcdef";
 
         private byte[] DecodeByteString(string byteString)
@@ -83,6 +116,22 @@ namespace MongoDB.BsonUnitTests.IO
                 }
             }
             return bytes.ToArray();
+        }
+
+        // nested classes
+        private class CWithRawBsonArray : IDisposable
+        {
+            public int Id { get; set; }
+            public RawBsonArray A { get; set; }
+
+            public void Dispose()
+            {
+                if (A != null)
+                {
+                    A.Dispose();
+                    A = null;
+                }
+            }
         }
     }
 }

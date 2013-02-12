@@ -58,10 +58,6 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("buffer");
             }
-            if (settings == null)
-            {
-                throw new ArgumentNullException("settings");
-            }
 
             _buffer = buffer;
             _disposeBuffer = disposeBuffer;
@@ -452,7 +448,7 @@ namespace MongoDB.Bson.IO
         public override IByteBuffer ReadRawBsonArray()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
-            VerifyBsonType("ReadStartArray", BsonType.Array);
+            VerifyBsonType("ReadRawBsonArray", BsonType.Array);
 
             var position = _buffer.Position;
             var length = _buffer.ReadInt32();
@@ -670,11 +666,14 @@ namespace MongoDB.Bson.IO
                 try
                 {
                     Close();
-                    if (_disposeBuffer)
+                    if (_buffer != null)
                     {
-                        _buffer.Dispose();
+                        if (_disposeBuffer)
+                        {
+                            _buffer.Dispose();
+                        }
+                        _buffer = null;
                     }
-                    _buffer = null;
                 }
                 catch { } // ignore exceptions
             }

@@ -264,6 +264,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A byte array.</returns>
         public byte[] ReadBytes(int count)
         {
+            ThrowIfDisposed();
             return _byteBuffer.ReadBytes(count);
         }
 
@@ -779,10 +780,9 @@ namespace MongoDB.Bson.IO
             }
 
             var length = nullPosition - _byteBuffer.Position + 1;
-            var segment = _byteBuffer.WriteBackingBytes(length);
+            var segment = _byteBuffer.ReadBackingBytes(length);
             if (segment.Count >= length)
             {
-                _byteBuffer.Position += length;
                 return DecodeUtf8String(segment.Array, segment.Offset, length - 1);
             }
             else

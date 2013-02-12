@@ -20,7 +20,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// An IBsonBuffer that only has a single chunk.
     /// </summary>
-    internal class SingleChunkBuffer : ByteArrayBuffer
+    public class SingleChunkBuffer : ByteArrayBuffer
     {
         // private fields
         private BsonChunk _chunk;

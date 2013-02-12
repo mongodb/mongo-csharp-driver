@@ -35,6 +35,8 @@ namespace MongoDB.Bson
         // private fields
         private bool _disposed;
         private IByteBuffer _slice;
+        private List<IDisposable> _disposableItems = new List<IDisposable>();
+        private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
 
         // constructors
         /// <summary>
@@ -401,7 +403,7 @@ namespace MongoDB.Bson
         {
             if (_slice != null)
             {
-                return new LazyBsonDocument(_slice.GetSlice(0, _slice.Length));
+                return new LazyBsonDocument(CloneSlice());
             }
             else
             {
@@ -469,7 +471,7 @@ namespace MongoDB.Bson
         {
             if (_slice != null)
             {
-                return new LazyBsonDocument(_slice.GetSlice(0, _slice.Length));
+                return new LazyBsonDocument(CloneSlice());
             }
             else
             {
@@ -744,6 +746,11 @@ namespace MongoDB.Bson
                         _slice.Dispose();
                         _slice = null;
                     }
+                    if (_disposableItems != null)
+                    {
+                        _disposableItems.ForEach(x => x.Dispose());
+                        _disposableItems = null;
+                    }
                 }
                 _disposed = true;
             }
@@ -762,23 +769,32 @@ namespace MongoDB.Bson
         }
 
         // private methods
+        private IByteBuffer CloneSlice()
+        {
+            return _slice.GetSlice(0, _slice.Length);
+        }
+
         private LazyBsonArray DeserializeLazyBsonArray(BsonBinaryReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonArray();
-            return new LazyBsonArray(slice);
+            var nestedArray = new LazyBsonArray(slice);
+            _disposableItems.Add(nestedArray);
+            return nestedArray;
         }
 
         private LazyBsonDocument DeserializeLazyBsonDocument(BsonBinaryReader bsonReader)
         {
             var slice = bsonReader.ReadRawBsonDocument();
-            return new LazyBsonDocument(slice);
+            var nestedDocument = new LazyBsonDocument(slice);
+            _disposableItems.Add(nestedDocument);
+            return nestedDocument;
         }
 
         private void DeserializeThisLevel()
         {
             var elements = new List<BsonElement>();
 
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(_slice, false), true, BsonBinaryReaderSettings.Defaults))
+            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, _readerSettings))
             {
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
@@ -801,7 +817,6 @@ namespace MongoDB.Bson
             try
             {
                 _slice = null;
-                Clear();
                 AddRange(elements);
                 slice.Dispose();
             }

@@ -44,6 +44,11 @@ namespace MongoDB.Bson.IO
         public JsonReader(JsonBuffer buffer, JsonReaderSettings settings)
             : base(settings)
         {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+
             _buffer = buffer;
             _jsonReaderSettings = settings; // already frozen by base class
             _context = new JsonReaderContext(null, ContextType.TopLevel);

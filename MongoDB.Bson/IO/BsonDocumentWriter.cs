@@ -36,6 +36,11 @@ namespace MongoDB.Bson.IO
         public BsonDocumentWriter(BsonDocument topLevelDocument, BsonDocumentWriterSettings settings)
             : base(settings)
         {
+            if (topLevelDocument == null)
+            {
+                throw new ArgumentNullException("topLevelDocument");
+            }
+
             _topLevelDocument = topLevelDocument;
             _documentWriterSettings = settings; // already frozen by base class
             _context = null;

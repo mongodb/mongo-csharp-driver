@@ -20,7 +20,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents a BSON buffer chunk.
     /// </summary>
-    internal class BsonChunk
+    public class BsonChunk
     {
         // private fields
         private readonly byte[] _bytes;

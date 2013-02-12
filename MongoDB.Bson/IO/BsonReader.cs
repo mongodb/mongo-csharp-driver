@@ -39,6 +39,11 @@ namespace MongoDB.Bson.IO
         /// <param name="settings">The reader settings.</param>
         protected BsonReader(BsonReaderSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
             _settings = settings.FrozenCopy();
             _state = BsonReaderState.Initial;
         }
@@ -171,6 +176,7 @@ namespace MongoDB.Bson.IO
         public static BsonReader Create(Stream stream, BsonBinaryReaderSettings settings)
         {
             var byteBuffer = ByteBufferFactory.LoadFrom(stream);
+            byteBuffer.MakeReadOnly();
             return new BsonBinaryReader(new BsonBuffer(byteBuffer, true), true, settings);
         }
 
@@ -669,9 +675,21 @@ namespace MongoDB.Bson.IO
         public virtual IByteBuffer ReadRawBsonArray()
         {
             // overridden in BsonBinaryReader
-            var array = BsonDocumentSerializer.Instance.Deserialize(this, typeof(BsonArray), null);
-            var bytes = array.ToBson();
-            return new ByteArrayBuffer(bytes, 0, bytes.Length, true);
+            var array = BsonArraySerializer.Instance.Deserialize(this, typeof(BsonArray), null);
+            using (var bsonWriter = new BsonBinaryWriter(new BsonBuffer(), true, BsonBinaryWriterSettings.Defaults))
+            {
+                bsonWriter.WriteStartDocument();
+                var startPosition = bsonWriter.Buffer.Position + 3; // just past BsonType, "x" and null byte
+                bsonWriter.WriteName("x");
+                BsonArraySerializer.Instance.Serialize(bsonWriter, typeof(BsonArray), array, null);
+                var endPosition = bsonWriter.Buffer.Position;
+                bsonWriter.WriteEndDocument();
+
+                var length = (int)(endPosition - startPosition);
+                bsonWriter.Buffer.Position = startPosition;
+                var bytes = bsonWriter.Buffer.ReadBytes(length);
+                return new ByteArrayBuffer(bytes, 0, length, true);
+            }
         }
 
         /// <summary>

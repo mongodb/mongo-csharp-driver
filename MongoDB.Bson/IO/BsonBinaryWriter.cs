@@ -61,10 +61,6 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("encoder");
             }
-            if (settings == null)
-            {
-                throw new ArgumentNullException("settings");
-            }
 
             _buffer = buffer;
             _disposeBuffer = disposeBuffer;
@@ -482,7 +478,6 @@ namespace MongoDB.Bson.IO
         /// Writes a raw BSON array.
         /// </summary>
         /// <param name="slice">The byte buffer containing the raw BSON array.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
         public override void WriteRawBsonArray(IByteBuffer slice)
         {
             if (Disposed) { throw new ObjectDisposedException("BsonBinaryWriter"); }
@@ -493,7 +488,7 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.Array);
             WriteNameHelper();
-            _buffer.ByteBuffer.WriteBytes(slice); // assumes byteBuffer is a valid raw BSON document
+            _buffer.ByteBuffer.WriteBytes(slice); // assumes byteBuffer is a valid raw BSON array
 
             State = GetNextState();
         }
@@ -680,11 +675,14 @@ namespace MongoDB.Bson.IO
             if (disposing)
             {
                 Close();
-                if (_disposeBuffer)
+                if (_buffer != null)
                 {
-                    _buffer.Dispose();
+                    if (_disposeBuffer)
+                    {
+                        _buffer.Dispose();
+                    }
+                    _buffer = null;
                 }
-                _buffer = null;
             }
             base.Dispose(disposing);
         }

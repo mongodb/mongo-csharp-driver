@@ -42,6 +42,11 @@ namespace MongoDB.Bson.IO
         /// <param name="settings">The writer settings.</param>
         protected BsonWriter(BsonWriterSettings settings)
         {
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+
             _settings = settings.FrozenCopy();
             _state = BsonWriterState.Initial;
         }
@@ -569,9 +574,30 @@ namespace MongoDB.Bson.IO
         public virtual void WriteRawBsonArray(IByteBuffer slice)
         {
             // overridden in BsonBinaryWriter
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(slice, false), true, BsonBinaryReaderSettings.Defaults))
+
+            using (var bsonBuffer = new BsonBuffer())
             {
-                var array = BsonSerializer.Deserialize<BsonArray>(bsonReader);
+                BsonArray array;
+
+                // wrap the array in a fake document so we can deserialize it
+                var arrayLength = slice.Length;
+                var documentLength = arrayLength + 8;
+                bsonBuffer.WriteInt32(documentLength);
+                bsonBuffer.WriteByte((byte)BsonType.Array);
+                bsonBuffer.WriteByte((byte)'x');
+                bsonBuffer.WriteByte((byte)0);
+                bsonBuffer.ByteBuffer.WriteBytes(slice);
+                bsonBuffer.WriteByte((byte)0);
+
+                bsonBuffer.Position = 0;
+                using (var bsonReader = new BsonBinaryReader(bsonBuffer, true, BsonBinaryReaderSettings.Defaults))
+                {
+                    bsonReader.ReadStartDocument();
+                    bsonReader.ReadName("x");
+                    array = (BsonArray)BsonArraySerializer.Instance.Deserialize(bsonReader, typeof(BsonArray), null);
+                    bsonReader.ReadEndDocument();
+                }
+
                 BsonArraySerializer.Instance.Serialize(this, typeof(BsonArray), array, null);
             }
         }
