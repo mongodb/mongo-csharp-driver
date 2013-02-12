@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="553AB21B-EFC9-4CD7-9A6C-9EC2EEE92F0E"
+	<Product Id="F0187A83-AC5A-4A5D-8625-8FA74C75E610"
            Name="!(wix.ProductName)" 
            Language="1033" 
            Version="$(var.DriverVersion)" 
            Manufacturer="10gen Inc." 
-           UpgradeCode="6C79C4F8-C701-4C01-9FD1-A684A86252AF">
+           UpgradeCode="9E90939B-44C2-4069-AF96-73B0E87DE062">
     
 		<Package InstallerVersion="200" Compressed="yes" />
 
