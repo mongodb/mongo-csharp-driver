@@ -184,14 +184,34 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The All query operator is not supported.")]
-        public void TestAll()
+        public void TestAllFalse()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).All(c => true);
+            var result = _collection.AsQueryable().All(c => c.X > 2);
+            Assert.IsFalse(result);
+        }
+		
+        [Test]
+        public void TestAllTrue()
+        {
+            var result = _collection.AsQueryable().All(c => c.X > 0);
+            Assert.IsTrue(result);
         }
 
         [Test]
+        public void TestWhereWithAll()
+        {
+            var query = from c in _collection.AsQueryable()
+                        where c.DA.All(da => da.Z > 330)
+                        select c;
+
+            var selectQuery = (SelectQuery)MongoQueryTranslator.Translate(query);
+
+            Assert.AreEqual("{ \"da\" : { \"$ne\" : null, \"$not\" : { \"$elemMatch\" : { \"z\" : { \"$not\" : { \"$gt\" : 330 } } } } } }", selectQuery.BuildQuery().ToJson());
+            Assert.AreEqual(1, Consume(query));
+            Assert.That(query.First().Id, Is.EqualTo(_id4));
+        }
+
+        [Test]		
         public void TestAny()
         {
             var result = (from c in _collection.AsQueryable<C>()

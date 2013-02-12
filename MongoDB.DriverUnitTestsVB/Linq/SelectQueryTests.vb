@@ -230,10 +230,30 @@ Namespace MongoDB.DriverUnitTests.Linq
         End Sub
 
         <Test()> _
-        <ExpectedException(GetType(NotSupportedException), ExpectedMessage:="The All query operator is not supported.")> _
-        Public Sub TestAll()
+        Public Sub TestAllFalse()
             Dim result = (From c In _collection.AsQueryable(Of C)()
-                          Select c).All(Function(c) True)
+                          Select c).All(Function(c) c.X > 2)
+            Assert.IsFalse(result)
+        End Sub
+
+        <Test()> _
+        Public Sub TestAllTrue()
+            Dim result = (From c In _collection.AsQueryable(Of C)()
+                          Select c).All(Function(c) c.X > 0)
+            Assert.IsTrue(result)
+        End Sub
+
+        <Test()> _
+        Public Sub TestWhereWithAll()
+            Dim query = (From c In _collection.AsQueryable()
+                         Where c.DA.All(Function(da) da.Z > 330)
+                         Select c)
+
+            Dim translatedQuery = MongoQueryTranslator.Translate(query)
+            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
+
+            Assert.AreEqual("{ ""da"" : { ""$ne"" : null, ""$not"" : { ""$elemMatch"" : { ""z"" : { ""$not"" : { ""$gt"" : 330 } } } } } }", selectQuery.BuildQuery().ToJson())
+            Assert.AreEqual(1, Consume(query))
         End Sub
 
         <Test()> _
