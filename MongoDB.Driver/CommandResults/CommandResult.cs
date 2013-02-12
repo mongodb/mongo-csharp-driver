@@ -55,7 +55,7 @@ namespace MongoDB.Driver
         /// </summary>
         public int? Code
         {
-            get { return _response.GetValue("code", null).AsNullableInt32; }
+            get { return _response.GetValue("code", BsonNull.Value).AsNullableInt32; }
         }
 
         /// <summary>

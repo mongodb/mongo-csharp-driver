@@ -34,6 +34,27 @@ namespace MongoDB.DriverUnitTests.CommandResults
         }
 
         [Test]
+        public void TestCodeMissing()
+        {
+            var command = new CommandDocument("invalid", 1);
+            var document = new BsonDocument();
+            var result = new CommandResult(command, document);
+
+            Assert.IsFalse(result.Code.HasValue);
+        }
+
+        [Test]
+        public void TestCode()
+        {
+            var command = new CommandDocument("invalid", 1);
+            var document = new BsonDocument("code", 18);
+            var result = new CommandResult(command, document);
+
+            Assert.IsTrue(result.Code.HasValue);
+            Assert.AreEqual(18, result.Code);
+        }
+
+        [Test]
         public void TestOkMissing()
         {
             var command = new CommandDocument("invalid", 1);
