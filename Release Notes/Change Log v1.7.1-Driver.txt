@@ -1,2 +1,10 @@
 C#/.NET driver changes from 1.7 to 1.7.1
 
+MongoConnection.cs
+    LastUsedAt now set when data is sent or received, not when connection is returned to the pool
+    new IsExpired method checks both idle and life time
+
+MongoConnectionPool.cs
+    AcquireConnection is strict about discarding expired connections and replacing them with new ones
+    MaintainPoolSize has been simplified a bit
+    ReleaseConnection doesn't return expired connections to the pool
