@@ -155,6 +155,23 @@ namespace MongoDB.Driver.Linq
             return null;
         }
 
+        private IMongoQuery BuildAllQuery(MethodCallExpression expression)
+        {
+            var arguments = expression.Arguments.ToArray();
+            if (arguments.Length == 2)
+            {
+                var lambda = (LambdaExpression) arguments[1];
+                var invertedLambda = Expression.Lambda(Expression.Not(lambda.Body), lambda.Parameters.ToArray());
+                var invertedCallExpression = Expression.Call(null, expression.Method, arguments[0], invertedLambda);
+
+                var enumerableInfo = _serializationInfoHelper.GetSerializationInfo(arguments[0]);
+                return Query.And(
+                    Query.NE(enumerableInfo.ElementName, BsonNull.Value), 
+                    Query.Not(BuildAnyQuery(invertedCallExpression)));
+            }
+            return null;
+        }
+
         private IMongoQuery BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
@@ -732,6 +749,7 @@ namespace MongoDB.Driver.Linq
             switch (methodCallExpression.Method.Name)
             {
                 case "Any": return BuildAnyQuery(methodCallExpression);
+                case "All": return BuildAllQuery(methodCallExpression);
                 case "Contains": return BuildContainsQuery(methodCallExpression);
                 case "ContainsAll": return BuildContainsAllQuery(methodCallExpression);
                 case "ContainsAny": return BuildContainsAnyQuery(methodCallExpression);

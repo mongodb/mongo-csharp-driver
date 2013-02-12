@@ -394,6 +394,11 @@ namespace MongoDB.Driver.Linq
 
         private void TranslateAny(MethodCallExpression methodCallExpression)
         {
+            TranslateAny(methodCallExpression, cursor => ((int) cursor.Size()) > 0);
+        }
+
+        private void TranslateAny(MethodCallExpression methodCallExpression, Func<MongoCursor, bool> elementSelector)
+        {
             LambdaExpression predicate = null;
             switch (methodCallExpression.Arguments.Count)
             {
@@ -411,7 +416,19 @@ namespace MongoDB.Driver.Linq
             _projection = null;
 
             // note: recall that cursor method Size respects Skip and Limit while Count does not
-            SetElementSelector(methodCallExpression, source => ((int)((IProjector)source).Cursor.Size()) > 0);
+            SetElementSelector(methodCallExpression, source => elementSelector(((IProjector) source).Cursor));
+        }
+
+        private void TranslateAll(MethodCallExpression expression)
+        {
+            if (expression.Arguments.Count == 2)
+            {
+                var lambda = (LambdaExpression)StripQuote(expression.Arguments[1]);
+                var invertedLambda = Expression.Lambda(Expression.Not(lambda.Body), lambda.Parameters.ToArray());
+                var invertedCallExpression = Expression.Call(null, expression.Method, expression.Arguments.First(), invertedLambda);
+
+                TranslateAny(invertedCallExpression, cursor => cursor.Size() == 0);
+            }
         }
 
         private void TranslateCount(MethodCallExpression methodCallExpression)
@@ -662,6 +679,9 @@ namespace MongoDB.Driver.Linq
             {
                 case "Any":
                     TranslateAny(methodCallExpression);
+                    break;
+                case "All":
+                    TranslateAll(methodCallExpression);
                     break;
                 case "Count":
                 case "LongCount":
