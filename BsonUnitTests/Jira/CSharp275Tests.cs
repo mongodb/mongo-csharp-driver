@@ -76,8 +76,8 @@ namespace MongoDB.BsonUnitTests.Jira
             new Test("Mon, 1 Jan 01 11:22:33 EST", "2001-01-01T11:22:33-5:00"),
             new Test("Mon, 1 Jan 29 11:22:33 EST", "2029-01-01T11:22:33-5:00"),
             new Test("Tue, 1 Jan 30 11:22:33 EST", "2030-01-01T11:22:33-5:00"),
-            new Test("Thu, 1 Jan 31 11:22:33 EST", "1931-01-01T11:22:33-5:00"), // starting in 2013 year 31 will become 2031 instead of 1931
-            new Test("Fri, 1 Jan 32 11:22:33 EST", "1932-01-01T11:22:33-5:00"),
+            new Test("Wed, 1 Jan 31 11:22:33 EST", "2031-01-01T11:22:33-5:00"),
+            new Test("Fri, 1 Jan 32 11:22:33 EST", "1932-01-01T11:22:33-5:00"), // starting in 2014 year 32 will become 2032 instead of 1932
             new Test("Sun, 1 Jan 33 11:22:33 EST", "1933-01-01T11:22:33-5:00"),
             new Test("Fri, 1 Jan 99 11:22:33 EST", "1999-01-01T11:22:33-5:00"),
             // test time zones

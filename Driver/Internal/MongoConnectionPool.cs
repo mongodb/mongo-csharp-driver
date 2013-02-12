@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Internal
         private int _waitQueueSize;
         private bool _inMaintainPoolSize;
         private bool _inEnsureMinConnectionPoolSizeWorkItem;
-        private int _connectionsRemovedSinceLastTimerTick;
 
         // constructors
         internal MongoConnectionPool(MongoServerInstance serverInstance)
@@ -88,75 +87,104 @@ namespace MongoDB.Driver.Internal
                 throw new ArgumentException("This connection pool is for a different server.", "database");
             }
 
-            lock (_connectionPoolLock)
+            MongoConnection connectionToClose = null;
+            try
             {
-                if (_waitQueueSize >= _server.Settings.WaitQueueSize)
-                {
-                    throw new MongoConnectionException("Too many threads are already waiting for a connection.");
-                }
+                DateTime timeoutAt = DateTime.UtcNow + _server.Settings.WaitQueueTimeout;
 
-                _waitQueueSize += 1;
-                try
+                lock (_connectionPoolLock)
                 {
-                    DateTime timeoutAt = DateTime.UtcNow + _server.Settings.WaitQueueTimeout;
-                    while (true)
+                    if (_waitQueueSize >= _server.Settings.WaitQueueSize)
                     {
-                        if (_availableConnections.Count > 0)
+                        throw new MongoConnectionException("Too many threads are already waiting for a connection.");
+                    }
+
+                    _waitQueueSize += 1;
+                    try
+                    {
+                        while (true)
                         {
-                            // first try to find the most recently used connection that is already authenticated for this database
-                            for (int i = _availableConnections.Count - 1; i >= 0; i--)
+                            if (_availableConnections.Count > 0)
                             {
-                                if (_availableConnections[i].IsAuthenticated(database))
+                                // first try to find the most recently used connection that is already authenticated for this database
+                                for (int i = _availableConnections.Count - 1; i >= 0; i--)
                                 {
-                                    var connection = _availableConnections[i];
-                                    _availableConnections.RemoveAt(i);
-                                    return connection;
+                                    if (_availableConnections[i].IsAuthenticated(database))
+                                    {
+                                        var connection = _availableConnections[i];
+                                        _availableConnections.RemoveAt(i);
+                                        if (connection.IsExpired())
+                                        {
+                                            connectionToClose = connection;
+                                            connection = new MongoConnection(this);
+                                        }
+                                        return connection;
+                                    }
                                 }
+
+                                // otherwise find the most recently used connection that can be authenticated for this database
+                                for (int i = _availableConnections.Count - 1; i >= 0; i--)
+                                {
+                                    if (_availableConnections[i].CanAuthenticate(database))
+                                    {
+                                        var connection = _availableConnections[i];
+                                        _availableConnections.RemoveAt(i);
+                                        if (connection.IsExpired())
+                                        {
+                                            connectionToClose = connection;
+                                            connection = new MongoConnection(this);
+                                        }
+                                        return connection;
+                                    }
+                                }
+
+                                // otherwise replace the least recently used connection with a brand new one
+                                // if this happens a lot the connection pool size should be increased
+                                _availableConnections[0].Close();
+                                _availableConnections.RemoveAt(0);
+                                return new MongoConnection(this);
                             }
 
-                            // otherwise find the most recently used connection that can be authenticated for this database
-                            for (int i = _availableConnections.Count - 1; i >= 0; i--)
+                            // create a new connection if maximum pool size has not been reached
+                            if (_poolSize < _server.Settings.MaxConnectionPoolSize)
                             {
-                                if (_availableConnections[i].CanAuthenticate(database))
-                                {
-                                    var connection = _availableConnections[i];
-                                    _availableConnections.RemoveAt(i);
-                                    return connection;
-                                }
+                                // make sure connection is created successfully before incrementing poolSize
+                                // connection will be opened later outside of the lock
+                                var connection = new MongoConnection(this);
+                                _poolSize += 1;
+                                return connection;
                             }
 
-                            // otherwise replace the least recently used connection with a brand new one
-                            // if this happens a lot the connection pool size should be increased
-                            _availableConnections[0].Close();
-                            _availableConnections.RemoveAt(0);
-                            return new MongoConnection(this);
-                        }
-
-                        // create a new connection if maximum pool size has not been reached
-                        if (_poolSize < _server.Settings.MaxConnectionPoolSize)
-                        {
-                            // make sure connection is created successfully before incrementing poolSize
-                            // connection will be opened later outside of the lock
-                            var connection = new MongoConnection(this);
-                            _poolSize += 1;
-                            return connection;
-                        }
-
-                        // wait for a connection to be released
-                        var timeRemaining = timeoutAt - DateTime.UtcNow;
-                        if (timeRemaining > TimeSpan.Zero)
-                        {
-                            Monitor.Wait(_connectionPoolLock, timeRemaining);
-                        }
-                        else
-                        {
-                            throw new TimeoutException("Timeout waiting for a MongoConnection.");
+                            // wait for a connection to be released
+                            var timeRemaining = timeoutAt - DateTime.UtcNow;
+                            if (timeRemaining > TimeSpan.Zero)
+                            {
+                                Monitor.Wait(_connectionPoolLock, timeRemaining);
+                            }
+                            else
+                            {
+                                throw new TimeoutException("Timeout waiting for a MongoConnection.");
+                            }
                         }
                     }
+                    finally
+                    {
+                        _waitQueueSize -= 1;
+                    }
                 }
-                finally
+            }
+            finally
+            {
+                if (connectionToClose != null)
                 {
-                    _waitQueueSize -= 1;
+                    try
+                    {
+                        connectionToClose.Close();
+                    }
+                    catch
+                    {
+                        // ignore exceptions
+                    }
                 }
             }
         }
@@ -186,44 +214,33 @@ namespace MongoDB.Driver.Internal
             _inMaintainPoolSize = true;
             try
             {
-                MongoConnection connectionToRemove = null;
+                MongoConnection connectionToClose = null;
                 lock (_connectionPoolLock)
                 {
-                    // only remove one connection per timer tick to avoid reconnection storms
-                    if (_connectionsRemovedSinceLastTimerTick == 0)
+                    for (int i = 0; i < _availableConnections.Count; i++)
                     {
-                        MongoConnection oldestConnection = null;
-                        MongoConnection lruConnection = null;
-                        foreach (var connection in _availableConnections)
+                        var connection = _availableConnections[i];
+                        if (connection.IsExpired())
                         {
-                            if (oldestConnection == null || connection.CreatedAt < oldestConnection.CreatedAt)
-                            {
-                                oldestConnection = connection;
-                            }
-                            if (lruConnection == null || connection.LastUsedAt < lruConnection.LastUsedAt)
-                            {
-                                lruConnection = connection;
-                            }
-                        }
-
-                        // remove old connections before idle connections
-                        var now = DateTime.UtcNow;
-                        if (oldestConnection != null && now > oldestConnection.CreatedAt + _server.Settings.MaxConnectionLifeTime)
-                        {
-                            connectionToRemove = oldestConnection;
-                        }
-                        else if (_poolSize > _server.Settings.MinConnectionPoolSize && lruConnection != null && now > lruConnection.LastUsedAt + _server.Settings.MaxConnectionIdleTime)
-                        {
-                            connectionToRemove = lruConnection;
+                            _availableConnections.RemoveAt(i);
+                            _poolSize -= 1;
+                            connectionToClose = connection;
+                            Monitor.Pulse(_connectionPoolLock);
+                            break;
                         }
                     }
-                    _connectionsRemovedSinceLastTimerTick = 0;
                 }
 
-                // remove connection (if any) outside of lock
-                if (connectionToRemove != null)
+                if (connectionToClose != null)
                 {
-                    RemoveConnection(connectionToRemove);
+                    try
+                    {
+                        connectionToClose.Close();
+                    }
+                    catch
+                    {
+                        // ignore exceptions
+                    }
                 }
 
                 if (_poolSize < _server.Settings.MinConnectionPoolSize)
@@ -245,40 +262,36 @@ namespace MongoDB.Driver.Internal
             }
 
             // if the connection is no longer open remove it from the pool
-            if (connection.State != MongoConnectionState.Open)
+            if (connection.State != MongoConnectionState.Open || connection.IsExpired())
             {
                 RemoveConnection(connection);
                 return;
             }
 
-            // don't put connections that have reached their maximum lifetime back in the pool
-            // but only remove one connection at most per timer tick to avoid connection storms
-            if (_connectionsRemovedSinceLastTimerTick == 0)
-            {
-                if (DateTime.UtcNow - connection.CreatedAt > _server.Settings.MaxConnectionLifeTime)
-                {
-                    RemoveConnection(connection);
-                    return;
-                }
-            }
-
-            var connectionIsFromAnotherGeneration = false;
+            var closeConnection = false;
             lock (_connectionPoolLock)
             {
                 if (connection.GenerationId == _generationId)
                 {
-                    connection.LastUsedAt = DateTime.UtcNow;
-                    _availableConnections.Add(connection);
+                    if (_poolSize <= _server.Settings.MaxConnectionPoolSize)
+                    {
+                        _availableConnections.Add(connection);
+                    }
+                    else
+                    {
+                        _poolSize -= 1;
+                        closeConnection = true;
+                    }
                     Monitor.Pulse(_connectionPoolLock);
                 }
                 else
                 {
-                    connectionIsFromAnotherGeneration = true;
+                    closeConnection = true;
                 }
             }
 
             // if connection is from another generation of the pool just close it
-            if (connectionIsFromAnotherGeneration)
+            if (closeConnection)
             {
                 connection.Close();
             }
@@ -364,7 +377,6 @@ namespace MongoDB.Driver.Internal
                 {
                     _availableConnections.Remove(connection); // it might or might not be in availableConnections (but remove it if it is)
                     _poolSize -= 1;
-                    _connectionsRemovedSinceLastTimerTick += 1;
                     Monitor.Pulse(_connectionPoolLock);
                 }
             }
