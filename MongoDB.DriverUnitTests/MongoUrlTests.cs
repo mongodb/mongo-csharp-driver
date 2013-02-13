@@ -33,6 +33,7 @@ namespace MongoDB.DriverUnitTests
             var readPreference = new ReadPreference
             {
                 ReadPreferenceMode = ReadPreferenceMode.Secondary,
+                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
             };
             var built = new MongoUrlBuilder()
@@ -53,7 +54,6 @@ namespace MongoDB.DriverUnitTests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
-                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
@@ -73,7 +73,7 @@ namespace MongoDB.DriverUnitTests
                 "sslVerifyCertificate=false", // VerifySslCertificate
                 "connect=replicaSet",
                 "replicaSet=name",
-                "readPreference=secondary;readPreferenceTags=dc:1",
+                "readPreference=secondary;secondaryAcceptableLatency=6s;readPreferenceTags=dc:1",
                 "fsync=true",
                 "journal=true",
                 "w=2",
@@ -83,7 +83,6 @@ namespace MongoDB.DriverUnitTests
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
-                "secondaryAcceptableLatency=6s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
                 "waitQueueTimeout=8s",
@@ -112,7 +111,6 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618
                 Assert.AreEqual(new SafeMode(true) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, url.SafeMode);
 #pragma warning restore
-                Assert.AreEqual(TimeSpan.FromSeconds(6), url.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), url.Server);
 #pragma warning disable 618
                 Assert.AreEqual(true, url.SlaveOk);

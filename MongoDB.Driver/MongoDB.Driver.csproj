@@ -118,6 +118,7 @@
     <Compile Include="CommandResults\IsMasterResult.cs" />
     <Compile Include="CommandResults\SafeModeResult.cs" />
     <Compile Include="CommandResults\ValidateCollectionResult.cs" />
+    <Compile Include="Communication\Proxies\MongoServerProxySettings.cs" />
     <Compile Include="Communication\Security\Authenticator.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />

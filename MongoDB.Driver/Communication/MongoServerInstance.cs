@@ -42,7 +42,7 @@ namespace MongoDB.Driver
 
         // private fields
         private readonly object _serverInstanceLock = new object();
-        private readonly MongoServerSettings _settings;
+        private readonly MongoServerProxySettings _settings;
         private readonly MongoConnectionPool _connectionPool;
         private readonly PingTimeAggregator _pingTimeAggregator;
         private MongoServerAddress _address;
@@ -62,7 +62,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <param name="address">The address.</param>
-        internal MongoServerInstance(MongoServerSettings settings, MongoServerAddress address)
+        internal MongoServerInstance(MongoServerProxySettings settings, MongoServerAddress address)
         {
             _settings = settings;
             _address = address;
@@ -292,7 +292,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the server for this server instance.
         /// </summary>
-        public MongoServerSettings Settings
+        public MongoServerProxySettings Settings
         {
             get { return _settings; }
         }

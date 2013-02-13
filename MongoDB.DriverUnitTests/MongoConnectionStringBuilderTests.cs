@@ -33,6 +33,7 @@ namespace MongoDB.DriverUnitTests
             var readPreference = new ReadPreference
             {
                 ReadPreferenceMode = ReadPreferenceMode.Secondary,
+                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 TagSets = new[] { new ReplicaSetTagSet { { "dc", "1" } } }
             };
             var built = new MongoConnectionStringBuilder()
@@ -53,7 +54,6 @@ namespace MongoDB.DriverUnitTests
                 Password = "password",
                 ReadPreference = readPreference,
                 ReplicaSetName = "name",
-                SecondaryAcceptableLatency = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 SocketTimeout = TimeSpan.FromSeconds(7),
                 Username = "username",
@@ -80,9 +80,8 @@ namespace MongoDB.DriverUnitTests
                 "maxPoolSize=4",
                 "minPoolSize=5",
                 "password=password",
-                "readPreference=secondary;readPreferenceTags=dc:1",
+                "readPreference=secondary;secondaryAcceptableLatency=6s;readPreferenceTags=dc:1",
                 "replicaSet=name",
-                "secondaryAcceptableLatency=6s",
                 "server=host",
                 "socketTimeout=7s",
                 "username=username",
@@ -116,7 +115,6 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618
                 Assert.AreEqual(new SafeMode(false) { FSync = true, Journal = true, W = 2, WTimeout = TimeSpan.FromSeconds(9) }, builder.SafeMode);
 #pragma warning restore
-                Assert.AreEqual(TimeSpan.FromSeconds(6), builder.SecondaryAcceptableLatency);
                 Assert.AreEqual(new MongoServerAddress("host", 27017), builder.Server);
 #pragma warning disable 618
                 Assert.AreEqual(true, builder.SlaveOk);
@@ -282,7 +280,6 @@ namespace MongoDB.DriverUnitTests
 #pragma warning disable 618
                 Assert.AreEqual(null, builder.SafeMode);
 #pragma warning restore
-                Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
                 Assert.AreEqual(null, builder.Server);
                 Assert.AreEqual(null, builder.Servers);
 #pragma warning disable 618
@@ -892,32 +889,27 @@ namespace MongoDB.DriverUnitTests
 
         [Test]
         [TestCase(null, "server=localhost", new[] { "" })]
-        [TestCase(500, "server=localhost;secondaryAcceptableLatency{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
-        [TestCase(30000, "server=localhost;secondaryAcceptableLatency{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
-        [TestCase(1800000, "server=localhost;secondaryAcceptableLatency{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
-        [TestCase(3600000, "server=localhost;secondaryAcceptableLatency{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
-        [TestCase(3723000, "server=localhost;secondaryAcceptableLatency{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
+        [TestCase(500, "server=localhost;readPreference=secondary;secondaryAcceptableLatency{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
+        [TestCase(30000, "server=localhost;readPreference=secondary;secondaryAcceptableLatency{0}", new[] { "=30s", "=30000ms", "=30", "=0.5m", "=00:00:30", "MS=30000" })]
+        [TestCase(1800000, "server=localhost;readPreference=secondary;secondaryAcceptableLatency{0}", new[] { "=30m", "=1800000ms", "=1800", "=1800s", "=0.5h", "=00:30:00", "MS=1800000" })]
+        [TestCase(3600000, "server=localhost;readPreference=secondary;secondaryAcceptableLatency{0}", new[] { "=1h", "=3600000ms", "=3600", "=3600s", "=60m", "=01:00:00", "MS=3600000" })]
+        [TestCase(3723000, "server=localhost;readPreference=secondary;secondaryAcceptableLatency{0}", new[] { "=01:02:03", "=3723000ms", "=3723", "=3723s", "MS=3723000" })]
         public void TestSecondaryAcceptableLatency(int? ms, string formatString, string[] values)
         {
             var secondaryAcceptableLatency = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoConnectionStringBuilder { Server = _localhost };
-            if (secondaryAcceptableLatency != null) { built.SecondaryAcceptableLatency = secondaryAcceptableLatency.Value; }
+            if (secondaryAcceptableLatency != null) { built.ReadPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Secondary, SecondaryAcceptableLatency = secondaryAcceptableLatency.Value }; }
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
-                Assert.AreEqual(secondaryAcceptableLatency ?? MongoDefaults.SecondaryAcceptableLatency, builder.SecondaryAcceptableLatency);
+                var readPreference = builder.ReadPreference;
+                if (readPreference != null)
+                {
+                    Assert.AreEqual(secondaryAcceptableLatency ?? MongoDefaults.SecondaryAcceptableLatency, readPreference.SecondaryAcceptableLatency);
+                }
                 Assert.AreEqual(canonicalConnectionString, builder.ToString());
             }
-        }
-
-        [Test]
-        public void TestSecondaryAcceptableLatency_Range()
-        {
-            var builder = new MongoConnectionStringBuilder { Server = _localhost };
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.SecondaryAcceptableLatency = TimeSpan.FromSeconds(-1); });
-            builder.SecondaryAcceptableLatency = TimeSpan.Zero;
-            builder.SecondaryAcceptableLatency = TimeSpan.FromSeconds(1);
         }
 
         [Test]

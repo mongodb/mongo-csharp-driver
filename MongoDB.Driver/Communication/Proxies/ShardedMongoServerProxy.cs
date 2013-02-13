@@ -32,20 +32,22 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="ShardedMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="settings">The settings.</param>
-        public ShardedMongoServerProxy(MongoServerSettings settings)
-            : base(settings)
+        public ShardedMongoServerProxy(int sequentialId, MongoServerProxySettings settings)
+            : base(sequentialId, settings)
         { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ShardedMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="settings">The settings.</param>
         /// <param name="instances">The instances.</param>
         /// <param name="stateChangedQueue">The state changed queue.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
-        public ShardedMongoServerProxy(MongoServerSettings settings, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
-            : base(settings, instances, stateChangedQueue, connectionAttempt)
+        public ShardedMongoServerProxy(int sequentialId, MongoServerProxySettings settings, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> stateChangedQueue, int connectionAttempt)
+            : base(sequentialId, settings, instances, stateChangedQueue, connectionAttempt)
         { }
 
         // protected methods
@@ -68,9 +70,8 @@ namespace MongoDB.Driver.Internal
             }
             else
             {
-                var secondaryAcceptableLatency = Settings.SecondaryAcceptableLatency;
                 var minPingTime = instancesWithPingTime[0].CachedAveragePingTime;
-                var maxPingTime = minPingTime + secondaryAcceptableLatency;
+                var maxPingTime = minPingTime + readPreference.SecondaryAcceptableLatency;
                 var n = instancesWithPingTime.Count(i => i.CachedAveragePingTime <= maxPingTime);
                 lock (_randomLock)
                 {

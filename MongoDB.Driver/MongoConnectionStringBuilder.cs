@@ -91,7 +91,6 @@ namespace MongoDB.Driver
         private string _password;
         private ReadPreference _readPreference;
         private string _replicaSetName;
-        private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
@@ -368,21 +367,40 @@ namespace MongoDB.Driver
                 }
                 _readPreference = value;
 
-                base["readPreference"] = (value == null) ? null : MongoUtils.ToCamelCase(value.ReadPreferenceMode.ToString());
-                if (value != null && value.TagSets != null)
+                if (value == null)
                 {
-                    var readPreferenceTagsString = string.Join(
-                        "|",
-                        value.TagSets.Select(ts => string.Join(
-                            ",",
-                            ts.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()
-                        )).ToArray()
-                    );
-                    base["readPreferenceTags"] = readPreferenceTagsString;
+                    base["readPreference"] = null;
+                    base["secondaryAcceptableLatency"] = null;
+                    base["readPreferenceTags"] = null;
                 }
                 else
                 {
-                    base["readPreferenceTags"] = null;
+                    base["readPreference"] = MongoUtils.ToCamelCase(value.ReadPreferenceMode.ToString());
+
+                    if (value.SecondaryAcceptableLatency != MongoDefaults.SecondaryAcceptableLatency)
+                    {
+                        base["secondaryAcceptableLatency"] = MongoUrlBuilder.FormatTimeSpan(value.SecondaryAcceptableLatency);
+                    }
+                    else
+                    {
+                        base["secondaryAcceptableLatency"] = null;
+                    }
+
+                    if (value.TagSets != null)
+                    {
+                        var readPreferenceTagsString = string.Join(
+                            "|",
+                            value.TagSets.Select(ts => string.Join(
+                                ",",
+                                ts.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()
+                            )).ToArray()
+                        );
+                        base["readPreferenceTags"] = readPreferenceTagsString;
+                    }
+                    else
+                    {
+                        base["readPreferenceTags"] = null;
+                    }
                 }
             }
         }
@@ -435,24 +453,6 @@ namespace MongoDB.Driver
                     W = writeConcern.W ?? (writeConcern.Enabled ? 1 : 0);
                     WTimeout = writeConcern.WTimeout;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the acceptable latency for considering a replica set member for inclusion in load balancing
-        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
-        /// </summary>
-        public TimeSpan SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
-            set
-            {
-                if (value < TimeSpan.Zero)
-                {
-                    throw new ArgumentOutOfRangeException("value", "SecondaryAcceptableLatency must be greater than or equal to zero.");
-                }
-                _secondaryAcceptableLatency = value;
-                base["secondaryAcceptableLatency"] = MongoUrlBuilder.FormatTimeSpan(value);
             }
         }
 
@@ -775,7 +775,9 @@ namespace MongoDB.Driver
                         break;
                     case "secondaryacceptablelatency":
                     case "secondaryacceptablelatencyms":
-                        SecondaryAcceptableLatency = ToTimeSpan(keyword, value);
+                        readPreference = _readPreference ?? new ReadPreference();
+                        readPreference.SecondaryAcceptableLatency = ToTimeSpan(keyword, value);
+                        ReadPreference = readPreference;
                         break;
                     case "server":
                     case "servers":
@@ -970,7 +972,6 @@ namespace MongoDB.Driver
             _password = null;
             _readPreference = null;
             _replicaSetName = null;
-            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = null;
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;

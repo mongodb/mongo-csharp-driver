@@ -27,17 +27,21 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private readonly object _stateLock = new object();
-        private readonly MongoServerSettings _settings;
+        private readonly int _sequentialId;
+        private readonly MongoServerProxySettings _settings;
         private readonly MongoServerInstance _instance;
+
         private int _connectionAttempt;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="settings">The settings.</param>
-        public DirectMongoServerProxy(MongoServerSettings settings)
+        public DirectMongoServerProxy(int sequentialId, MongoServerProxySettings settings)
         {
+            _sequentialId = sequentialId;
             _settings = settings;
             _instance = new MongoServerInstance(settings, settings.Servers.First());
         }
@@ -45,11 +49,13 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="serverSettings">The server settings.</param>
         /// <param name="instance">The instance.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
-        public DirectMongoServerProxy(MongoServerSettings serverSettings, MongoServerInstance instance, int connectionAttempt)
+        public DirectMongoServerProxy(int sequentialId, MongoServerProxySettings serverSettings, MongoServerInstance instance, int connectionAttempt)
         {
+            _sequentialId = sequentialId;
             _settings = serverSettings;
             _instance = instance;
             _connectionAttempt = connectionAttempt;
@@ -86,6 +92,14 @@ namespace MongoDB.Driver.Internal
             get { return new List<MongoServerInstance> { _instance }.AsReadOnly(); }
         }
 
+        /// <summary>
+        /// Gets the sequential id assigned to this proxy.
+        /// </summary>
+        public int SequentialId
+        {
+            get { return _sequentialId; }
+        }
+        
         /// <summary>
         /// Gets the state.
         /// </summary>

@@ -30,7 +30,8 @@ namespace MongoDB.Driver.Internal
         private readonly object _lock = new object();
         private readonly ConnectedInstanceCollection _connectedInstances;
         private readonly List<MongoServerInstance> _instances;
-        private readonly MongoServerSettings _settings;
+        private readonly int _sequentialId;
+        private readonly MongoServerProxySettings _settings;
         private int _connectionAttempt;
         private int _outstandingInstanceConnections;
         private MongoServerState _state;
@@ -38,9 +39,11 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipleInstanceMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="settings">The settings.</param>
-        protected MultipleInstanceMongoServerProxy(MongoServerSettings settings)
+        protected MultipleInstanceMongoServerProxy(int sequentialId, MongoServerProxySettings settings)
         {
+            _sequentialId = sequentialId;
             _settings = settings;
             _connectedInstances = new ConnectedInstanceCollection();
             _instances = new List<MongoServerInstance>();
@@ -51,14 +54,16 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="MultipleInstanceMongoServerProxy"/> class.
         /// </summary>
+        /// <param name="sequentialId">The sequential id.</param>
         /// <param name="settings">The settings.</param>
         /// <param name="instances">The instances.</param>
         /// <param name="connectionQueue">The state change queue.</param>
         /// <param name="connectionAttempt">The connection attempt.</param>
         /// <remarks>This constructor is used when the instances have already been instructed to connect.</remarks>
-        protected MultipleInstanceMongoServerProxy(MongoServerSettings settings, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> connectionQueue, int connectionAttempt)
+        protected MultipleInstanceMongoServerProxy(int sequentialId, MongoServerProxySettings settings, IEnumerable<MongoServerInstance> instances, BlockingQueue<MongoServerInstance> connectionQueue, int connectionAttempt)
         {
             _state = MongoServerState.Connecting;
+            _sequentialId = sequentialId;
             _settings = settings;
             _connectedInstances = new ConnectedInstanceCollection();
             _connectionAttempt = connectionAttempt;
@@ -126,6 +131,14 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets the sequential id assigned to this proxy.
+        /// </summary>
+        public int SequentialId
+        {
+            get { return _sequentialId; }
+        }
+
+        /// <summary>
         /// Gets the state.
         /// </summary>
         public MongoServerState State
@@ -143,7 +156,7 @@ namespace MongoDB.Driver.Internal
         /// <summary>
         /// Gets the server settings.
         /// </summary>
-        protected MongoServerSettings Settings
+        protected MongoServerProxySettings Settings
         {
             get { return _settings; }
         }
