@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -394,6 +395,7 @@ namespace MongoDB.Bson.Serialization
 
                 bsonWriter.WriteStartDocument();
                 BsonMemberMap idMemberMap = null;
+                BsonMemberMap automaticTimestampMap = null;
                 if (documentSerializationOptions.SerializeIdFirst)
                 {
                     idMemberMap = _classMap.IdMemberMap;
@@ -401,7 +403,13 @@ namespace MongoDB.Bson.Serialization
                     {
                         SerializeMember(bsonWriter, value, idMemberMap);
                     }
+                    automaticTimestampMap = FindAutomaticTimestamp();
+                    if (automaticTimestampMap != null)
+                    {
+                        SerializeMember(bsonWriter, value, automaticTimestampMap);
+                    }
                 }
+
 
                 if (actualType != nominalType || _classMap.DiscriminatorIsRequired || _classMap.HasRootClass)
                 {
@@ -420,12 +428,11 @@ namespace MongoDB.Bson.Serialization
 
                 var allMemberMaps = _classMap.AllMemberMaps;
                 var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
-
                 for (var memberMapIndex = 0; memberMapIndex < allMemberMaps.Count; ++memberMapIndex)
                 {
                     var memberMap = allMemberMaps[memberMapIndex];
                     // note: if serializeIdFirst is false then idMemberMap will be null (so no property will be skipped)
-                    if (memberMap != idMemberMap)
+                    if (memberMap != idMemberMap && memberMap != automaticTimestampMap)
                     {
                         if (memberMapIndex != extraElementsMemberMapIndex)
                         {
@@ -438,6 +445,28 @@ namespace MongoDB.Bson.Serialization
                     }
                 }
                 bsonWriter.WriteEndDocument();
+            }
+        }
+
+        /// <summary>
+        /// Timestamp(0, 0) that should be filled by the server
+        /// </summary>
+        private BsonMemberMap FindAutomaticTimestamp() {
+            var allMemberMaps = _classMap.AllMemberMaps;
+            var inFirstPosition = allMemberMaps.Any() && allMemberMaps[0].MemberType == typeof (BsonTimestamp);
+            var inSecondPositionAfterId = allMemberMaps.Count > 1 && allMemberMaps[0] == _classMap.IdMemberMap && allMemberMaps[1].MemberType == typeof (BsonTimestamp);
+
+            if (inFirstPosition) 
+            {
+                return allMemberMaps[0];
+            }
+            else if (inSecondPositionAfterId)
+            {
+                return allMemberMaps[1];
+            }
+            else 
+            {
+                return null;
             }
         }
 
