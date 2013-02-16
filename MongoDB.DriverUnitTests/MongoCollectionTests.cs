@@ -882,6 +882,52 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestGeoSphericalIndex()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -74.0, 40.74 } } } }, { "Name", "10gen" }, { "Type", "Office" } });
+                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -74.0, 41.73 } } } }, { "Name", "Three" }, { "Type", "Coffee" } });
+                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -75.0, 40.74 } } } }, { "Name", "Two" }, { "Type", "Coffee" } });
+                _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
+
+                // TODO: add Query builder support for 2dsphere queries
+                var query = new QueryDocument {
+                     { "Location", new BsonDocument {
+                         { "$near", new BsonDocument {
+                             { "$geometry", new BsonDocument {
+                                { "type", "Point" },
+                                { "coordinates", new BsonArray { -74.0, 40.74 } }
+                             } }
+                         } }
+                     } }
+                };
+                var cursor = _collection.FindAs<BsonDocument>(query);
+                var hits = cursor.ToArray();
+
+                var hit0 = hits[0];
+                Assert.AreEqual(-74.0, hit0["Location"]["coordinates"][0].AsDouble);
+                Assert.AreEqual(40.74, hit0["Location"]["coordinates"][1].AsDouble);
+                Assert.AreEqual("10gen", hit0["Name"].AsString);
+                Assert.AreEqual("Office", hit0["Type"].AsString);
+
+                // with spherical true "Two" is considerably closer than "Three"
+                var hit1 = hits[1];
+                Assert.AreEqual(-75.0, hit1["Location"]["coordinates"][0].AsDouble);
+                Assert.AreEqual(40.74, hit1["Location"]["coordinates"][1].AsDouble);
+                Assert.AreEqual("Two", hit1["Name"].AsString);
+                Assert.AreEqual("Coffee", hit1["Type"].AsString);
+
+                var hit2 = hits[2];
+                Assert.AreEqual(-74.0, hit2["Location"]["coordinates"][0].AsDouble);
+                Assert.AreEqual(41.73, hit2["Location"]["coordinates"][1].AsDouble);
+                Assert.AreEqual("Three", hit2["Name"].AsString);
+                Assert.AreEqual("Coffee", hit2["Type"].AsString);
+            }
+        }
+
+        [Test]
         public void TestGetIndexes()
         {
             _collection.DropAllIndexes();
@@ -950,6 +996,29 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, results[1]["count"].ToInt32());
             Assert.AreEqual(3, results[2]["x"].ToInt32());
             Assert.AreEqual(3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
+        public void TestHashedIndex()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new BsonDocument { { "x", "abc" } });
+                _collection.Insert(new BsonDocument { { "x", "def" } });
+                _collection.Insert(new BsonDocument { { "x", "ghi" } });
+                _collection.CreateIndex(IndexKeys.Hashed("x"));
+
+                var query = Query.EQ("x", "abc");
+                var cursor = _collection.FindAs<BsonDocument>(query);
+                var documents = cursor.ToArray();
+
+                Assert.AreEqual(1, documents.Length);
+                Assert.AreEqual("abc", documents[0]["x"].AsString);
+
+                var explain = cursor.Explain();
+                Assert.AreEqual("BtreeCursor x_hashed", explain["cursor"].AsString);
+            }
         }
 
         [Test]
@@ -1381,6 +1450,37 @@ namespace MongoDB.DriverUnitTests
 
                 var stats = _collection.GetStats();
                 Assert.IsTrue((stats.UserFlags & CollectionUserFlags.UsePowerOf2Sizes) != 0);
+            }
+        }
+
+        [Test]
+        public void TestTextIndex()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new BsonDocument("x", "The quick brown fox"));
+                _collection.Insert(new BsonDocument("x", "jumped over the fence"));
+                _collection.CreateIndex(new IndexKeysDocument("x", "text"));
+
+                var enableTextSearchCommand = new CommandDocument
+                {
+                    { "setParameter", 1 },
+                    { "textSearchEnabled", true }
+                };
+                var adminDatabase = _server.GetDatabase("admin");
+                adminDatabase.RunCommand(enableTextSearchCommand);
+
+                var textSearchCommand = new CommandDocument
+                {
+                    { "text", _collection.Name },
+                    { "search", "fox" }
+                };
+                var commandResult = _database.RunCommand(textSearchCommand);
+                var response = commandResult.Response;
+
+                Assert.AreEqual(1, response["stats"]["nfound"].ToInt32());
+                Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
             }
         }
 

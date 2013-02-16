@@ -207,5 +207,101 @@ namespace MongoDB.DriverUnitTests.Builders
             string expected = "{ \"a\" : 1, \"b\" : \"2d\" }";
             Assert.AreEqual(expected, keys.ToJson());
         }
+
+        [Test]
+        public void TestGeoSpatialSpherical()
+        {
+            var keys = IndexKeys.GeoSpatialSpherical("a");
+            string expected = "{ \"a\" : \"2dsphere\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestGeoSpatialSpherical_Typed()
+        {
+            var keys = IndexKeys<Test>.GeoSpatialSpherical(x => x.A);
+            string expected = "{ \"a\" : \"2dsphere\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestGeoSpatialSphericalAscending()
+        {
+            var keys = IndexKeys.GeoSpatialSpherical("a").Ascending("b");
+            string expected = "{ \"a\" : \"2dsphere\", \"b\" : 1 }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestGeoSpatialSphericalAscending_Typed()
+        {
+            var keys = IndexKeys<Test>.GeoSpatialSpherical(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : \"2dsphere\", \"b\" : 1 }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingGeoSpatialSpherical()
+        {
+            var keys = IndexKeys.Ascending("a").GeoSpatialSpherical("b");
+            string expected = "{ \"a\" : 1, \"b\" : \"2dsphere\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingGeoSpatialSpherical_Typed()
+        {
+            var keys = IndexKeys<Test>.Ascending(x => x.A).GeoSpatialSpherical(x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : \"2dsphere\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestHashed()
+        {
+            var keys = IndexKeys.Hashed("a");
+            string expected = "{ \"a\" : \"hashed\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestHashed_Typed()
+        {
+            var keys = IndexKeys<Test>.Hashed(x => x.A);
+            string expected = "{ \"a\" : \"hashed\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestHashedAscending()
+        {
+            var keys = IndexKeys.Hashed("a").Ascending("b");
+            string expected = "{ \"a\" : \"hashed\", \"b\" : 1 }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestHashedAscending_Typed()
+        {
+            var keys = IndexKeys<Test>.Hashed(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : \"hashed\", \"b\" : 1 }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingHashed()
+        {
+            var keys = IndexKeys.Ascending("a").Hashed("b");
+            string expected = "{ \"a\" : 1, \"b\" : \"hashed\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestAscendingHashed_Typed()
+        {
+            var keys = IndexKeys<Test>.Ascending(x => x.A).Hashed(x => x.B);
+            string expected = "{ \"a\" : 1, \"b\" : \"hashed\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
     }
 }

@@ -81,6 +81,26 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder().GeoSpatialHaystack(name, additionalName);
         }
+
+        /// <summary>
+        /// Sets the key name to create a spherical geospatial index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder GeoSpatialSpherical(string name)
+        {
+            return new IndexKeysBuilder().GeoSpatialSpherical(name);
+        }
+
+        /// <summary>
+        /// Sets the key name to create a hashed index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder Hashed(string name)
+        {
+            return new IndexKeysBuilder().Hashed(name);
+        }
     }
 
     /// <summary>
@@ -161,6 +181,28 @@ namespace MongoDB.Driver.Builders
         {
             _document.Add(name, "geoHaystack");
             _document.Add(additionalName, 1, additionalName != null);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a spherical geospatial index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder GeoSpatialSpherical(string name)
+        {
+            _document.Add(name, "2dsphere");
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a hashed index on.
+        /// </summary>
+        /// <param name="name">The key name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder Hashed(string name)
+        {
+            _document.Add(name, "hashed");
             return this;
         }
 
@@ -257,6 +299,32 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder<TDocument>().GeoSpatialHaystack(memberExpression, additionalMemberExpression);
         }
+
+        /// <summary>
+        /// Sets the key name to create a spherical geospatial index on.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> GeoSpatialSpherical<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            return new IndexKeysBuilder<TDocument>().GeoSpatialSpherical(memberExpression);
+        }
+
+        /// <summary>
+        /// Sets the key name to create a hashed index on.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexKeysBuilder<TDocument> Hashed<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            return new IndexKeysBuilder<TDocument>().Hashed(memberExpression);
+        }
     }
 
     /// <summary>
@@ -317,8 +385,7 @@ namespace MongoDB.Driver.Builders
         /// </returns>
         public IndexKeysBuilder<TDocument> GeoSpatial<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatial(serializationInfo.ElementName);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatial(GetElementName(memberExpression));
             return this;
         }
 
@@ -332,8 +399,7 @@ namespace MongoDB.Driver.Builders
         /// </returns>
         public IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(serializationInfo.ElementName);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(GetElementName(memberExpression));
             return this;
         }
 
@@ -349,9 +415,35 @@ namespace MongoDB.Driver.Builders
         /// </returns>
         public IndexKeysBuilder<TDocument> GeoSpatialHaystack<TMember, TAdditionalMember>(Expression<Func<TDocument, TMember>> memberExpression, Expression<Func<TDocument, TAdditionalMember>> additionalMemberExpression)
         {
-            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            var additionalSerializationInfo = _serializationInfoHelper.GetSerializationInfo(additionalMemberExpression);
-            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(serializationInfo.ElementName, additionalSerializationInfo.ElementName);
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialHaystack(GetElementName(memberExpression), GetElementName(additionalMemberExpression));
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a spherical geospatial index on.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> GeoSpatialSpherical<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.GeoSpatialSpherical(GetElementName(memberExpression));
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the key name to create a hashed index on.
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexKeysBuilder<TDocument> Hashed<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.Hashed(GetElementName(memberExpression));
             return this;
         }
 
@@ -379,11 +471,14 @@ namespace MongoDB.Driver.Builders
         }
 
         // private methods
+        private string GetElementName<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
+        {
+            return _serializationInfoHelper.GetSerializationInfo(memberExpression).ElementName;
+        }
+
         private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
         {
-            return memberExpressions
-                .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
-                .Select(x => x.ElementName);
+            return memberExpressions.Select(x => GetElementName(x));
         }
     }
 }
