@@ -368,7 +368,7 @@ namespace MongoDB.Bson
             }
             if (bytes.Length != 12)
             {
-                throw new ArgumentOutOfRangeException("Byte array must be 12 bytes long.");
+                throw new ArgumentOutOfRangeException("bytes", "Byte array must be 12 bytes long.");
             }
             timestamp = (bytes[0] << 24) + (bytes[1] << 16) + (bytes[2] << 8) + bytes[3];
             machine = (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];

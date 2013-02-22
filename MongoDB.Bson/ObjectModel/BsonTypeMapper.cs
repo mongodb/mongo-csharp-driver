@@ -338,7 +338,7 @@ namespace MongoDB.Bson
                                         break;
                                     case DuplicateNameHandling.ThrowException:
                                         var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException(message);
+                                        throw new ArgumentOutOfRangeException("bsonValue", message);
                                 }
                             }
                             else
@@ -366,7 +366,7 @@ namespace MongoDB.Bson
                                         break;
                                     case DuplicateNameHandling.ThrowException:
                                         var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                                        throw new ArgumentOutOfRangeException(message);
+                                        throw new ArgumentOutOfRangeException("bsonValue", message);
                                 }
                             }
                             else
