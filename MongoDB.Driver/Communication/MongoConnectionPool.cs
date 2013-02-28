@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private object _connectionPoolLock = new object();
-        private MongoServerProxySettings _settings;
+        private MongoServerSettings _settings;
         private MongoServerInstance _serverInstance;
         private int _poolSize;
         private List<MongoConnection> _availableConnections = new List<MongoConnection>();

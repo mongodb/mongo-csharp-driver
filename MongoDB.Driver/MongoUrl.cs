@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private readonly string _password;
         private readonly ReadPreference _readPreference;
         private readonly string _replicaSetName;
+        private readonly TimeSpan _secondaryAcceptableLatency;
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly bool _slaveOk;
         private readonly TimeSpan _socketTimeout;
@@ -108,6 +109,7 @@ namespace MongoDB.Driver
             _password = builder.Password;
             _readPreference = builder.ReadPreference;
             _replicaSetName = builder.ReplicaSetName;
+            _secondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
             _servers = builder.Servers;
 #pragma warning disable 618
             _slaveOk = builder.SlaveOk;
@@ -290,6 +292,15 @@ namespace MongoDB.Driver
                     return null;
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the acceptable latency for considering a replica set member for inclusion in load balancing
+        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
+        /// </summary>
+        public TimeSpan SecondaryAcceptableLatency
+        {
+            get { return _secondaryAcceptableLatency; }
         }
 
         /// <summary>

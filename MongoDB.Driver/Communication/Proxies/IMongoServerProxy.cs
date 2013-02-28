@@ -39,11 +39,6 @@ namespace MongoDB.Driver.Internal
         ReadOnlyCollection<MongoServerInstance> Instances { get; }
 
         /// <summary>
-        /// Gets the sequential id assigned to this proxy.
-        /// </summary>
-        int SequentialId { get; }
-
-        /// <summary>
         /// Gets the state.
         /// </summary>
         MongoServerState State { get; }

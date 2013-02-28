@@ -47,6 +47,7 @@ namespace MongoDB.Driver
         private string _password;
         private ReadPreference _readPreference;
         private string _replicaSetName;
+        private TimeSpan _secondaryAcceptableLatency;
         private IEnumerable<MongoServerAddress> _servers;
         private bool? _slaveOk;
         private TimeSpan _socketTimeout;
@@ -81,6 +82,7 @@ namespace MongoDB.Driver
             _password = null;
             _readPreference = null;
             _replicaSetName = null;
+            _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
             _servers = null;
             _slaveOk = null;
             _socketTimeout = MongoDefaults.SocketTimeout;
@@ -365,6 +367,23 @@ namespace MongoDB.Driver
                     W = writeConcern.W ?? (writeConcern.Enabled ? 1 : 0);
                     WTimeout = writeConcern.WTimeout;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the acceptable latency for considering a replica set member for inclusion in load balancing
+        /// when using a read preference of Secondary, SecondaryPreferred, and Nearest.
+        /// </summary>
+        public TimeSpan SecondaryAcceptableLatency
+        {
+            get { return _secondaryAcceptableLatency; }
+            set
+            {
+                if (value < TimeSpan.Zero)
+                {
+                    throw new ArgumentOutOfRangeException("value", "SecondaryAcceptableLatency must be greater than or equal to zero.");
+                }
+                _secondaryAcceptableLatency = value;
             }
         }
 
@@ -791,7 +810,6 @@ namespace MongoDB.Driver
                         var name = parts[0];
                         var value = parts[1];
 
-                        ReadPreference readPreference;
                         switch (name.ToLower())
                         {
                             case "authmechanism":
@@ -836,14 +854,12 @@ namespace MongoDB.Driver
                                 MinConnectionPoolSize = ParseInt32(name, value);
                                 break;
                             case "readpreference":
-                                readPreference = _readPreference ?? new ReadPreference();
-                                readPreference.ReadPreferenceMode = ParseReadPreferenceMode(name, value);
-                                ReadPreference = readPreference;
+                                if (_readPreference == null) { _readPreference = new ReadPreference(); }
+                                ReadPreference.ReadPreferenceMode = ParseReadPreferenceMode(name, value);
                                 break;
                             case "readpreferencetags":
-                                readPreference = _readPreference ?? new ReadPreference();
-                                readPreference.AddTagSet(ParseReplicaSetTagSet(name, value));
-                                ReadPreference = readPreference;
+                                if (_readPreference == null) { _readPreference = new ReadPreference { ReadPreferenceMode = ReadPreferenceMode.Primary }; }
+                                ReadPreference.AddTagSet(ParseReplicaSetTagSet(name, value));
                                 break;
                             case "replicaset":
                                 ReplicaSetName = value;
@@ -873,9 +889,7 @@ namespace MongoDB.Driver
                                 break;
                             case "secondaryacceptablelatency":
                             case "secondaryacceptablelatencyms":
-                                readPreference = _readPreference ?? new ReadPreference();
-                                readPreference.SecondaryAcceptableLatency = ParseTimeSpan(name, value);
-                                ReadPreference = readPreference;
+                                SecondaryAcceptableLatency = ParseTimeSpan(name, value);
                                 break;
                             case "slaveok":
 #pragma warning disable 618
@@ -1021,10 +1035,6 @@ namespace MongoDB.Driver
             if (_readPreference != null)
             {
                 query.AppendFormat("readPreference={0};", MongoUtils.ToCamelCase(_readPreference.ReadPreferenceMode.ToString()));
-                if (_readPreference.SecondaryAcceptableLatency != MongoDefaults.SecondaryAcceptableLatency)
-                {
-                    query.AppendFormat("secondaryAcceptableLatency={0};", FormatTimeSpan(_readPreference.SecondaryAcceptableLatency));
-                }
                 if (_readPreference.TagSets != null)
                 {
                     foreach (var tagSet in _readPreference.TagSets)
@@ -1068,6 +1078,10 @@ namespace MongoDB.Driver
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {
                 query.AppendFormat("minPoolSize={0};", _minConnectionPoolSize);
+            }
+            if (_secondaryAcceptableLatency != MongoDefaults.SecondaryAcceptableLatency)
+            {
+                query.AppendFormat("secondaryAcceptableLatency={0};", FormatTimeSpan(_secondaryAcceptableLatency));
             }
             if (_socketTimeout != MongoDefaults.SocketTimeout)
             {

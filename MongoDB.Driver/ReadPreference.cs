@@ -63,7 +63,6 @@ namespace MongoDB.Driver
         private ReadPreferenceMode _readPreferenceMode;
         private List<ReplicaSetTagSet> _tagSets;
         private ReadOnlyCollection<ReplicaSetTagSet> _tagSetsReadOnly;
-        private TimeSpan _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
         private bool _isFrozen;
         private int _frozenHashCode;
 
@@ -183,26 +182,6 @@ namespace MongoDB.Driver
                 if (_isFrozen) { ThrowFrozenException(); }
                 _tagSets = new List<ReplicaSetTagSet>(value);
                 _tagSetsReadOnly = _tagSets.AsReadOnly();
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the secondary acceptable latency.
-        /// </summary>
-        /// <value>
-        /// The secondary acceptable latency.
-        /// </value>
-        public TimeSpan SecondaryAcceptableLatency
-        {
-            get { return _secondaryAcceptableLatency; }
-            set
-            {
-                if (_isFrozen) { ThrowFrozenException(); }
-                if (value <= TimeSpan.Zero)
-                {
-                    throw new ArgumentOutOfRangeException("value", "SecondaryAcceptableLatency must be greater than zero.");
-                }
-                _secondaryAcceptableLatency = value;
             }
         }
 
@@ -396,27 +375,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns a string representation of the ReadPreference.
         /// </summary>
-        /// <returns>A string representation of the ReadPreference.</returns>
+        /// <returns>A string representation of the user.</returns>
         public override string ToString()
         {
-            var optionalParts = new List<string>();
-            if (_secondaryAcceptableLatency != MongoDefaults.SecondaryAcceptableLatency)
-            {
-                optionalParts.Add(string.Format("AcceptableLatency={0}", _secondaryAcceptableLatency));
-            }
-            if (_tagSets != null && _tagSets.Count > 0)
-            {
-                var tagSets = string.Format("[{0}]", string.Join(", ", _tagSets.Select(ts => ts.ToString()).ToArray()));
-                optionalParts.Add(string.Format("Tags={0}", tagSets));
-            }
-
-            if (optionalParts.Count == 0)
+            if (_tagSets == null || _tagSets.Count == 0)
             {
                 return _readPreferenceMode.ToString();
             }
             else
             {
-                return string.Format("{0} ({1})", _readPreferenceMode, string.Join(", ", optionalParts.ToArray()));
+                var tagSets = string.Format("[{0}]", string.Join(", ", _tagSets.Select(ts => ts.ToString()).ToArray()));
+                return string.Format("{0} (tags = {1})", _readPreferenceMode, tagSets);
             }
         }
 

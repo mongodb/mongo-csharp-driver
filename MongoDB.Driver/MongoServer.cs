@@ -30,6 +30,10 @@ namespace MongoDB.Driver
     public class MongoServer
     {
         // private static fields
+        private readonly static object __staticLock = new object();
+        private readonly static Dictionary<MongoServerSettings, MongoServer> __servers = new Dictionary<MongoServerSettings, MongoServer>();
+        private static int __nextSequentialId;
+        private static int __maxServerCount = 100;
         private static HashSet<char> __invalidDatabaseNameChars;
 
         // private fields
@@ -38,6 +42,7 @@ namespace MongoDB.Driver
         private readonly MongoServerSettings _settings;
         private readonly Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
         private readonly IndexCache _indexCache = new IndexCache();
+        private int _sequentialId;
 
         // static constructor
         static MongoServer()
@@ -56,15 +61,12 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="settings">The settings for this instance of MongoServer.</param>
         public MongoServer(MongoServerSettings settings)
-            : this(settings, MongoServerProxyFactory.Instance.Create(settings.ToMongoServerProxySettings()))
-        {
-        }
-
-        internal MongoServer(MongoServerSettings settings, IMongoServerProxy serverProxy)
         {
             _settings = settings.FrozenCopy();
+            _sequentialId = Interlocked.Increment(ref __nextSequentialId);
             // Console.WriteLine("MongoServer[{0}]: {1}", sequentialId, settings);
-            _serverProxy = serverProxy;
+
+            _serverProxy = new MongoServerProxyFactory().Create(_settings);
         }
 
         // factory methods
@@ -106,8 +108,21 @@ namespace MongoDB.Driver
         [Obsolete("Use MongoClient.GetServer instead.")]
         public static MongoServer Create(MongoServerSettings settings)
         {
-            var serverProxy = MongoServerProxyFactory.Instance.Create(settings.ToMongoServerProxySettings());
-            return new MongoServer(settings, serverProxy);
+            lock (__staticLock)
+            {
+                MongoServer server;
+                if (!__servers.TryGetValue(settings, out server))
+                {
+                    if (__servers.Count >= __maxServerCount)
+                    {
+                        var message = string.Format("MongoServer.Create has already created {0} servers which is the maximum number of servers allowed.", __maxServerCount);
+                        throw new MongoException(message);
+                    }
+                    server = new MongoServer(settings);
+                    __servers.Add(settings, server);
+                }
+                return server;
+            }
         }
 
         /// <summary>
@@ -160,6 +175,30 @@ namespace MongoDB.Driver
         {
             var url = MongoUrl.Create(uri.ToString());
             return Create(url);
+        }
+
+        // public static properties
+        /// <summary>
+        /// Gets or sets the maximum number of instances of MongoServer that will be allowed to be created.
+        /// </summary>
+        public static int MaxServerCount
+        {
+            get { return __maxServerCount; }
+            set { __maxServerCount = value; }
+        }
+
+        /// <summary>
+        /// Gets the number of instances of MongoServer that have been created.
+        /// </summary>
+        public static int ServerCount
+        {
+            get
+            {
+                lock (__staticLock)
+                {
+                    return __servers.Count;
+                }
+            }
         }
 
         // public properties
@@ -328,7 +367,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual int SequentialId
         {
-            get { return _serverProxy.SequentialId; }
+            get { return _sequentialId; }
         }
 
         /// <summary>
@@ -383,6 +422,48 @@ namespace MongoDB.Driver
         public virtual MongoDatabase this[string databaseName, WriteConcern writeConcern]
         {
             get { return GetDatabase(databaseName, writeConcern); }
+        }
+
+        // public static methods
+        /// <summary>
+        /// Gets an array containing a snapshot of the set of all servers that have been created so far.
+        /// </summary>
+        /// <returns>An array containing a snapshot of the set of all servers that have been created so far.</returns>
+        public static MongoServer[] GetAllServers()
+        {
+            lock (__staticLock)
+            {
+                return __servers.Values.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Unregisters all servers from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        public static void UnregisterAllServers()
+        {
+            lock (__staticLock)
+            {
+                var serverList = __servers.Values.ToList();
+                foreach (var server in serverList)
+                {
+                    UnregisterServer(server);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Unregisters a server from the dictionary used by Create to remember which servers have already been created.
+        /// </summary>
+        /// <param name="server">The server to unregister.</param>
+        public static void UnregisterServer(MongoServer server)
+        {
+            lock (__staticLock)
+            {
+                try { server.Disconnect(); }
+                catch { } // ignore exceptions
+                __servers.Remove(server._settings);
+            }
         }
 
         // public methods

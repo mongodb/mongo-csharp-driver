@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MongoDB.Driver.Internal
@@ -23,67 +22,13 @@ namespace MongoDB.Driver.Internal
     /// </summary>
     internal class MongoServerProxyFactory
     {
-        // private static fields
-        private static readonly MongoServerProxyFactory __instance = new MongoServerProxyFactory();
-
-        // private fields
-        private readonly object _lock = new object();
-        private readonly Dictionary<MongoServerProxySettings, IMongoServerProxy> _proxies = new Dictionary<MongoServerProxySettings, IMongoServerProxy>();
-
-        private int _nextSequentialId = 1;
-
-        // public static properties
-        /// <summary>
-        /// Gets the default instance.
-        /// </summary>
-        /// <value>
-        /// The default instance.
-        /// </value>
-        public static MongoServerProxyFactory Instance
-        {
-            get { return __instance; }
-        }
-
-        // public properties
-        /// <summary>
-        /// Gets the proxy count.
-        /// </summary>
-        /// <value>
-        /// The proxy count.
-        /// </value>
-        public int ProxyCount
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _proxies.Count;
-                }
-            }
-        }
-
         // public methods
         /// <summary>
-        /// Creates an IMongoServerProxy of some type that depends on the settings (or returns an existing one if one has already been created with these settings).
+        /// Creates an IMongoServerProxy of some type that depends on the server settings.
         /// </summary>
         /// <param name="settings">The settings.</param>
         /// <returns>An IMongoServerProxy.</returns>
-        public IMongoServerProxy Create(MongoServerProxySettings settings)
-        {
-            lock (_lock)
-            {
-                IMongoServerProxy proxy;
-                if (!_proxies.TryGetValue(settings, out proxy))
-                {
-                    proxy = CreateInstance(_nextSequentialId++, settings);
-                    _proxies.Add(settings, proxy);
-                }
-                return proxy;
-            }
-        }
-
-        // private methods
-        private IMongoServerProxy CreateInstance(int sequentialId, MongoServerProxySettings settings)
+        public IMongoServerProxy Create(MongoServerSettings settings)
         {
             var connectionMode = settings.ConnectionMode;
             if (settings.ConnectionMode == ConnectionMode.Automatic)
@@ -101,13 +46,13 @@ namespace MongoDB.Driver.Internal
             switch (connectionMode)
             {
                 case ConnectionMode.Direct:
-                    return new DirectMongoServerProxy(sequentialId, settings);
+                    return new DirectMongoServerProxy(settings);
                 case ConnectionMode.ReplicaSet:
-                    return new ReplicaSetMongoServerProxy(sequentialId, settings);
+                    return new ReplicaSetMongoServerProxy(settings);
                 case ConnectionMode.ShardRouter:
-                    return new ShardedMongoServerProxy(sequentialId, settings);
+                    return new ShardedMongoServerProxy(settings);
                 default:
-                    return new DiscoveringMongoServerProxy(sequentialId, settings);
+                    return new DiscoveringMongoServerProxy(settings);
             }
         }
     }

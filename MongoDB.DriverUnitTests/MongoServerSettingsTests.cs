@@ -181,6 +181,10 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.SecondaryAcceptableLatency = new TimeSpan(1, 2, 3);
+            Assert.IsFalse(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.Server = new MongoServerAddress("someotherhost");
             Assert.IsFalse(clone.Equals(settings));
 
@@ -265,6 +269,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.AreEqual(url.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
+            Assert.AreEqual(url.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
@@ -303,6 +308,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(builder.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.AreEqual(builder.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(builder.ReplicaSetName, settings.ReplicaSetName);
+            Assert.AreEqual(builder.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(builder.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(builder.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
@@ -345,6 +351,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.MinConnectionPoolSize, settings.MinConnectionPoolSize);
             Assert.AreEqual(url.ReadPreference, settings.ReadPreference);
             Assert.AreEqual(url.ReplicaSetName, settings.ReplicaSetName);
+            Assert.AreEqual(url.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
             Assert.IsTrue(url.Servers.SequenceEqual(settings.Servers));
             Assert.AreEqual(url.SocketTimeout, settings.SocketTimeout);
             Assert.AreEqual(null, settings.SslSettings);
@@ -492,6 +499,21 @@ namespace MongoDB.DriverUnitTests
             settings.Freeze();
             Assert.AreSame(replicaSetName, settings.ReplicaSetName);
             Assert.Throws<InvalidOperationException>(() => { settings.ReplicaSetName = replicaSetName; });
+        }
+
+        [Test]
+        public void TestSecondaryAcceptableLatency()
+        {
+            var settings = new MongoServerSettings();
+            Assert.AreEqual(MongoDefaults.SecondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+
+            var secondaryAcceptableLatency = new TimeSpan(1, 2, 3);
+            settings.SecondaryAcceptableLatency = secondaryAcceptableLatency;
+            Assert.AreEqual(secondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+
+            settings.Freeze();
+            Assert.AreEqual(secondaryAcceptableLatency, settings.SecondaryAcceptableLatency);
+            Assert.Throws<InvalidOperationException>(() => { settings.SecondaryAcceptableLatency = secondaryAcceptableLatency; });
         }
 
         [Test]
