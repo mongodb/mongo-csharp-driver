@@ -16,6 +16,7 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
@@ -44,6 +45,19 @@ namespace MongoDB.DriverUnitTests
             _database.SetProfilingLevel(ProfilingLevel.All);
             string comment = "Comment ALL the things!";
             _collection.FindAll().SetComment(comment).ToList();
+
+            var profile = _database.GetCollection("system.profile").FindOneAs<BsonDocument>();
+            Assert.AreEqual(comment, profile.GetValue("query").AsBsonDocument.GetValue("$comment").AsString);
+        }
+
+        [Test]
+        public void TestSetCommentWithLinq()
+        {
+            _database.SetProfilingLevel(ProfilingLevel.None);
+            _database.GetCollection("system.profile").Drop();
+            _database.SetProfilingLevel(ProfilingLevel.All);
+            string comment = "Comment ALL the things with LINQ!";
+            _collection.AsQueryable().WithComment(comment).ToList();
 
             var profile = _database.GetCollection("system.profile").FindOneAs<BsonDocument>();
             Assert.AreEqual(comment, profile.GetValue("query").AsBsonDocument.GetValue("$comment").AsString);

@@ -137,6 +137,22 @@ namespace MongoDB.Driver.Linq
             return WithIndex(source, (BsonValue)indexHint);
         }
 
+        /// <summary>
+        /// Sets a comment on the query that's being built. The comment is visible in the
+        /// system.profile collection if profiling is turned on as a $comment field.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+        /// <param name="source">The query being built.</param>
+        /// <param name="comment">Comment to insert into system.profile.</param>
+        /// <returns>New query where the expression includes a WithComment method call.</returns>
+        public static IQueryable<TSource> WithComment<TSource>(this IQueryable<TSource> source, string comment)
+        {
+            var method = ((MethodInfo)MethodBase.GetCurrentMethod()).MakeGenericMethod(typeof(TSource));
+            var args = new[] { source.Expression, Expression.Constant(comment) };
+            var expression = Expression.Call(null, method, args);
+            return source.Provider.CreateQuery<TSource>(expression);
+        }
+
         // private static methods
         private static IQueryable<TSource> WithIndex<TSource>(IQueryable<TSource> query, BsonValue indexHint)
         {
