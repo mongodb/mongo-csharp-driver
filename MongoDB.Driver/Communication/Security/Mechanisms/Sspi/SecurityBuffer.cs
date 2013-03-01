@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 {
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
     /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa379814(v=vs.85).aspx
     /// </remarks>
     [StructLayout(LayoutKind.Sequential)]
+    [SecurityCritical]
     internal struct SecurityBuffer : IDisposable
     {
         // public fields

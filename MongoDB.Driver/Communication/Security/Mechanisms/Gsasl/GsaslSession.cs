@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Gsasl
 {
@@ -66,6 +67,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Gsasl
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
         /// <exception cref="MongoSecurityException"></exception>
+        [SecuritySafeCritical]
         public void SetProperty(string name, string value)
         {
             if(!name.StartsWith("GSASL_", StringComparison.InvariantCultureIgnoreCase))
@@ -92,6 +94,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Gsasl
         /// <param name="input">The input.</param>
         /// <returns>The output bytes to be sent to the server.</returns>
         /// <exception cref="System.Exception"></exception>
+        [SecuritySafeCritical]
         public byte[] Step(byte[] input)
         {
             IntPtr inputPtr = IntPtr.Zero;
@@ -135,6 +138,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Gsasl
         /// <returns>
         /// true if the handle is released successfully; otherwise, in the event of a catastrophic failure, false. In this case, it generates a releaseHandleFailed MDA Managed Debugging Assistant.
         /// </returns>
+        [SecuritySafeCritical]
         protected override bool ReleaseHandle()
         {
             Gsasl.gsasl_finish(handle);

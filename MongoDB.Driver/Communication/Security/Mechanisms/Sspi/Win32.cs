@@ -16,9 +16,11 @@
 using System;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 {
+    [SecurityCritical]
     internal static class Win32
     {
         // public constants
@@ -186,6 +188,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// http://msdn.microsoft.com/en-us/library/windows/desktop/aa375354(v=vs.85).aspx
         /// </remarks>
         [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         public static extern uint DeleteSecurityContext(ref SspiHandle context);
 
         /// <summary>

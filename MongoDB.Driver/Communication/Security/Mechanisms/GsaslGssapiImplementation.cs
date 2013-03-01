@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         // private fields
         private readonly string _userPrincipalName;
         private readonly MongoIdentityEvidence _evidence;
-		private readonly string _hostname;
+        private readonly string _hostname;
         private readonly string _service;
 
         // constructors
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         {
             _userPrincipalName = username;
             _evidence = evidence;
-			_hostname = hostName;
+            _hostname = hostName;
             _service = "mongodb";
         }
 

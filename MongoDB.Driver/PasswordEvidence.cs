@@ -112,6 +112,7 @@ namespace MongoDB.Driver
             return null;
         }
 
+        [SecuritySafeCritical]
         private static string CreateString(SecureString secureString)
         {
             IntPtr strPtr = IntPtr.Zero;
@@ -137,6 +138,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Computes the hash value of the secured string 
         /// </summary>
+        [SecuritySafeCritical]
         private static string GenerateDigest(SecureString secureString)
         {
             IntPtr unmanagedRef = Marshal.SecureStringToBSTR(secureString);
