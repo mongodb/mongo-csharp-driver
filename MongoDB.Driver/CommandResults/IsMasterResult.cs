@@ -117,7 +117,13 @@ namespace MongoDB.Driver
         /// </value>
         public int MaxMessageLength
         {
-            get { return Math.Max(MongoDefaults.MaxMessageLength, MaxBsonObjectSize + 1024); }
+            get
+            {
+                return Response.GetValue(
+                    "maxMessageSizeBytes",
+                    Math.Max(MongoDefaults.MaxMessageLength, MaxBsonObjectSize + 1024))
+                    .ToInt32();
+            }
         }
 
         /// <summary>

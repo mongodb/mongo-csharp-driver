@@ -103,6 +103,7 @@
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="CommandResults\CommandResultTests.cs" />
+    <Compile Include="CommandResults\IsMasterResultTests.cs" />
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
