@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Linq
         private Type _ofType;
         private List<OrderByClause> _orderBy;
         private BsonValue _indexHint;
+        private string _comment; 
         private LambdaExpression _projection;
         private int? _skip;
         private int? _take;
@@ -103,6 +104,14 @@ namespace MongoDB.Driver.Linq
         public BsonValue IndexHint
         {
             get { return _indexHint; }
+        }
+
+        /// <summary>
+        /// Gets the comment that has been attached to the query.
+        /// </summary>
+        public string Comment
+        {
+            get { return _comment; }
         }
 
         /// <summary>
@@ -191,6 +200,11 @@ namespace MongoDB.Driver.Linq
                 {
                     throw new NotSupportedException("Index hints must be strings or documents");
                 }
+            }
+
+            if (!string.IsNullOrEmpty(_comment))
+            {
+                cursor.SetComment(_comment);
             }
 
             var projection = _projection;
@@ -711,6 +725,9 @@ namespace MongoDB.Driver.Linq
                 case "WithIndex":
                     TranslateWithIndex(methodCallExpression);
                     break;
+                case "WithComment":
+                    TranslateWithComment(methodCallExpression);
+                    break;
                 case "Where":
                     TranslateWhere(methodCallExpression);
                     break;
@@ -936,6 +953,47 @@ namespace MongoDB.Driver.Linq
             }
 
             _indexHint = (BsonValue)constantExpression.Value;
+        }
+
+        private void TranslateWithComment(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Arguments.Count != 2)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression");
+            }
+
+            var method = methodCallExpression.Method;
+
+            if (method.DeclaringType != typeof(LinqToMongo))
+            {
+                var message = string.Format("WithComment method of class {0} is not supported.", BsonUtils.GetFriendlyTypeName(method.DeclaringType));
+                throw new NotSupportedException(message);
+            }
+
+            if (_comment != null)
+            {
+                throw new NotSupportedException("Only one comment can be attached to each query");
+            }
+
+            if (_distinct != null)
+            {
+                var message = "WithIndex cannot be used together with Distinct.";
+                throw new NotSupportedException(message);
+            }
+
+            Expression expression = methodCallExpression.Arguments[1];
+            if (expression.Type != typeof(string))
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression", "Expected an Expression of Type string");
+            }
+
+            var constantExpression = expression as ConstantExpression;
+            if (constantExpression == null)
+            {
+                throw new ArgumentOutOfRangeException("methodCallExpression", "Expected a ConstantExpression.");
+            }
+
+            _comment = (string)constantExpression.Value;
         }
 
         private void TranslateWhere(MethodCallExpression methodCallExpression)

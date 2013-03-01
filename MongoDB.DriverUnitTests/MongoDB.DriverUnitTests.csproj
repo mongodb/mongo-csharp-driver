@@ -106,6 +106,7 @@
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="CursorOptionsTest.cs" />
     <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp653Tests.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
