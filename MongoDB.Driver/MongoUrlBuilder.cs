@@ -1000,7 +1000,7 @@ namespace MongoDB.Driver
                 url.Append(_databaseName);
             }
             var query = new StringBuilder();
-            if (!_authenticationMechanism.Equals("MONGO-CR", StringComparison.InvariantCultureIgnoreCase))
+            if (!_authenticationMechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase))
             {
                 query.AppendFormat("authMechanism={0};", _authenticationMechanism);
             }

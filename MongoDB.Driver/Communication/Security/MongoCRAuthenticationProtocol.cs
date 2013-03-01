@@ -20,14 +20,14 @@ using MongoDB.Driver.Internal;
 namespace MongoDB.Driver.Communication.Security
 {
     /// <summary>
-    /// Authenticates a credential using the MONGO-CR protocol.
+    /// Authenticates a credential using the MONGODB-CR protocol.
     /// </summary>
     internal class MongoCRAuthenticationProtocol : IAuthenticationProtocol
     {
         // public properties
         public string Name
         {
-            get { return "MONGO-CR"; }
+            get { return "MONGODB-CR"; }
         }
 
         // public methods
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Communication.Security
         /// </returns>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.Mechanism.Equals("MONGO-CR", StringComparison.InvariantCultureIgnoreCase) &&
+            return credential.Mechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase) &&
                 credential.Evidence is PasswordEvidence;
         }
     }

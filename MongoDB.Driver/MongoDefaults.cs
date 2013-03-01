@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static bool __assignIdOnInsert = true;
-        private static string __authenticationMechanism = "MONGO-CR";
+        private static string __authenticationMechanism = "MONGODB-CR";
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);

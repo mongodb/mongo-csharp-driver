@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Communication.Security
         // private static fields
         private static readonly List<IAuthenticationProtocol> __clientSupportedProtocols = new List<IAuthenticationProtocol>
         {
-            // when we start negotiating, MONGO-CR should be moved to the bottom of the list...
+            // when we start negotiating, MONGODB-CR should be moved to the bottom of the list...
             new MongoCRAuthenticationProtocol(),
             new SaslAuthenticationProtocol(new GssapiMechanism()),
         };

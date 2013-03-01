@@ -135,7 +135,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        [TestCase("MONGO-CR", "server=localhost;authMechanism=MONGO-CR")]
+        [TestCase("MONGODB-CR", "server=localhost;authMechanism=MONGODB-CR")]
         [TestCase("GSSAPI", "server=localhost;authMechanism=GSSAPI")]
         public void TestAuthMechanism(string mechanism, string connectionString)
         {

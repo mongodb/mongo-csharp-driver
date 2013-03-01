@@ -180,7 +180,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a credential used with MONGO-CR.
+        /// Creates a credential used with MONGODB-CR.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
@@ -188,14 +188,14 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
-            return FromComponents("MONGO-CR",
+            return FromComponents("MONGODB-CR",
                 databaseName,
                 username,
                 new PasswordEvidence(password));
         }
 
         /// <summary>
-        /// Creates a credential used with MONGO-CR.
+        /// Creates a credential used with MONGODB-CR.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
         /// <returns></returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
-            return FromComponents("MONGO-CR",
+            return FromComponents("MONGODB-CR",
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -288,12 +288,12 @@ namespace MongoDB.Driver
 
             switch (mechanism.ToUpperInvariant())
             {
-                case "MONGO-CR":
+                case "MONGODB-CR":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        throw new ArgumentException("A MONGO-CR credential must have a password.");
+                        throw new ArgumentException("A MONGODB-CR credential must have a password.");
                     }
 
                     return new MongoCredential(
@@ -301,11 +301,9 @@ namespace MongoDB.Driver
                         new MongoInternalIdentity(source, username),
                         evidence);
                 case "GSSAPI":
-                    source = source ?? "$external";
-                    if (source != "$external")
-                    {
-                        throw new ArgumentException("The source for GSSAPI must be $external.");
-                    }
+                    // always $external for GSSAPI.  
+                    // this will likely need to change in 2.6.
+                    source = "$external";
 
                     return new MongoCredential(
                         "GSSAPI",
