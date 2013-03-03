@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -86,7 +88,10 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp624
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
             var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'D' : [[#, 2]], 'G' : [[#, 3]] }".Replace("#", key.ToString()).Replace("'", "\"");
+						//Format key to a JSON style format, basically the US NumberFormat
+            var value = Convert.ToDecimal(key).ToString(CultureInfo.GetCultureInfo("en-US").NumberFormat);
+
+            var expected = "{ '_id' : 1, 'D' : [[#, 2]], 'G' : [[#, 3]] }".Replace("#", value).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
