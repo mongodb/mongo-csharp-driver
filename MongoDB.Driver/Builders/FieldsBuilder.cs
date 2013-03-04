@@ -41,6 +41,17 @@ namespace MongoDB.Driver.Builders
 
         // public static methods
         /// <summary>
+        /// Returns the first matching element in the array specified by name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>The build (so method calls can be chained).</returns>
+        public static FieldsBuilder ElemMatch(string name, IMongoQuery query)
+        {
+            return new FieldsBuilder().ElemMatch(name, query);
+        }
+
+        /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
         /// <param name="names">One or more field names.</param>
@@ -103,6 +114,19 @@ namespace MongoDB.Driver.Builders
         }
 
         // public methods
+        /// <summary>
+        /// Returns the first matching element in the array specified by name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="query">The query.</param>
+        /// <returns>The build (so method calls can be chained).</returns>
+        public FieldsBuilder ElemMatch(string name, IMongoQuery query)
+        {
+            var elemMatchDocument = new BsonDocument("$elemMatch", query.ToBsonDocument());
+            _document.Add(name, elemMatchDocument);
+            return this;
+        }
+
         /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
@@ -195,6 +219,18 @@ namespace MongoDB.Driver.Builders
 
         // public static methods
         /// <summary>
+        /// Returns the first matching element in the array specified by name.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="elementQueryBuilderFunction">The element query builder function.</param>
+        /// <returns>The build (so method calls can be chained).</returns>
+        public static FieldsBuilder<TDocument> ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
+        {
+            return new FieldsBuilder<TDocument>().ElemMatch<TValue>(memberExpression, elementQueryBuilderFunction);
+        }
+
+        /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
@@ -262,6 +298,23 @@ namespace MongoDB.Driver.Builders
         }
 
         // public methods
+        /// <summary>
+        /// Returns the first matching element in the array specified by name.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="elementQueryBuilderFunction">The element query builder function.</param>
+        /// <returns>The build (so method calls can be chained).</returns>
+        public FieldsBuilder<TDocument> ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
+            var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
+            var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
+            _fieldsBuilder.ElemMatch(serializationInfo.ElementName, elementQuery);
+            return this;
+        }
+
         /// <summary>
         /// Adds one or more field names to be excluded from the results.
         /// </summary>

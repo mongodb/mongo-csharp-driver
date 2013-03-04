@@ -20,12 +20,24 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
-    public class FieldsBuilderTests
+    public class FieldsBuilderTypedTests
     {
+        public class TestClass
+        {
+            public int[] a;
+            public SubClass[] a2;
+            public int x;
+        }
+
+        public class SubClass
+        {
+            public int b;
+        }
+
         [Test]
         public void TestElemMatch()
         {
-            var fields = Fields.ElemMatch("a2", Query.EQ("b", 10));
+            var fields = Fields<TestClass>.ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
             string expected = "{ \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -33,7 +45,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestIncludeElemMatch()
         {
-            var fields = Fields.Include("x").ElemMatch("a2", Query.EQ("b", 10));
+            var fields = Fields<TestClass>.Include(tc => tc.x).ElemMatch(tc => tc.a2, qb => qb.EQ(tc => tc.b, 10));
             string expected = "{ \"x\" : 1, \"a2\" : { \"$elemMatch\" : { \"b\" : 10 } } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -41,7 +53,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestInclude()
         {
-            var fields = Fields.Include("a");
+            var fields = Fields<TestClass>.Include(tc => tc.a);
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -49,7 +61,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestExclude()
         {
-            var fields = Fields.Exclude("a");
+            var fields = Fields<TestClass>.Exclude(tc => tc.a);
             string expected = "{ \"a\" : 0 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -57,7 +69,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSliceNameSize()
         {
-            var fields = Fields.Slice("a", 10);
+            var fields = Fields<TestClass>.Slice(tc => tc.a, 10);
             string expected = "{ \"a\" : { \"$slice\" : 10 } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -65,14 +77,14 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSliceNameSkipLimit()
         {
-            var fields = Fields.Slice("a", 10, 20);
+            var fields = Fields<TestClass>.Slice(tc => tc.a, 10, 20);
             string expected = "{ \"a\" : { \"$slice\" : [10, 20] } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
         [Test]
         public void TestIncludeInclude()
         {
-            var fields = Fields.Include("x").Include("a");
+            var fields = Fields<TestClass>.Include(tc => tc.x).Include(tc => tc.a);
             string expected = "{ \"x\" : 1, \"a\" : 1 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -80,7 +92,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TesIncludetExclude()
         {
-            var fields = Fields.Include("x").Exclude("a");
+            var fields = Fields<TestClass>.Include(tc => tc.x).Exclude(tc => tc.a);
             string expected = "{ \"x\" : 1, \"a\" : 0 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -88,7 +100,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestIncludeSliceNameSize()
         {
-            var fields = Fields.Include("x").Slice("a", 10);
+            var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : 10 } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
@@ -96,7 +108,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestIncludeSliceNameSkipLimit()
         {
-            var fields = Fields.Include("x").Slice("a", 10, 20);
+            var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10, 20);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : [10, 20] } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
