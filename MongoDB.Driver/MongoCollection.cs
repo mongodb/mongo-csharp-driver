@@ -556,7 +556,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection as a TDocument.
+        /// Returns one document in this collection as a TDocument.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <returns>A TDocument (or null if not found).</returns>
@@ -566,7 +566,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection that matches a query as a TDocument.
+        /// Returns one document in this collection that matches a query as a TDocument.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
@@ -577,7 +577,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection as a TDocument.
+        /// Returns one document in this collection as a TDocument.
         /// </summary>
         /// <param name="documentType">The nominal type of the documents.</param>
         /// <returns>A document (or null if not found).</returns>
@@ -587,7 +587,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection that matches a query as a TDocument.
+        /// Returns one document in this collection that matches a query as a TDocument.
         /// </summary>
         /// <param name="documentType">The type to deserialize the documents as.</param>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
@@ -1790,7 +1790,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection as a TDefaultDocument.
+        /// Returns one document in this collection as a TDefaultDocument.
         /// </summary>
         /// <returns>A TDefaultDocument (or null if not found).</returns>
         public virtual TDefaultDocument FindOne()
@@ -1799,7 +1799,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns a cursor that can be used to find one document in this collection that matches a query as a TDefaultDocument.
+        /// Returns one document in this collection that matches a query as a TDefaultDocument.
         /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A TDefaultDocument (or null if not found).</returns>
