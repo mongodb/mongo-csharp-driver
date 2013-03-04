@@ -1109,16 +1109,14 @@ namespace MongoDB.DriverUnitTests
 
             var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
             var bson = document.ToBson();
-            bson[28] = 0xed; // replace "abc" with 0xeda0db which is not valid UTF8
-            bson[29] = 0xa0;
-            bson[30] = 0xdb;
+            bson[28] = 0xc0; // replace 'a' with invalid lone first code point (not followed by 10xxxxxx)
 
             // use a RawBsonDocument to sneak the invalid bytes into the database
             var rawBsonDocument = new RawBsonDocument(bson);
             collection.Insert(rawBsonDocument);
 
             var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"]));
-            Assert.AreEqual("\ufffd\ufffd", rehydrated["x"].AsString);
+            Assert.AreEqual("\ufffd" + "bc", rehydrated["x"].AsString);
         }
 
         [Test]
@@ -1127,7 +1125,7 @@ namespace MongoDB.DriverUnitTests
             var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, false) };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
-            var document = new BsonDocument("x", "\ud83d");
+            var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate
             collection.Save(document);
 
             var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"]));
@@ -1495,9 +1493,7 @@ namespace MongoDB.DriverUnitTests
 
             var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
             var bson = document.ToBson();
-            bson[28] = 0xed; // replace "abc" with 0xeda0db which is not valid UTF8
-            bson[29] = 0xa0;
-            bson[30] = 0xdb;
+            bson[28] = 0xc0; // replace 'a' with invalid lone first code point (not followed by 10xxxxxx)
 
             // use a RawBsonDocument to sneak the invalid bytes into the database
             var rawBsonDocument = new RawBsonDocument(bson);
@@ -1512,7 +1508,7 @@ namespace MongoDB.DriverUnitTests
             var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, true) };
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
-            var document = new BsonDocument("x", "\ud83d");
+            var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate
             Assert.Throws<EncoderFallbackException>(() => { collection.Insert(document); });
         }
 
