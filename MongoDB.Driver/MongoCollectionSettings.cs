@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -28,8 +30,10 @@ namespace MongoDB.Driver
         private Setting<bool> _assignIdOnInsert;
         private Setting<Type> _defaultDocumentType;
         private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
+        private Setting<UTF8Encoding> _writeEncoding;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -71,8 +75,10 @@ namespace MongoDB.Driver
             _assignIdOnInsert.Value = MongoDefaults.AssignIdOnInsert;
             _defaultDocumentType.Value = defaultDocumentType;
             _guidRepresentation.Value = databaseSettings.GuidRepresentation;
+            _readEncoding.Value = databaseSettings.ReadEncoding;
             _readPreference.Value = databaseSettings.ReadPreference;
             _writeConcern.Value = databaseSettings.WriteConcern;
+            _writeEncoding.Value = databaseSettings.WriteEncoding;
         }
 
         /// <summary>
@@ -172,6 +178,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the Read Encoding.
+        /// </summary>
+        public UTF8Encoding ReadEncoding
+        {
+            get { return _readEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _readEncoding.Value = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the read preference to use.
         /// </summary>
         public ReadPreference ReadPreference
@@ -240,6 +259,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Write Encoding.
+        /// </summary>
+        public UTF8Encoding WriteEncoding
+        {
+            get { return _writeEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                _writeEncoding.Value = value;
+            }
+        }
+
         // public methods
         /// <summary>
         /// Creates a clone of the settings.
@@ -252,8 +284,10 @@ namespace MongoDB.Driver
             clone._assignIdOnInsert = _assignIdOnInsert.Clone();
             clone._defaultDocumentType = _defaultDocumentType.Clone();
             clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
+            clone._writeEncoding = _writeEncoding.Clone();
             return clone;
         }
 
@@ -282,8 +316,10 @@ namespace MongoDB.Driver
                         _assignIdOnInsert.Value == rhs._assignIdOnInsert.Value &&
                         _defaultDocumentType.Value == rhs._defaultDocumentType.Value &&
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                        object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
-                        _writeConcern.Value == rhs._writeConcern.Value;
+                        _writeConcern.Value == rhs._writeConcern.Value &&
+                        object.Equals(_writeEncoding, rhs._writeEncoding);
                 }
             }
         }
@@ -338,8 +374,10 @@ namespace MongoDB.Driver
             hash = 37 * hash + _assignIdOnInsert.Value.GetHashCode();
             hash = 37 * hash + ((_defaultDocumentType.Value == null) ? 0 : _defaultDocumentType.Value.GetHashCode());
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.Value.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 :_writeConcern.Value.GetHashCode());
+            hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.Value.GetHashCode());
             return hash;
         }
 
@@ -354,11 +392,28 @@ namespace MongoDB.Driver
                 return _frozenStringRepresentation;
             }
 
-            return string.Format(
-                "{4}AssignIdOnInsert={0};{5}GuidRepresentation={1};ReadPreference={2};WriteConcern={3}",
-                _assignIdOnInsert, _guidRepresentation, _readPreference, _writeConcern,
-                _collectionName.HasBeenSet ? string.Format("CollectionName={0};", _collectionName.Value) : "",
-                _defaultDocumentType.HasBeenSet ? string.Format("DefaultDocumentType={0};", _defaultDocumentType.Value) : "");
+            var parts = new List<string>();
+            if (_collectionName.HasBeenSet)
+            {
+                parts.Add(string.Format("CollectionName={0}", _collectionName.Value));
+            }
+            if (_defaultDocumentType.HasBeenSet)
+            {
+                parts.Add(string.Format("DefaultDocumentType={0}", _defaultDocumentType.Value));
+            }
+            parts.Add(string.Format("AssignIdOnInsert={0}", _assignIdOnInsert));
+            parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation));
+            if (_readEncoding.HasBeenSet)
+            {
+                parts.Add(string.Format("ReadEncoding=[set]", _readEncoding.Value));
+            }
+            parts.Add(string.Format("ReadPreference={0}", _readPreference));
+            parts.Add(string.Format("WriteConcern={0}", _writeConcern));
+            if (_writeEncoding.HasBeenSet)
+            {
+                parts.Add(string.Format("WriteEncoding=[set]", _writeEncoding.Value));
+            }
+            return string.Join(";", parts.ToArray());
         }
 
         // internal methods
@@ -372,6 +427,10 @@ namespace MongoDB.Driver
             {
                 GuidRepresentation = databaseSettings.GuidRepresentation;
             }
+            if (!_readEncoding.HasBeenSet)
+            {
+                ReadEncoding = databaseSettings.ReadEncoding;
+            }
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = databaseSettings.ReadPreference;
@@ -379,6 +438,10 @@ namespace MongoDB.Driver
             if (!_writeConcern.HasBeenSet)
             {
                 WriteConcern = databaseSettings.WriteConcern;
+            }
+            if (!_writeEncoding.HasBeenSet)
+            {
+                WriteEncoding = databaseSettings.WriteEncoding;
             }
         }
     }

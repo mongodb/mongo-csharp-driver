@@ -62,6 +62,7 @@ namespace MongoDB.Bson.IO
             _buffer = buffer;
             _disposeBuffer = disposeBuffer;
             _binaryReaderSettings = settings; // already frozen by base class
+
             _context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }
 
@@ -214,7 +215,7 @@ namespace MongoDB.Bson.IO
                         break;
                     case ContextType.Document:
                     case ContextType.ScopeDocument:
-                        CurrentName = _buffer.ReadCString(bsonTrie, out found, out value);
+                        CurrentName = _buffer.ReadName(bsonTrie, out found, out value);
                         State = BsonReaderState.Name;
                         break;
                     default:
@@ -376,7 +377,7 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadJavaScript", BsonType.JavaScript);
             State = GetNextState();
-            return _buffer.ReadString();
+            return _buffer.ReadString(_binaryReaderSettings.Encoding);
         }
 
         /// <summary>
@@ -391,7 +392,7 @@ namespace MongoDB.Bson.IO
             var startPosition = _buffer.Position; // position of size field
             var size = ReadSize();
             _context = new BsonBinaryReaderContext(_context, ContextType.JavaScriptWithScope, startPosition, size);
-            var code = _buffer.ReadString();
+            var code = _buffer.ReadString(_binaryReaderSettings.Encoding);
 
             State = BsonReaderState.ScopeDocument;
             return code;
@@ -506,8 +507,8 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadRegularExpression", BsonType.RegularExpression);
             State = GetNextState();
-            var pattern = _buffer.ReadCString();
-            var options = _buffer.ReadCString();
+            var pattern = _buffer.ReadCString(_binaryReaderSettings.Encoding);
+            var options = _buffer.ReadCString(_binaryReaderSettings.Encoding);
             return new BsonRegularExpression(pattern, options);
         }
 
@@ -549,7 +550,7 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadString", BsonType.String);
             State = GetNextState();
-            return _buffer.ReadString();
+            return _buffer.ReadString(_binaryReaderSettings.Encoding);
         }
 
         /// <summary>
@@ -561,7 +562,7 @@ namespace MongoDB.Bson.IO
             if (Disposed) { ThrowObjectDisposedException(); }
             VerifyBsonType("ReadSymbol", BsonType.Symbol);
             State = GetNextState();
-            return _buffer.ReadString();
+            return _buffer.ReadString(_binaryReaderSettings.Encoding);
         }
 
         /// <summary>

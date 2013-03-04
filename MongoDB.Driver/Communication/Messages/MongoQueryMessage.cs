@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
@@ -53,7 +54,7 @@ namespace MongoDB.Driver.Internal
         protected override void WriteBody(BsonBuffer buffer)
         {
             buffer.WriteInt32((int)_flags);
-            buffer.WriteCString(_collectionFullName);
+            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
             buffer.WriteInt32(_numberToSkip);
             buffer.WriteInt32(_numberToReturn);
 

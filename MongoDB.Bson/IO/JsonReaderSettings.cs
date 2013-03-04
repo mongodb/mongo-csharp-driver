@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -28,6 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeInput = false;
+        private Encoding _encoding = new UTF8Encoding(false, true);
 
         // constructors
         /// <summary>
@@ -42,6 +44,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
+        [Obsolete("Use the no-argument constructor instead and set the properties.")]
         public JsonReaderSettings(bool closeInput, GuidRepresentation guidRepresentation)
             : base(guidRepresentation)
         {
@@ -79,6 +82,23 @@ namespace MongoDB.Bson.IO
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Encoding.
+        /// </summary>
+        public Encoding Encoding
+        {
+            get { return _encoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                if (IsFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
+                _encoding = value;
+            }
+        }
+
         // public methods
         /// <summary>
         /// Creates a clone of the settings.
@@ -96,7 +116,13 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new JsonReaderSettings(_closeInput, GuidRepresentation);
+            var clone = new JsonReaderSettings
+            {
+                CloseInput = _closeInput,
+                Encoding = _encoding,
+                GuidRepresentation = GuidRepresentation
+            };
+            return clone;
         }
     }
 }

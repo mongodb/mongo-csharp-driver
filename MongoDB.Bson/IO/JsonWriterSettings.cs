@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeOutput = false;
-        private Encoding _encoding = Encoding.UTF8;
+        private Encoding _encoding = new UTF8Encoding(false, true);
         private bool _indent = false;
         private string _indentChars = "  ";
         private string _newLineChars = "\r\n";
@@ -55,6 +55,7 @@ namespace MongoDB.Bson.IO
         /// <param name="newLineChars">The new line characters.</param>
         /// <param name="outputMode">The output mode.</param>
         /// <param name="shellVersion">The version of the shell to target.</param>
+        [Obsolete("Use the no-argument constructor instead and set the properties.")]
         public JsonWriterSettings(
             bool closeOutput,
             Encoding encoding,
@@ -107,13 +108,17 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets or sets the output Encoding.
+        /// Gets or sets the Encoding.
         /// </summary>
         public Encoding Encoding
         {
             get { return _encoding; }
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _encoding = value;
             }
@@ -201,7 +206,19 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonWriterSettings CloneImplementation()
         {
-            return new JsonWriterSettings(_closeOutput, _encoding, GuidRepresentation, _indent, _indentChars, _newLineChars, _outputMode, _shellVersion);
+            var clone = new JsonWriterSettings
+            {
+                CloseOutput = _closeOutput,
+                Encoding = _encoding,
+                GuidRepresentation = GuidRepresentation,
+                Indent = _indent,
+                IndentChars = _indentChars,
+                MaxSerializationDepth = MaxSerializationDepth,
+                NewLineChars = _newLineChars,
+                OutputMode = _outputMode,
+                ShellVersion = _shellVersion
+            };
+            return clone;
         }
     }
 }

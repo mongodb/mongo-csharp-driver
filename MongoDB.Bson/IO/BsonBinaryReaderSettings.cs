@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -28,6 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeInput = false;
+        private UTF8Encoding _encoding = new UTF8Encoding(false, true);
         private bool _fixOldBinarySubTypeOnInput = true;
         private bool _fixOldDateTimeMaxValueOnInput = true;
         private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
@@ -48,6 +50,7 @@ namespace MongoDB.Bson.IO
         /// <param name="fixOldDateTimeMaxValueOnInput">Whether to fix occurrences of the old representation of DateTime.MaxValue on input.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
+        [Obsolete("Use the no-argument constructor instead and set the properties.")]
         public BsonBinaryReaderSettings(
             bool closeInput,
             bool fixOldBinarySubTypeOnInput,
@@ -90,6 +93,23 @@ namespace MongoDB.Bson.IO
             {
                 if (IsFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
                 _closeInput = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Encoding.
+        /// </summary>
+        public UTF8Encoding Encoding
+        {
+            get { return _encoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
+                _encoding = value;
             }
         }
 
@@ -149,7 +169,16 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonReaderSettings CloneImplementation()
         {
-            return new BsonBinaryReaderSettings(_closeInput, _fixOldBinarySubTypeOnInput, _fixOldDateTimeMaxValueOnInput, GuidRepresentation, _maxDocumentSize);
+            var clone = new BsonBinaryReaderSettings
+            {
+                CloseInput = _closeInput,
+                Encoding = _encoding,
+                FixOldBinarySubTypeOnInput = _fixOldBinarySubTypeOnInput,
+                FixOldDateTimeMaxValueOnInput = _fixOldDateTimeMaxValueOnInput,
+                GuidRepresentation = GuidRepresentation,
+                MaxDocumentSize = _maxDocumentSize
+            };
+            return clone;
         }
     }
 }

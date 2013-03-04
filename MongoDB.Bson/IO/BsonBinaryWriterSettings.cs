@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -28,6 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeOutput = false;
+        private UTF8Encoding _encoding = new UTF8Encoding(false, true);
         private bool _fixOldBinarySubTypeOnOutput = true;
         private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
 
@@ -46,6 +48,7 @@ namespace MongoDB.Bson.IO
         /// <param name="fixOldBinarySubTypeOnOutput">Whether to fix old binary data subtype on output.</param>
         /// <param name="guidRepresentation">The representation for Guids.</param>
         /// <param name="maxDocumentSize">The max document size.</param>
+        [Obsolete("Use the no-argument constructor instead and set the properties.")]
         public BsonBinaryWriterSettings(
             bool closeOutput,
             bool fixOldBinarySubTypeOnOutput,
@@ -86,6 +89,23 @@ namespace MongoDB.Bson.IO
             {
                 if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
                 _closeOutput = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Encoding.
+        /// </summary>
+        public UTF8Encoding Encoding
+        {
+            get { return _encoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
+                _encoding = value;
             }
         }
 
@@ -132,7 +152,16 @@ namespace MongoDB.Bson.IO
         /// <returns>A clone of the settings.</returns>
         protected override BsonWriterSettings CloneImplementation()
         {
-            return new BsonBinaryWriterSettings(_closeOutput, _fixOldBinarySubTypeOnOutput, GuidRepresentation, _maxDocumentSize);
+            var clone = new BsonBinaryWriterSettings
+            {
+                CloseOutput = _closeOutput,
+                Encoding = _encoding,
+                FixOldBinarySubTypeOnOutput = _fixOldBinarySubTypeOnOutput,
+                GuidRepresentation = GuidRepresentation,
+                MaxDocumentSize = _maxDocumentSize,
+                MaxSerializationDepth = MaxSerializationDepth
+            };
+            return clone;
         }
     }
 }

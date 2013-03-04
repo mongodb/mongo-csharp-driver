@@ -26,7 +26,6 @@ namespace MongoDB.Bson.IO
     {
         // private static fields
         private static readonly string[] __asciiStringTable = BuildAsciiStringTable();
-        private static readonly UTF8Encoding __utf8Encoding = new UTF8Encoding(false, true); // throw on invalid bytes
         private static readonly bool[] __validBsonTypes = new bool[256];
 
         // private fields
@@ -380,7 +379,7 @@ namespace MongoDB.Bson.IO
         /// Reads a BSON string from the reader.
         /// </summary>
         /// <returns>A String.</returns>
-        public string ReadString()
+        public string ReadString(UTF8Encoding encoding)
         {
             ThrowIfDisposed();
             var length = ReadInt32(); // length including the null terminator
@@ -396,13 +395,13 @@ namespace MongoDB.Bson.IO
             var segment = _byteBuffer.ReadBackingBytes(length);
             if (segment.Count >= length)
             {
-                value = DecodeUtf8String(segment.Array, segment.Offset, length - 1);
+                value = DecodeUtf8String(encoding, segment.Array, segment.Offset, length - 1);
                 finalByte = segment.Array[segment.Offset + length - 1];
             }
             else
             {
                 var bytes = _byteBuffer.ReadBytes(length);
-                value = DecodeUtf8String(bytes, 0, length - 1);
+                value = DecodeUtf8String(encoding, bytes, 0, length - 1);
                 finalByte = bytes[length - 1];
             }
 
@@ -418,7 +417,7 @@ namespace MongoDB.Bson.IO
         /// Reads a BSON CString from the reader (a null terminated string).
         /// </summary>
         /// <returns>A string.</returns>
-        public string ReadCString()
+        public string ReadCString(UTF8Encoding encoding)
         {
             ThrowIfDisposed();
 
@@ -428,18 +427,18 @@ namespace MongoDB.Bson.IO
                 throw new BsonSerializationException("Missing null terminator.");
             }
 
-            return ReadCString(nullPosition);
+            return ReadCString(encoding, nullPosition);
         }
 
         /// <summary>
-        /// Reads a BSON CString from the reader (a null terminated string).
+        /// Reads an element name.
         /// </summary>
         /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
         /// <param name="bsonTrie">An optional BsonTrie to use during decoding.</param>
         /// <param name="found">Set to true if the string was found in the trie.</param>
         /// <param name="value">Set to the value found in the trie; otherwise, null.</param>
         /// <returns>A string.</returns>
-        public string ReadCString<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
+        public string ReadName<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
         {
             ThrowIfDisposed();
             found = false;
@@ -447,7 +446,7 @@ namespace MongoDB.Bson.IO
 
             if (bsonTrie == null)
             {
-                return ReadCString();
+                return ReadCString(new UTF8Encoding(false, true)); // always use strict encoding for names
             }
 
             var savedPosition = _byteBuffer.Position;
@@ -467,7 +466,7 @@ namespace MongoDB.Bson.IO
                     {
                         var nullPosition = _byteBuffer.Position - 1;
                         _byteBuffer.Position = savedPosition;
-                        return ReadCString(nullPosition);
+                        return ReadCString(new UTF8Encoding(false, true), nullPosition); // always use strict encoding for names
                     }
                 }
 
@@ -476,7 +475,7 @@ namespace MongoDB.Bson.IO
                 {
                     var nullPosition = _byteBuffer.FindNullByte(); // starting from where we got so far
                     _byteBuffer.Position = savedPosition;
-                    return ReadCString(nullPosition);
+                    return ReadCString(new UTF8Encoding(false, true), nullPosition); // always use strict encoding for names
                 }
             }
         }
@@ -551,22 +550,23 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes a CString to the buffer.
         /// </summary>
+        /// <param name="encoding">A UTF8 encoding.</param>
         /// <param name="value">A string.</param>
-        public void WriteCString(string value)
+        public void WriteCString(UTF8Encoding encoding, string value)
         {
             ThrowIfDisposed();
 
-            var maxLength = __utf8Encoding.GetMaxByteCount(value.Length) + 1;
+            var maxLength = encoding.GetMaxByteCount(value.Length) + 1;
             var segment = _byteBuffer.WriteBackingBytes(maxLength);
             if (segment.Count >= maxLength)
             {
-                var length = __utf8Encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset);
+                var length = encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset);
                 segment.Array[segment.Offset + length] = 0;
                 _byteBuffer.Position += length + 1;
             }
             else
             {
-                _byteBuffer.WriteBytes(__utf8Encoding.GetBytes(value));
+                _byteBuffer.WriteBytes(encoding.GetBytes(value));
                 _byteBuffer.WriteByte(0);
             }
         }
@@ -666,16 +666,17 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Writes a BSON String to the buffer.
         /// </summary>
+        /// <param name="encoding">A UTF8 encoding.</param>
         /// <param name="value">The String value.</param>
-        public void WriteString(string value)
+        public void WriteString(UTF8Encoding encoding, string value)
         {
             ThrowIfDisposed();
 
-            var maxLength = __utf8Encoding.GetMaxByteCount(value.Length) + 5;
+            var maxLength = encoding.GetMaxByteCount(value.Length) + 5;
             var segment = _byteBuffer.WriteBackingBytes(maxLength);
             if (segment.Count >= maxLength)
             {
-                var length = __utf8Encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset + 4);
+                var length = encoding.GetBytes(value, 0, value.Length, segment.Array, segment.Offset + 4);
                 var lengthPlusOne = length + 1;
                 segment.Array[segment.Offset + 0] = (byte)(lengthPlusOne); // now we know the length
                 segment.Array[segment.Offset + 1] = (byte)(lengthPlusOne >> 8);
@@ -686,7 +687,7 @@ namespace MongoDB.Bson.IO
             }
             else
             {
-                var bytes = __utf8Encoding.GetBytes(value);
+                var bytes = encoding.GetBytes(value);
                 WriteInt32(bytes.Length + 1);
                 _byteBuffer.WriteBytes(bytes);
                 _byteBuffer.WriteByte(0);
@@ -714,7 +715,7 @@ namespace MongoDB.Bson.IO
         }
 
         // private static methods
-        private static string DecodeUtf8String(byte[] buffer, int index, int count)
+        private static string DecodeUtf8String(UTF8Encoding encoding, byte[] buffer, int index, int count)
         {
             switch (count)
             {
@@ -732,7 +733,7 @@ namespace MongoDB.Bson.IO
                     break;
             }
 
-            return __utf8Encoding.GetString(buffer, index, count);
+            return encoding.GetString(buffer, index, count);
         }
 
         // protected methods
@@ -772,7 +773,7 @@ namespace MongoDB.Bson.IO
         }
         
         // private methods
-        private string ReadCString(int nullPosition)
+        private string ReadCString(UTF8Encoding encoding, int nullPosition)
         {
             if (nullPosition == -1)
             {
@@ -783,12 +784,12 @@ namespace MongoDB.Bson.IO
             var segment = _byteBuffer.ReadBackingBytes(length);
             if (segment.Count >= length)
             {
-                return DecodeUtf8String(segment.Array, segment.Offset, length - 1);
+                return DecodeUtf8String(encoding, segment.Array, segment.Offset, length - 1);
             }
             else
             {
                 var bytes = _byteBuffer.ReadBytes(length);
-                return DecodeUtf8String(bytes, 0, length - 1);
+                return DecodeUtf8String(encoding, bytes, 0, length - 1);
             }
         }
     }

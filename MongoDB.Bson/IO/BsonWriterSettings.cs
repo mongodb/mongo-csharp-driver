@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -39,6 +40,7 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private TimeSpan _secondaryAcceptableLatency;
@@ -50,6 +52,7 @@ namespace MongoDB.Driver
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private WriteConcern _writeConcern;
+        private UTF8Encoding _writeEncoding;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -71,6 +74,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
@@ -84,6 +88,7 @@ namespace MongoDB.Driver
 #pragma warning disable 612, 618
             _writeConcern = MongoDefaults.SafeMode.WriteConcern;
 #pragma warning restore
+            _writeEncoding = null;
         }
 
         // public properties
@@ -222,6 +227,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Read Encoding.
+        /// </summary>
+        public UTF8Encoding ReadEncoding
+        {
+            get { return _readEncoding; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _readEncoding = value;
             }
         }
 
@@ -433,6 +451,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Write Encoding.
+        /// </summary>
+        public UTF8Encoding WriteEncoding
+        {
+            get { return _writeEncoding; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
+                _writeEncoding = value;
+            }
+        }
+
         // public operators
         /// <summary>
         /// Determines whether two <see cref="MongoServerSettings"/> instances are equal.
@@ -593,6 +624,7 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
+            clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference.Clone();
             clone._replicaSetName = _replicaSetName;
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
@@ -604,6 +636,7 @@ namespace MongoDB.Driver
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
             clone._writeConcern = _writeConcern.Clone();
+            clone._writeEncoding = _writeEncoding;
             return clone;
         }
 
@@ -640,6 +673,7 @@ namespace MongoDB.Driver
                _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+               object.Equals(_readEncoding, rhs._readEncoding) &&
                _readPreference == rhs._readPreference &&
                _replicaSetName == rhs._replicaSetName &&
                _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
@@ -650,7 +684,8 @@ namespace MongoDB.Driver
                _verifySslCertificate == rhs._verifySslCertificate &&
                _waitQueueSize == rhs._waitQueueSize &&
                _waitQueueTimeout == rhs._waitQueueTimeout &&
-               _writeConcern == rhs._writeConcern;
+               _writeConcern == rhs._writeConcern &&
+                object.Equals(_writeEncoding, rhs._writeEncoding);
         }
 
         /// <summary>
@@ -707,6 +742,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
+                .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
                 .Hash(_secondaryAcceptableLatency)
@@ -718,6 +754,7 @@ namespace MongoDB.Driver
                 .Hash(_waitQueueSize)
                 .Hash(_waitQueueTimeout)
                 .Hash(_writeConcern)
+                .Hash(_writeEncoding)
                 .GetHashCode();
         }
 
@@ -732,31 +769,39 @@ namespace MongoDB.Driver
                 return _frozenStringRepresentation;
             }
 
-            var sb = new StringBuilder();
-            sb.AppendFormat("ConnectionMode={0};", _connectionMode);
-            sb.AppendFormat("ConnectTimeout={0};", _connectTimeout);
-            sb.AppendFormat("Credentials={{{0}}};", _credentials);
-            sb.AppendFormat("GuidRepresentation={0};", _guidRepresentation);
-            sb.AppendFormat("IPv6={0};", _ipv6);
-            sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
-            sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
-            sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
-            sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
-            sb.AppendFormat("ReadPreference={0};", _readPreference);
-            sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
-            sb.AppendFormat("SecondaryAcceptableLatency={0};", _secondaryAcceptableLatency);
-            sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
-            sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            var parts = new List<string>();
+            parts.Add(string.Format("ConnectionMode={0}", _connectionMode));
+            parts.Add(string.Format("ConnectTimeout={0}", _connectTimeout));
+            parts.Add(string.Format("Credentials={{{0}}}", _credentials));
+            parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation));
+            parts.Add(string.Format("IPv6={0}", _ipv6));
+            parts.Add(string.Format("MaxConnectionIdleTime={0}", _maxConnectionIdleTime));
+            parts.Add(string.Format("MaxConnectionLifeTime={0}", _maxConnectionLifeTime));
+            parts.Add(string.Format("MaxConnectionPoolSize={0}", _maxConnectionPoolSize));
+            parts.Add(string.Format("MinConnectionPoolSize={0}", _minConnectionPoolSize));
+            if (_readEncoding != null)
+            {
+                parts.Add(string.Format("ReadEncoding={0}", _readEncoding));
+            }
+            parts.Add(string.Format("ReadPreference={0}", _readPreference));
+            parts.Add(string.Format("ReplicaSetName={0}", _replicaSetName));
+            parts.Add(string.Format("SecondaryAcceptableLatency={0}", _secondaryAcceptableLatency));
+            parts.Add(string.Format("Servers={0}", string.Join(",", _servers.Select(s => s.ToString()).ToArray())));
+            parts.Add(string.Format("SocketTimeout={0}", _socketTimeout));
             if (_sslSettings != null)
             {
-                sb.AppendFormat("SslSettings={0}", _sslSettings);
+                parts.Add(string.Format("SslSettings={0}", _sslSettings));
             }
-            sb.AppendFormat("Ssl={0};", _useSsl);
-            sb.AppendFormat("SslVerifyCertificate={0};", _verifySslCertificate);
-            sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
-            sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
-            sb.AppendFormat("WriteConcern={0};", _writeConcern);
-            return sb.ToString();
+            parts.Add(string.Format("Ssl={0}", _useSsl));
+            parts.Add(string.Format("SslVerifyCertificate={0}", _verifySslCertificate));
+            parts.Add(string.Format("WaitQueueSize={0}", _waitQueueSize));
+            parts.Add(string.Format("WaitQueueTimeout={0}", _waitQueueTimeout));
+            parts.Add(string.Format("WriteConcern={0}", _writeConcern));
+            if (_writeEncoding != null)
+            {
+                parts.Add(string.Format("WriteEncoding={0}", _writeEncoding));
+            }
+            return string.Join(",", parts.ToArray());
         }
     }
 }

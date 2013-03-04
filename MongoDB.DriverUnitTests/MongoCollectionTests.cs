@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -1100,6 +1101,39 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(true, collection.IsCapped());
         }
 
+        [Test]
+        public void TestLenientRead()
+        {
+            var settings = new MongoCollectionSettings { ReadEncoding = new UTF8Encoding(false, false) };
+            var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
+
+            var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
+            var bson = document.ToBson();
+            bson[28] = 0xed; // replace "abc" with 0xeda0db which is not valid UTF8
+            bson[29] = 0xa0;
+            bson[30] = 0xdb;
+
+            // use a RawBsonDocument to sneak the invalid bytes into the database
+            var rawBsonDocument = new RawBsonDocument(bson);
+            collection.Insert(rawBsonDocument);
+
+            var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"]));
+            Assert.AreEqual("\ufffd\ufffd", rehydrated["x"].AsString);
+        }
+
+        [Test]
+        public void TestLenientWrite()
+        {
+            var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, false) };
+            var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
+
+            var document = new BsonDocument("x", "\ud83d");
+            collection.Save(document);
+
+            var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"]));
+            Assert.AreEqual("\ufffd", rehydrated["x"].AsString);
+        }
+
 #pragma warning disable 649 // never assigned to
         private class TestMapReduceDocument
         {
@@ -1451,6 +1485,35 @@ namespace MongoDB.DriverUnitTests
                 var stats = _collection.GetStats();
                 Assert.IsTrue((stats.UserFlags & CollectionUserFlags.UsePowerOf2Sizes) != 0);
             }
+        }
+
+        [Test]
+        public void TestStrictRead()
+        {
+            var settings = new MongoCollectionSettings { ReadEncoding = new UTF8Encoding(false, true) };
+            var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
+
+            var document = new BsonDocument { { "_id", ObjectId.GenerateNewId() }, { "x", "abc" } };
+            var bson = document.ToBson();
+            bson[28] = 0xed; // replace "abc" with 0xeda0db which is not valid UTF8
+            bson[29] = 0xa0;
+            bson[30] = 0xdb;
+
+            // use a RawBsonDocument to sneak the invalid bytes into the database
+            var rawBsonDocument = new RawBsonDocument(bson);
+            collection.Insert(rawBsonDocument);
+
+            Assert.Throws<DecoderFallbackException>(() => { var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"])); });
+        }
+
+        [Test]
+        public void TestStrictWrite()
+        {
+            var settings = new MongoCollectionSettings { WriteEncoding = new UTF8Encoding(false, true) };
+            var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
+
+            var document = new BsonDocument("x", "\ud83d");
+            Assert.Throws<EncoderFallbackException>(() => { collection.Insert(document); });
         }
 
         [Test]

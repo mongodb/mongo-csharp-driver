@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -26,8 +28,10 @@ namespace MongoDB.Driver
         // private fields
         private Setting<string> _databaseName;
         private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
+        private Setting<UTF8Encoding> _writeEncoding;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -62,8 +66,10 @@ namespace MongoDB.Driver
             var serverSettings = server.Settings;
             _databaseName.Value = databaseName;
             _guidRepresentation.Value = serverSettings.GuidRepresentation;
+            _readEncoding.Value = serverSettings.ReadEncoding;
             _readPreference.Value = serverSettings.ReadPreference;
             _writeConcern.Value = serverSettings.WriteConcern;
+            _writeEncoding.Value = serverSettings.WriteEncoding;
         }
 
         // public properties
@@ -95,6 +101,19 @@ namespace MongoDB.Driver
         public bool IsFrozen
         {
             get { return _isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Read Encoding.
+        /// </summary>
+        public UTF8Encoding ReadEncoding
+        {
+            get { return _readEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _readEncoding.Value = value;
+            }
         }
 
         /// <summary>
@@ -166,6 +185,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Write Encoding.
+        /// </summary>
+        public UTF8Encoding WriteEncoding
+        {
+            get { return _writeEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoDatabaseSettings is frozen."); }
+                _writeEncoding.Value = value;
+            }
+        }
+
         // public methods
         /// <summary>
         /// Creates a clone of the settings.
@@ -176,8 +208,10 @@ namespace MongoDB.Driver
             var clone =  new MongoDatabaseSettings();
             clone._databaseName = _databaseName.Clone();
             clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
             clone._writeConcern = _writeConcern.Clone();
+            clone._writeEncoding = _writeEncoding.Clone();
             return clone;
         }
 
@@ -204,8 +238,10 @@ namespace MongoDB.Driver
                     return
                         _databaseName.Value == rhs._databaseName.Value &&
                         _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                        object.Equals(_readEncoding, rhs._readEncoding) &&
                         _readPreference.Value == rhs._readPreference.Value &&
-                        _writeConcern.Value == rhs._writeConcern.Value;
+                        _writeConcern.Value == rhs._writeConcern.Value &&
+                        object.Equals(_writeEncoding, rhs._writeEncoding);
                 }
             }
         }
@@ -258,8 +294,10 @@ namespace MongoDB.Driver
             int hash = 17;
             hash = 37 * hash + ((_databaseName.Value == null) ? 0 : _databaseName.GetHashCode());
             hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.GetHashCode());
             hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
+            hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.GetHashCode());
             return hash;
         }
 
@@ -274,10 +312,23 @@ namespace MongoDB.Driver
                 return _frozenStringRepresentation;
             }
 
-            return string.Format(
-                "{3}GuidRepresentation={0};ReadPreference={1};WriteConcern={2}",
-                _guidRepresentation, _readPreference, _writeConcern,
-                _databaseName.HasBeenSet ? string.Format("DatabaseName={0}", _databaseName.Value) : "");
+            var parts = new List<string>();
+            if (_databaseName.HasBeenSet)
+            {
+                parts.Add(string.Format("DatabaseName={0}", _databaseName.Value));
+            }
+            parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
+            if (_readEncoding.HasBeenSet)
+            {
+                parts.Add(string.Format("ReadEncoding={0}", _readEncoding.Value));
+            }
+            parts.Add(string.Format("ReadPreference={0}", _readPreference.Value));
+            parts.Add(string.Format("WriteConcern={0}", _writeConcern.Value));
+            if (_writeEncoding.HasBeenSet)
+            {
+                parts.Add(string.Format("WriteEncoding={0}", _writeEncoding.Value));
+            }
+            return string.Join(";", parts.ToArray());
         }
 
         // internal methods
@@ -287,6 +338,10 @@ namespace MongoDB.Driver
             {
                 GuidRepresentation = serverSettings.GuidRepresentation;
             }
+            if (!_readEncoding.HasBeenSet)
+            {
+                ReadEncoding = serverSettings.ReadEncoding;
+            }
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = serverSettings.ReadPreference;
@@ -294,6 +349,10 @@ namespace MongoDB.Driver
             if (!_writeConcern.HasBeenSet)
             {
                 WriteConcern  = serverSettings.WriteConcern;
+            }
+            if (!_writeEncoding.HasBeenSet)
+            {
+                WriteEncoding = serverSettings.WriteEncoding;
             }
         }
     }

@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -378,7 +379,7 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.JavaScript);
             WriteNameHelper();
-            _buffer.WriteString(code);
+            _buffer.WriteString(_binaryWriterSettings.Encoding, code);
 
             State = GetNextState();
         }
@@ -399,7 +400,7 @@ namespace MongoDB.Bson.IO
             WriteNameHelper();
             _context = new BsonBinaryWriterContext(_context, ContextType.JavaScriptWithScope, _buffer.Position);
             _buffer.WriteInt32(0); // reserve space for size of JavaScript with scope value
-            _buffer.WriteString(code);
+            _buffer.WriteString(_binaryWriterSettings.Encoding, code);
 
             State = BsonWriterState.ScopeDocument;
         }
@@ -541,8 +542,8 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.RegularExpression);
             WriteNameHelper();
-            _buffer.WriteCString(regex.Pattern);
-            _buffer.WriteCString(regex.Options);
+            _buffer.WriteCString(_binaryWriterSettings.Encoding, regex.Pattern);
+            _buffer.WriteCString(_binaryWriterSettings.Encoding, regex.Options);
 
             State = GetNextState();
         }
@@ -605,7 +606,7 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.String);
             WriteNameHelper();
-            _buffer.WriteString(value);
+            _buffer.WriteString(_binaryWriterSettings.Encoding, value);
 
             State = GetNextState();
         }
@@ -624,7 +625,7 @@ namespace MongoDB.Bson.IO
 
             _buffer.WriteByte((byte)BsonType.Symbol);
             WriteNameHelper();
-            _buffer.WriteString(value);
+            _buffer.WriteString(_binaryWriterSettings.Encoding, value);
 
             State = GetNextState();
         }
@@ -713,14 +714,17 @@ namespace MongoDB.Bson.IO
 
         private void WriteNameHelper()
         {
+            string name;
             if (_context.ContextType == ContextType.Array)
             {
-                _buffer.WriteCString((_context.Index++).ToString());
+                name = (_context.Index++).ToString();
             }
             else
             {
-                _buffer.WriteCString(Name);
+                name = Name;
             }
+
+            _buffer.WriteCString(new UTF8Encoding(false, true), name); // always use strict encoding for names
         }
     }
 }
