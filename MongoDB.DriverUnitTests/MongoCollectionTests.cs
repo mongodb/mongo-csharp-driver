@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests
@@ -882,49 +883,54 @@ namespace MongoDB.DriverUnitTests
             }
         }
 
+        private class PlaceGeoJson
+        {
+            public ObjectId Id;
+            public GeoJsonPoint<GeoJson2DGeographicCoordinates> Location;
+            public string Name;
+            public string Type;
+        }
+
         [Test]
         public void TestGeoSphericalIndex()
         {
             if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -74.0, 40.74 } } } }, { "Name", "10gen" }, { "Type", "Office" } });
-                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -74.0, 41.73 } } } }, { "Name", "Three" }, { "Type", "Coffee" } });
-                _collection.Insert(new BsonDocument { { "Location", new BsonDocument { { "type", "Point" }, { "coordinates", new BsonArray { -75.0, 40.74 } } } }, { "Name", "Two" }, { "Type", "Coffee" } });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen" , Type = "Office" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three" , Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two"   , Type = "Coffee" });
                 _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 // TODO: add Query builder support for 2dsphere queries
                 var query = new QueryDocument {
                      { "Location", new BsonDocument {
                          { "$near", new BsonDocument {
-                             { "$geometry", new BsonDocument {
-                                { "type", "Point" },
-                                { "coordinates", new BsonArray { -74.0, 40.74 } }
-                             } }
+                             { "$geometry", GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)).ToBsonDocument() }
                          } }
                      } }
                 };
-                var cursor = _collection.FindAs<BsonDocument>(query);
+                var cursor = _collection.FindAs<PlaceGeoJson>(query);
                 var hits = cursor.ToArray();
 
                 var hit0 = hits[0];
-                Assert.AreEqual(-74.0, hit0["Location"]["coordinates"][0].AsDouble);
-                Assert.AreEqual(40.74, hit0["Location"]["coordinates"][1].AsDouble);
-                Assert.AreEqual("10gen", hit0["Name"].AsString);
-                Assert.AreEqual("Office", hit0["Type"].AsString);
+                Assert.AreEqual(-74.0, hit0.Location.Coordinates.Longitude);
+                Assert.AreEqual(40.74, hit0.Location.Coordinates.Latitude);
+                Assert.AreEqual("10gen", hit0.Name);
+                Assert.AreEqual("Office", hit0.Type);
 
                 // with spherical true "Two" is considerably closer than "Three"
                 var hit1 = hits[1];
-                Assert.AreEqual(-75.0, hit1["Location"]["coordinates"][0].AsDouble);
-                Assert.AreEqual(40.74, hit1["Location"]["coordinates"][1].AsDouble);
-                Assert.AreEqual("Two", hit1["Name"].AsString);
-                Assert.AreEqual("Coffee", hit1["Type"].AsString);
+                Assert.AreEqual(-75.0, hit1.Location.Coordinates.Longitude);
+                Assert.AreEqual(40.74, hit1.Location.Coordinates.Latitude);
+                Assert.AreEqual("Two", hit1.Name);
+                Assert.AreEqual("Coffee", hit1.Type);
 
                 var hit2 = hits[2];
-                Assert.AreEqual(-74.0, hit2["Location"]["coordinates"][0].AsDouble);
-                Assert.AreEqual(41.73, hit2["Location"]["coordinates"][1].AsDouble);
-                Assert.AreEqual("Three", hit2["Name"].AsString);
-                Assert.AreEqual("Coffee", hit2["Type"].AsString);
+                Assert.AreEqual(-74.0, hit2.Location.Coordinates.Longitude);
+                Assert.AreEqual(41.73, hit2.Location.Coordinates.Latitude);
+                Assert.AreEqual("Three", hit2.Name);
+                Assert.AreEqual("Coffee", hit2.Type);
             }
         }
 

@@ -947,7 +947,6 @@ namespace MongoDB.Bson.IO
         /// <param name="expectedName">The expected name.</param>
         protected void VerifyName(string expectedName)
         {
-            ReadBsonType();
             var actualName = ReadName();
             if (actualName != expectedName)
             {

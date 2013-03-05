@@ -79,13 +79,22 @@ namespace MongoDB.Bson.Serialization.Attributes
                 throw new InvalidOperationException(message);
             }
 
-            if (_serializerType.ContainsGenericParameters)
+            if (_serializerType.ContainsGenericParameters && !type.IsGenericType)
             {
-                var message = "Cannot create a serializer because the serializer type is an open generic type.";
+                var message = "Cannot create a serializer because the serializer type is an open generic type and the type to serialize is not generic.";
                 throw new InvalidOperationException(message);
             }
 
-            return (IBsonSerializer)Activator.CreateInstance(_serializerType);
+            if (_serializerType.ContainsGenericParameters)
+            {
+                var genericArguments = type.GetGenericArguments();
+                var closedSerializerType = _serializerType.MakeGenericType(genericArguments);
+                return (IBsonSerializer)Activator.CreateInstance(closedSerializerType);
+            }
+            else
+            {
+                return (IBsonSerializer)Activator.CreateInstance(_serializerType);
+            }
         }
     }
 }
