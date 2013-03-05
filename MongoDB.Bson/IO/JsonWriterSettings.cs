@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeOutput = false;
-        private Encoding _encoding = new UTF8Encoding(false, true);
+        private Encoding _encoding = Encoding.UTF8;
         private bool _indent = false;
         private string _indentChars = "  ";
         private string _newLineChars = "\r\n";
@@ -108,17 +108,14 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets or sets the Encoding.
+        /// Gets or sets the output Encoding.
         /// </summary>
+        [Obsolete("Set the Encoding when you create a StreamWriter instead (this property is ignored).")]
         public Encoding Encoding
         {
             get { return _encoding; }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
                 if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
                 _encoding = value;
             }
@@ -209,7 +206,9 @@ namespace MongoDB.Bson.IO
             var clone = new JsonWriterSettings
             {
                 CloseOutput = _closeOutput,
+#pragma warning disable 618
                 Encoding = _encoding,
+#pragma warning restore
                 GuidRepresentation = GuidRepresentation,
                 Indent = _indent,
                 IndentChars = _indentChars,

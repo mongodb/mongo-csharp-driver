@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -652,6 +653,84 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonUndefined>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestUtf16BigEndian()
+        {
+            var encoding = new UnicodeEncoding(true, false, true);
+
+            var bytes = BsonUtils.ParseHexString("007b00200022007800220020003a002000310020007d");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, encoding))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestUtf16BigEndianAutoDetect()
+        {
+            var bytes = BsonUtils.ParseHexString("feff007b00200022007800220020003a002000310020007d");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, true))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestUtf16LittleEndian()
+        {
+            var encoding = new UnicodeEncoding(false, false, true);
+
+            var bytes = BsonUtils.ParseHexString("7b00200022007800220020003a002000310020007d00");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, encoding))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestUtf16LittleEndianAutoDetect()
+        {
+            var bytes = BsonUtils.ParseHexString("fffe7b00200022007800220020003a002000310020007d00");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, true))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestUtf8()
+        {
+            var encoding = new UTF8Encoding(false, true);
+
+            var bytes = BsonUtils.ParseHexString("7b20227822203a2031207d");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, encoding))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
+        }
+
+        [Test]
+        public void TestUtf8AutoDetect()
+        {
+            var bytes = BsonUtils.ParseHexString("7b20227822203a2031207d");
+            using (var memoryStream = new MemoryStream(bytes))
+            using (var streamReader = new StreamReader(memoryStream, true))
+            {
+                var document = BsonSerializer.Deserialize<BsonDocument>(streamReader);
+                Assert.AreEqual(1, document["x"].AsInt32);
+            }
         }
     }
 }

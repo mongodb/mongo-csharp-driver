@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.IO;
+using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -524,6 +526,63 @@ namespace MongoDB.BsonUnitTests.IO
             string expected = "{ \"undefined\" : undefined }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void TestUtf16BigEndian()
+        {
+            var encoding = new UnicodeEncoding(true, true, true);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var streamWriter = new StreamWriter(memoryStream, encoding))
+                using (var jsonWriter = new JsonWriter(streamWriter, JsonWriterSettings.Defaults))
+                {
+                    var document = new BsonDocument("x", 1);
+                    BsonSerializer.Serialize(jsonWriter, document);
+                }
+
+                var bytes = memoryStream.ToArray();
+                Assert.AreEqual("feff007b00200022007800220020003a002000310020007d", BsonUtils.ToHexString(bytes));
+            }
+        }
+
+        [Test]
+        public void TestUtf16LittleEndian()
+        {
+            var encoding = new UnicodeEncoding(false, true, true);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var streamWriter = new StreamWriter(memoryStream, encoding))
+                using (var jsonWriter = new JsonWriter(streamWriter, JsonWriterSettings.Defaults))
+                {
+                    var document = new BsonDocument("x", 1);
+                    BsonSerializer.Serialize(jsonWriter, document);
+                }
+
+                var bytes = memoryStream.ToArray();
+                Assert.AreEqual("fffe7b00200022007800220020003a002000310020007d00", BsonUtils.ToHexString(bytes));
+            }
+        }
+
+        [Test]
+        public void TestUtf8()
+        {
+            var encoding = new UTF8Encoding(true, true);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var streamWriter = new StreamWriter(memoryStream, encoding))
+                using (var jsonWriter = new JsonWriter(streamWriter, JsonWriterSettings.Defaults))
+                {
+                    var document = new BsonDocument("x", 1);
+                    BsonSerializer.Serialize(jsonWriter, document);
+                }
+
+                var bytes = memoryStream.ToArray();
+                Assert.AreEqual("efbbbf7b20227822203a2031207d", BsonUtils.ToHexString(bytes));
+            }
         }
     }
 }
