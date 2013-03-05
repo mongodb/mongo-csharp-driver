@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson Polygon object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonPolygonSerializer<>))]
     public class GeoJsonPolygon<TCoordinates> : GeoJsonGeometry<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -26,11 +30,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private GeoJsonPolygonCoordinates<TCoordinates> _coordinates;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonPolygon{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="coordinates">The coordinates.</param>
         public GeoJsonPolygon(GeoJsonPolygonCoordinates<TCoordinates> coordinates)
             : this(null, coordinates)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonPolygon{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="coordinates">The coordinates.</param>
+        /// <exception cref="System.ArgumentNullException">coordinates</exception>
         public GeoJsonPolygon(GeoJsonObjectArgs<TCoordinates> args, GeoJsonPolygonCoordinates<TCoordinates> coordinates)
             : base(args)
         {
@@ -43,11 +57,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinates.
+        /// </summary>
+        /// <value>
+        /// The coordinates.
+        /// </value>
         public GeoJsonPolygonCoordinates<TCoordinates> Coordinates
         {
             get { return _coordinates; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.Polygon; }

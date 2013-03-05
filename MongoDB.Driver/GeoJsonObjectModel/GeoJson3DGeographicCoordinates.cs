@@ -19,6 +19,9 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson 3D geographic position (longitude, latitude, altitude).
+    /// </summary>
     [BsonSerializer(typeof(GeoJson3DGeographicCoordinatesSerializer))]
     public class GeoJson3DGeographicCoordinates : GeoJsonCoordinates
     {
@@ -26,27 +29,57 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<double> _values;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJson3DGeographicCoordinates"/> class.
+        /// </summary>
+        /// <param name="longitude">The longitude.</param>
+        /// <param name="latitude">The latitude.</param>
+        /// <param name="altitude">The altitude.</param>
         public GeoJson3DGeographicCoordinates(double longitude, double latitude, double altitude)
         {
             _values = new ReadOnlyCollection<double>(new[] { longitude, latitude, altitude });
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinate values.
+        /// </summary>
+        /// <value>
+        /// The coordinate values.
+        /// </value>
         public override ReadOnlyCollection<double> Values
         {
             get { return _values; }
         }
 
+        /// <summary>
+        /// Gets the longitude.
+        /// </summary>
+        /// <value>
+        /// The longitude.
+        /// </value>
         public double Longitude
         {
             get { return _values[0]; }
         }
 
+        /// <summary>
+        /// Gets the latitude.
+        /// </summary>
+        /// <value>
+        /// The latitude.
+        /// </value>
         public double Latitude
         {
             get { return _values[1]; }
         }
 
+        /// <summary>
+        /// Gets the altitude.
+        /// </summary>
+        /// <value>
+        /// The altitude.
+        /// </value>
         public double Altitude
         {
             get { return _values[2]; }

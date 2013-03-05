@@ -21,9 +21,21 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 {
+    /// <summary>
+    /// Represents a serializer for a GeoJsonCoordinateReferenceSystem value.
+    /// </summary>
     public class GeoJsonCoordinateReferenceSystemSerializer : BsonBaseSerializer
     {
         // public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>
+        /// An object.
+        /// </returns>
         public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -39,6 +51,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             if (value == null)
@@ -54,6 +73,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // protected methods
+        /// <summary>
+        /// Deserializes the type of the coordinate reference system.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="expectedType">The expected type.</param>
+        /// <exception cref="System.FormatException"></exception>
         protected void DeserializeType(BsonReader bsonReader, string expectedType)
         {
             var type = bsonReader.ReadString("type");
@@ -64,6 +89,11 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Serializes the type of the coordinate reference system.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="type">The type.</param>
         protected void SerializeType(BsonWriter bsonWriter, string type)
         {
             bsonWriter.WriteString("type", type);

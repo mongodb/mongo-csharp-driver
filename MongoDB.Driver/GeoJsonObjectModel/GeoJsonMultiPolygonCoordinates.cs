@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the coordinates of a GeoJson MultiPolygon object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonMultiPolygonCoordinatesSerializer<>))]
     public class GeoJsonMultiPolygonCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -29,6 +33,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<GeoJsonPolygonCoordinates<TCoordinates>> _polygons;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiPolygonCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="polygons">The polygons.</param>
+        /// <exception cref="System.ArgumentNullException">polygons</exception>
+        /// <exception cref="System.ArgumentException">One of the polygons is null.;polygons</exception>
         public GeoJsonMultiPolygonCoordinates(IEnumerable<GeoJsonPolygonCoordinates<TCoordinates>> polygons)
         {
             if (polygons == null)
@@ -46,6 +56,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the Polygons.
+        /// </summary>
+        /// <value>
+        /// The Polygons.
+        /// </value>
         public ReadOnlyCollection<GeoJsonPolygonCoordinates<TCoordinates>> Polygons
         {
             get { return _polygons; }

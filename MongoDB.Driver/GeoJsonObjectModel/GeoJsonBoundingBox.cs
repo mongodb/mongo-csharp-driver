@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson bounding box.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonBoundingBoxSerializer<>))]
     public class GeoJsonBoundingBox<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -27,6 +31,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private TCoordinates _min;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonBoundingBox{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="min">The min.</param>
+        /// <param name="max">The max.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// min
+        /// or
+        /// max
+        /// </exception>
         public GeoJsonBoundingBox(TCoordinates min, TCoordinates max)
         {
             if (min == null)
@@ -43,11 +57,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the max.
+        /// </summary>
+        /// <value>
+        /// The max.
+        /// </value>
         public TCoordinates Max
         {
             get { return _max; }
         }
 
+        /// <summary>
+        /// Gets the min.
+        /// </summary>
+        /// <value>
+        /// The min.
+        /// </value>
         public TCoordinates Min
         {
             get { return _min; }

@@ -19,6 +19,9 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson 2D projected position (easting, northing).
+    /// </summary>
     [BsonSerializer(typeof(GeoJson2DProjectedCoordinatesSerializer))]
     public class GeoJson2DProjectedCoordinates : GeoJsonCoordinates
     {
@@ -26,22 +29,45 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<double> _values;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJson2DProjectedCoordinates"/> class.
+        /// </summary>
+        /// <param name="easting">The easting.</param>
+        /// <param name="northing">The northing.</param>
         public GeoJson2DProjectedCoordinates(double easting, double northing)
         {
             _values = new ReadOnlyCollection<double>(new[] { easting, northing });
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinate values.
+        /// </summary>
+        /// <value>
+        /// The coordinate values.
+        /// </value>
         public override ReadOnlyCollection<double> Values
         {
             get { return _values; }
         }
 
+        /// <summary>
+        /// Gets the easting.
+        /// </summary>
+        /// <value>
+        /// The easting.
+        /// </value>
         public double Easting
         {
             get { return _values[0]; }
         }
 
+        /// <summary>
+        /// Gets the northing.
+        /// </summary>
+        /// <value>
+        /// The northing.
+        /// </value>
         public double Northing
         {
             get { return _values[1]; }

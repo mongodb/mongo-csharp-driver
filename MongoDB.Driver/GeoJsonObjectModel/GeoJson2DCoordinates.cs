@@ -19,6 +19,9 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson 2D position (x, y).
+    /// </summary>
     [BsonSerializer(typeof(GeoJson2DCoordinatesSerializer))]
     public class GeoJson2DCoordinates : GeoJsonCoordinates
     {
@@ -26,22 +29,45 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<double> _values;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJson2DCoordinates"/> class.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
         public GeoJson2DCoordinates(double x, double y)
         {
             _values = new ReadOnlyCollection<double>(new[] { x, y });
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinate values.
+        /// </summary>
+        /// <value>
+        /// The coordinate values.
+        /// </value>
         public override ReadOnlyCollection<double> Values
         {
             get { return _values; }
         }
 
+        /// <summary>
+        /// Gets the X coordinate.
+        /// </summary>
+        /// <value>
+        /// The X coordinate.
+        /// </value>
         public double X
         {
             get { return _values[0]; }
         }
 
+        /// <summary>
+        /// Gets the Y coordinate.
+        /// </summary>
+        /// <value>
+        /// The Y coordinate.
+        /// </value>
         public double Y
         {
             get { return _values[1]; }

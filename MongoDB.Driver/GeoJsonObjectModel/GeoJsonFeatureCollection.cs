@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson FeatureCollection.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonFeatureCollectionSerializer<>))]
     public class GeoJsonFeatureCollection<TCoordinates> : GeoJsonObject<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -29,11 +33,22 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<GeoJsonFeature<TCoordinates>> _features;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeatureCollection{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="features">The features.</param>
         public GeoJsonFeatureCollection(IEnumerable<GeoJsonFeature<TCoordinates>> features)
             : this(null, features)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeatureCollection{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="features">The features.</param>
+        /// <exception cref="System.ArgumentNullException">features</exception>
+        /// <exception cref="System.ArgumentException">One of the features is null.;features</exception>
         public GeoJsonFeatureCollection(GeoJsonObjectArgs<TCoordinates> args, IEnumerable<GeoJsonFeature<TCoordinates>> features)
             : base(args)
         {
@@ -52,11 +67,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the features.
+        /// </summary>
+        /// <value>
+        /// The features.
+        /// </value>
         public ReadOnlyCollection<GeoJsonFeature<TCoordinates>> Features
         {
             get { return _features; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.FeatureCollection; }

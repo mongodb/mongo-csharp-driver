@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson object (see subclasses).
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonObjectSerializer<>))]
     public abstract class GeoJsonObject<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -28,6 +32,10 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private BsonDocument _extraMembers;
 
         // constructor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonObject{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
         protected GeoJsonObject(GeoJsonObjectArgs<TCoordinates> args)
         {
             if (args != null)
@@ -39,21 +47,45 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the bounding box.
+        /// </summary>
+        /// <value>
+        /// The bounding box.
+        /// </value>
         public GeoJsonBoundingBox<TCoordinates> BoundingBox
         {
             get { return _boundingBox; }
         }
 
+        /// <summary>
+        /// Gets the coordinate reference system.
+        /// </summary>
+        /// <value>
+        /// The coordinate reference system.
+        /// </value>
         public GeoJsonCoordinateReferenceSystem CoordinateReferenceSystem
         {
             get { return _coordinateReferenceSystem; }
         }
 
+        /// <summary>
+        /// Gets the extra members.
+        /// </summary>
+        /// <value>
+        /// The extra members.
+        /// </value>
         public BsonDocument ExtraMembers
         {
             get { return _extraMembers; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public abstract GeoJsonObjectType Type { get; }
     }
 }

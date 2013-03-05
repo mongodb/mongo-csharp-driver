@@ -17,10 +17,34 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents additional args provided when creating a GeoJson object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonObjectArgs<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
+        /// <summary>
+        /// Gets or sets the bounding box.
+        /// </summary>
+        /// <value>
+        /// The bounding box.
+        /// </value>
         public GeoJsonBoundingBox<TCoordinates> BoundingBox { get; set; }
+
+        /// <summary>
+        /// Gets or sets the coordinate reference system.
+        /// </summary>
+        /// <value>
+        /// The coordinate reference system.
+        /// </value>
         public GeoJsonCoordinateReferenceSystem CoordinateReferenceSystem { get; set; }
+
+        /// <summary>
+        /// Gets or sets the extra members.
+        /// </summary>
+        /// <value>
+        /// The extra members.
+        /// </value>
         public BsonDocument ExtraMembers { get; set; }
     }
 }

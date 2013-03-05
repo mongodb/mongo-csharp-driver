@@ -22,12 +22,25 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 {
+    /// <summary>
+    /// Represents a serializer for a GeoJsonMultiLineStringCoordinates value.
+    /// </summary>
     public class GeoJsonMultiLineStringCoordinatesSerializer<TCoordinates> : BsonBaseSerializer where TCoordinates : GeoJsonCoordinates
     {
         // private fields
         private readonly IBsonSerializer _lineStringCoordinatesSerializer = BsonSerializer.LookupSerializer(typeof(GeoJsonLineStringCoordinates<TCoordinates>));
 
         // public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="actualType">The actual type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>
+        /// An object.
+        /// </returns>
         public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
         {
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -51,6 +64,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             if (value == null)

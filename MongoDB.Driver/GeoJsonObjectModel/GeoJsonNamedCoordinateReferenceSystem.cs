@@ -18,6 +18,9 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson named coordinate reference system.
+    /// </summary>
     [BsonSerializer(typeof(GeoJsonNamedCoordinateReferenceSystemSerializer))]
     public class GeoJsonNamedCoordinateReferenceSystem : GeoJsonCoordinateReferenceSystem
     {
@@ -25,17 +28,33 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private string _name;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonNamedCoordinateReferenceSystem"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
         public GeoJsonNamedCoordinateReferenceSystem(string name)
         {
             _name = name;
         }
 
         // public properties
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name
         {
             get { return _name; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson coordinate reference system.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson coordinate reference system.
+        /// </value>
         public override string Type
         {
             get { return "name"; }

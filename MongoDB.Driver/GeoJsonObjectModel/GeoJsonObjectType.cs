@@ -16,16 +16,54 @@
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the type of a GeoJson object.
+    /// </summary>
     public enum GeoJsonObjectType
     {
+        /// <summary>
+        /// A Feature.
+        /// </summary>
         Feature,
+
+        /// <summary>
+        /// A FeatureCollection.
+        /// </summary>
         FeatureCollection,
+
+        /// <summary>
+        /// A GeometryCollection.
+        /// </summary>
         GeometryCollection,
+
+        /// <summary>
+        /// A LineString.
+        /// </summary>
         LineString,
+
+        /// <summary>
+        /// A MultiLineString.
+        /// </summary>
         MultiLineString,
+
+        /// <summary>
+        /// A MultiPoint.
+        /// </summary>
         MultiPoint,
+
+        /// <summary>
+        /// A MultiPolygon.
+        /// </summary>
         MultiPolygon,
+
+        /// <summary>
+        /// A Point.
+        /// </summary>
         Point,
+
+        /// <summary>
+        /// A Polygon.
+        /// </summary>
         Polygon
     }
 }

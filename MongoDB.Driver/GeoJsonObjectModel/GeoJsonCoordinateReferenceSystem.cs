@@ -18,10 +18,19 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson coordinate reference system (see subclasses).
+    /// </summary>
     [BsonSerializer(typeof(GeoJsonCoordinateReferenceSystemSerializer))]
     public abstract class GeoJsonCoordinateReferenceSystem
     {
         // public properties
+        /// <summary>
+        /// Gets the type of the GeoJson coordinate reference system.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson coordinate reference system.
+        /// </value>
         public abstract string Type { get; }
     }
 }

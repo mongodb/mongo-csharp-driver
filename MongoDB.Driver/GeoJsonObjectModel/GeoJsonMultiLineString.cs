@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson MultiLineString object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonMultiLineStringSerializer<>))]
     public class GeoJsonMultiLineString<TCoordinates> : GeoJsonGeometry<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -26,11 +30,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private GeoJsonMultiLineStringCoordinates<TCoordinates> _coordinates;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiLineString{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="coordinates">The coordinates.</param>
         public GeoJsonMultiLineString(GeoJsonMultiLineStringCoordinates<TCoordinates> coordinates)
             : this(null, coordinates)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiLineString{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="coordinates">The coordinates.</param>
+        /// <exception cref="System.ArgumentNullException">coordinates</exception>
         public GeoJsonMultiLineString(GeoJsonObjectArgs<TCoordinates> args, GeoJsonMultiLineStringCoordinates<TCoordinates> coordinates)
             : base(args)
         {
@@ -43,11 +57,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinates.
+        /// </summary>
+        /// <value>
+        /// The coordinates.
+        /// </value>
         public GeoJsonMultiLineStringCoordinates<TCoordinates> Coordinates
         {
             get { return _coordinates; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.MultiLineString; }

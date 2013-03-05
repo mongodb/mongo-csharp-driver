@@ -18,6 +18,9 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson linked coordinate reference system.
+    /// </summary>
     [BsonSerializer(typeof(GeoJsonLinkedCoordinateReferenceSystemSerializer))]
     public class GeoJsonLinkedCoordinateReferenceSystem : GeoJsonCoordinateReferenceSystem
     {
@@ -26,11 +29,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private string _hrefType;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonLinkedCoordinateReferenceSystem"/> class.
+        /// </summary>
+        /// <param name="href">The href.</param>
         public GeoJsonLinkedCoordinateReferenceSystem(string href)
         {
             _href = href;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonLinkedCoordinateReferenceSystem"/> class.
+        /// </summary>
+        /// <param name="href">The href.</param>
+        /// <param name="hrefType">Type of the href.</param>
         public GeoJsonLinkedCoordinateReferenceSystem(string href, string hrefType)
         {
             _href = href;
@@ -38,16 +50,34 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the href.
+        /// </summary>
+        /// <value>
+        /// The href.
+        /// </value>
         public string HRef
         {
             get { return _href; }
         }
 
+        /// <summary>
+        /// Gets the type of the href.
+        /// </summary>
+        /// <value>
+        /// The type of the href.
+        /// </value>
         public string HRefType
         {
             get { return _hrefType; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson coordinate reference system.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson coordinate reference system.
+        /// </value>
         public override string Type
         {
             get { return "link"; }

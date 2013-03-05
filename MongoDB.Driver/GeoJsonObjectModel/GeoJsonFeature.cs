@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson Feature object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonFeatureSerializer<>))]
     public class GeoJsonFeature<TCoordinates> : GeoJsonObject<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -28,11 +32,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private BsonDocument _properties;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeature{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="geometry">The geometry.</param>
         public GeoJsonFeature(GeoJsonGeometry<TCoordinates> geometry)
             : this(null, geometry)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeature{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="geometry">The geometry.</param>
         public GeoJsonFeature(GeoJsonFeatureArgs<TCoordinates> args, GeoJsonGeometry<TCoordinates> geometry)
             : base(args)
         {
@@ -46,21 +59,45 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the geometry.
+        /// </summary>
+        /// <value>
+        /// The geometry.
+        /// </value>
         public GeoJsonGeometry<TCoordinates> Geometry
         {
             get { return _geometry; }
         }
 
+        /// <summary>
+        /// Gets the id.
+        /// </summary>
+        /// <value>
+        /// The id.
+        /// </value>
         public BsonValue Id
         {
             get { return _id; }
         }
 
+        /// <summary>
+        /// Gets the properties.
+        /// </summary>
+        /// <value>
+        /// The properties.
+        /// </value>
         public BsonDocument Properties
         {
             get { return _properties; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.Feature; }

@@ -18,10 +18,18 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson Geometry object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonGeometrySerializer<>))]
     public abstract class GeoJsonGeometry<TCoordinates> : GeoJsonObject<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonGeometry{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
         protected GeoJsonGeometry(GeoJsonObjectArgs<TCoordinates> args)
             : base(args)
         {

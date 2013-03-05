@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the coordinates of a GeoJson MultiLineString object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonMultiLineStringCoordinatesSerializer<>))]
     public class GeoJsonMultiLineStringCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -29,6 +33,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<GeoJsonLineStringCoordinates<TCoordinates>> _lineStrings;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiLineStringCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="lineStrings">The line strings.</param>
+        /// <exception cref="System.ArgumentNullException">lineStrings</exception>
+        /// <exception cref="System.ArgumentException">One of the lineStrings is null.;lineStrings</exception>
         public GeoJsonMultiLineStringCoordinates(IEnumerable<GeoJsonLineStringCoordinates<TCoordinates>> lineStrings)
         {
             if (lineStrings == null)
@@ -46,6 +56,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the LineStrings.
+        /// </summary>
+        /// <value>
+        /// The LineStrings.
+        /// </value>
         public ReadOnlyCollection<GeoJsonLineStringCoordinates<TCoordinates>> LineStrings
         {
             get { return _lineStrings; }

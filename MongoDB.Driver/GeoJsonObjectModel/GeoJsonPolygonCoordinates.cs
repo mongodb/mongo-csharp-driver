@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the coordinates of a GeoJson Polygon object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonPolygonCoordinatesSerializer<>))]
     public class GeoJsonPolygonCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -30,11 +34,26 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<GeoJsonLinearRingCoordinates<TCoordinates>> _holes;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonPolygonCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="exterior">The exterior.</param>
         public GeoJsonPolygonCoordinates(GeoJsonLinearRingCoordinates<TCoordinates> exterior)
             : this(exterior, new GeoJsonLinearRingCoordinates<TCoordinates>[0])
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonPolygonCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="exterior">The exterior.</param>
+        /// <param name="holes">The holes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// exterior
+        /// or
+        /// holes
+        /// </exception>
+        /// <exception cref="System.ArgumentException">One of the holes is null.;holes</exception>
         public GeoJsonPolygonCoordinates(GeoJsonLinearRingCoordinates<TCoordinates> exterior, IEnumerable<GeoJsonLinearRingCoordinates<TCoordinates>> holes)
         {
             if (exterior == null)
@@ -57,11 +76,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the exterior.
+        /// </summary>
+        /// <value>
+        /// The exterior.
+        /// </value>
         public GeoJsonLinearRingCoordinates<TCoordinates> Exterior
         {
             get { return _exterior; }
         }
 
+        /// <summary>
+        /// Gets the holes.
+        /// </summary>
+        /// <value>
+        /// The holes.
+        /// </value>
         public ReadOnlyCollection<GeoJsonLinearRingCoordinates<TCoordinates>> Holes
         {
             get { return _holes; }

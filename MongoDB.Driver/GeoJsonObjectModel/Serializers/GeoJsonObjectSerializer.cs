@@ -21,6 +21,10 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 {
+    /// <summary>
+    /// Represents a serializer for a GeoJson object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonObjectSerializer<TCoordinates> : BsonBaseSerializer where TCoordinates : GeoJsonCoordinates
     {
         // private fields
@@ -28,6 +32,15 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         private readonly IBsonSerializer _coordinateReferenceSystemSerialzier = BsonSerializer.LookupSerializer(typeof(GeoJsonCoordinateReferenceSystem));
 
         // public methods
+        /// <summary>
+        /// Deserializes an object from a BsonReader.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="options">The serialization options.</param>
+        /// <returns>
+        /// An object.
+        /// </returns>
         public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -43,6 +56,13 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Serializes an object to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="value">The object.</param>
+        /// <param name="options">The serialization options.</param>
         public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
         {
             if (value == null)
@@ -58,6 +78,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // protected methods
+        /// <summary>
+        /// Deserializes a field.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="data">The data.</param>
         protected virtual void DeserializeField(BsonReader bsonReader, string name, ObjectData data)
         {
             switch (name)
@@ -69,6 +95,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Deserializes a GeoJson object.
+        /// </summary>
+        /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="data">The data.</param>
+        /// <returns>A GeoJson object.</returns>
         protected object DeserializeGeoJsonObject(BsonReader bsonReader, ObjectData data)
         {
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
@@ -90,10 +122,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
         }
 
+        /// <summary>
+        /// Serializes the fields.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="obj">The GeoJson object.</param>
         protected virtual void SerializeFields(BsonWriter bsonWriter, GeoJsonObject<TCoordinates> obj)
         {
         }
 
+        /// <summary>
+        /// Serializes a GeoJson object.
+        /// </summary>
+        /// <param name="bsonWriter">The BsonWriter.</param>
+        /// <param name="obj">The GeoJson object.</param>
         protected void SerializeGeoJsonObject(BsonWriter bsonWriter, GeoJsonObject<TCoordinates> obj)
         {
             if (obj == null)
@@ -210,6 +252,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // nested types
+        /// <summary>
+        /// Represents data being collected during serialization to create an instance of a GeoJsonObject.
+        /// </summary>
         protected abstract class ObjectData
         {
             // private fields
@@ -217,11 +262,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             private readonly string _expectedType;
 
             // constructors
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ObjectData"/> class.
+            /// </summary>
+            /// <param name="expectedType">The expected type.</param>
             public ObjectData(string expectedType)
                 : this(new GeoJsonObjectArgs<TCoordinates>(), expectedType)
             {
             }
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ObjectData"/> class.
+            /// </summary>
+            /// <param name="args">The args.</param>
+            /// <param name="expectedType">The expected type.</param>
             public ObjectData(GeoJsonObjectArgs<TCoordinates> args, string expectedType)
             {
                 _args = args;
@@ -229,17 +283,33 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             }
 
             // public properties
+            /// <summary>
+            /// Gets the additional args.
+            /// </summary>
+            /// <value>
+            /// The additional args.
+            /// </value>
             public GeoJsonObjectArgs<TCoordinates> Args
             {
                 get { return _args; }
             }
 
+            /// <summary>
+            /// Gets the expected type.
+            /// </summary>
+            /// <value>
+            /// The expected type.
+            /// </value>
             public string ExpectedType
             {
                 get { return _expectedType; }
             }
 
             // public methods
+            /// <summary>
+            /// Creates the instance.
+            /// </summary>
+            /// <returns>An instance of a GeoJsonObject.</returns>
             public abstract object CreateInstance();
         }
     }

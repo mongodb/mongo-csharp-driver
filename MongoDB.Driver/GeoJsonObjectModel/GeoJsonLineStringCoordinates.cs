@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the coordinates of a GeoJson LineString object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonLineStringCoordinatesSerializer<>))]
     public class GeoJsonLineStringCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -29,6 +33,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<TCoordinates> _positions;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonLineStringCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="positions">The positions.</param>
+        /// <exception cref="System.ArgumentNullException">positions</exception>
+        /// <exception cref="System.ArgumentException">
+        /// One of the positions is null.;positions
+        /// or
+        /// At least two positions are required.;positions
+        /// </exception>
         public GeoJsonLineStringCoordinates(IEnumerable<TCoordinates> positions)
         {
             if (positions == null)
@@ -50,6 +64,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the positions.
+        /// </summary>
+        /// <value>
+        /// The positions.
+        /// </value>
         public ReadOnlyCollection<TCoordinates> Positions
         {
             get { return _positions; }

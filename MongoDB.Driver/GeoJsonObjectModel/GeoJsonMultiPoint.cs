@@ -19,6 +19,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson MultiPoint object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonMultiPointSerializer<>))]
     public class GeoJsonMultiPoint<TCoordinates> : GeoJsonGeometry<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -26,11 +30,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private GeoJsonMultiPointCoordinates<TCoordinates> _coordinates;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiPoint{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="coordinates">The coordinates.</param>
         public GeoJsonMultiPoint(GeoJsonMultiPointCoordinates<TCoordinates> coordinates)
             : this(null, coordinates)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiPoint{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="coordinates">The coordinates.</param>
+        /// <exception cref="System.ArgumentNullException">coordinates</exception>
         public GeoJsonMultiPoint(GeoJsonObjectArgs<TCoordinates> args, GeoJsonMultiPointCoordinates<TCoordinates> coordinates)
             : base(args)
         {
@@ -43,11 +57,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the coordinates.
+        /// </summary>
+        /// <value>
+        /// The coordinates.
+        /// </value>
         public GeoJsonMultiPointCoordinates<TCoordinates> Coordinates
         {
             get { return _coordinates; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.MultiPoint; }

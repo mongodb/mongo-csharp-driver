@@ -22,6 +22,10 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents a GeoJson GeometryCollection object.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonGeometryCollectionSerializer<>))]
     public class GeoJsonGeometryCollection<TCoordinates> : GeoJsonGeometry<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
@@ -29,11 +33,22 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         private ReadOnlyCollection<GeoJsonGeometry<TCoordinates>> _geometries;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonGeometryCollection{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="geometries">The geometries.</param>
         public GeoJsonGeometryCollection(IEnumerable<GeoJsonGeometry<TCoordinates>> geometries)
             : this(null, geometries)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonGeometryCollection{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="args">The additional args.</param>
+        /// <param name="geometries">The geometries.</param>
+        /// <exception cref="System.ArgumentNullException">geometries</exception>
+        /// <exception cref="System.ArgumentException">One of the geometries is null.;geometries</exception>
         public GeoJsonGeometryCollection(GeoJsonObjectArgs<TCoordinates> args, IEnumerable<GeoJsonGeometry<TCoordinates>> geometries)
             : base(args)
         {
@@ -52,11 +67,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         }
 
         // public properties
+        /// <summary>
+        /// Gets the geometries.
+        /// </summary>
+        /// <value>
+        /// The geometries.
+        /// </value>
         public ReadOnlyCollection<GeoJsonGeometry<TCoordinates>> Geometries
         {
             get { return _geometries; }
         }
 
+        /// <summary>
+        /// Gets the type of the GeoJson object.
+        /// </summary>
+        /// <value>
+        /// The type of the GeoJson object.
+        /// </value>
         public override GeoJsonObjectType Type
         {
             get { return GeoJsonObjectType.GeometryCollection; }

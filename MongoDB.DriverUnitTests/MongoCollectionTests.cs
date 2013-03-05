@@ -885,10 +885,10 @@ namespace MongoDB.DriverUnitTests
 
         private class PlaceGeoJson
         {
-            public ObjectId Id;
-            public GeoJsonPoint<GeoJson2DGeographicCoordinates> Location;
-            public string Name;
-            public string Type;
+            public ObjectId Id { get; set; }
+            public GeoJsonPoint<GeoJson2DGeographicCoordinates> Location { get; set; }
+            public string Name { get; set; }
+            public string Type { get; set; }
         }
 
         [Test]

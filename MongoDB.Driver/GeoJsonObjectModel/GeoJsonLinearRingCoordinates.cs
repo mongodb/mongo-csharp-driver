@@ -21,10 +21,23 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel
 {
+    /// <summary>
+    /// Represents the coordinates of a GeoJson linear ring.
+    /// </summary>
+    /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     [BsonSerializer(typeof(GeoJsonLinearRingCoordinatesSerializer<>))]
     public class GeoJsonLinearRingCoordinates<TCoordinates> : GeoJsonLineStringCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonLinearRingCoordinates{TCoordinates}"/> class.
+        /// </summary>
+        /// <param name="positions">The positions.</param>
+        /// <exception cref="System.ArgumentException">
+        /// A linear ring requires at least 4 positions.;positions
+        /// or
+        /// The first and last positions in a linear ring must be equal.;positions
+        /// </exception>
         public GeoJsonLinearRingCoordinates(IEnumerable<TCoordinates> positions)
             : base(positions)
         {
