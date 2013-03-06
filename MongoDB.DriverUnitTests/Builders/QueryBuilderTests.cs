@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Builders
@@ -192,6 +193,20 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestGeoIntersects()
+        {
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+            var query = Query.GeoIntersects("loc", poly);
+            var expected = "{ 'loc' : { '$geoIntersects' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestGreaterThan()
         {
             var query = Query.GT("k", 10);
@@ -344,6 +359,33 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Near("loc", 1.1, 2.2, 3.3, true);
             var expected = "{ 'loc' : { '$nearSphere' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNearWithGeoJson()
+        {
+            var point = GeoJson.Point(GeoJson.Geographic(40,18));
+            var query = Query.Near("loc", point);
+            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNearWithGeoJsonWithMaxDistance()
+        {
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var query = Query.Near("loc", point, 42);
+            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNearWithGeoJsonWithSpherical()
+        {
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+            var query = Query.Near("loc", point, 42, true);
+            var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -694,6 +736,20 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Where("this.a > 3");
             var expected = "{ \"$where\" : { \"$code\" : \"this.a > 3\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestWithin()
+        {
+            var poly = GeoJson.Polygon(
+                GeoJson.Geographic(40, 18),
+                GeoJson.Geographic(40, 19),
+                GeoJson.Geographic(41, 19),
+                GeoJson.Geographic(40, 18));
+
+            var query = Query.Within("loc", poly);
+            var expected = "{ 'loc' : { '$within' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
         }
 

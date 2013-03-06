@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
+using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Utils;
 
@@ -155,6 +156,31 @@ namespace MongoDB.Driver.Builders
             }
 
             return new QueryDocument(name, new BsonDocument("$exists", true));
+        }
+
+        /// <summary>
+        /// Tests that a location element specified by name intersects with the geometry (see $geoIntersects).
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="name">The name.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GeoIntersects<TCoordinates>(string name, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (geometry == null)
+            {
+                throw new ArgumentNullException("geometry");
+            }
+
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(geometry));
+            var condition = new BsonDocument("$geoIntersects", geoDoc);
+
+            return new QueryDocument(name, condition);
         }
 
         /// <summary>
@@ -301,6 +327,65 @@ namespace MongoDB.Driver.Builders
             {
                 condition = new BsonDocument("$mod", new BsonArray { modulus, value });
             }
+            return new QueryDocument(name, condition);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near a point (see $near).
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="point">The point.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TCoordinates>(string name, GeoJsonPoint<TCoordinates> point)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return Near(name, point, double.MaxValue);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="x">The x value of the origin.</param>
+        /// <param name="y">The y value of the origin.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TCoordinates>(string name, GeoJsonPoint<TCoordinates> point, double maxDistance)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return Near(name, point, maxDistance, false);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="x">The x value of the origin.</param>
+        /// <param name="y">The y value of the origin.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <param name="spherical">if set to <c>true</c> then the query will be translated to $nearSphere.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TCoordinates>(string name, GeoJsonPoint<TCoordinates> point, double maxDistance, bool spherical)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (point == null)
+            {
+                throw new ArgumentNullException("point");
+            }
+
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(point));
+            var op = spherical ? "$nearSphere" : "$near";
+            var condition = new BsonDocument(op, geoDoc);
+            if (maxDistance != double.MaxValue)
+            {
+                condition.Add("$maxDistance", maxDistance);
+            }
+
             return new QueryDocument(name, condition);
         }
 
@@ -607,6 +692,31 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element is within the specified geometry (see $within).
+        /// </summary>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Within<TCoordinates>(string name, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (geometry == null)
+            {
+                throw new ArgumentNullException("geometry");
+            }
+
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(geometry));
+            var condition = new BsonDocument("$within", geoDoc);
+
+            return new QueryDocument(name, condition);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is within a circle (see $within and $center).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
@@ -832,6 +942,20 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that a location element specified by name intersects with the geometry (see $geoIntersects).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery GeoIntersects<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new QueryBuilder<TDocument>().GeoIntersects(memberExpression, geometry);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is greater than some value (see $gt).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -998,6 +1122,51 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element is near a point (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="point">The point.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new QueryBuilder<TDocument>().Near(memberExpression, point);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point, double maxDistance)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new QueryBuilder<TDocument>().Near(memberExpression, point, maxDistance);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression representing the element to test.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <param name="spherical">if set to <c>true</c> [spherical].</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point, double maxDistance, bool spherical)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new QueryBuilder<TDocument>().Near(memberExpression, point, maxDistance, spherical);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -1142,6 +1311,20 @@ namespace MongoDB.Driver.Builders
         public static IMongoQuery Where(Expression<Func<TDocument, bool>> expression)
         {
             return new QueryBuilder<TDocument>().Where(expression);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is within the specified geometry (see $within).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            return new QueryBuilder<TDocument>().Within(memberExpression, geometry);
         }
 
         /// <summary>
@@ -1354,6 +1537,30 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             return Query.Exists(serializationInfo.ElementName);
+        }
+
+        /// <summary>
+        /// Tests that a location element specified by name intersects with the geometry (see $geoIntersects).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery GeoIntersects<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (geometry == null)
+            {
+                throw new ArgumentNullException("geometry");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.GeoIntersects<TCoordinates>(serializationInfo.ElementName, geometry);
         }
 
         /// <summary>
@@ -1642,6 +1849,81 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the value of the named element is near a point (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="point">The point.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (point == null)
+            {
+                throw new ArgumentNullException("point");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Near(serializationInfo.ElementName, point);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point, double maxDistance)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (point == null)
+            {
+                throw new ArgumentNullException("point");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Near(serializationInfo.ElementName, point, maxDistance);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is near some location (see $near).
+        /// </summary>
+        /// <typeparam name="TMember">The member type.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="point">The point.</param>
+        /// <param name="maxDistance">The max distance.</param>
+        /// <param name="spherical">if set to <c>true</c> then the query will be translated to $nearSphere.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Near<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPoint<TCoordinates> point, double maxDistance, bool spherical)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (point == null)
+            {
+                throw new ArgumentNullException("point");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Near(serializationInfo.ElementName, point, maxDistance, spherical);
+        }
+
+        /// <summary>
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <typeparam name="TMember">The member type.</typeparam>
@@ -1894,6 +2176,30 @@ namespace MongoDB.Driver.Builders
 
             var evaluatedExpression = PartialEvaluator.Evaluate(expression.Body);
             return _predicateTranslator.BuildQuery(evaluatedExpression);
+        }
+
+        /// <summary>
+        /// Tests that the value of the named element is within the specified geometry (see $within).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="geometry">The geometry.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+            where TCoordinates : GeoJsonCoordinates
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+            if (geometry == null)
+            {
+                throw new ArgumentNullException("geometry");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            return Query.Within(serializationInfo.ElementName, geometry);
         }
 
         /// <summary>
