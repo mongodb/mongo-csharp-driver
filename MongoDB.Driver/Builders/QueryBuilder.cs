@@ -347,8 +347,7 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="x">The x value of the origin.</param>
-        /// <param name="y">The y value of the origin.</param>
+        /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
         /// <returns>An IMongoQuery.</returns>
         public static IMongoQuery Near<TCoordinates>(string name, GeoJsonPoint<TCoordinates> point, double maxDistance)
@@ -361,8 +360,7 @@ namespace MongoDB.Driver.Builders
         /// Tests that the value of the named element is near some location (see $near).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="x">The x value of the origin.</param>
-        /// <param name="y">The y value of the origin.</param>
+        /// <param name="point">The point.</param>
         /// <param name="maxDistance">The max distance.</param>
         /// <param name="spherical">if set to <c>true</c> then the query will be translated to $nearSphere.</param>
         /// <returns>An IMongoQuery.</returns>

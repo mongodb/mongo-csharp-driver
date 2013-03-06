@@ -431,33 +431,36 @@ namespace MongoDB.Driver.Builders
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder PushEach(string name, PushEachOptions args, BsonArray values)
+        public static UpdateBuilder PushEach(string name, PushEachOptions options, BsonArray values)
         {
-            return new UpdateBuilder().PushEach(name, args, values);
+            return new UpdateBuilder().PushEach(name, options, values);
         }
 
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder PushEach(string name, PushEachOptions args, IEnumerable<BsonValue> values)
+        public static UpdateBuilder PushEach(string name, PushEachOptions options, IEnumerable<BsonValue> values)
         {
-            return new UpdateBuilder().PushEach(name, args, values);
+            return new UpdateBuilder().PushEach(name, options, values);
         }
 
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder PushEach(string name, PushEachOptions args, params BsonValue[] values)
+        public static UpdateBuilder PushEach(string name, PushEachOptions options, params BsonValue[] values)
         {
-            return new UpdateBuilder().PushEach(name, args, values);
+            return new UpdateBuilder().PushEach(name, options, values);
         }
 
         /// <summary>
@@ -474,6 +477,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
@@ -485,23 +489,27 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder PushEachWrapped<T>(string name, PushEachOptions args, IEnumerable<T> values)
+        public static UpdateBuilder PushEachWrapped<T>(string name, PushEachOptions options, IEnumerable<T> values)
         {
-            return new UpdateBuilder().PushEachWrapped<T>(name, args, values);
+            return new UpdateBuilder().PushEachWrapped<T>(name, options, values);
         }
 
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
+        /// <typeparam name="T">The type of wrapped value.</typeparam>
         /// <param name="name">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static UpdateBuilder PushEachWrapped<T>(string name, PushEachOptions args, params T[] values)
+        public static UpdateBuilder PushEachWrapped<T>(string name, PushEachOptions options, params T[] values)
         {
-            return new UpdateBuilder().PushEachWrapped<T>(name, args, values);
+            return new UpdateBuilder().PushEachWrapped<T>(name, options, values);
         }
 
         /// <summary>
@@ -2247,7 +2255,7 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
-        /// <param name="name">The name of the array element.</param>
+        /// <param name="memberExpression">The name of the array element.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
         public UpdateBuilder<TDocument> PushEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, IEnumerable<TValue> values)
@@ -2258,9 +2266,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
-        /// <param name="name">The name of the array element.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
         public UpdateBuilder<TDocument> PushEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, PushEachOptions options, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
@@ -2282,9 +2293,12 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Adds a list of values to the end of the named array element (see $push and $each).
         /// </summary>
-        /// <param name="name">The name of the array element.</param>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="memberExpression">The name of the array element.</param>
+        /// <param name="options">The options.</param>
         /// <param name="values">The values to add to the end of the array.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
+        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
         public UpdateBuilder<TDocument> PushEach<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Action<PushEachOptionsBuilder<TValue>> options, IEnumerable<TValue> values)
         {
             if (memberExpression == null)
