@@ -1177,8 +1177,25 @@ namespace MongoDB.Driver
                         if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
                         {
                             byte[] lastDocument = message.RemoveLastDocument(bsonBuffer);
-                            var intermediateResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
-                            if (writeConcern.Enabled) { results.Add(intermediateResult); }
+
+                            if (writeConcern.Enabled || (options.Flags & InsertFlags.ContinueOnError) != 0)
+                            {
+                                var intermediateResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
+                                if (writeConcern.Enabled) { results.Add(intermediateResult); }
+                            }
+                            else
+                            {
+                                // if WriteConcern is disabled and ContinueOnError is false we have to check for errors and stop if sub-batch has error
+                                try
+                                {
+                                    connection.SendMessage(bsonBuffer, message, WriteConcern.Acknowledged, _database.Name);
+                                }
+                                catch (WriteConcernException)
+                                {
+                                    return null;
+                                }
+                            }
+
                             message.ResetBatch(bsonBuffer, lastDocument);
                         }
                     }

@@ -1085,6 +1085,80 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorFalse()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            if (collection.Exists()) { collection.Drop(); }
+
+            using (Configuration.TestDatabase.RequestStart())
+            {
+                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+
+                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+                var documents = new BsonDocument[]
+                {
+                    // first sub-batch
+                    new BsonDocument { { "_id", 1 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 2 }, { "filler", filler } },
+                    // second sub-batch
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } }, // duplicate _id error
+                    // third sub-batch
+                    new BsonDocument { { "_id", 4 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 5 }, { "filler", filler } },
+                };
+
+                var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
+                collection.InsertBatch(documents, options);
+
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
+                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
+            }
+        }
+
+        [Test]
+        public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorTrue()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            if (collection.Exists()) { collection.Drop(); }
+
+            using (Configuration.TestDatabase.RequestStart())
+            {
+                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+
+                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+                var documents = new BsonDocument[]
+                {
+                    // first sub-batch
+                    new BsonDocument { { "_id", 1 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 2 }, { "filler", filler } },
+                    // second sub-batch
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } }, // duplicate _id error
+                    // third sub-batch
+                    new BsonDocument { { "_id", 4 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 5 }, { "filler", filler } },
+                };
+
+                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                collection.InsertBatch(documents, options);
+
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
+            }
+        }
+
+        [Test]
         public void TestIsCappedFalse()
         {
             var collection = _database.GetCollection("notcappedcollection");
