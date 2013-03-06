@@ -177,8 +177,16 @@ namespace MongoDB.Driver.Builders
         /// Initializes a new instance of the <see cref="SortByBuilder&lt;TDocument&gt;"/> class.
         /// </summary>
         public SortByBuilder()
+            : this(new BsonSerializationInfoHelper())
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SortByBuilder{TDocument}" /> class.
+        /// </summary>
+        /// <param name="serializationInfoHelper">The serialization info helper.</param>
+        internal SortByBuilder(BsonSerializationInfoHelper serializationInfoHelper)
         {
-            _serializationInfoHelper = new BsonSerializationInfoHelper();
+            _serializationInfoHelper = serializationInfoHelper;
             _sortByBuilder = new SortByBuilder();
         }
 

@@ -52,6 +52,8 @@ namespace MongoDB.DriverUnitTests.Builders
 
         private C _a = new C { X = 1 };
         private C _b = new C { X = 2 };
+        private BsonDocument _docA1 = new BsonDocument("a", 1);
+        private BsonDocument _docA2 = new BsonDocument("a", 2);
 
         [Test]
         public void TestAddToSet()
@@ -463,6 +465,102 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPushEach()
+        {
+            var update = Update.PushEach("name", _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }] } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSlice()
+        {
+            var update = Update.PushEach("name", new PushEachOptions { Slice = -2 }, _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$slice\" : -2 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSort()
+        {
+            var update = Update.PushEach("name", new PushEachOptions { Sort = SortBy.Ascending("a") }, _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$sort\" : { \"a\" : 1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSortAndSlice()
+        {
+            var update = Update.PushEach("name", new PushEachOptions { Slice = -3, Sort = SortBy.Descending("a") }, _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$slice\" : -3, \"$sort\" : { \"a\" : -1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEach_Typed()
+        {
+            var update = Update<Test>.PushEach(x => x.B, new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }] } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSlice_Typed()
+        {
+            var update = Update<Test>.PushEach(x => x.B, args => args.Slice(-2), new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$slice\" : -2 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSort_Typed()
+        {
+            var update = Update<Test>.PushEach(x => x.B, args => args.SortAscending(x => x.C), new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$sort\" : { \"c\" : 1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithSortAndSlice_Typed()
+        {
+            var update = Update<Test>.PushEach(x => x.B, args => args.SortDescending(x => x.C).Slice(-3), new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$slice\" : -3, \"$sort\" : { \"c\" : -1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWrapped()
+        {
+            var update = Update.PushEachWrapped("name", _a, _b);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }] } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWrappedWithSlice()
+        {
+            var update = Update.PushEachWrapped("name", new PushEachOptions { Slice = -2 }, _a, _b);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }], \"$slice\" : -2 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWrappedWithSort()
+        {
+            var update = Update.PushEachWrapped("name", new PushEachOptions { Sort = SortBy.Ascending("a") }, _a, _b);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }], \"$sort\" : { \"a\" : 1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWrappedWithSortAndSlice()
+        {
+            var update = Update.PushEachWrapped("name", new PushEachOptions { Slice = -3, Sort = SortBy.Descending("a") }, _a, _b);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"X\" : 1 }, { \"X\" : 2 }], \"$slice\" : -3, \"$sort\" : { \"a\" : -1 } } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPushWrapped()
         {
             var update = Update.PushWrapped("name", _a);
@@ -523,6 +621,22 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update<Test>.Set(t => t.X, 42);
             var expected = "{ \"$set\" : { \"x\" : 42 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestSetOnInsert()
+        {
+            var update = Update.SetOnInsert("name", "abc");
+            var expected = "{ \"$setOnInsert\" : { \"name\" : \"abc\" } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestSetOnInsert_Typed()
+        {
+            var update = Update<Test>.SetOnInsert(x => x.X, 42);
+            var expected = "{ \"$setOnInsert\" : { \"x\" : 42 } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -657,6 +771,16 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.Set("a", 1).Set("b", 2);
             var expected = "{ \"$set\" : { \"a\" : 1, \"b\" : 2 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestSetOnInsertTwice()
+        {
+            var update = Update
+                .SetOnInsert("name", "abc")
+                .SetOnInsert("two", "cde");
+            var expected = "{ \"$setOnInsert\" : { \"name\" : \"abc\", \"two\" : \"cde\" } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
