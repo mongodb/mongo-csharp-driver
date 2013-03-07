@@ -1,0 +1,146 @@
+﻿/* Copyright 2010-2013 10gen Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
+using MongoDB.Driver.GeoJsonObjectModel;
+using NUnit.Framework;
+
+namespace MongoDB.DriverUnitTests.Builders
+{
+    public class QueryBuilderGeoJsonIntegrationTests
+    {
+        private MongoCollection<GeoClass> _collection;
+
+        private class GeoClass
+        {
+            public int Id { get; set; }
+
+            [BsonElement("loc")]
+            public GeoJsonPoint<GeoJson2DGeographicCoordinates> Location { get; set; }
+
+            [BsonElement("sur")]
+            public GeoJsonPolygon<GeoJson2DGeographicCoordinates> Surrounding { get; set; }
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            var db = Configuration.TestDatabase;
+            _collection = db.GetCollection<GeoClass>("geo");
+
+            _collection.Drop();
+            _collection.EnsureIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Location));
+            _collection.EnsureIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Surrounding));
+
+            var doc = new GeoClass
+            {
+                Id = 1,
+                Location = GeoJson.Point(GeoJson.Geographic(40.5, 18.5)),
+                Surrounding = GeoJson.Polygon(
+                    GeoJson.Geographic(40, 18),
+                    GeoJson.Geographic(40, 19),
+                    GeoJson.Geographic(41, 19),
+                    GeoJson.Geographic(40, 18))
+            };
+
+            _collection.Save(doc);
+        }
+
+        [Test]
+        public void TestGeoIntersects()
+        {
+            var server = Configuration.TestServer;
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            {
+                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+
+                var query = Query<GeoClass>.GeoIntersects(x => x.Surrounding, point);
+
+                var results = _collection.Count(query);
+
+                Assert.AreEqual(1, results);
+            }
+        }
+
+        [Test]
+        public void TestNear()
+        {
+            var server = Configuration.TestServer;
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            {
+                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+
+                var query = Query<GeoClass>.Near(x => x.Location, point);
+
+                var results = _collection.Count(query);
+
+                Assert.AreEqual(1, results);
+            }
+        }
+
+        [Test]
+        public void TestWithin()
+        {
+            var server = Configuration.TestServer;
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            {
+                var polygon = GeoJson.Polygon(
+                        GeoJson.Geographic(40, 18),
+                        GeoJson.Geographic(40, 19),
+                        GeoJson.Geographic(41, 19),
+                        GeoJson.Geographic(41, 18),
+                        GeoJson.Geographic(40, 18));
+
+                var query = Query<GeoClass>.Within(x => x.Location, polygon);
+
+                var results = _collection.Count(query);
+
+                Assert.AreEqual(1, results);
+            }
+        }
+
+        [Test]
+        public void TestWithinNotFound()
+        {
+            var server = Configuration.TestServer;
+            server.Connect();
+            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            {
+                var polygon = GeoJson.Polygon(
+                        GeoJson.Geographic(41, 19),
+                        GeoJson.Geographic(41, 20),
+                        GeoJson.Geographic(42, 20),
+                        GeoJson.Geographic(42, 19),
+                        GeoJson.Geographic(41, 19));
+
+                var query = Query<GeoClass>.Within(x => x.Location, polygon);
+
+                var results = _collection.Count(query);
+
+                Assert.AreEqual(0, results);
+            }
+        }
+    }
+}

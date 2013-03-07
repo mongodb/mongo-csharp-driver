@@ -696,7 +696,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="name">The name of the element to test.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Within<TCoordinates>(string name, GeoJsonGeometry<TCoordinates> geometry)
+        public static IMongoQuery Within<TCoordinates>(string name, GeoJsonPolygon<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
             if (name == null)
@@ -1319,7 +1319,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+        public static IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
             return new QueryBuilder<TDocument>().Within(memberExpression, geometry);
@@ -1550,7 +1550,7 @@ namespace MongoDB.Driver.Builders
         {
             if (memberExpression == null)
             {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException("memberExpression");
             }
             if (geometry == null)
             {
@@ -2184,7 +2184,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="memberExpression">The member expression.</param>
         /// <param name="geometry">The geometry.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonGeometry<TCoordinates> geometry)
+        public IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> geometry)
             where TCoordinates : GeoJsonCoordinates
         {
             if (memberExpression == null)
