@@ -694,21 +694,21 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="name">The name of the element to test.</param>
-        /// <param name="geometry">The geometry.</param>
+        /// <param name="polygon">The polygon.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Within<TCoordinates>(string name, GeoJsonPolygon<TCoordinates> geometry)
+        public static IMongoQuery Within<TCoordinates>(string name, GeoJsonPolygon<TCoordinates> polygon)
             where TCoordinates : GeoJsonCoordinates
         {
             if (name == null)
             {
                 throw new ArgumentNullException("name");
             }
-            if (geometry == null)
+            if (polygon == null)
             {
-                throw new ArgumentNullException("geometry");
+                throw new ArgumentNullException("polygon");
             }
 
-            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(geometry));
+            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(polygon));
             var condition = new BsonDocument("$within", geoDoc);
 
             return new QueryDocument(name, condition);
@@ -1317,12 +1317,12 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
-        /// <param name="geometry">The geometry.</param>
+        /// <param name="polygon">The polygon.</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> geometry)
+        public static IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> polygon)
             where TCoordinates : GeoJsonCoordinates
         {
-            return new QueryBuilder<TDocument>().Within(memberExpression, geometry);
+            return new QueryBuilder<TDocument>().Within(memberExpression, polygon);
         }
 
         /// <summary>
@@ -2182,22 +2182,22 @@ namespace MongoDB.Driver.Builders
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
-        /// <param name="geometry">The geometry.</param>
+        /// <param name="polygon">The polygon.</param>
         /// <returns>An IMongoQuery.</returns>
-        public IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> geometry)
+        public IMongoQuery Within<TMember, TCoordinates>(Expression<Func<TDocument, TMember>> memberExpression, GeoJsonPolygon<TCoordinates> polygon)
             where TCoordinates : GeoJsonCoordinates
         {
             if (memberExpression == null)
             {
                 throw new ArgumentNullException("memberExpression");
             }
-            if (geometry == null)
+            if (polygon == null)
             {
-                throw new ArgumentNullException("geometry");
+                throw new ArgumentNullException("polygon");
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            return Query.Within(serializationInfo.ElementName, geometry);
+            return Query.Within(serializationInfo.ElementName, polygon);
         }
 
         /// <summary>

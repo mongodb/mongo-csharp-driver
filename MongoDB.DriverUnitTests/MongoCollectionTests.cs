@@ -903,13 +903,8 @@ namespace MongoDB.DriverUnitTests
                 _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 // TODO: add Query builder support for 2dsphere queries
-                var query = new QueryDocument {
-                     { "Location", new BsonDocument {
-                         { "$near", new BsonDocument {
-                             { "$geometry", GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)).ToBsonDocument() }
-                         } }
-                     } }
-                };
+                var query = Query<PlaceGeoJson>.Near(x => x.Location, GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)));
+
                 var cursor = _collection.FindAs<PlaceGeoJson>(query);
                 var hits = cursor.ToArray();
 
