@@ -161,9 +161,10 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="updates">The UpdateBuilders to combine.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public static UpdateBuilder Combine(IEnumerable<UpdateBuilder> updates)
+        public static UpdateBuilder Combine(IEnumerable<IMongoUpdate> updates)
         {
             if (updates == null) { throw new ArgumentNullException("updates"); }
+
             var combined = new UpdateBuilder();
             foreach (var update in updates)
             {
@@ -177,9 +178,9 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="updates">The UpdateBuilders to combine.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public static UpdateBuilder Combine(params UpdateBuilder[] updates)
+        public static UpdateBuilder Combine(params IMongoUpdate[] updates)
         {
-            return Combine((IEnumerable<UpdateBuilder>)updates);
+            return Combine((IEnumerable<IMongoUpdate>)updates);
         }
 
         /// <summary>
@@ -800,12 +801,15 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Combines another UpdateBuilder into this one.
         /// </summary>
-        /// <param name="otherUpdateBuilder">The UpdateBuilder to combine into this one.</param>
+        /// <param name="other">The IMongoUpdate to combine into this one.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public UpdateBuilder Combine(UpdateBuilder otherUpdateBuilder)
+        public UpdateBuilder Combine(IMongoUpdate other)
         {
-            if (otherUpdateBuilder == null) { throw new ArgumentNullException("otherUpdateBuilder"); }
-            foreach (var otherOperation in otherUpdateBuilder.Document)
+            if (other == null) { throw new ArgumentNullException("other"); }
+
+            var otherUpdate = other.ToBsonDocument();
+
+            foreach (var otherOperation in otherUpdate)
             {
                 var otherOperationName = otherOperation.Name;
                 var otherTargets = otherOperation.Value.AsBsonDocument;
@@ -1604,7 +1608,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>
         /// A combined UpdateBuilder.
         /// </returns>
-        public static UpdateBuilder<TDocument> Combine(IEnumerable<UpdateBuilder<TDocument>> updates)
+        public static UpdateBuilder<TDocument> Combine(IEnumerable<IMongoUpdate> updates)
         {
             if (updates == null) { throw new ArgumentNullException("updates"); }
             var combined = new UpdateBuilder<TDocument>();
@@ -1618,13 +1622,13 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Combines several UpdateBuilders into a single UpdateBuilder.
         /// </summary>
-        /// <param name="updates">The UpdateBuilders to combine.</param>
+        /// <param name="updates">The updates to combine.</param>
         /// <returns>
         /// A combined UpdateBuilder.
         /// </returns>
-        public static UpdateBuilder<TDocument> Combine(params UpdateBuilder<TDocument>[] updates)
+        public static UpdateBuilder<TDocument> Combine(params IMongoUpdate[] updates)
         {
-            return Combine((IEnumerable<UpdateBuilder<TDocument>>)updates);
+            return Combine((IEnumerable<IMongoUpdate>)updates);
         }
 
         /// <summary>
@@ -2013,11 +2017,11 @@ namespace MongoDB.Driver.Builders
         /// <summary>
         /// Combines another UpdateBuilder into this one.
         /// </summary>
-        /// <param name="otherUpdateBuilder">The UpdateBuilder to combine into this one.</param>
+        /// <param name="other">The UpdateBuilder to combine into this one.</param>
         /// <returns>A combined UpdateBuilder.</returns>
-        public UpdateBuilder<TDocument> Combine(UpdateBuilder<TDocument> otherUpdateBuilder)
+        public UpdateBuilder<TDocument> Combine(IMongoUpdate other)
         {
-            _updateBuilder = _updateBuilder.Combine(otherUpdateBuilder._updateBuilder);
+            _updateBuilder = _updateBuilder.Combine(other);
             return this;
         }
 
