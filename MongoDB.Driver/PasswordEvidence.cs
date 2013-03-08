@@ -14,12 +14,11 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -30,7 +29,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly SecureString _securePassword;
-        private readonly string _digest;
+        private readonly string _digest; // used to implement Equals without referring to the SecureString
 
         // constructors
         /// <summary>
@@ -55,14 +54,6 @@ namespace MongoDB.Driver
         // public properties
         /// <summary>
         /// Gets the password.
-        /// </summary>
-        public string Password
-        {
-            get { return CreateString(_securePassword); }
-        }
-
-        /// <summary>
-        /// Gets the secure password.
         /// </summary>
         public SecureString SecurePassword
         {
@@ -95,6 +86,24 @@ namespace MongoDB.Driver
             return _digest.GetHashCode();
         }
 
+        // internal methods
+        /// <summary>
+        /// Computes the MONGODB-CR password digest.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <returns></returns>
+        internal string ComputeMongoCRPasswordDigest(string username)
+        {
+            using (var md5 = MD5.Create())
+            {
+                var encoding = new UTF8Encoding(false, true);
+                var prefixBytes = encoding.GetBytes(username + ":mongo:");
+                md5.TransformBlock(prefixBytes, 0, prefixBytes.Length, null, 0);
+                TransformFinalBlock(md5, _securePassword);
+                return BsonUtils.ToHexString(md5.Hash);
+            }
+        }
+
         // private static methods
         private static SecureString CreateSecureString(string str)
         {
@@ -112,55 +121,53 @@ namespace MongoDB.Driver
             return null;
         }
 
-        [SecuritySafeCritical]
-        private static string CreateString(SecureString secureString)
-        {
-            IntPtr strPtr = IntPtr.Zero;
-            if (secureString == null || secureString.Length == 0)
-            {
-                return string.Empty;
-            }
-
-            try
-            {
-                strPtr = Marshal.SecureStringToBSTR(secureString);
-                return Marshal.PtrToStringBSTR(strPtr);
-            }
-            finally
-            {
-                if (strPtr != IntPtr.Zero)
-                {
-                    Marshal.ZeroFreeBSTR(strPtr);
-                }
-            }
-        }
-
         /// <summary>
         /// Computes the hash value of the secured string 
         /// </summary>
-        [SecuritySafeCritical]
         private static string GenerateDigest(SecureString secureString)
         {
-            IntPtr unmanagedRef = Marshal.SecureStringToBSTR(secureString);
-            // stored with 0's in between each character...
-            byte[] bytes = new byte[secureString.Length * 2];
-            var byteArrayHandle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            Marshal.Copy(unmanagedRef, bytes, 0, secureString.Length * 2);
-            using (var SHA256 = new SHA256Managed())
+            using (var sha256 = new SHA256Managed())
             {
+                TransformFinalBlock(sha256, secureString);
+                return BsonUtils.ToHexString(sha256.Hash);
+            }
+        }
+
+        [SecuritySafeCritical]
+        private static void TransformFinalBlock(HashAlgorithm hash, SecureString secureString)
+        {
+            var bstr = Marshal.SecureStringToBSTR(secureString);
+            try
+            {
+                var passwordChars = new char[secureString.Length];
+                var passwordCharsHandle = GCHandle.Alloc(passwordChars, GCHandleType.Pinned);
                 try
                 {
-                    return Convert.ToBase64String(SHA256.ComputeHash(bytes));
+                    Marshal.Copy(bstr, passwordChars, 0, passwordChars.Length);
+
+                    var passwordBytes = new byte[secureString.Length * 3]; // worst case for UTF16 to UTF8 encoding
+                    var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
+                    try
+                    {
+                        var encoding = new UTF8Encoding(false, true);
+                        var length = encoding.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
+                        hash.TransformFinalBlock(passwordBytes, 0, length);
+                    }
+                    finally
+                    {
+                        Array.Clear(passwordBytes, 0, passwordBytes.Length);
+                        passwordBytesHandle.Free();
+                    }
                 }
                 finally
                 {
-                    for (int i = 0; i < bytes.Length; i++)
-                    {
-                        bytes[i] = (byte)'\0';
-                    }
-                    byteArrayHandle.Free();
-                    Marshal.ZeroFreeBSTR(unmanagedRef);
+                    Array.Clear(passwordChars, 0, passwordChars.Length);
+                    passwordCharsHandle.Free();
                 }
+            }
+            finally
+            {
+                Marshal.ZeroFreeBSTR(bstr);
             }
         }
     }

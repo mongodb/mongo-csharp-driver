@@ -26,7 +26,7 @@ namespace MongoDB.DriverUnitTests
         {
             var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
             Assert.AreEqual("username", credential.Username);
-            Assert.AreEqual("password", ((PasswordEvidence)credential.Evidence).Password);
+            Assert.AreEqual(new PasswordEvidence("password"), credential.Evidence);
         }
 
         [Test]
@@ -59,6 +59,15 @@ namespace MongoDB.DriverUnitTests
             Assert.IsFalse(n != null);
             Assert.IsFalse(null != n);
             Assert.IsTrue(c != d);
+        }
+
+        [Test]
+        public void TestPassword()
+        {
+            var credentials = MongoCredential.CreateMongoCRCredential("database", "username", "password");
+#pragma warning disable 618
+            Assert.AreEqual("password", credentials.Password);
+#pragma warning restore
         }
     }
 }

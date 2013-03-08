@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Communication.Security
             }
 
             var nonce = commandResult.Response["nonce"].AsString;
-            var passwordDigest = MongoUtils.Hash(credential.Username + ":mongo:" + ((PasswordEvidence)credential.Evidence).Password);
+            var passwordDigest = ((PasswordEvidence)credential.Evidence).ComputeMongoCRPasswordDigest(credential.Username);
             var digest = MongoUtils.Hash(nonce + credential.Username + passwordDigest);
             var authenticateCommand = new CommandDocument
                 {

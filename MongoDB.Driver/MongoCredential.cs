@@ -15,8 +15,8 @@
 
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security;
-using System.Security.Principal;
 
 namespace MongoDB.Driver
 {
@@ -83,6 +83,7 @@ namespace MongoDB.Driver
         /// Gets the password.
         /// </summary>
         [Obsolete("Use Evidence instead.")]
+        [SecuritySafeCritical]
         public string Password
         {
             get
@@ -90,7 +91,21 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-                    return passwordEvidence.Password;
+                    var secureString = passwordEvidence.SecurePassword;
+                    if (secureString == null || secureString.Length == 0)
+                    {
+                        return "";
+                    }
+
+                    var bstr = Marshal.SecureStringToBSTR(secureString);
+                    try
+                    {
+                        return Marshal.PtrToStringBSTR(bstr);
+                    }
+                    finally
+                    {
+                        Marshal.ZeroFreeBSTR(bstr);
+                    }
                 }
 
                 return null;

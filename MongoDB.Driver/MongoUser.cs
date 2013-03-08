@@ -46,7 +46,7 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("password");
             }
             _username = username;
-            _passwordHash = HashPassword(username, password.Password);
+            _passwordHash = HashPassword(username, password);
             _isReadOnly = isReadOnly;
         }
 
@@ -153,9 +153,20 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>The password hash.</returns>
+        public static string HashPassword(string username, PasswordEvidence password)
+        {
+            return password.ComputeMongoCRPasswordDigest(username);
+        }
+
+        /// <summary>
+        /// Calculates the password hash.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>The password hash.</returns>
         public static string HashPassword(string username, string password)
         {
-            return MongoUtils.Hash(username + ":mongo:" + password);
+            return HashPassword(username, new PasswordEvidence(password));
         }
 
         // public methods

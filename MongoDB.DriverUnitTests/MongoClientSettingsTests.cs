@@ -245,7 +245,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, settings.Credentials.Count());
             Assert.AreEqual(builder.Username, settings.Credentials.Single().Username);
             Assert.AreEqual("admin", settings.Credentials.Single().Source);
-            Assert.AreEqual(builder.Password, ((PasswordEvidence)settings.Credentials.Single().Evidence).Password);
+            Assert.AreEqual(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
             Assert.AreEqual(builder.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(builder.IPv6, settings.IPv6);
             Assert.AreEqual(builder.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
@@ -286,7 +286,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.Username, settings.Credentials.Single().Username);
             Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
-            Assert.AreEqual(url.Password, ((PasswordEvidence)settings.Credentials.Single().Evidence).Password);
+            Assert.AreEqual(new PasswordEvidence(url.Password), settings.Credentials.Single().Evidence);
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(url.IPv6, settings.IPv6);
             Assert.AreEqual(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
