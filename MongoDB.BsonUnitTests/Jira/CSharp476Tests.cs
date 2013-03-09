@@ -370,7 +370,6 @@ namespace MongoDB.BsonUnitTests.Jira
                 _chosen = 0;
             }
 
-
             public TExpressionCallingArbitraryCode(int x)
             {
                 _chosen = 1;

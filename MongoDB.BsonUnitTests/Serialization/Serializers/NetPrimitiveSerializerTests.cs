@@ -1788,21 +1788,21 @@ namespace MongoDB.BsonUnitTests.Serialization
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-		[Test]
-		public void TestRelative()
-		{
-			var obj = new TestClass
-			{
-				V = new Uri("/relative/page.html", UriKind.RelativeOrAbsolute)
-			};
-			var json = obj.ToJson();
-			var expected = "{ 'V' : '/relative/page.html' }".Replace("'", "\"");
-			Assert.AreEqual(expected, json);
+        [Test]
+        public void TestRelative()
+        {
+            var obj = new TestClass
+            {
+                V = new Uri("/relative/page.html", UriKind.RelativeOrAbsolute)
+            };
+            var json = obj.ToJson();
+            var expected = "{ 'V' : '/relative/page.html' }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
 
-			var bson = obj.ToBson();
-			var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-			Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
-		}
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
 
         [Test]
         public void TestMongoDB()

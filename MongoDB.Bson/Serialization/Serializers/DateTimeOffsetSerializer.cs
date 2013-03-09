@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
-
     /// <summary>
     /// Represents a serializer for DateTimeOffsets.
     /// </summary>
