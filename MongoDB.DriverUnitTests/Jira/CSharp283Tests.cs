@@ -18,9 +18,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-#pragma warning disable 618 // about obsolete DeprecatedQuery class
-using Query = MongoDB.Driver.Builders.DeprecatedQuery;
-
 namespace MongoDB.DriverUnitTests.Jira.CSharp283
 {
     [TestFixture]
@@ -35,7 +32,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryAll()
         {
-            var query1 = Query.All("name", _bsonValue);
+            var query1 = Query.All("name", new BsonValue[] { _bsonValue });
             var query2 = Query.All("name", _bsonArray);
             var query3 = Query.All("name", _bsonValueArray);
             var query4 = Query.All("name", _bsonValueList);
@@ -54,7 +51,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryIn()
         {
-            var query1 = Query.In("name", _bsonValue);
+            var query1 = Query.In("name", new BsonValue[] { _bsonValue });
             var query2 = Query.In("name", _bsonArray);
             var query3 = Query.In("name", _bsonValueArray);
             var query4 = Query.In("name", _bsonValueList);
@@ -73,7 +70,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryNin()
         {
-            var query1 = Query.NotIn("name", _bsonValue);
+            var query1 = Query.NotIn("name", new BsonValue[] { _bsonValue });
             var query2 = Query.NotIn("name", _bsonArray);
             var query3 = Query.NotIn("name", _bsonValueArray);
             var query4 = Query.NotIn("name", _bsonValueList);
@@ -92,11 +89,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryNotAll()
         {
-            var query1 = Query.Not("name").All(_bsonValue);
-            var query2 = Query.Not("name").All(_bsonArray);
-            var query3 = Query.Not("name").All(_bsonValueArray);
-            var query4 = Query.Not("name").All(_bsonValueList);
-            var query5 = Query.Not("name").All(_ienumerableBsonValue);
+            var query1 = Query.Not(Query.All("name", new BsonValue[] { _bsonValue }));
+            var query2 = Query.Not(Query.All("name", _bsonArray));
+            var query3 = Query.Not(Query.All("name", _bsonValueArray));
+            var query4 = Query.Not(Query.All("name", _bsonValueList));
+            var query5 = Query.Not(Query.All("name", _ienumerableBsonValue));
 
             var expectedSingle = "{ 'name' : { '$not' : { '$all' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$all' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -111,14 +108,14 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryNotIn()
         {
-            var query1 = Query.Not("name").In(_bsonValue);
-            var query2 = Query.Not("name").In(_bsonArray);
-            var query3 = Query.Not("name").In(_bsonValueArray);
-            var query4 = Query.Not("name").In(_bsonValueList);
-            var query5 = Query.Not("name").In(_ienumerableBsonValue);
+            var query1 = Query.Not(Query.In("name", new BsonValue[] { _bsonValue }));
+            var query2 = Query.Not(Query.In("name", _bsonArray));
+            var query3 = Query.Not(Query.In("name", _bsonValueArray));
+            var query4 = Query.Not(Query.In("name", _bsonValueList));
+            var query5 = Query.Not(Query.In("name", _ienumerableBsonValue));
 
-            var expectedSingle = "{ 'name' : { '$not' : { '$in' : [1] } } }".Replace("'", "\"");
-            var expectedMultiple = "{ 'name' : { '$not' : { '$in' : [1, 2, 3] } } }".Replace("'", "\"");
+            var expectedSingle = "{ 'name' : { '$nin' : [1] } }".Replace("'", "\"");
+            var expectedMultiple = "{ 'name' : { '$nin' : [1, 2, 3] } }".Replace("'", "\"");
 
             Assert.AreEqual(expectedSingle, query1.ToJson());
             Assert.AreEqual(expectedMultiple, query2.ToJson());
@@ -130,11 +127,11 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         [Test]
         public void TestQueryNotNin()
         {
-            var query1 = Query.Not("name").NotIn(_bsonValue);
-            var query2 = Query.Not("name").NotIn(_bsonArray);
-            var query3 = Query.Not("name").NotIn(_bsonValueArray);
-            var query4 = Query.Not("name").NotIn(_bsonValueList);
-            var query5 = Query.Not("name").NotIn(_ienumerableBsonValue);
+            var query1 = Query.Not(Query.NotIn("name", new BsonValue[] { _bsonValue }));
+            var query2 = Query.Not(Query.NotIn("name", _bsonArray));
+            var query3 = Query.Not(Query.NotIn("name", _bsonValueArray));
+            var query4 = Query.Not(Query.NotIn("name", _bsonValueList));
+            var query5 = Query.Not(Query.NotIn("name", _ienumerableBsonValue));
 
             var expectedSingle = "{ 'name' : { '$not' : { '$nin' : [1] } } }".Replace("'", "\"");
             var expectedMultiple = "{ 'name' : { '$not' : { '$nin' : [1, 2, 3] } } }".Replace("'", "\"");
@@ -204,4 +201,3 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
         }
     }
 }
-#pragma warning restore 618

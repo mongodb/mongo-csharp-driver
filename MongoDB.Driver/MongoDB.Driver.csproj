@@ -92,7 +92,6 @@
     <Compile Include="Builders\IndexKeysBuilder.cs" />
     <Compile Include="Builders\IndexOptionsBuilder.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilder.cs" />
-    <Compile Include="Builders\DeprecatedQueryBuilder.cs" />
     <Compile Include="Builders\PushEachOptions.cs" />
     <Compile Include="Builders\QueryBuilder.cs" />
     <Compile Include="Builders\SortByBuilder.cs" />
