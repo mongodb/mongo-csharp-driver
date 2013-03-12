@@ -1,0 +1,671 @@
+BSON library changes from 1.7 to 1.8
+
+Source tree has been reorganized
+	source tree and namespaces are a bit out of sync temporarily but that will be fixed in 2.0 when we simplify namespaces
+
+DuplicateBsonMemberMapAttributeException.cs
+	new class
+
+BsonBinaryReader.cs
+	new constructor with disposeBuffer parameter
+	ReadBinaryData now returns a BsonBinaryData (instead of using out parameters)
+	new ReadBytes method returns byte[] (can be called when subType is Binary or OldBinary)
+	ReadObjectId now returns an ObjectId (instead of using out parameters)
+	new ReadRawBsonArray method
+	new ReadRawBsonDocument method
+	ReadRegularExpression now returns a BsonRegularExpression (instead of using out parameters)
+	Dispose only disposes the _buffer if _disposeBuffer is true
+	methods that decode UTF8 now use Encoding configured in BsonBinaryReaderSettings
+
+BsonBinaryReaderSettings.cs
+	obsoleted one of the constructors
+	new Encoding property
+	reimplemented CloneImplementation
+
+BsonBinaryWriter.cs
+	new constructor with disposeBuffer parameter
+	WriteBinaryData now has a single BsonBinaryData parameter
+	new WriteBytes method
+	WriteObjectId now has a single ObjectId parameter
+	new WriteRawBsonArray method
+	new WriteRawBsonDocument method
+	WriteRegularExpression now has a single BsonRegularExpression parameter
+	Dispose only disposes the _buffer if _disposeBuffer is true
+	methods that encode UTF8 now use Encoding configured in BsonBinaryWriterSettings
+
+BsonBinaryWriterSettings.cs
+	obsoleted one of the constructors
+	new Encoding property
+	reimplemented CloneImplementation
+
+BsonBuffer.cs
+	all chunk pool functionality has been moved to BsonChunkPool
+	all chunk functionality has been moved to various implementations of IByteBuffer
+	all properties and methods have been rewritten in terms of IByteBuffer
+	new constructor with byteBuffer and disposeByteBuffer parameters
+	new ByteBuffer property
+	obsoleted CopyTo
+	obsoleted PeekBsonType and PeekByte
+	ReadObjectId now returns an ObjectId (instead of using out parameters)
+	ReadString now has a UTF8Encoding parameter
+	ReadCString now has a UTF8Encoding parameter
+	the overload of ReadCString that has a BsonTrie parameter has been renamed ReadName (and reimplemented)
+	WriteCString now has a UTF8Encoding parameter
+	WriteObjectId now has a single ObjectId parameter
+	WriteString now has a UTF8Encoding parameter
+	obsoleted WriteZero
+	private DecodeUtf8String method now has a UTF8Encoding parameter
+	private IndexOfNull method removed
+	Dispose only disposes the byteBuffer is disposeByteBuffer is true
+	new ReadCString helper method
+
+BsonChunk.cs
+	new class representing a single chunk
+
+BsonChunkPool.cs
+	new class representing a pool of BsonChunks
+
+BsonDocumentReader.cs
+	ReadBinaryData now returns a BsonBinaryData (instead of using out parameters)
+	new ReadBytes method returns byte[] (can be called when subType is Binary or OldBinary)
+	ReadObjectId now returns an ObjectId (instead of using out parameters)
+	ReadRegularExpression now returns a BsonRegularExpression (instead of using out parameters)
+	
+BsonDocumentReaderSettings.cs
+	obsoleted additional constructors
+	reimplemented CloneImplementation
+
+BsonDocumentWriter.cs
+	WriteBinaryData now has a single BsonBinaryData parameter
+	new WriteBytes method
+	WriteObjectId now has a single ObjectId parameter
+	WriteRegularExpression now has a single BsonRegularExpression parameter
+	Dispose now calls base method
+
+BsonDocumentWriterSettings.cs
+	obsoleted additional constructors
+	reimplemented CloneImplementation
+
+BsonReader.cs
+	ReadBinaryData now returns a BsonBinaryData (instead of using out parameters)
+	new ReadBytes method returns byte[] (can be called when subType is Binary or OldBinary)
+	ReadObjectId now returns an ObjectId (instead of using out parameters)
+	new ReadRawBsonArray method
+	new ReadRawBsonDocument method
+	ReadRegularExpression now returns a BsonRegularExpression (instead of using out parameters)
+	fixed VeryName so it no longer calls ReadBsonType
+
+BsonWriter.cs
+	WriteBinaryData now has a single BsonBinaryData parameter
+	new WriteBytes method
+	WriteObjectId now has a single ObjectId parameter
+	new WriteRawBsonArray method
+	new WriteRawBsonDocument method
+	WriteRegularExpression now has a single BsonRegularExpression parameter
+
+ByteArrayBuffer.cs
+	new class (implements an IByteBuffer backed by a byte array)
+
+ByteBufferFactory.cs
+	new class
+	Create method returns either a SingleChunkBuffer or a MultiChunkBuffer depending on required capacity
+	LoadFrom method loads an IByteBuffer from a Stream
+
+IByteBuffer.cs
+	new interface representing a byte buffer
+	has simple Read and Write methods that operate at the byte level
+	implemented by ByteArrayBuffer, SingleChunkBuffer and MultiChunkBuffer
+
+JsonReader.cs
+	ReadBinaryData now returns a BsonBinaryData (instead of using out parameters)
+	new ReadBytes method returns byte[] (can be called when subType is Binary or OldBinary)
+	ReadObjectId now returns an ObjectId (instead of using out parameters)
+	ReadRegularExpression now returns a BsonRegularExpression (instead of using out parameters)
+	
+JsonReaderSettings.cs
+	obsoleted additional constructors
+	reimplemented CloneImplementation
+
+JsontWriter.cs
+	WriteBinaryData now has a single BsonBinaryData parameter
+	new WriteBytes method
+	WriteObjectId now has a single ObjectId parameter
+	WriteRegularExpression now has a single BsonRegularExpression parameter
+	Dispose now calls base method
+
+JsonWriterSettings.cs
+	obsoleted additional constructors
+	obsoleted Encoding property (Encoding is set on the Stream)
+	reimplemented CloneImplementation
+
+MultiChunkBuffer.cs
+	new class (implements an IByteBuffer backed by multiple chunks)
+
+SingleChunkBuffer.cs
+	new class (implements an IByteBuffer that is small enough to be backed by a single chunk)
+
+BsonArray.cs
+	made all properties and methods virtual so LazyBsonArray and RawBsonArray can override them
+	reimplemented ==, Equals and GetHashCode
+	reimplemented CompareTo
+	obsoleted RawValues property
+	obsoleted Create methods
+	obsoleted ReadFrom method
+	obsoleted CopyTo
+	obsoleted WriteTo
+
+BsonBinaryData.cs
+	obsoleted RawValue property
+	obsoleted Create methods
+
+BsonBoolean.cs
+	constructor is now public
+	obsoleted RawValue property
+	obsoleted Create method
+	now overrides ToBoolean method
+
+BsonDateTime.cs
+	now overrides IsValidDateTime
+	obsoleted RawValue property
+	obsoleted Value property
+	obsoleted Create methods
+	now overrides ToLocalTime, ToNullableLocalTime, ToNullableUniversalTime and ToUniversalTime
+
+BsonDocument.cs
+	made all properties and methods virtual so LazyBsonDocument and RawBsonDocument can override them
+	some constructors have been obsoleted
+	reimplemented ==, Equals and GetHashCode
+	obsoleted RawValues property
+	obsoleted overload of [] with defaultValue parameter
+	obsoleted ReadFrom methods
+	some Add methods have been obsoleted and replaced by equivalent AddRange methods
+	added new AddRange methods
+	reimplemented CompareTo
+	obsolete Deserialize method now simply delegates to BsonDocumentSerializer
+	obsolete GetDocumentId method now simply delegates to BsonDocumentSerializer
+	obsolete Serialize method now simply delegates to BsonDocumentSerializer
+	obsolete SetDocumentId method now simply delegates to BsonDocumentSerializer
+	obsoleted WriteTo methods
+
+BsonDocumentWrapper.cs
+	added IsUpdateDocument, WrappedNominalType and WrappedObject properties
+	obsolete Serialize method now simply delegates to BsonDocumentWrapperSerializer
+
+BsonDouble.cs
+	obsoleted RawValue property
+	obsoleted Create methods
+	now overrides ToBoolean, ToDouble, ToInt32 and ToInt64
+
+BsonElement.cs
+	obsoleted Create methods
+	removed internal ReadFrom methods
+	removed internal WriteTo method
+
+BsonInt32.cs
+	removed precreated instances
+	removed static constructor
+	obsoleted MinusOne, Zero, One, Two and Three properties
+	obsoleted RawValue property
+	obsoleted Create method
+	now overrides ToBoolean, ToDouble, ToInt32 and ToInt64
+
+BsonInt64.cs
+	obsoleted RawValue property
+	obsoleted Create method
+	now overrides ToBoolean, ToDouble, ToInt32 and ToInt64
+
+BsonJavaScript.cs
+	obsoleted Create method
+
+BsonJavaScriptWithScope.cs
+	obsoleted Create method
+
+BsonNull.cs
+	now overrides ToBoolean, ToNullableLocalTime and ToNullableUniversalTime
+
+BsonObjectId.cs
+	obsoleted unnecessary constructors
+	obsoleted properties and methods that simply delegate to the wrapped ObjectId
+
+BsonRegularExpression.cs
+	obsoleted Create methods
+
+BsonString.cs
+	obsoleted RawValue property
+	obsoleted Create method
+	now overrides ToBoolean, ToDouble, ToInt32 and ToInt64
+
+BsonSymbol.cs
+	obsoleted Create method
+
+BsonTimestamp.cs
+	obsoleted Create methods
+
+BsonTypeMapper.cs
+	MapToBsonValue method now maps IEnumerable<KeyValuePair<string, object>> instead of IDictionary<string, object>
+	TryMapToBsonValue method now maps IEnumerable<KeyValuePair<string, object>> instead of IDictionary<string, object>
+	Convert method now uses BsonXyz constructors instead of obsolete Create methods
+
+BsonUndefined.cs
+	now overrides ToBoolean
+
+BsonValue.cs
+	obsoleted AsDateTime, AsLocalTime, AsNullableDateTime and AsUniversalTime properties
+	obsoleted IsDateTime property and added new IsValidDateTime property
+	obsoleted RawValue property
+	added indexers at the BsonValue level (overridden in BsonArray and BsonDocument), allows for more compact code
+	obsoleted ReadFrom method
+	ToBoolean method is now virtual and overridden as needed
+	ToDouble method is now virtual and overridden as needed
+	ToInt32 method is now virtual and overridden as needed
+	ToInt64 method is now virtual and overridden as needed
+	ToLocalTime method is now virtual and overridden as needed
+	ToNullableLocalTime method is now virtual and overridden as needed
+	ToNullableUniversalTime method is now virtual and overridden as needed
+	ToUniversalTime method is now virtual and overridden as needed
+	
+LazyBsonArray.cs
+	new class that keeps an array as raw bytes until first accessed
+	overrides properties and methods from BsonArray and deserializes one level when first accessed
+
+LazyBsonDocument.cs
+	new class that keeps a document as raw bytes until first accessed
+	overrides properties and methods from BsonDocument and deserializes one level when first accessed
+
+ObjectId.cs
+	constructor now throws exception if machine or increment value doesn't fit in 3 bytes
+	Pack method now throws exception if machine or increment value doesn't fit in 3 bytes
+
+RawBsonArray.cs
+	new class that keeps an array as raw bytes
+	overrides properties and methods from BsonArray and deserialize each element as it is accessed
+
+RawBsonDocument.cs
+	new class that keeps a document as raw bytes
+	overrides properties and methods from BsonDocument and deserialize each element as it is accessed
+
+BsonConstructorAttribute.cs
+	new attribute used to tag a constructor that can be called during deserialization
+
+BsonFactoryMethodAttribute.cs
+	new attribute used to tag a static factory method that can be called during deserialization
+
+BsonIdAttribute.cs
+	Apply no longer calls SetElementName to set the element name to _id (now happens in Freeze)
+
+BsonMemberMapUsageAttribute.cs
+	new attribute used to define whether some other attribute can be used more than once per class
+
+BsonNoIdAttribute.cs
+	new attribute used to tag a class has not having an _id member
+
+BsonSerializerAttribute.cs
+	the serializerType can now be an open generic type (used when specifying the serializer for a generic type)
+
+BsonTimeSpanOptionsAttributes.cs
+	new attribute to specify TimeSpan serialization options
+
+IBsonClassMapAttribute.cs
+	new interface used with class map attributes (replaces IBsonClassMapModifier)
+
+IBsonClassMapModifier.cs
+	obsolete (replaced by IBsonClassMapAttribute)
+
+IBsonCreatorMapAttribute.cs
+	new interface used with constructor and factory method attributes
+
+IBsonMemberMapAttribute.cs
+	new interface used with member map attributes (replaces IBsonMemberMapModifier)
+
+IBsonMemberMapModifier.cs
+	obsolete (replaced by IBsonMemberMapAttribute)
+
+IBsonPostProcessingAttribute.cs
+	new interface used with post processing attributes
+
+Conventions\Obsolete folder
+	contains the obsolete conventions that are temporarily preserved for backward compatibility (will be removed in the next release)
+
+ConventionProfile.cs
+	now also implements IConventionPack so that this obsolete class can interoperate with the new conventions system
+
+Conventions folder
+	contains all new implementation of a conventions system for automatically creating class maps
+
+LookupIdGeneratorConvention.cs
+	simultaneously implements the obsolete and the new conventions system
+
+DateTimeSerializationOptions.cs
+	obsoleted static Defaults property
+
+DictionarySerializationOptions.cs
+	obsoleted static Defaults property
+
+TimeSpanSerializationOptions.cs
+	added support for the new BsonTimeSpanOtpionsAttribute
+
+TimeSpanUnits.cs
+	added Microseconds value
+
+Serializers folder
+	obsoleted all static Instance properties except the ones for the BsonDocument object model
+
+BitArraySerializer.cs
+	obsoleted static Instance property
+	changed Deserialize to use new ReadBytes method
+	changed Serialize to use new WriteBytes method
+
+BitmapSerializer.cs
+	obsoleted static Instance property
+	changed Deserialize to use new ReadBytes method
+	changed Serialize to use new WriteBytes method
+
+BooleanSerializer.cs
+	obsoleted static Instance property
+
+BsonArraySerializer.cs
+	Deserialize now contains logic that used to be in BsonArray.ReadFrom
+	Serialize now contains logic that used to be in BsonArray.WriteTo
+
+BsonBinaryDataSerializer.cs
+	Deserialize now throws if value found is not binary data
+	Serialize now throws if value is null
+
+BsonBooleanSerializer.cs
+	no longer delegates to BooleanSerializer
+	Deserialize now throws if value found is not a boolean
+	Serialize now throws if value is null
+
+BsonClassMapSerializer.cs
+	now supports calling constructors and static factory methods during deserialization
+	changed Deserialize to support calling constructors and static factory methods
+	new ChooseBestCreator method
+	new CreateInstanceUsingCreator method
+	renamed DeserializeMember to DeserializeMemberValue (and it's now only responsible for deserializing the value, not for storing it)
+	DeserializeMemberValue now handles special case of C# null
+	new IsCSharpNullRepresentation method
+	SerializeMember now handles special case of C# null representation
+
+BsonDateTimeSerializer.cs
+	Deserialize now only allows BSON Date values and doesn't try to do conversions
+	Deserialize now throws if value found is not a Date
+	Serialize now throws if value is null
+	Serialize now ignores options and always serializes a BSON Date
+
+BsonDocumentSerializer.cs
+	Deserialize now contains logic that used to be in BsonDocument.ReadFrom
+	GetDocumentId now contains logic that used to be in BsonDocument.GetDocumentId
+	Serialize now contains logic that used to be in BsonDocument.Serialize
+	SetDocumentId now contains logic that used to be in BsonDocument.SetDocumentId
+
+BsonDocumentWrapperSerializer.cs
+	Serialize now contains logic that used to be in BsonDocumentWrapper.Serialize
+	Serialize now throws if value is null
+
+BsonDoubleSerializer.cs
+	no longer delegates to DoubleSerializer
+	Deserialize now throws if value found is not a double
+	Serialize now throws if value is null
+
+BsonInt32Serializer.cs
+	no longer delegates to Int32Serializer
+	Deserialize now throws if value found is not a 32-bit interger
+	Serialize now throws if value is null
+
+BsonInt64Serializer.cs
+	no longer delegates to Int64Serializer
+	Deserialize now throws if value found is not a 64-bit interger
+	Serialize now throws if value is null
+
+BsonJavaScriptSerializer.cs
+	Deserialize now throws if value found is not JavaScript code
+	Serialize now throws if value is null
+
+BsonJavaScriptWithScopeSerializer.cs
+	Deserialize now throws if value found is not JavaScript code with a scope document
+	Serialize now throws if value is null
+
+BsonMaxKeySerializer.cs
+	Deserialize now throws if value found is not BSON max key
+	Serialize now throws if value is null
+
+BsonMinKeySerializer.cs
+	Deserialize now throws if value found is not BSON min key
+	Serialize now throws if value is null
+
+BsonNullSerializer.cs
+	Deserialize now throws if value found is not BSON null
+	Serialize now throws if value is null
+
+BsonObjectIdSerializer.cs
+	no longer delegates to ObjectIdSerializer
+	Deserialize now throws if value found is not an ObjectId
+	Serialize now throws if value is null
+
+BsonRegularExpressionSerializer.cs
+	Deserialize now throws if value found is not a BSON regular expression
+	Serialize now throws if value is null
+
+BsonStringSerializer.cs
+	no longer delegates to StringSerializer
+	Deserialize now throws if value found is not a string
+	Serialize now throws if value is null
+
+BsonSymbolSerializer.cs
+	Deserialize now throws if value found is not a symbol
+	Serialize now throws if value is null
+
+BsonTimestampSerializer.cs
+	Deserialize now throws if value found is not a timestamp
+	Serialize now throws if value is null
+
+BsonUndefinedSerializer.cs
+	Deserialize now throws if value found is not a BSON undefined value
+	Serialize now throws if value is null
+
+BsonValueSerializer.cs
+	Deserialize now contains logic that used to be in BsonValue.ReadFrom
+	Serialize now contains logic that used to be in BsonValue.WriteTo
+
+ByteArraySerializer.cs
+	obsoleted static Instance property
+	Deserialize now uses new ReadBytes method
+	Serialize now uses new WriteBytes method
+
+ByteSerializer.cs
+	obsoleted static Instance property
+	Deserialize now uses new ReadBytes method
+	Serialize now uses new WriteBytes method
+
+CharSerializer.cs
+	obsoleted static Instance property
+
+CultureInfoSerializer.cs
+	obsoleted static Instance property
+
+DateTimeOffsetSerializer.cs
+	obsoleted static Instance property
+
+DateTimeSerializer.cs
+	added new constructor with defaultSerializationOptions parameter
+	obsoleted static Instance property
+	changed Deserialize to use ToUniversalTime instead of Value
+
+DecimalSerializer.cs
+	obsoleted static Instance property
+	changed Deserialize to use BsonArraySerializer instead of BsonArray.ReadFrom
+
+DictionaryGenericSerializer.cs
+	added new constructor with defaultSerializationOptions parameter
+	Serialize now handles empty string key values
+
+DictionarySerializer.cs
+	added new constructor with defaultSerializationOptions parameter
+	obsoleted static Instance property
+	Serialize now handles empty string key values
+
+DoubleSerializer.cs
+	obsoleted static Instance property
+
+DrawingSizeSerializer.cs
+	obsoleted static Instance property
+
+EnumerableSerializer.cs
+	obsoleted static Instance property
+
+EnumSerializer.cs
+	obsoleted static Instance property
+
+GuidSerializer.cs
+	obsoleted static Instance property
+	changed Deserialize to use new version of ReadBinaryData
+	changed Serialize to use new version of WriteBinaryData
+
+ImageSerializer.cs
+	obsoleted static Instance property
+
+Int16Serializer.cs
+	obsoleted static Instance property
+
+Int32Serializer.cs
+	obsoleted static Instance property
+
+Int64Serializer.cs
+	obsoleted static Instance property
+
+IPAddressSerializer.cs
+	obsoleted static Instance property
+
+IPEndPointSerializer.cs
+	obsoleted static Instance property
+
+KeyValuePairSerializer.cs
+	Serialize now handles null key and value
+
+LazyBsonArraySerializer.cs
+	new serializer for the new LazyBsonArray class
+
+LazyBsonDocumentSerializer.cs
+	new serializer for the new LazyBsonDocument class
+
+ObjectIdSerializer.cs
+	obsoleted static Instance property
+	Deserialize now uses new version of ReadObjectId
+	Serialize uses new version of WriteObjectId
+
+ObjectSerializer.cs
+	obsoleted static Instance property
+
+QueueSerializer.cs
+	obsoleted static Instance property
+
+RawBsonArraySerializer.cs
+	new serializer for the new RawBsonArray class
+
+RawBsonDocumentSerializer.cs
+	new serializer for the new RawBsonDocument class
+
+SByteSerializer.cs
+	obsoleted static Instance property
+	Deserialize uses new ReadBytes method
+	Serialize uses new WriteBytes method
+
+SingleSerializer.cs
+	obsoleted static Instance property
+
+StackSerializer.cs
+	obsoleted static Instance property
+
+StringSerializer.cs
+	obsoleted static Instance property
+	Deserialize uses new version of ReadObjectId
+	Serialize uses new version of WriteObjectId
+
+TimeSpanSerializer.cs
+	obsoleted static Instance property
+	cleaned up implementation of Deserialize and Serialize
+	new FromDouble, FromInt32, FromInt64 helper methods
+	new TicksPerUnit helper method
+	new ToDouble, ToInt32, ToInt64 helper methods
+
+UInt16Serializer.cs
+	obsoleted static Instance property
+
+UInt32Serializer.cs
+	obsoleted static Instance property
+
+UInt64Serializer.cs
+	obsoleted static Instance property
+
+UriSerializer.cs
+	obsoleted static Instance property
+
+VersionSerializer.cs
+	obsoleted static Instance property
+
+BsonClassMap.cs
+	moved convention registry functionality to new ConventionRegistry class
+	added support for creator maps (constructors and static factory methods)
+	several changes to use new convention system
+	new CreatorMaps property
+	new ConventionPack property
+	obsoleted Conventions property
+	new HasCreatorMaps property
+	removed obsolete MemberMaps property
+	obsoleted LookupConventions method
+	obsoleted RegisterConventions method
+	Freeze no longer tries to find the _id member, that's up to conventions now (but if there is an _id, Freeze sets the element name to "_id")
+	Freeze no longer tries to find the extra elements, that's up to conventions now
+	new MapConstructor methods
+	new MapCreator methods
+	new MapFactoryMethod methods
+	new Reset method (can be used in conventions to reset class map back to initial state)
+	SetExtraElementsMember can now be called multiple times (last one wins)
+	SetIdMember can now be called multiple times (last one wins)
+	SetIdMember no longer sets the element name to _id (that's now done in Freeze)
+	new UnmapConstructor method
+	new UnmapFactoryMethod method
+	AutoMapClass has been reimplemented to use the new conventions system
+	private AutoMapMember method is removed and functionality has been moved to conventions
+	private FindMembers method is removed and functionality has been moved to conventions
+	private FilteredConventionProfile class is no longer needed here and has been removed
+	GetMemberInfoFromLambda now handles lambdas where parameter is an interface
+	new ResolveExplicitProperty private method
+
+BsonCreatorMap.cs
+	new class to represent a creator member (a constructor or factory method)
+
+BsonDefaultSerializationProvider.cs
+	serializers Dictionary now maps value types to serializer types (not serializer instances)
+	GetSerializer changed to instantiate new serializers using the resulting type from the dictionary lookup
+	GetSerializer now returns BsonDocumentSerializer for all subclasses of BsonDocument (if not explicitly mapped otherwise)
+	GetSerializer now returns BsonIBsonSerializableSerializer for all implementers of IBsonSerializable (if not explicitly mapped otherwise)
+
+BsonMemberMap.cs
+	new MemberTypeIsBsonValue property
+	some of the logic from ElementName has been moved out to the conventions
+	some of the logic from IdGenerator has been moved out to the conventions
+	new IsDefaultValueSpecified property
+	removed obsolete SerializeDefaultValue property
+	new Reset method
+	removed obsolete overload of SetDefaultValue method
+	removed obsolete SetSerializeDefaultValue method
+
+BsonSerializer.cs
+	Deserialize no longer special cases BsonDocument
+	LookupSerializer only special cases BsonDocument, not subclasses of BsonDocument
+	RegisterSerializer does not allow registering serializers for BsonValue and its subclasses
+	Serialize no longer special cases IBsonSerializable
+
+CreatorMapDelegateCompiler.cs
+	new class that compiles delegates to call constructors and factory methods
+
+ExpressionVisitor.cs
+	new class used by CreatorMapDelegateCompiler
+	when we move to .NET Framework 4 we will remove this class and use the ExpressionVisitor in .NET 4
+
+ICreatorSelector.cs
+	new interface defining a selector to choose a creator (based on some criteria)
+
+MostArgumentsCreatorSelector.cs
+	an implementation of ICreatorSelector that chooses the creator with the most matching arguments

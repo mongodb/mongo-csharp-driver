@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Bson", "MongoDB.Bson\MongoDB.Bson.csproj", "{0E9A3A2A-49CD-4F6C-847C-DC79B4B65CE6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.BsonUnitTests", "MongoDB.BsonUnitTests\MongoDB.BsonUnitTests.csproj", "{10A5FAC2-E26F-4726-B888-26D5B849F805}"
@@ -34,6 +34,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Change Log v1.6.1-Driver.txt = Release Notes\Change Log v1.6.1-Driver.txt
 		Release Notes\Change Log v1.7-Bson.txt = Release Notes\Change Log v1.7-Bson.txt
 		Release Notes\Change Log v1.7-Driver.txt = Release Notes\Change Log v1.7-Driver.txt
+		Release Notes\Change Log v1.8-Bson.txt = Release Notes\Change Log v1.8-Bson.txt
+		Release Notes\Change Log v1.8-Driver.txt = Release Notes\Change Log v1.8-Driver.txt
 		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
 		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
 		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
