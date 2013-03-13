@@ -554,6 +554,10 @@ namespace MongoDB.Bson
                 case TypeCode.String:
                     return ((IConvertible)this).ToString(provider);
                 case TypeCode.Object:
+                    if (conversionType == typeof(ObjectId))
+                    {
+                        return this;
+                    }
                     if (conversionType == typeof(BsonObjectId))
                     {
                         return new BsonObjectId(this);

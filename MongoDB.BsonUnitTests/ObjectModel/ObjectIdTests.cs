@@ -339,5 +339,15 @@ namespace MongoDB.BsonUnitTests
             Assert.IsFalse(ObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
             Assert.IsFalse(ObjectId.TryParse(null, out objectId1)); // should return false not throw ArgumentNullException
         }
+
+        [Test]
+        public void TestConvertObjectIdToObjectId()
+        {
+            var oid = ObjectId.GenerateNewId();
+
+            var oidConverted = Convert.ChangeType(oid, typeof(ObjectId));
+
+            Assert.AreEqual(oid, oidConverted);
+        }
     }
 }
