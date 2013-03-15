@@ -345,7 +345,6 @@ namespace MongoDB.Driver.Internal
                     AddInstance(instance);
                     if (_state != MongoServerState.Disconnecting && _state != MongoServerState.Disconnected)
                     {
-                        _state = MongoServerState.Connecting;
                         ConnectInstance(instance);
                     }
                 }

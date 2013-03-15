@@ -126,40 +126,32 @@ namespace MongoDB.Driver.Internal
 
             // the order of the tests is significant
             // and resolves ambiguities when more than one state might match
-            if (currentState == MongoServerState.Disconnecting)
+            if (currentState == MongoServerState.Disconnected)
+            {
+                return MongoServerState.Disconnected;
+            }
+            else if (currentState == MongoServerState.Disconnecting)
             {
                 if (instances.All(i => i.State == MongoServerState.Disconnected))
                 {
                     return MongoServerState.Disconnected;
                 }
+
+                return MongoServerState.Disconnecting;
             }
             else
             {
-                if (instances.All(i => i.State == MongoServerState.Disconnected))
-                {
-                    return MongoServerState.Disconnected;
-                }
-                else if (instances.All(i => i.State == MongoServerState.Connected))
+                if (instances.All(i => i.State == MongoServerState.Connected))
                 {
                     return MongoServerState.Connected;
-                }
-                else if (instances.Any(i => i.State == MongoServerState.Connecting))
-                {
-                    return MongoServerState.Connecting;
-                }
-                else if (instances.Any(i => i.State == MongoServerState.Unknown))
-                {
-                    return MongoServerState.Unknown;
                 }
                 else if (instances.Any(i => i.State == MongoServerState.Connected))
                 {
                     return MongoServerState.ConnectedToSubset;
                 }
 
-                throw new MongoInternalException("Unexpected server instance states.");
+                return MongoServerState.Connecting;
             }
-
-            return currentState;
         }
 
         /// <summary>
