@@ -81,8 +81,10 @@ namespace MongoDB.Driver
                 {
                     AssignIdOnInsert = false,
                     GuidRepresentation = _settings.GuidRepresentation,
+                    ReadEncoding = _settings.ReadEncoding,
                     ReadPreference = _settings.ReadPreference,
-                    WriteConcern = _settings.WriteConcern
+                    WriteConcern = _settings.WriteConcern,
+                    WriteEncoding = _settings.WriteEncoding
                 };
                 _commandCollection = _database.GetCollection("$cmd", commandCollectionSettings);
             }

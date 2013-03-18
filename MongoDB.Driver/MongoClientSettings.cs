@@ -38,6 +38,7 @@ namespace MongoDB.Driver
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
+        private UTF8Encoding _readEncoding;
         private ReadPreference _readPreference;
         private string _replicaSetName;
         private TimeSpan _secondaryAcceptableLatency;
@@ -49,6 +50,7 @@ namespace MongoDB.Driver
         private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private WriteConcern _writeConcern;
+        private UTF8Encoding _writeEncoding;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -70,6 +72,7 @@ namespace MongoDB.Driver
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
             _minConnectionPoolSize = MongoDefaults.MinConnectionPoolSize;
+            _readEncoding = null;
             _readPreference = ReadPreference.Primary;
             _replicaSetName = null;
             _secondaryAcceptableLatency = MongoDefaults.SecondaryAcceptableLatency;
@@ -81,6 +84,7 @@ namespace MongoDB.Driver
             _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Acknowledged;
+            _writeEncoding = null;
         }
 
         // public properties
@@ -210,6 +214,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _minConnectionPoolSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the Read Encoding.
+        /// </summary>
+        public UTF8Encoding ReadEncoding
+        {
+            get { return _readEncoding; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _readEncoding = value;
             }
         }
 
@@ -386,6 +403,19 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Write Encoding.
+        /// </summary>
+        public UTF8Encoding WriteEncoding
+        {
+            get { return _writeEncoding; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _writeEncoding = value;
+            }
+        }
+
         // public operators
         /// <summary>
         /// Determines whether two <see cref="MongoClientSettings"/> instances are equal.
@@ -440,6 +470,7 @@ namespace MongoDB.Driver
             clientSettings.MaxConnectionLifeTime = builder.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = builder.MaxConnectionPoolSize;
             clientSettings.MinConnectionPoolSize = builder.MinConnectionPoolSize;
+            clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             clientSettings.ReadPreference = (builder.ReadPreference == null) ? ReadPreference.Primary : builder.ReadPreference.Clone();
             clientSettings.ReplicaSetName = builder.ReplicaSetName;
             clientSettings.SecondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
@@ -451,6 +482,7 @@ namespace MongoDB.Driver
             clientSettings.WaitQueueSize = builder.ComputedWaitQueueSize;
             clientSettings.WaitQueueTimeout = builder.WaitQueueTimeout;
             clientSettings.WriteConcern = builder.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
+            clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code
             return clientSettings;
         }
 
@@ -480,6 +512,7 @@ namespace MongoDB.Driver
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
             clientSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
+            clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             clientSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             clientSettings.ReplicaSetName = url.ReplicaSetName;
             clientSettings.SecondaryAcceptableLatency = url.SecondaryAcceptableLatency;
@@ -491,6 +524,7 @@ namespace MongoDB.Driver
             clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
             clientSettings.WaitQueueTimeout = url.WaitQueueTimeout;
             clientSettings.WriteConcern = url.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
+            clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code
             return clientSettings;
         }
 
@@ -511,6 +545,7 @@ namespace MongoDB.Driver
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
             clone._minConnectionPoolSize = _minConnectionPoolSize;
+            clone._readEncoding = _readEncoding;
             clone._readPreference = _readPreference.Clone();
             clone._replicaSetName = _replicaSetName;
             clone._secondaryAcceptableLatency = _secondaryAcceptableLatency;
@@ -522,6 +557,7 @@ namespace MongoDB.Driver
             clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
             clone._writeConcern = _writeConcern.Clone();
+            clone._writeEncoding = _writeEncoding;
             return clone;
         }
 
@@ -558,6 +594,7 @@ namespace MongoDB.Driver
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
+                object.Equals(_readEncoding, rhs._readEncoding) &&
                 _readPreference == rhs._readPreference &&
                 _replicaSetName == rhs._replicaSetName &&
                 _secondaryAcceptableLatency == rhs._secondaryAcceptableLatency &&
@@ -568,7 +605,8 @@ namespace MongoDB.Driver
                 _verifySslCertificate == rhs._verifySslCertificate &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout &&
-                _writeConcern == rhs._writeConcern;
+                _writeConcern == rhs._writeConcern &&
+                object.Equals(_writeEncoding, rhs._writeEncoding);
         }
 
         /// <summary>
@@ -625,6 +663,7 @@ namespace MongoDB.Driver
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
                 .Hash(_minConnectionPoolSize)
+                .Hash(_readEncoding)
                 .Hash(_readPreference)
                 .Hash(_replicaSetName)
                 .Hash(_secondaryAcceptableLatency)
@@ -636,6 +675,7 @@ namespace MongoDB.Driver
                 .Hash(_waitQueueSize)
                 .Hash(_waitQueueTimeout)
                 .Hash(_writeConcern)
+                .Hash(_writeEncoding)
                 .GetHashCode();
         }
 
@@ -660,6 +700,10 @@ namespace MongoDB.Driver
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
             sb.AppendFormat("MinConnectionPoolSize={0};", _minConnectionPoolSize);
+            if (_readEncoding != null)
+            {
+                sb.Append("ReadEncoding=[set]");
+            }
             sb.AppendFormat("ReadPreference={0};", _readPreference);
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("SecondaryAcceptableLatency={0};", _secondaryAcceptableLatency);
@@ -674,6 +718,10 @@ namespace MongoDB.Driver
             sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
             sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
             sb.AppendFormat("WriteConcern={0};", _writeConcern);
+            if (_writeEncoding != null)
+            {
+                sb.Append("WriteEncoding=[set]");
+            }
             return sb.ToString();
         }
     }

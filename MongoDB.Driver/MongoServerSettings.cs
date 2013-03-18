@@ -509,6 +509,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = clientSettings.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = clientSettings.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = clientSettings.MinConnectionPoolSize;
+            serverSettings.ReadEncoding = clientSettings.ReadEncoding;
             serverSettings.ReadPreference = clientSettings.ReadPreference.Clone();
             serverSettings.ReplicaSetName = clientSettings.ReplicaSetName;
             serverSettings.SecondaryAcceptableLatency = clientSettings.SecondaryAcceptableLatency;
@@ -520,6 +521,7 @@ namespace MongoDB.Driver
             serverSettings.WaitQueueSize = clientSettings.WaitQueueSize;
             serverSettings.WaitQueueTimeout = clientSettings.WaitQueueTimeout;
             serverSettings.WriteConcern = clientSettings.WriteConcern.Clone();
+            serverSettings.WriteEncoding = clientSettings.WriteEncoding;
             return serverSettings;
         }
 
@@ -549,6 +551,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = builder.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = builder.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = builder.MinConnectionPoolSize;
+            serverSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             serverSettings.ReadPreference = (builder.ReadPreference == null) ? ReadPreference.Primary : builder.ReadPreference.Clone();
             serverSettings.ReplicaSetName = builder.ReplicaSetName;
             serverSettings.SecondaryAcceptableLatency = builder.SecondaryAcceptableLatency;
@@ -562,6 +565,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
             serverSettings.WriteConcern = builder.GetWriteConcern(MongoDefaults.SafeMode.Enabled);
 #pragma warning restore
+            serverSettings.WriteEncoding = null; // WriteEncoding must be provided in code
             return serverSettings;
         }
 
@@ -591,6 +595,7 @@ namespace MongoDB.Driver
             serverSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             serverSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
             serverSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
+            serverSettings.ReadEncoding = null; // ReadEncoding must be provided in code
             serverSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
             serverSettings.ReplicaSetName = url.ReplicaSetName;
             serverSettings.SecondaryAcceptableLatency = url.SecondaryAcceptableLatency;
@@ -604,6 +609,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
             serverSettings.WriteConcern = url.GetWriteConcern(MongoDefaults.SafeMode.Enabled);
 #pragma warning restore
+            serverSettings.WriteEncoding = null; // WriteEncoding must be provided in code
             return serverSettings;
         }
 
@@ -781,7 +787,7 @@ namespace MongoDB.Driver
             parts.Add(string.Format("MinConnectionPoolSize={0}", _minConnectionPoolSize));
             if (_readEncoding != null)
             {
-                parts.Add(string.Format("ReadEncoding={0}", _readEncoding));
+                parts.Add("ReadEncoding=[set]");
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference));
             parts.Add(string.Format("ReplicaSetName={0}", _replicaSetName));
@@ -799,7 +805,7 @@ namespace MongoDB.Driver
             parts.Add(string.Format("WriteConcern={0}", _writeConcern));
             if (_writeEncoding != null)
             {
-                parts.Add(string.Format("WriteEncoding={0}", _writeEncoding));
+                parts.Add("WriteEncoding=[set]");
             }
             return string.Join(",", parts.ToArray());
         }

@@ -405,13 +405,13 @@ namespace MongoDB.Driver
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation));
             if (_readEncoding.HasBeenSet)
             {
-                parts.Add(string.Format("ReadEncoding=[set]", _readEncoding.Value));
+                parts.Add("ReadEncoding=[set]");
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference));
             parts.Add(string.Format("WriteConcern={0}", _writeConcern));
             if (_writeEncoding.HasBeenSet)
             {
-                parts.Add(string.Format("WriteEncoding=[set]", _writeEncoding.Value));
+                parts.Add("WriteEncoding=[set]");
             }
             return string.Join(";", parts.ToArray());
         }
