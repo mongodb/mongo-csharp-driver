@@ -126,7 +126,7 @@ JsonReaderSettings.cs
 	obsoleted additional constructors
 	reimplemented CloneImplementation
 
-JsontWriter.cs
+JsonWriter.cs
 	WriteBinaryData now has a single BsonBinaryData parameter
 	new WriteBytes method
 	WriteObjectId now has a single ObjectId parameter

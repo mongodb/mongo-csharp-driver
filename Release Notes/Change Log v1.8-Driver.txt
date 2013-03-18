@@ -1,2 +1,369 @@
 C#/.NET driver changes from 1.8 to 1.8
 
+DeprecatedQueryBuilder.cs
+	removed deprecated class
+
+FieldsBuilder.cs
+	added ElemMatch methods
+
+IndexKeysBuilder.cs
+	added GeoSpatialSpherical methods
+	added Hashed methods
+	added private GetElementName method
+	changed GetElementNames to use new GetElementName method
+
+PushEachOptions.cs
+	new options class used with UpdateBuilder.PushEach
+
+QueryBuilder.cs
+	added new GetIntersects methods
+	added new Near method overloads for GetJsonPoints
+	Or method now returns { } if any sub query is { }
+	added new Within method overload for GetJsonPolygon
+
+UpdateBuilder.cs
+	changed parameter type of Combine from UpdateBuilder to IMongoUpdate
+	added new PushEach methods
+	added new PushEachWrapped methods
+	added new SetOnInsert methods
+
+CollectionStatResults.cs
+	all methods that were using AsInt32 now use ToInt32
+
+CommandResults.cs
+	added new Code property
+
+IsMasterResult.cs
+	added IsReplicaSet property
+	MaxMessageLength now checks to see if server reply has a maxMessageSizeBytes element
+
+MongoDeleteMessage.cs
+	WriteBody now has a BsonBuffer parameter
+
+MongoGetMoreMessage.cs
+	WriteBody now has a BsonBuffer parameter
+
+MongoInsertMessage.cs
+	AddDocument now has a BsonBuffer parameter
+	RemoveLastDocument now has a BsonBuffer parameter
+	ResetBatch now has a BsonBuffer parameter
+	WriteBody now has a BsonBuffer parameter
+
+MongoKillCursorsMessage.cs
+	WriteBody now has a BsonBuffer parameter
+
+MongoQueryMessage.cs
+	removed unnecessary constructor
+	WriteBody now has a BsonBuffer parameter
+
+MongoReplyMessage.cs
+	ReadFrom now handles error response separately from normal response
+	ReadFrom now uses faster SingleChunkBuffers to deserialize documents that don't span chunks
+
+MongoRequestMessage.cs
+	no longer implements IDisposable (because it no longer owns a BsonBuffer)
+	removed Buffer property
+	removed Dispose method
+	WriteToBuffer now has a BsonBuffer parameter
+	BackpatchMessageLength now has a BsonBuffer parameter
+	WriteBody now has a BsonBuffer parameter
+
+MongoUpdateMessage.cs
+	WriteBody now has a BsonBuffer parameter
+
+DirectMongoServerProxy.cs
+	no longer has a reference to a MongoServer, only to the MongoServerSettings
+
+DiscoveringMongoServerProxy.cs
+	no longer has a reference to a MongoServer, only to the MongoServerSettings
+
+MongoServerProxyFactory.cs
+	Create method now has a MongoServerSettings parameter instead of a MongoServer parameter
+
+MultipleInstanceMongoServerProxy.cs
+	no longer has a reference to a MongoServer, only to the MongoServerSettings
+	EnsureInstanceWithAddress no longer sets state to Connecting
+	ProcessInstanceStateChange now handles MyAddress equal to null
+
+ReplicaSetMongoServerProxy.cs
+	no longer has a reference to a MongoServer, only to the MongoServerSettings
+	DetermineServerState now sets state to Connecting if no instances are Connected
+	IsValidInstance now handles replica set Name equal to null
+
+ShardedMongoServerProxy.cs
+	no longer has a reference to a MongoServer, only to the MongoServerSettings
+	DetermineServerState now sets state to Connecting if no instances are Connected
+
+Security folder
+	new folder containing the many files that implement the new logon mechanisms
+
+MongoConnection.cs
+	no longer needs to track any authentications
+	removed Authenticate method (logic moved to MongoCRAuthenticationProtocol.cs)
+	removed CanAuthenticate method (no longer relevant)
+	removed CheckAuthentication method (no longer relevant)
+	removed IsAuthenticated method (no longer relevant)
+	removed Logout method (was never used and is no longer relevant)
+	Open method supports many new SSL configuration options
+	Open method now greedily authenticates every connection against all provided credentials
+	ReceiveMessage now sets the _lastUsedAt field
+	ReceiveMessage can use a SingleChunkBuffer if reply from server is short enough
+	SendMessage now sets the _lastUsedAt field
+	new overload of SendMessage that allows the ByteBuffer to be passed in
+	removed nested Authentication class (no longer relevant)
+
+MongoConnectionPool.cs
+	no longer has a reference to a MongoServer, only to MongoServerSettings
+	AcquireConnection database parameter removed
+	new overload of AcquireConnection that has an AcquireConnectionOptions parameter
+	AcquireConnection no longer has to do anything about authentications (all connections are equal)
+	AcquireConnection now enforces MaxIdleTime and MaxLifeTime strictly
+	MaintainPoolSize has been reimplemented
+	ReleaseConnection no longer returns expired connections to the pool
+	ReleaseConnection discards connection if necessary to shrink to MaxConnectionPoolSize
+	added nested AcquireConnectionOptions class
+
+MongoServerInstance.cs
+	no longer has a reference to a MongoServer, only to MongoServerSettings
+	Ping no longer creates a new connection if possible
+	VerifyState no longer creates a new connection if possible
+	AcquireConnection no longer needs a database parameter
+	AcquireConnection no longer needs to do anything regarding authentication
+	StateVerificationTimerCallback no longer creates a new connection if possible
+
+ReplicaSetInformation.cs
+	Name can now be null (because sometimes isMaster fails to return it)
+
+GeoJsonObjectModel folder
+	new set of classes to build GeoJson values in a type-safe way
+	instances of these classes serialize to valid GeoJson BSON documents
+
+MongoGridFS.cs
+	constructor now applies default values to settings
+
+MongoGridFSFileInfo.cs
+	GetHashCode now checks _name for null
+	Refresh now checks _name for null
+	CacheFileInfo now uses TryGetValue instead of GetValue with a default value of null
+
+MongoGridFSSettings.cs
+	uses the new Setting class for all settings
+	obsoleted unnecessary constructors
+	obsoleted ChunksCollectionName property
+	obsoleted FilesCollectionName property
+	new ApplyDefaultValues method
+
+ExpressionNormalizer.cs
+	VisitUnary is more careful about what it normalizes
+
+SelectQuery.cs
+	new IndexHint property
+	Execute now handles index hints
+	TranslateDistinct checks that Distinct isn't used in combination with an index hint
+	TranslateMethodCall dispatches "WithIndex" to TranslateWithIndex
+	new TranslateWithIndex method
+
+LinqToMongo.cs
+	new Explain extension method
+	new WithIndex extension method
+
+AssemblyInfo.cs
+	set ComVisible to false
+
+CollectionOptionsDocument.cs
+CommandDocument.cs
+FieldsDocument.cs
+GeoHaystackSearchOptionsDocument.cs
+GeoNearOptionsDocument.cs
+GroupByDocument.cs
+IndexKeysDocument.cs
+IndexOptionsDocument.cs
+MapReduceOptionsDocument.cs
+QueryDocument.cs
+ScopeDocument.cs
+SortByDocument.cs
+UpdateDocument.cs
+	obsoleted same constructors that were obsoleted in BsonDocument
+
+ExternalEvidence.cs
+	new class that represents some external evidence of an identity
+
+MongoClientSettings.cs
+	now implements IEquatable<MongoClientSettings>
+	added Credentials (all connections are greedily authenticated against all credentials)
+	removed CredentialsStore (was a mapping from database name to credentials to use with that database)
+	removed DefaultCredentials
+	added SslSettings
+	implemented ==, != and Equals
+	reimplemented GetHashCode
+
+MongoCollection.cs
+	constructor now calls ApplyDefaultValues on settings
+	InsertBatch now allocates a BsonBuffer and passes it to WriteToBuffer
+	InsertBatch sends a GLE after each sub-batch even if WriteConcern is Unacknowledged but ContinueOnError is false
+	GetReaderSettings now uses the ReadEncoding from the settings
+	GetWriterSettings now uses the WriteEncoding from the settings
+	GetIndexName has been changed to no longer use RawValue
+	new constructor that takes a name parameter
+	obsoleted the constructor that is missing a name parameter
+
+MongoCollectionSettings.cs
+	uses the new Setting class for all settings
+	obsoleted unnecessary constructors
+	obsoleted CollectionName (the collection name is now a parameter to GetCollection)
+	obsoleted DefaultDocumentType (the default document type is now a parameter to GetCollection)
+	added ReadEncoding
+	added WriteEncoding
+	reimplemented Clone
+	reimplemented ToString
+	added ApplyDefaultValues method
+	obsoleted MongoCollectionSettings<TDefaultDocument> (use non-typed class instead)
+
+MongoConnectionStringBuilder.cs
+	added AuthenticationMechanism
+	added AuthenticationSource
+
+MongoCredential.cs
+	now represents any credential, not just username/password
+	new Identity property is an abstract concept that replaces Username
+	new Evidence property is an abstract concept that replaces Password (some kind of evidence that proves the Identity)
+	new Mechanism property represents the authentication mechanism to be used
+	new Source property represents where the identity is sourced from (returns Identity.Source)
+	obsoleted Password property
+	changed Username property to return Identity.Username
+	new CreateGssapiCredential factory methods
+	new CreateMongoCrCredential factory methods
+	changed format of ToString result (and it no longer includes the password)
+	new private FromComponents helper method
+
+MongoCredentialStore.cs
+	is no longer a mapping from database name to credential, but just a list of credentials
+	so almost all methods and properties changed
+	EnsureCredentialsAreCompatibleWithEachOther method enforces the rule that all credentials must be from different sources
+
+MongoCredentials.cs
+	renamed to MongoCredential.cs (singular)
+
+MongoCredentialsStore.cs
+	renamed to MongoCredentialStore.cs
+
+MongoDatabase.cs
+	no longer maintains a mapping from collection settings to previously created MongoCollection instances (no need)
+	obsoleted unnecessary constructors
+	constructor now calls ApplyDefaultValues on the settings
+	removed Credentials property (no longer relevant)
+	GridFS returns a new instance every time (it's a lightweight object that doesn't need to be cached)
+	removed some overloads of AddUser that could no longer be supported in the new authorization model
+	obsoleted CreateCollectionSettings
+	Eval method no longer sends empty args array to the server
+	obsoleted overloads of GetCollection that don't have a collection name parameter
+	GetCollection now returns a new instance of MongoCollection every time it is called (it's a lightweight object that doesn't need to be cached)
+	removed any method overloads that had an adminCredentials parameter (no longer relevant)
+
+MongoDatabaseSettings.cs
+	uses the new Setting class for all settings
+	obsoleted unnecessary constructors
+	removed Credentials property
+	removed DatabaseName property
+	added ReadEncoding property
+	added WriteEncoding property
+	reimplemented Clone method
+	reimplemented GetHashCode method
+	reimplemented ToString method
+	new internal ApplyDefaultValues method
+
+MongoDefaults.cs
+	added AuthenticationMechanism property
+
+MongoExternalIdentity.cs
+	new subclass of MongoIdentity representing an identity defined outside of MongoDB
+
+MongoIdentity.cs
+	new abstract class representing the concept of an identity
+	Source property represents the source of the identity (in other words, where it is defined)
+	Username property represent the name of the identity
+
+MongoIdentityEvidence.cs
+	new abstract class representing some kind of evidence used to prove that a MongoIdentity is valid
+
+MongoInternalIdentity.cs
+	new subclass of MongoIdentity representing a user defined internally to MongoDB
+	Source property is the database where the user is defined
+	Username property is the user name defined in the MongoDB database
+
+MongoServer
+	no longer maintains a mapping from database settings to previously created MongoDatabase instances (no need)
+	removed all overloads of members that took a credentials or adminCredentials parameter (no longer relevant)
+	obsoleted [] indexers
+	obsoleted CreateDatabaseSettings
+	obsoleted overloads of GetDatabase that didn't have a database name parameter
+	GetDatabase now returns a new instance of MongoDatabase every time it is called (no need to cache such a light weight object)
+	internal method AcquireConnection no longer has a database parameter (all connections are now greedily authenticated against all supplied credentials)
+
+MongoServerSettings.cs
+	now implements IEquatable<MongoServerSettings>
+	uses the new Setting class for all settings
+	removed obsolete constructor
+	obsoleted AddressFamily property
+	renamed CredentialsStore property to Credentials (it's now just a list of credentials, not a mapping from a database name to a credential)
+	removed DefaultCredentials property
+	added ReadEncoding property
+	added SslSettings property
+	added WriteEncoding property
+	implemented ==, != and Equals
+	removed GetCredentials method (no longer relevant)
+	reimplemented GetHashCode
+	reimplemented ToString
+
+MongoUrl.cs
+	added AuthenticationMechanism property
+	added AuthenticationSource property
+	removed DefaultCredentials property
+	added Password property
+	added Username property
+
+MongoUrlBuilder.cs
+	added AuthenticationMechanism property
+	added AuthenticationSource property
+	removed DefaultCredentials property
+	added Password property
+	added Username property
+	Parse method handles username/password differently
+	Parse method supports new authMechanism and authSource keywords in connection string
+	ToString changed slightly to support new properties
+
+MongoUser.cs
+	constructors are not totally backward compatible
+	new HashPassword overload taking PasswordEvidence parameter instead of string
+
+PasswordEvidence.cs
+	new subclass of MongoIdentityEvidence representing a password used to prove an identity
+	password is stored as a SecureString and never converted back to a regular string anywhere in the driver
+
+Setting.cs
+	new helper struct used in settings classes
+	the HasBeenSet property indicates if the value has been set or not
+	the Value property represents the value of the setting
+
+SslSettings.cs
+	new class represents settings used to control SSL connections
+
+SystemProfileInfo.cs
+	CursorId default value when not returned from server is now -1
+	ExceptionCode default value when not returned from server is now -1
+	KeyUpdates default value when not returned from server is now -1
+	new NumberMoved property
+	NumberOfYields default value when not returned from server is now -1
+	NumberReturned default value when not returned from server is now -1
+	NumberScanned default value when not returned from server is now -1
+	NumberToReturn default value when not returned from server is now -1
+	NumberToSkip default value when not returned from server is now -1
+	ResponseLength default value when not returned from server is now -1
+	new DatabaseReadLock property
+	new DatabaseWriteLock property
+	new GlobalReadLock property
+	new GlobalWriteLock property
+	obsoleted Read property
+	obsoleted Write property
+	fixed BSON element names of timeAcquiringMicros and timeLockedMicros in SystemProfileLockStatisticsSerializer
+	fixed SystemProfileReadWriteLockStatisticsSerializer to handle new database and global breakdown
