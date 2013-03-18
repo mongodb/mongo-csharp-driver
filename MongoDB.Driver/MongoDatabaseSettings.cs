@@ -320,13 +320,13 @@ namespace MongoDB.Driver
             parts.Add(string.Format("GuidRepresentation={0}", _guidRepresentation.Value));
             if (_readEncoding.HasBeenSet)
             {
-                parts.Add("ReadEncoding=[set]");
+                parts.Add(string.Format("ReadEncoding={0}", (_readEncoding.Value == null) ? "null" : "UTF8Encoding"));
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference.Value));
             parts.Add(string.Format("WriteConcern={0}", _writeConcern.Value));
             if (_writeEncoding.HasBeenSet)
             {
-                parts.Add("WriteEncoding=[set]");
+                parts.Add(string.Format("WriteEncoding={0}", (_writeEncoding.Value == null) ? "null" : "UTF8Encoding"));
             }
             return string.Join(";", parts.ToArray());
         }

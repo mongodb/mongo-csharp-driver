@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -32,6 +33,7 @@ namespace MongoDB.Driver
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
+        private static UTF8Encoding __readEncoding = new UTF8Encoding(false, true);
 #pragma warning disable 612, 618
         private static SafeMode __safeMode = SafeMode.False;
 #pragma warning restore
@@ -42,6 +44,7 @@ namespace MongoDB.Driver
         private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
         private static int __waitQueueSize = 0; // use multiple by default
         private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
+        private static UTF8Encoding __writeEncoding = new UTF8Encoding(false, true);
 
         // public static properties
         /// <summary>
@@ -153,6 +156,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the Read Encoding.
+        /// </summary>
+        public static UTF8Encoding ReadEncoding
+        {
+            get { return __readEncoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                __readEncoding = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the safe mode.
         /// </summary>
         [Obsolete("SafeMode has been replaced by WriteConcern and the default for WriteConcern is always Acknowledged and is not configurable.")]
@@ -232,6 +251,22 @@ namespace MongoDB.Driver
         {
             get { return __waitQueueTimeout; }
             set { __waitQueueTimeout = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the Write Encoding.
+        /// </summary>
+        public static UTF8Encoding WriteEncoding
+        {
+            get { return __writeEncoding; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                __writeEncoding = value;
+            }
         }
     }
 }

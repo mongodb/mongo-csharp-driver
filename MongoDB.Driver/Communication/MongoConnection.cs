@@ -19,7 +19,6 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -254,7 +253,7 @@ namespace MongoDB.Driver.Internal
 
             var writerSettings = new BsonBinaryWriterSettings
             {
-                Encoding = _serverInstance.Settings.WriteEncoding ?? new UTF8Encoding(false, true),
+                Encoding = _serverInstance.Settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
@@ -264,7 +263,7 @@ namespace MongoDB.Driver.Internal
 
             var readerSettings = new BsonBinaryReaderSettings
             {
-                Encoding = _serverInstance.Settings.ReadEncoding ?? new UTF8Encoding(false, true),
+                Encoding = _serverInstance.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
@@ -370,7 +369,7 @@ namespace MongoDB.Driver.Internal
                 {
                     var readerSettings = new BsonBinaryReaderSettings
                     {
-                        Encoding = _serverInstance.Settings.ReadEncoding ?? new UTF8Encoding(false, true),
+                        Encoding = _serverInstance.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
                         GuidRepresentation = message.WriterSettings.GuidRepresentation,
                         MaxDocumentSize = _serverInstance.MaxDocumentSize
                     };

@@ -787,7 +787,7 @@ namespace MongoDB.Driver
             parts.Add(string.Format("MinConnectionPoolSize={0}", _minConnectionPoolSize));
             if (_readEncoding != null)
             {
-                parts.Add("ReadEncoding=[set]");
+                parts.Add("ReadEncoding=UTF8Encoding");
             }
             parts.Add(string.Format("ReadPreference={0}", _readPreference));
             parts.Add(string.Format("ReplicaSetName={0}", _replicaSetName));
@@ -805,7 +805,7 @@ namespace MongoDB.Driver
             parts.Add(string.Format("WriteConcern={0}", _writeConcern));
             if (_writeEncoding != null)
             {
-                parts.Add("WriteEncoding=[set]");
+                parts.Add("WriteEncoding=UTF8Encoding");
             }
             return string.Join(",", parts.ToArray());
         }
