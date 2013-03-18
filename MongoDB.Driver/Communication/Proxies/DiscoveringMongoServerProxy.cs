@@ -225,8 +225,9 @@ namespace MongoDB.Driver.Internal
             }
 
             MongoServerInstance instance = null;
-            var timeoutAt = DateTime.UtcNow;
-            while ((instance = connectionQueue.Dequeue(timeout)) != null)
+            var timeRemaining = timeout;
+            var timeoutAt = DateTime.UtcNow + timeout;
+            while ((instance = connectionQueue.Dequeue(timeRemaining)) != null)
             {
                 if (instance.ConnectException == null)
                 {
@@ -234,7 +235,7 @@ namespace MongoDB.Driver.Internal
                     return;
                 }
 
-                timeout = DateTime.UtcNow - timeoutAt;
+                timeRemaining = timeoutAt - DateTime.UtcNow;
             }
 
             throw new MongoConnectionException(string.Format("Unable to connect in the specified timeframe of '{0}'.", timeout));
