@@ -6,16 +6,18 @@ Properties {
 
 	$version = "$base_version.$build_number"
 	$sem_version = $base_version
+	$short_version = Get-ShortenedVersion $sem_version
 	if(-not [string]::IsNullOrEmpty($version_status)) {
-		$sem_version = "$base_version-$($version_status)-$build_number"
+		$sem_version = "$sem_version-$($version_status)-$build_number"
+		$short_version = "$short_version-$($version_status)-$build_number"
 	}
 	$release_notes_version = Get-ShortenedVersion $base_version
 	$config = 'Release'
-	$installer_product_id = [System.Guid]::Parse($git_commit.Hash.SubString(0,32))
-	$installer_upgrade_code = [System.Guid]::Parse($git_commit.Hash.SubString(1,32))
+	$installer_product_id = New-Object System.Guid($git_commit.Hash.SubString(0,32))
+	$installer_upgrade_code = New-Object System.Guid($git_commit.Hash.SubString(1,32))
 
 	Write-Host "$config Version $sem_version($version)" -ForegroundColor Yellow
-
+	
 	$base_dir = Split-Path $psake.build_script_file	
 	$src_dir = "$base_dir"
 	$tools_dir = "$base_dir\tools"
@@ -31,7 +33,7 @@ Properties {
 	$docs_file = "$base_dir\Docs\Api\CSharpDriverDocs.shfbproj"
 	$installer_file = "$base_dir\Installer\CSharpDriverInstaller.wixproj"
 	$nuspec_file = "$base_dir\mongocsharpdriver.nuspec"
-	$chm_file = "$artifacts_dir\CSharpDriverDocs-$sem_version.chm"
+	$chm_file = "$artifacts_dir\CSharpDriverDocs-$short_version.chm"
 	$release_notes_file = "$base_dir\Release Notes\Release Notes v$release_notes_version.md"
 	$license_file = "$base_dir\License.txt"
 
@@ -107,8 +109,7 @@ Task Docs -precondition { BuildHasBeenRun } {
 
 	mv "$docs_dir\CSharpDriverDocs.chm" $chm_file
 	mv "$docs_dir\Index.html" "$docs_dir\index.html"
-	Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$sem_version-html.zip" "$docs_dir\*" }
-
+	Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$short_version-html.zip" "$docs_dir\*" }
 	RemoveDirectory $docs_dir
 }
 
@@ -119,29 +120,19 @@ task Zip -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) }{
 
 	mkdir -p $zip_dir | out-null
 	
-	mkdir -p $zip_dir\net35 | out-null
 	$35_items = @("$35_build_dir\MongoDB.Bson.dll", `
 		"$35_build_dir\MongoDB.Bson.pdb", `
 		"$35_build_dir\MongoDB.Bson.xml", `
 		"$35_build_dir\MongoDB.Driver.dll", `
 		"$35_build_dir\MongoDB.Driver.pdb", `
 		"$35_build_dir\MongoDB.Driver.xml")
-	cp $35_items "$zip_dir\net35"
-
-	mkdir -p $zip_dir\net40 | out-null
-	$40_items = @("$40_build_dir\MongoDB.Bson.dll", `
-		"$40_build_dir\MongoDB.Bson.pdb", `
-		"$40_build_dir\MongoDB.Bson.xml", `
-		"$40_build_dir\MongoDB.Driver.dll", `
-		"$40_build_dir\MongoDB.Driver.pdb", `
-		"$40_build_dir\MongoDB.Driver.xml")
-	cp $40_items "$zip_dir\net40"
+	cp $35_items "$zip_dir"
 
 	cp $license_file $zip_dir
-	cp "Release Notes\Release Notes v$release_notes_version.md" "$zip_dir\Release Notes v$release_notes_version.txt"
-	cp $chm_file $zip_dir
+	cp "Release Notes\Release Notes v$release_notes_version.md" "$zip_dir\Release Notes.txt"
+	cp $chm_file "$zip_dir\CSharpDriverDocs.chm"
 
-	Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$sem_version.zip" "$zip_dir\*" }
+	Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$short_version.zip" "$zip_dir\*" }
 
 	rd $zip_dir -rec -force | out-null
 }
@@ -150,7 +141,7 @@ Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
 	$release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
 	$doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-	Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir }
+	Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir }
 	
 	rm -force $artifacts_dir\*.wixpdb
 }

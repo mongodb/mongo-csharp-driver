@@ -40,18 +40,18 @@
         <Shortcut Id="f_ReleaseNotesShortCut" 
                   Name="Release Notes" 
                   Description="Release notes for MongoDB CSharp Driver"
-                  Target="[INSTALLDIR]ReleaseNotes.txt"
+                  Target="[INSTALLDIR]Release Notes.txt"
                   WorkingDirectory="INSTALLDIR"
                   Directory="CSharpDriverProgramsFolder"/>
-        <RemoveFolder Id="r_CSharpDriverProgramsFolder" Directory="CSharpDriverProgramsFolder" On="uninstall" />
-        <RemoveFolder Id="r_MongoDBProgramsFolder" Directory="MongoDBProgramsFolder" On="uninstall" />
+        <RemoveFolder Id="CSharpDriverProgramsFolder" Directory="CSharpDriverProgramsFolder" On="uninstall" />
+        <RemoveFolder Id="MongoDBProgramsFolder" Directory="MongoDBProgramsFolder" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\MongoDB" Name="releasenotesinstalled" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
       <Component Id="c_HelpShortCut" Guid="B256E367-EA97-48C5-A546-49F4A0803682">
         <Shortcut Id="f_HelpShortCut"
-                  Name="Help"
+                  Name="CSharpDriverDocs"
                   Description="Help for !(WixProductName)"
-                  Target="[INSTALLDIR]Documentation.chm"
+                  Target="[INSTALLDIR]CSharpDriverDocs.chm"
                   WorkingDirectory="INSTALLDIR"/>
         <RegistryValue Root="HKCU" Key="Software\MongoDB" Name="helpinstalled" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
@@ -63,11 +63,11 @@
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_ReleaseNotes" Guid="115F1B08-8A38-435A-BBB0-0C0DED5ACB31">
-        <File Id="f_ReleaseNotes" Name="ReleaseNotes.txt" Source="$(var.SourceBase)\$(var.ReleaseNotes)"
+        <File Id="f_ReleaseNotes" Name="Release Notes.txt" Source="$(var.SourceBase)\$(var.ReleaseNotes)"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_Help" Guid="CC3F9A2F-1C43-48CA-B998-D03C15181DD3">
-        <File Id="f_Help" Name="Help.chm" Source="$(var.SourceBase)\$(var.Documentation)"
+        <File Id="f_Help" Name="CSharpDriverDocs.chm" Source="$(var.SourceBase)\$(var.Documentation)"
               DiskId ="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>

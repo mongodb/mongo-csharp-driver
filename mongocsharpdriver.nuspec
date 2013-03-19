@@ -21,12 +21,6 @@
     <file src="artifacts\net35\build\MongoDB.Driver.dll" target="lib\net35" />
     <file src="artifacts\net35\build\MongoDB.Driver.pdb" target="lib\net35" />
     <file src="artifacts\net35\build\MongoDB.Driver.XML" target="lib\net35" />
-    <file src="artifacts\net40\build\MongoDB.Bson.dll" target="lib\net40" />
-    <file src="artifacts\net40\build\MongoDB.Bson.pdb" target="lib\net40" />
-    <file src="artifacts\net40\build\MongoDB.Bson.xml" target="lib\net40" />
-    <file src="artifacts\net40\build\MongoDB.Driver.dll" target="lib\net40" />
-    <file src="artifacts\net40\build\MongoDB.Driver.pdb" target="lib\net40" />
-    <file src="artifacts\net40\build\MongoDB.Driver.XML" target="lib\net40" />
     <file src="License.rtf" target ="" />
     <file src="MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
     <file src="MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
