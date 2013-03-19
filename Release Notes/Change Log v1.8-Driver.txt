@@ -16,7 +16,7 @@ PushEachOptions.cs
 	new options class used with UpdateBuilder.PushEach
 
 QueryBuilder.cs
-	added new GetIntersects methods
+	added new GeoIntersects methods
 	added new Near method overloads for GetJsonPoints
 	Or method now returns { } if any sub query is { }
 	added new Within method overload for GetJsonPolygon
@@ -224,7 +224,7 @@ MongoConnectionStringBuilder.cs
 	added AuthenticationSource
 
 MongoCredential.cs
-	now represents any credential, not just username/password
+	now represents any type of credential, not just username/password
 	new Identity property is an abstract concept that replaces Username
 	new Evidence property is an abstract concept that replaces Password (some kind of evidence that proves the Identity)
 	new Mechanism property represents the authentication mechanism to be used
@@ -232,7 +232,7 @@ MongoCredential.cs
 	obsoleted Password property
 	changed Username property to return Identity.Username
 	new CreateGssapiCredential factory methods
-	new CreateMongoCrCredential factory methods
+	new CreateMongoCRCredential factory methods
 	changed format of ToString result (and it no longer includes the password)
 	new private FromComponents helper method
 
