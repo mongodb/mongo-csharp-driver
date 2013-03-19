@@ -5,7 +5,7 @@ This is a major release.
 
 This release has two major goals: to support the new features of the 2.4 release
 of the server and to begin preparing the path for some major cleanup in the 2.0
-release of the driver by marking as obsolete in the 1.8 items that we plan to
+release of the driver by marking as obsolete in the 1.8 release items that we plan to
 remove in the 2.0 release.
 
 An online version of these release notes is available at:
