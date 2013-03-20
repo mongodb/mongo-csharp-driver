@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2012 10gen Inc.
+﻿/* Copyright 2010-2013 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using NUnit.Framework;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
+using NUnit.Framework;
 
 namespace MongoDB.BsonUnitTests.Jira.CSharp708
 {
@@ -34,19 +31,22 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp708
             public string Id { get; set; }
         }
 
-        void ConfigureClassMap<T>(BsonClassMap<T> cm)
+        BsonMemberMap GetIdMemberMap<T>(BsonClassMap<T> cm)
             where T : class, IIdentity, new()
         {
-            cm.SetIdMember(cm.GetMemberMap(c => c.Id).SetRepresentation(BsonType.ObjectId));
+            return cm.GetMemberMap(x => x.Id);
         }
 
         [Test]
-        public void Test()
+        public void TestGetMemberFindsCorrectMember()
         {
             var classMap = new BsonClassMap<Entity>();
             classMap.AutoMap();
 
-            ConfigureClassMap<Entity>(classMap);
+            var memberMap = GetIdMemberMap<Entity>(classMap);
+
+            Assert.IsNotNull(memberMap);
+            Assert.AreEqual("Id", memberMap.MemberName);
         }
     }
 }

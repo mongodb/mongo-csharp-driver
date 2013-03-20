@@ -1566,7 +1566,7 @@ namespace MongoDB.Bson.Serialization
                 case MemberTypes.Property:
                     if (memberInfo.DeclaringType.IsInterface)
                     {
-                        memberInfo = ResolveExplicitProperty(memberInfo, typeof(TClass));
+                        memberInfo = FindPropertyImplementation((PropertyInfo)memberInfo, typeof(TClass));
                     }
                     break;
                 default:
@@ -1585,45 +1585,32 @@ namespace MongoDB.Bson.Serialization
             return GetMemberInfoFromLambda(memberLambda).Name;
         }
 
-        private static PropertyInfo ResolveExplicitProperty(MemberInfo interfaceMemberInfo, Type targetType)
+        private static PropertyInfo FindPropertyImplementation(PropertyInfo interfacePropertyInfo, Type actualType)
         {
-            var interfaceType = interfaceMemberInfo.DeclaringType;
+            var interfaceType = interfacePropertyInfo.DeclaringType;
 
             // An interface map must be used because because there is no
             // other officially documented way to derive the explicitly
             // implemented property name.
-            var interfaceMap = targetType.GetInterfaceMap(interfaceType);
+            var interfaceMap = actualType.GetInterfaceMap(interfaceType);
 
-            var interfacePropertyAccessors = ((PropertyInfo)interfaceMemberInfo).GetAccessors(true);
+            var interfacePropertyAccessors = interfacePropertyInfo.GetAccessors(true);
 
-            var targetPropertyAccessors = interfacePropertyAccessors.Select(accessor =>
+            var actualPropertyAccessors = interfacePropertyAccessors.Select(interfacePropertyAccessor =>
             {
-                var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, accessor);
+                var index = Array.IndexOf<MethodInfo>(interfaceMap.InterfaceMethods, interfacePropertyAccessor);
 
                 return interfaceMap.TargetMethods[index];
-            }).ToArray();
+            });
 
             // Binding must be done by accessor methods because interface
             // maps only map accessor methods and do not map properties.
-            return targetType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            return actualType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Single(propertyInfo =>
                 {
-                    var accessors = propertyInfo.GetAccessors(true);
-
-                    if (accessors.Length != targetPropertyAccessors.Length)
-                    {
-                        return false;
-                    }
-
-                    for (var i = 0; i < accessors.Length; ++i)
-                    {
-                        if(!targetPropertyAccessors.Contains(accessors[i]))
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
+                    // we are looking for a property that implements all the required accessors
+                    var propertyAccessors = propertyInfo.GetAccessors(true);
+                    return actualPropertyAccessors.All(x => propertyAccessors.Contains(x));
                 });
         }
     }
