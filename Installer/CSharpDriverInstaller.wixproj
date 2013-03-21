@@ -25,7 +25,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>$(Configuration);Version=$(Version);SemVersion=$(SemVersion);SourceBase=$(SourceBase);ReleaseNotes=$(ReleaseNotes);License=$(License);Documentation=$(Documentation)</DefineConstants>
+    <DefineConstants>$(Configuration);Version=$(Version);SemVersion=$(SemVersion);SourceBase=$(SourceBase);ReleaseNotes=$(ReleaseNotes);License=$(License);Documentation=$(Documentation);ProductId=$(ProductId);UpgradeCode=$(UpgradeCode)</DefineConstants>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
