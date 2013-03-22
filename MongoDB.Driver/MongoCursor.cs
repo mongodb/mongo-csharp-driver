@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 
 namespace MongoDB.Driver
@@ -30,10 +31,11 @@ namespace MongoDB.Driver
     public abstract class MongoCursor : IEnumerable
     {
         // private fields
-        private MongoServer _server;
-        private MongoDatabase _database;
-        private MongoCollection _collection;
-        private IMongoQuery _query;
+        private readonly MongoCollection _collection;
+        private readonly MongoDatabase _database;
+        private readonly IMongoQuery _query;
+        private readonly IBsonSerializer _serializer;
+        private readonly MongoServer _server;
         private IMongoFields _fields;
         private BsonDocument _options;
         private QueryFlags _flags;
@@ -51,12 +53,14 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection.</param>
         /// <param name="query">The query.</param>
         /// <param name="readPreference">The read preference.</param>
-        protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
+        /// <param name="serializer">The serializer.</param>
+        protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
         {
-            _server = collection.Database.Server;
-            _database = collection.Database;
             _collection = collection;
+            _database = collection.Database;
+            _server = collection.Database.Server;
             _query = query;
+            _serializer = serializer;
             _readPreference = readPreference;
         }
 
@@ -225,6 +229,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        public virtual IBsonSerializer Serializer
+        {
+            get { return _serializer; }
+        }
+
+        /// <summary>
         /// Gets whether the cursor has been frozen to prevent further changes.
         /// </summary>
         public virtual bool IsFrozen
@@ -241,13 +253,14 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection to query.</param>
         /// <param name="query">A query.</param>
         /// <param name="readPreference">The read preference.</param>
+        /// <param name="serializer">The serializer.</param>
         /// <returns>A cursor.</returns>
-        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
+        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference) });
-            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference });
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer)});
+            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer });
         }
 
         // public methods
@@ -264,11 +277,33 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a clone of the cursor.
         /// </summary>
+        /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
+        /// <param name="serializer">The serializer to use.</param>
+        /// <returns>A clone of the cursor.</returns>
+        public virtual MongoCursor<TDocument> Clone<TDocument>(IBsonSerializer serializer)
+        {
+            return (MongoCursor<TDocument>)Clone(typeof(TDocument), serializer);
+        }
+
+        /// <summary>
+        /// Creates a clone of the cursor.
+        /// </summary>
         /// <param name="documentType">The type of the documents returned.</param>
         /// <returns>A clone of the cursor.</returns>
         public virtual MongoCursor Clone(Type documentType)
         {
-            var clone = Create(documentType, _collection, _query, _readPreference);
+            return Clone(documentType, _serializer);
+        }
+
+        /// <summary>
+        /// Creates a clone of the cursor.
+        /// </summary>
+        /// <param name="documentType">The type of the documents returned.</param>
+        /// <param name="serializer">The serializer to use.</param>
+        /// <returns>A clone of the cursor.</returns>
+        public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)
+        {
+            var clone = Create(documentType, _collection, _query, _readPreference, serializer);
             clone._options = _options == null ? null : (BsonDocument)_options.Clone();
             clone._flags = _flags;
             clone._skip = _skip;
@@ -312,7 +347,7 @@ namespace MongoDB.Driver
         public virtual BsonDocument Explain(bool verbose)
         {
             _isFrozen = true;
-            var clone = Clone<BsonDocument>();
+            var clone = Clone<BsonDocument>(BsonDocumentSerializer.Instance);
             clone.SetOption("$explain", true);
             clone._limit = -clone._limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
@@ -647,8 +682,9 @@ namespace MongoDB.Driver
         /// <param name="collection">The collection.</param>
         /// <param name="query">The query.</param>
         /// <param name="readPreference">The read preference.</param>
-        public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference)
-            : base(collection, query, readPreference)
+        /// <param name="serializer">The serializer.</param>
+        public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
+            : base(collection, query, readPreference, serializer)
         {
         }
 

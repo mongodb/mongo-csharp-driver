@@ -258,6 +258,7 @@
     <Compile Include="Serialization\Serializers\Int16Serializer.cs" />
     <Compile Include="Serialization\Serializers\Int32Serializer.cs" />
     <Compile Include="Serialization\Serializers\Int64Serializer.cs" />
+    <Compile Include="Serialization\Serializers\InterfaceSerializer.cs" />
     <Compile Include="Serialization\Serializers\IPAddressSerializer.cs" />
     <Compile Include="Serialization\Serializers\IPEndPointSerializer.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializer.cs" />

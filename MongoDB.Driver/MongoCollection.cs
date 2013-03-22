@@ -543,7 +543,8 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
-            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference);
+            var serializer = BsonSerializer.LookupSerializer(typeof(TDocument));
+            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
         }
 
         /// <summary>
@@ -554,7 +555,8 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
         {
-            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference);
+            var serializer = BsonSerializer.LookupSerializer(documentType);
+            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer);
         }
 
         /// <summary>

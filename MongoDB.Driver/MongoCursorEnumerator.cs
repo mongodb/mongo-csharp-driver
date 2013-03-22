@@ -371,7 +371,7 @@ namespace MongoDB.Driver
         {
             var readerSettings = _cursor.Collection.GetReaderSettings(connection);
             connection.SendMessage(message, null, _cursor.Database.Name); // write concern doesn't apply to queries
-            var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.SerializationOptions);
+            var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.Serializer, _cursor.SerializationOptions);
             _responseFlags = reply.ResponseFlags;
             _openCursorId = reply.CursorId;
             return reply;

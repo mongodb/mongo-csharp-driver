@@ -183,6 +183,13 @@ namespace MongoDB.Bson.Serialization
                 return collectionSerializer;
             }
 
+            // we'll try our best by attempting to find a discriminator hoping it points
+            // us to a concrete type with a serializer.
+            if (type.IsInterface)
+            {
+                return InterfaceSerializer.Instance;
+            }
+
             return null;
         }
 

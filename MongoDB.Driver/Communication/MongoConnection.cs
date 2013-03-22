@@ -22,6 +22,7 @@ using System.Security.Cryptography.X509Certificates;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Communication.Security;
 
 namespace MongoDB.Driver.Internal
@@ -267,7 +268,7 @@ namespace MongoDB.Driver.Internal
                 GuidRepresentation = GuidRepresentation.Unspecified,
                 MaxDocumentSize = _serverInstance.MaxDocumentSize
             };
-            var reply = ReceiveMessage<BsonDocument>(readerSettings, null);
+            var reply = ReceiveMessage<BsonDocument>(readerSettings, BsonDocumentSerializer.Instance, null);
             if (reply.NumberReturned == 0)
             {
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
@@ -285,6 +286,7 @@ namespace MongoDB.Driver.Internal
 
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
             BsonBinaryReaderSettings readerSettings,
+            IBsonSerializer serializer,
             IBsonSerializationOptions serializationOptions)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
@@ -304,7 +306,7 @@ namespace MongoDB.Driver.Internal
                     using (var bsonBuffer = new BsonBuffer(byteBuffer, true))
                     {
                         byteBuffer.MakeReadOnly();
-                        var reply = new MongoReplyMessage<TDocument>(readerSettings);
+                        var reply = new MongoReplyMessage<TDocument>(readerSettings, serializer);
                         reply.ReadFrom(bsonBuffer, serializationOptions);
                         return reply;
                     }
@@ -373,7 +375,7 @@ namespace MongoDB.Driver.Internal
                         GuidRepresentation = message.WriterSettings.GuidRepresentation,
                         MaxDocumentSize = _serverInstance.MaxDocumentSize
                     };
-                    var replyMessage = ReceiveMessage<BsonDocument>(readerSettings, null);
+                    var replyMessage = ReceiveMessage<BsonDocument>(readerSettings, BsonDocumentSerializer.Instance, null);
                     var getLastErrorResponse = replyMessage.Documents[0];
                     writeConcernResult = new WriteConcernResult();
                     writeConcernResult.Initialize(getLastErrorCommand, getLastErrorResponse);
