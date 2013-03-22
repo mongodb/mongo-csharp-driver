@@ -8,7 +8,7 @@
     <License Condition=" '$(License)' == '' ">License.rtf</License>
     <Documentation Condition=" '$(Documentation)' == '' "></Documentation>
     <ProductId Condition=" '$(ProductId)' == '' ">*</ProductId>
-    <UpgradeCode Condition=" '$(UpgradeCode)' == '' ">*</UpgradeCode>
+    <UpgradeCode Condition=" '$(UpgradeCode)' == '' ">574a296c-d9df-469f-b205-f93f5da69099</UpgradeCode>
   </PropertyGroup>
   <PropertyGroup>
     <DefineSolutionProperties>false</DefineSolutionProperties>
