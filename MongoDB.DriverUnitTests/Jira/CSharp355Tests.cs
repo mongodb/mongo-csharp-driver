@@ -106,7 +106,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp355
 
         private Bitmap GetTestBitmap ()
         {
-            var bitmap = new Bitmap (2, 2, PixelFormat.Format32bppRgb);
+            var bitmap = new Bitmap (2, 2, PixelFormat.Format24bppRgb);
             for (int x = 0; x <  bitmap.Height; ++x) 
             {
                 for (int y = 0; y < bitmap.Width; ++y) 
