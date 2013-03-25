@@ -48,12 +48,12 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp355
         }
 
         [Test]
-        public void TestBitmap()
+        public void TestDefaultBitmap()
         {
             if (TestEnvironment.IsMono)
             {
-                // this test does not work in Mono. Skipping for the time being
-                // CSHARP-389
+                // This test does not work in Mono. Bits 57 and 61 are 255 when
+                // the Bitmap is recreated upon retrieval from the database
                 return;
             }
             var bitmap = new Bitmap(1, 2);
@@ -63,8 +63,23 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp355
             var r = _collection.FindOne();
             Assert.IsInstanceOf<C>(r);
             Assert.IsInstanceOf<Bitmap>(r.I);
-            Assert.AreEqual(1, r.B.Width);
-            Assert.AreEqual(2, r.B.Height);
+            Assert.AreEqual(bitmap.Width, r.B.Width);
+            Assert.AreEqual(bitmap.Height, r.B.Height);
+            Assert.IsTrue(GetBytes(bitmap).SequenceEqual(GetBytes(r.B)));
+        }
+
+        [Test]
+        public void TestBitmap()
+        {
+            var bitmap = GetTestBitmap();
+            var c = new C { I = bitmap, B = bitmap };
+            _collection.RemoveAll();
+            _collection.Insert(c);
+            var r = _collection.FindOne();
+            Assert.IsInstanceOf<C>(r);
+            Assert.IsInstanceOf<Bitmap>(r.I);
+            Assert.AreEqual(bitmap.Width, r.B.Width);
+            Assert.AreEqual(bitmap.Height, r.B.Height);
             Assert.IsTrue(GetBytes(bitmap).SequenceEqual(GetBytes(r.B)));
         }
 
@@ -88,5 +103,22 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp355
                 return stream.ToArray();
             }
         }
-    }
+
+        private Bitmap GetTestBitmap ()
+        {
+            var bitmap = new Bitmap (2, 2, PixelFormat.Format32bppRgb);
+            for (int x = 0; x <  bitmap.Height; ++x) 
+            {
+                for (int y = 0; y < bitmap.Width; ++y) 
+                {
+                    bitmap.SetPixel (x, y, Color.White);
+                }
+            }
+            for (int x = 0; x < bitmap.Height; ++x) 
+            {
+                bitmap.SetPixel (x, x, Color.Red);
+            }
+            return bitmap;
+        }
+   }
 }
