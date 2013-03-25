@@ -257,6 +257,54 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Returns the distinct values for a given field.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="key">The key of the field.</param>
+        /// <returns>The distint values of the field.</returns>
+        public virtual IEnumerable<TValue> Distinct<TValue>(string key)
+        {
+            return Distinct<TValue>(key, Query.Null);
+        }
+
+        /// <summary>
+        /// Returns the distinct values for a given field for documents that match a query.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="key">The key of the field.</param>
+        /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
+        /// <returns>The distint values of the field.</returns>
+        public virtual IEnumerable<TValue> Distinct<TValue>(string key, IMongoQuery query)
+        {
+            var command = new CommandDocument
+            {
+                { "distinct", _name },
+                { "key", key },
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
+            };
+            var result = RunCommand(command);
+
+            using (var bsonReader = BsonReader.Create(result.Response))
+            {
+                var serializer = BsonSerializer.LookupSerializer(typeof(TValue));
+                bsonReader.ReadStartDocument();
+                if (bsonReader.FindElement("values"))
+                {
+                    bsonReader.ReadStartArray();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        yield return (TValue)serializer.Deserialize(bsonReader, typeof(TValue), null);
+                    }
+                    bsonReader.ReadEndArray();
+                }
+                else
+                {
+                    throw new FormatException("Command Response is missing the values element.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Drops this collection.
         /// </summary>
         /// <returns>A CommandResult.</returns>

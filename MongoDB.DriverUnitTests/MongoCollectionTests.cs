@@ -241,6 +241,23 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestDistinct_Typed()
+        {
+            _collection.RemoveAll();
+            _collection.DropAllIndexes();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            var values = new HashSet<int>(_collection.Distinct<int>("x"));
+            Assert.AreEqual(3, values.Count);
+            Assert.AreEqual(true, values.Contains(1));
+            Assert.AreEqual(true, values.Contains(2));
+            Assert.AreEqual(true, values.Contains(3));
+            Assert.AreEqual(false, values.Contains(4));
+        }
+
+        [Test]
         public void TestDistinctWithQuery()
         {
             _collection.RemoveAll();
@@ -251,6 +268,24 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 3));
             var query = Query.LTE("x", 2);
             var values = new HashSet<BsonValue>(_collection.Distinct("x", query));
+            Assert.AreEqual(2, values.Count);
+            Assert.AreEqual(true, values.Contains(1));
+            Assert.AreEqual(true, values.Contains(2));
+            Assert.AreEqual(false, values.Contains(3));
+            Assert.AreEqual(false, values.Contains(4));
+        }
+
+        [Test]
+        public void TestDistinctWithQuery_Typed()
+        {
+            _collection.RemoveAll();
+            _collection.DropAllIndexes();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            var query = Query.LTE("x", 2);
+            var values = new HashSet<int>(_collection.Distinct<int>("x", query));
             Assert.AreEqual(2, values.Count);
             Assert.AreEqual(true, values.Contains(1));
             Assert.AreEqual(true, values.Contains(2));
