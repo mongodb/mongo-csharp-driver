@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -23,13 +24,16 @@ namespace MongoDB.Driver
     /// Represents the result of a FindAndModify command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class FindAndModifyResult : CommandResult
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the FindAndModifyResult class.
+        /// Initializes a new instance of the <see cref="FindAndModifyResult"/> class.
         /// </summary>
-        public FindAndModifyResult()
+        /// <param name="response">The response.</param>
+        public FindAndModifyResult(BsonDocument response)
+            : base(response)
         {
         }
 

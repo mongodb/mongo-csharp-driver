@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -24,5 +25,14 @@ namespace MongoDB.Driver
     [Obsolete("Use WriteConcernResult instead.")]
     public class SafeModeResult : GetLastErrorResult
     {
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SafeModeResult"/> class.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        public SafeModeResult(BsonDocument response)
+            : base(response)
+        {
+        }
     }
 }

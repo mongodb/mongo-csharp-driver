@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Communication.Security
                     CommandResult result;
                     try
                     {
-                        result = connection.RunCommand(credential.Source, QueryFlags.SlaveOk, command, true);
+                        result = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.SlaveOk, command, true);
                     }
                     catch (MongoCommandException ex)
                     {

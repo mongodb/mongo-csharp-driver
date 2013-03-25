@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -33,9 +34,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GeoNearResult class.
+        /// Initializes a new instance of the <see cref="GeoNearResult"/> class.
         /// </summary>
-        protected GeoNearResult()
+        /// <param name="response">The response.</param>
+        protected GeoNearResult(BsonDocument response)
+            : base(response)
         {
         }
 
@@ -266,6 +269,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class GeoNearResult<TDocument> : GeoNearResult
     {
         // private fields
@@ -273,9 +277,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GeoNearResult class.
+        /// Initializes a new instance of the <see cref="GeoNearResult{TDocument}"/> class.
         /// </summary>
-        public GeoNearResult()
+        /// <param name="response">The response.</param>
+        public GeoNearResult(BsonDocument response)
+            : base(response)
         {
         }
 

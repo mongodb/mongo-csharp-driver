@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -24,13 +25,16 @@ namespace MongoDB.Driver
     /// Represents the results of a Aggregate command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class AggregateResult : CommandResult
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the AggregateResult class.
+        /// Initializes a new instance of the <see cref="AggregateResult"/> class.
         /// </summary>
-        public AggregateResult()
+        /// <param name="response">The response.</param>
+        public AggregateResult(BsonDocument response)
+            : base(response)
         {
         }
 

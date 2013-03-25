@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -33,9 +34,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GeoHaystackSearchResult class.
+        /// Initializes a new instance of the <see cref="GeoHaystackSearchResult"/> class.
         /// </summary>
-        protected GeoHaystackSearchResult()
+        /// <param name="response">The response.</param>
+        protected GeoHaystackSearchResult(BsonDocument response)
+            : base(response)
         {
         }
 
@@ -226,6 +229,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult
     {
         // private fields
@@ -233,9 +237,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GeoHaystackSearchResult class.
+        /// Initializes a new instance of the <see cref="GeoHaystackSearchResult{TDocument}"/> class.
         /// </summary>
-        public GeoHaystackSearchResult()
+        /// <param name="response">The response.</param>
+        public GeoHaystackSearchResult(BsonDocument response)
+            : base(response)
         {
         }
 

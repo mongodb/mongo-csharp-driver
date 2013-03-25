@@ -99,7 +99,10 @@
     <Compile Include="CommandResults\AggregateResult.cs" />
     <Compile Include="CommandResults\CollectionStatsResult.cs" />
     <Compile Include="CommandResults\CommandResult.cs" />
+    <Compile Include="CommandResults\CommandResultSerializer.cs" />
     <Compile Include="CommandResults\DatabaseStatsResult.cs" />
+    <Compile Include="CommandResults\DistinctCommandResult.cs" />
+    <Compile Include="CommandResults\DistinctCommandResultSerializer.cs" />
     <Compile Include="CommandResults\FindAndModifyResult.cs" />
     <Compile Include="CommandResults\GeoHaystackSearchResult.cs" />
     <Compile Include="CommandResults\GeoNearResult.cs" />

@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -21,13 +23,16 @@ namespace MongoDB.Driver
     /// Represents the results of a GetLastError command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class GetLastErrorResult : CommandResult
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GetLastErrorResult class.
+        /// Initializes a new instance of the <see cref="GetLastErrorResult"/> class.
         /// </summary>
-        public GetLastErrorResult()
+        /// <param name="response">The response.</param>
+        public GetLastErrorResult(BsonDocument response)
+            : base(response)
         {
         }
 

@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -21,13 +23,16 @@ namespace MongoDB.Driver
     /// Represents the results of a GetProfilingLevel command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class GetProfilingLevelResult : CommandResult
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the GetProfilingLevelResult class.
+        /// Initializes a new instance of the <see cref="GetProfilingLevelResult"/> class.
         /// </summary>
-        public GetProfilingLevelResult()
+        /// <param name="response">The response.</param>
+        public GetProfilingLevelResult(BsonDocument response)
+            : base(response)
         {
         }
 

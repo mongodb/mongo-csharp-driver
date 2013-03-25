@@ -26,15 +26,13 @@ namespace MongoDB.DriverUnitTests.CommandResults
         [Test]
         public void TestMaxMessageLengthWhenServerSupplied()
         {
-            var command = new CommandDocument("ismaster", 1);
             var document = new BsonDocument
             {
                 { "ok", 1 },
                 { "maxMessageSizeBytes", 1000 },
                 { "maxBsonObjectSize", 1000 }
             };
-            var result = new IsMasterResult();
-            result.Initialize(command, document);
+            var result = new IsMasterResult(document);
 
             Assert.AreEqual(1000, result.MaxMessageLength);
         }
@@ -42,14 +40,12 @@ namespace MongoDB.DriverUnitTests.CommandResults
         [Test]
         public void TestMaxMessageLengthWhenNotServerSuppliedUsesMongoDefaultsWhenLargerThanMaxBsonObjectSize()
         {
-            var command = new CommandDocument("ismaster", 1);
             var document = new BsonDocument
             {
                 { "ok", 1 },
                 { "maxBsonObjectSize", MongoDefaults.MaxMessageLength - 2048 }
             };
-            var result = new IsMasterResult();
-            result.Initialize(command, document);
+            var result = new IsMasterResult(document);
 
             Assert.AreEqual(MongoDefaults.MaxMessageLength, result.MaxMessageLength);
         }
@@ -57,14 +53,12 @@ namespace MongoDB.DriverUnitTests.CommandResults
         [Test]
         public void TestMaxMessageLengthWhenNotServerSuppliedUsesMaxBsonObjectSizeWhenLargerThanMongoDefaults()
         {
-            var command = new CommandDocument("ismaster", 1);
             var document = new BsonDocument
             {
                 { "ok", 1 },
                 { "maxBsonObjectSize", MongoDefaults.MaxMessageLength }
             };
-            var result = new IsMasterResult();
-            result.Initialize(command, document);
+            var result = new IsMasterResult(document);
 
             Assert.AreEqual(MongoDefaults.MaxMessageLength + 1024, result.MaxMessageLength);
         }

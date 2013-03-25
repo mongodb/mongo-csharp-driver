@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -56,6 +57,7 @@ namespace MongoDB.Driver
     /// Represents the results of the collection stats command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class CollectionStatsResult : CommandResult
     {
         // private fields
@@ -63,9 +65,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the CollectionStatsResult class.
+        /// Initializes a new instance of the <see cref="CollectionStatsResult"/> class.
         /// </summary>
-        public CollectionStatsResult()
+        /// <param name="response">The response.</param>
+        public CollectionStatsResult(BsonDocument response)
+            : base(response)
         {
         }
 

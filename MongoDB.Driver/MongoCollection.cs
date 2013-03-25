@@ -282,26 +282,8 @@ namespace MongoDB.Driver
                 { "key", key },
                 { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
-            var result = RunCommand(command);
-
-            using (var bsonReader = BsonReader.Create(result.Response))
-            {
-                var serializer = BsonSerializer.LookupSerializer(typeof(TValue));
-                bsonReader.ReadStartDocument();
-                if (bsonReader.FindElement("values"))
-                {
-                    bsonReader.ReadStartArray();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        yield return (TValue)serializer.Deserialize(bsonReader, typeof(TValue), null);
-                    }
-                    bsonReader.ReadEndArray();
-                }
-                else
-                {
-                    throw new FormatException("Command Response is missing the values element.");
-                }
-            }
+            var result = RunCommandAs<DistinctCommandResult<TValue>>(command);
+            return result.Values;
         }
 
         /// <summary>
@@ -538,9 +520,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    var result = new FindAndModifyResult();
-                    result.Initialize(command, response);
-                    return result;
+                    return new FindAndModifyResult(response) { Command = command };
                 }
                 throw;
             }
@@ -575,9 +555,7 @@ namespace MongoDB.Driver
                         { "value", BsonNull.Value },
                         { "ok", true }
                     };
-                    var result = new FindAndModifyResult();
-                    result.Initialize(command, response);
-                    return result;
+                    return new FindAndModifyResult(response) { Command = command };
                 }
                 throw;
             }
@@ -1719,7 +1697,7 @@ namespace MongoDB.Driver
         }
 
         internal TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
-            where TCommandResult : CommandResult, new()
+            where TCommandResult : CommandResult
         {
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
         }
@@ -1729,15 +1707,15 @@ namespace MongoDB.Driver
             // if necessary delegate running the command to the _commandCollection
             if (_name == "$cmd")
             {
-                var response = FindOneAs<BsonDocument>(command);
-                if (response == null)
+                var commandResult = (CommandResult)FindOneAs(commandResultType, command);
+                if (commandResult == null)
                 {
                     var commandName = command.ToBsonDocument().GetElement(0).Name;
                     var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                     throw new MongoCommandException(message);
                 }
-                var commandResult = (CommandResult)Activator.CreateInstance(commandResultType); // constructor can't have arguments
-                commandResult.Initialize(command, response); // so two phase construction required
+                commandResult.Command = command;
+
                 if (!commandResult.Ok)
                 {
                     if (commandResult.ErrorMessage == "not master")

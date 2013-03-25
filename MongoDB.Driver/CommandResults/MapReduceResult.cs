@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents the result of a map/reduce command.
     /// </summary>
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class MapReduceResult : CommandResult
     {
         // private fields
@@ -31,9 +33,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the MapReduceResult class.
+        /// Initializes a new instance of the <see cref="MapReduceResult"/> class.
         /// </summary>
-        public MapReduceResult()
+        /// <param name="response">The response.</param>
+        public MapReduceResult(BsonDocument response)
+            : base(response)
         {
         }
 

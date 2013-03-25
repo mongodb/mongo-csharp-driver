@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -26,6 +27,7 @@ namespace MongoDB.Driver
     /// Represents the results of a validate collection command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class ValidateCollectionResult : CommandResult
     {
         // private fields
@@ -35,9 +37,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the ValidateCollectionResult class.
+        /// Initializes a new instance of the <see cref="ValidateCollectionResult"/> class.
         /// </summary>
-        public ValidateCollectionResult()
+        /// <param name="response">The response.</param>
+        public ValidateCollectionResult(BsonDocument response)
+            : base(response)
         {
         }
 

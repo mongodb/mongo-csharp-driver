@@ -912,7 +912,7 @@ namespace MongoDB.Driver
         /// <param name="command">The command object.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
-            where TCommandResult : CommandResult, new()
+            where TCommandResult : CommandResult
         {
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
         }
@@ -924,7 +924,7 @@ namespace MongoDB.Driver
         /// <param name="commandName">The name of the command.</param>
         /// <returns>A TCommandResult</returns>
         public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName)
-            where TCommandResult : CommandResult, new()
+            where TCommandResult : CommandResult
         {
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), commandName);
         }

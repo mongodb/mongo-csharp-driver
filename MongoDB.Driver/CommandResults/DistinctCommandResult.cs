@@ -16,26 +16,42 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents the results of an operation performed with WriteConcern enabled.
+    /// Represents the result of a command (there are also subclasses for various commands).
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
-#pragma warning disable 618
-    public class WriteConcernResult : SafeModeResult
-#pragma warning restore
+    [BsonSerializer(typeof(DistinctCommandResultSerializer<>))]
+    public class DistinctCommandResult<TValue> : CommandResult
     {
+        // private fields
+        private IEnumerable<TValue> _values;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="WriteConcernResult"/> class.
+        /// Initializes a new instance of the <see cref="DistinctCommandResult{TValue}" /> class.
         /// </summary>
         /// <param name="response">The response.</param>
-        public WriteConcernResult(BsonDocument response)
+        /// <param name="values">The values.</param>
+        internal DistinctCommandResult(BsonDocument response, IEnumerable<TValue> values)
             : base(response)
         {
+            _values = values;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
+        public IEnumerable<TValue> Values
+        {
+            get { return _values; }
         }
     }
 }

@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -22,6 +23,7 @@ namespace MongoDB.Driver
     /// Represents the result of a command (there are also subclasses for various commands).
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class CommandResult
     {
         // private fields
@@ -30,22 +32,11 @@ namespace MongoDB.Driver
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the CommandResult class.
+        /// Initializes a new instance of the <see cref="CommandResult"/> class.
         /// </summary>
-        // since we often create instances of CommandResult using a generic type parameter
-        // we need a constructor with no arguments (see also the Initialize method below)
-        public CommandResult()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the CommandResult class.
-        /// </summary>
-        /// <param name="command">The command.</param>
         /// <param name="response">The response.</param>
-        public CommandResult(IMongoCommand command, BsonDocument response)
+        public CommandResult(BsonDocument response)
         {
-            _command = command;
             _response = response;
         }
 
@@ -64,6 +55,14 @@ namespace MongoDB.Driver
         public IMongoCommand Command
         {
             get { return _command; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _command = value;
+            }
         }
 
         /// <summary>
@@ -127,24 +126,6 @@ namespace MongoDB.Driver
                     throw new MongoCommandException(message, this);
                 }
             }
-        }
-
-        // public methods
-        /// <summary>
-        /// Initializes an existing instance of the CommandResult class.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        /// <param name="response">The response.</param>
-        // used after a constructor with no arguments (when creating a CommandResult from a generic type parameter)
-        public void Initialize(IMongoCommand command, BsonDocument response)
-        {
-            if (_command != null || _response != null)
-            {
-                var message = string.Format("{0} has already been initialized.", this.GetType().Name);
-                throw new InvalidOperationException(message);
-            }
-            _command = command;
-            _response = response;
         }
     }
 }

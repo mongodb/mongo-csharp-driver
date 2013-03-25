@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.Security
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Communication.Security
         public void Authenticate(MongoConnection connection, MongoCredential credential)
         {
             var nonceCommand = new CommandDocument("getnonce", 1);
-            var commandResult = connection.RunCommand(credential.Source, QueryFlags.None, nonceCommand, false);
+            var commandResult = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.None, nonceCommand, false);
             if (!commandResult.Ok)
             {
                 throw new MongoAuthenticationException(
@@ -58,7 +57,7 @@ namespace MongoDB.Driver.Communication.Security
                     { "key", digest }
                 };
 
-            commandResult = connection.RunCommand(credential.Source, QueryFlags.None, authenticateCommand, false);
+            commandResult = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.None, authenticateCommand, false);
             if (!commandResult.Ok)
             {
                 var message = string.Format("Invalid credential for database '{0}'.", credential.Source);

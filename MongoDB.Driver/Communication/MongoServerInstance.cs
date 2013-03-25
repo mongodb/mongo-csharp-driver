@@ -535,9 +535,8 @@ namespace MongoDB.Driver
             try
             {
                 var isMasterCommand = new CommandDocument("ismaster", 1);
-                var tempResult = connection.RunCommand("admin", QueryFlags.SlaveOk, isMasterCommand, false);
-                isMasterResult = new IsMasterResult();
-                isMasterResult.Initialize(isMasterCommand, tempResult.Response);
+                isMasterResult = connection.RunCommandAs<IsMasterResult>("admin", QueryFlags.SlaveOk, isMasterCommand, false);
+                isMasterResult.Command = isMasterCommand;
                 if (!isMasterResult.Ok)
                 {
                     throw new MongoCommandException(isMasterResult);
@@ -545,7 +544,7 @@ namespace MongoDB.Driver
 
                 MongoServerBuildInfo buildInfo;
                 var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                var buildInfoResult = connection.RunCommand("admin", QueryFlags.SlaveOk, buildInfoCommand, false);
+                var buildInfoResult = connection.RunCommandAs<CommandResult>("admin", QueryFlags.SlaveOk, buildInfoCommand, false);
                 if (buildInfoResult.Ok)
                 {
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
@@ -649,7 +648,7 @@ namespace MongoDB.Driver
             {
                 var pingCommand = new CommandDocument("ping", 1);
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                connection.RunCommand("admin", QueryFlags.SlaveOk, pingCommand, true);
+                connection.RunCommandAs<CommandResult>("admin", QueryFlags.SlaveOk, pingCommand, true);
                 stopwatch.Stop();
                 var currentAverage = _pingTimeAggregator.Average;
                 _pingTimeAggregator.Include(stopwatch.Elapsed);

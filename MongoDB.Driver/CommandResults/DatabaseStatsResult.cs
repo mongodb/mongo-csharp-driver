@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Driver
 {
@@ -21,13 +23,16 @@ namespace MongoDB.Driver
     /// Represents the result of the database stats command.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(CommandResultSerializer))]
     public class DatabaseStatsResult : CommandResult
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the DatabaseStatsResult class.
+        /// Initializes a new instance of the <see cref="DatabaseStatsResult"/> class.
         /// </summary>
-        public DatabaseStatsResult()
+        /// <param name="response">The response.</param>
+        public DatabaseStatsResult(BsonDocument response)
+            : base(response)
         {
         }
 
