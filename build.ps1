@@ -141,7 +141,7 @@ Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
 	$release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
 	$doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-	Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir }
+	Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$35_build_dir}
 	
 	rm -force $artifacts_dir\*.wixpdb
 }

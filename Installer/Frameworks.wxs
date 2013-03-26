@@ -3,27 +3,27 @@
   <Fragment>
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="c_net35BsonDll" Guid="*">
-        <File Id="f_net35BsonDll" Name="MongoDB.Bson.dll" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.dll"
+        <File Id="f_net35BsonDll" Name="MongoDB.Bson.dll" Source="$(var.BinDir)\MongoDB.Bson.dll"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_net35BsonPdb" Guid="*">
-        <File Id="f_net35BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.pdb"
+        <File Id="f_net35BsonPdb" Name="MongoDB.Bson.pdb" Source="$(var.BinDir)\MongoDB.Bson.pdb"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_net35BsonXml" Guid="*">
-        <File Id="f_net35BsonXml" Name="MongoDB.Bson.xml" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Bson.XML"
+        <File Id="f_net35BsonXml" Name="MongoDB.Bson.xml" Source="$(var.BinDir)\MongoDB.Bson.XML"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_net35DriverDll" Guid="*">
-        <File Id="f_net35DriverDll" Name="MongoDB.Driver.dll" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.dll"
+        <File Id="f_net35DriverDll" Name="MongoDB.Driver.dll" Source="$(var.BinDir)\MongoDB.Driver.dll"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_net35DriverPdb" Guid="*">
-        <File Id="f_net35DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.pdb"
+        <File Id="f_net35DriverPdb" Name="MongoDB.Driver.pdb" Source="$(var.BinDir)\MongoDB.Driver.pdb"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_net35DriverXml" Guid="*">
-        <File Id="f_net35DriverXml" Name="MongoDB.Driver.XML" Source="$(var.SourceBase)\artifacts\net35\build\MongoDB.Driver.XML"
+        <File Id="f_net35DriverXml" Name="MongoDB.Driver.XML" Source="$(var.BinDir)\MongoDB.Driver.XML"
               DiskId ="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>

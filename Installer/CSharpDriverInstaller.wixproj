@@ -4,9 +4,10 @@
     <Version Condition=" '$(Version)' == '' ">0.0.0.0</Version>
     <SemVersion Condition=" '$(SemVersion)' == '' ">0.0.0</SemVersion>
     <SourceBase Condition=" '$(SourceBase)' == '' ">..</SourceBase>
-    <ReleaseNotes Condition=" '$(ReleaseNotes)' == '' "></ReleaseNotes>
+    <BinDir Condition=" '$(BinDir)' == '' ">..\MongoDB.Driver\bin\$(Configuration)</BinDir>
+    <ReleaseNotes Condition=" '$(ReleaseNotes)' == '' ">Release Notes\Release Notes v1.8.1.md</ReleaseNotes>
     <License Condition=" '$(License)' == '' ">License.rtf</License>
-    <Documentation Condition=" '$(Documentation)' == '' "></Documentation>
+    <Documentation Condition=" '$(Documentation)' == '' ">Docs\Api\Help\Help.chm</Documentation>
     <ProductId Condition=" '$(ProductId)' == '' ">*</ProductId>
     <UpgradeCode Condition=" '$(UpgradeCode)' == '' ">574a296c-d9df-469f-b205-f93f5da69099</UpgradeCode>
   </PropertyGroup>
@@ -22,15 +23,8 @@
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
     <OutputPath>bin\$(Configuration)</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>$(Configuration);Version=$(Version);SemVersion=$(SemVersion);SourceBase=$(SourceBase);ReleaseNotes=$(ReleaseNotes);License=$(License);Documentation=$(Documentation);ProductId=$(ProductId);UpgradeCode=$(UpgradeCode)</DefineConstants>
-    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>$(Configuration);Version=$(Version);SemVersion=$(SemVersion);SourceBase=$(SourceBase);ReleaseNotes=$(ReleaseNotes);License=$(License);Documentation=$(Documentation);ProductId=$(ProductId);UpgradeCode=$(UpgradeCode)</DefineConstants>
+    <DefineConstants>$(Configuration);Version=$(Version);SemVersion=$(SemVersion);SourceBase=$(SourceBase);ReleaseNotes=$(ReleaseNotes);License=$(License);Documentation=$(Documentation);ProductId=$(ProductId);UpgradeCode=$(UpgradeCode);BinDir=$(BinDir)</DefineConstants>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
