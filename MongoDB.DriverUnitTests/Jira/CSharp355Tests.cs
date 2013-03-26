@@ -71,6 +71,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp355
         [Test]
         public void TestBitmap()
         {
+            if (TestEnvironment.IsMono)
+            {
+                // This test does not work in Mono on Ubuntu. Throws a
+                // System.TypeInitializationException on the Bitmap 
+                // construction
+                return;
+            }
             var bitmap = GetTestBitmap();
             var c = new C { I = bitmap, B = bitmap };
             _collection.RemoveAll();
