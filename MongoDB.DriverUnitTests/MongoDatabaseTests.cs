@@ -99,7 +99,23 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestEvalWithArgs()
+        public void TestEvalWithOneArg()
+        {
+            var code = "function(x) { return x + 1; }";
+            var result = _database.Eval(code, 1);
+            Assert.AreEqual(2, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalWithOneArgNoLock()
+        {
+            var code = "function(x) { return x + 1; }";
+            var result = _database.Eval(EvalFlags.NoLock, code, 1);
+            Assert.AreEqual(2, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalWithTwoArgs()
         {
             var code = "function(x, y) { return x / y; }";
             var result = _database.Eval(code, 6, 2);
@@ -107,7 +123,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestEvalWithArgsNoLock()
+        public void TestEvalWithTwoArgsNoLock()
         {
             var code = "function(x, y) { return x / y; }";
             var result = _database.Eval(EvalFlags.NoLock, code, 6, 2);
