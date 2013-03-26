@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Wrappers;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -246,14 +247,7 @@ namespace MongoDB.Driver
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<BsonValue> Distinct(string key, IMongoQuery query)
         {
-            var command = new CommandDocument
-            {
-                { "distinct", _name },
-                { "key", key },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
-            };
-            var result = RunCommand(command);
-            return result.Response["values"].AsBsonArray;
+            return Distinct<BsonValue>(key, query, BsonValueSerializer.Instance, null);
         }
 
         /// <summary>
@@ -276,14 +270,8 @@ namespace MongoDB.Driver
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<TValue> Distinct<TValue>(string key, IMongoQuery query)
         {
-            var command = new CommandDocument
-            {
-                { "distinct", _name },
-                { "key", key },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
-            };
-            var result = RunCommandAs<DistinctCommandResult<TValue>>(command);
-            return result.Values;
+            var valueSerializer = BsonSerializer.LookupSerializer(typeof(TValue));
+            return Distinct<TValue>(key, query, valueSerializer, null);
         }
 
         /// <summary>
@@ -570,7 +558,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(TDocument));
-            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
+            return FindAs<TDocument>(query, serializer, null);
         }
 
         /// <summary>
@@ -582,7 +570,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
         {
             var serializer = BsonSerializer.LookupSerializer(documentType);
-            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer);
+            return FindAs(documentType, query, serializer, null);
         }
 
         /// <summary>
@@ -1702,12 +1690,24 @@ namespace MongoDB.Driver
             return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
         }
 
+        internal TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+            where TCommandResult : CommandResult
+        {
+            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command, serializer, serializationOptions);
+        }
+
         internal CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
+        {
+            var commandResultSerializer = BsonSerializer.LookupSerializer(commandResultType);
+            return RunCommandAs(commandResultType, command, commandResultSerializer, null);
+        }
+
+        internal CommandResult RunCommandAs(Type commandResultType, IMongoCommand command, IBsonSerializer commandResultSerializer, IBsonSerializationOptions commandResultSerializationOptions)
         {
             // if necessary delegate running the command to the _commandCollection
             if (_name == "$cmd")
             {
-                var commandResult = (CommandResult)FindOneAs(commandResultType, command);
+                var commandResult = (CommandResult)FindOneAs(commandResultType, command, commandResultSerializer, commandResultSerializationOptions);
                 if (commandResult == null)
                 {
                     var commandName = command.ToBsonDocument().GetElement(0).Name;
@@ -1729,11 +1729,48 @@ namespace MongoDB.Driver
             }
             else
             {
-                return _commandCollection.RunCommandAs(commandResultType, command);
+                return _commandCollection.RunCommandAs(commandResultType, command, commandResultSerializer, commandResultSerializationOptions);
             }
         }
 
         // private methods
+        private IEnumerable<TValue> Distinct<TValue>(
+            string key,
+            IMongoQuery query,
+            IBsonSerializer valueSerializer,
+            IBsonSerializationOptions valueSerializationOptions)
+        {
+            var command = new CommandDocument
+            {
+                { "distinct", _name },
+                { "key", key },
+                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
+            };
+            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer, valueSerializationOptions);
+            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer, null);
+            return result.Values;
+        }
+
+        private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        {
+            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer, serializationOptions);
+        }
+
+        private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        {
+            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer, serializationOptions);
+        }
+
+        private CommandResult FindOneAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        {
+            return FindAs(documentType, query, serializer, serializationOptions).SetLimit(1).Cast<CommandResult>().FirstOrDefault();
+        }
+
+        private TDocument FindOneAs<TDocument>(IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        {
+            return FindAs<TDocument>(query, serializer, serializationOptions).SetLimit(1).FirstOrDefault();
+        }
+
         private string GetIndexName(BsonDocument keys, BsonDocument options)
         {
             if (options != null)

@@ -287,6 +287,7 @@ namespace MongoDB.Driver.Internal
                 var message = string.Format("Command '{0}' failed. No response returned.", commandName);
                 throw new MongoCommandException(message);
             }
+
             var commandResult = reply.Documents[0];
             commandResult.Command = command;
 
@@ -390,8 +391,7 @@ namespace MongoDB.Driver.Internal
                         MaxDocumentSize = _serverInstance.MaxDocumentSize
                     };
                     var writeConcernResultSerializer = BsonSerializer.LookupSerializer(typeof(WriteConcernResult));
-                    IBsonSerializationOptions writeConcernSerializationOptions = null;
-                    var replyMessage = ReceiveMessage<WriteConcernResult>(readerSettings, writeConcernResultSerializer, writeConcernSerializationOptions);
+                    var replyMessage = ReceiveMessage<WriteConcernResult>(readerSettings, writeConcernResultSerializer, null);
                     writeConcernResult = replyMessage.Documents[0];
                     writeConcernResult.Command = getLastErrorCommand;
                     if (!writeConcernResult.Ok)

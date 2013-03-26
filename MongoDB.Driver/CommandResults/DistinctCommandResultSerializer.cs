@@ -29,6 +29,30 @@ namespace MongoDB.Driver
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class DistinctCommandResultSerializer<TValue> : BsonBaseSerializer
     {
+        // private fields
+        private readonly IBsonSerializer _valueSerializer;
+        private readonly IBsonSerializationOptions _valueSerializationOptions;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistinctCommandResultSerializer{TValue}"/> class.
+        /// </summary>
+        public DistinctCommandResultSerializer()
+            : this(BsonSerializer.LookupSerializer(typeof(TValue)), null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistinctCommandResultSerializer{TValue}"/> class.
+        /// </summary>
+        /// <param name="valueSerializer">The value serializer.</param>
+        /// <param name="valueSerializationOptions">The value serialization options.</param>
+        public DistinctCommandResultSerializer(IBsonSerializer valueSerializer, IBsonSerializationOptions valueSerializationOptions)
+        {
+            _valueSerializer = valueSerializer;
+            _valueSerializationOptions = valueSerializationOptions;
+        }
+
         /// <summary>
         /// Deserializes an object from a BsonReader.
         /// </summary>
@@ -50,8 +74,7 @@ namespace MongoDB.Driver
                 var name = bsonReader.ReadName();
                 if (name == "values")
                 {
-                    var enumerableSerializer = new EnumerableSerializer<TValue>();
-                    values = (IEnumerable<TValue>)enumerableSerializer.Deserialize(bsonReader, typeof(List<TValue>), null);
+                    values = ReadValues(bsonReader);
                 }
                 else
                 {
@@ -62,6 +85,21 @@ namespace MongoDB.Driver
             bsonReader.ReadEndDocument();
 
             return new DistinctCommandResult<TValue>(response, values);
+        }
+
+        // private methods
+        private IEnumerable<TValue> ReadValues(BsonReader bsonReader)
+        {
+            var values = new List<TValue>();
+
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                values.Add((TValue)_valueSerializer.Deserialize(bsonReader, typeof(TValue), _valueSerializationOptions));
+            }
+            bsonReader.ReadEndArray();
+
+            return values;
         }
     }
 }

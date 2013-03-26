@@ -28,7 +28,7 @@ namespace MongoDB.Driver
     public class DistinctCommandResult<TValue> : CommandResult
     {
         // private fields
-        private IEnumerable<TValue> _values;
+        private readonly IEnumerable<TValue> _values;
 
         // constructors
         /// <summary>

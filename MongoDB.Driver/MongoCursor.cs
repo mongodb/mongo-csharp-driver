@@ -54,13 +54,15 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="serializer">The serializer.</param>
-        protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
+        /// <param name="serializationOptions">The serialization options.</param>
+        protected MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             _collection = collection;
             _database = collection.Database;
             _server = collection.Database.Server;
             _query = query;
             _serializer = serializer;
+            _serializationOptions = serializationOptions;
             _readPreference = readPreference;
         }
 
@@ -254,13 +256,16 @@ namespace MongoDB.Driver
         /// <param name="query">A query.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <returns>A cursor.</returns>
-        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        public static MongoCursor Create(Type documentType, MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             var cursorDefinition = typeof(MongoCursor<>);
             var cursorType = cursorDefinition.MakeGenericType(documentType);
-            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer)});
-            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer });
+            var constructorInfo = cursorType.GetConstructor(new Type[] { typeof(MongoCollection), typeof(IMongoQuery), typeof(ReadPreference), typeof(IBsonSerializer), typeof(IBsonSerializationOptions)});
+            return (MongoCursor)constructorInfo.Invoke(new object[] { collection, query, readPreference, serializer, serializationOptions });
         }
 
         // public methods
@@ -279,10 +284,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the documents returned.</typeparam>
         /// <param name="serializer">The serializer to use.</param>
-        /// <returns>A clone of the cursor.</returns>
-        public virtual MongoCursor<TDocument> Clone<TDocument>(IBsonSerializer serializer)
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>
+        /// A clone of the cursor.
+        /// </returns>
+        public virtual MongoCursor<TDocument> Clone<TDocument>(IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
-            return (MongoCursor<TDocument>)Clone(typeof(TDocument), serializer);
+            return (MongoCursor<TDocument>)Clone(typeof(TDocument), serializer, serializationOptions);
         }
 
         /// <summary>
@@ -292,7 +300,8 @@ namespace MongoDB.Driver
         /// <returns>A clone of the cursor.</returns>
         public virtual MongoCursor Clone(Type documentType)
         {
-            return Clone(documentType, _serializer);
+            var serializer = BsonSerializer.LookupSerializer(documentType);
+            return Clone(documentType, serializer, null);
         }
 
         /// <summary>
@@ -300,10 +309,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documentType">The type of the documents returned.</param>
         /// <param name="serializer">The serializer to use.</param>
-        /// <returns>A clone of the cursor.</returns>
-        public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer)
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <returns>
+        /// A clone of the cursor.
+        /// </returns>
+        public virtual MongoCursor Clone(Type documentType, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
-            var clone = Create(documentType, _collection, _query, _readPreference, serializer);
+            var clone = Create(documentType, _collection, _query, _readPreference, serializer, serializationOptions);
             clone._options = _options == null ? null : (BsonDocument)_options.Clone();
             clone._flags = _flags;
             clone._skip = _skip;
@@ -347,7 +359,7 @@ namespace MongoDB.Driver
         public virtual BsonDocument Explain(bool verbose)
         {
             _isFrozen = true;
-            var clone = Clone<BsonDocument>(BsonDocumentSerializer.Instance);
+            var clone = Clone<BsonDocument>(BsonDocumentSerializer.Instance, null);
             clone.SetOption("$explain", true);
             clone._limit = -clone._limit; // TODO: should this be -1?
             var explanation = clone.FirstOrDefault();
@@ -683,8 +695,9 @@ namespace MongoDB.Driver
         /// <param name="query">The query.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="serializer">The serializer.</param>
-        public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer)
-            : base(collection, query, readPreference, serializer)
+        /// <param name="serializationOptions">The serialization options.</param>
+        public MongoCursor(MongoCollection collection, IMongoQuery query, ReadPreference readPreference, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+            : base(collection, query, readPreference, serializer, serializationOptions)
         {
         }
 
