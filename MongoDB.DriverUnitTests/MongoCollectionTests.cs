@@ -1189,6 +1189,36 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestInsertBatchSmallFinalSubbatch()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Unacknowledged };
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            if (collection.Exists()) { collection.Drop(); }
+
+            using (Configuration.TestDatabase.RequestStart())
+            {
+                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+                var documentCount = maxMessageLength / (1024 * 1024) + 1; // 1 document will overflow to second sub batch
+
+                var documents = new BsonDocument[documentCount];
+                for (var i = 0; i < documentCount; i++)
+                {
+                    var document = new BsonDocument
+                    {
+                        { "_id", i },
+                        { "filler", new string('x', 1024 * 1024) }
+                    };
+                    documents[i] = document;
+                }
+
+                collection.InsertBatch(documents);
+
+                Assert.AreEqual(documentCount, collection.Count());
+            }
+        }
+
+        [Test]
         public void TestIsCappedFalse()
         {
             var collection = _database.GetCollection("notcappedcollection");
