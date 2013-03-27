@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Internal
             var lastDocumentLength = buffer.Position - _lastDocumentStartPosition;
             buffer.Position = _lastDocumentStartPosition;
             var lastDocument = buffer.ReadBytes(lastDocumentLength);
+            buffer.Position = _lastDocumentStartPosition;
             buffer.Length = _lastDocumentStartPosition;
             BackpatchMessageLength(buffer);
             return lastDocument;
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Internal
         internal void ResetBatch(BsonBuffer buffer, byte[] lastDocument)
         {
             buffer.Position = _firstDocumentStartPosition;
+            buffer.Length = _firstDocumentStartPosition;
             buffer.WriteBytes(lastDocument);
             BackpatchMessageLength(buffer);
         }
