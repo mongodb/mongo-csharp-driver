@@ -351,6 +351,10 @@ namespace MongoDB.Bson.IO
                 var chunkRemaining = _chunkSize - chunkOffset;
                 var bytesToRead = (count <= chunkRemaining) ? count : chunkRemaining;
                 var bytesRead = stream.Read(_chunks[chunkIndex].Bytes, chunkOffset, bytesToRead);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
                 position += bytesRead;
                 count -= bytesRead;
             }

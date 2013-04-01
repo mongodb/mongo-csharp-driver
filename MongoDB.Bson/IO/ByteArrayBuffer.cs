@@ -275,6 +275,10 @@ namespace MongoDB.Bson.IO
             while (count > 0)
             {
                 var bytesRead = stream.Read(_bytes, _sliceOffset + position, count);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
                 position += bytesRead;
                 count -= bytesRead;
             }

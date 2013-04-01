@@ -78,6 +78,10 @@ namespace MongoDB.Bson.IO
             while (count > 0)
             {
                 var bytesRead = stream.Read(lengthBytes, offset, count);
+                if (bytesRead == 0)
+                {
+                    throw new EndOfStreamException();
+                }
                 offset += bytesRead;
                 count -= bytesRead;
             }
