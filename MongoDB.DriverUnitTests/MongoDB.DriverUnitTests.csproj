@@ -119,6 +119,7 @@
     <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
     <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp653Tests.cs" />
+    <Compile Include="Jira\CSharp714Tests.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
     <Compile Include="ReadPreferenceTests.cs" />
     <Compile Include="MongoCollectionSettingsTests.cs" />

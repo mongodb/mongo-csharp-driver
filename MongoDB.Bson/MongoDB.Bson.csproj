@@ -177,6 +177,7 @@
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
     <Compile Include="Serialization\ExpressionVisitor.cs" />
     <Compile Include="Serialization\ICreatorSelector.cs" />
+    <Compile Include="Serialization\IdGenerators\AscendingGuidGenerator.cs" />
     <Compile Include="Serialization\IdGenerators\BsonBinaryDataGuidGenerator.cs" />
     <Compile Include="Serialization\IdGenerators\BsonObjectIdGenerator.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGenerator.cs" />
