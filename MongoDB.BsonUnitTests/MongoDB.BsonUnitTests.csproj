@@ -118,6 +118,7 @@
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
+    <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
     <Compile Include="Serialization\LegacyBsonClassMapTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptionsTests.cs" />
