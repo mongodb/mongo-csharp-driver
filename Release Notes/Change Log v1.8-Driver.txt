@@ -1,4 +1,4 @@
-C#/.NET driver changes from 1.8 to 1.8
+C#/.NET driver changes from 1.7 to 1.8
 
 DeprecatedQueryBuilder.cs
 	removed deprecated class

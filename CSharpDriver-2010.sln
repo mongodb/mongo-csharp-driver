@@ -36,6 +36,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Change Log v1.7-Driver.txt = Release Notes\Change Log v1.7-Driver.txt
 		Release Notes\Change Log v1.8-Bson.txt = Release Notes\Change Log v1.8-Bson.txt
 		Release Notes\Change Log v1.8-Driver.txt = Release Notes\Change Log v1.8-Driver.txt
+		Release Notes\Change Log v1.8.1-Bson.txt = Release Notes\Change Log v1.8.1-Bson.txt
+		Release Notes\Change Log v1.8.1-Driver.txt = Release Notes\Change Log v1.8.1-Driver.txt
 		Release Notes\Release Notes v0.11.txt = Release Notes\Release Notes v0.11.txt
 		Release Notes\Release Notes v0.7.txt = Release Notes\Release Notes v0.7.txt
 		Release Notes\Release Notes v0.9.txt = Release Notes\Release Notes v0.9.txt
@@ -51,6 +53,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.6.1.md = Release Notes\Release Notes v1.6.1.md
 		Release Notes\Release Notes v1.6.md = Release Notes\Release Notes v1.6.md
 		Release Notes\Release Notes v1.7.md = Release Notes\Release Notes v1.7.md
+		Release Notes\Release Notes v1.8.1.md = Release Notes\Release Notes v1.8.1.md
 		Release Notes\Release Notes v1.8.md = Release Notes\Release Notes v1.8.md
 	EndProjectSection
 EndProject

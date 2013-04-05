@@ -1,0 +1,57 @@
+C#/.NET driver changes from 1.8 to 1.8.1
+
+AggregateResult.cs
+CollectionStatusResult.cs
+DatabaseStatsResult.cs
+FindAndModifyResult.cs
+GeoHaystackSearchResult.cs
+GeoNearResult.cs
+GetLastErrorResult.cs
+GetProfilingLevelResult.cs
+IsMasterResult.cs
+MapReduceResult.cs
+SafeModeResult.cs
+ValidateCollectionResult.cs
+WriteConcernResult.cs
+    now deserialized using standard deserialization mechanisms
+
+CommandResult.cs
+    now deserialized using standard deserialization mechanisms
+    removed Initialize method (deserialization handles setting response, Command is now set via the property)
+
+CommandResultSerializer.cs
+    new serializer for CommandResult and most of its subclasses
+    some CommandResults have their own serializer (e.g. DistinctCommandResult)
+
+DistinctCommandResult.cs
+    new subclass of CommandResult for the distinct command
+
+DistinctCommandResultSerializer.cs
+    new serializer for DistinctCommandResult
+
+MongoInsertMessage.cs
+    fixed bug in ResetBatch that was affecting InsertBatch with multiple sub-batches
+
+MongoReplyMessage.cs
+    the serializer to use for the returned documents is now passed in to the constructor
+
+MongoConnection.cs
+    internal method RunCommand was renamed RunCommandAs<TCommandResult> and now returns a TCommandResult
+    internal method ReceiveMessage has new serializer parameter so it can pass it along to the MongoReplyMessage constructor
+    internal method SendMessage now uses standard serialization mechanisms to deserialize the WriteConcernResult
+
+MongoCollection.cs
+    new Distinct<TValue> method that returns the distinct values as TValue(s) instead of BsonValue(s)
+    FindAs is now responsible for looking up the serializer for the result documents
+    RunCommandAs now uses standard serialization mechanisms to deserialize the command result
+
+MongoCursor.cs
+    now receives the serializer and serialization options to use for the result document in the constructor
+    added new Serializer property
+    static Create method now has additional serializer and serialization options parameters
+
+MongoCursorEnumerator.cs
+    GetReply now uses the serializer and serialization options specified by the cursor
+
+MongoDatabase.cs
+    fixed bug in Eval that was preventing args being sent to the server when there was exactly one arg

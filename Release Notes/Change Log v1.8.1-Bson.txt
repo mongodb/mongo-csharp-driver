@@ -1,0 +1,29 @@
+BSON library changes from 1.8 to 1.8.1
+
+ByteArrayBuffer.cs
+    LoadFrom now checks for end of stream
+
+ByteArrayBuffer.cs
+    LoadFrom now checks for end of stream
+
+MultiChunkBuffer.cs
+    LoadFrom now checks for end of stream
+
+AscendingGuidGenerator.cs
+    new Guid generator that generates Guids that are ascending according to MongoDB
+    (the Guids will only be ascending if stored using GuidRepresentation.Standard)
+
+CombGuidGenerator.cs
+    this class is not deprecated, but the Guids it generates are only ascending if compared the weird way SQL Server compares Guids
+    timestamp portion now uses SQL server timer resolution (1/300th of a second per tick)
+
+InterfaceSerializer.cs
+    new serializer that can be used with any interface
+    Deserialize uses a discriminator convention to figure out the actual type and calls Deserialize on the actual type's serializer
+    Serialize looks up the serializer of the actual type and calls Serialize on the actual type's serializer
+
+BsonClassMap.cs
+    renamed private method ResolveExplicitProperty to FindPropertyImplementation and made it more robust
+
+BsonDefaultSerializationProvider.cs
+    GetSerializer now returns an InterfaceSerializer if the type is an interface
