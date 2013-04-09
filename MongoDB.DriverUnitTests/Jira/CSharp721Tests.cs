@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp721
                 Assert.Null(entity.OtherId);
                 _collection.Insert(entity);
                 Assert.NotNull(entity.Id);
-                Assert.NotNull(entity.OtherId);
+                Assert.Null(entity.OtherId); // I believe this should be null.
             }
         }
 
