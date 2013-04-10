@@ -224,7 +224,15 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestReplicaSetName()
         {
-            Assert.IsNull(_server.ReplicaSetName);
+            var instances = _server.Instances;
+            if (instances.Length == 1)
+            {
+                Assert.IsNull(_server.ReplicaSetName);
+            }
+            else
+            {
+                Assert.IsNotNull(_server.ReplicaSetName);
+            }
         }
 
         [Test]
