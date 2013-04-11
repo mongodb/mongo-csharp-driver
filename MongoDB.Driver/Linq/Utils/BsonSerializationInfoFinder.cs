@@ -243,8 +243,13 @@ namespace MongoDB.Driver.Linq.Utils
                     return null;
                 }
 
-                var itemSerializationInfo = new BsonSerializationInfo(index, null, null, null);
-                return CombineSerializationInfo(itemSerializationInfo, serializationInfo);
+                var itemSerializationInfo = new BsonSerializationInfo(
+                   index,
+                   serializationInfo.Serializer,
+                   serializationInfo.NominalType,
+                   serializationInfo.SerializationOptions);
+
+                return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
             }
             else
             {
