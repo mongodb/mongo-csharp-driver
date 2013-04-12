@@ -19,7 +19,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -535,26 +538,21 @@ namespace MongoDB.Driver
             try
             {
                 var isMasterCommand = new CommandDocument("ismaster", 1);
-                isMasterResult = connection.RunCommandAs<IsMasterResult>("admin", QueryFlags.SlaveOk, isMasterCommand, false);
-                isMasterResult.Command = isMasterCommand;
-                if (!isMasterResult.Ok)
-                {
-                    throw new MongoCommandException(isMasterResult);
-                }
+                isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
 
                 MongoServerBuildInfo buildInfo;
-                var buildInfoCommand = new CommandDocument("buildinfo", 1);
-                var buildInfoResult = connection.RunCommandAs<CommandResult>("admin", QueryFlags.SlaveOk, buildInfoCommand, false);
-                if (buildInfoResult.Ok)
+                try
                 {
+                    var buildInfoCommand = new CommandDocument("buildinfo", 1);
+                    var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
                 }
-                else
+                catch (MongoCommandException ex)
                 {
                     // short term fix: if buildInfo fails due to auth we don't know the server version; see CSHARP-324
-                    if (buildInfoResult.ErrorMessage != "need to login")
+                    if (ex.CommandResult.ErrorMessage != "need to login")
                     {
-                        throw new MongoCommandException(buildInfoResult);
+                        throw;
                     }
                     buildInfo = null;
                 }
@@ -648,7 +646,7 @@ namespace MongoDB.Driver
             {
                 var pingCommand = new CommandDocument("ping", 1);
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                connection.RunCommandAs<CommandResult>("admin", QueryFlags.SlaveOk, pingCommand, true);
+                RunCommandAs<CommandResult>(connection, "admin", pingCommand);
                 stopwatch.Stop();
                 var currentAverage = _pingTimeAggregator.Average;
                 _pingTimeAggregator.Include(stopwatch.Elapsed);
@@ -664,6 +662,27 @@ namespace MongoDB.Driver
                 SetState(MongoServerState.Disconnected);
                 throw;
             }
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
+            where TCommandResult : CommandResult
+        {
+            var readerSettings = new BsonBinaryReaderSettings();
+            var writerSettings = new BsonBinaryWriterSettings();
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(TCommandResult));
+
+            var commandOperation = new CommandOperation<TCommandResult>(
+                databaseName,
+                readerSettings,
+                writerSettings,
+                command,
+                QueryFlags.SlaveOk,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                resultSerializer);
+
+            return commandOperation.Execute(connection);
         }
 
         private void StateVerificationTimerCallback()

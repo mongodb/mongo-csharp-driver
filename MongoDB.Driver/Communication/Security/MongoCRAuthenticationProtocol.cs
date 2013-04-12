@@ -14,7 +14,10 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver.Communication.Security
 {
@@ -37,19 +40,23 @@ namespace MongoDB.Driver.Communication.Security
         /// <param name="credential">The credential.</param>
         public void Authenticate(MongoConnection connection, MongoCredential credential)
         {
-            var nonceCommand = new CommandDocument("getnonce", 1);
-            var commandResult = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.None, nonceCommand, false);
-            if (!commandResult.Ok)
+            string nonce;
+            try
             {
-                throw new MongoAuthenticationException(
-                    "Error getting nonce for authentication.",
-                    new MongoCommandException(commandResult));
+                var nonceCommand = new CommandDocument("getnonce", 1);
+                var nonceResult = RunCommand(connection, credential.Source, nonceCommand);
+                nonce = nonceResult.Response["nonce"].AsString;
+            }
+            catch (MongoCommandException ex)
+            {
+                throw new MongoAuthenticationException("Error getting nonce for authentication.", ex);
             }
 
-            var nonce = commandResult.Response["nonce"].AsString;
-            var passwordDigest = ((PasswordEvidence)credential.Evidence).ComputeMongoCRPasswordDigest(credential.Username);
-            var digest = MongoUtils.Hash(nonce + credential.Username + passwordDigest);
-            var authenticateCommand = new CommandDocument
+            try
+            {
+                var passwordDigest = ((PasswordEvidence)credential.Evidence).ComputeMongoCRPasswordDigest(credential.Username);
+                var digest = MongoUtils.Hash(nonce + credential.Username + passwordDigest);
+                var authenticateCommand = new CommandDocument
                 {
                     { "authenticate", 1 },
                     { "user", credential.Username },
@@ -57,13 +64,12 @@ namespace MongoDB.Driver.Communication.Security
                     { "key", digest }
                 };
 
-            commandResult = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.None, authenticateCommand, false);
-            if (!commandResult.Ok)
+                RunCommand(connection, credential.Source, authenticateCommand);
+            }
+            catch (MongoCommandException ex)
             {
                 var message = string.Format("Invalid credential for database '{0}'.", credential.Source);
-                throw new MongoAuthenticationException(
-                    message,
-                    new MongoCommandException(commandResult));
+                throw new MongoAuthenticationException(message, ex);
             }
         }
 
@@ -78,6 +84,27 @@ namespace MongoDB.Driver.Communication.Security
         {
             return credential.Mechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase) &&
                 credential.Evidence is PasswordEvidence;
+        }
+
+        // private methods
+        private CommandResult RunCommand(MongoConnection connection, string databaseName, IMongoCommand command)
+        {
+            var readerSettings = new BsonBinaryReaderSettings();
+            var writerSettings = new BsonBinaryWriterSettings();
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+
+            var commandOperation = new CommandOperation<CommandResult>(
+                databaseName,
+                readerSettings,
+                writerSettings,
+                command,
+                QueryFlags.None,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                resultSerializer);
+
+            return commandOperation.Execute(connection);
         }
     }
 }

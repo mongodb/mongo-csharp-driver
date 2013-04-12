@@ -18,8 +18,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -32,7 +35,6 @@ namespace MongoDB.Driver
         private MongoServer _server;
         private MongoDatabaseSettings _settings;
         private string _name;
-        private MongoCollection<BsonDocument> _commandCollection;
 
         // constructors
         /// <summary>
@@ -81,9 +83,6 @@ namespace MongoDB.Driver
             _server = server;
             _settings = settings;
             _name = name;
-
-            var commandCollectionSettings = new MongoCollectionSettings { AssignIdOnInsert = false };
-            _commandCollection = GetCollection("$cmd", commandCollectionSettings);
         }
 
         // factory methods
@@ -185,9 +184,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the command collection for this database.
         /// </summary>
+        [Obsolete("CommandCollection will be removed and there will be no replacement.")]
         public virtual MongoCollection<BsonDocument> CommandCollection
         {
-            get { return _commandCollection; }
+            get
+            {
+                var commandCollectionSettings = new MongoCollectionSettings { AssignIdOnInsert = false };
+                return GetCollection("$cmd", commandCollectionSettings);
+            }
         }
 
         /// <summary>
@@ -302,7 +306,7 @@ namespace MongoDB.Driver
             {
                 command.Merge(options.ToBsonDocument());
             }
-            return RunCommand(command);
+            return RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>
@@ -355,7 +359,7 @@ namespace MongoDB.Driver
             try
             {
                 var command = new CommandDocument("drop", collectionName);
-                var result = RunCommand(command);
+                var result = RunCommandAs<CommandResult>(command);
                 _server.IndexCache.Reset(_name, collectionName);
                 return result;
             }
@@ -385,7 +389,7 @@ namespace MongoDB.Driver
                 { "args", argsArray, argsArray != null },
                 { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
             };
-            var result = RunCommand(command);
+            var result = RunCommandAs<CommandResult>(command);
             return result.Response["retval"];
         }
 
@@ -825,7 +829,7 @@ namespace MongoDB.Driver
                 { "dropTarget", dropTarget, dropTarget } // only added if dropTarget is true
             };
             var adminDatabase = _server.GetDatabase("admin");
-            return adminDatabase.RunCommand(command);
+            return adminDatabase.RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>
@@ -914,7 +918,8 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
             where TCommandResult : CommandResult
         {
-            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(TCommandResult));
+            return RunCommandAs<TCommandResult>(command, resultSerializer, null);
         }
 
         /// <summary>
@@ -926,7 +931,8 @@ namespace MongoDB.Driver
         public virtual TCommandResult RunCommandAs<TCommandResult>(string commandName)
             where TCommandResult : CommandResult
         {
-            return (TCommandResult)RunCommandAs(typeof(TCommandResult), commandName);
+            var command = new CommandDocument(commandName, 1);
+            return RunCommandAs<TCommandResult>(command);
         }
 
         /// <summary>
@@ -937,7 +943,9 @@ namespace MongoDB.Driver
         /// <returns>A TCommandResult</returns>
         public virtual CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
         {
-            return CommandCollection.RunCommandAs(commandResultType, command);
+            var methodDefinition = GetType().GetMethod("RunCommandAs", new Type[] { typeof(IMongoCommand) });
+            var methodInfo = methodDefinition.MakeGenericMethod(commandResultType);
+            return (CommandResult)methodInfo.Invoke(this, new object[] { command });
         }
 
         /// <summary>
@@ -975,7 +983,7 @@ namespace MongoDB.Driver
                 { "profile", (int) level },
                 { "slowms", slow.TotalMilliseconds, slow != TimeSpan.Zero } // optional
             };
-            return RunCommand(command);
+            return RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>
@@ -985,6 +993,51 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return _name;
+        }
+
+        // private methods
+        private TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer resultSerializer,
+            IBsonSerializationOptions resultSerializationOptions) where TCommandResult : CommandResult
+        {
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+            var readPreference = _settings.ReadPreference;
+            if (readPreference != ReadPreference.Primary && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+            {
+                readPreference = ReadPreference.Primary;
+            }
+            var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
+
+            var commandOperation = new CommandOperation<TCommandResult>(
+                _name,
+                readerSettings,
+                writerSettings,
+                command,
+                flags,
+                null, // options
+                readPreference,
+                resultSerializationOptions,
+                resultSerializer);
+
+            var connection = _server.AcquireConnection(readPreference);
+            try
+            {
+                return commandOperation.Execute(connection);
+            }
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
         }
     }
 }

@@ -13,12 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
-using MongoDB.Driver.Communication.Security;
-using MongoDB.Driver.Communication.Security.Mechanisms;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver.Communication.Security
 {
@@ -73,7 +71,7 @@ namespace MongoDB.Driver.Communication.Security
                     CommandResult result;
                     try
                     {
-                        result = connection.RunCommandAs<CommandResult>(credential.Source, QueryFlags.SlaveOk, command, true);
+                        result = RunCommand(connection, credential.Source, command);
                     }
                     catch (MongoCommandException ex)
                     {
@@ -115,6 +113,27 @@ namespace MongoDB.Driver.Communication.Security
         public bool CanUse(MongoCredential credential)
         {
             return _mechanism.CanUse(credential);
+        }
+
+        // private methods
+        private CommandResult RunCommand(MongoConnection connection, string databaseName, IMongoCommand command)
+        {
+            var readerSettings = new BsonBinaryReaderSettings();
+            var writerSettings = new BsonBinaryWriterSettings();
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+
+            var commandOperation = new CommandOperation<CommandResult>(
+                databaseName,
+                readerSettings,
+                writerSettings,
+                command,
+                QueryFlags.SlaveOk,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                resultSerializer);
+
+            return commandOperation.Execute(connection);
         }
     }
 }

@@ -21,10 +21,11 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 using MongoDB.Driver.Wrappers;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -38,7 +39,6 @@ namespace MongoDB.Driver
         private MongoDatabase _database;
         private MongoCollectionSettings _settings;
         private string _name;
-        private MongoCollection<BsonDocument> _commandCollection; // used to run commands with this collection's settings
 
         // constructors
         /// <summary>
@@ -75,20 +75,6 @@ namespace MongoDB.Driver
             _database = database;
             _settings = settings;
             _name = name;
-
-            if (_name != "$cmd")
-            {
-                var commandCollectionSettings = new MongoCollectionSettings
-                {
-                    AssignIdOnInsert = false,
-                    GuidRepresentation = _settings.GuidRepresentation,
-                    ReadEncoding = _settings.ReadEncoding,
-                    ReadPreference = _settings.ReadPreference,
-                    WriteConcern = _settings.WriteConcern,
-                    WriteEncoding = _settings.WriteEncoding
-                };
-                _commandCollection = _database.GetCollection("$cmd", commandCollectionSettings);
-            }
         }
 
         // public properties
@@ -177,7 +163,7 @@ namespace MongoDB.Driver
                 { "count", _name },
                 { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
             };
-            var result = RunCommand(command);
+            var result = RunCommandAs<CommandResult>(command);
             return result.Response["n"].ToInt64();
         }
 
@@ -337,7 +323,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                return RunCommand(command);
+                return RunCommandAs<CommandResult>(command);
             }
             catch (MongoCommandException ex)
             {
@@ -650,7 +636,13 @@ namespace MongoDB.Driver
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
-            return (GeoHaystackSearchResult<TDocument>)GeoHaystackSearchAs(typeof(TDocument), x, y, options);
+            var command = new CommandDocument
+            {
+                { "geoSearch", _name },
+                { "near", new BsonArray { x, y } }
+            };
+            command.Merge(options.ToBsonDocument());
+            return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
         }
 
         /// <summary>
@@ -667,15 +659,9 @@ namespace MongoDB.Driver
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
-            var command = new CommandDocument
-            {
-                { "geoSearch", _name },
-                { "near", new BsonArray { x, y } }
-            };
-            command.Merge(options.ToBsonDocument());
-            var geoHaystackSearchResultDefinition = typeof(GeoHaystackSearchResult<>);
-            var geoHaystackSearchResultType = geoHaystackSearchResultDefinition.MakeGenericType(documentType);
-            return (GeoHaystackSearchResult)RunCommandAs(geoHaystackSearchResultType, command);
+            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(double), typeof(double), typeof(IMongoGeoHaystackSearchOptions) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { x, y, options });
         }
 
         /// <summary>
@@ -756,17 +742,9 @@ namespace MongoDB.Driver
             int limit,
             IMongoGeoNearOptions options)
         {
-            var command = new CommandDocument
-            {
-                { "geoNear", _name },
-                { "near", new BsonArray { x, y } },
-                { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
-            };
-            command.Merge(options.ToBsonDocument());
-            var geoNearResultDefinition = typeof(GeoNearResult<>);
-            var geoNearResultType = geoNearResultDefinition.MakeGenericType(documentType);
-            return (GeoNearResult)RunCommandAs(geoNearResultType, command);
+            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(IMongoQuery), typeof(double), typeof(double), typeof(int), typeof(IMongoGeoNearOptions) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            return (GeoNearResult)methodInfo.Invoke(this, new object[] { query, x, y, limit, options });
         }
 
         /// <summary>
@@ -865,7 +843,7 @@ namespace MongoDB.Driver
                     }
                 }
             };
-            var result = RunCommand(command);
+            var result = RunCommandAs<CommandResult>(command);
             return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -912,7 +890,7 @@ namespace MongoDB.Driver
                     }
                 }
             };
-            var result = RunCommand(command);
+            var result = RunCommandAs<CommandResult>(command);
             return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
         }
 
@@ -1151,78 +1129,34 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var insertOperation = new InsertOperation(
+                _database.Name,
+                _name,
+                readerSettings,
+                writerSettings,
+                options.WriteConcern ?? _settings.WriteConcern,
+                _settings.AssignIdOnInsert,
+                options.CheckElementNames,
+                nominalType,
+                documents,
+                options.Flags);
+
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
-                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
-
-                List<WriteConcernResult> results = (writeConcern.Enabled) ? new List<WriteConcernResult>() : null;
-
-                var writerSettings = GetWriterSettings(connection);
-                using (var bsonBuffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
-                {
-                    var message = new MongoInsertMessage(writerSettings, FullName, options.CheckElementNames, options.Flags);
-                    message.WriteToBuffer(bsonBuffer); // must be called before AddDocument
-
-                    foreach (var document in documents)
-                    {
-                        if (document == null)
-                        {
-                            throw new ArgumentException("Batch contains one or more null documents.");
-                        }
-
-                        if (_settings.AssignIdOnInsert)
-                        {
-                            var serializer = BsonSerializer.LookupSerializer(document.GetType());
-                            var idProvider = serializer as IBsonIdProvider;
-                            if (idProvider != null)
-                            {
-                                object id;
-                                Type idNominalType;
-                                IIdGenerator idGenerator;
-                                if (idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
-                                {
-                                    if (idGenerator != null && idGenerator.IsEmpty(id))
-                                    {
-                                        id = idGenerator.GenerateId(this, document);
-                                        idProvider.SetDocumentId(document, id);
-                                    }
-                                }
-                            }
-                        }
-                        message.AddDocument(bsonBuffer, nominalType, document);
-
-                        if (message.MessageLength > connection.ServerInstance.MaxMessageLength)
-                        {
-                            byte[] lastDocument = message.RemoveLastDocument(bsonBuffer);
-
-                            if (writeConcern.Enabled || (options.Flags & InsertFlags.ContinueOnError) != 0)
-                            {
-                                var intermediateResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
-                                if (writeConcern.Enabled) { results.Add(intermediateResult); }
-                            }
-                            else
-                            {
-                                // if WriteConcern is disabled and ContinueOnError is false we have to check for errors and stop if sub-batch has error
-                                try
-                                {
-                                    connection.SendMessage(bsonBuffer, message, WriteConcern.Acknowledged, _database.Name);
-                                }
-                                catch (WriteConcernException)
-                                {
-                                    return null;
-                                }
-                            }
-
-                            message.ResetBatch(bsonBuffer, lastDocument);
-                        }
-                    }
-
-                    var finalResult = connection.SendMessage(bsonBuffer, message, writeConcern, _database.Name);
-                    if (writeConcern.Enabled) { results.Add(finalResult); }
-
-                    return results;
-                }
+                return insertOperation.Execute(connection);
             }
             finally
             {
@@ -1314,7 +1248,7 @@ namespace MongoDB.Driver
         public virtual CommandResult ReIndex()
         {
             var command = new CommandDocument("reIndex", _name);
-            return RunCommand(command);
+            return RunCommandAs<CommandResult>(command);
         }
 
         /// <summary>
@@ -1358,12 +1292,31 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var removeOperation = new RemoveOperation(
+                _database.Name,
+                _name,
+                readerSettings,
+                writerSettings,
+                writeConcern ?? _settings.WriteConcern,
+                query,
+                flags);
+
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
-                var writerSettings = GetWriterSettings(connection);
-                var message = new MongoDeleteMessage(writerSettings, FullName, flags, query);
-                return connection.SendMessage(message, writeConcern ?? _settings.WriteConcern, _database.Name);
+                return removeOperation.Execute(connection);
             }
             finally
             {
@@ -1586,13 +1539,33 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+
+            var updateOperation = new UpdateOperation(
+                _database.Name,
+                _name,
+                readerSettings,
+                writerSettings,
+                options.WriteConcern ?? _settings.WriteConcern,
+                query,
+                update,
+                options.Flags,
+                options.CheckElementNames);
+
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
-                var writerSettings = GetWriterSettings(connection);
-                var message = new MongoUpdateMessage(writerSettings, FullName, options.CheckElementNames, options.Flags, query, update);
-                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
-                return connection.SendMessage(message, writeConcern, _database.Name);
+                return updateOperation.Execute(connection);
             }
             finally
             {
@@ -1659,6 +1632,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
+        // TODO: this method can be removed when MongoCursorEnumerator is removed
         internal BsonBinaryReaderSettings GetReaderSettings(MongoConnection connection)
         {
             return new BsonBinaryReaderSettings
@@ -1669,6 +1643,7 @@ namespace MongoDB.Driver
             };
         }
 
+        // TODO: this method can be removed when MongoCursorEnumerator is removed
         internal BsonBinaryWriterSettings GetWriterSettings(MongoConnection connection)
         {
             return new BsonBinaryWriterSettings
@@ -1677,60 +1652,6 @@ namespace MongoDB.Driver
                 GuidRepresentation = _settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
-        }
-
-        internal CommandResult RunCommand(IMongoCommand command)
-        {
-            return RunCommandAs<CommandResult>(command);
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command)
-            where TCommandResult : CommandResult
-        {
-            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command);
-        }
-
-        internal TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
-            where TCommandResult : CommandResult
-        {
-            return (TCommandResult)RunCommandAs(typeof(TCommandResult), command, serializer, serializationOptions);
-        }
-
-        internal CommandResult RunCommandAs(Type commandResultType, IMongoCommand command)
-        {
-            var commandResultSerializer = BsonSerializer.LookupSerializer(commandResultType);
-            return RunCommandAs(commandResultType, command, commandResultSerializer, null);
-        }
-
-        internal CommandResult RunCommandAs(Type commandResultType, IMongoCommand command, IBsonSerializer commandResultSerializer, IBsonSerializationOptions commandResultSerializationOptions)
-        {
-            // if necessary delegate running the command to the _commandCollection
-            if (_name == "$cmd")
-            {
-                var commandResult = (CommandResult)FindOneAs(commandResultType, command, commandResultSerializer, commandResultSerializationOptions);
-                if (commandResult == null)
-                {
-                    var commandName = command.ToBsonDocument().GetElement(0).Name;
-                    var message = string.Format("Command '{0}' failed. No response returned.", commandName);
-                    throw new MongoCommandException(message);
-                }
-                commandResult.Command = command;
-
-                if (!commandResult.Ok)
-                {
-                    if (commandResult.ErrorMessage == "not master")
-                    {
-                        // TODO: figure out which instance gave the error and set its state to Unknown
-                        _server.Disconnect();
-                    }
-                    throw new MongoCommandException(commandResult);
-                }
-                return commandResult;
-            }
-            else
-            {
-                return _commandCollection.RunCommandAs(commandResultType, command, commandResultSerializer, commandResultSerializationOptions);
-            }
         }
 
         // private methods
@@ -1818,6 +1739,56 @@ namespace MongoDB.Driver
                 sb.Append("_1");
             }
             return sb.ToString();
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
+        {
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(TCommandResult));
+            return RunCommandAs<TCommandResult>(command, resultSerializer, null);
+        }
+
+        private TCommandResult RunCommandAs<TCommandResult>(
+            IMongoCommand command,
+            IBsonSerializer resultSerializer,
+            IBsonSerializationOptions resultSerializationOptions) where TCommandResult : CommandResult
+        {
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+            var readPreference = _settings.ReadPreference;
+            if (readPreference != ReadPreference.Primary && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+            {
+                readPreference = ReadPreference.Primary;
+            }
+            var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
+
+            var commandOperation = new CommandOperation<TCommandResult>(
+                _database.Name,
+                readerSettings,
+                writerSettings,
+                command,
+                flags,
+                null, // options
+                readPreference,
+                resultSerializationOptions,
+                resultSerializer);
+
+            var connection = _server.AcquireConnection(ReadPreference.Primary);
+            try
+            {
+                return commandOperation.Execute(connection);
+            }
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
         }
     }
 

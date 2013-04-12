@@ -18,9 +18,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
@@ -710,7 +713,54 @@ namespace MongoDB.Driver
         public virtual IEnumerator<TDocument> GetEnumerator()
         {
             IsFrozen = true;
-            return new MongoCursorEnumerator<TDocument>(this);
+
+            var readerSettings = new BsonBinaryReaderSettings
+            {
+                Encoding = Collection.Settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = Collection.Settings.GuidRepresentation
+            };
+
+            var writerSettings = new BsonBinaryWriterSettings
+            {
+                Encoding = Collection.Settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = Collection.Settings.GuidRepresentation
+            };
+
+            // the following values are overridden for commands that can't be sent to a secondary
+            var flags = Flags;
+            var readPreference = ReadPreference;
+
+            if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && Collection.Name == "$cmd")
+            {
+                var queryDocument = Query.ToBsonDocument();
+                var isSecondaryOk = CanCommandBeSentToSecondary.Delegate(queryDocument);
+                if (!isSecondaryOk)
+                {
+                    // if the command can't be sent to a secondary, then we use primary here
+                    // regardless of the user's choice.
+                    readPreference = ReadPreference.Primary;
+                    // remove the slaveOk bit from the flags
+                    flags &= ~QueryFlags.SlaveOk;
+                }
+            }
+
+            var readOperation = new QueryOperation<TDocument>(
+                Database.Name,
+                Collection.Name,
+                readerSettings,
+                writerSettings,
+                BatchSize,
+                Fields,
+                flags,
+                Limit,
+                Options,
+                Query,
+                readPreference,
+                SerializationOptions,
+                Serializer,
+                Skip);
+
+            return readOperation.Execute(new MongoCursorConnectionProvider(Server, readPreference));
         }
 
         /// <summary>
@@ -926,6 +976,41 @@ namespace MongoDB.Driver
         protected override IEnumerator IEnumerableGetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        // nested classes
+        private class MongoCursorConnectionProvider : IConnectionProvider
+        {
+            private readonly MongoServer _server;
+            private readonly ReadPreference _readPreference;
+            private MongoServerInstance _serverInstance;
+
+            public MongoCursorConnectionProvider(MongoServer server, ReadPreference readPreference)
+            {
+                _server = server;
+                _readPreference = readPreference;
+            }
+
+            public MongoConnection AcquireConnection()
+            {
+                if (_serverInstance == null)
+                {
+                    // first time we need a connection let Server.AcquireConnection pick the server instance
+                    var connection = _server.AcquireConnection(_readPreference);
+                    _serverInstance = connection.ServerInstance;
+                    return connection;
+                }
+                else
+                {
+                    // all subsequent requests for the same cursor must go to the same server instance
+                    return _server.AcquireConnection(_serverInstance);
+                }
+            }
+
+            public void ReleaseConnection(MongoConnection connection)
+            {
+                _server.ReleaseConnection(connection);
+            }
         }
     }
 }
