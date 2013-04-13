@@ -218,7 +218,7 @@ namespace MongoDB.DriverUnitTests
         public void TestReconnect()
         {
             _server.Reconnect();
-            Assert.AreEqual(MongoServerState.Connected, _server.State);
+            Assert.IsTrue(_server.State == MongoServerState.Connected || _server.State == MongoServerState.ConnectedToSubset);
         }
 
         [Test]

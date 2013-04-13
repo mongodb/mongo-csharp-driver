@@ -1780,7 +1780,7 @@ namespace MongoDB.Driver
                 resultSerializationOptions,
                 resultSerializer);
 
-            var connection = _server.AcquireConnection(ReadPreference.Primary);
+            var connection = _server.AcquireConnection(readPreference);
             try
             {
                 return commandOperation.Execute(connection);

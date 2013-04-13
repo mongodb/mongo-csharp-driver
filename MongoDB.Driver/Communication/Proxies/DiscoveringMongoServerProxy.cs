@@ -97,6 +97,23 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets the name of the replica set (null if not connected to a replica set).
+        /// </summary>
+        public string ReplicaSetName
+        {
+            get
+            {
+                var replicaSetProxy = _serverProxy as ReplicaSetMongoServerProxy;
+                if (replicaSetProxy != null)
+                {
+                    return replicaSetProxy.ReplicaSetName;
+                }
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets the state.
         /// </summary>
         public MongoServerState State

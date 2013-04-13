@@ -295,10 +295,16 @@ namespace MongoDB.Driver
         {
             get 
             {
-                var instanceManager = _serverProxy as ReplicaSetMongoServerProxy;
-                if (instanceManager != null)
+                var replicaSetProxy = _serverProxy as ReplicaSetMongoServerProxy;
+                if (replicaSetProxy != null)
                 {
-                    return instanceManager.ReplicaSetName;
+                    return replicaSetProxy.ReplicaSetName;
+                }
+
+                var discoveringProxy = _serverProxy as DiscoveringMongoServerProxy;
+                if (discoveringProxy != null)
+                {
+                    return discoveringProxy.ReplicaSetName;
                 }
 
                 return null;

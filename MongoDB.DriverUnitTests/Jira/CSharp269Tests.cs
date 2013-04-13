@@ -18,7 +18,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 using NUnit.Framework;
+using MongoDB.Driver.Builders;
 
 namespace MongoDB.DriverUnitTests.Jira.CSharp269
 {
@@ -43,11 +45,13 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
         [Test]
         public void TestUploadAndDownload()
         {
+            MongoGridFSFileInfo uploadedFileInfo;
+
             var text = "HelloWorld";
             var bytes = Encoding.UTF8.GetBytes(text);
             using (var stream = new MemoryStream(bytes))
             {
-                _database.GridFS.Upload(stream, "HelloWorld.txt");
+                uploadedFileInfo = _database.GridFS.Upload(stream, "HelloWorld.txt");
             }
 
             // use RequestStart so that if we are running this test against a replica set we will bind to a specific secondary
@@ -55,7 +59,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp269
             {
                 // wait for the GridFS file to be replicated before trying to Download it
                 var timeoutAt = DateTime.UtcNow.AddSeconds(30);
-                while (!_database.GridFS.Exists("HelloWorld.txt"))
+                while (!_database.GridFS.Exists(Query.EQ("_id", uploadedFileInfo.Id)))
                 {
                     if (DateTime.UtcNow >= timeoutAt)
                     {
