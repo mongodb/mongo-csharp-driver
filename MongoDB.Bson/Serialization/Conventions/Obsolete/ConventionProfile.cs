@@ -315,6 +315,9 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var pack = new ConventionPack();
 
+            // need to process defaults...
+            pack.Append(DefaultConventionPack.Instance);
+
             // class mapping conventions
             if (MemberFinderConvention != null)
             {
