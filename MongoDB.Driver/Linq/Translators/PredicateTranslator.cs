@@ -627,7 +627,7 @@ namespace MongoDB.Driver.Linq
                     methodDeclaringType = methodDeclaringType.GetGenericTypeDefinition();
                 }
 
-                bool contains = methodDeclaringType.GetInterface("ICollection`1") != null;
+                bool contains = methodDeclaringType == typeof(ICollection<>) || methodDeclaringType.GetInterface("ICollection`1") != null;
                 if (contains && arguments.Length == 1)
                 {
                     serializationInfo = _serializationInfoHelper.GetSerializationInfo(arguments[0]);
