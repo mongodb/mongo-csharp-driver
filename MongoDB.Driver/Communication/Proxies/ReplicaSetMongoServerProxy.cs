@@ -254,6 +254,14 @@ namespace MongoDB.Driver.Internal
                 // remove instances the primary doesn't know about and add instances we don't know about
                 MakeInstancesMatchAddresses(members);
             }
+            var instancesMarkedPrimary = Instances.Where(x => x.IsPrimary);
+            foreach (var otherInstance in instancesMarkedPrimary)
+            {
+                if (!otherInstance.Address.Equals(instance.Address))
+                {
+                    otherInstance.UnsetPrimary();
+                }
+            }
         }
 
         private void ProcessConnectedSecondaryStateChange(MongoServerInstance instance)
