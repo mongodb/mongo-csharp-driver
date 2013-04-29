@@ -41,7 +41,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp230
             {
                 _collection.Drop();
             }
-            _server.ResetIndexCache();
 
             Assert.IsFalse(_collection.IndexExists("x"));
             _collection.EnsureIndex("x");

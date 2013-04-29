@@ -303,7 +303,6 @@
     <Compile Include="Communication\Proxies\MongoServerProxyFactory.cs" />
     <Compile Include="Communication\Proxies\DiscoveringMongoServerProxy.cs" />
     <Compile Include="Communication\Proxies\IMongoServerProxy.cs" />
-    <Compile Include="IndexCache.cs" />
     <Compile Include="MongoCursorEnumerator.cs" />
     <Compile Include="Communication\Messages\MongoKillCursorsMessage.cs" />
     <Compile Include="Communication\Proxies\BlockingQueue.cs" />

@@ -173,6 +173,7 @@ namespace MongoDB.Driver
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
             var keysDocument = keys.ToBsonDocument();
@@ -200,6 +201,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys)
         {
             return CreateIndex(keys, IndexOptions.Null);
@@ -210,6 +212,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keyNames">The names of the indexed fields.</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(params string[] keyNames)
         {
             return CreateIndex(IndexKeys.Ascending(keyNames));
@@ -307,15 +310,6 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(string indexName)
         {
-            // remove from cache first (even if command ends up failing)
-            if (indexName == "*")
-            {
-                _server.IndexCache.Reset(this);
-            }
-            else
-            {
-                _server.IndexCache.Remove(this, indexName);
-            }
             var command = new CommandDocument
             {
                 { "deleteIndexes", _name }, // not FullName
@@ -342,14 +336,9 @@ namespace MongoDB.Driver
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
         public virtual void EnsureIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            var keysDocument = keys.ToBsonDocument();
-            var optionsDocument = options.ToBsonDocument();
-            var indexName = GetIndexName(keysDocument, optionsDocument);
-            if (!_server.IndexCache.Contains(this, indexName))
-            {
-                CreateIndex(keys, options);
-                _server.IndexCache.Add(this, indexName);
-            }
+#pragma warning disable 618
+            CreateIndex(keys, options);
+#pragma warning restore
         }
 
         /// <summary>
@@ -358,7 +347,9 @@ namespace MongoDB.Driver
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         public virtual void EnsureIndex(IMongoIndexKeys keys)
         {
-            EnsureIndex(keys, IndexOptions.Null);
+#pragma warning disable 618
+            CreateIndex(keys);
+#pragma warning restore
         }
 
         /// <summary>
@@ -367,12 +358,9 @@ namespace MongoDB.Driver
         /// <param name="keyNames">The names of the indexed fields.</param>
         public virtual void EnsureIndex(params string[] keyNames)
         {
-            string indexName = GetIndexName(keyNames);
-            if (!_server.IndexCache.Contains(this, indexName))
-            {
-                CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
-                _server.IndexCache.Add(this, indexName);
-            }
+#pragma warning disable 618
+            CreateIndex(keyNames);
+#pragma warning restore
         }
 
         /// <summary>
@@ -1341,16 +1329,6 @@ namespace MongoDB.Driver
         public virtual WriteConcernResult RemoveAll(WriteConcern writeConcern)
         {
             return Remove(Query.Null, RemoveFlags.None, writeConcern);
-        }
-
-        /// <summary>
-        /// Removes all entries for this collection in the index cache used by EnsureIndex. Call this method
-        /// when you know (or suspect) that a process other than this one may have dropped one or
-        /// more indexes.
-        /// </summary>
-        public virtual void ResetIndexCache()
-        {
-            _server.IndexCache.Reset(this);
         }
 
         /// <summary>

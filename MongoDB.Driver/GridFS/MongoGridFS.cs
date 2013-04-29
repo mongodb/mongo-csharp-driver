@@ -426,32 +426,12 @@ namespace MongoDB.Driver.GridFS
             // 1. we might be reading from a secondary
             // 2. we might be authenticating as a read-only uaser
 
-            // avoid round trip to count files if possible
-            var indexCache = _database.Server.IndexCache;
-            if (indexCache.Contains(_files, "filename_1_uploadDate_1") &&
-                indexCache.Contains(_chunks, "files_id_1_n_1"))
-            {
-                return;
-            }
-
             // only create indexes if number of GridFS files is still small (to avoid performance surprises)
             var count = _files.Count();
             if (count < maxFiles)
             {
                 _files.EnsureIndex("filename", "uploadDate");
                 _chunks.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
-            }
-            else
-            {
-                // at least check to see if the indexes exist so we can stop calling files.Count()
-                if (_files.IndexExistsByName("filename_1_uploadDate_1"))
-                {
-                    indexCache.Add(_files, "filename_1_uploadDate_1");
-                }
-                if (_chunks.IndexExistsByName("files_id_1_n_1"))
-                {
-                    indexCache.Add(_chunks, "files_id_1_n_1");
-                }
             }
         }
 

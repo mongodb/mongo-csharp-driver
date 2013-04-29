@@ -41,7 +41,6 @@ namespace MongoDB.Driver
         private readonly IMongoServerProxy _serverProxy;
         private readonly MongoServerSettings _settings;
         private readonly Dictionary<int, Request> _requests = new Dictionary<int, Request>(); // tracks threads that have called RequestStart
-        private readonly IndexCache _indexCache = new IndexCache();
         private int _sequentialId;
 
         // static constructor
@@ -227,14 +226,6 @@ namespace MongoDB.Driver
         public virtual int ConnectionAttempt
         {
             get { return _serverProxy.ConnectionAttempt; }
-        }
-
-        /// <summary>
-        /// Gets the index cache (used by EnsureIndex) for this server.
-        /// </summary>
-        public virtual IndexCache IndexCache
-        {
-            get { return _indexCache; }
         }
 
         /// <summary>
@@ -549,7 +540,6 @@ namespace MongoDB.Driver
             var database = GetDatabase(databaseName);
             var command = new CommandDocument("dropDatabase", 1);
             var result = database.RunCommand(command);
-            _indexCache.Reset(databaseName);
             return result;
         }
 
@@ -873,16 +863,6 @@ namespace MongoDB.Driver
                 _requests.Add(threadId, request);
                 return new RequestStartResult(this);
             }
-        }
-
-        /// <summary>
-        /// Removes all entries in the index cache used by EnsureIndex. Call this method
-        /// when you know (or suspect) that a process other than this one may have dropped one or
-        /// more indexes.
-        /// </summary>
-        public virtual void ResetIndexCache()
-        {
-            _indexCache.Reset();
         }
 
         /// <summary>

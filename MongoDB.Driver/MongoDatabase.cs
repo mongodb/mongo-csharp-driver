@@ -360,7 +360,6 @@ namespace MongoDB.Driver
             {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommandAs<CommandResult>(command);
-                _server.IndexCache.Reset(_name, collectionName);
                 return result;
             }
             catch (MongoCommandException ex)
@@ -878,16 +877,6 @@ namespace MongoDB.Driver
         }
 
         // TODO: mongo shell has ResetError at the database level
-
-        /// <summary>
-        /// Removes all entries for this database in the index cache used by EnsureIndex. Call this method
-        /// when you know (or suspect) that a process other than this one may have dropped one or
-        /// more indexes.
-        /// </summary>
-        public virtual void ResetIndexCache()
-        {
-            _server.IndexCache.Reset(this);
-        }
 
         /// <summary>
         /// Runs a command on this database.

@@ -47,7 +47,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
@@ -83,7 +82,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
@@ -112,7 +110,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
@@ -146,7 +143,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
@@ -183,7 +179,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
@@ -224,7 +219,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var createOptions = new MongoGridFSCreateOptions
             {
@@ -245,7 +239,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var metadata = new BsonDocument("author", "John Doe");
             var createOptions = new MongoGridFSCreateOptions
@@ -267,7 +260,6 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             _gridFS.Files.RemoveAll();
             _gridFS.Chunks.RemoveAll();
-            _gridFS.Chunks.ResetIndexCache();
 
             var fileInfo = _gridFS.FindOne("test");
             Assert.IsNull(fileInfo);
