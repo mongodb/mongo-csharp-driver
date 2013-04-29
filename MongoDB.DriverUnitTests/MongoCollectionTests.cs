@@ -1141,8 +1141,9 @@ namespace MongoDB.DriverUnitTests
                 };
 
                 var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
-                collection.InsertBatch(documents, options);
+                var result = collection.InsertBatch(documents, options);
 
+                Assert.AreEqual(null, result);
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
@@ -1178,7 +1179,113 @@ namespace MongoDB.DriverUnitTests
                 };
 
                 var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                collection.InsertBatch(documents, options);
+                var result = collection.InsertBatch(documents, options);
+
+                Assert.AreEqual(null, result);
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 4)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 5)));
+            }
+        }
+
+        [Test]
+        public void TestInsertBatchMultipleBatchesWriteConcernEnabledContinueOnErrorFalse()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged };
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            if (collection.Exists()) { collection.Drop(); }
+
+            using (Configuration.TestDatabase.RequestStart())
+            {
+                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+
+                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+                var documents = new BsonDocument[]
+                {
+                    // first sub-batch
+                    new BsonDocument { { "_id", 1 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 2 }, { "filler", filler } },
+                    // second sub-batch
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } }, // duplicate _id error
+                    // third sub-batch
+                    new BsonDocument { { "_id", 4 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 5 }, { "filler", filler } },
+                };
+
+                try
+                {
+                    var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
+                    collection.InsertBatch(documents, options);
+                }
+                catch (WriteConcernException ex)
+                {
+                    var results = (IEnumerable<WriteConcernResult>)ex.Data["results"];
+                    Assert.AreEqual(2, results.Count());
+
+                    var result1 = results.ElementAt(0);
+                    Assert.AreEqual(false, result1.HasLastErrorMessage);
+
+                    var result2 = results.ElementAt(1);
+                    Assert.AreEqual(true, result2.HasLastErrorMessage);
+                }
+
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
+                Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
+                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 4)));
+                Assert.AreEqual(0, collection.Count(Query.EQ("_id", 5)));
+            }
+        }
+
+        [Test]
+        public void TestInsertBatchMultipleBatchesWriteConcernEnabledContinueOnErrorTrue()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collectionSettings = new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged };
+            var collection = Configuration.TestDatabase.GetCollection<BsonDocument>(collectionName, collectionSettings);
+            if (collection.Exists()) { collection.Drop(); }
+
+            using (Configuration.TestDatabase.RequestStart())
+            {
+                var maxMessageLength = Configuration.TestServer.RequestConnection.ServerInstance.MaxMessageLength;
+
+                var filler = new string('x', maxMessageLength / 3); // after overhead results in two documents per sub-batch
+                var documents = new BsonDocument[]
+                {
+                    // first sub-batch
+                    new BsonDocument { { "_id", 1 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 2 }, { "filler", filler } },
+                    // second sub-batch
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 3 }, { "filler", filler } }, // duplicate _id error
+                    // third sub-batch
+                    new BsonDocument { { "_id", 4 }, { "filler", filler } },
+                    new BsonDocument { { "_id", 5 }, { "filler", filler } },
+                };
+
+                try
+                {
+                    var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                    collection.InsertBatch(documents, options);
+                }
+                catch (WriteConcernException ex)
+                {
+                    var results = (IEnumerable<WriteConcernResult>)ex.Data["results"];
+                    Assert.AreEqual(3, results.Count());
+
+                    var result1 = results.ElementAt(0);
+                    Assert.AreEqual(false, result1.HasLastErrorMessage);
+
+                    var result2 = results.ElementAt(1);
+                    Assert.AreEqual(true, result2.HasLastErrorMessage);
+
+                    var result3 = results.ElementAt(2);
+                    Assert.AreEqual(false, result3.HasLastErrorMessage);
+                }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
