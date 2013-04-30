@@ -201,7 +201,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoGridFS GridFS
         {
-            get { return new MongoGridFS(this); }
+            get { return GetGridFS(new MongoGridFSSettings()); }
         }
 
         /// <summary>
@@ -671,7 +671,10 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoGridFS.</returns>
         public virtual MongoGridFS GetGridFS(MongoGridFSSettings gridFSSettings)
         {
-            return new MongoGridFS(this, gridFSSettings);
+            var clonedSettings = gridFSSettings.Clone();
+            clonedSettings.ApplyDefaultValues(_settings);
+            clonedSettings.Freeze();
+            return new MongoGridFS(_server, _name, clonedSettings);
         }
 
         /// <summary>

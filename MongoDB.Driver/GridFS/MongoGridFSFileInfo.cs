@@ -45,9 +45,12 @@ namespace MongoDB.Driver.GridFS
         private DateTime _uploadDate;
 
         // these fields are not considered in Equals and GetHashCode
+        private readonly MongoServer _server;
+        private readonly MongoServerInstance _serverInstance;
+        private readonly string _databaseName;
+        private readonly MongoGridFSSettings _settings;
         private bool _cached; // true if info came from database
         private bool _exists;
-        private MongoGridFS _gridFS;
 
         // constructors
         // used by Deserialize
@@ -55,19 +58,14 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
-        internal MongoGridFSFileInfo(MongoGridFS gridFS, BsonDocument fileInfo)
-        {
-            _gridFS = gridFS;
-            CacheFileInfo(fileInfo);
-        }
-
         /// <summary>
         /// Initializes a new instance of the GridFSFileInfo class.
         /// </summary>
         /// <param name="gridFS">The GridFS file system that contains the GridFS file.</param>
         /// <param name="remoteFileName">The remote file name.</param>
+        [Obsolete("Use a different constructor instead.")]
         public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName)
-            : this(gridFS, remoteFileName, gridFS.Settings.ChunkSize)
+            : this(GetServer(gridFS), GetServerInstance(gridFS), GetDatabaseName(gridFS), GetGridFSSettings(gridFS), remoteFileName)
         {
         }
 
@@ -77,11 +75,11 @@ namespace MongoDB.Driver.GridFS
         /// <param name="gridFS">The GridFS file system that contains the GridFS file.</param>
         /// <param name="remoteFileName">The remote file name.</param>
         /// <param name="chunkSize">The chunk size.</param>
+        [Obsolete("Use a different constructor instead.")]
         public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName, int chunkSize)
+            : this(GetServer(gridFS), GetServerInstance(gridFS), GetDatabaseName(gridFS), GetGridFSSettings(gridFS), remoteFileName)
         {
-            _gridFS = gridFS;
             _chunkSize = chunkSize;
-            _name = remoteFileName;
         }
 
         /// <summary>
@@ -90,11 +88,123 @@ namespace MongoDB.Driver.GridFS
         /// <param name="gridFS">The GridFS file system that contains the GridFS file.</param>
         /// <param name="remoteFileName">The remote file name.</param>
         /// <param name="createOptions">The create options.</param>
+        [Obsolete("Use a different constructor instead.")]
         public MongoGridFSFileInfo(MongoGridFS gridFS, string remoteFileName, MongoGridFSCreateOptions createOptions)
+            : this(GetServer(gridFS), GetServerInstance(gridFS), GetDatabaseName(gridFS), GetGridFSSettings(gridFS), remoteFileName, createOptions)
         {
-            _gridFS = gridFS;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoGridFSFileInfo"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="serverInstance">The server instance.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="gridFSSettings">The GridFS settings.</param>
+        private MongoGridFSFileInfo(
+            MongoServer server,
+            MongoServerInstance serverInstance,
+            string databaseName,
+            MongoGridFSSettings gridFSSettings)
+        {
+            if (server == null)
+            {
+                throw new ArgumentNullException("server");
+            }
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("databaseName");
+            }
+            if (gridFSSettings == null)
+            {
+                throw new ArgumentNullException("gridFSSettings");
+            }
+
+            _server = server;
+            _serverInstance = serverInstance;
+            _databaseName = databaseName;
+            _settings = gridFSSettings;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoGridFSFileInfo"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="serverInstance">The server instance.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="gridFSSettings">The GridFS settings.</param>
+        /// <param name="remoteFileName">The remote file name.</param>
+        public MongoGridFSFileInfo(
+            MongoServer server,
+            MongoServerInstance serverInstance,
+            string databaseName,
+            MongoGridFSSettings gridFSSettings,
+            string remoteFileName)
+            : this(server, serverInstance, databaseName, gridFSSettings)
+        {
+            if (remoteFileName == null)
+            {
+                throw new ArgumentNullException("remoteFileName");
+            }
+
+            _chunkSize = gridFSSettings.ChunkSize;
+            _name = remoteFileName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoGridFSFileInfo"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="serverInstance">The server instance.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="gridFSSettings">The GridFS settings.</param>
+        /// <param name="fileInfo">The fileInfo.</param>
+        public MongoGridFSFileInfo(
+            MongoServer server,
+            MongoServerInstance serverInstance,
+            string databaseName,
+            MongoGridFSSettings gridFSSettings,
+            BsonDocument fileInfo)
+            : this(server, serverInstance, databaseName, gridFSSettings)
+        {
+            if (fileInfo == null)
+            {
+                throw new ArgumentNullException("fileInfo");
+            }
+
+            _chunkSize = gridFSSettings.ChunkSize;
+            CacheFileInfo(fileInfo);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoGridFSFileInfo"/> class.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="serverInstance">The server instance.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="gridFSSettings">The GridFS settings.</param>
+        /// <param name="remoteFileName">The remote file name.</param>
+        /// <param name="createOptions">The create options.</param>
+        public MongoGridFSFileInfo(
+            MongoServer server,
+            MongoServerInstance serverInstance,
+            string databaseName,
+            MongoGridFSSettings gridFSSettings,
+            string remoteFileName,
+            MongoGridFSCreateOptions createOptions)
+            : this(server, serverInstance, databaseName, gridFSSettings)
+        {
+            if (remoteFileName == null)
+            {
+                throw new ArgumentNullException("remoteFileName");
+            }
+            if (createOptions == null)
+            {
+                throw new ArgumentNullException("createOptions");
+            }
+
             _aliases = createOptions.Aliases;
-            _chunkSize = (createOptions.ChunkSize == 0) ? gridFS.Settings.ChunkSize : createOptions.ChunkSize;
+            _chunkSize = (createOptions.ChunkSize == 0) ? gridFSSettings.ChunkSize : createOptions.ChunkSize;
             _contentType = createOptions.ContentType;
             _id = createOptions.Id;
             _metadata = createOptions.Metadata;
@@ -141,6 +251,14 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
+        /// Gets the database name.
+        /// </summary>
+        public string DatabaseName
+        {
+            get { return _databaseName; }
+        }
+
+        /// <summary>
         /// Gets whether the GridFS file exists.
         /// </summary>
         public bool Exists
@@ -157,7 +275,15 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public MongoGridFS GridFS
         {
-            get { return _gridFS; }
+            get { return new MongoGridFS(_server, _databaseName, _settings); }
+        }
+
+        /// <summary>
+        /// Gets the GridFS settings.
+        /// </summary>
+        public MongoGridFSSettings GridFSSettings
+        {
+            get { return _settings; }
         }
 
         /// <summary>
@@ -221,6 +347,22 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
+        /// Gets the server.
+        /// </summary>
+        public MongoServer Server
+        {
+            get { return _server; }
+        }
+
+        /// <summary>
+        /// Gets the server instance;
+        /// </summary>
+        public MongoServerInstance ServerInstance
+        {
+            get { return _serverInstance; }
+        }
+
+        /// <summary>
         /// Gets the upload date.
         /// </summary>
         public DateTime UploadDate
@@ -268,6 +410,49 @@ namespace MongoDB.Driver.GridFS
             return lhs.Equals(rhs);
         }
 
+        // private static methods
+        private static string GetDatabaseName(MongoGridFS gridFS)
+        {
+            if (gridFS == null)
+            {
+                throw new ArgumentNullException("gridFS");
+            }
+            return gridFS.DatabaseName;
+        }
+
+        private static MongoGridFSSettings GetGridFSSettings(MongoGridFS gridFS)
+        {
+            if (gridFS == null)
+            {
+                throw new ArgumentNullException("gridFS");
+            }
+            return gridFS.Settings;
+        }
+
+        private static MongoServer GetServer(MongoGridFS gridFS)
+        {
+            if (gridFS == null)
+            {
+                throw new ArgumentNullException("gridFS");
+            }
+            return gridFS.Server;
+        }
+
+        private static MongoServerInstance GetServerInstance(MongoGridFS gridFS)
+        {
+            if (gridFS == null)
+            {
+                throw new ArgumentNullException("gridFS");
+            }
+
+            // bind to one of the nodes using the ReadPreference
+            var server = gridFS.Server;
+            using (server.RequestStart(null, gridFS.Settings.ReadPreference))
+            {
+                return server.RequestConnection.ServerInstance;
+            }
+        }
+
         // public methods
         /// <summary>
         /// Appends UTF-8 encoded text to an existing GridFS file.
@@ -305,11 +490,16 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The file info of the new GridFS file.</returns>
         public MongoGridFSFileInfo CopyTo(string destFileName, MongoGridFSCreateOptions createOptions)
         {
-            // note: we are aware that the data is making a round trip from and back to the server
-            // but we choose not to use a script to copy the data locally on the server
-            // because that would lock the database for too long
-            var stream = OpenRead();
-            return _gridFS.Upload(stream, destFileName, createOptions);
+            EnsureServerInstanceIsPrimary();
+            using (_server.RequestStart(null, _serverInstance))
+            {
+                // note: we are aware that the data is making a round trip from and back to the server
+                // but we choose not to use a script to copy the data locally on the server
+                // because that would lock the database for too long
+                var gridFS = new MongoGridFS(_server, _databaseName, _settings);
+                var stream = OpenRead();
+                return gridFS.Upload(stream, destFileName, createOptions);
+            }
         }
 
         /// <summary>
@@ -336,13 +526,20 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public void Delete()
         {
-            if (Exists)
+            EnsureServerInstanceIsPrimary();
+            using (_server.RequestStart(null, _serverInstance))
             {
-                using (_gridFS.Database.RequestStart(ReadPreference.Primary))
+                var gridFS = new MongoGridFS(_server, _databaseName, _settings);
+                gridFS.EnsureIndexes();
+
+                if (Exists)
                 {
-                    _gridFS.EnsureIndexes();
-                    _gridFS.Files.Remove(Query.EQ("_id", _id), _gridFS.Settings.WriteConcern);
-                    _gridFS.Chunks.Remove(Query.EQ("files_id", _id), _gridFS.Settings.WriteConcern);
+                    var database = gridFS.GetDatabase(ReadPreference.Primary);
+                    var filesCollection = gridFS.GetFilesCollection(database);
+                    var chunksCollection = gridFS.GetChunksCollection(database);
+
+                    filesCollection.Remove(Query.EQ("_id", _id), gridFS.Settings.WriteConcern);
+                    chunksCollection.Remove(Query.EQ("files_id", _id), gridFS.Settings.WriteConcern);
                 }
             }
         }
@@ -404,9 +601,16 @@ namespace MongoDB.Driver.GridFS
         /// <param name="destFileName">The destination file name.</param>
         public void MoveTo(string destFileName)
         {
-            var query = Query.EQ("_id", _id);
-            var update = Update.Set("filename", destFileName);
-            _gridFS.Files.Update(query, update, _gridFS.Settings.WriteConcern);
+            EnsureServerInstanceIsPrimary();
+            using (_server.RequestStart(null, _serverInstance))
+            {
+                var gridFS = new MongoGridFS(_server, _databaseName, _settings);
+                var database = gridFS.GetDatabase(ReadPreference.Primary);
+                var filesCollection = gridFS.GetFilesCollection(database);
+                var query = Query.EQ("_id", _id);
+                var update = Update.Set("filename", destFileName);
+                filesCollection.Update(query, update);
+            }
         }
 
         /// <summary>
@@ -463,21 +667,28 @@ namespace MongoDB.Driver.GridFS
         /// </summary>
         public void Refresh()
         {
-            MongoCursor<BsonDocument> cursor;
-            if (_id != null)
+            using (_server.RequestStart(null, _serverInstance))
             {
-                cursor = _gridFS.Files.Find(Query.EQ("_id", _id));
+                var gridFS = new MongoGridFS(_server, _databaseName, _settings);
+                var database = gridFS.GetDatabase();
+                var filesCollection = gridFS.GetFilesCollection(database);
+
+                MongoCursor<BsonDocument> cursor;
+                if (_id != null)
+                {
+                    cursor = filesCollection.Find(Query.EQ("_id", _id));
+                }
+                else if (_name != null)
+                {
+                    cursor = filesCollection.Find(Query.EQ("filename", _name)).SetSortOrder(SortBy.Descending("uploadDate"));
+                }
+                else
+                {
+                    throw new InvalidOperationException("Cannot refresh FileInfo when both Id and Name are missing.");
+                }
+                var fileInfo = cursor.SetLimit(1).FirstOrDefault();
+                CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist
             }
-            else if (_name != null)
-            {
-                cursor = _gridFS.Files.Find(Query.EQ("filename", _name)).SetSortOrder(SortBy.Descending("uploadDate"));
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot refresh FileInfo when both Id and Name are missing.");
-            }
-            var fileInfo = cursor.SetLimit(1).FirstOrDefault();
-            CacheFileInfo(fileInfo); // fileInfo will be null if file does not exist
         }
 
         // internal methods
@@ -565,12 +776,27 @@ namespace MongoDB.Driver.GridFS
             _cached = true;
         }
 
+        private void EnsureServerInstanceIsPrimary()
+        {
+            if (!_serverInstance.IsPrimary)
+            {
+                var message = string.Format("Server instance {0} is not the current primary.", _serverInstance.Address);
+                throw new InvalidOperationException(message);
+            }
+        }
+
         // explicit interface implementations
         object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
-            MongoGridFS gridFS = ((SerializationOptions)options).GridFS;
-            var fileInfo = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
-            return new MongoGridFSFileInfo(gridFS, fileInfo);
+            var serializationOptions = (SerializationOptions)options;
+            var bsonInfo = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
+            var fileInfo = new MongoGridFSFileInfo(
+                serializationOptions.Server,
+                serializationOptions.ServerInstance,
+                serializationOptions.DatabaseName,
+                serializationOptions.GridFSSettings);
+            fileInfo.CacheFileInfo(bsonInfo);
+            return fileInfo;
         }
 
         bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
@@ -591,7 +817,10 @@ namespace MongoDB.Driver.GridFS
         // nested classes
         internal class SerializationOptions : BsonBaseSerializationOptions
         {
-            internal MongoGridFS GridFS;
+            public MongoServer Server;
+            public MongoServerInstance ServerInstance;
+            public string DatabaseName;
+            public MongoGridFSSettings GridFSSettings;
         }
     }
 }

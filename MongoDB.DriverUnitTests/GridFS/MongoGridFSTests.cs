@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         {
             var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
-            var gridFS = new MongoGridFS(_database, settings);
+            var gridFS = new MongoGridFS(_server, _database.Name, settings);
             Assert.IsTrue(gridFS.Settings.IsFrozen);
         }
 

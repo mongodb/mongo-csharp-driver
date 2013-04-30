@@ -25,12 +25,14 @@ namespace MongoDB.DriverUnitTests.GridFS
     [TestFixture]
     public class MongoGridFSFileInfoTests
     {
+        private MongoServer _server;
         private MongoDatabase _database;
         private MongoGridFS _gridFS;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
+            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
             _gridFS = _database.GridFS;
         }
@@ -50,11 +52,11 @@ namespace MongoDB.DriverUnitTests.GridFS
                 Metadata = metadata,
                 UploadDate = uploadDate
             };
-            var info = new MongoGridFSFileInfo(_gridFS, "filename", createOptions);
+            var settings = new MongoGridFSSettings();
+            var info = new MongoGridFSFileInfo(_server, _server.Primary, _database.Name, settings, "filename", createOptions);
             Assert.IsTrue(aliases.SequenceEqual(info.Aliases));
             Assert.AreEqual(123, info.ChunkSize);
             Assert.AreEqual("content", info.ContentType);
-            Assert.AreEqual(_gridFS, info.GridFS);
             Assert.AreEqual(1, info.Id.AsInt32);
             Assert.AreEqual(0, info.Length);
             Assert.AreEqual(null, info.MD5);
@@ -66,11 +68,12 @@ namespace MongoDB.DriverUnitTests.GridFS
         [Test]
         public void TestEquals()
         {
+            var settings = new MongoGridFSSettings();
             var createOptions = new MongoGridFSCreateOptions { ChunkSize = 123 };
-            var a1 = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
-            var a2 = new MongoGridFSFileInfo(_gridFS, "f", createOptions);
+            var a1 = new MongoGridFSFileInfo(_server, _server.Primary, _database.Name, settings, "f", createOptions);
+            var a2 = new MongoGridFSFileInfo(_server, _server.Primary, _database.Name, settings, "f", createOptions);
             var a3 = a2;
-            var b = new MongoGridFSFileInfo(_gridFS, "g", createOptions);
+            var b = new MongoGridFSFileInfo(_server, _server.Primary, _database.Name, settings, "g", createOptions);
             var null1 = (MongoGridFSFileInfo)null;
             var null2 = (MongoGridFSFileInfo)null;
 
