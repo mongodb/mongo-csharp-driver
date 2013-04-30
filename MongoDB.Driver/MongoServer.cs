@@ -383,6 +383,12 @@ namespace MongoDB.Driver
             get { return _serverProxy.State; }
         }
 
+        // internal properties
+        internal MongoServerProxyType ProxyType
+        {
+            get { return _serverProxy.ProxyType; }
+        }
+
         // public indexers
         /// <summary>
         /// Gets a MongoDatabase instance representing a database on this server. Only one instance

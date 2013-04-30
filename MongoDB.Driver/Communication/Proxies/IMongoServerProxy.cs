@@ -39,6 +39,11 @@ namespace MongoDB.Driver.Internal
         ReadOnlyCollection<MongoServerInstance> Instances { get; }
 
         /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        MongoServerProxyType ProxyType { get; }
+
+        /// <summary>
         /// Gets the state.
         /// </summary>
         MongoServerState State { get; }

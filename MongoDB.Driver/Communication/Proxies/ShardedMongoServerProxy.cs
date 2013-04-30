@@ -48,6 +48,15 @@ namespace MongoDB.Driver.Internal
             : base(settings, instances, stateChangedQueue, connectionAttempt)
         { }
 
+        // public properties
+        /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public override MongoServerProxyType ProxyType
+        {
+            get { return MongoServerProxyType.Sharded; }
+        }
+
         // protected methods
         /// <summary>
         /// Chooses the server instance.

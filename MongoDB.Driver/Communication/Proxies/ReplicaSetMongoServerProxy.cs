@@ -54,6 +54,14 @@ namespace MongoDB.Driver.Internal
 
         // public properties
         /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public override MongoServerProxyType ProxyType
+        {
+            get { return MongoServerProxyType.ReplicaSet; }
+        }
+
+        /// <summary>
         /// Gets the name of the replica set.
         /// </summary>
         /// <value>

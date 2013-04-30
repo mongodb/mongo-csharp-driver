@@ -97,6 +97,22 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public MongoServerProxyType ProxyType
+        {
+            get
+            {
+                if (_serverProxy == null)
+                {
+                    return MongoServerProxyType.Unknown;
+                }
+
+                return _serverProxy.ProxyType;
+            }
+        }
+
+        /// <summary>
         /// Gets the name of the replica set (null if not connected to a replica set).
         /// </summary>
         public string ReplicaSetName
