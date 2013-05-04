@@ -329,7 +329,7 @@ namespace MongoDB.Bson.Serialization
         {
             foreach (var memberMap in _classMap.AllMemberMaps)
             {
-                if (memberMap.MemberName == memberName)
+                if (memberMap.MemberName == memberName || memberMap.ElementName == memberName)
                 {
                     var elementName = memberMap.ElementName;
                     var serializer = memberMap.GetSerializer(memberMap.MemberType);
