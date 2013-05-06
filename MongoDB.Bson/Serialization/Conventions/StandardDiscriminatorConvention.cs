@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents the standard discriminator conventions (see ScalarDiscriminatorConvention and HierarchicalDiscriminatorConvention).
     /// </summary>
-    public abstract class StandardDiscriminatorConvention : IDiscriminatorConvention
+    public abstract class StandardDiscriminatorConvention : ConventionBase, IDiscriminatorConvention
     {
         // private static fields
         private static ScalarDiscriminatorConvention __scalar = new ScalarDiscriminatorConvention("_t");
