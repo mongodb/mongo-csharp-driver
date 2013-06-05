@@ -65,10 +65,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadStartArray();
                     var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     var list = new List<T>();
+
+                    var itemNominalType = typeof(T);
+                    var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(typeof(T));
+
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                        var serializer = BsonSerializer.LookupSerializer(elementType);
+                        var elementType = itemNominalType.IsValueType ? itemNominalType : discriminatorConvention.GetActualType(bsonReader, typeof(T));
+                        var serializer = itemNominalType.IsValueType ? itemNominalTypeSerializer : BsonSerializer.LookupSerializer(elementType);
                         var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
                         list.Add(element);
                     }
@@ -136,11 +140,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var itemNominalType = typeof(T);
+                var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
+
                 bsonWriter.WriteStartArray();
-                for (int index = 0; index < array.Length; index++)
+
+                foreach (var item in array)
                 {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), array[index], itemSerializationOptions);
+                    var itemSerializer = (itemNominalType.IsValueType || item == null) ? itemNominalTypeSerializer : BsonSerializer.LookupSerializer(item.GetType());
+                    itemSerializer.Serialize(bsonWriter, itemNominalType, item, itemSerializationOptions);
                 }
+
                 bsonWriter.WriteEndArray();
             }
         }
