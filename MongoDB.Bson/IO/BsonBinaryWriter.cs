@@ -30,6 +30,7 @@ namespace MongoDB.Bson.IO
         private bool _disposeBuffer;
         private BsonBinaryWriterSettings _binaryWriterSettings; // same value as in base class just declared as derived class
         private BsonBinaryWriterContext _context;
+        private readonly UTF8Encoding _encoding = new UTF8Encoding(false, true);
 
         // constructors
         /// <summary>
@@ -724,7 +725,7 @@ namespace MongoDB.Bson.IO
                 name = Name;
             }
 
-            _buffer.WriteCString(new UTF8Encoding(false, true), name); // always use strict encoding for names
+            _buffer.WriteCString(_encoding, name); // always use strict encoding for names
         }
     }
 }
