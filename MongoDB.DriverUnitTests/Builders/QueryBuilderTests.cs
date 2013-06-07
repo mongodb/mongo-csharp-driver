@@ -460,7 +460,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNearWithGeoJson()
         {
-            var point = GeoJson.Point(GeoJson.Geographic(40,18));
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
             var query = Query.Near("loc", point);
             var selector = "{ '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } } }";
             Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
@@ -714,6 +714,38 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Text("foo", null);
             var expected = "{ \"$text\" : { \"$search\" : \"foo\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeGreaterThan()
+        {
+            var query = Query.SizeGreaterThan("k", 20);
+            var expected = "{ \"k.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeGreaterThanOrEqual()
+        {
+            var query = Query.SizeGreaterThanOrEqual("k", 20);
+            var expected = "{ \"k.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNotSizeGreaterThan()
+        {
+            var query = Query.Not(Query.SizeGreaterThan("k", 20));
+            var expected = "{ \"k.20\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestNotSizeGreaterThanOrEqual()
+        {
+            var query = Query.Not(Query.SizeGreaterThanOrEqual("k", 20));
+            var expected = "{ \"k.19\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
