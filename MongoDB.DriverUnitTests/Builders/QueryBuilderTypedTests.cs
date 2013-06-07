@@ -57,7 +57,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAll()
         {
-            var query = Query<A>.All(a => a.J, new [] { 2, 4, 6});
+            var query = Query<A>.All(a => a.J, new[] { 2, 4, 6 });
             var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -113,11 +113,11 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestElemMatch()
         {
             var query = Query<A>.ElemMatch(
-                a => a.A_B, 
+                a => a.A_B,
                 qb => qb.And(
                     qb.EQ(ab => ab.A, 1),
                     qb.GT(ab => ab.B, 1)));
-                        
+
             var expected = "{ \"ab\" : { \"$elemMatch\" : { \"a\" : 1, \"b\" : { \"$gt\" : 1 } } } }";
             Assert.AreEqual(expected, query.ToJson());
         }
@@ -686,6 +686,38 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestSizeExpressionArray_GreaterThan()
+        {
+            var query = Query<A>.Where(a => a.J.Length > 20);
+            var expected = "{ \"j.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionArray_GreaterThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.J.Length >= 20);
+            var expected = "{ \"j.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionArray_LessThan()
+        {
+            var query = Query<A>.Where(a => a.J.Length < 20);
+            var expected = "{ \"j.19\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionArray_LessThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.J.Length <= 20);
+            var expected = "{ \"j.20\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestSizeExpressionArray_Not()
         {
             var query = Query<A>.Where(a => a.J.Length != 20);
@@ -698,6 +730,38 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.Where(a => a.A_B.Count() == 20);
             var expected = "{ \"ab\" : { \"$size\" : 20 } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionIEnumerable_GreaterThan()
+        {
+            var query = Query<A>.Where(a => a.A_B.Count() > 20);
+            var expected = "{ \"ab.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionIEnumerable_GreaterThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.A_B.Count() >= 20);
+            var expected = "{ \"ab.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionIEnumerable_LessThan()
+        {
+            var query = Query<A>.Where(a => a.A_B.Count() < 20);
+            var expected = "{ \"ab.19\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionIEnumerable_LessThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.A_B.Count() <= 20);
+            var expected = "{ \"ab.20\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
