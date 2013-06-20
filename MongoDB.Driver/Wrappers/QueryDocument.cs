@@ -34,6 +34,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Initializes a new instance of the QueryDocument class, converting a mongodb native query in to a 
+        /// QueryDocument.  
+        /// </summary>
+        /// <param name="query">A query in the format used in the mongodb console (e.g. { SendId: 4, 'Events.Code' : { $all : [2], $nin : [3] } })</param>
+        public QueryDocument(string query)
+            : base(MongoDB.Bson.Serialization.BsonSerializer.Deserialize<BsonDocument>(query))
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the QueryDocument class specifying whether duplicate element names are allowed
         /// (allowing duplicate element names is not recommended).
         /// </summary>
