@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -25,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for one-dimensional arrays.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class ArraySerializer<T> : BsonBaseSerializer, IBsonArraySerializer
+    public class ArraySerializer<T> : EnumerableSerializerBase<T>, IBsonArraySerializer
     {
         // constructors
         /// <summary>
@@ -36,123 +34,56 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-        // public methods
+        // protected methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Adds the item.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        /// <param name="instance">The instance.</param>
+        /// <param name="item">The item.</param>
+        protected override void AddItem(object instance, T item)
+        {
+            ((List<T>)instance).Add(item);
+        }
+
+        /// <summary>
+        /// Creates the instance.
+        /// </summary>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The instance.</returns>
+        protected override object CreateInstance(Type actualType)
+        {
+            return new List<T>();
+        }
+
+        /// <summary>
+        /// Enumerates the items.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns>The items.</returns>
+        protected override IEnumerable<T> EnumerateItemsInSerializationOrder(object instance)
+        {
+            return (IEnumerable<T>)instance;
+        }
+
+        /// <summary>
+        /// Finalizes the result.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The result.</returns>
+        protected override object FinalizeResult(object instance, Type actualType)
+        {
+            return ((List<T>)instance).ToArray();
+        }
+
+        /// <summary>
+        /// Verifies the types.
+        /// </summary>
+        /// <param name="nominalType">Type nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        protected override void VerifyTypes(Type nominalType, Type actualType)
         {
             VerifyTypes(nominalType, actualType, typeof(T[]));
-            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-                case BsonType.Array:
-                    bsonReader.ReadStartArray();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
-                    var list = new List<T>();
-
-                    var itemNominalType = typeof(T);
-                    var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(typeof(T));
-
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var elementType = itemNominalType.IsValueType ? itemNominalType : discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                        var serializer = itemNominalType.IsValueType ? itemNominalTypeSerializer : BsonSerializer.LookupSerializer(elementType);
-                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
-                        list.Add(element);
-                    }
-                    bsonReader.ReadEndArray();
-                    return list.ToArray();
-                case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
-                default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
-                    throw new FileFormatException(message);
-            }
-        }
-
-        /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
-        /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
-        {
-            string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(T));
-            var nominalType = typeof(T);
-            IBsonSerializationOptions serializationOptions = null;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
-        {
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var actualType = value.GetType();
-                VerifyTypes(nominalType, actualType, typeof(T[]));
-
-                if (nominalType == typeof(object))
-                {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", TypeNameDiscriminator.GetDiscriminator(actualType));
-                    bsonWriter.WriteName("_v");
-                    Serialize(bsonWriter, actualType, value, options);
-                    bsonWriter.WriteEndDocument();
-                    return;
-                }
-
-                var array = (T[])value;
-                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
-
-                var itemNominalType = typeof(T);
-                var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
-
-                bsonWriter.WriteStartArray();
-
-                foreach (var item in array)
-                {
-                    var itemSerializer = (itemNominalType.IsValueType || item == null) ? itemNominalTypeSerializer : BsonSerializer.LookupSerializer(item.GetType());
-                    itemSerializer.Serialize(bsonWriter, itemNominalType, item, itemSerializationOptions);
-                }
-
-                bsonWriter.WriteEndArray();
-            }
         }
     }
 }

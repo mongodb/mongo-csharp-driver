@@ -254,6 +254,7 @@
     <Compile Include="Serialization\Serializers\DoubleSerializer.cs" />
     <Compile Include="Serialization\Serializers\DrawingSizeSerializer.cs" />
     <Compile Include="Serialization\Serializers\EnumerableSerializer.cs" />
+    <Compile Include="Serialization\Serializers\EnumerableSerializerBase.cs" />
     <Compile Include="Serialization\Serializers\GuidSerializer.cs" />
     <Compile Include="Serialization\Serializers\ImageSerializer.cs" />
     <Compile Include="Serialization\Serializers\Int16Serializer.cs" />
