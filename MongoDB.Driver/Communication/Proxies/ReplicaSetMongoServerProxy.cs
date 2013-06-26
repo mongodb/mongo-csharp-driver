@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal
         // private fields
         private readonly Random _random = new Random();
         private readonly object _randomLock = new object();
+        private MongoServerInstance _primary;
         private string _replicaSetName;
 
         // constructors
@@ -53,6 +54,17 @@ namespace MongoDB.Driver.Internal
         { }
 
         // public properties
+        /// <summary>
+        /// Gets the primary.
+        /// </summary>
+        /// <value>
+        /// The primary.
+        /// </value>
+        public MongoServerInstance Primary
+        {
+            get { return _primary; }
+        }
+
         /// <summary>
         /// Gets the type of the proxy.
         /// </summary>
@@ -200,6 +212,15 @@ namespace MongoDB.Driver.Internal
             }
         }
 
+        /// <summary>
+        /// Processes the disconnected instance state change.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        protected override void ProcessDisconnectedInstanceStateChange(MongoServerInstance instance)
+        {
+            Interlocked.CompareExchange(ref _primary, null, instance);
+        }
+
         // private methods
         /// <summary>
         /// Gets a randomly selected matching instance.
@@ -254,6 +275,7 @@ namespace MongoDB.Driver.Internal
 
         private void ProcessConnectedPrimaryStateChange(MongoServerInstance instance)
         {
+            Interlocked.Exchange(ref _primary, instance);
             Interlocked.CompareExchange(ref _replicaSetName, instance.ReplicaSetInformation.Name, null);
 
             var members = instance.ReplicaSetInformation.Members;

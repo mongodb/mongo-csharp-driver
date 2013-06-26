@@ -275,7 +275,36 @@ namespace MongoDB.Driver
         {
             get
             {
-                return _serverProxy.Instances.SingleOrDefault(x => x.IsPrimary);
+                var serverProxy = _serverProxy;
+
+                var discoveringServerProxy = serverProxy as DiscoveringMongoServerProxy;
+                if (discoveringServerProxy != null)
+                {
+                    serverProxy = discoveringServerProxy.WrappedProxy;
+                    if (serverProxy == null)
+                    {
+                        return null;
+                    }
+                }
+
+                var directProxy = serverProxy as DirectMongoServerProxy;
+                if (directProxy != null)
+                {
+                    var instance = directProxy.Instances[0];
+                    if (instance.IsPrimary)
+                    {
+                        return instance;
+                    }
+                    return null;
+                }
+
+                var replicaSetProxy = serverProxy as ReplicaSetMongoServerProxy;
+                if (replicaSetProxy != null)
+                {
+                    return replicaSetProxy.Primary;
+                }
+
+                return null;
             }
         }
 

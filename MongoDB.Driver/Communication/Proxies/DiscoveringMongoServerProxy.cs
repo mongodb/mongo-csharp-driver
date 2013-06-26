@@ -145,6 +145,12 @@ namespace MongoDB.Driver.Internal
             }
         }
 
+        // internal properties
+        internal IMongoServerProxy WrappedProxy
+        {
+            get { return _serverProxy; }
+        }
+
         // public methods
         /// <summary>
         /// Chooses the server instance.
