@@ -538,6 +538,7 @@ namespace MongoDB.Driver
             lock (_serverInstanceLock)
             {
                 _serverInfo.IsPrimary = false;
+                _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
             }
         }
 

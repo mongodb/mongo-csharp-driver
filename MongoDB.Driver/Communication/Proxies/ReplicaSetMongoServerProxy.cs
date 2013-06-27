@@ -96,13 +96,12 @@ namespace MongoDB.Driver.Internal
             switch (readPreference.ReadPreferenceMode)
             {
                 case ReadPreferenceMode.Primary:
-                    return connectedInstances.GetPrimary();
+                    return _primary;
 
                 case ReadPreferenceMode.PrimaryPreferred:
-                    var primary = connectedInstances.GetPrimary();
-                    if (primary != null)
+                    if (_primary != null)
                     {
-                        return primary;
+                        return _primary;
                     }
                     else
                     {
@@ -120,11 +119,11 @@ namespace MongoDB.Driver.Internal
                     }
                     else
                     {
-                        return connectedInstances.GetPrimary();
+                        return _primary;
                     }
 
                 case ReadPreferenceMode.Nearest:
-                    return GetMatchingInstance(connectedInstances.GetPrimaryAndSecondaries(), readPreference, secondaryAcceptableLatency);
+                    return GetMatchingInstance(connectedInstances.GetPrimaryAndSecondaries(_primary), readPreference, secondaryAcceptableLatency);
 
                 default:
                     throw new MongoInternalException("Invalid ReadPreferenceMode.");
