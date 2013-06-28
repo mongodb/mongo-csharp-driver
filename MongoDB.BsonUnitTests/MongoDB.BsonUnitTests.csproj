@@ -96,6 +96,7 @@
     <Compile Include="Serialization\Attributes\BsonRepresentationAttributeTests.cs" />
     <Compile Include="Serialization\BsonClassMapAutoMappingTests.cs" />
     <Compile Include="Serialization\BsonClassMapTests.cs" />
+    <Compile Include="Serialization\BsonMemberMapDefaultValueCreatorTests.cs" />
     <Compile Include="Serialization\BsonMemberMapTests.cs" />
     <Compile Include="Serialization\Conventions\AttributeConventionPackTests.cs" />
     <Compile Include="Serialization\Conventions\CamelCaseElementNameConventionsTests.cs" />
