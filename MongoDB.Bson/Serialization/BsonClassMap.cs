@@ -517,8 +517,11 @@ namespace MongoDB.Bson.Serialization
                         }
                         else
                         {
-                            // conventions could have set this to an improper value
-                            _idMemberMap.SetElementName("_id");
+                            if (_idMemberMap.ClassMap == this)
+                            {
+                                // conventions could have set this to an improper value
+                                _idMemberMap.SetElementName("_id");
+                            }
                         }
 
                         if (_extraElementsMemberMap == null)
@@ -569,12 +572,15 @@ namespace MongoDB.Bson.Serialization
 
                         // mark this classMap frozen before we start working on knownTypes
                         // because we might get back to this same classMap while processing knownTypes
-                        _frozen = true;
-
                         foreach (var creatorMap in _creatorMaps)
                         {
                             creatorMap.Freeze();
                         }
+                        foreach (var memberMap in _declaredMemberMaps)
+                        {
+                            memberMap.Freeze();
+                        }
+                        _frozen = true;
 
                         // use a queue to postpone processing of known types until we get back to the first level call to Freeze
                         // this avoids infinite recursion when going back down the inheritance tree while processing known types
