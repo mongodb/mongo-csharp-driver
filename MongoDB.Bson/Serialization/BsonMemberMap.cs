@@ -334,7 +334,7 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Sets the default value creator.
         /// </summary>
-        /// <param name="defaultValueCreator">The default value creator.</param>
+        /// <param name="defaultValueCreator">The default value creator (note: the supplied delegate must be thread safe).</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(Func<object> defaultValueCreator)
         {

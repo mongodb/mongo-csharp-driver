@@ -49,6 +49,17 @@ namespace MongoDB.BsonUnitTests.Serialization
         }
 
         [Test]
+        public void TestModifyingEmptyListDoesNotCorruptDefaultValue()
+        {
+            var json = "{ _id : 1 }";
+            var c1 = BsonSerializer.Deserialize<C>(json);
+            c1.L.Add(1);
+            var c2 = BsonSerializer.Deserialize<C>(json);
+            Assert.AreEqual(1, c1.L.Count);
+            Assert.AreEqual(0, c2.L.Count);
+        }
+
+        [Test]
         public void TestValueMissing()
         {
             var json = "{ _id : 1 }";
