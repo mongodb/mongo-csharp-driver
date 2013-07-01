@@ -338,6 +338,11 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(Func<object> defaultValueCreator)
         {
+            if (defaultValueCreator == null)
+            {
+                throw new ArgumentNullException("defaultValueCreator");
+            }
+            if (_frozen) { ThrowFrozenException(); }
             _defaultValue = defaultValueCreator(); // need an instance to compare against
             _defaultValueCreator = defaultValueCreator;
             _defaultValueSpecified = true;
