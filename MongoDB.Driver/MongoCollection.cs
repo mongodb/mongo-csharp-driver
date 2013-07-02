@@ -154,6 +154,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents in this collection that match a query.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>The number of documents in this collection that match the query.</returns>
+        public virtual long Count(string query)
+        {
+            return Count(new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Counts the number of documents in this collection that match a query.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>The number of documents in this collection that match the query.</returns>
         public virtual long Count(IMongoQuery query)
@@ -232,6 +242,17 @@ namespace MongoDB.Driver
         /// Returns the distinct values for a given field for documents that match a query.
         /// </summary>
         /// <param name="key">The key of the field.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns></returns>
+        public virtual IEnumerable<BsonValue> Distinct(string key, string query)
+        {
+            return Distinct(key, new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Returns the distinct values for a given field for documents that match a query.
+        /// </summary>
+        /// <param name="key">The key of the field.</param>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<BsonValue> Distinct(string key, IMongoQuery query)
@@ -248,6 +269,18 @@ namespace MongoDB.Driver
         public virtual IEnumerable<TValue> Distinct<TValue>(string key)
         {
             return Distinct<TValue>(key, Query.Null);
+        }
+
+        /// <summary>
+        /// Returns the distinct values for a given field for documents that match a query.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="key">The key of the field.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>The distint values of the field.</returns>
+        public virtual IEnumerable<TValue> Distinct<TValue>(string key, string query)
+        {
+            return Distinct<TValue>(key, new QueryDocument(query));
         }
 
         /// <summary>
@@ -395,6 +428,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="sortBy">The sort order to select one of the matching documents.</param>
+        /// <param name="update">The update to apply to the matching document.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndModify(string query, IMongoSortBy sortBy, IMongoUpdate update)
+        {
+            return FindAndModify(new QueryDocument(query), sortBy, update);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="sortBy">The sort order to select one of the matching documents.</param>
         /// <param name="update">The update to apply to the matching document.</param>
@@ -402,6 +447,23 @@ namespace MongoDB.Driver
         public virtual FindAndModifyResult FindAndModify(IMongoQuery query, IMongoSortBy sortBy, IMongoUpdate update)
         {
             return FindAndModify(query, sortBy, update, false);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="sortBy">The sort order to select one of the matching documents.</param>
+        /// <param name="update">The update to apply to the matching document.</param>
+        /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndModify(
+            string query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
+            bool returnNew)
+        {
+            return FindAndModify(new QueryDocument(query), sortBy, update, returnNew);
         }
 
         /// <summary>
@@ -424,6 +486,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="sortBy">The sort order to select one of the matching documents.</param>
+        /// <param name="update">The update to apply to the matching document.</param>
+        /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
+        /// <param name="upsert">Whether to do an upsert if no matching document is found.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndModify(
+            string query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
+            bool returnNew,
+            bool upsert)
+        {
+            return FindAndModify(new QueryDocument(query), sortBy, update, returnNew, upsert);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="sortBy">The sort order to select one of the matching documents.</param>
         /// <param name="update">The update to apply to the matching document.</param>
@@ -438,6 +519,27 @@ namespace MongoDB.Driver
             bool upsert)
         {
             return FindAndModify(query, sortBy, update, Fields.Null, returnNew, upsert);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the query and sortBy parameters and applies the specified update to it.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="sortBy">The sort order to select one of the matching documents.</param>
+        /// <param name="update">The update to apply to the matching document.</param>
+        /// <param name="fields">Which fields of the modified document to return in the <see cref="FindAndModifyResult"/>.</param>
+        /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
+        /// <param name="upsert">Whether to do an upsert if no matching document is found.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndModify(
+            string query,
+            IMongoSortBy sortBy,
+            IMongoUpdate update,
+            IMongoFields fields,
+            bool returnNew,
+            bool upsert)
+        {
+            return FindAndModify(new QueryDocument(query), sortBy, update, fields, returnNew, upsert);
         }
 
         /// <summary>
@@ -491,6 +593,17 @@ namespace MongoDB.Driver
         /// <summary>
         /// Finds one matching document using the query and sortBy parameters and removes it from this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="sortBy">The sort order to select one of the matching documents.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndRemove(string query, IMongoSortBy sortBy)
+        {
+            return FindAndRemove(new QueryDocument(query), sortBy);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the query and sortBy parameters and removes it from this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="sortBy">The sort order to select one of the matching documents.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
@@ -527,12 +640,34 @@ namespace MongoDB.Driver
         /// Returns a cursor that can be used to find all documents in this collection that match the query as TDocuments.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor<TDocument> FindAs<TDocument>(string query)
+        {
+            return FindAs<TDocument>(new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection that match the query as TDocuments.
+        /// </summary>
+        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(TDocument));
             return FindAs<TDocument>(query, serializer, null);
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection that match the query as TDocuments.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor FindAs(Type documentType, string query)
+        {
+            return FindAs(documentType, new QueryDocument(query));
         }
 
         /// <summary>
@@ -561,6 +696,17 @@ namespace MongoDB.Driver
         /// Returns one document in this collection that matches a query as a TDocument.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual TDocument FindOneAs<TDocument>(string query)
+        {
+            return FindOneAs<TDocument>(new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Returns one document in this collection that matches a query as a TDocument.
+        /// </summary>
+        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(IMongoQuery query)
@@ -576,6 +722,17 @@ namespace MongoDB.Driver
         public virtual object FindOneAs(Type documentType)
         {
             return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Returns one document in this collection that matches a query as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual object FindOneAs(Type documentType, string query)
+        {
+            return FindOneAs(documentType, new QueryDocument(query));
         }
 
         /// <summary>
@@ -656,6 +813,24 @@ namespace MongoDB.Driver
         /// Runs a GeoNear command on this collection.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(
+            string query,
+            double x,
+            double y,
+            int limit)
+        {
+            return GeoNearAs<TDocument>(new QueryDocument(query), x, y, limit);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="x">The x coordinate of the starting location.</param>
         /// <param name="y">The y coordinate of the starting location.</param>
@@ -668,6 +843,26 @@ namespace MongoDB.Driver
             int limit)
         {
             return GeoNearAs<TDocument>(query, x, y, limit, GeoNearOptions.Null);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(
+            string query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options)
+        {
+            return GeoNearAs<TDocument>(query, x, y, limit, options);
         }
 
         /// <summary>
@@ -702,6 +897,20 @@ namespace MongoDB.Driver
         /// Runs a GeoNear command on this collection.
         /// </summary>
         /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(Type documentType, string query, double x, double y, int limit)
+        {
+            return GeoNearAs(documentType, new QueryDocument(query), x, y, limit);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="x">The x coordinate of the starting location.</param>
         /// <param name="y">The y coordinate of the starting location.</param>
@@ -710,6 +919,27 @@ namespace MongoDB.Driver
         public virtual GeoNearResult GeoNearAs(Type documentType, IMongoQuery query, double x, double y, int limit)
         {
             return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(
+            Type documentType,
+            string query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options)
+        {
+            return GeoNearAs(documentType, new QueryDocument(query), x, y, limit, options);
         }
 
         /// <summary>
@@ -791,6 +1021,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs the group command on this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="keyFunction">A JavaScript function that returns the key value to group on.</param>
+        /// <param name="initial">Initial value passed to the reduce function for each group.</param>
+        /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
+        /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
+        /// <returns>A list of results as BsonDocuments.</returns>
+        public virtual IEnumerable<BsonDocument> Group(
+            string query,
+            BsonJavaScript keyFunction,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize)
+        {
+            return Group(new QueryDocument(query), keyFunction, initial, reduce, finalize);
+        }
+
+        /// <summary>
+        /// Runs the group command on this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="keyFunction">A JavaScript function that returns the key value to group on.</param>
         /// <param name="initial">Initial value passed to the reduce function for each group.</param>
@@ -838,6 +1087,25 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs the group command on this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="keys">The names of the fields to group on.</param>
+        /// <param name="initial">Initial value passed to the reduce function for each group.</param>
+        /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
+        /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
+        /// <returns>A list of results as BsonDocuments.</returns>
+        public virtual IEnumerable<BsonDocument> Group(
+            string query,
+            IMongoGroupBy keys,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize)
+        {
+            return Group(new QueryDocument(query), keys, initial, reduce, finalize);
+        }
+
+        /// <summary>
+        /// Runs the group command on this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="keys">The names of the fields to group on.</param>
         /// <param name="initial">Initial value passed to the reduce function for each group.</param>
@@ -880,6 +1148,25 @@ namespace MongoDB.Driver
             };
             var result = RunCommandAs<CommandResult>(command);
             return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+        }
+
+        /// <summary>
+        /// Runs the group command on this collection.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="key">The name of the field to group on.</param>
+        /// <param name="initial">Initial value passed to the reduce function for each group.</param>
+        /// <param name="reduce">A JavaScript function that is called for each matching document in a group.</param>
+        /// <param name="finalize">A JavaScript function that is called at the end of the group command.</param>
+        /// <returns>A list of results as BsonDocuments.</returns>
+        public virtual IEnumerable<BsonDocument> Group(
+            string query,
+            string key,
+            BsonDocument initial,
+            BsonJavaScript reduce,
+            BsonJavaScript finalize)
+        {
+            return Group(new QueryDocument(query), key, initial, reduce, finalize);
         }
 
         /// <summary>
@@ -1188,6 +1475,23 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs a Map/Reduce command on document in this collection that match a query.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="map">A JavaScript function called for each document.</param>
+        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
+        /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
+        /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        public virtual MapReduceResult MapReduce(
+            string query,
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            IMongoMapReduceOptions options)
+        {
+            return MapReduce(new QueryDocument(query), map, reduce, options);
+        }
+
+        /// <summary>
+        /// Runs a Map/Reduce command on document in this collection that match a query.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="map">A JavaScript function called for each document.</param>
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
@@ -1202,6 +1506,18 @@ namespace MongoDB.Driver
             // create a new set of options because we don't want to modify caller's data
             options = MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument());
             return MapReduce(map, reduce, options);
+        }
+
+        /// <summary>
+        /// Runs a Map/Reduce command on document in this collection that match a query.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="map">A JavaScript function called for each document.</param>
+        /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
+        /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        public virtual MapReduceResult MapReduce(string query, BsonJavaScript map, BsonJavaScript reduce)
+        {
+            return MapReduce(new QueryDocument(query), map, reduce);
         }
 
         /// <summary>
@@ -1242,11 +1558,32 @@ namespace MongoDB.Driver
         /// <summary>
         /// Removes documents from this collection that match a query.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(string query)
+        {
+            return Remove(new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query)
         {
             return Remove(query, RemoveFlags.None, null);
+        }
+
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="writeConcern">The write concern to use for this Insert.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(string query, WriteConcern writeConcern)
+        {
+            return Remove(new QueryDocument(query), writeConcern);
         }
 
         /// <summary>
@@ -1263,12 +1600,35 @@ namespace MongoDB.Driver
         /// <summary>
         /// Removes documents from this collection that match a query.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="flags">The flags for this Remove (see <see cref="RemoveFlags"/>).</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(string query, RemoveFlags flags)
+        {
+            return Remove(new QueryDocument(query), flags);
+        }
+
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="flags">The flags for this Remove (see <see cref="RemoveFlags"/>).</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags)
         {
             return Remove(query, flags, null);
+        }
+
+        /// <summary>
+        /// Removes documents from this collection that match a query.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="flags">The flags for this Remove (see <see cref="RemoveFlags"/>).</param>
+        /// <param name="writeConcern">The write concern to use for this Insert.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Remove(string query, RemoveFlags flags, WriteConcern writeConcern)
+        {
+            return Remove(new QueryDocument(query), flags, writeConcern);
         }
 
         /// <summary>
@@ -1485,12 +1845,35 @@ namespace MongoDB.Driver
         /// <summary>
         /// Updates one matching document in this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Update(string query, IMongoUpdate update)
+        {
+            return Update(new QueryDocument(query), update);
+        }
+
+        /// <summary>
+        /// Updates one matching document in this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="update">The update to perform on the matching document.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Update(IMongoQuery query, IMongoUpdate update)
         {
             var options = new MongoUpdateOptions();
+            return Update(query, update, options);
+        }
+
+        /// <summary>
+        /// Updates one or more matching documents in this collection (for multiple updates use UpdateFlags.Multi).
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <param name="options">The update options.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Update(string query, IMongoUpdate update, MongoUpdateOptions options)
+        {
             return Update(query, update, options);
         }
 
@@ -1554,6 +1937,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Updates one matching document in this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <param name="writeConcern">The write concern to use for this Insert.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Update(string query, IMongoUpdate update, WriteConcern writeConcern)
+        {
+            return Update(query, update, writeConcern);
+        }
+
+        /// <summary>
+        /// Updates one matching document in this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="update">The update to perform on the matching document.</param>
         /// <param name="writeConcern">The write concern to use for this Insert.</param>
@@ -1567,6 +1962,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Updates one or more matching documents in this collection (for multiple updates use UpdateFlags.Multi).
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <param name="flags">The flags for this Update.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Update(string query, IMongoUpdate update, UpdateFlags flags)
+        {
+            return Update(new QueryDocument(query), update, flags);
+        }
+
+        /// <summary>
+        /// Updates one or more matching documents in this collection (for multiple updates use UpdateFlags.Multi).
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="update">The update to perform on the matching document.</param>
         /// <param name="flags">The flags for this Update.</param>
@@ -1575,6 +1982,23 @@ namespace MongoDB.Driver
         {
             var options = new MongoUpdateOptions { Flags = flags };
             return Update(query, update, options);
+        }
+
+        /// <summary>
+        /// Updates one or more matching documents in this collection (for multiple updates use UpdateFlags.Multi).
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="update">The update to perform on the matching document.</param>
+        /// <param name="flags">The flags for this Update.</param>
+        /// <param name="writeConcern">The write concern to use for this Insert.</param>
+        /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
+        public virtual WriteConcernResult Update(
+            string query,
+            IMongoUpdate update,
+            UpdateFlags flags,
+            WriteConcern writeConcern)
+        {
+            return Update(new QueryDocument(query), update, flags, writeConcern);
         }
 
         /// <summary>
@@ -1811,6 +2235,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns a cursor that can be used to find all documents in this collection that match the query as TDefaultDocuments.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
+        public virtual MongoCursor<TDefaultDocument> Find(string query)
+        {
+            return FindAs<TDefaultDocument>(new QueryDocument(query));
+        }
+
+        /// <summary>
+        /// Returns a cursor that can be used to find all documents in this collection that match the query as TDefaultDocuments.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <returns>A <see cref="MongoCursor{TDocument}"/>.</returns>
         public virtual MongoCursor<TDefaultDocument> Find(IMongoQuery query)
@@ -1834,6 +2268,16 @@ namespace MongoDB.Driver
         public virtual TDefaultDocument FindOne()
         {
             return FindOneAs<TDefaultDocument>();
+        }
+
+        /// <summary>
+        /// Returns one document in this collection that matches a query as a TDefaultDocument.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <returns>A TDefaultDocument (or null if not found).</returns>
+        public virtual TDefaultDocument FindOne(string query)
+        {
+            return FindOne(new QueryDocument(query));
         }
 
         /// <summary>
@@ -1874,6 +2318,19 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs a GeoNear command on this collection.
         /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <returns>A <see cref="GeoNearResult{TDefaultDocument}"/>.</returns>
+        public virtual GeoNearResult<TDefaultDocument> GeoNear(string query, double x, double y, int limit)
+        {
+            return GeoNear(new QueryDocument(query), x, y, limit);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="x">The x coordinate of the starting location.</param>
         /// <param name="y">The y coordinate of the starting location.</param>
@@ -1882,6 +2339,25 @@ namespace MongoDB.Driver
         public virtual GeoNearResult<TDefaultDocument> GeoNear(IMongoQuery query, double x, double y, int limit)
         {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="query">The native mongo query string</param>
+        /// <param name="x">The x coordinate of the starting location.</param>
+        /// <param name="y">The y coordinate of the starting location.</param>
+        /// <param name="limit">The maximum number of results returned.</param>
+        /// <param name="options">Options for the GeoNear command (see <see cref="GeoNearOptionsDocument"/>, <see cref="GeoNearOptionsWrapper"/>, and the <see cref="GeoNearOptions"/> builder).</param>
+        /// <returns>A <see cref="GeoNearResult{TDefaultDocument}"/>.</returns>
+        public virtual GeoNearResult<TDefaultDocument> GeoNear(
+            string query,
+            double x,
+            double y,
+            int limit,
+            IMongoGeoNearOptions options)
+        {
+            return GeoNear(new QueryDocument(query), x, y, limit, options);
         }
 
         /// <summary>
