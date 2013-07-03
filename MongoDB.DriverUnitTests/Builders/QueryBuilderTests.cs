@@ -21,6 +21,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
+using System.IO;
 
 namespace MongoDB.DriverUnitTests.Builders
 {
@@ -706,6 +707,30 @@ namespace MongoDB.DriverUnitTests.Builders
             var actual = query.ToJson(settings);
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void TestParse()
+        {
+            // Check that parsing a string results in the same result when printed to Json
+            var expected = "{ \"name\" : { \"$not\" : { \"$size\" : 1 } } }";
+            var query = Query.Parse(expected);
+            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
+            var actual = query.ToJson(settings);
+            Assert.AreEqual(expected, actual);
+
+            // Now confirm that adding an invalid string will cause an exception
+            try
+            {
+                // unmatched Quotes
+                expected = "{ name\" : { \"$not\" : { \"$size\" : 1 } } }"; ;
+                query = Query.Parse(expected);
+                Assert.Fail("FileFormatException was not thrown with invalid json string: " + expected);
+            }
+            catch (FileFormatException)
+            {
+            }
+        }
+
 
         [Test]
         public void TestSize()
