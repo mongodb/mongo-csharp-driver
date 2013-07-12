@@ -1117,6 +1117,15 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
+            var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+            
+            var documentsCollection = documents as ICollection;
+
+            if (documentsCollection != null && documentsCollection.Count == 0)
+            {
+                return (writeConcern.Enabled) ? new List<WriteConcernResult>() : null;
+            }
+
             var readerSettings = new BsonBinaryReaderSettings
             {
                 Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
@@ -1134,7 +1143,7 @@ namespace MongoDB.Driver
                 _name,
                 readerSettings,
                 writerSettings,
-                options.WriteConcern ?? _settings.WriteConcern,
+                writeConcern,
                 _settings.AssignIdOnInsert,
                 options.CheckElementNames,
                 nominalType,
