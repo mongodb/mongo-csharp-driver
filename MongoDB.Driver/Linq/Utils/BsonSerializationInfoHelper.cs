@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -59,6 +60,18 @@ namespace MongoDB.Driver.Linq.Utils
                 var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                 if (itemSerializationInfo != null)
                 {
+                    IBsonSerializationOptions itemSerializationOptions = null;
+                    var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+                    if (arrayOptions != null)
+                    {
+                        itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                        return new BsonSerializationInfo(
+                            itemSerializationInfo.ElementName,
+                            itemSerializationInfo.Serializer,
+                            itemSerializationInfo.NominalType,
+                            itemSerializationOptions);
+                    }
+
                     return itemSerializationInfo;
                 }
             }
