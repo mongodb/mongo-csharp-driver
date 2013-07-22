@@ -60,11 +60,10 @@ namespace MongoDB.Driver.Linq.Utils
                 var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
                 if (itemSerializationInfo != null)
                 {
-                    IBsonSerializationOptions itemSerializationOptions = null;
                     var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
                     if (arrayOptions != null)
                     {
-                        itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                        var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
                         return new BsonSerializationInfo(
                             itemSerializationInfo.ElementName,
                             itemSerializationInfo.Serializer,
