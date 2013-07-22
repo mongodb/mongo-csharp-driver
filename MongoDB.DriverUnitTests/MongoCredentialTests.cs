@@ -69,5 +69,17 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("password", credentials.Password);
 #pragma warning restore
         }
+
+        [Test]
+        public void TestCreateGssapiCredentialWithOnlyUsername()
+        {
+            var username = "testuser";
+            var credential = MongoCredential.CreateGssapiCredential(username);
+            Assert.AreEqual(username, credential.Username);
+            Assert.IsInstanceOf<ExternalEvidence>(credential.Evidence);
+            Assert.AreEqual("GSSAPI", credential.Mechanism);
+            Assert.AreEqual("$external", credential.Source);
+            Assert.AreEqual(new ExternalEvidence(), credential.Evidence);
+        }
     }
 }

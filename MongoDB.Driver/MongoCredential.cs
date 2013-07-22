@@ -163,7 +163,7 @@ namespace MongoDB.Driver
             return FromComponents("GSSAPI",
                 "$external",
                 username,
-                (PasswordEvidence)null);
+                new ExternalEvidence());
         }
 
         /// <summary>
