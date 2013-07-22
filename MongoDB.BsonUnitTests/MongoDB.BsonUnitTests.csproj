@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
+    <Compile Include="IO\BsonWriterTests.cs" />
     <Compile Include="IO\ByteArrayBufferTests.cs" />
     <Compile Include="IO\MultiChunkBufferTests.cs" />
     <Compile Include="Jira\CSharp728Tests.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Serialization\Conventions\NamedIdConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\StandardDiscriminatorConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />

@@ -374,6 +374,10 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("elementName");
             }
+            if (elementName.IndexOf('\0') != -1)
+            {
+                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+            }
             if (_frozen) { ThrowFrozenException(); }
 
             _elementName = elementName;

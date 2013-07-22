@@ -495,6 +495,14 @@ namespace MongoDB.Bson.IO
         /// <param name="name">The name of the element.</param>
         public virtual void WriteName(string name)
         {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (name.IndexOf('\0') != -1)
+            {
+                throw new ArgumentException("Element names cannot contain nulls.", "name");
+            }
             if (_disposed) { throw new ObjectDisposedException(this.GetType().Name); }
             if (_state != BsonWriterState.Name)
             {

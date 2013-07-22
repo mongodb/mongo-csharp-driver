@@ -554,6 +554,14 @@ namespace MongoDB.Bson.IO
         /// <param name="value">A string.</param>
         public void WriteCString(UTF8Encoding encoding, string value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            if (value.IndexOf('\0') != -1)
+            {
+                throw new ArgumentException("CStrings cannot contain nulls.", "value");
+            }
             ThrowIfDisposed();
 
             var maxLength = encoding.GetMaxByteCount(value.Length) + 1;

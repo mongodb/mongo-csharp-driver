@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
@@ -126,6 +128,24 @@ namespace MongoDB.BsonUnitTests.IO
             var bytes = new byte[] { 15, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 3, 0, 0, 0, (byte)'x', 0x80, 0, 0 };
             Assert.AreEqual(15, bytes.Length);
             var ex = Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
+        }
+
+        [Test]
+        public void TestWriteCStringThrowsWhenValueContainsNulls()
+        {
+            using (var bsonBuffer = new BsonBuffer())
+            {
+                Assert.Throws<ArgumentException>(() => { bsonBuffer.WriteCString((UTF8Encoding)Encoding.UTF8, "a\0b"); });
+            }
+        }
+
+        [Test]
+        public void TestWriteCStringThrowsWhenValueIsNull()
+        {
+            using (var bsonBuffer = new BsonBuffer())
+            {
+                Assert.Throws<ArgumentNullException>(() => { bsonBuffer.WriteCString((UTF8Encoding)Encoding.UTF8, null); });
+            }
         }
     }
 }
