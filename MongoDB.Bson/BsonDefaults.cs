@@ -22,7 +22,7 @@ namespace MongoDB.Bson
     {
         // private static fields
         private static GuidRepresentation __guidRepresentation = GuidRepresentation.CSharpLegacy;
-        private static int __maxDocumentSize = 4 * 1024 * 1024; // 4MiB
+        private static int __maxDocumentSize = 16 * 1024 * 1024; // 16MiB
         private static int __maxSerializationDepth = 100;
 
         // public static properties
