@@ -1,0 +1,154 @@
+C#/.NET driver changes from 1.8.1 to 1.8.2
+
+ConnectedInstancesCollection.cs
+    Removed GetPrimary method (no longer used, replace by _primary field in ReplicaSetMongoServerProxy)
+    GetPrimaryAndSecondaries is now passed in the current primary
+
+DirectMongoServerProxy.cs
+    Added ProxyType property
+
+DiscoveringMongoServerProxy.cs
+    Added ProxyType property
+    Added ReplicaSetName property
+    Added internal WrappedProxy property
+
+IMongoServerProxy.cs
+    Added ProxyType property
+
+MongoServerProxyType.cs
+    New enum that represents the proxy types
+
+MultipleInstanceServerProxy.cs
+    Added abstract ProxyType property
+    Added virtual ProcessDisconnectedInstanceStateChange method
+    ProcessInstanceStateChange now calls ProcessDisconnectedInstanceStateChange when appropriate
+
+ReplicaSetMongoServerProxy.cs
+    Added _primary field to track the current primary reliably
+    Added Primary property
+    Added ProxyType property
+    ChooseServerInstance now uses the new _primary field
+    Added ProcessDisconnectedInstanceStateChange to set _primary to null if primary disconnects
+    ProcessConnectedPrimaryStateChange now sets the new _primary field
+    ProcessConnectedPrimaryStateChange now unsets the Primary flag on the old primary when a new primary is discovered
+
+ShardedMongoServerProxy.cs
+    Added ProxyType property
+
+WindowsGssapiImplementation.cs
+    Transition step no longer checks the server response length when running on Windows XP (to work around an XP issue)
+
+MongoCRAuthenticationProtocol.cs
+    Authenticate uses new private RunCommand method
+    Added private RunCommand method
+
+SaslAuthenticationProtocol.cs
+    Authenticate uses new private RunCommand method
+    Added private RunCommand method
+
+MongoConnection.cs
+    Removed RunCommandAs method to simplify MongoConnection class
+    SendMessage is now only responsible for sending the message (WriteOperation handles the WriteConcern)
+
+MongoServerInstance.cs
+    Added internal UnsetPrimary and UnsetPrimarySecondary helper methods
+    LookupServerInformation uses the new private RunCommandAs method
+    Ping uses the new private RunCommandAs method
+    Ping calls UnsetPrimaryAndSecondary if Ping fails
+    Added private RunCommandAs helper method
+
+MongoGridFS.cs
+    Removed fields that referenced a MongoDatabase or MongoCollection so MongoGridFS is more independent of those classes
+    Added _databaseName field
+    Added _server field
+    Modified constructors to reflect new and removed fields
+    Added DatabaseName property
+    Added Server property
+    Added private ApplyDefaultValues, GetDatabaseName and GetServer helper methods
+    AppendText now uses RequestStart
+    Create and CreateText now uses RequestStart
+    Delete now uses RequestStart
+    EnsureIndexes no longer uses the IndexCache (which was removed)
+    Find and FindOne now use RequestStart
+    Open, OpenRead, OpenText and OpenWrite now use RequestStart
+    Added several new internal and private helper methods
+
+MongoGridFSFileInfo.cs
+    Added _server field to track which cluster the file info was fetched from
+    Added _serverInstance field to track which instance the file info was fetched from
+    Added _databaseName field to specify which database holds the GridFS collections
+    Added _settings field to hold the settings (so we can drop the reference to a MongoGridFS instance)
+    Removed _gridFS field
+    Modified construtors accordingly
+    Added DatabaseName property
+    Added GridFSSettings property
+    Added Server and ServerInstance properties
+    Added several new internal and private helper methods
+    CopyTo now ensures that we are using the primary instance
+    Delete now ensures that we are using the primary instance
+    MoveTo now ensures that we are using the primary instance
+    Refresh now uses RequestStart
+    Added several new internal and private helper methods
+
+MongoGridFSSettings.cs
+    Added more settings (they used to be fetched from the database settings but we don't want a reference to a database any more)
+    Added internal ApplyDefaultValues helper method
+
+MongoGridFSStream.cs
+    removed reference to MongoGridFS object
+    AddMissingChunks now uses RequestStart
+    LoadChunk and LoadChunkNoData now uses RequestStart
+    OpenAppend, OpenCreate and OpenTruncate now uses RequestStart
+    SaveChunk now uses RequestStart
+    UpdateMetadata now uses RequestStart
+    Added several new internal and private helper methods
+
+ExpressionNormalizer.cs
+    VisitBinary now normalizes VB comparisons to Nothing
+
+PredicateTranslator.cs
+    BuildInQuery now handles ICollection<> as well as classes that implement ICollection<>
+
+BsonSerializationInfoHelper.cs
+    GetItemSerializationInfo handles ArraySerializationOptions specially
+
+Operations classes
+    A set of new classes that holds the basic logic for insert, update, remove and commands
+
+CanCommandBeSentToSecondary.cs
+    This class used to be in MongoCursorEnumerator but now is in its own file
+
+IndexCache.cs
+    This class has been removed
+    We now always let the server decide if the index already exists or not
+
+MongoCollection.cs
+    Removed _commandCollection field
+    Changed various methods to use the new RunCommandAs helper method
+    Obsoleted CreateIndex overloads (use EnsureIndex instead)
+    Changed non-generic Geo methods to Invoke the generic method
+    Changed InsertBatch to use new InsertOperation
+    Changed Remove to use new RemoveOperation
+    Changed Update to use new UpdateOperatiion
+    Reimplemented RunCommandAs helper method to use new CommandOperation
+
+MongoCredential.cs
+    CreateGssapiCredential now uses an instance of ExternalEvidence instead of null
+
+MongoCursor.cs
+    GetEnumerator now uses the new QueryOperation
+    Added MongoCursorConnectionProvider nested class for use with QueryOperation
+
+MongoCursorEnumerator.cs
+    Moved static CanCommandToBeSentToSecondary class to its own file
+    MongoCursorEnumerator class is no longer used by the driver but is kept for backward compatibility
+
+MongoDatabase.cs
+    Removed _commandCollection field
+    Changed various methods to use new RunCommandsAs helper method
+    Reimplemented RunCommandAs helper method to use new CommandOperation
+
+MongoServer.cs
+    Removed _indexCache field
+    Reimplemented Primary property to be more robust
+    Fixed ReplicaSetName property to work when using DiscoveringMongoServerProxy

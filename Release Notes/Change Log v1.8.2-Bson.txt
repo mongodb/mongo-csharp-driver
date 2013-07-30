@@ -1,0 +1,42 @@
+BSON library changes from 1.8.1 to 1.8.2
+
+BsonBinaryWriter.cs
+    added cached strict UTF8Encoding instance
+
+BsonBuffer.cs
+    WriteCString now throws if value contains nulls
+
+BsonWriter.cs
+    WriteName now throws if name contains nulls
+
+ConventionProfile.cs
+    GetNewConventions now appends the DefaultConventionPack
+
+StandardDiscriminatorConvention.cs
+    Constructor now throws if elementName contains nulls
+
+ArraySerializer.cs
+EnumerableSerializer.cs
+QueueSerializer.cs
+ReadOnlyCollectionSerializer.cs
+StackSerializer.cs
+    These classes are all now implemented in terms of EnumerableSerializerBase
+
+EnumerableSerializerBase.cs
+    New base class containing optimizations applicable to many enumerable serializers
+    Only lookup serializer for nominalType once
+    Only lookup serializer for runs of the same actualType once
+    Don't bother with discriminatorConventions for value types because they can't have subclasses
+    Subclasses implement abstract methods: AddItem, CreateInstance, EnumerateItemsInSerializationOrder and FinalizeResult
+
+ThreeDimensionalArraySerializer.cs
+TwoDimensionalArraySerializer.cs
+    These classes have been optimized individually with optimizations similar to those in the new EnumerableSerializerBase class
+
+BsonClassMap.cs
+    Freeze now freezes the declared member maps also
+
+BsonMemberMap.cs
+    added Freeze method
+    add SetDefaultValue overload that takes a delegate to create new instances of default values (important if default value is mutable)
+    SetElementName now throws if elementName contains nulls
