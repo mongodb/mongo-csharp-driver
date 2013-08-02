@@ -157,7 +157,14 @@ namespace MongoDB.Driver.Linq
 
         private IMongoQuery BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
-            if (operatorType != ExpressionType.Equal && operatorType != ExpressionType.NotEqual)
+            var allowedOperators = new[]
+                {
+                    ExpressionType.Equal, ExpressionType.NotEqual, ExpressionType.GreaterThan,
+                    ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan,
+                    ExpressionType.LessThanOrEqual
+                };
+
+            if (!allowedOperators.Contains(operatorType))
             {
                 return null;
             }
@@ -206,13 +213,20 @@ namespace MongoDB.Driver.Linq
 
             if (serializationInfo != null)
             {
-                if (operatorType == ExpressionType.Equal)
+                switch (operatorType)
                 {
-                    return Query.Size(serializationInfo.ElementName, value);
-                }
-                else
-                {
-                    return Query.Not(Query.Size(serializationInfo.ElementName, value));
+                    case ExpressionType.Equal:
+                        return Query.Size(serializationInfo.ElementName, value);
+                    case ExpressionType.NotEqual:
+                        return Query.Not(Query.Size(serializationInfo.ElementName, value));
+                    case ExpressionType.GreaterThan:
+                        return Query.SizeGreaterThan(serializationInfo.ElementName, value);
+                    case ExpressionType.GreaterThanOrEqual:
+                        return Query.SizeGreaterThanOrEqual(serializationInfo.ElementName, value);
+                    case ExpressionType.LessThan:
+                        return Query.Not(Query.SizeGreaterThanOrEqual(serializationInfo.ElementName, value));
+                    case ExpressionType.LessThanOrEqual:
+                        return Query.Not(Query.SizeGreaterThan(serializationInfo.ElementName, value));
                 }
             }
 

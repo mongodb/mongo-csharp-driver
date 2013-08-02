@@ -658,6 +658,44 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Tests that the size of the named array is greater than some value (see $size).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="size">The size to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery SizeGreaterThan(string name, int size)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            var element = string.Format("{0}.{1}", name, size);
+
+            var condition = new BsonDocument("$exists", true);
+            return new QueryDocument(element, condition);
+        }
+
+        /// <summary>
+        /// Tests that the size of the named array is greater than some value (see $size).
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="size">The size to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery SizeGreaterThanOrEqual(string name, int size)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            var element = string.Format("{0}.{1}", name, size - 1);
+
+            var condition = new BsonDocument("$exists", true);
+            return new QueryDocument(element, condition);
+        }
+
+        /// <summary>
         /// Tests that the type of the named element is equal to some type (see $type).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
