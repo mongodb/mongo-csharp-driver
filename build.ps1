@@ -28,7 +28,7 @@ Properties {
 	$40_test_results_dir = "$artifacts_dir\net40\test_results"
 	$docs_dir = "$artifacts_dir\docs"
 
-	$sln_file = "$base_dir\CSharpDriver-2010.sln"
+	$sln_file = "$base_dir\CSharpDriver.sln"
 	$asm_file = "$src_dir\GlobalAssemblyInfo.cs"
 	$docs_file = "$base_dir\Docs\Api\CSharpDriverDocs.shfbproj"
 	$installer_file = "$base_dir\Installer\CSharpDriverInstaller.wixproj"
