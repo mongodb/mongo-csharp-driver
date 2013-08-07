@@ -1,6 +1,6 @@
 Properties {
-	$base_version = "1.8.2"
-	$version_status = ""
+	$base_version = "1.9"
+	$version_status = "alpha"
 	$build_number = Get-BuildNumber
 	$git_commit = Get-GitCommit
 
