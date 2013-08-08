@@ -641,6 +641,25 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Creates a IMongoQuery based on a json string. 
+        /// 
+        /// If the string is invalid, it will throw a FileFormatException.
+        /// </summary>
+        /// <remarks>
+        /// This method is not type safe, and can be vulnerable to injection (either intentional or by
+        /// mistake) if you are creating the query based on user data. It's useful for prototyping
+        /// or confirming that the results you are getting from a IQueryDocument are the same as 
+        /// the raw MongoDB command (consider using .ToJson() for this)
+        /// </remarks>
+        /// <param name="json">A query in the format used in the mongodb console (e.g. { SendId: 4, 'Events.Code' : { $all : [2], $nin : [3] } })</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery Parse(string json)
+        {
+            var document = BsonDocument.Parse(json);
+            return new QueryDocument(document);
+        }
+
+        /// <summary>
         /// Tests that the size of the named array is equal to some value (see $size).
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
