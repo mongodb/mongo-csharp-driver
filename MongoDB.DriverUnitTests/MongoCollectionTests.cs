@@ -1326,6 +1326,26 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestInsertBatchWriteConcernEnabledEmptyDocumentsReturnsEmptyWriteConcernResults()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collection = Configuration.TestDatabase.GetCollection(collectionName);
+            var options = new MongoInsertOptions { WriteConcern = WriteConcern.Acknowledged };
+
+            Assert.AreEqual(0, collection.InsertBatch(new List<object>(), options).Count());
+        }
+
+        [Test]
+        public void TestInsertBatchWriteConcernDisabledEmptyDocumentsReturnsNull()
+        {
+            var collectionName = Configuration.TestCollection.Name;
+            var collection = Configuration.TestDatabase.GetCollection(collectionName);
+            var options = new MongoInsertOptions { WriteConcern = WriteConcern.Unacknowledged };
+
+            Assert.IsNull(collection.InsertBatch(new List<object>(), options));
+        }
+
+        [Test]
         public void TestIsCappedFalse()
         {
             var collection = _database.GetCollection("notcappedcollection");
