@@ -119,6 +119,7 @@
     <Compile Include="Serialization\Conventions\NamedIdConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\EnumRepresentationConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StandardDiscriminatorConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />

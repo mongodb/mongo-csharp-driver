@@ -172,6 +172,7 @@
     <Compile Include="Serialization\Conventions\ResetClassMapConvention.cs" />
     <Compile Include="Serialization\Conventions\ResetMemberMapsConvention.cs" />
     <Compile Include="Serialization\Conventions\ScalarDiscriminatorConvention.cs" />
+    <Compile Include="Serialization\Conventions\EnumRepresentationConvention.cs" />
     <Compile Include="Serialization\Conventions\StandardDiscriminatorConvention.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdIdGeneratorConvention.cs" />
     <Compile Include="Serialization\CreatorMapDelegateCompiler.cs" />
