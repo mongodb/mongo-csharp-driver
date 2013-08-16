@@ -109,10 +109,26 @@ namespace MongoDB.Bson.Serialization.Conventions
 
                 if (member != null)
                 {
-                    classMap.MapIdMember(member);
-                    return;
+                    if (IsValidIdMember(classMap, member))
+                    {
+                        classMap.MapIdMember(member);
+                        return;
+                    }
                 }
             }
+        }
+
+        private bool IsValidIdMember(BsonClassMap classMap, MemberInfo member)
+        {
+            if (member.MemberType == MemberTypes.Property)
+            {
+                var getMethodInfo = ((PropertyInfo)member).GetGetMethod(true);
+                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != classMap.ClassType)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
