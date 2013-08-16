@@ -90,6 +90,7 @@
     <Compile Include="Jira\CSharp624Tests.cs" />
     <Compile Include="Jira\CSharp637Tests.cs" />
     <Compile Include="Jira\CSharp648Tests.cs" />
+    <Compile Include="Jira\CSharp803Tests.cs" />
     <Compile Include="ObjectModel\LazyBsonArrayTests.cs" />
     <Compile Include="ObjectModel\LazyBsonDocumentTests.cs" />
     <Compile Include="ObjectModel\RawBsonArrayTests.cs" />
