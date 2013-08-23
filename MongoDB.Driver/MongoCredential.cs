@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -30,6 +32,7 @@ namespace MongoDB.Driver
         private readonly MongoIdentityEvidence _evidence;
         private readonly MongoIdentity _identity;
         private readonly string _mechanism;
+        private readonly Dictionary<string, object> _mechanismProperties;
         
         // constructors
         /// <summary>
@@ -52,6 +55,7 @@ namespace MongoDB.Driver
             _mechanism = mechanism;
             _identity = identity;
             _evidence = evidence;
+            _mechanismProperties = new Dictionary<string, object>();
         }
 
         // public properties
@@ -226,6 +230,24 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
+        /// Gets the mechanism property.
+        /// </summary>
+        /// <typeparam name="T">The type of the mechanism property.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The mechanism property if one was set; otherwise the default value.</returns>
+        public T GetMechanismProperty<T>(string key, T defaultValue)
+        {
+            object value;
+            if (_mechanismProperties.TryGetValue(key, out value))
+            {
+                return (T)value;
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
         /// Compares this MongoCredential to another MongoCredential.
         /// </summary>
         /// <param name="rhs">The other credential.</param>
@@ -233,7 +255,10 @@ namespace MongoDB.Driver
         public bool Equals(MongoCredential rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _identity == rhs._identity && _evidence == rhs._evidence && _mechanism == rhs._mechanism;
+            return _identity == rhs._identity &&
+                _evidence == rhs._evidence &&
+                _mechanism == rhs._mechanism &&
+                _mechanismProperties.OrderBy(x => x.Key).SequenceEqual(rhs._mechanismProperties.OrderBy(x => x.Key));
         }
 
         /// <summary>
@@ -253,11 +278,12 @@ namespace MongoDB.Driver
         public override int GetHashCode()
         {
             // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + _identity.GetHashCode();
-            hash = 37 * hash + _evidence.GetHashCode();
-            hash = 37 * hash + _mechanism.GetHashCode();
-            return hash;
+            return new Hasher()
+                .Hash(_identity)
+                .Hash(_evidence)
+                .Hash(_mechanism)
+                .HashElements(_mechanismProperties)
+                .GetHashCode();
         }
 
         /// <summary>
@@ -267,6 +293,23 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return string.Format("{0}@{1}", _identity.Username, _identity.Source);
+        }
+
+        /// <summary>
+        /// Creates a new MongoCredential with the specified mechanism property.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A new MongoCredential with the specified mechanism property.</returns>
+        public MongoCredential WithMechanismProperty(string key, object value)
+        {
+            var copy = new MongoCredential(_mechanism, _identity, _evidence);
+            foreach (var pair in _mechanismProperties)
+            {
+                copy._mechanismProperties.Add(pair.Key, pair.Value);
+            }
+            copy._mechanismProperties[key] = value; // overwrite if it's already set
+            return copy;
         }
 
         // internal static methods

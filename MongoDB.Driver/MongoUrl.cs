@@ -61,6 +61,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _connectTimeout;
         private readonly string _databaseName;
         private readonly bool? _fsync;
+        private readonly string _gssapiServiceName;
         private readonly GuidRepresentation _guidRepresentation;
         private readonly bool _ipv6;
         private readonly bool? _journal;
@@ -99,6 +100,7 @@ namespace MongoDB.Driver
             _connectTimeout = builder.ConnectTimeout;
             _databaseName = builder.DatabaseName;
             _fsync = builder.FSync;
+            _gssapiServiceName = builder.GssapiServiceName;
             _guidRepresentation = builder.GuidRepresentation;
             _ipv6 = builder.IPv6;
             _journal = builder.Journal;
@@ -191,6 +193,14 @@ namespace MongoDB.Driver
         public bool? FSync
         {
             get { return _fsync; }
+        }
+
+        /// <summary>
+        /// Gets the GSSAPI service name.
+        /// </summary>
+        public string GssapiServiceName
+        {
+            get { return _gssapiServiceName; }
         }
 
         /// <summary>
