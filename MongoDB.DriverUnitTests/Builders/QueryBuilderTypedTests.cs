@@ -32,6 +32,9 @@ namespace MongoDB.DriverUnitTests.Builders
             [BsonElementAttribute("ab")]
             public IEnumerable<A_B> A_B { get; set; }
 
+            [BsonElementAttribute("b")]
+            public bool B { get; set; }
+
             [BsonElementAttribute("j")]
             public int[] J { get; set; }
 
@@ -106,6 +109,102 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query<A>.Where(a => !(a.X >= 3 && a.X <= 10));
             var expected = "{ \"$nor\" : [{ \"x\" : { \"$gte\" : 3, \"$lte\" : 10 } }] }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanExpressionTrueForMethods()
+        {
+            var query = Query<A>.Where(a => a.S.StartsWith("k"));
+            var expected = "{ \"s\" : /^k/s }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanExpressionFalseForMethods()
+        {
+            var query = Query<A>.Where(a => !a.S.StartsWith("k"));
+            var expected = "{ \"s\" : { \"$not\" : /^k/s } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanExpressionTrueForProperties()
+        {
+            var query = Query<A>.Where(a => a.B);
+            var expected = "{ \"b\" : true }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanExpressionFalseForProperties()
+        {
+            var query = Query<A>.Where(a => !a.B);
+            var expected = "{ \"b\" : { \"$ne\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanEqualityExpressionForMethodsWithExplicitComparisonToTrue()
+        {
+            var query = Query<A>.Where(a => a.S.StartsWith("k") == true);
+            var expected = "{ \"s\" : /^k/s }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanEqualityExpressionForMethodsWithExplicitComparisonToFalse()
+        {
+            var query = Query<A>.Where(a => a.S.StartsWith("k") == false);
+            var expected = "{ \"s\" : { \"$not\" : /^k/s } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanInequalityExpressionForMethodsWithExplicitComparisonToTrue()
+        {
+            var query = Query<A>.Where(a => a.S.StartsWith("k") != true);
+            var expected = "{ \"s\" : { \"$not\" : /^k/s } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanInequalityExpressionForMethodsWithExplicitComparisonToFalse()
+        {
+            var query = Query<A>.Where(a => a.S.StartsWith("k") != false);
+            var expected = "{ \"s\" : /^k/s }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanEqualityExpressionForPropertiesWithExplicitComparisonToTrue()
+        {
+            var query = Query<A>.Where(a => a.B == true);
+            var expected = "{ \"b\" : true }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanEqualityExpressionForPropertiesWithExplicitComparisonToFalse()
+        {
+            var query = Query<A>.Where(a => a.B == false);
+            var expected = "{ \"b\" : false }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanInequalityExpressionForPropertiesWithExplicitComparisonToTrue()
+        {
+            var query = Query<A>.Where(a => a.B != true);
+            var expected = "{ \"b\" : { \"$ne\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestBooleanInequalityExpressionForPropertiesWithExplicitComparisonToFalse()
+        {
+            var query = Query<A>.Where(a => a.B != false);
+            var expected = "{ \"b\" : { \"$ne\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
