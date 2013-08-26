@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Operations
         private readonly Type _documentType;
         private readonly IEnumerable _documents;
         private readonly InsertFlags _flags;
+        private readonly object _idGeneratorContainer;
 
         public InsertOperation(
             string databaseName,
@@ -40,7 +41,8 @@ namespace MongoDB.Driver.Operations
             bool checkElementNames,
             Type documentType,
             IEnumerable documents,
-            InsertFlags flags)
+            InsertFlags flags,
+            object idGeneratorContainer)
             : base(databaseName, collectionName, readerSettings, writerSettings, writeConcern)
         {
             _assignIdOnInsert = assignIdOnInsert;
@@ -48,6 +50,7 @@ namespace MongoDB.Driver.Operations
             _documentType = documentType;
             _documents = documents;
             _flags = flags;
+            _idGeneratorContainer = idGeneratorContainer;
         }
 
         public IEnumerable<WriteConcernResult> Execute(MongoConnection connection)
@@ -85,7 +88,7 @@ namespace MongoDB.Driver.Operations
                             {
                                 if (idGenerator != null && idGenerator.IsEmpty(id))
                                 {
-                                    id = idGenerator.GenerateId(this, document);
+                                    id = idGenerator.GenerateId(_idGeneratorContainer, document);
                                     idProvider.SetDocumentId(document, id);
                                 }
                             }

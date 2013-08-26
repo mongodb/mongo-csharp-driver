@@ -1139,7 +1139,8 @@ namespace MongoDB.Driver
                 options.CheckElementNames,
                 nominalType,
                 documents,
-                options.Flags);
+                options.Flags,
+                this);
 
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
