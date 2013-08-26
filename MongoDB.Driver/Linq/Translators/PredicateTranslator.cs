@@ -197,9 +197,18 @@ namespace MongoDB.Driver.Linq
                 if (arguments.Length == 1)
                 {
                     var arrayMemberExpression = methodCallExpression.Arguments[0] as MemberExpression;
-                    if (arrayMemberExpression != null && arrayMemberExpression.Type != typeof(string))
+
+                    if (arrayMemberExpression != null)
                     {
-                        serializationInfo = _serializationInfoHelper.GetSerializationInfo(arrayMemberExpression);
+                        if (arrayMemberExpression.Type != typeof(string))
+                        {
+                            serializationInfo = _serializationInfoHelper.GetSerializationInfo(arrayMemberExpression);
+                        }
+                    }
+                    else
+                    {
+                        serializationInfo =
+                            _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Arguments[0]);
                     }
                 }
             }
