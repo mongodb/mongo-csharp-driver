@@ -122,6 +122,7 @@
     <Compile Include="Jira\CSharp714Tests.cs" />
     <Compile Include="Jira\CSharp718Tests.cs" />
     <Compile Include="Jira\CSharp779Tests.cs" />
+    <Compile Include="Jira\CSharp801Tests.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
     <Compile Include="ReadPreferenceTests.cs" />
     <Compile Include="MongoCollectionSettingsTests.cs" />
