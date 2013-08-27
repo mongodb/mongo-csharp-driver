@@ -123,7 +123,7 @@
     <Compile Include="Jira\CSharp718Tests.cs" />
     <Compile Include="Jira\CSharp779Tests.cs" />
     <Compile Include="Jira\CSharp801Tests.cs" />
-    <Compile Include="Linq\CustomSerializerTests.cs" />
+    <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
     <Compile Include="Linq\BsonDocumentTests.cs" />
     <Compile Include="MongoClientSettingsTests.cs" />
     <Compile Include="ReadPreferenceTests.cs" />

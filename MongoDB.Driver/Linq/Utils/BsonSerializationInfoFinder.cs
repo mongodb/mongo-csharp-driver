@@ -116,6 +116,17 @@ namespace MongoDB.Driver.Linq.Utils
                 itemSerializationInfo.NominalType,
                 itemSerializationInfo.SerializationOptions);
 
+            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+            if (arrayOptions != null)
+            {
+                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                itemSerializationInfo = new BsonSerializationInfo(
+                    itemSerializationInfo.ElementName,
+                    itemSerializationInfo.Serializer,
+                    itemSerializationInfo.NominalType,
+                    itemSerializationOptions);
+            }
+
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
 
@@ -227,55 +238,49 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var index = indexExpression.Value.ToString();
-
             var serializationInfo = Visit(node.Object);
             if (serializationInfo == null)
             {
                 return null;
             }
 
-            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            var indexName = indexExpression.Value.ToString();
+            if (indexExpression.Type == typeof(int))
             {
-                var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
-                if (documentSerializer == null)
+                var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+                if (arraySerializer != null)
                 {
-                    return null;
-                }
+                    var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
+                    var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+                    if (arrayOptions != null)
+                    {
+                        var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                        itemSerializationInfo = new BsonSerializationInfo(
+                            itemSerializationInfo.ElementName,
+                            itemSerializationInfo.Serializer,
+                            itemSerializationInfo.NominalType,
+                            itemSerializationOptions);
+                    }
 
-                var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(index);
-
-                var itemSerializationInfo = new BsonSerializationInfo(
-                   index,
-                   memberSerializationInfo.Serializer,
-                   memberSerializationInfo.NominalType,
-                   memberSerializationInfo.SerializationOptions);
-
-                return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
-            }
-            else
-            {
-                var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-                var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
-                if (arrayOptions != null)
-                {
-                    var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
                     itemSerializationInfo = new BsonSerializationInfo(
-                        itemSerializationInfo.ElementName,
+                        indexName,
                         itemSerializationInfo.Serializer,
                         itemSerializationInfo.NominalType,
-                        itemSerializationOptions);
+                        itemSerializationInfo.SerializationOptions);
+
+                    return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
                 }
-
-                itemSerializationInfo = new BsonSerializationInfo(
-                    index,
-                    itemSerializationInfo.Serializer,
-                    itemSerializationInfo.NominalType,
-                    itemSerializationInfo.SerializationOptions);
-
-                return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
             }
+
+            var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
+            if (documentSerializer == null)
+            {
+                return null;
+            }
+
+            var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
+
+            return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
         }
 
         private BsonSerializationInfo VisitElementAt(MethodCallExpression node)
@@ -304,6 +309,17 @@ namespace MongoDB.Driver.Linq.Utils
                 itemSerializationInfo.Serializer,
                 itemSerializationInfo.NominalType,
                 itemSerializationInfo.SerializationOptions);
+
+            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+            if (arrayOptions != null)
+            {
+                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                itemSerializationInfo = new BsonSerializationInfo(
+                    itemSerializationInfo.ElementName,
+                    itemSerializationInfo.Serializer,
+                    itemSerializationInfo.NominalType,
+                    itemSerializationOptions);
+            }
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }

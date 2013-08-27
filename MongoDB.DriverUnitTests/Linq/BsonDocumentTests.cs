@@ -13,19 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Options;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Linq
