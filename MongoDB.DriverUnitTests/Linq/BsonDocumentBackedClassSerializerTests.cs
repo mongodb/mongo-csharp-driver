@@ -14,18 +14,14 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Linq
@@ -36,13 +32,13 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestDynamicMemberName()
         {
-            var query = Query<TestDocument>.Where(x => x["Awesome"] == true);
+            var query = Query<TestDocument>.Where(x => x["Dynamic-Awesome"] == true);
             var expected = "{ \"Awesome\" : true }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
-        public void TestKnownMemberName()
+        public void TestIndexerWithKnownMemberName()
         {
             var query = Query<TestDocument>.Where(x => x["Name"] == "awesome");
             var expected = "{ \"name\" : \"awesome\" }";
@@ -50,7 +46,7 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestKnownMemberNameWithEnum()
+        public void TestIndexerWithEnum()
         {
             var query = Query<TestDocument>.Where(x => x[KnownPropertyNames.Name] == "awesome");
             var expected = "{ \"name\" : \"awesome\" }";
@@ -58,16 +54,16 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestKnownMemberNameWithOid()
+        public void TestIndexerWithObjectId()
         {
-            var oid = ObjectId.GenerateNewId();
-            var query = Query<TestDocument>.Where(x => x[oid] == "awesome");
-            var expected = string.Format("{{ \"{0}\" : \"awesome\" }}", oid);
+            var objectId = ObjectId.GenerateNewId();
+            var query = Query<TestDocument>.Where(x => x[objectId] == "awesome");
+            var expected = string.Format("{{ \"{0}\" : \"awesome\" }}", objectId);
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
-        public void TestKnownMemberWithListAccess()
+        public void TestIndexerOnList()
         {
             var query = Query<TestDocument>.Where(x => x.Colors[0] == 12);
             var expected = "{ \"colors.0\" : \"12\" }";
@@ -75,7 +71,7 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestKnownMemberWithListAccessUsingElementAt()
+        public void TestElementAtOnList()
         {
             var query = Query<TestDocument>.Where(x => x.Colors.ElementAt(0) == 12);
             var expected = "{ \"colors.0\" : \"12\" }";
@@ -83,15 +79,15 @@ namespace MongoDB.DriverUnitTests.Linq
         }
 
         [Test]
-        public void TestKnownMemberWithArrayAccess()
+        public void TestIndexerOnArray()
         {
-            var query = Query<TestDocument>.Where(x => x.Colors[0] == 12);
-            var expected = "{ \"colors.0\" : \"12\" }";
+            var query = Query<TestDocument>.Where(x => x.Colors2[0] == 12);
+            var expected = "{ \"colors2.0\" : \"12\" }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
         [Test]
-        public void TestThrowsExceptionWhenMemberDoesNotExist()
+        public void TestThrowsExceptionWhenMemberDoesNotExistAndIsNotDynamic()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => Query<TestDocument>.Where(x => x["ThrowMe"] == 42));
         }
@@ -129,9 +125,9 @@ namespace MongoDB.DriverUnitTests.Linq
                 }
             }
 
-            public BsonValue this[ObjectId oid]
+            public BsonValue this[ObjectId objectId]
             {
-                get { return this.BackingDocument[oid.ToString()]; }
+                get { return this.BackingDocument[objectId.ToString()]; }
             }
 
             [BsonId]
@@ -166,16 +162,20 @@ namespace MongoDB.DriverUnitTests.Linq
 
             public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
             {
-                ObjectId oid;
-                if (memberName.StartsWith("A"))
+                // Dynamic members are allowed in a TestDocument if 
+                // they start with Dynamic- or are an ObjectId.
+                // Otherwise, we fall back to the base-class' definition.
+
+                ObjectId objectId;
+                if (memberName.StartsWith("Dynamic-"))
                 {
                     return new BsonSerializationInfo(
-                        memberName,
+                        memberName.Substring(8),
                         BsonValueSerializer.Instance,
                         typeof(BsonValue),
                         BsonValueSerializer.Instance.GetDefaultSerializationOptions());
                 }
-                else if (ObjectId.TryParse(memberName, out oid))
+                else if (ObjectId.TryParse(memberName, out objectId))
                 {
                     return new BsonSerializationInfo(
                         memberName,

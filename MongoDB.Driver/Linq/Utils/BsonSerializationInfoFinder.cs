@@ -245,7 +245,10 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var indexName = indexExpression.Value.ToString();
-            if (indexExpression.Type == typeof(int))
+            if (indexExpression.Type == typeof(int) || 
+                indexExpression.Type == typeof(uint) ||
+                indexExpression.Type == typeof(long) ||
+                indexExpression.Type == typeof(ulong))
             {
                 var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
                 if (arraySerializer != null)
@@ -273,14 +276,13 @@ namespace MongoDB.Driver.Linq.Utils
             }
 
             var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
-            if (documentSerializer == null)
+            if (documentSerializer != null)
             {
-                return null;
+                var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
+                return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
             }
 
-            var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
-
-            return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
+            return null;
         }
 
         private BsonSerializationInfo VisitElementAt(MethodCallExpression node)
