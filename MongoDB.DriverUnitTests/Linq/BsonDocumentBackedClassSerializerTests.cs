@@ -33,7 +33,7 @@ namespace MongoDB.DriverUnitTests.Linq
         public void TestDynamicMemberName()
         {
             var query = Query<TestDocument>.Where(x => x["Dynamic-Awesome"] == true);
-            var expected = "{ \"Awesome\" : true }";
+            var expected = "{ \"Dynamic-Awesome\" : true }";
             Assert.AreEqual(expected, query.ToJson());
         }
 
@@ -170,7 +170,7 @@ namespace MongoDB.DriverUnitTests.Linq
                 if (memberName.StartsWith("Dynamic-"))
                 {
                     return new BsonSerializationInfo(
-                        memberName.Substring(8),
+                        memberName,
                         BsonValueSerializer.Instance,
                         typeof(BsonValue),
                         BsonValueSerializer.Instance.GetDefaultSerializationOptions());
