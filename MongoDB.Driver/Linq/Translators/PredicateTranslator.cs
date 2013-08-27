@@ -347,10 +347,10 @@ namespace MongoDB.Driver.Linq
                     var boolValue = (bool)value;
                     var query = this.BuildMethodCallQuery(methodCallExpression);
 
-                    var evaluatesAsEquals = (boolValue && operatorType == ExpressionType.Equal)
+                    var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
                                             || (!boolValue && operatorType == ExpressionType.NotEqual);
 
-                    return evaluatesAsEquals ? query : Query.Not(query);
+                    return isTrueComparison ? query : Query.Not(query);
                 }
 
                 serializationInfo = _serializationInfoHelper.GetSerializationInfo(variableExpression);
