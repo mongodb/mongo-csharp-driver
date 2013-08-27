@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests.Linq
 {
     [TestFixture]
-    public class PseudoDynamicTests
+    public class BsonDocumentTests
     {
         [Test]
         public void TestArray()

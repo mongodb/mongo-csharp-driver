@@ -257,19 +257,15 @@ namespace MongoDB.Driver.Linq.Utils
             else
             {
                 var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-
-                if (itemSerializationInfo != null)
+                var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+                if (arrayOptions != null)
                 {
-                    var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
-                    if (arrayOptions != null)
-                    {
-                        var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
-                        itemSerializationInfo = new BsonSerializationInfo(
-                            itemSerializationInfo.ElementName,
-                            itemSerializationInfo.Serializer,
-                            itemSerializationInfo.NominalType,
-                            itemSerializationOptions);
-                    }
+                    var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                    itemSerializationInfo = new BsonSerializationInfo(
+                        itemSerializationInfo.ElementName,
+                        itemSerializationInfo.Serializer,
+                        itemSerializationInfo.NominalType,
+                        itemSerializationOptions);
                 }
 
                 itemSerializationInfo = new BsonSerializationInfo(

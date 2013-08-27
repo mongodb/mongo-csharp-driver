@@ -36,18 +36,15 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestStringIndexers()
         {
-            var doc = new MongoDocument(
-                new BsonDocument 
-                { 
-                    { "Name", "A test record" }, 
-                    { "Date", new DateTime(2013,01,01) }, 
-                    { "Age", 28 }, 
-                    { "Complete", false }
-                });
-
             var query = Query<MongoDocument>.Where(x => x["Name"] == "awesome");
             var expected = "{ \"Name\" : \"awesome\" }";
             Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestThrowsExceptionWhenMemberDoesNotExist()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => Query<MongoDocument>.Where(x => x["ThrowMe"] == 42));
         }
 
         [Serializable]
