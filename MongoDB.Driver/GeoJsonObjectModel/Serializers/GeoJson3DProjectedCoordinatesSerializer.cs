@@ -26,6 +26,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJson3DProjectedCoordinatesSerializer : BsonBaseSerializer
     {
+        // private static fields
+        private static readonly IBsonSerializer __doubleSerializer = new DoubleSerializer();
+
         // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
@@ -47,9 +50,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             else
             {
                 bsonReader.ReadStartArray();
-                var easting = bsonReader.ReadDouble();
-                var northing = bsonReader.ReadDouble();
-                var altitude = bsonReader.ReadDouble();
+                var easting = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var northing = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var altitude = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
                 bsonReader.ReadEndArray();
 
                 return new GeoJson3DProjectedCoordinates(easting, northing, altitude);
