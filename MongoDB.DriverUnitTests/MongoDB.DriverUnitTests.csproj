@@ -108,6 +108,12 @@
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DGeographicCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson2DProjectedCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DGeographicCoordinatesTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJson3DProjectedCoordinatesTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonFeatureCollectionTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonFeatureTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonGeometryCollectionTests.cs" />
