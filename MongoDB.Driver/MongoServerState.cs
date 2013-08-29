@@ -37,10 +37,6 @@ namespace MongoDB.Driver
         /// </summary>
         ConnectedToSubset,
         /// <summary>
-        /// The state is temporarily unknown.
-        /// </summary>
-        Unknown,
-        /// <summary>
         /// Disconnecting from the server (in progress).
         /// </summary>
         Disconnecting
