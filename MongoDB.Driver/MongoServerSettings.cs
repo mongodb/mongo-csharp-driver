@@ -530,13 +530,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="builder">The MongoConnectionStringBuilder.</param>
         /// <returns>A MongoServerSettings.</returns>
-        public static MongoServerSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
+        public static MongoServerSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder, bool dontUseSecureString = false)
         {
             var credential = MongoCredential.FromComponents(
                 builder.AuthenticationMechanism, 
                 builder.AuthenticationSource ?? builder.DatabaseName, 
                 builder.Username, 
-                builder.Password);
+                builder.Password,
+                dontUseSecureString);
 
             var serverSettings = new MongoServerSettings();
             serverSettings.ConnectionMode = builder.ConnectionMode;
@@ -578,13 +579,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="url">The MongoUrl.</param>
         /// <returns>A MongoServerSettings.</returns>
-        public static MongoServerSettings FromUrl(MongoUrl url)
+        public static MongoServerSettings FromUrl(MongoUrl url, bool dontUseSecureString = false)
         {
             var credential = MongoCredential.FromComponents(
                 url.AuthenticationMechanism,
                 url.AuthenticationSource ?? url.DatabaseName,
                 url.Username,
-                url.Password);
+                url.Password,
+                dontUseSecureString);
 
             var serverSettings = new MongoServerSettings();
             serverSettings.ConnectionMode = url.ConnectionMode;

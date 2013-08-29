@@ -97,9 +97,9 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoDatabase.
         /// </returns>
         [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoConnectionStringBuilder builder)
+        public static MongoDatabase Create(MongoConnectionStringBuilder builder, bool dontuseSecureString = false)
         {
-            var serverSettings = MongoServerSettings.FromConnectionStringBuilder(builder);
+            var serverSettings = MongoServerSettings.FromConnectionStringBuilder(builder, dontuseSecureString);
             var databaseName = builder.DatabaseName;
             return Create(serverSettings, databaseName);
         }
@@ -135,9 +135,9 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoDatabase.
         /// </returns>
         [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(MongoUrl url)
+        public static MongoDatabase Create(MongoUrl url, bool dontUseSecureString)
         {
-            var serverSettings = MongoServerSettings.FromUrl(url);
+            var serverSettings = MongoServerSettings.FromUrl(url, dontUseSecureString);
             var databaseName = url.DatabaseName;
             return Create(serverSettings, databaseName);
         }
@@ -152,12 +152,12 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoDatabase.
         /// </returns>
         [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(string connectionString)
+        public static MongoDatabase Create(string connectionString, bool dontUseSecureString = false)
         {
             if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
             {
                 MongoUrl url = MongoUrl.Create(connectionString);
-                return Create(url);
+                return Create(url, dontUseSecureString);
             }
             else
             {
@@ -176,9 +176,9 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoDatabase.
         /// </returns>
         [Obsolete("Use MongoClient, GetServer and GetDatabase instead.")]
-        public static MongoDatabase Create(Uri uri)
+        public static MongoDatabase Create(Uri uri, bool dontUseSecureString = false)
         {
-            return Create(MongoUrl.Create(uri.ToString()));
+            return Create(MongoUrl.Create(uri.ToString()), dontUseSecureString);
         }
 
         // public properties

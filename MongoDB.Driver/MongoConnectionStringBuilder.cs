@@ -892,9 +892,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <returns>A new instance of MongoServerSettings.</returns>
         [Obsolete("Use MongoServerSettings.FromConnectionStringBuilder instead.")]
-        public MongoServerSettings ToServerSettings()
+        public MongoServerSettings ToServerSettings(bool dontUseSecureString = false)
         {
-            return MongoServerSettings.FromConnectionStringBuilder(this);
+            return MongoServerSettings.FromConnectionStringBuilder(this, dontUseSecureString);
         }
 
         // private methods

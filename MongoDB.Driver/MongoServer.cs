@@ -91,9 +91,9 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoServer.
         /// </returns>
         [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(MongoConnectionStringBuilder builder)
+        public static MongoServer Create(MongoConnectionStringBuilder builder, bool dontUseSecureString = false)
         {
-            return Create(MongoServerSettings.FromConnectionStringBuilder(builder));
+            return Create(MongoServerSettings.FromConnectionStringBuilder(builder, dontUseSecureString));
         }
 
         /// <summary>
@@ -133,9 +133,9 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoServer.
         /// </returns>
         [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(MongoUrl url)
+        public static MongoServer Create(MongoUrl url, bool dontUseSecureString)
         {
-            return Create(MongoServerSettings.FromUrl(url));
+            return Create(MongoServerSettings.FromUrl(url, dontUseSecureString));
         }
 
         /// <summary>
@@ -147,12 +147,12 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoServer.
         /// </returns>
         [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(string connectionString)
+        public static MongoServer Create(string connectionString, bool dontUseSecureString = false)
         {
             if (connectionString.StartsWith("mongodb://", StringComparison.Ordinal))
             {
                 var url = MongoUrl.Create(connectionString);
-                return Create(url);
+                return Create(url,dontUseSecureString);
             }
             else
             {
@@ -170,10 +170,10 @@ namespace MongoDB.Driver
         /// A new or existing instance of MongoServer.
         /// </returns>
         [Obsolete("Use MongoClient.GetServer instead.")]
-        public static MongoServer Create(Uri uri)
+        public static MongoServer Create(Uri uri, bool dontUseSecureString = false)
         {
             var url = MongoUrl.Create(uri.ToString());
-            return Create(url);
+            return Create(url, dontUseSecureString);
         }
 
         // public static properties

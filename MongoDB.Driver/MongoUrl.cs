@@ -537,9 +537,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <returns>A new instance of MongoServerSettings.</returns>
         [Obsolete("Use MongoServerSettings.FromUrl instead.")]
-        public MongoServerSettings ToServerSettings()
+        public MongoServerSettings ToServerSettings(bool dontUseSecureString = false)
         {
-            return MongoServerSettings.FromUrl(this);
+            return MongoServerSettings.FromUrl(this, dontUseSecureString);
         }
 
         /// <summary>

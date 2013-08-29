@@ -28,6 +28,9 @@ namespace MongoDB.Driver
     public sealed class PasswordEvidence : MongoIdentityEvidence
     {
         // private fields
+        private readonly string _unsecurePassword;
+        private readonly bool _dontUseSecureString;
+
         private readonly SecureString _securePassword;
         private readonly string _digest; // used to implement Equals without referring to the SecureString
 
@@ -50,6 +53,28 @@ namespace MongoDB.Driver
         public PasswordEvidence(string password)
             : this(CreateSecureString(password))
         { }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="dontUseSecureString"></param>
+        public PasswordEvidence(string password, bool dontUseSecureString)            
+        {
+            if (!dontUseSecureString)
+            {
+                var securePassword = CreateSecureString(password);
+                _securePassword = securePassword.Copy();                
+                _securePassword.MakeReadOnly();
+                _digest = GenerateDigest(securePassword);
+            }
+            else
+            {
+                _unsecurePassword = password;
+                _digest = GenerateDigest(_unsecurePassword);
+                _dontUseSecureString = true;
+            }
+        }
 
         // public properties
         /// <summary>
@@ -99,7 +124,12 @@ namespace MongoDB.Driver
                 var encoding = new UTF8Encoding(false, true);
                 var prefixBytes = encoding.GetBytes(username + ":mongo:");
                 md5.TransformBlock(prefixBytes, 0, prefixBytes.Length, null, 0);
-                TransformFinalBlock(md5, _securePassword);
+
+                if (_dontUseSecureString)
+                    TransformFinalBlock(md5, _unsecurePassword);
+                else                
+                    TransformFinalBlock(md5, _securePassword);
+                
                 return BsonUtils.ToHexString(md5.Hash);
             }
         }
@@ -124,6 +154,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Computes the hash value of the secured string 
         /// </summary>
+        private static string GenerateDigest(string unsecureString)
+        {
+            using (var sha256 = new SHA256Managed())
+            {
+                TransformFinalBlock(sha256, unsecureString);
+                return BsonUtils.ToHexString(sha256.Hash);
+            }
+        }
+
+        /// <summary>
+        /// Computes the hash value of the secured string 
+        /// </summary>
         private static string GenerateDigest(SecureString secureString)
         {
             using (var sha256 = new SHA256Managed())
@@ -131,6 +173,14 @@ namespace MongoDB.Driver
                 TransformFinalBlock(sha256, secureString);
                 return BsonUtils.ToHexString(sha256.Hash);
             }
+        }
+
+        private static void TransformFinalBlock(HashAlgorithm hash, string password)
+        {
+            var encoding = new UTF8Encoding(false, true);
+            var passwordBytes = encoding.GetBytes(password);
+            var length = encoding.GetBytes(password, 0, password.Length, passwordBytes, 0);
+            hash.TransformFinalBlock(passwordBytes, 0, length);
         }
 
         [SecuritySafeCritical]
