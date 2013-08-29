@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -26,33 +27,38 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp358
         [Test]
         public void TestInsertUpdateAndSaveWithElementNameStartingWithDollarSign()
         {
+            // starting with version 2.5.2 the server got stricter about dollars in element names
+            // so this test should only be run when testing against older servers
             var server = Configuration.TestServer;
-            var database = Configuration.TestDatabase;
-            var collection = Configuration.TestCollection;
-            collection.Drop();
-
-            var document = new BsonDocument
+            if (server.BuildInfo.Version < new Version(2, 5, 2))
             {
-                { "_id", 1 },
-                { "v", new BsonDocument("$x", 1) } // server doesn't allow "$" at top level
-            };
-            var insertOptions = new MongoInsertOptions { CheckElementNames = false };
-            collection.Insert(document, insertOptions);
-            document = collection.FindOne();
-            Assert.AreEqual(1, document["v"]["$x"].AsInt32);
+                var database = Configuration.TestDatabase;
+                var collection = Configuration.TestCollection;
+                collection.Drop();
 
-            document["v"]["$x"] = 2;
-            var query = Query.EQ("_id", 1);
-            var update = Update.Replace(document);
-            var updateOptions = new MongoUpdateOptions { CheckElementNames = false };
-            collection.Update(query, update, updateOptions);
-            document = collection.FindOne();
-            Assert.AreEqual(2, document["v"]["$x"].AsInt32);
+                var document = new BsonDocument
+                {
+                    { "_id", 1 },
+                    { "v", new BsonDocument("$x", 1) } // server doesn't allow "$" at top level
+                };
+                var insertOptions = new MongoInsertOptions { CheckElementNames = false };
+                collection.Insert(document, insertOptions);
+                document = collection.FindOne();
+                Assert.AreEqual(1, document["v"]["$x"].AsInt32);
 
-            document["v"]["$x"] = 3;
-            collection.Save(document, insertOptions);
-            document = collection.FindOne();
-            Assert.AreEqual(3, document["v"]["$x"].AsInt32);
+                document["v"]["$x"] = 2;
+                var query = Query.EQ("_id", 1);
+                var update = Update.Replace(document);
+                var updateOptions = new MongoUpdateOptions { CheckElementNames = false };
+                collection.Update(query, update, updateOptions);
+                document = collection.FindOne();
+                Assert.AreEqual(2, document["v"]["$x"].AsInt32);
+
+                document["v"]["$x"] = 3;
+                collection.Save(document, insertOptions);
+                document = collection.FindOne();
+                Assert.AreEqual(3, document["v"]["$x"].AsInt32);
+            }
         }
     }
 }
