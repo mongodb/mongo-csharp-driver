@@ -113,6 +113,15 @@ namespace MongoDB.Driver.Operations
                     }
                 }
             }
+            catch
+            {
+                if (reply != null && reply.CursorId != 0)
+                {
+                    try { KillCursor(connectionProvider, reply.CursorId); }
+                    catch { } // ignore exceptions and rethrow the original exception
+                }
+                throw;
+            }
             finally
             {
                 if (reply != null && reply.CursorId != 0)

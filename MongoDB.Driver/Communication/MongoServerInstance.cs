@@ -350,6 +350,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Refreshes the state as soon as possible.
+        /// </summary>
+        public void RefreshStateAsSoonAsPossible()
+        {
+            _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+        }
+
+        /// <summary>
         /// Verifies the state of the server instance.
         /// </summary>
         public void VerifyState()
