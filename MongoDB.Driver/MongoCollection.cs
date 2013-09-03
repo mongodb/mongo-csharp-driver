@@ -158,6 +158,10 @@ namespace MongoDB.Driver
                     aggregateCommand["cursor"] = new BsonDocument("cursor", new BsonDocument("batchSize", batchSize));
                 }
             }
+            if (options.AllowDiskUsage)
+            {
+                aggregateCommand["allowDiskUsage"] = true;
+            }
             return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 

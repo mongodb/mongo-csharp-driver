@@ -38,10 +38,23 @@ namespace MongoDB.Driver
     public class MongoAggregateOptions
     {
         // private fields
+        private bool _allowDiskUsage;
         private int _batchSize = -1;
         private AggregateOutputMode _outputMode = AggregateOutputMode.Inline;
 
         // public properties
+        /// <summary>
+        /// Gets or sets a value indicating whether disk usage is allowed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if disk usage is allowed; otherwise, <c>false</c>.
+        /// </value>
+        public bool AllowDiskUsage
+        {
+            get { return _allowDiskUsage; }
+            set { _allowDiskUsage = value; }
+        }
+
         /// <summary>
         /// Gets or sets the size of the batch.
         /// </summary>
