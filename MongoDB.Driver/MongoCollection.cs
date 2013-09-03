@@ -116,8 +116,24 @@ namespace MongoDB.Driver
         /// Runs an aggregation framework command.
         /// </summary>
         /// <param name="operations">The pipeline operations.</param>
-        /// <returns>An AggregateResult.</returns>
+        /// <returns>
+        /// An AggregateResult.
+        /// </returns>
         public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations)
+        {
+            var options = new MongoAggregateOptions { OutputMode = AggregateOutputMode.Inline };
+            return Aggregate(operations, options);
+        }
+
+        /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="operations">The pipeline operations.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        /// An AggregateResult.
+        /// </returns>
+        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
         {
             var pipeline = new BsonArray();
             foreach (var operation in operations)
@@ -130,6 +146,18 @@ namespace MongoDB.Driver
                 { "aggregate", _name },
                 { "pipeline", pipeline }
             };
+            if (options.OutputMode == AggregateOutputMode.Cursor)
+            {
+                var batchSize = options.BatchSize;
+                if (batchSize == -1)
+                {
+                    aggregateCommand["cursor"] = new BsonDocument("cursor", new BsonDocument());
+                }
+                else
+                {
+                    aggregateCommand["cursor"] = new BsonDocument("cursor", new BsonDocument("batchSize", batchSize));
+                }
+            }
             return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 

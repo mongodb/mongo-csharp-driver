@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -28,14 +29,32 @@ namespace MongoDB.Driver
     [BsonSerializer(typeof(CommandResultSerializer))]
     public class AggregateResult : CommandResult
     {
+        // private fields
+        private readonly IEnumerable<BsonDocument> _resultDocuments;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateResult"/> class.
+        /// Initializes a new instance of the <see cref="AggregateResult" /> class.
         /// </summary>
         /// <param name="response">The response.</param>
-        public AggregateResult(BsonDocument response)
+        internal AggregateResult(BsonDocument response)
             : base(response)
         {
+            if (response.Contains("cursor"))
+            {
+                var cursorDocument = response["cursor"];
+                var cursorId = cursorDocument["id"].ToInt64();
+                var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
+
+                // TODO: create a real cursor enumerator passing it the cursorId and the firstBatch
+                var fakeCursorEnumerator = firstBatch.GetEnumerator();
+                var errorMessage = "The ResultDocuments of an Aggregate command that are returned using a cursor can only be enumerated once.";
+                _resultDocuments = new EnumerableOneTimeWrapper<BsonDocument>(fakeCursorEnumerator, errorMessage);
+            }
+            else
+            {
+                _resultDocuments = response["result"].AsBsonArray.Select(v => v.AsBsonDocument);
+            }
         }
 
         // public properties
@@ -44,7 +63,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<BsonDocument> ResultDocuments
         {
-            get { return Response["result"].AsBsonArray.Select(v => v.AsBsonDocument); }
+            get { return _resultDocuments; }
         }
     }
 }

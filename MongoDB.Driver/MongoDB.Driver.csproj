@@ -83,6 +83,8 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>
+    <Compile Include="EnumerableOneTimeWrapper.cs" />
+    <Compile Include="MongoAggregateOptions.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
