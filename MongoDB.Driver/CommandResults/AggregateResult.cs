@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -31,6 +32,7 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly IEnumerable<BsonDocument> _resultDocuments;
+        private MongoServer _server;
 
         // constructors
         /// <summary>
@@ -51,9 +53,26 @@ namespace MongoDB.Driver
                 var errorMessage = "The ResultDocuments of an Aggregate command that are returned using a cursor can only be enumerated once.";
                 _resultDocuments = new EnumerableOneTimeWrapper<BsonDocument>(fakeCursorEnumerator, errorMessage);
             }
-            else
+            else if (response.Contains("outputNs"))
+            {
+                var ns = response["outputNs"].AsString;
+                var firstDot = ns.IndexOf('.');
+                var databaseName = ns.Substring(0, firstDot);
+                var collectionName = ns.Substring(firstDot + 1);
+                var database = _server.GetDatabase(databaseName);
+                var collection = database.GetCollection<BsonDocument>(collectionName);
+                var cursor = collection.FindAll();
+                _resultDocuments = cursor; // TODO: wrap it in EnumerableOneTimeWrapper?
+            }
+            else if (response.Contains("result"))
             {
                 _resultDocuments = response["result"].AsBsonArray.Select(v => v.AsBsonDocument);
+            }
+            else
+            {
+                var exception = new FormatException("The response to the aggregate command doesn't have any of the expected fields: result, cursor or outputNs.");
+                exception.Data["Response"] = response;
+                throw exception;
             }
         }
 
@@ -64,6 +83,12 @@ namespace MongoDB.Driver
         public IEnumerable<BsonDocument> ResultDocuments
         {
             get { return _resultDocuments; }
+        }
+
+        // internal methods
+        internal void SetServer(MongoServer server)
+        {
+            _server = server;
         }
     }
 }

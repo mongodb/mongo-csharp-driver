@@ -162,7 +162,10 @@ namespace MongoDB.Driver
             {
                 aggregateCommand["allowDiskUsage"] = true;
             }
-            return RunCommandAs<AggregateResult>(aggregateCommand);
+
+            var result = RunCommandAs<AggregateResult>(aggregateCommand);
+            result.SetServer(_server);
+            return result;
         }
 
         /// <summary>
