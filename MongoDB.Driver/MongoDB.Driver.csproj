@@ -120,6 +120,7 @@
     <Compile Include="Communication\Security\Authenticator.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />
+    <Compile Include="Communication\Security\Mechanisms\PlainMechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslContext.cs" />

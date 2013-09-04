@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -46,6 +48,32 @@ namespace MongoDB.Driver
         public static string ToCamelCase(string value)
         {
             return value.Substring(0, 1).ToLower() + value.Substring(1);
+        }
+
+        // internal methods
+        /// <summary>
+        /// Should only be used when the safety of the data cannot be guaranteed.  For instance,
+        /// when the secure string is a password used in a plain text protocol.
+        /// </summary>
+        /// <param name="secureString">The secure string.</param>
+        /// <returns>The CLR string.</returns>
+        [SecuritySafeCritical]
+        internal static string ToInsecureString(SecureString secureString)
+        {
+            if (secureString == null || secureString.Length == 0)
+            {
+                return "";
+            }
+
+            var bstr = Marshal.SecureStringToBSTR(secureString);
+            try
+            {
+                return Marshal.PtrToStringBSTR(bstr);
+            }
+            finally
+            {
+                Marshal.ZeroFreeBSTR(bstr);
+            }
         }
     }
 }

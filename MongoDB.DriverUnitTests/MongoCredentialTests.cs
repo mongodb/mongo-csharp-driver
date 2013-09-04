@@ -23,7 +23,7 @@ namespace MongoDB.DriverUnitTests
     public class MongoCredentialTests
     {
         [Test]
-        public void TestCreateCredential()
+        public void TestCreateMongoCRCredential()
         {
             var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
             Assert.AreEqual("username", credential.Username);
@@ -89,6 +89,17 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("GSSAPI", credential.Mechanism);
             Assert.AreEqual("$external", credential.Source);
             Assert.AreEqual(new ExternalEvidence(), credential.Evidence);
+        }
+
+        [Test]
+        public void TestCreatePlainCredential()
+        {
+            var credential = MongoCredential.CreatePlainCredential("$external", "a", "b");
+            Assert.AreEqual("a", credential.Username);
+            Assert.IsInstanceOf<PasswordEvidence>(credential.Evidence);
+            Assert.AreEqual("PLAIN", credential.Mechanism);
+            Assert.AreEqual("$external", credential.Source);
+            Assert.AreEqual(new PasswordEvidence("b"), credential.Evidence);
         }
 
         [Test]

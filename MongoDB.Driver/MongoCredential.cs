@@ -33,7 +33,7 @@ namespace MongoDB.Driver
         private readonly MongoIdentity _identity;
         private readonly string _mechanism;
         private readonly Dictionary<string, object> _mechanismProperties;
-        
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCredential" /> class.
@@ -95,21 +95,7 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-                    var secureString = passwordEvidence.SecurePassword;
-                    if (secureString == null || secureString.Length == 0)
-                    {
-                        return "";
-                    }
-
-                    var bstr = Marshal.SecureStringToBSTR(secureString);
-                    try
-                    {
-                        return Marshal.PtrToStringBSTR(bstr);
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(bstr);
-                    }
+                    return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
                 }
 
                 return null;
@@ -223,6 +209,36 @@ namespace MongoDB.Driver
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents("MONGODB-CR",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a PLAIN credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        public static MongoCredential CreatePlainCredential(string databaseName, string username, string password)
+        {
+            return FromComponents("PLAIN",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a PLAIN credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        public static MongoCredential CreatePlainCredential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents("PLAIN",
                 databaseName,
                 username,
                 new PasswordEvidence(password));
@@ -366,6 +382,27 @@ namespace MongoDB.Driver
                     return new MongoCredential(
                         "GSSAPI",
                         new MongoExternalIdentity(source, username),
+                        evidence);
+                case "PLAIN":
+                    source = source ?? "admin";
+                    if (evidence == null || !(evidence is PasswordEvidence))
+                    {
+                        throw new ArgumentException("A PLAIN credential must have a password.");
+                    }
+
+                    MongoIdentity identity;
+                    if(source == "$external")
+                    {
+                        identity = new MongoExternalIdentity(source, username);
+                    }
+                    else
+                    {
+                        identity = new MongoInternalIdentity(source, username);
+                    }
+
+                    return new MongoCredential(
+                        mechanism,
+                        identity,
                         evidence);
                 default:
                     throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationMechanism {0}.", mechanism));
