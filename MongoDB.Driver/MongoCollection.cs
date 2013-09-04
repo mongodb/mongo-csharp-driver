@@ -163,9 +163,7 @@ namespace MongoDB.Driver
                 aggregateCommand["allowDiskUsage"] = true;
             }
 
-            var result = RunCommandAs<AggregateResult>(aggregateCommand);
-            result.SetServer(_server);
-            return result;
+            return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
         /// <summary>
@@ -175,7 +173,91 @@ namespace MongoDB.Driver
         /// <returns>An AggregateResult.</returns>
         public virtual AggregateResult Aggregate(params BsonDocument[] operations)
         {
-            return Aggregate((IEnumerable<BsonDocument>) operations);
+            return Aggregate((IEnumerable<BsonDocument>)operations);
+        }
+
+        /// <summary>
+        /// Represents an aggregate query. The command is not sent to the server until the result is enumerated.
+        /// </summary>
+        /// <param name="operations">The operations.</param>
+        /// <returns>A sequence of documents.</returns>
+        public virtual IEnumerable<BsonDocument> AggregateQuery(IEnumerable<BsonDocument> operations)
+        {
+            var options = new MongoAggregateOptions { OutputMode = AggregateOutputMode.Inline };
+            return new AggregateQueryResult(this, operations, options);
+        }
+
+        /// <summary>
+        /// Represents an aggregate query. The command is not sent to the server until the result is enumerated.
+        /// </summary>
+        /// <param name="operations">The operations.</param>
+        /// <param name="options">The options.</param>
+        /// <returns>A sequence of documents.</returns>
+        public virtual IEnumerable<BsonDocument> AggregateQuery(IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
+        {
+            return new AggregateQueryResult(this, operations, options);
+        }
+
+        /// <summary>
+        /// Represents an aggregate query. The command is not sent to the server until the result is enumerated.
+        /// </summary>
+        /// <param name="operations">The operations.</param>
+        /// <returns>A sequence of documents.</returns>
+        public virtual IEnumerable<BsonDocument> AggregateQuery(params BsonDocument[] operations)
+        {
+            return AggregateQuery((IEnumerable<BsonDocument>)operations);
+        }
+
+        private class AggregateQueryResult : IEnumerable<BsonDocument>
+        {
+            private MongoCollection _collection;
+            private IEnumerable<BsonDocument> _operations;
+            private MongoAggregateOptions _options;
+
+            public AggregateQueryResult(MongoCollection collection, IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
+            {
+                _collection = collection;
+                _operations = operations; // TODO: make a defensive copy?
+                _options = options; // TODO: make a defensive copy?
+            }
+
+            public IEnumerator<BsonDocument> GetEnumerator()
+            {
+                var result = _collection.Aggregate(_operations, _options);
+                if (result.CursorId != 0)
+                {
+                    // TODO: create a real cursor enumerator passing it the cursorId and the firstBatch
+                    var fakeCursorEnumerator = result.FirstBatch.GetEnumerator();
+                    return fakeCursorEnumerator;
+                }
+                else if (result.OutputNamespace != null)
+                {
+                    var ns = result.OutputNamespace;
+                    var firstDot = ns.IndexOf('.');
+                    var databaseName = ns.Substring(0, firstDot);
+                    var collectionName = ns.Substring(firstDot + 1);
+                    var database = _collection.Database.Server.GetDatabase(databaseName);
+                    var collection = database.GetCollection<BsonDocument>(collectionName);
+                    return collection.FindAll().GetEnumerator();
+                }
+                else if (result.FirstBatch != null)
+                {
+                    return result.FirstBatch.GetEnumerator();
+                }
+                else if (result.ResultDocuments != null)
+                {
+                    return result.ResultDocuments.GetEnumerator();
+                }
+                else
+                {
+                    throw new NotSupportedException("Unexpected response to aggregate command.");
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
         /// <summary>

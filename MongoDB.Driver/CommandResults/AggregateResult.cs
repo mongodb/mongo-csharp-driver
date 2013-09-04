@@ -31,8 +31,10 @@ namespace MongoDB.Driver
     public class AggregateResult : CommandResult
     {
         // private fields
+        private readonly long _cursorId;
+        private readonly IEnumerable<BsonDocument> _firstBatch;
+        private readonly string _outputNamespace;
         private readonly IEnumerable<BsonDocument> _resultDocuments;
-        private MongoServer _server;
 
         // constructors
         /// <summary>
@@ -45,50 +47,59 @@ namespace MongoDB.Driver
             if (response.Contains("cursor"))
             {
                 var cursorDocument = response["cursor"];
-                var cursorId = cursorDocument["id"].ToInt64();
-                var firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
-
-                // TODO: create a real cursor enumerator passing it the cursorId and the firstBatch
-                var fakeCursorEnumerator = firstBatch.GetEnumerator();
-                var errorMessage = "The ResultDocuments of an Aggregate command that are returned using a cursor can only be enumerated once.";
-                _resultDocuments = new EnumerableOneTimeWrapper<BsonDocument>(fakeCursorEnumerator, errorMessage);
+                _cursorId = cursorDocument["id"].ToInt64();
+                _firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
             }
-            else if (response.Contains("outputNs"))
+            if (response.Contains("outputNs"))
             {
-                var ns = response["outputNs"].AsString;
-                var firstDot = ns.IndexOf('.');
-                var databaseName = ns.Substring(0, firstDot);
-                var collectionName = ns.Substring(firstDot + 1);
-                var database = _server.GetDatabase(databaseName);
-                var collection = database.GetCollection<BsonDocument>(collectionName);
-                var cursor = collection.FindAll();
-                _resultDocuments = cursor; // TODO: wrap it in EnumerableOneTimeWrapper?
+                _outputNamespace = response["outputNs"].AsString;
             }
-            else if (response.Contains("result"))
+            if (response.Contains("result"))
             {
                 _resultDocuments = response["result"].AsBsonArray.Select(v => v.AsBsonDocument);
-            }
-            else
-            {
-                var exception = new FormatException("The response to the aggregate command doesn't have any of the expected fields: result, cursor or outputNs.");
-                exception.Data["Response"] = response;
-                throw exception;
             }
         }
 
         // public properties
+        /// <summary>
+        /// Gets the cursor id.
+        /// </summary>
+        /// <value>
+        /// The cursor id.
+        /// </value>
+        public long CursorId
+        {
+            get { return _cursorId; }
+        }
+
+        /// <summary>
+        /// Gets the first batch.
+        /// </summary>
+        /// <value>
+        /// The first batch.
+        /// </value>
+        public IEnumerable<BsonDocument> FirstBatch
+        {
+            get { return _firstBatch; }
+        }
+
+        /// <summary>
+        /// Gets the output namespace.
+        /// </summary>
+        /// <value>
+        /// The output namespace.
+        /// </value>
+        public string OutputNamespace
+        {
+            get { return _outputNamespace; }
+        }
+
         /// <summary>
         /// Gets the results of the aggregation.
         /// </summary>
         public IEnumerable<BsonDocument> ResultDocuments
         {
             get { return _resultDocuments; }
-        }
-
-        // internal methods
-        internal void SetServer(MongoServer server)
-        {
-            _server = server;
         }
     }
 }
