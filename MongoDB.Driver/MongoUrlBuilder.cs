@@ -37,6 +37,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
+        private string _gssapiServiceName;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private bool? _journal;
@@ -72,6 +73,7 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _fsync = null;
+            _gssapiServiceName = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _journal = null;
@@ -187,6 +189,15 @@ namespace MongoDB.Driver
             {
                 _fsync = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the GSSAPI service name.
+        /// </summary>
+        public string GssapiServiceName
+        {
+            get { return _gssapiServiceName; }
+            set { _gssapiServiceName = value; }
         }
 
         /// <summary>
@@ -828,6 +839,9 @@ namespace MongoDB.Driver
                             case "fsync":
                                 FSync = ParseBoolean(name, value);
                                 break;
+                            case "gssapiservicename":
+                                _gssapiServiceName = value;
+                                break;
                             case "guids":
                             case "uuidrepresentation":
                                 GuidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), value, true); // ignoreCase
@@ -1003,6 +1017,10 @@ namespace MongoDB.Driver
             if (!_authenticationMechanism.Equals("MONGODB-CR", StringComparison.InvariantCultureIgnoreCase))
             {
                 query.AppendFormat("authMechanism={0};", _authenticationMechanism);
+            }
+            if (_gssapiServiceName != null)
+            {
+                query.AppendFormat("gssapiServiceName={0};", _gssapiServiceName);
             }
             if (_authenticationSource != null)
             {

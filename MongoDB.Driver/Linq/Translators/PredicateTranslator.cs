@@ -341,6 +341,18 @@ namespace MongoDB.Driver.Linq
             }
             else
             {
+                var methodCallExpression = variableExpression as MethodCallExpression;
+                if (methodCallExpression != null && value is bool)
+                {
+                    var boolValue = (bool)value;
+                    var query = this.BuildMethodCallQuery(methodCallExpression);
+
+                    var isTrueComparison = (boolValue && operatorType == ExpressionType.Equal)
+                                            || (!boolValue && operatorType == ExpressionType.NotEqual);
+
+                    return isTrueComparison ? query : Query.Not(query);
+                }
+
                 serializationInfo = _serializationInfoHelper.GetSerializationInfo(variableExpression);
             }
 

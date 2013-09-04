@@ -69,28 +69,17 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
-        /// Gets the primary instance.
-        /// </summary>
-        /// <returns>The primary instance (or null if there is none).</returns>
-        public MongoServerInstance GetPrimary()
-        {
-            lock (_connectedInstancesLock)
-            {
-                return _instances.Select(x => x.Instance).FirstOrDefault(i => i.IsPrimary);
-            }
-        }
-
-        /// <summary>
         /// Gets a list of primary and secondary instances.
         /// </summary>
+        /// <param name="primary">The current primary.</param>
         /// <returns>The list of primary and secondary instances.</returns>
-        public List<InstanceWithPingTime> GetPrimaryAndSecondaries()
+        public List<InstanceWithPingTime> GetPrimaryAndSecondaries(MongoServerInstance primary)
         {
             lock (_connectedInstancesLock)
             {
                 // note: make copies of InstanceWithPingTime values because they can change after we return
                 return _instances
-                    .Where(x => x.Instance.IsPrimary || x.Instance.IsSecondary)
+                    .Where(x => x.Instance == primary || x.Instance.IsSecondary)
                     .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
                     .ToList();
             }

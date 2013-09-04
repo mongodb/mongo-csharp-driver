@@ -43,6 +43,7 @@ namespace MongoDB.DriverUnitTests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
+                GssapiServiceName = "other",
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
                 Journal = true,
@@ -72,6 +73,7 @@ namespace MongoDB.DriverUnitTests
                 "connectTimeout=1s",
                 "database=database",
                 "fsync=true",
+                "gssapiServiceName=other",
                 "uuidRepresentation=pythonLegacy",
                 "ipv6=true",
                 "journal=true",
@@ -103,6 +105,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
                 Assert.AreEqual(true, builder.FSync);
+                Assert.AreEqual("other", builder.GssapiServiceName);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
                 Assert.AreEqual(true, builder.Journal);

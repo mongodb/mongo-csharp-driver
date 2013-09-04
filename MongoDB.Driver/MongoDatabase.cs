@@ -22,6 +22,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Internal;
 using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
@@ -200,7 +201,7 @@ namespace MongoDB.Driver
         /// </summary>
         public virtual MongoGridFS GridFS
         {
-            get { return new MongoGridFS(this); }
+            get { return GetGridFS(new MongoGridFSSettings()); }
         }
 
         /// <summary>
@@ -360,7 +361,6 @@ namespace MongoDB.Driver
             {
                 var command = new CommandDocument("drop", collectionName);
                 var result = RunCommandAs<CommandResult>(command);
-                _server.IndexCache.Reset(_name, collectionName);
                 return result;
             }
             catch (MongoCommandException ex)
@@ -671,7 +671,10 @@ namespace MongoDB.Driver
         /// <returns>An instance of MongoGridFS.</returns>
         public virtual MongoGridFS GetGridFS(MongoGridFSSettings gridFSSettings)
         {
-            return new MongoGridFS(this, gridFSSettings);
+            var clonedSettings = gridFSSettings.Clone();
+            clonedSettings.ApplyDefaultValues(_settings);
+            clonedSettings.Freeze();
+            return new MongoGridFS(_server, _name, clonedSettings);
         }
 
         /// <summary>
@@ -880,16 +883,6 @@ namespace MongoDB.Driver
         // TODO: mongo shell has ResetError at the database level
 
         /// <summary>
-        /// Removes all entries for this database in the index cache used by EnsureIndex. Call this method
-        /// when you know (or suspect) that a process other than this one may have dropped one or
-        /// more indexes.
-        /// </summary>
-        public virtual void ResetIndexCache()
-        {
-            _server.IndexCache.Reset(this);
-        }
-
-        /// <summary>
         /// Runs a command on this database.
         /// </summary>
         /// <param name="command">The command object.</param>
@@ -1012,9 +1005,12 @@ namespace MongoDB.Driver
                 GuidRepresentation = _settings.GuidRepresentation
             };
             var readPreference = _settings.ReadPreference;
-            if (readPreference != ReadPreference.Primary && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+            if (readPreference != ReadPreference.Primary)
             {
-                readPreference = ReadPreference.Primary;
+                if (_server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+                {
+                    readPreference = ReadPreference.Primary;
+                }
             }
             var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
 

@@ -48,13 +48,13 @@ namespace MongoDB.DriverUnitTests
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
                 "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var settings = MongoServerSettings.FromUrl(url);
 
             // a few settings can only be made in code
-            settings.Credentials = new[] { MongoCredential.CreateMongoCRCredential("database", "username", "password") };
+            settings.Credentials = new[] { MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other") };
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
 
             var clone = settings.Clone();
@@ -248,7 +248,7 @@ namespace MongoDB.DriverUnitTests
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
                 "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
             var clientSettings = MongoClientSettings.FromUrl(url);
@@ -261,6 +261,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(url.AuthenticationMechanism, settings.Credentials.Single().Mechanism);
             Assert.AreEqual(url.AuthenticationSource, settings.Credentials.Single().Source);
             Assert.AreEqual(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
+            Assert.AreEqual(url.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", null));
             Assert.AreEqual(url.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(url.IPv6, settings.IPv6);
             Assert.AreEqual(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
@@ -290,7 +291,7 @@ namespace MongoDB.DriverUnitTests
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2|c:3,d:4;secondaryAcceptableLatency=128;socketTimeout=129;" +
                 "ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
-                "w=1;fsync=true;journal=true;w=2;wtimeout=131";
+                "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
             var builder = new MongoConnectionStringBuilder(connectionString);
 
             var settings = MongoServerSettings.FromConnectionStringBuilder(builder);
@@ -300,6 +301,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(builder.Username, settings.Credentials.Single().Username);
             Assert.AreEqual("admin", settings.Credentials.Single().Source);
             Assert.AreEqual(new PasswordEvidence(builder.Password), settings.Credentials.Single().Evidence);
+            Assert.AreEqual(builder.GssapiServiceName, settings.Credentials.Single().GetMechanismProperty<string>("SERVICE_NAME", "other"));
             Assert.AreEqual(builder.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(builder.IPv6, settings.IPv6);
             Assert.AreEqual(builder.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);

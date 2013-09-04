@@ -350,6 +350,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Refreshes the state as soon as possible.
+        /// </summary>
+        public void RefreshStateAsSoonAsPossible()
+        {
+            _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+        }
+
+        /// <summary>
         /// Verifies the state of the server instance.
         /// </summary>
         public void VerifyState()
@@ -530,6 +538,30 @@ namespace MongoDB.Driver
             OnStateChanged();
         }
 
+        /// <summary>
+        /// Unset the primary flag on this instance but retain all other information
+        /// </summary>
+        internal void UnsetPrimary()
+        {
+            lock (_serverInstanceLock)
+            {
+                _serverInfo.IsPrimary = false;
+                _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+            }
+        }
+
+        /// <summary>
+        /// Unset the primary flag on this instance but retain all other information
+        /// </summary>
+        internal void UnsetPrimarySecondary()
+        {
+            lock (_serverInstanceLock)
+            {
+                _serverInfo.IsPrimary = false;
+                _serverInfo.IsSecondary = false;
+            }
+        }
+
         // private methods
         private void LookupServerInformation(MongoConnection connection)
         {
@@ -659,6 +691,7 @@ namespace MongoDB.Driver
             catch
             {
                 _pingTimeAggregator.Clear();
+                UnsetPrimarySecondary();
                 SetState(MongoServerState.Disconnected);
                 throw;
             }

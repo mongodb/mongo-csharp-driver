@@ -63,7 +63,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>
         /// The serialization info for the member.
         /// </returns>
-        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        public virtual BsonSerializationInfo GetMemberSerializationInfo(string memberName)
         {
             BsonSerializationInfo info;
             if (!_memberSerializationInfo.TryGetValue(memberName, out info))

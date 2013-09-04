@@ -126,6 +126,11 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public abstract MongoServerProxyType ProxyType { get; }
+
+        /// <summary>
         /// Gets the state.
         /// </summary>
         public MongoServerState State
@@ -393,6 +398,13 @@ namespace MongoDB.Driver.Internal
         protected virtual void ProcessConnectedInstanceStateChange(MongoServerInstance instance)
         { }
 
+        /// <summary>
+        /// Processes the disconnected instance state change.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        protected virtual void ProcessDisconnectedInstanceStateChange(MongoServerInstance instance)
+        { }
+
         // private methods
         private void AddInstance(MongoServerInstance instance)
         {
@@ -467,6 +479,7 @@ namespace MongoDB.Driver.Internal
                     else
                     {
                         _connectedInstances.Remove(instance);
+                        ProcessDisconnectedInstanceStateChange(instance);
                     }
                 }
 

@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal
         // private fields
         private readonly Random _random = new Random();
         private readonly object _randomLock = new object();
+        private MongoServerInstance _primary;
         private string _replicaSetName;
 
         // constructors
@@ -54,6 +55,25 @@ namespace MongoDB.Driver.Internal
 
         // public properties
         /// <summary>
+        /// Gets the primary.
+        /// </summary>
+        /// <value>
+        /// The primary.
+        /// </value>
+        public MongoServerInstance Primary
+        {
+            get { return _primary; }
+        }
+
+        /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public override MongoServerProxyType ProxyType
+        {
+            get { return MongoServerProxyType.ReplicaSet; }
+        }
+
+        /// <summary>
         /// Gets the name of the replica set.
         /// </summary>
         /// <value>
@@ -76,13 +96,12 @@ namespace MongoDB.Driver.Internal
             switch (readPreference.ReadPreferenceMode)
             {
                 case ReadPreferenceMode.Primary:
-                    return connectedInstances.GetPrimary();
+                    return _primary;
 
                 case ReadPreferenceMode.PrimaryPreferred:
-                    var primary = connectedInstances.GetPrimary();
-                    if (primary != null)
+                    if (_primary != null)
                     {
-                        return primary;
+                        return _primary;
                     }
                     else
                     {
@@ -100,11 +119,11 @@ namespace MongoDB.Driver.Internal
                     }
                     else
                     {
-                        return connectedInstances.GetPrimary();
+                        return _primary;
                     }
 
                 case ReadPreferenceMode.Nearest:
-                    return GetMatchingInstance(connectedInstances.GetPrimaryAndSecondaries(), readPreference, secondaryAcceptableLatency);
+                    return GetMatchingInstance(connectedInstances.GetPrimaryAndSecondaries(_primary), readPreference, secondaryAcceptableLatency);
 
                 default:
                     throw new MongoInternalException("Invalid ReadPreferenceMode.");
@@ -192,6 +211,15 @@ namespace MongoDB.Driver.Internal
             }
         }
 
+        /// <summary>
+        /// Processes the disconnected instance state change.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        protected override void ProcessDisconnectedInstanceStateChange(MongoServerInstance instance)
+        {
+            Interlocked.CompareExchange(ref _primary, null, instance);
+        }
+
         // private methods
         /// <summary>
         /// Gets a randomly selected matching instance.
@@ -246,6 +274,7 @@ namespace MongoDB.Driver.Internal
 
         private void ProcessConnectedPrimaryStateChange(MongoServerInstance instance)
         {
+            Interlocked.Exchange(ref _primary, instance);
             Interlocked.CompareExchange(ref _replicaSetName, instance.ReplicaSetInformation.Name, null);
 
             var members = instance.ReplicaSetInformation.Members;
@@ -253,6 +282,14 @@ namespace MongoDB.Driver.Internal
             {
                 // remove instances the primary doesn't know about and add instances we don't know about
                 MakeInstancesMatchAddresses(members);
+            }
+            var instancesMarkedPrimary = Instances.Where(x => x.IsPrimary);
+            foreach (var otherInstance in instancesMarkedPrimary)
+            {
+                if (!otherInstance.Address.Equals(instance.Address))
+                {
+                    otherInstance.UnsetPrimary();
+                }
             }
         }
 

@@ -39,6 +39,14 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(string elementName)
         {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException("elementName");
+            }
+            if (elementName.IndexOf('\0') != -1)
+            {
+                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+            }
             _elementName = elementName;
         }
 

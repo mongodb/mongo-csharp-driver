@@ -21,6 +21,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
@@ -173,6 +174,7 @@ namespace MongoDB.Driver
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
             var keysDocument = keys.ToBsonDocument();
@@ -200,6 +202,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys)
         {
             return CreateIndex(keys, IndexOptions.Null);
@@ -210,6 +213,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keyNames">The names of the indexed fields.</param>
         /// <returns>A WriteConcernResult.</returns>
+        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(params string[] keyNames)
         {
             return CreateIndex(IndexKeys.Ascending(keyNames));
@@ -307,15 +311,6 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="CommandResult"/>.</returns>
         public virtual CommandResult DropIndexByName(string indexName)
         {
-            // remove from cache first (even if command ends up failing)
-            if (indexName == "*")
-            {
-                _server.IndexCache.Reset(this);
-            }
-            else
-            {
-                _server.IndexCache.Remove(this, indexName);
-            }
             var command = new CommandDocument
             {
                 { "deleteIndexes", _name }, // not FullName
@@ -342,14 +337,9 @@ namespace MongoDB.Driver
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
         public virtual void EnsureIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            var keysDocument = keys.ToBsonDocument();
-            var optionsDocument = options.ToBsonDocument();
-            var indexName = GetIndexName(keysDocument, optionsDocument);
-            if (!_server.IndexCache.Contains(this, indexName))
-            {
-                CreateIndex(keys, options);
-                _server.IndexCache.Add(this, indexName);
-            }
+#pragma warning disable 618
+            CreateIndex(keys, options);
+#pragma warning restore
         }
 
         /// <summary>
@@ -358,7 +348,9 @@ namespace MongoDB.Driver
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         public virtual void EnsureIndex(IMongoIndexKeys keys)
         {
-            EnsureIndex(keys, IndexOptions.Null);
+#pragma warning disable 618
+            CreateIndex(keys);
+#pragma warning restore
         }
 
         /// <summary>
@@ -367,12 +359,9 @@ namespace MongoDB.Driver
         /// <param name="keyNames">The names of the indexed fields.</param>
         public virtual void EnsureIndex(params string[] keyNames)
         {
-            string indexName = GetIndexName(keyNames);
-            if (!_server.IndexCache.Contains(this, indexName))
-            {
-                CreateIndex(IndexKeys.Ascending(keyNames), IndexOptions.SetName(indexName));
-                _server.IndexCache.Add(this, indexName);
-            }
+#pragma warning disable 618
+            CreateIndex(keyNames);
+#pragma warning restore
         }
 
         /// <summary>
@@ -1151,7 +1140,8 @@ namespace MongoDB.Driver
                 options.CheckElementNames,
                 nominalType,
                 documents,
-                options.Flags);
+                options.Flags,
+                this);
 
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
@@ -1344,16 +1334,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Removes all entries for this collection in the index cache used by EnsureIndex. Call this method
-        /// when you know (or suspect) that a process other than this one may have dropped one or
-        /// more indexes.
-        /// </summary>
-        public virtual void ResetIndexCache()
-        {
-            _server.IndexCache.Reset(this);
-        }
-
-        /// <summary>
         /// Saves a document to this collection. The document must have an identifiable Id field. Based on the value
         /// of the Id field Save will perform either an Insert or an Update.
         /// </summary>
@@ -1414,71 +1394,65 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Save(Type nominalType, object document, MongoInsertOptions options)
         {
+            if (nominalType == null)
+            {
+                throw new ArgumentNullException("nominalType");
+            }
             if (document == null)
             {
                 throw new ArgumentNullException("document");
             }
+
             var serializer = BsonSerializer.LookupSerializer(document.GetType());
+
+            // if we can determine for sure that it is a new document and we can generate an Id for it then insert it
             var idProvider = serializer as IBsonIdProvider;
-            object id;
-            Type idNominalType;
-            IIdGenerator idGenerator;
-            if (idProvider != null && idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+            if (idProvider != null)
             {
-                if (id == null && idGenerator == null)
+                object id;
+                Type idNominalType;
+                IIdGenerator idGenerator;
+                var hasId = idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator);
+
+                if (idGenerator == null && (!hasId || id == null))
                 {
                     throw new InvalidOperationException("No IdGenerator found.");
                 }
 
-                if (idGenerator != null && idGenerator.IsEmpty(id))
+                if (idGenerator != null && (!hasId || idGenerator.IsEmpty(id)))
                 {
                     id = idGenerator.GenerateId(this, document);
                     idProvider.SetDocumentId(document, id);
                     return Insert(nominalType, document, options);
                 }
-                else
-                {
-                    BsonValue idBsonValue;
-                    var documentType = document.GetType();
-                    if (BsonClassMap.IsClassMapRegistered(documentType))
-                    {
-                        var classMap = BsonClassMap.LookupClassMap(documentType);
-                        var idMemberMap = classMap.IdMemberMap;
-                        var idSerializer = idMemberMap.GetSerializer(id.GetType());
-                        // we only care about the serialized _id value but we need a dummy document to serialize it into
-                        var bsonDocument = new BsonDocument();
-                        var bsonDocumentWriterSettings = new BsonDocumentWriterSettings
-                        {
-                            GuidRepresentation = _settings.GuidRepresentation
-                        };
-                        var bsonWriter = new BsonDocumentWriter(bsonDocument, bsonDocumentWriterSettings);
-                        bsonWriter.WriteStartDocument();
-                        bsonWriter.WriteName("_id");
-                        idSerializer.Serialize(bsonWriter, id.GetType(), id, idMemberMap.SerializationOptions);
-                        bsonWriter.WriteEndDocument();
-                        idBsonValue = bsonDocument[0]; // extract the _id value from the dummy document
-                    } else {
-                        if (!BsonTypeMapper.TryMapToBsonValue(id, out idBsonValue))
-                        {
-                            idBsonValue = BsonDocumentWrapper.Create(idNominalType, id);
-                        }
-                    }
-
-                    var query = Query.EQ("_id", idBsonValue);
-                    var update = Builders.Update.Replace(nominalType, document);
-                    var updateOptions = new MongoUpdateOptions
-                    {
-                        CheckElementNames = options.CheckElementNames,
-                        Flags = UpdateFlags.Upsert,
-                        WriteConcern = options.WriteConcern
-                    };
-                    return Update(query, update, updateOptions);
-                }
             }
-            else
+
+            // since we can't determine for sure whether it's a new document or not upsert it
+            // the only safe way to get the serialized _id value needed for the query is to serialize the entire document
+
+            var bsonDocument = new BsonDocument();
+            var writerSettings = new BsonDocumentWriterSettings { GuidRepresentation = _settings.GuidRepresentation };
+            using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
+            {
+                serializer.Serialize(bsonWriter, nominalType, document, null);
+            }
+
+            BsonValue idBsonValue;
+            if (!bsonDocument.TryGetValue("_id", out idBsonValue))
             {
                 throw new InvalidOperationException("Save can only be used with documents that have an Id.");
             }
+
+            var query = Query.EQ("_id", idBsonValue);
+            var update = Builders.Update.Replace(bsonDocument);
+            var updateOptions = new MongoUpdateOptions
+            {
+                CheckElementNames = options.CheckElementNames,
+                Flags = UpdateFlags.Upsert,
+                WriteConcern = options.WriteConcern
+            };
+
+            return Update(query, update, updateOptions);
         }
 
         /// <summary>
@@ -1763,9 +1737,12 @@ namespace MongoDB.Driver
                 GuidRepresentation = _settings.GuidRepresentation
             };
             var readPreference = _settings.ReadPreference;
-            if (readPreference != ReadPreference.Primary && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+            if (readPreference != ReadPreference.Primary)
             {
-                readPreference = ReadPreference.Primary;
+                if (_server.ProxyType == MongoServerProxyType.ReplicaSet  && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
+                {
+                    readPreference = ReadPreference.Primary;
+                }
             }
             var flags = (readPreference == ReadPreference.Primary) ? QueryFlags.None : QueryFlags.SlaveOk;
 

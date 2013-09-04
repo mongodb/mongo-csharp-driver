@@ -63,8 +63,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadNull();
                     return null;
                 case BsonType.Array:
+                    var itemNominalType = typeof(T);
+                    var itemNominalTypeIsValueType = itemNominalType.IsValueType;
+                    var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
+                    var itemDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(itemNominalType);
+                    Type lastItemType = null;
+                    IBsonSerializer lastItemSerializer = null;
+
+                    // if itemNominalType is a value type then these assignments are final
+                    var itemActualType = itemNominalType;
+                    var itemActualTypeSerializer = itemNominalTypeSerializer;
+
                     bsonReader.ReadStartArray();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
                     var outerList = new List<List<T>>();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
@@ -72,10 +82,26 @@ namespace MongoDB.Bson.Serialization.Serializers
                         var innerList = new List<T>();
                         while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                         {
-                            var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                            var serializer = BsonSerializer.LookupSerializer(elementType);
-                            var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
-                            innerList.Add(element);
+                            if (!itemNominalTypeIsValueType)
+                            {
+                                itemActualType = itemDiscriminatorConvention.GetActualType(bsonReader, itemNominalType);
+                                if (itemActualType == itemNominalType)
+                                {
+                                    itemActualTypeSerializer = itemNominalTypeSerializer;
+                                }
+                                else if (itemActualType == lastItemType)
+                                {
+                                    itemActualTypeSerializer = lastItemSerializer;
+                                }
+                                else
+                                {
+                                    itemActualTypeSerializer = BsonSerializer.LookupSerializer(itemActualType);
+                                    lastItemType = itemActualType;
+                                    lastItemSerializer = itemActualTypeSerializer;
+                                }
+                            }
+                            var item = (T)itemActualTypeSerializer.Deserialize(bsonReader, itemNominalType, itemActualType, itemSerializationOptions);
+                            innerList.Add(item);
                         }
                         bsonReader.ReadEndArray();
                         outerList.Add(innerList);
@@ -149,6 +175,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                 var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
                 var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
+                var itemNominalType = typeof(T);
+                var itemNominalTypeIsValueType = itemNominalType.IsValueType;
+                var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
+                var itemDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(itemNominalType);
+                Type lastItemType = null;
+                IBsonSerializer lastItemSerializer = null;
+
+                // if itemNominalType is a value type then these assignments are final
+                var itemActualType = itemNominalType;
+                var itemActualTypeSerializer = itemNominalTypeSerializer;
+
                 bsonWriter.WriteStartArray();
                 var length1 = array.GetLength(0);
                 var length2 = array.GetLength(1);
@@ -157,7 +194,26 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteStartArray();
                     for (int j = 0; j < length2; j++)
                     {
-                        BsonSerializer.Serialize(bsonWriter, typeof(T), array[i, j], itemSerializationOptions);
+                        var item = array[i, j];
+                        if (!itemNominalTypeIsValueType)
+                        {
+                            itemActualType = item == null ? itemNominalType : item.GetType();
+                            if (itemActualType == itemNominalType)
+                            {
+                                itemActualTypeSerializer = itemNominalTypeSerializer;
+                            }
+                            else if (itemActualType == lastItemType)
+                            {
+                                itemActualTypeSerializer = lastItemSerializer;
+                            }
+                            else
+                            {
+                                itemActualTypeSerializer = BsonSerializer.LookupSerializer(itemActualType);
+                                lastItemType = itemActualType;
+                                lastItemSerializer = itemActualTypeSerializer;
+                            }
+                        }
+                        itemActualTypeSerializer.Serialize(bsonWriter, itemNominalType, item, itemSerializationOptions);
                     }
                     bsonWriter.WriteEndArray();
                 }

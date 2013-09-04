@@ -462,6 +462,10 @@ namespace MongoDB.Driver
             clientSettings.ConnectTimeout = builder.ConnectTimeout;
             if (credential != null)
             {
+                if (!string.IsNullOrEmpty(builder.GssapiServiceName))
+                {
+                    credential = credential.WithMechanismProperty("SERVICE_NAME", builder.GssapiServiceName);
+                }
                 clientSettings.Credentials = new[] { credential };
             }
             clientSettings.GuidRepresentation = builder.GuidRepresentation;
@@ -504,6 +508,10 @@ namespace MongoDB.Driver
             clientSettings.ConnectTimeout = url.ConnectTimeout;
             if (credential != null)
             {
+                if (!string.IsNullOrEmpty(url.GssapiServiceName))
+                {
+                    credential = credential.WithMechanismProperty("SERVICE_NAME", url.GssapiServiceName);
+                }
                 clientSettings.Credentials = new[] { credential };
             }
             clientSettings.GuidRepresentation = url.GuidRepresentation;

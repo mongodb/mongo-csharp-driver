@@ -87,6 +87,14 @@ namespace MongoDB.Driver.Internal
         }
 
         /// <summary>
+        /// Gets the type of the proxy.
+        /// </summary>
+        public MongoServerProxyType ProxyType
+        {
+            get { return MongoServerProxyType.Direct; }
+        }
+
+        /// <summary>
         /// Gets the state.
         /// </summary>
         public MongoServerState State

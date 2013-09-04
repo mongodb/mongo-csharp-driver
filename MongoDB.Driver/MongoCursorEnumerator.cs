@@ -57,9 +57,7 @@ namespace MongoDB.Driver
 
             if (_readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && _cursor.Collection.Name == "$cmd")
             {
-                var queryDocument = _cursor.Query.ToBsonDocument();
-                var isSecondaryOk = CanCommandBeSentToSecondary.Delegate(queryDocument);
-                if (!isSecondaryOk)
+                if (cursor.Server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(_cursor.Query.ToBsonDocument()))
                 {
                     // if the command can't be sent to a secondary, then we use primary here
                     // regardless of the user's choice.

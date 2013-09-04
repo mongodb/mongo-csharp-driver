@@ -28,12 +28,14 @@ namespace MongoDB.Bson.Serialization
     public class BsonMemberMap
     {
         // private fields
-        private BsonClassMap _classMap;
+        private readonly BsonClassMap _classMap;
+        private readonly MemberInfo _memberInfo;
+        private readonly Type _memberType;
+        private readonly bool _memberTypeIsBsonValue;
+
         private string _elementName;
+        private bool _frozen; // once a class map has been frozen no further changes are allowed
         private int _order;
-        private MemberInfo _memberInfo;
-        private Type _memberType;
-        private bool _memberTypeIsBsonValue;
         private Func<object, object> _getter;
         private Action<object, object> _setter;
         private IBsonSerializationOptions _serializationOptions;
@@ -46,6 +48,7 @@ namespace MongoDB.Bson.Serialization
         private bool _ignoreIfDefault;
         private bool _ignoreIfNull;
         private object _defaultValue;
+        private Func<object> _defaultValueCreator;
         private bool _defaultValueSpecified;
 
         // constructors
@@ -219,7 +222,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public object DefaultValue
         {
-            get { return _defaultValue; }
+            get { return _defaultValueCreator != null ? _defaultValueCreator() : _defaultValue; }
         }
 
         /// <summary>
@@ -259,8 +262,16 @@ namespace MongoDB.Bson.Serialization
         {
             if (_defaultValueSpecified)
             {
-                this.Setter(obj, _defaultValue);
+                this.Setter(obj, DefaultValue);
             }
+        }
+
+        /// <summary>
+        /// Freezes this instance.
+        /// </summary>
+        public void Freeze()
+        {
+            _frozen = true;
         }
 
         /// <summary>
@@ -302,7 +313,10 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap Reset()
         {
+            if (_frozen) { ThrowFrozenException(); }
+
             _defaultValue = GetDefaultValue(_memberType);
+            _defaultValueCreator = null;
             _defaultValueSpecified = false;
             _elementName = _memberInfo.Name;
             _idGenerator = null;
@@ -318,13 +332,33 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Sets the default value creator.
+        /// </summary>
+        /// <param name="defaultValueCreator">The default value creator (note: the supplied delegate must be thread safe).</param>
+        /// <returns>The member map.</returns>
+        public BsonMemberMap SetDefaultValue(Func<object> defaultValueCreator)
+        {
+            if (defaultValueCreator == null)
+            {
+                throw new ArgumentNullException("defaultValueCreator");
+            }
+            if (_frozen) { ThrowFrozenException(); }
+            _defaultValue = defaultValueCreator(); // need an instance to compare against
+            _defaultValueCreator = defaultValueCreator;
+            _defaultValueSpecified = true;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the default value.
         /// </summary>
         /// <param name="defaultValue">The default value.</param>
         /// <returns>The member map.</returns>
         public BsonMemberMap SetDefaultValue(object defaultValue)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _defaultValue = defaultValue;
+            _defaultValueCreator = null;
             _defaultValueSpecified = true;
             return this;
         }
@@ -340,6 +374,11 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("elementName");
             }
+            if (elementName.IndexOf('\0') != -1)
+            {
+                throw new ArgumentException("Element names cannot contain nulls.", "elementName");
+            }
+            if (_frozen) { ThrowFrozenException(); }
 
             _elementName = elementName;
             return this;
@@ -352,6 +391,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIdGenerator(IIdGenerator idGenerator)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _idGenerator = idGenerator;
             return this;
         }
@@ -363,10 +403,12 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIgnoreIfDefault(bool ignoreIfDefault)
         {
+            if (_frozen) { ThrowFrozenException(); }
             if (ignoreIfDefault && _ignoreIfNull)
             {
                 throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
             }
+
             _ignoreIfDefault = ignoreIfDefault;
             return this;
         }
@@ -378,6 +420,8 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIgnoreIfNull(bool ignoreIfNull)
         {
+            if (_frozen) { ThrowFrozenException(); }
+
             if (ignoreIfNull && _ignoreIfDefault)
             {
                 throw new InvalidOperationException("IgnoreIfDefault and IgnoreIfNull are mutually exclusive. Choose one or the other.");
@@ -393,6 +437,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetIsRequired(bool isRequired)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _isRequired = isRequired;
             return this;
         }
@@ -404,6 +449,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetOrder(int order)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _order = order;
             return this;
         }
@@ -415,6 +461,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetRepresentation(BsonType representation)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _serializationOptions = new RepresentationSerializationOptions(representation);
             return this;
         }
@@ -426,6 +473,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializationOptions(IBsonSerializationOptions serializationOptions)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _serializationOptions = serializationOptions;
             return this;
         }
@@ -437,6 +485,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetSerializer(IBsonSerializer serializer)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _serializer = serializer;
             return this;
         }
@@ -448,6 +497,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The member map.</returns>
         public BsonMemberMap SetShouldSerializeMethod(Func<object, bool> shouldSerializeMethod)
         {
+            if (_frozen) { ThrowFrozenException(); }
             _shouldSerializeMethod = shouldSerializeMethod;
             return this;
         }
@@ -624,6 +674,12 @@ namespace MongoDB.Bson.Serialization
             );
 
             return lambdaExpression.Compile();
+        }
+
+        private void ThrowFrozenException()
+        {
+            var message = string.Format("Member map for {0}.{1} has been frozen and no further changes are allowed.", _classMap.ClassType.FullName, _memberInfo.Name);
+            throw new InvalidOperationException(message);
         }
     }
 }

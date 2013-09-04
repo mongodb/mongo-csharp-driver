@@ -80,13 +80,13 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp624
         }
 
         [Test]
-        [TestCase(1)]
-        [TestCase(1.5)]
-        public void TestKeyIsNotAString(object key)
+        [TestCase(1, "1")]
+        [TestCase(1.5, "1.5")]
+        public void TestKeyIsNotAString(object key, string keyAsString)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
             var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'D' : [[#, 2]], 'G' : [[#, 3]] }".Replace("#", key.ToString()).Replace("'", "\"");
+            var expected = "{ '_id' : 1, 'D' : [[#, 2]], 'G' : [[#, 3]] }".Replace("#", keyAsString).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();

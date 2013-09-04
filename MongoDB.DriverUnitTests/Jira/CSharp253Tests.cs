@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -73,27 +74,32 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp253
             {
                 { "_id", ObjectId.GenerateNewId() },
                 { "BsonNull", new BsonDocument("_csharpnull", true) },
-                { "Code", new BsonDocument
-                    {
-                        { "$code", "code" },
-                        { "$scope", "scope" }
-                    }
-                },
                 { "DBRef", new BsonDocument
                     {
-                        { "$db", "db" },
+                        // starting with server version 2.5.2 the order of the fields must be exactly as below
+                        { "$ref", "ref" },
                         { "$id", "id" },
-                        { "$ref", "ref" }
+                        { "$db", "db" }
                     }
                 }
             };
+            if (_server.BuildInfo.Version < new Version(2, 5, 2))
+            {
+                // starting with version 2.5.2 the server got stricter about dollars in element names
+                // so the Code element below can only be added when testing against older servers
+                document["Code"] = new BsonDocument
+                {
+                    { "$code", "code" },
+                    { "$scope", "scope" }
+                };
+            }
             _collection.Insert(document);
         }
 
         [Test]
-        public void TestCreateIndexOnNestedElement()
+        public void TestEnsureIndexOnNestedElement()
         {
-            _collection.CreateIndex("a.b");
+            _collection.EnsureIndex("a.b");
         }
     }
 }

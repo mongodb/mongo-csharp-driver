@@ -28,11 +28,9 @@ namespace MongoDB.Driver.GridFS
     public class MongoGridFSStream : Stream
     {
         // private fields
-        private bool _disposed = false;
-        private MongoGridFS _gridFS;
-        private MongoGridFSFileInfo _fileInfo;
-        private FileMode _mode;
-        private FileAccess _access;
+        private readonly MongoGridFSFileInfo _fileInfo;
+        private readonly FileMode _mode;
+        private readonly FileAccess _access;
         private long _length;
         private long _position;
         private byte[] _chunk;
@@ -41,6 +39,7 @@ namespace MongoDB.Driver.GridFS
         private bool _chunkIsDirty;
         private bool _fileIsDirty;
         private bool _updateMD5; // will eventually be removed, for now initialize from settings
+        private bool _disposed = false;
 
         // constructors
         /// <summary>
@@ -61,11 +60,10 @@ namespace MongoDB.Driver.GridFS
         /// <param name="access">The acess.</param>
         public MongoGridFSStream(MongoGridFSFileInfo fileInfo, FileMode mode, FileAccess access)
         {
-            _gridFS = fileInfo.GridFS;
             _fileInfo = fileInfo;
             _mode = mode;
             _access = access;
-            _updateMD5 = _gridFS.Settings.UpdateMD5;
+            _updateMD5 = fileInfo.GridFSSettings.UpdateMD5;
 
             var exists = fileInfo.Exists;
             string message;
@@ -441,55 +439,121 @@ namespace MongoDB.Driver.GridFS
         // private methods
         private void AddMissingChunks()
         {
-            var query = Query.EQ("files_id", _fileInfo.Id);
-            var fields = Fields.Include("n");
-            var chunkCount = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize;
-            var chunksFound = new HashSet<long>();
-            var foundExtraChunks = false;
-            foreach (var chunk in _gridFS.Chunks.Find(query).SetFields(fields))
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
             {
-                var n = chunk["n"].ToInt64();
-                chunksFound.Add(n);
-                if (n >= chunkCount)
-                {
-                    foundExtraChunks = true;
-                }
-            }
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase(ReadPreference.Primary);
+                var chunksCollection = gridFS.GetChunksCollection(database);
 
-            if (foundExtraChunks)
-            {
-                var extraChunksQuery = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.GTE("n", chunkCount));
-                _gridFS.Chunks.Remove(extraChunksQuery);
-            }
-
-            BsonBinaryData zeros = null; // delay creating it until it's actually needed
-            for (var n = 0L; n < chunkCount; n++)
-            {
-                if (!chunksFound.Contains(n))
+                var query = Query.EQ("files_id", _fileInfo.Id);
+                var fields = Fields.Include("n");
+                var chunkCount = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize;
+                var chunksFound = new HashSet<long>();
+                var foundExtraChunks = false;
+                foreach (var chunk in chunksCollection.Find(query).SetFields(fields))
                 {
-                    if (zeros == null)
+                    var n = chunk["n"].ToInt64();
+                    chunksFound.Add(n);
+                    if (n >= chunkCount)
                     {
-                        zeros = new BsonBinaryData(new byte[_fileInfo.ChunkSize]);
+                        foundExtraChunks = true;
                     }
-                    var missingChunk = new BsonDocument
+                }
+
+                if (foundExtraChunks)
+                {
+                    var extraChunksQuery = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.GTE("n", chunkCount));
+                    chunksCollection.Remove(extraChunksQuery);
+                }
+
+                BsonBinaryData zeros = null; // delay creating it until it's actually needed
+                for (var n = 0L; n < chunkCount; n++)
+                {
+                    if (!chunksFound.Contains(n))
+                    {
+                        if (zeros == null)
+                        {
+                            zeros = new BsonBinaryData(new byte[_fileInfo.ChunkSize]);
+                        }
+                        var missingChunk = new BsonDocument
                     {
                         { "_id", ObjectId.GenerateNewId() },
                         { "files_id", _fileInfo.Id },
                         { "n", (n < int.MaxValue) ? (BsonValue)new BsonInt32((int)n) : new BsonInt64(n) },
                         { "data", zeros }
                     };
-                    _gridFS.Chunks.Insert(missingChunk);
+                        chunksCollection.Insert(missingChunk);
+                    }
                 }
+            }
+        }
+
+        private void EnsureServerInstanceIsPrimary()
+        {
+            var serverInstance = _fileInfo.ServerInstance;
+            if (!serverInstance.IsPrimary)
+            {
+                var message = string.Format("Server instance {0} is not the current primary.", serverInstance.Address);
+                throw new InvalidOperationException(message);
             }
         }
 
         private void LoadChunk(long chunkIndex)
         {
             if (_chunkIsDirty) { SaveChunk(); }
-            var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
-            var document = _gridFS.Chunks.FindOne(query);
-            if (document == null)
+
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
             {
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase();
+                var chunksCollection = gridFS.GetChunksCollection(database);
+
+                var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
+                var document = chunksCollection.FindOne(query);
+                if (document == null)
+                {
+                    if (_chunk == null)
+                    {
+                        _chunk = new byte[_fileInfo.ChunkSize];
+                    }
+                    else
+                    {
+                        Array.Clear(_chunk, 0, _chunk.Length);
+                    }
+                    _chunkId = ObjectId.GenerateNewId();
+                }
+                else
+                {
+                    var bytes = document["data"].AsBsonBinaryData.Bytes;
+                    if (bytes.Length == _fileInfo.ChunkSize)
+                    {
+                        _chunk = bytes;
+                    }
+                    else
+                    {
+                        if (_chunk == null)
+                        {
+                            _chunk = new byte[_fileInfo.ChunkSize];
+                        }
+                        Buffer.BlockCopy(bytes, 0, _chunk, 0, bytes.Length);
+                        Array.Clear(_chunk, bytes.Length, _chunk.Length - bytes.Length);
+                    }
+                    _chunkId = document["_id"];
+                }
+                _chunkIndex = chunkIndex;
+            }
+        }
+
+        private void LoadChunkNoData(long chunkIndex)
+        {
+            if (_chunkIsDirty) { SaveChunk(); }
+
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            {
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase();
+                var chunksCollection = gridFS.GetChunksCollection(database);
+
                 if (_chunk == null)
                 {
                     _chunk = new byte[_fileInfo.ChunkSize];
@@ -498,89 +562,70 @@ namespace MongoDB.Driver.GridFS
                 {
                     Array.Clear(_chunk, 0, _chunk.Length);
                 }
-                _chunkId = ObjectId.GenerateNewId();
-            }
-            else
-            {
-                var bytes = document["data"].AsBsonBinaryData.Bytes;
-                if (bytes.Length == _fileInfo.ChunkSize)
+
+                var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
+                var fields = Fields.Include("_id");
+                var document = chunksCollection.Find(query).SetFields(fields).SetLimit(1).FirstOrDefault();
+                if (document == null)
                 {
-                    _chunk = bytes;
+                    _chunkId = ObjectId.GenerateNewId();
                 }
                 else
                 {
-                    if (_chunk == null)
-                    {
-                        _chunk = new byte[_fileInfo.ChunkSize];
-                    }
-                    Buffer.BlockCopy(bytes, 0, _chunk, 0, bytes.Length);
-                    Array.Clear(_chunk, bytes.Length, _chunk.Length - bytes.Length);
+                    _chunkId = document["_id"];
                 }
-                _chunkId = document["_id"];
+                _chunkIndex = chunkIndex;
             }
-            _chunkIndex = chunkIndex;
-        }
-
-        private void LoadChunkNoData(long chunkIndex)
-        {
-            if (_chunkIsDirty) { SaveChunk(); }
-            if (_chunk == null)
-            {
-                _chunk = new byte[_fileInfo.ChunkSize];
-            }
-            else
-            {
-                Array.Clear(_chunk, 0, _chunk.Length);
-            }
-
-            var query = Query.And(Query.EQ("files_id", _fileInfo.Id), Query.EQ("n", chunkIndex));
-            var fields = Fields.Include("_id");
-            var document = _gridFS.Chunks.Find(query).SetFields(fields).SetLimit(1).FirstOrDefault();
-            if (document == null)
-            {
-                _chunkId = ObjectId.GenerateNewId();
-            }
-            else
-            {
-                _chunkId = document["_id"];
-            }
-            _chunkIndex = chunkIndex;
         }
 
         private void OpenAppend()
         {
-            _gridFS.EnsureIndexes();
+            EnsureServerInstanceIsPrimary();
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            {
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                gridFS.EnsureIndexes();
 
-            _length = _fileInfo.Length;
-            _position = _fileInfo.Length;
+                _length = _fileInfo.Length;
+                _position = _fileInfo.Length;
+            }
         }
 
         private void OpenCreate()
         {
-            _gridFS.EnsureIndexes();
-
-            _fileIsDirty = true;
-            if (_fileInfo.Id == null)
+            EnsureServerInstanceIsPrimary();
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
             {
-                _fileInfo.SetId(ObjectId.GenerateNewId());
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase(ReadPreference.Primary);
+                var filesCollection = gridFS.GetFilesCollection(database);
+
+                gridFS.EnsureIndexes();
+
+                _fileIsDirty = true;
+                if (_fileInfo.Id == null)
+                {
+                    _fileInfo.SetId(ObjectId.GenerateNewId());
+                }
+
+                var aliases = (_fileInfo.Aliases != null) ? new BsonArray(_fileInfo.Aliases) : null;
+                var file = new BsonDocument
+                {
+                    { "_id", _fileInfo.Id },
+                    { "filename", _fileInfo.Name, !string.IsNullOrEmpty(_fileInfo.Name) },
+                    { "length", 0 },
+                    { "chunkSize", _fileInfo.ChunkSize },
+                    { "uploadDate", _fileInfo.UploadDate },
+                    { "md5", BsonNull.Value }, // will be updated when the file is closed (unless UpdateMD5 is false)
+                    { "contentType", _fileInfo.ContentType, !string.IsNullOrEmpty(_fileInfo.ContentType) }, // optional
+                    { "aliases", aliases, aliases != null }, // optional
+                    { "metadata", _fileInfo.Metadata, _fileInfo.Metadata != null } // optional
+                };
+                filesCollection.Insert(file);
+
+                _length = 0;
+                _position = 0;
             }
-
-            var aliases = (_fileInfo.Aliases != null) ? new BsonArray(_fileInfo.Aliases) : null;
-            var file = new BsonDocument
-            {
-                { "_id", _fileInfo.Id },
-                { "filename", _fileInfo.Name, !string.IsNullOrEmpty(_fileInfo.Name) },
-                { "length", 0 },
-                { "chunkSize", _fileInfo.ChunkSize },
-                { "uploadDate", _fileInfo.UploadDate },
-                { "md5", BsonNull.Value }, // will be updated when the file is closed (unless UpdateMD5 is false)
-                { "contentType", _fileInfo.ContentType, !string.IsNullOrEmpty(_fileInfo.ContentType) }, // optional
-                { "aliases", aliases, aliases != null }, // optional
-                { "metadata", _fileInfo.Metadata, _fileInfo.Metadata != null } // optional
-            };
-            _gridFS.Files.Insert(file);
-            _length = 0;
-            _position = 0;
         }
 
         private void OpenExisting()
@@ -591,72 +636,92 @@ namespace MongoDB.Driver.GridFS
 
         private void OpenTruncate()
         {
-            _gridFS.EnsureIndexes();
+            EnsureServerInstanceIsPrimary();
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
+            {
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                gridFS.EnsureIndexes();
 
-            _fileIsDirty = true;
-            // existing chunks will be overwritten as needed and extra chunks will be removed on Close
-            _length = 0;
-            _position = 0;
+                _fileIsDirty = true;
+                // existing chunks will be overwritten as needed and extra chunks will be removed on Close
+                _length = 0;
+                _position = 0;
+            }
         }
 
         private void SaveChunk()
         {
-            var lastChunkIndex = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize - 1;
-            if (_chunkIndex == -1 || _chunkIndex > lastChunkIndex)
+            using (_fileInfo.Server.RequestStart(null, _fileInfo.ServerInstance))
             {
-                var message = string.Format("Invalid chunk index {0}.", _chunkIndex);
-                throw new MongoGridFSException(message);
-            }
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase(ReadPreference.Primary);
+                var chunksCollection = gridFS.GetChunksCollection(database);
 
-            var lastChunkSize = (int)(_length % _fileInfo.ChunkSize);
-            if (lastChunkSize == 0)
-            {
-                lastChunkSize = _fileInfo.ChunkSize;
-            }
+                var lastChunkIndex = (_length + _fileInfo.ChunkSize - 1) / _fileInfo.ChunkSize - 1;
+                if (_chunkIndex == -1 || _chunkIndex > lastChunkIndex)
+                {
+                    var message = string.Format("Invalid chunk index {0}.", _chunkIndex);
+                    throw new MongoGridFSException(message);
+                }
 
-            BsonBinaryData data;
-            if (_chunkIndex < lastChunkIndex || lastChunkSize == _fileInfo.ChunkSize)
-            {
-                data = new BsonBinaryData(_chunk);
-            }
-            else
-            {
-                var lastChunk = new byte[lastChunkSize];
-                Buffer.BlockCopy(_chunk, 0, lastChunk, 0, lastChunkSize);
-                data = new BsonBinaryData(lastChunk);
-            }
+                var lastChunkSize = (int)(_length % _fileInfo.ChunkSize);
+                if (lastChunkSize == 0)
+                {
+                    lastChunkSize = _fileInfo.ChunkSize;
+                }
 
-            var query = Query.EQ("_id", _chunkId);
-            var update = new UpdateDocument
-            {
-                { "_id", _chunkId },
-                { "files_id", _fileInfo.Id },
-                { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)new BsonInt32((int)_chunkIndex) : new BsonInt64(_chunkIndex) },
-                { "data", data }
-            };
-            _gridFS.Chunks.Update(query, update, UpdateFlags.Upsert);
-            _chunkIsDirty = false;
+                BsonBinaryData data;
+                if (_chunkIndex < lastChunkIndex || lastChunkSize == _fileInfo.ChunkSize)
+                {
+                    data = new BsonBinaryData(_chunk);
+                }
+                else
+                {
+                    var lastChunk = new byte[lastChunkSize];
+                    Buffer.BlockCopy(_chunk, 0, lastChunk, 0, lastChunkSize);
+                    data = new BsonBinaryData(lastChunk);
+                }
+
+                var query = Query.EQ("_id", _chunkId);
+                var update = new UpdateDocument
+                {
+                    { "_id", _chunkId },
+                    { "files_id", _fileInfo.Id },
+                    { "n", (_chunkIndex < int.MaxValue) ? (BsonValue)new BsonInt32((int)_chunkIndex) : new BsonInt64(_chunkIndex) },
+                    { "data", data }
+                };
+                chunksCollection.Update(query, update, UpdateFlags.Upsert);
+                _chunkIsDirty = false;
+            }
         }
 
         private void UpdateMetadata()
         {
-            BsonValue md5 = BsonNull.Value;
-            if (_updateMD5)
+            using (_fileInfo.Server.RequestStart(null, ReadPreference.Primary))
             {
-                var md5Command = new CommandDocument
+                var gridFS = new MongoGridFS(_fileInfo.Server, _fileInfo.DatabaseName, _fileInfo.GridFSSettings);
+                var database = gridFS.GetDatabase(ReadPreference.Primary);
+                var filesCollection = gridFS.GetFilesCollection(database);
+
+                BsonValue md5 = BsonNull.Value;
+                if (_updateMD5)
+                {
+                    var md5Command = new CommandDocument
                 {
                     { "filemd5", _fileInfo.Id },
-                    { "root", _gridFS.Settings.Root }
+                    { "root", gridFS.Settings.Root }
                 };
-                var md5Result = _gridFS.Database.RunCommand(md5Command);
-                md5 = md5Result.Response["md5"].AsString;
-            }
+                    var md5Result = database.RunCommand(md5Command);
+                    md5 = md5Result.Response["md5"].AsString;
+                }
 
-            var query = Query.EQ("_id", _fileInfo.Id);
-            var update = Update
-                .Set("length", _length)
-                .Set("md5", md5);
-            _gridFS.Files.Update(query, update);
+                var query = Query.EQ("_id", _fileInfo.Id);
+                var update = Update
+                    .Set("length", _length)
+                    .Set("md5", md5);
+
+                filesCollection.Update(query, update);
+            }
         }
     }
 }

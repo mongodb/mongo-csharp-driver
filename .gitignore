@@ -9,6 +9,9 @@ obj
 *.cache
 TestResults
 
+# CodeReview
+codereview.rc
+
 # MonoDevelop artifacts
 *.pidb
 *.userprefs

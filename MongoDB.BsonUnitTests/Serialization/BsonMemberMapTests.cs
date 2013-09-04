@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
@@ -66,6 +67,22 @@ namespace MongoDB.BsonUnitTests.Serialization
             var memberMap = classMap.GetMemberMap("Field");
 
             Assert.IsFalse(memberMap.IsReadOnly);
+        }
+
+        [Test]
+        public void TestSetElementNameThrowsWhenElementNameContainsNulls()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("Property");
+            Assert.Throws<ArgumentException>(() => { memberMap.SetElementName("a\0b"); });
+        }
+
+        [Test]
+        public void TestSetElementNameThrowsWhenElementNameIsNull()
+        {
+            var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
+            var memberMap = classMap.GetMemberMap("Property");
+            Assert.Throws<ArgumentNullException>(() => { memberMap.SetElementName(null); });
         }
 
         [Test]

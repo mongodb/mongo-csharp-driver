@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -28,10 +30,14 @@ namespace MongoDB.Driver.GridFS
 
         // private fields
         private Setting<int> _chunkSize;
+        private Setting<GuidRepresentation> _guidRepresentation;
+        private Setting<UTF8Encoding> _readEncoding;
+        private Setting<ReadPreference> _readPreference;
         private Setting<string> _root;
         private Setting<bool> _updateMD5;
         private Setting<bool> _verifyMD5;
         private Setting<WriteConcern> _writeConcern;
+        private Setting<UTF8Encoding> _writeEncoding;
 
         private bool _isFrozen;
         private int _frozenHashCode;
@@ -144,11 +150,54 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
+        /// Gets or sets the GuidRepresentation.
+        /// </summary>
+        public GuidRepresentation GuidRepresentation
+        {
+            get { return _guidRepresentation.Value; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _guidRepresentation.Value = value;
+            }
+        }
+
+        /// <summary>
         /// Gets whether the settings are frozen.
         /// </summary>
         public bool IsFrozen
         {
             get { return _isFrozen; }
+        }
+
+        /// <summary>
+        /// Gets or sets the read encoding.
+        /// </summary>
+        public UTF8Encoding ReadEncoding
+        {
+            get { return _readEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _readEncoding.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the ReadPreference.
+        /// </summary>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference.Value; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _readPreference.Value = value;
+            }
         }
 
         /// <summary>
@@ -227,6 +276,19 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
+        /// <summary>
+        /// Gets or sets the write encoding.
+        /// </summary>
+        public UTF8Encoding WriteEncoding
+        {
+            get { return _writeEncoding.Value; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _writeEncoding.Value = value;
+            }
+        }
+
         // public operators
         /// <summary>
         /// Compares two MongoGridFSSettings.
@@ -259,10 +321,14 @@ namespace MongoDB.Driver.GridFS
         {
             var clone = new MongoGridFSSettings();
             clone._chunkSize = _chunkSize.Clone();
+            clone._guidRepresentation = _guidRepresentation.Clone();
+            clone._readEncoding = _readEncoding.Clone();
+            clone._readPreference = _readPreference.Clone();
             clone._root = _root.Clone();
             clone._updateMD5 = _updateMD5.Clone();
             clone._verifyMD5 = _verifyMD5.Clone();
             clone._writeConcern = _writeConcern.Clone();
+            clone._writeEncoding = _writeEncoding.Clone();
             return clone;
         }
 
@@ -276,10 +342,14 @@ namespace MongoDB.Driver.GridFS
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
             return
                 _chunkSize.Value == rhs._chunkSize.Value &&
+                _guidRepresentation.Value == rhs._guidRepresentation.Value &&
+                object.Equals(_readEncoding.Value, rhs._readEncoding.Value) &&
+                _readPreference.Value == rhs._readPreference.Value &&
                 _root.Value == rhs._root.Value &&
                 _updateMD5.Value == rhs._updateMD5.Value &&
                 _verifyMD5.Value == rhs._verifyMD5.Value &&
-                _writeConcern.Value == rhs._writeConcern.Value;
+                _writeConcern.Value == rhs._writeConcern.Value &&
+                object.Equals(_writeEncoding.Value, rhs._writeEncoding.Value);
         }
 
         /// <summary>
@@ -337,10 +407,14 @@ namespace MongoDB.Driver.GridFS
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + _chunkSize.Value.GetHashCode();
+            hash = 37 * hash + _guidRepresentation.Value.GetHashCode();
+            hash = 37 * hash + ((_readEncoding.Value == null) ? 0 : _readEncoding.Value.GetHashCode());
+            hash = 37 * hash + ((_readPreference.Value == null) ? 0 : _readPreference.Value.GetHashCode());
             hash = 37 * hash + ((_root.Value == null) ? 0 : _root.Value.GetHashCode());
             hash = 37 * hash + _updateMD5.Value.GetHashCode();
             hash = 37 * hash + _verifyMD5.Value.GetHashCode();
             hash = 37 * hash + ((_writeConcern.Value == null) ? 0 : _writeConcern.Value.GetHashCode());
+            hash = 37 * hash + ((_writeEncoding.Value == null) ? 0 : _writeEncoding.Value.GetHashCode());
             return hash;
         }
 
@@ -350,6 +424,18 @@ namespace MongoDB.Driver.GridFS
             if (!_chunkSize.HasBeenSet)
             {
                 ChunkSize = __defaults.ChunkSize;
+            }
+            if (!_guidRepresentation.HasBeenSet)
+            {
+                GuidRepresentation = databaseSettings.GuidRepresentation;
+            }
+            if (!_readEncoding.HasBeenSet)
+            {
+                ReadEncoding = databaseSettings.ReadEncoding;
+            }
+            if (!_readPreference.HasBeenSet)
+            {
+                ReadPreference = databaseSettings.ReadPreference;
             }
             if (!_root.HasBeenSet)
             {
@@ -367,6 +453,62 @@ namespace MongoDB.Driver.GridFS
             {
                 WriteConcern = databaseSettings.WriteConcern;
             }
+            if (!_writeEncoding.HasBeenSet)
+            {
+                WriteEncoding = databaseSettings.ReadEncoding;
+            }
+        }
+
+        internal void ApplyDefaultValues(MongoServerSettings serverSettings)
+        {
+            if (!_chunkSize.HasBeenSet)
+            {
+                ChunkSize = __defaults.ChunkSize;
+            }
+            if (!_guidRepresentation.HasBeenSet)
+            {
+                GuidRepresentation = serverSettings.GuidRepresentation;
+            }
+            if (!_readEncoding.HasBeenSet)
+            {
+                ReadEncoding = serverSettings.ReadEncoding;
+            }
+            if (!_readPreference.HasBeenSet)
+            {
+                ReadPreference = serverSettings.ReadPreference;
+            }
+            if (!_root.HasBeenSet)
+            {
+                Root = __defaults.Root;
+            }
+            if (!_updateMD5.HasBeenSet)
+            {
+                UpdateMD5 = __defaults.UpdateMD5;
+            }
+            if (!_verifyMD5.HasBeenSet)
+            {
+                VerifyMD5 = __defaults.VerifyMD5;
+            }
+            if (!_writeConcern.HasBeenSet)
+            {
+                WriteConcern = serverSettings.WriteConcern;
+            }
+            if (!_writeEncoding.HasBeenSet)
+            {
+                WriteEncoding = serverSettings.ReadEncoding;
+            }
+        }
+
+        internal MongoDatabaseSettings GetDatabaseSettings()
+        {
+            return new MongoDatabaseSettings
+            {
+                GuidRepresentation = _guidRepresentation.Value,
+                ReadEncoding = _readEncoding.Value,
+                ReadPreference = _readPreference.Value,
+                WriteConcern = _writeConcern.Value,
+                WriteEncoding = _writeEncoding.Value
+            };
         }
 
         // private methods

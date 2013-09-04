@@ -47,13 +47,11 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestDefaultsObsolete()
         {
 #pragma warning disable 618
-            var settings = new MongoGridFSSettings(_database);
+            var settings = new MongoGridFSSettings();
             Assert.IsFalse(settings.IsFrozen);
-            Assert.AreEqual("fs.chunks", settings.ChunksCollectionName);
-            Assert.AreEqual(256 * 1024, settings.ChunkSize);
-            Assert.AreEqual("fs.files", settings.FilesCollectionName);
-            Assert.AreEqual("fs", settings.Root);
-            Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
+            Assert.AreEqual(0, settings.ChunkSize);
+            Assert.AreEqual(null, settings.Root);
+            Assert.AreEqual(null, settings.WriteConcern);
 #pragma warning restore
         }
 
@@ -91,7 +89,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestCreationObsolete()
         {
 #pragma warning disable 618
-            var settings = new MongoGridFSSettings(_database)
+            var settings = new MongoGridFSSettings
             {
                 ChunkSize = 64 * 1024,
                 Root = "root",

@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonDocuments.
     /// </summary>
-    public class BsonDocumentSerializer : BsonBaseSerializer, IBsonIdProvider
+    public class BsonDocumentSerializer : BsonBaseSerializer, IBsonDocumentSerializer, IBsonIdProvider
     {
         // private static fields
         private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
@@ -135,6 +135,22 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             idNominalType = typeof(BsonValue);
             return true;
+        }
+
+        /// <summary>
+        /// Gets the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>
+        /// The serialization info for the member.
+        /// </returns>
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        {
+            return new BsonSerializationInfo(
+                memberName,
+                BsonValueSerializer.Instance,
+                typeof(BsonValue),
+                BsonValueSerializer.Instance.GetDefaultSerializationOptions());
         }
 
         /// <summary>

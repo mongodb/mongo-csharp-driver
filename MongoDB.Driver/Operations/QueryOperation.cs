@@ -117,7 +117,14 @@ namespace MongoDB.Driver.Operations
             {
                 if (reply != null && reply.CursorId != 0)
                 {
-                    KillCursor(connectionProvider, reply.CursorId);
+                    try
+                    {
+                        KillCursor(connectionProvider, reply.CursorId);
+                    }
+                    catch
+                    {
+                        // don't throw any exceptions from the finally block
+                    }
                 }
             }
         }

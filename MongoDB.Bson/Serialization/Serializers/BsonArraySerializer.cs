@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonArrays.
     /// </summary>
-    public class BsonArraySerializer : BsonBaseSerializer
+    public class BsonArraySerializer : BsonBaseSerializer, IBsonArraySerializer
     {
         // private static fields
         private static BsonArraySerializer __instance = new BsonArraySerializer();
@@ -78,6 +78,21 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var message = string.Format("Cannot deserialize BsonArray from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
+        }
+
+        /// <summary>
+        /// Gets the serialization info for individual items of the array.
+        /// </summary>
+        /// <returns>
+        /// The serialization info for the items.
+        /// </returns>
+        public BsonSerializationInfo GetItemSerializationInfo()
+        {
+            return new BsonSerializationInfo(
+                null,
+                BsonValueSerializer.Instance,
+                typeof(BsonValue),
+                BsonValueSerializer.Instance.GetDefaultSerializationOptions());
         }
 
         /// <summary>
