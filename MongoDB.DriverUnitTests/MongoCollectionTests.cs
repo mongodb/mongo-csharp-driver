@@ -80,6 +80,79 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestAggregateQueryWithCursor()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 1, 0))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.Insert(new BsonDocument("x", 3));
+                _collection.Insert(new BsonDocument("x", 3));
+
+                var operations = new BsonDocument[]
+                {
+                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
+                };
+                var options = new MongoAggregateOptions();
+                if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+                {
+                    options.OutputMode = AggregateOutputMode.Cursor;
+                    options.BatchSize = 1;
+                }
+                var query = _collection.AggregateQuery(operations, options);
+                var results = query.ToList();
+
+                var dictionary = new Dictionary<int, int>();
+                foreach (var result in results)
+                {
+                    var x = result["_id"].AsInt32;
+                    var count = result["count"].AsInt32;
+                    dictionary[x] = count;
+                }
+                Assert.AreEqual(3, dictionary.Count);
+                Assert.AreEqual(1, dictionary[1]);
+                Assert.AreEqual(1, dictionary[2]);
+                Assert.AreEqual(2, dictionary[3]);
+            }
+        }
+
+        [Test]
+        public void TestAggregateQueryWithOut()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.Insert(new BsonDocument("x", 3));
+                _collection.Insert(new BsonDocument("x", 3));
+
+                var operations = new BsonDocument[]
+                {
+                    new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
+                    new BsonDocument("$out", "temp")
+                };
+                var query = _collection.AggregateQuery(operations);
+                var results = query.ToList();
+
+                var dictionary = new Dictionary<int, int>();
+                foreach (var result in results)
+                {
+                    var x = result["_id"].AsInt32;
+                    var count = result["count"].AsInt32;
+                    dictionary[x] = count;
+                }
+                Assert.AreEqual(3, dictionary.Count);
+                Assert.AreEqual(1, dictionary[1]);
+                Assert.AreEqual(1, dictionary[2]);
+                Assert.AreEqual(2, dictionary[3]);
+            }
+        }
+
+        [Test]
         public void TestConstructorArgumentChecking()
         {
             var settings = new MongoCollectionSettings();

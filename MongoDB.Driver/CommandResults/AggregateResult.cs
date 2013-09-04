@@ -14,10 +14,8 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -41,7 +39,7 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="AggregateResult" /> class.
         /// </summary>
         /// <param name="response">The response.</param>
-        internal AggregateResult(BsonDocument response)
+        public AggregateResult(BsonDocument response)
             : base(response)
         {
             if (response.Contains("cursor"))

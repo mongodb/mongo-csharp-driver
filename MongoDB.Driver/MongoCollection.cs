@@ -21,7 +21,6 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Internal;
@@ -151,11 +150,11 @@ namespace MongoDB.Driver
                 var batchSize = options.BatchSize;
                 if (batchSize == -1)
                 {
-                    aggregateCommand["cursor"] = new BsonDocument("cursor", new BsonDocument());
+                    aggregateCommand["cursor"] = new BsonDocument();
                 }
                 else
                 {
-                    aggregateCommand["cursor"] = new BsonDocument("cursor", new BsonDocument("batchSize", batchSize));
+                    aggregateCommand["cursor"] = new BsonDocument("batchSize", batchSize);
                 }
             }
             if (options.AllowDiskUsage)
@@ -184,7 +183,7 @@ namespace MongoDB.Driver
         public virtual IEnumerable<BsonDocument> AggregateQuery(IEnumerable<BsonDocument> operations)
         {
             var options = new MongoAggregateOptions { OutputMode = AggregateOutputMode.Inline };
-            return new AggregateQueryResult(this, operations, options);
+            return AggregateQuery(operations, options);
         }
 
         /// <summary>
@@ -206,58 +205,6 @@ namespace MongoDB.Driver
         public virtual IEnumerable<BsonDocument> AggregateQuery(params BsonDocument[] operations)
         {
             return AggregateQuery((IEnumerable<BsonDocument>)operations);
-        }
-
-        private class AggregateQueryResult : IEnumerable<BsonDocument>
-        {
-            private MongoCollection _collection;
-            private IEnumerable<BsonDocument> _operations;
-            private MongoAggregateOptions _options;
-
-            public AggregateQueryResult(MongoCollection collection, IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
-            {
-                _collection = collection;
-                _operations = operations; // TODO: make a defensive copy?
-                _options = options; // TODO: make a defensive copy?
-            }
-
-            public IEnumerator<BsonDocument> GetEnumerator()
-            {
-                var result = _collection.Aggregate(_operations, _options);
-                if (result.CursorId != 0)
-                {
-                    // TODO: create a real cursor enumerator passing it the cursorId and the firstBatch
-                    var fakeCursorEnumerator = result.FirstBatch.GetEnumerator();
-                    return fakeCursorEnumerator;
-                }
-                else if (result.OutputNamespace != null)
-                {
-                    var ns = result.OutputNamespace;
-                    var firstDot = ns.IndexOf('.');
-                    var databaseName = ns.Substring(0, firstDot);
-                    var collectionName = ns.Substring(firstDot + 1);
-                    var database = _collection.Database.Server.GetDatabase(databaseName);
-                    var collection = database.GetCollection<BsonDocument>(collectionName);
-                    return collection.FindAll().GetEnumerator();
-                }
-                else if (result.FirstBatch != null)
-                {
-                    return result.FirstBatch.GetEnumerator();
-                }
-                else if (result.ResultDocuments != null)
-                {
-                    return result.ResultDocuments.GetEnumerator();
-                }
-                else
-                {
-                    throw new NotSupportedException("Unexpected response to aggregate command.");
-                }
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
         }
 
         /// <summary>
