@@ -40,7 +40,6 @@ namespace MongoDB.Driver
         // private fields
         private bool _allowDiskUsage;
         private int? _batchSize;
-        private int? _firstBatchSize;
         private AggregateOutputMode _outputMode = AggregateOutputMode.Inline;
 
         // public properties
@@ -73,26 +72,6 @@ namespace MongoDB.Driver
                     throw new ArgumentException("BatchSize cannot be negative.", "value");
                 }
                 _batchSize = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the size of the first batch when using a cursor.
-        /// </summary>
-        /// <value>
-        /// The size of the first batch.
-        /// </value>
-        /// <exception cref="System.ArgumentException">FirstBatchSize cannot be negative.;value</exception>
-        public int? FirstBatchSize
-        {
-            get { return _firstBatchSize; }
-            set
-            {
-                if (value.HasValue && value.Value < 0)
-                {
-                    throw new ArgumentException("FirstBatchSize cannot be negative.", "value");
-                }
-                _firstBatchSize = value;
             }
         }
 
