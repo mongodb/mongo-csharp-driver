@@ -1681,14 +1681,14 @@ namespace MongoDB.Driver
             };
             if (options.OutputMode == AggregateOutputMode.Cursor)
             {
-                var batchSize = options.BatchSize;
-                if (batchSize == -1)
+                var firstBatchSize = options.FirstBatchSize ?? options.BatchSize;
+                if (firstBatchSize == null)
                 {
                     aggregateCommand["cursor"] = new BsonDocument();
                 }
                 else
                 {
-                    aggregateCommand["cursor"] = new BsonDocument("batchSize", batchSize);
+                    aggregateCommand["cursor"] = new BsonDocument("batchSize", firstBatchSize.Value);
                 }
             }
             if (options.AllowDiskUsage)

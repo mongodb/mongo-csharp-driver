@@ -39,7 +39,8 @@ namespace MongoDB.Driver
     {
         // private fields
         private bool _allowDiskUsage;
-        private int _batchSize = -1;
+        private int? _batchSize;
+        private int? _firstBatchSize;
         private AggregateOutputMode _outputMode = AggregateOutputMode.Inline;
 
         // public properties
@@ -56,22 +57,42 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the size of the batch.
+        /// Gets or sets the size of a batch when using a cursor.
         /// </summary>
         /// <value>
-        /// The size of the batch.
+        /// The size of a batch.
         /// </value>
-        /// <exception cref="System.ArgumentException">Invalid batch size.;value</exception>
-        public int BatchSize
+        /// <exception cref="System.ArgumentException">BatchSize cannot be negative.;value</exception>
+        public int? BatchSize
         {
             get { return _batchSize; }
             set
             {
-                if (value < -1)
+                if (value.HasValue && value.Value < 0)
                 {
-                    throw new ArgumentException("Invalid batch size.", "value");
+                    throw new ArgumentException("BatchSize cannot be negative.", "value");
                 }
                 _batchSize = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the size of the first batch when using a cursor.
+        /// </summary>
+        /// <value>
+        /// The size of the first batch.
+        /// </value>
+        /// <exception cref="System.ArgumentException">FirstBatchSize cannot be negative.;value</exception>
+        public int? FirstBatchSize
+        {
+            get { return _firstBatchSize; }
+            set
+            {
+                if (value.HasValue && value.Value < 0)
+                {
+                    throw new ArgumentException("FirstBatchSize cannot be negative.", "value");
+                }
+                _firstBatchSize = value;
             }
         }
 

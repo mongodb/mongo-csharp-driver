@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                     _collection.FullName,
                     result.ResultDocuments,
                     result.CursorId,
-                    _options.BatchSize,
+                    _options.BatchSize ?? 0,
                     0,
                     readerSettings,
                     BsonDocumentSerializer.Instance,
