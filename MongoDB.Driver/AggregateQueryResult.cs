@@ -25,23 +25,36 @@ namespace MongoDB.Driver
 {
     internal class AggregateQueryResult : IEnumerable<BsonDocument>
     {
-        private MongoCollection _collection;
-        private IEnumerable<BsonDocument> _operations;
-        private MongoAggregateOptions _options;
+        private readonly MongoCollection _collection;
+        private readonly IEnumerable<BsonDocument> _operations;
+        private readonly MongoAggregateOptions _options;
+        private AggregateResult _immediateExecutionResult;
 
         public AggregateQueryResult(
             MongoCollection collection,
             IEnumerable<BsonDocument> operations,
-            MongoAggregateOptions options)
+            MongoAggregateOptions options,
+            AggregateResult immediateExecutionResult)
         {
             _collection = collection;
             _operations = operations; // TODO: make a defensive copy?
             _options = options; // TODO: make a defensive copy?
+            _immediateExecutionResult = immediateExecutionResult;
         }
 
         public IEnumerator<BsonDocument> GetEnumerator()
         {
-            var result = _collection.Aggregate(_operations, _options);
+            AggregateResult result;
+            if (_immediateExecutionResult != null)
+            {
+                result = _immediateExecutionResult;
+                _immediateExecutionResult = null;
+            }
+            else
+            {
+                result = _collection.RunAggregateCommand(_operations, _options);
+            }
+
             if (result.CursorId != 0)
             {
                 var connectionProvider = new ServerInstanceConnectionProvider(result.ServerInstance);
@@ -53,7 +66,7 @@ namespace MongoDB.Driver
                 return new CursorEnumerator<BsonDocument>(
                     connectionProvider,
                     _collection.FullName,
-                    result.FirstBatch,
+                    result.ResultDocuments,
                     result.CursorId,
                     _options.BatchSize,
                     0,
@@ -71,10 +84,6 @@ namespace MongoDB.Driver
                 var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
                 var collection = database.GetCollection<BsonDocument>(collectionName, collectionSettings);
                 return collection.FindAll().GetEnumerator();
-            }
-            else if (result.FirstBatch != null)
-            {
-                return result.FirstBatch.GetEnumerator();
             }
             else if (result.ResultDocuments != null)
             {

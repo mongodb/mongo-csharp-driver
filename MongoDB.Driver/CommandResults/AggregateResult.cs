@@ -30,7 +30,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly long _cursorId;
-        private readonly IEnumerable<BsonDocument> _firstBatch;
         private readonly string _outputNamespace;
         private readonly IEnumerable<BsonDocument> _resultDocuments;
 
@@ -46,7 +45,7 @@ namespace MongoDB.Driver
             {
                 var cursorDocument = response["cursor"];
                 _cursorId = cursorDocument["id"].ToInt64();
-                _firstBatch = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
+                _resultDocuments = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
             }
             if (response.Contains("outputNs"))
             {
@@ -71,17 +70,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the first batch.
-        /// </summary>
-        /// <value>
-        /// The first batch.
-        /// </value>
-        public IEnumerable<BsonDocument> FirstBatch
-        {
-            get { return _firstBatch; }
-        }
-
-        /// <summary>
         /// Gets the output namespace.
         /// </summary>
         /// <value>
@@ -93,7 +81,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the results of the aggregation.
+        /// Gets the result documents (either the Inline results or the first batch if a cursor was used).
         /// </summary>
         public IEnumerable<BsonDocument> ResultDocuments
         {

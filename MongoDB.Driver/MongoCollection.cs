@@ -121,48 +121,7 @@ namespace MongoDB.Driver
         public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations)
         {
             var options = new MongoAggregateOptions { OutputMode = AggregateOutputMode.Inline };
-            return Aggregate(operations, options);
-        }
-
-        /// <summary>
-        /// Runs an aggregation framework command.
-        /// </summary>
-        /// <param name="operations">The pipeline operations.</param>
-        /// <param name="options">The options.</param>
-        /// <returns>
-        /// An AggregateResult.
-        /// </returns>
-        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
-        {
-            var pipeline = new BsonArray();
-            foreach (var operation in operations)
-            {
-                pipeline.Add(operation);
-            }
-
-            var aggregateCommand = new CommandDocument
-            {
-                { "aggregate", _name },
-                { "pipeline", pipeline }
-            };
-            if (options.OutputMode == AggregateOutputMode.Cursor)
-            {
-                var batchSize = options.BatchSize;
-                if (batchSize == -1)
-                {
-                    aggregateCommand["cursor"] = new BsonDocument();
-                }
-                else
-                {
-                    aggregateCommand["cursor"] = new BsonDocument("batchSize", batchSize);
-                }
-            }
-            if (options.AllowDiskUsage)
-            {
-                aggregateCommand["allowDiskUsage"] = true;
-            }
-
-            return RunCommandAs<AggregateResult>(aggregateCommand);
+            return RunAggregateCommand(operations, options);
         }
 
         /// <summary>
@@ -194,7 +153,22 @@ namespace MongoDB.Driver
         /// <returns>A sequence of documents.</returns>
         public virtual IEnumerable<BsonDocument> AggregateQuery(IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
         {
-            return new AggregateQueryResult(this, operations, options);
+            var operationsList = operations.ToList();
+            var lastOperation = operationsList.LastOrDefault();
+
+            var executeImmediately = false;
+            if (lastOperation != null && lastOperation.GetElement(0).Name == "$out")
+            {
+                executeImmediately = true;
+            }
+
+            AggregateResult immediateExecutionResult = null;
+            if (executeImmediately)
+            {
+                immediateExecutionResult = RunAggregateCommand(operationsList, options);
+            }
+
+            return new AggregateQueryResult(this, operationsList, options, immediateExecutionResult);
         }
 
         /// <summary>
@@ -1690,6 +1664,39 @@ namespace MongoDB.Driver
                 GuidRepresentation = _settings.GuidRepresentation,
                 MaxDocumentSize = connection.ServerInstance.MaxDocumentSize
             };
+        }
+
+        internal AggregateResult RunAggregateCommand(IEnumerable<BsonDocument> operations, MongoAggregateOptions options)
+        {
+            var pipeline = new BsonArray();
+            foreach (var operation in operations)
+            {
+                pipeline.Add(operation);
+            }
+
+            var aggregateCommand = new CommandDocument
+            {
+                { "aggregate", _name },
+                { "pipeline", pipeline }
+            };
+            if (options.OutputMode == AggregateOutputMode.Cursor)
+            {
+                var batchSize = options.BatchSize;
+                if (batchSize == -1)
+                {
+                    aggregateCommand["cursor"] = new BsonDocument();
+                }
+                else
+                {
+                    aggregateCommand["cursor"] = new BsonDocument("batchSize", batchSize);
+                }
+            }
+            if (options.AllowDiskUsage)
+            {
+                aggregateCommand["allowDiskUsage"] = true;
+            }
+
+            return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
         // private methods

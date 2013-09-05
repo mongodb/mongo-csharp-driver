@@ -85,20 +85,7 @@ namespace MongoDB.Driver
         public AggregateOutputMode OutputMode
         {
             get { return _outputMode; }
-            set
-            {
-                switch (value)
-                {
-                    case AggregateOutputMode.Cursor:
-                    case AggregateOutputMode.Inline:
-                        _outputMode = value;
-                        break;
-
-                    default:
-                        var message = string.Format("{0} is not a valid AggregateOutputMode.", value);
-                        throw new ArgumentException(message);
-                }
-            }
+            set { _outputMode = value; }
         }
     }
 }
