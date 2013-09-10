@@ -57,6 +57,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140
             Assert.AreEqual(expected, json);
         }
 
+#pragma warning disable 618
         [Test]
         public void TestSerializeGeoNearOptionsWrapped()
         {
@@ -66,6 +67,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
+#pragma warning restore
 
         [Test]
         public void TestSerializeGroupByWrapped()

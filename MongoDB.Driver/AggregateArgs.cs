@@ -14,6 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -35,12 +38,14 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents options for the Aggregate command.
     /// </summary>
-    public class MongoAggregateOptions
+    public class AggregateArgs
     {
         // private fields
         private bool _allowDiskUsage;
         private int? _batchSize;
+        private TimeSpan? _maxTime;
         private AggregateOutputMode _outputMode = AggregateOutputMode.Inline;
+        private IEnumerable<BsonDocument> _pipeline;
 
         // public properties
         /// <summary>
@@ -76,6 +81,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the max time the server should spend on the aggregation command.
+        /// </summary>
+        /// <value>
+        /// The max time.
+        /// </value>
+        public TimeSpan? MaxTime
+        {
+            get { return _maxTime; }
+            set { _maxTime = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the output mode.
         /// </summary>
         /// <value>
@@ -86,6 +103,18 @@ namespace MongoDB.Driver
         {
             get { return _outputMode; }
             set { _outputMode = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the pipeline.
+        /// </summary>
+        /// <value>
+        /// The pipeline.
+        /// </value>
+        public IEnumerable<BsonDocument> Pipeline
+        {
+            get { return _pipeline; }
+            set { _pipeline = value.ToList(); }
         }
     }
 }

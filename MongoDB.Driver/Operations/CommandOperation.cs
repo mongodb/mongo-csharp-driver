@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Operations
 
             if (!commandResult.Ok)
             {
-                throw new MongoCommandException(commandResult);
+                throw ExceptionMapper.Map(commandResult.Response) ?? new MongoCommandException(commandResult);
             }
 
             return commandResult;

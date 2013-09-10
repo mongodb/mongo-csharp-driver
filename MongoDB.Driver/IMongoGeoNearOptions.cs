@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents geo search options (see GeoNearOptionsDocument and the GeoNearOptions builder).
     /// </summary>
+    [Obsolete("Use GeoNearArgs instead.")]
     public interface IMongoGeoNearOptions
     {
     }

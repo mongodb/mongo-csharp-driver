@@ -38,7 +38,9 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp216
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
+#pragma warning disable 618
             var result = _database.Eval(code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+#pragma warning restore
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }
@@ -49,7 +51,9 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp216
             var code = "function (x, y) { return y; }";
             var objectArrayArg = new object[] { 1, 2, 3 };
             var boolArg = true;
+#pragma warning disable 618
             var result = _database.Eval(EvalFlags.NoLock, code, objectArrayArg, boolArg); // before change boolArg was being misinterpreted as nolock argument
+#pragma warning restore
             Assert.AreEqual(BsonType.Boolean, result.BsonType);
             Assert.AreEqual(true, result.AsBoolean);
         }

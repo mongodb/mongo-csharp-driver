@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public static class GeoHaystackSearchOptions
     {
         // public static properties
@@ -74,6 +75,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
     [Serializable]
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoHaystackSearchOptionsBuilder : BuilderBase, IMongoGeoHaystackSearchOptions
     {
         // private fields
@@ -149,6 +151,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options of the GeoHaystackSearch command.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public static class GeoHaystackSearchOptions<TDocument>
     {
         // public static properties
@@ -199,6 +202,7 @@ namespace MongoDB.Driver.Builders
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoHaystackSearchOptionsBuilder<TDocument> : BuilderBase, IMongoGeoHaystackSearchOptions
     {
         // private fields

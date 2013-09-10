@@ -23,25 +23,25 @@ using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver
 {
-    internal class AggregateQueryResult : IEnumerable<BsonDocument>
+    internal class AggregateEnumerableResult : IEnumerable<BsonDocument>
     {
+        // private fields
         private readonly MongoCollection _collection;
-        private readonly IEnumerable<BsonDocument> _operations;
-        private readonly MongoAggregateOptions _options;
+        private readonly AggregateArgs _args;
         private AggregateResult _immediateExecutionResult;
 
-        public AggregateQueryResult(
+        // constructors
+        public AggregateEnumerableResult(
             MongoCollection collection,
-            IEnumerable<BsonDocument> operations,
-            MongoAggregateOptions options,
+            AggregateArgs args,
             AggregateResult immediateExecutionResult)
         {
             _collection = collection;
-            _operations = operations; // TODO: make a defensive copy?
-            _options = options; // TODO: make a defensive copy?
+            _args = args; // TODO: make a defensive copy?
             _immediateExecutionResult = immediateExecutionResult;
         }
 
+        // public methods
         public IEnumerator<BsonDocument> GetEnumerator()
         {
             AggregateResult result;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                result = _collection.RunAggregateCommand(_operations, _options);
+                result = _collection.RunAggregateCommand(_args);
             }
 
             if (result.CursorId != 0)
@@ -68,7 +68,7 @@ namespace MongoDB.Driver
                     _collection.FullName,
                     result.ResultDocuments,
                     result.CursorId,
-                    _options.BatchSize ?? 0,
+                    _args.BatchSize ?? 0,
                     0,
                     readerSettings,
                     BsonDocumentSerializer.Instance,
@@ -95,6 +95,7 @@ namespace MongoDB.Driver
             }
         }
 
+        // explicit interface implementations
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

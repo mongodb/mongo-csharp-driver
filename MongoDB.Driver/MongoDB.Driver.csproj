@@ -83,9 +83,13 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>
-    <Compile Include="AggregateQueryResult.cs" />
-    <Compile Include="EnumerableOneTimeWrapper.cs" />
-    <Compile Include="MongoAggregateOptions.cs" />
+    <Compile Include="AggregateEnumerableResult.cs" />
+    <Compile Include="CountArgs.cs" />
+    <Compile Include="EvalArgs.cs" />
+    <Compile Include="Exceptions\ExceptionMapper.cs" />
+    <Compile Include="Exceptions\ExecutionTimeoutException.cs" />
+    <Compile Include="FindAndModifyArgs.cs" />
+    <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
@@ -156,6 +160,8 @@
     <Compile Include="Communication\Security\Mechanisms\Sspi\Win32.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\Win32Exception.cs" />
     <Compile Include="EvalFlags.cs" />
+    <Compile Include="FindAndRemoveArgs.cs" />
+    <Compile Include="GeoHaystackSearchArgs.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonCoordinateReferenceSystem.cs" />
@@ -216,6 +222,8 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
+    <Compile Include="GeoNearArgs.cs" />
+    <Compile Include="GeoNearPoint.cs" />
     <Compile Include="InsertFlags.cs" />
     <Compile Include="IMongoCollectionOptions.cs" />
     <Compile Include="IMongoCommand.cs" />
