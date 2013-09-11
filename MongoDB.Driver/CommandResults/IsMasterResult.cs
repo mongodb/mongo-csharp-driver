@@ -237,6 +237,25 @@ namespace MongoDB.Driver
             }
         }
 
+        ///<summary>
+        /// Gets the replica set config version if present. If not returns null
+        ///</summary>
+        public int? ReplicaSetConfigVersion
+        {
+            get
+            {
+                BsonValue value;
+                if (Response.TryGetValue("setVersion", out value))
+                {
+                    return value.AsInt32;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
         // private methods
         private IEnumerable<MongoServerAddress> GetInstanceAddressesFromNamedResponseElement(string elementName)
         {

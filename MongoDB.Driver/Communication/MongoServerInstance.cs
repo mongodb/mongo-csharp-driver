@@ -594,7 +594,7 @@ namespace MongoDB.Driver
                 if (isMasterResult.IsReplicaSet)
                 {
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
-                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags);
+                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags, isMasterResult.ReplicaSetConfigVersion);
                     instanceType = MongoServerInstanceType.ReplicaSetMember;
                 }
                 else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")
