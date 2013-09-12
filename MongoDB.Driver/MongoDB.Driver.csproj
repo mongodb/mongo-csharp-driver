@@ -238,6 +238,7 @@
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
+    <Compile Include="MapReduceArgs.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />

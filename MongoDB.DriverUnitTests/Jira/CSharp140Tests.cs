@@ -99,7 +99,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140
             Assert.AreEqual(expected, json);
         }
 
-        [Test]
+#pragma warning disable 618
+       [Test]
         public void TestSerializeMapReduceOptionsWrapped()
         {
             object c = new C { X = 1 };
@@ -108,6 +109,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp140
             var expected = "{ 'X' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
+#pragma warning restore
 
         [Test]
         public void TestSerializeQueryWrapped()

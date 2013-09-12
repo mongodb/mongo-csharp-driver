@@ -1766,8 +1766,15 @@ namespace MongoDB.DriverUnitTests
                 "    return {count : total};\n" +
                 "}\n";
 
-            var options = MapReduceOptions.SetOutput("mrout");
-            var result = _collection.MapReduce(map, reduce, options);
+
+            var result = _collection.MapReduce(new MapReduceArgs
+            {
+                MapFunction = map,
+                ReduceFunction = reduce,
+                OutputMode = MapReduceOutputMode.Replace,
+                OutputCollectionName = "mrout"
+            });
+
             Assert.IsTrue(result.Ok);
             Assert.IsTrue(result.Duration >= TimeSpan.Zero);
             Assert.AreEqual(9, result.EmitCount);
@@ -1836,7 +1843,12 @@ namespace MongoDB.DriverUnitTests
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = _collection.MapReduce(map, reduce);
+                var result = _collection.MapReduce(new MapReduceArgs
+                {
+                    MapFunction = map,
+                    ReduceFunction = reduce
+                });
+
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
@@ -1892,10 +1904,14 @@ namespace MongoDB.DriverUnitTests
             {
                 _collection.RemoveAll();
                 _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
-                var map = "function() { sleep(1000); }";
-                var reduce = "function(key, value) { return 0; }";
-                var options = MapReduceOptions.SetMaxTime(TimeSpan.FromMilliseconds(1));
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(map, reduce, options));
+
+                var args = new MapReduceArgs
+                {
+                    MapFunction = "function() { sleep(1000); }",
+                    ReduceFunction = "function(key, value) { return 0; }",
+                    MaxTime = TimeSpan.FromMilliseconds(1)
+                };
+                Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
             }
         }
 
@@ -1930,7 +1946,13 @@ namespace MongoDB.DriverUnitTests
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = _collection.MapReduce(query, map, reduce);
+                var result = _collection.MapReduce(new MapReduceArgs
+                {
+                    Query = query,
+                    MapFunction = map,
+                    ReduceFunction = reduce
+                });
+
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);

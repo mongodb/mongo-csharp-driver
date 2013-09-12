@@ -20,6 +20,7 @@ using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Builders
 {
+#pragma warning disable 618
     [TestFixture]
     public class MapReduceOptionsBuilderTests
     {
@@ -34,7 +35,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestFinalize()
         {
             var options = MapReduceOptions.SetFinalize("code");
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
+            var expected = "{ \"finalize\" : { \"$code\" : \"code\" } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -42,7 +43,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestJSMode()
         {
             var options = MapReduceOptions.SetJSMode(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"jsMode\" : true }";
+            var expected = "{ \"jsMode\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -50,7 +51,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestKeepTemp()
         {
             var options = MapReduceOptions.SetKeepTemp(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"keeptemp\" : true }";
+            var expected = "{ \"keeptemp\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -58,7 +59,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestLimit()
         {
             var options = MapReduceOptions.SetLimit(123);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"limit\" : 123 }";
+            var expected = "{ \"limit\" : 123 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -178,7 +179,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQuery()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1));
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 } }";
+            var expected = "{ \"query\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -186,7 +187,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestScope()
         {
             var options = MapReduceOptions.SetScope(new ScopeDocument("x", 1));
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"scope\" : { \"x\" : 1 } }";
+            var expected = "{ \"scope\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -194,7 +195,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestSortWithBuilder()
         {
             var options = MapReduceOptions.SetSortOrder(SortBy.Ascending("a", "b"));
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
+            var expected = "{ \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -202,7 +203,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestSortWithKeys()
         {
             var options = MapReduceOptions.SetSortOrder("a", "b");
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
+            var expected = "{ \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -210,7 +211,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestVerbose()
         {
             var options = MapReduceOptions.SetVerbose(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"verbose\" : true }";
+            var expected = "{ \"verbose\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -218,7 +219,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndFinalize()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetFinalize("code");
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"finalize\" : { \"$code\" : \"code\" } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -226,7 +227,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndJSMode()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetJSMode(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"jsMode\" : true }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"jsMode\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -234,7 +235,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndKeepTemp()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetKeepTemp(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"keeptemp\" : true }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"keeptemp\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -242,7 +243,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndLimit()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetLimit(123);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"limit\" : 123 }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"limit\" : 123 }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -250,7 +251,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndOut()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetOutput("name");
-            var expected = "{ \"out\" : \"name\", \"query\" : { \"x\" : 1 } }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"out\" : \"name\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -258,7 +259,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndScope()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetScope(new ScopeDocument("x", 1));
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"scope\" : { \"x\" : 1 } }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"scope\" : { \"x\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -266,7 +267,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndSortWithBuilder()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetSortOrder(SortBy.Ascending("a", "b"));
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -274,7 +275,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndSortWithKeys()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetSortOrder("a", "b");
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"sort\" : { \"a\" : 1, \"b\" : 1 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -282,8 +283,9 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestQueryAndVerbose()
         {
             var options = MapReduceOptions.SetQuery(Query.EQ("x", 1)).SetVerbose(true);
-            var expected = "{ \"out\" : { \"inline\" : 1 }, \"query\" : { \"x\" : 1 }, \"verbose\" : true }";
+            var expected = "{ \"query\" : { \"x\" : 1 }, \"verbose\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
     }
+#pragma warning restore
 }

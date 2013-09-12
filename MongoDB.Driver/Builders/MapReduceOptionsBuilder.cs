@@ -22,31 +22,9 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.Driver.Builders
 {
     /// <summary>
-    /// Represents the output mode for a map reduce operation.
-    /// </summary>
-    public enum MapReduceOutputMode
-    {
-        /// <summary>
-        /// The output of the map reduce operation is returned inline.
-        /// </summary>
-        Inline,
-        /// <summary>
-        /// The output of the map reduce operation replaces an existing collection.
-        /// </summary>
-        Replace,
-        /// <summary>
-        /// The output of the map reduce operation is merged with an existing collection.
-        /// </summary>
-        Merge,
-        /// <summary>
-        /// The output of the map reduce operation is merged with an existing collection using the reduce function.
-        /// </summary>
-        Reduce
-    }
-
-    /// <summary>
     /// Represents the output options of a map/reduce operation.
     /// </summary>
+    [Obsolete("Use MapReduceArgs instead.")]
     public class MapReduceOutput
     {
         // private fields
@@ -345,6 +323,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of a Map/Reduce operation.
     /// </summary>
+    [Obsolete("Use MapReduceArgs instead.")]
     public static class MapReduceOptions
     {
         // public static properties
@@ -395,16 +374,6 @@ namespace MongoDB.Driver.Builders
         public static MapReduceOptionsBuilder SetLimit(int value)
         {
             return new MapReduceOptionsBuilder().SetLimit(value);
-        }
-
-        /// <summary>
-        /// Sets the max time the server should spend on the map reduce operation.
-        /// </summary>
-        /// <param name="maxTime">The max time.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public static MapReduceOptionsBuilder SetMaxTime(TimeSpan maxTime)
-        {
-            return new MapReduceOptionsBuilder().SetMaxTime(maxTime);
         }
 
         /// <summary>
@@ -472,6 +441,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options of a Map/Reduce operation.
     /// </summary>
     [Serializable]
+    [Obsolete("Use MapReduceArgs instead.")]
     public class MapReduceOptionsBuilder : BuilderBase, IMongoMapReduceOptions
     {
         // private fields
@@ -484,7 +454,6 @@ namespace MongoDB.Driver.Builders
         public MapReduceOptionsBuilder()
         {
             _document = new BsonDocument();
-            SetOutput(new MapReduceOutput { Mode = MapReduceOutputMode.Inline });
         }
 
         // public methods
@@ -529,17 +498,6 @@ namespace MongoDB.Driver.Builders
         public MapReduceOptionsBuilder SetLimit(int value)
         {
             _document["limit"] = value;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the max time the server should spend on the map reduce operation.
-        /// </summary>
-        /// <param name="maxTime">The max time.</param>
-        /// <returns>The builder (so method calls can be chained).</returns>
-        public MapReduceOptionsBuilder SetMaxTime(TimeSpan maxTime)
-        {
-            _document["$maxTimeMS"] = maxTime.TotalMilliseconds;
             return this;
         }
 

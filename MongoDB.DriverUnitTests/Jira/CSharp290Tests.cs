@@ -186,6 +186,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290
             Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
         }
 
+#pragma warning disable 618
         [Test]
         public void TestMapReduceOptionsDocumentConstructor()
         {
@@ -199,6 +200,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp290
             Assert.AreEqual("IDictionary", document3["type"].AsString);
             Assert.AreEqual("IDictionary<string, object>", document4["type"].AsString);
         }
+#pragma warning restore
 
         [Test]
         public void TestQueryDocumentConstructor()

@@ -120,7 +120,7 @@ namespace MongoDB.Driver
         public virtual IEnumerable<BsonDocument> Aggregate(AggregateArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
-            if (args.Pipeline == null) { throw new ArgumentNullException("Pipeline"); }
+            if (args.Pipeline == null) { throw new ArgumentException("Pipeline is null.", "args"); }
 
             var pipeline = (List<BsonDocument>)args.Pipeline;
             var lastStage = pipeline.LastOrDefault();
@@ -517,6 +517,7 @@ namespace MongoDB.Driver
         public virtual FindAndModifyResult FindAndModify(FindAndModifyArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
 
             var command = new CommandDocument
             {
@@ -727,6 +728,7 @@ namespace MongoDB.Driver
         public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(GeoHaystackSearchArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Near == null) { throw new ArgumentException("Near is null.", "args"); }
 
             BsonDocument search = null;
             if (args.AdditionalFieldName != null && args.AdditionalFieldValue != null)
@@ -788,7 +790,7 @@ namespace MongoDB.Driver
         public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(GeoNearArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }
-            if (args.Near == null) { throw new ArgumentNullException("Near"); }
+            if (args.Near == null) { throw new ArgumentException("Near is null.", "args"); }
 
             var command = new CommandDocument
             {
@@ -1344,21 +1346,16 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options)
         {
-            var command = new CommandDocument
-            {
-                { "mapreduce", _name },
-                { "map", map },
-                { "reduce", reduce }
-            };
-            command.AddRange(options.ToBsonDocument());
-            var result = RunCommandAs<MapReduceResult>(command);
-            result.SetInputDatabase(_database);
-            return result;
+            var args = MapReduceArgsFromOptions(options);
+            args.MapFunction = map;
+            args.ReduceFunction = reduce;
+            return MapReduce(args);
         }
 
         /// <summary>
@@ -1369,15 +1366,18 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(
             IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options)
         {
-            // create a new set of options because we don't want to modify caller's data
-            options = MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument());
-            return MapReduce(map, reduce, options);
+            var args = MapReduceArgsFromOptions(options);
+            args.Query = query;
+            args.MapFunction = map;
+            args.ReduceFunction = reduce;
+            return MapReduce(args);
         }
 
         /// <summary>
@@ -1387,10 +1387,10 @@ namespace MongoDB.Driver
         /// <param name="map">A JavaScript function called for each document.</param>
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(IMongoQuery query, BsonJavaScript map, BsonJavaScript reduce)
         {
-            var options = MapReduceOptions.SetQuery(query).SetOutput(MapReduceOutput.Inline);
-            return MapReduce(map, reduce, options);
+            return MapReduce(new MapReduceArgs { Query = query, MapFunction = map, ReduceFunction = reduce });
         }
 
         /// <summary>
@@ -1399,10 +1399,60 @@ namespace MongoDB.Driver
         /// <param name="map">A JavaScript function called for each document.</param>
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(BsonJavaScript map, BsonJavaScript reduce)
         {
-            var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
-            return MapReduce(map, reduce, options);
+            return MapReduce(new MapReduceArgs { MapFunction = map, ReduceFunction = reduce });
+        }
+
+        /// <summary>
+        /// Runs a Map/Reduce command on this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        public virtual MapReduceResult MapReduce(MapReduceArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
+            if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
+
+            BsonDocument output;
+            if (args.OutputMode == MapReduceOutputMode.Inline)
+            {
+                output = new BsonDocument("inline", 1);
+            }
+            else
+            {
+                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null when OutputMode is not Inline.", "args"); }
+                var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
+                output = new BsonDocument
+                {
+                    { action, args.OutputCollectionName },
+                    { "db", args.OutputDatabaseName, args.OutputDatabaseName != null }, // optional
+                    { "sharded", () => args.OutputIsSharded.Value, args.OutputIsSharded.HasValue }, // optional
+                    { "nonAtomic", () => args.OutputIsNonAtomic.Value, args.OutputIsNonAtomic.HasValue } // optional
+                };
+            }
+
+            var command = new CommandDocument
+            {
+                { "mapReduce", _name },
+                { "map", args.MapFunction },
+                { "reduce", args.ReduceFunction },
+                { "out", output },
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
+                { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
+                { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
+                { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
+                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var result = RunCommandAs<MapReduceResult>(command);
+            result.SetInputDatabase(_database);
+
+            return result;
         }
 
         /// <summary>
@@ -1910,6 +1960,101 @@ namespace MongoDB.Driver
                 sb.Append("_1");
             }
             return sb.ToString();
+        }
+
+#pragma warning disable 618
+        private MapReduceArgs MapReduceArgsFromOptions(IMongoMapReduceOptions options)
+#pragma warning restore
+        {
+            var args = new MapReduceArgs();
+            var optionsDocument = options.ToBsonDocument();
+
+            BsonValue finalizeFunction;
+            if (optionsDocument.TryGetValue("finalize", out finalizeFunction))
+            {
+                args.FinalizeFunction = finalizeFunction.AsBsonJavaScript;
+            }
+
+            BsonValue jsMode;
+            if (optionsDocument.TryGetValue("jsMode", out jsMode))
+            {
+                args.JsMode = jsMode.ToBoolean();
+            }
+
+            BsonValue limit;
+            if (optionsDocument.TryGetValue("limit", out limit))
+            {
+                args.Limit = limit.ToInt64();
+            }
+
+            BsonValue mapFunction;
+            if (optionsDocument.TryGetValue("map", out mapFunction))
+            {
+                args.MapFunction = mapFunction.AsBsonJavaScript;
+            }
+
+            BsonValue output;
+            if (optionsDocument.TryGetValue("out", out output))
+            {
+                var outputDocument = output.AsBsonDocument;
+                var actionElement = outputDocument.GetElement(0);
+
+                args.OutputMode = (MapReduceOutputMode)Enum.Parse(typeof(MapReduceOutputMode), actionElement.Name, true); // ignoreCase
+                if (args.OutputMode != MapReduceOutputMode.Inline)
+                {
+                    args.OutputCollectionName = actionElement.Value.AsString;
+
+                    BsonValue databaseName;
+                    if (outputDocument.TryGetValue("db", out databaseName))
+                    {
+                        args.OutputDatabaseName = databaseName.AsString;
+                    }
+
+                    BsonValue outputIsSharded;
+                    if (outputDocument.TryGetValue("sharded", out outputIsSharded))
+                    {
+                        args.OutputIsSharded = outputIsSharded.ToBoolean();
+                    }
+
+                    BsonValue nonAtomic;
+                    if (outputDocument.TryGetValue("nonAtomic", out nonAtomic))
+                    {
+                        args.OutputIsNonAtomic = nonAtomic.ToBoolean();
+                    }
+                }
+            }
+
+            BsonValue queryOption;
+            if (optionsDocument.TryGetValue("query", out queryOption))
+            {
+                args.Query = new QueryDocument(queryOption.ToBsonDocument());
+            }
+
+            BsonValue reduceFunction;
+            if (optionsDocument.TryGetValue("reduce", out reduceFunction))
+            {
+                args.ReduceFunction = reduceFunction.AsBsonJavaScript;
+            }
+
+            BsonValue scope;
+            if (optionsDocument.TryGetValue("scope", out scope))
+            {
+                args.SortBy = new SortByDocument(scope.ToBsonDocument());
+            }
+
+            BsonValue sortBy;
+            if (optionsDocument.TryGetValue("sort", out sortBy))
+            {
+                args.SortBy = new SortByDocument(sortBy.ToBsonDocument());
+            }
+
+            BsonValue verbose;
+            if (optionsDocument.TryGetValue("verbose", out verbose))
+            {
+                args.Verbose = verbose.ToBoolean();
+            }
+
+            return args;
         }
 
         private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult

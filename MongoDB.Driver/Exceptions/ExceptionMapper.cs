@@ -36,6 +36,7 @@ namespace MongoDB.Driver
             {
                 switch (code.ToInt32())
                 {
+                    case 50:
                     case 13475:
                     case 16986:
                     case 16712:
@@ -47,10 +48,10 @@ namespace MongoDB.Driver
             BsonValue errmsg;
             if (response.TryGetValue("errmsg", out errmsg) && errmsg.IsString)
             {
-                switch (errmsg.AsString)
+                if (errmsg.AsString.Contains("exceeded time limit") ||
+                    errmsg.AsString.Contains("execution terminated"))
                 {
-                    case "16712 JavaScript execution terminated":
-                        return new ExecutionTimeoutException("Operation exceeded time limit.");
+                    return new ExecutionTimeoutException("Operation exceeded time limit.");
                 }
             }
 
