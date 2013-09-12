@@ -383,7 +383,7 @@ namespace MongoDB.Driver
         {
             lock (_serverInstanceLock)
             {
-                if (_state != MongoServerState.Connected)
+                if (_permanentlyDisconnected)
                 {
                     var message = string.Format("Server instance {0} is no longer connected.", _address);
                     throw new InvalidOperationException(message);
