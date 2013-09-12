@@ -67,11 +67,12 @@ namespace MongoDB.Driver.Operations
                 throw new MongoCommandException(message);
             }
             var commandResult = reply.Documents[0];
+            commandResult.ServerInstance = connection.ServerInstance;
             commandResult.Command = _command;
 
             if (!commandResult.Ok)
             {
-                throw new MongoCommandException(commandResult);
+                throw ExceptionMapper.Map(commandResult.Response) ?? new MongoCommandException(commandResult);
             }
 
             return commandResult;

@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonValues.
     /// </summary>
-    public class BsonValueSerializer : BsonBaseSerializer
+    public class BsonValueSerializer : BsonBaseSerializer, IBsonDocumentSerializer, IBsonArraySerializer
     {
         // private static fields
         private static BsonValueSerializer __instance = new BsonValueSerializer();
@@ -81,6 +81,37 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var message = string.Format("Invalid BsonType {0}.", bsonType);
                     throw new BsonInternalException(message);
             }
+        }
+
+        /// <summary>
+        /// Gets the serialization info for a member.
+        /// </summary>
+        /// <param name="memberName">The member name.</param>
+        /// <returns>
+        /// The serialization info for the member.
+        /// </returns>
+        public BsonSerializationInfo GetMemberSerializationInfo(string memberName)
+        {
+            return new BsonSerializationInfo(
+                memberName,
+                BsonValueSerializer.Instance,
+                typeof(BsonValue),
+                BsonValueSerializer.Instance.GetDefaultSerializationOptions());
+        }
+
+        /// <summary>
+        /// Gets the serialization info for individual items of the array.
+        /// </summary>
+        /// <returns>
+        /// The serialization info for the items.
+        /// </returns>
+        public BsonSerializationInfo GetItemSerializationInfo()
+        {
+            return new BsonSerializationInfo(
+                null,
+                BsonValueSerializer.Instance,
+                typeof(BsonValue),
+                BsonValueSerializer.Instance.GetDefaultSerializationOptions());
         }
 
         /// <summary>

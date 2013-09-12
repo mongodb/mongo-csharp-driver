@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoNearOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [Obsolete("Use GeoNearArgs instead.")]
     public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions
     {
         // constructors

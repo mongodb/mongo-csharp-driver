@@ -22,6 +22,7 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class GeoNearOptionsBuilderTests
     {
+#pragma warning disable 618
         [Test]
         public void TestSetAll()
         {
@@ -76,5 +77,6 @@ namespace MongoDB.DriverUnitTests.Builders
             expected = "{ }";
             Assert.AreEqual(expected, options.ToJson());
         }
+#pragma warning restore
     }
 }

@@ -39,6 +39,7 @@ namespace MongoDB.Driver
             { "connecttimeoutms", "connectTimeout" },
             { "database", "database" },
             { "fsync", "fsync" },
+            { "gssapiservicename", "gssapiServiceName" },
             { "guids", "uuidRepresentation" },
             { "ipv6", "ipv6" },
             { "j", "journal" },
@@ -81,6 +82,7 @@ namespace MongoDB.Driver
         private TimeSpan _connectTimeout;
         private string _databaseName;
         private bool? _fsync;
+        private string _gssapiServiceName;
         private GuidRepresentation _guidRepresentation;
         private bool _ipv6;
         private bool? _journal;
@@ -218,6 +220,18 @@ namespace MongoDB.Driver
             {
                 _fsync = value;
                 base["fsync"] = (value == null) ? null : XmlConvert.ToString(value.Value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the GSSAPI service name.
+        /// </summary>
+        public string GssapiServiceName
+        {
+            get { return _gssapiServiceName; }
+            set
+            {
+                base["gssapiServiceName"] = _gssapiServiceName = value;
             }
         }
 
@@ -695,6 +709,9 @@ namespace MongoDB.Driver
                     case "fsync":
                         FSync = Convert.ToBoolean(value);
                         break;
+                    case "gssapiservicename":
+                        GssapiServiceName = (string)value;
+                        break;
                     case "guids":
                     case "uuidrepresentation":
                         GuidRepresentation = (GuidRepresentation)Enum.Parse(typeof(GuidRepresentation), (string)value, true); // ignoreCase
@@ -960,6 +977,7 @@ namespace MongoDB.Driver
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _fsync = null;
+            _gssapiServiceName = null;
             _guidRepresentation = MongoDefaults.GuidRepresentation;
             _ipv6 = false;
             _journal = null;

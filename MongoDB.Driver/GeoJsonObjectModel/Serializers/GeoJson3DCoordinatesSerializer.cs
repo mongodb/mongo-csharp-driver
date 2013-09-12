@@ -26,6 +26,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJson3DCoordinatesSerializer : BsonBaseSerializer
     {
+        // private static fields
+        private static readonly IBsonSerializer __doubleSerializer = new DoubleSerializer();
+
         // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
@@ -47,9 +50,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             else
             {
                 bsonReader.ReadStartArray();
-                var x = bsonReader.ReadDouble();
-                var y = bsonReader.ReadDouble();
-                var z = bsonReader.ReadDouble();
+                var x = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var y = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var z = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
                 bsonReader.ReadEndArray();
 
                 return new GeoJson3DCoordinates(x, y, z);

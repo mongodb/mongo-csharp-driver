@@ -28,23 +28,64 @@ namespace MongoDB.Driver
     [BsonSerializer(typeof(CommandResultSerializer))]
     public class AggregateResult : CommandResult
     {
+        // private fields
+        private readonly long _cursorId;
+        private readonly string _outputNamespace;
+        private readonly IEnumerable<BsonDocument> _resultDocuments;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="AggregateResult"/> class.
+        /// Initializes a new instance of the <see cref="AggregateResult" /> class.
         /// </summary>
         /// <param name="response">The response.</param>
         public AggregateResult(BsonDocument response)
             : base(response)
         {
+            if (response.Contains("cursor"))
+            {
+                var cursorDocument = response["cursor"];
+                _cursorId = cursorDocument["id"].ToInt64();
+                _resultDocuments = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
+            }
+            if (response.Contains("outputNs"))
+            {
+                _outputNamespace = response["outputNs"].AsString;
+            }
+            if (response.Contains("result"))
+            {
+                _resultDocuments = response["result"].AsBsonArray.Select(v => v.AsBsonDocument);
+            }
         }
 
         // public properties
         /// <summary>
-        /// Gets the results of the aggregation.
+        /// Gets the cursor id.
+        /// </summary>
+        /// <value>
+        /// The cursor id.
+        /// </value>
+        public long CursorId
+        {
+            get { return _cursorId; }
+        }
+
+        /// <summary>
+        /// Gets the output namespace.
+        /// </summary>
+        /// <value>
+        /// The output namespace.
+        /// </value>
+        public string OutputNamespace
+        {
+            get { return _outputNamespace; }
+        }
+
+        /// <summary>
+        /// Gets the result documents (either the Inline results or the first batch if a cursor was used).
         /// </summary>
         public IEnumerable<BsonDocument> ResultDocuments
         {
-            get { return Response["result"].AsBsonArray.Select(v => v.AsBsonDocument); }
+            get { return _resultDocuments; }
         }
     }
 }

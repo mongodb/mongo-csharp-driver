@@ -69,16 +69,20 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <returns>The initial step.</returns>
         public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
+            var serviceName = credential.GetMechanismProperty<string>("SERVICE_NAME", "mongodb");
+
             // TODO: provide an override to force the use of gsasl?
             if (__useGsasl)
             {
                 return new GsaslGssapiImplementation(
+                    serviceName,
                     connection.ServerInstance.Address.Host,
                     credential.Username,
                     credential.Evidence);
             }
 
             return new WindowsGssapiImplementation(
+                serviceName,
                 connection.ServerInstance.Address.Host,
                 credential.Username,
                 credential.Evidence);

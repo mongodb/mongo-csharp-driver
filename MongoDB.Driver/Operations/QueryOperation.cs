@@ -74,52 +74,17 @@ namespace MongoDB.Driver.Operations
 
         public IEnumerator<TDocument> Execute(IConnectionProvider connectionProvider)
         {
-            MongoReplyMessage<TDocument> reply = null;
-            try
-            {
-                var count = 0;
-                var limit = (_limit >= 0) ? _limit : -_limit;
-
-                reply = GetFirstBatch(connectionProvider);
-                foreach (var document in reply.Documents)
-                {
-                    if (limit != 0 && count == limit)
-                    {
-                        yield break;
-                    }
-                    yield return document;
-                    count++;
-                }
-
-                while (reply.CursorId != 0)
-                {
-                    reply = GetNextBatch(connectionProvider, reply.CursorId);
-                    foreach (var document in reply.Documents)
-                    {
-                        if (limit != 0 && count == limit)
-                        {
-                            yield break;
-                        }
-                        yield return document;
-                        count++;
-                    }
-
-                    if (reply.CursorId != 0 && (_flags & QueryFlags.TailableCursor) != 0)
-                    {
-                        if ((reply.ResponseFlags & ResponseFlags.AwaitCapable) == 0)
-                        {
-                            Thread.Sleep(TimeSpan.FromMilliseconds(100));
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                if (reply != null && reply.CursorId != 0)
-                {
-                    KillCursor(connectionProvider, reply.CursorId);
-                }
-            }
+            var reply = GetFirstBatch(connectionProvider);
+            return new CursorEnumerator<TDocument>(
+                connectionProvider,
+                CollectionFullName,
+                reply.Documents, // firstBatch
+                reply.CursorId,
+                _batchSize,
+                _limit,
+                ReaderSettings,
+                _serializer,
+                _serializationOptions);
         }
 
         private MongoReplyMessage<TDocument> GetFirstBatch(IConnectionProvider connectionProvider)
@@ -158,36 +123,6 @@ namespace MongoDB.Driver.Operations
                 var queryMessage = new MongoQueryMessage(writerSettings, CollectionFullName, _flags, _skip, numberToReturn, wrappedQuery, _fields);
                 connection.SendMessage(queryMessage);
                 return connection.ReceiveMessage<TDocument>(readerSettings, _serializer, _serializationOptions);
-            }
-            finally
-            {
-                connectionProvider.ReleaseConnection(connection);
-            }
-        }
-
-        private MongoReplyMessage<TDocument> GetNextBatch(IConnectionProvider connectionProvider, long cursorId)
-        {
-            var connection = connectionProvider.AcquireConnection();
-            try
-            {
-                var readerSettings = GetNodeAdjustedReaderSettings(connection.ServerInstance);
-                var getMoreMessage = new MongoGetMoreMessage(CollectionFullName, _batchSize, cursorId);
-                connection.SendMessage(getMoreMessage);
-                return connection.ReceiveMessage<TDocument>(readerSettings, _serializer, _serializationOptions);
-            }
-            finally
-            {
-                connectionProvider.ReleaseConnection(connection);
-            }
-        }
-
-        private void KillCursor(IConnectionProvider connectionProvider, long cursorId)
-        {
-            var connection = connectionProvider.AcquireConnection();
-            try
-            {
-                var killCursorsMessage = new MongoKillCursorsMessage(cursorId);
-                connection.SendMessage(killCursorsMessage);
             }
             finally
             {

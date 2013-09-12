@@ -32,16 +32,17 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <summary>
         /// Initializes a new instance of the <see cref="GsaslGssapiImplementation" /> class.
         /// </summary>
+        /// <param name="serviceName">Name of the service.</param>
         /// <param name="hostName">Name of the host.</param>
         /// <param name="username">The username.</param>
         /// <param name="evidence">The evidence.</param>
-        public GsaslGssapiImplementation(string hostName, string username, MongoIdentityEvidence evidence)
+        public GsaslGssapiImplementation(string serviceName, string hostName, string username, MongoIdentityEvidence evidence)
             : base("GSSAPI", new byte[0])
         {
             _userPrincipalName = username;
             _evidence = evidence;
             _hostname = hostName;
-            _service = "mongodb";
+            _service = serviceName;
         }
 
         // protected methods

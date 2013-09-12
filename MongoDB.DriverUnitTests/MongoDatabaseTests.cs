@@ -86,7 +86,9 @@ namespace MongoDB.DriverUnitTests
         public void TestEvalNoArgs()
         {
             var code = "function() { return 1; }";
+#pragma warning disable 618
             var result = _database.Eval(code);
+#pragma warning restore
             Assert.AreEqual(1, result.ToInt32());
         }
 
@@ -94,15 +96,33 @@ namespace MongoDB.DriverUnitTests
         public void TestEvalNoArgsNoLock()
         {
             var code = "function() { return 1; }";
+#pragma warning disable 618
             var result = _database.Eval(EvalFlags.NoLock, code);
+#pragma warning restore
             Assert.AreEqual(1, result.ToInt32());
+        }
+
+        [Test]
+        public void TestEvalWithMaxTime()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            {
+                var args = new EvalArgs
+                {
+                    Code = "sleep(1000)",
+                    MaxTime = TimeSpan.FromMilliseconds(1)
+                };
+                Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+            }
         }
 
         [Test]
         public void TestEvalWithOneArg()
         {
             var code = "function(x) { return x + 1; }";
+#pragma warning disable 618
             var result = _database.Eval(code, 1);
+#pragma warning restore
             Assert.AreEqual(2, result.ToInt32());
         }
 
@@ -110,7 +130,9 @@ namespace MongoDB.DriverUnitTests
         public void TestEvalWithOneArgNoLock()
         {
             var code = "function(x) { return x + 1; }";
+#pragma warning disable 618
             var result = _database.Eval(EvalFlags.NoLock, code, 1);
+#pragma warning restore
             Assert.AreEqual(2, result.ToInt32());
         }
 
@@ -118,7 +140,9 @@ namespace MongoDB.DriverUnitTests
         public void TestEvalWithTwoArgs()
         {
             var code = "function(x, y) { return x / y; }";
+#pragma warning disable 618
             var result = _database.Eval(code, 6, 2);
+#pragma warning restore
             Assert.AreEqual(3, result.ToInt32());
         }
 
@@ -126,7 +150,9 @@ namespace MongoDB.DriverUnitTests
         public void TestEvalWithTwoArgsNoLock()
         {
             var code = "function(x, y) { return x / y; }";
+#pragma warning disable 618
             var result = _database.Eval(EvalFlags.NoLock, code, 6, 2);
+#pragma warning restore
             Assert.AreEqual(3, result.ToInt32());
         }
 

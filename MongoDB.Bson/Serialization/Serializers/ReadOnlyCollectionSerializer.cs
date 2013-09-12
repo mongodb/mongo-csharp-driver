@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -26,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for ReadOnlyCollections.
     /// </summary>
     /// <typeparam name="T">The type of the elements.</typeparam>
-    public class ReadOnlyCollectionSerializer<T> : BsonBaseSerializer, IBsonArraySerializer
+    public class ReadOnlyCollectionSerializer<T> : EnumerableSerializerBase<T>, IBsonArraySerializer
     {
         // constructors
         /// <summary>
@@ -37,136 +35,82 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-        // public methods
-        /// <summary>
-        /// Deserializes an object from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
-        {
-            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
 
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-                case BsonType.Array:
-                    bsonReader.ReadStartArray();
-                    var list = new List<T>();
-                    var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var elementType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                        var serializer = BsonSerializer.LookupSerializer(elementType);
-                        var element = (T)serializer.Deserialize(bsonReader, typeof(T), elementType, itemSerializationOptions);
-                        list.Add(element);
-                    }
-                    bsonReader.ReadEndArray();
-                    return CreateInstance(actualType, list);
-                case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
-                default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
-                    throw new FileFormatException(message);
-            }
+        // protected methods
+        /// <summary>
+        /// Adds the item.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="item">The item.</param>
+        protected override void AddItem(object instance, T item)
+        {
+            ((List<T>)instance).Add(item);
         }
 
         /// <summary>
-        /// Gets the serialization info for individual items of an enumerable type.
+        /// Creates the instance.
         /// </summary>
-        /// <returns>The serialization info for the items.</returns>
-        public BsonSerializationInfo GetItemSerializationInfo()
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The instance.</returns>
+        protected override object CreateInstance(Type actualType)
         {
-            string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(T));
-            var nominalType = typeof(T);
-            IBsonSerializationOptions serializationOptions = null;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            return new List<T>();
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Enumerates the items.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        /// <param name="instance">The instance.</param>
+        /// <returns>The items.</returns>
+        protected override IEnumerable<T> EnumerateItemsInSerializationOrder(object instance)
         {
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var actualType = value.GetType();
-                if (actualType != nominalType)
-                {
-                    string discriminator;
-                    if (nominalType == typeof(object))
-                    {
-                        discriminator = TypeNameDiscriminator.GetDiscriminator(actualType);
-                    }
-                    else
-                    {
-                        discriminator = actualType.Name;
-                    }
-
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", discriminator);
-                    bsonWriter.WriteName("_v");
-                    Serialize(bsonWriter, actualType, value, options);
-                    bsonWriter.WriteEndDocument();
-                    return;
-                }
-
-                var items = (ReadOnlyCollection<T>)value;
-                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
-
-                bsonWriter.WriteStartArray();
-                foreach (var item in items)
-                {
-                    BsonSerializer.Serialize(bsonWriter, typeof(T), item, itemSerializationOptions);
-                }
-                bsonWriter.WriteEndArray();
-            }
+            return (IEnumerable<T>)instance;
         }
 
-        // private methods
-        private ReadOnlyCollection<T> CreateInstance(Type type, IList<T> list)
+        /// <summary>
+        /// Finalizes the result.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The result.</returns>
+        /// <exception cref="BsonSerializationException"></exception>
+        protected override object FinalizeResult(object instance, Type actualType)
         {
-            if (type == typeof(ReadOnlyCollection<T>))
+            var list = (List<T>)instance;
+            if (actualType == typeof(ReadOnlyCollection<T>))
             {
                 return new ReadOnlyCollection<T>(list);
             }
-            else if (typeof(ReadOnlyCollection<T>).IsAssignableFrom(type))
+            else if (typeof(ReadOnlyCollection<T>).IsAssignableFrom(actualType))
             {
-                return (ReadOnlyCollection<T>)Activator.CreateInstance(type, list);
+                return (ReadOnlyCollection<T>)Activator.CreateInstance(actualType, list);
             }
 
-            var message = string.Format("ReadOnlyCollectionSerializer<{0}> can't be used with type {1}.", BsonUtils.GetFriendlyTypeName(typeof(T)), BsonUtils.GetFriendlyTypeName(type));
+            var message = string.Format("ReadOnlyCollectionSerializer<{0}> can't be used with type {1}.", BsonUtils.GetFriendlyTypeName(typeof(T)), BsonUtils.GetFriendlyTypeName(actualType));
             throw new BsonSerializationException(message);
+        }
+
+        /// <summary>
+        /// Gets the discriminator.
+        /// </summary>
+        /// <param name="nominalType">Type nominal type.</param>
+        /// <param name="actualType">The actual type.</param>
+        /// <returns>The discriminator (or null if no discriminator is needed).</returns>
+        protected override string GetDiscriminator(Type nominalType, Type actualType)
+        {
+            if (nominalType != actualType)
+            {
+                if (nominalType == typeof(object))
+                {
+                    return TypeNameDiscriminator.GetDiscriminator(actualType);
+                }
+                else
+                {
+                    return actualType.Name;
+                }
+            }
+
+            return null;
         }
     }
 }

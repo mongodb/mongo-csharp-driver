@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoHaystackSearchOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoHaystackSearchOptionsWrapper : BaseWrapper, IMongoGeoHaystackSearchOptions
     {
         // constructors

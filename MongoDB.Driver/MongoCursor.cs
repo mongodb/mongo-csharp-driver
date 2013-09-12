@@ -336,13 +336,8 @@ namespace MongoDB.Driver
         public virtual long Count()
         {
             _isFrozen = true;
-            var command = new CommandDocument
-            {
-                { "count", _collection.Name },
-                { "query", BsonDocumentWrapper.Create(_query), _query != null } // query is optional
-            };
-            var result = _database.RunCommand(command);
-            return result.Response["n"].ToInt64();
+            var args = new CountArgs { Query = _query };
+            return _collection.Count(args);
         }
 
         /// <summary>
@@ -503,6 +498,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Sets the maximum time the server should spend on this query.
+        /// </summary>
+        /// <param name="maxTime">The max time.</param>
+        /// <returns></returns>
+        public virtual MongoCursor SetMaxTime(TimeSpan maxTime)
+        {
+            if (_isFrozen) { ThrowFrozen(); }
+            SetOption("$maxTimeMS", maxTime.TotalMilliseconds);
+            return this;
+        }
+
+        /// <summary>
         /// Sets the min value for the index key range of documents to return (note: the min value itself is included in the range).
         /// Often combined with SetHint (if SetHint is not used the server will attempt to determine the matching index automatically).
         /// </summary>
@@ -651,15 +658,13 @@ namespace MongoDB.Driver
         public virtual long Size()
         {
             _isFrozen = true;
-            var command = new CommandDocument
+            var args = new CountArgs
             {
-                { "count", _collection.Name },
-                { "query", BsonDocumentWrapper.Create(_query), _query != null }, // query is optional
-                { "limit", _limit, _limit != 0 },
-                { "skip", _skip, _skip != 0 }
+                Query = _query,
+                Limit = (_limit == 0) ? (int?)null : _limit,
+                Skip = (_skip == 0) ? (int?)null : _skip
             };
-            var result = _database.RunCommand(command);
-            return result.Response["n"].ToInt64();
+            return _collection.Count(args);
         }
 
         // protected methods
@@ -850,6 +855,16 @@ namespace MongoDB.Driver
         public new virtual MongoCursor<TDocument> SetMaxScan(int maxScan)
         {
             return (MongoCursor<TDocument>)base.SetMaxScan(maxScan);
+        }
+
+        /// <summary>
+        /// Sets the maximum time the server should spend on this query.
+        /// </summary>
+        /// <param name="maxTime">The max time.</param>
+        /// <returns></returns>
+        public new virtual MongoCursor<TDocument> SetMaxTime(TimeSpan maxTime)
+        {
+            return (MongoCursor<TDocument>)base.SetMaxTime(maxTime);
         }
 
         /// <summary>

@@ -51,6 +51,16 @@ namespace MongoDB.Driver.Operations
             get { return _databaseName; }
         }
 
+        protected BsonBinaryReaderSettings ReaderSettings
+        {
+            get { return _readerSettings; }
+        }
+
+        protected BsonBinaryWriterSettings WriterSettings
+        {
+            get { return _writerSettings; }
+        }
+
         protected BsonBinaryReaderSettings GetNodeAdjustedReaderSettings(MongoServerInstance node)
         {
             var readerSettings = _readerSettings.Clone();

@@ -20,6 +20,7 @@ using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Builders
 {
+#pragma warning disable 618
     [TestFixture]
     public class MapReduceOptionsBuilderTests
     {
@@ -286,4 +287,5 @@ namespace MongoDB.DriverUnitTests.Builders
             Assert.AreEqual(expected, options.ToJson());
         }
     }
+#pragma warning restore
 }

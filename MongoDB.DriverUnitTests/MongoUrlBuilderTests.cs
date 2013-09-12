@@ -43,6 +43,7 @@ namespace MongoDB.DriverUnitTests
                 ConnectTimeout = TimeSpan.FromSeconds(1),
                 DatabaseName = "database",
                 FSync = true,
+                GssapiServiceName = "other",
                 GuidRepresentation = GuidRepresentation.PythonLegacy,
                 IPv6 = true,
                 Journal = true,
@@ -67,6 +68,7 @@ namespace MongoDB.DriverUnitTests
 
             var connectionString = "mongodb://username:password@host/database?" + string.Join(";", new[] {
                 "authMechanism=GSSAPI",
+                "gssapiServiceName=other",
                 "authSource=db",
                 "ipv6=true",
                 "ssl=true", // UseSsl
@@ -99,6 +101,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(TimeSpan.FromSeconds(1), builder.ConnectTimeout);
                 Assert.AreEqual("database", builder.DatabaseName);
                 Assert.AreEqual(true, builder.FSync);
+                Assert.AreEqual("other", builder.GssapiServiceName);
                 Assert.AreEqual(GuidRepresentation.PythonLegacy, builder.GuidRepresentation);
                 Assert.AreEqual(true, builder.IPv6);
                 Assert.AreEqual(true, builder.Journal);

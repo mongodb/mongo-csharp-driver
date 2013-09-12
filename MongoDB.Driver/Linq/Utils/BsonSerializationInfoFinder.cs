@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -114,6 +115,17 @@ namespace MongoDB.Driver.Linq.Utils
                 itemSerializationInfo.Serializer,
                 itemSerializationInfo.NominalType,
                 itemSerializationInfo.SerializationOptions);
+
+            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+            if (arrayOptions != null)
+            {
+                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                itemSerializationInfo = new BsonSerializationInfo(
+                    itemSerializationInfo.ElementName,
+                    itemSerializationInfo.Serializer,
+                    itemSerializationInfo.NominalType,
+                    itemSerializationOptions);
+            }
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
@@ -225,7 +237,6 @@ namespace MongoDB.Driver.Linq.Utils
             {
                 return null;
             }
-            var index = Convert.ToInt32(indexExpression.Value);
 
             var serializationInfo = Visit(node.Object);
             if (serializationInfo == null)
@@ -233,20 +244,45 @@ namespace MongoDB.Driver.Linq.Utils
                 return null;
             }
 
-            var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
+            var indexName = indexExpression.Value.ToString();
+            if (indexExpression.Type == typeof(int) || 
+                indexExpression.Type == typeof(uint) ||
+                indexExpression.Type == typeof(long) ||
+                indexExpression.Type == typeof(ulong))
             {
-                return null;
+                var arraySerializer = serializationInfo.Serializer as IBsonArraySerializer;
+                if (arraySerializer != null)
+                {
+                    var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
+                    var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+                    if (arrayOptions != null)
+                    {
+                        var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                        itemSerializationInfo = new BsonSerializationInfo(
+                            itemSerializationInfo.ElementName,
+                            itemSerializationInfo.Serializer,
+                            itemSerializationInfo.NominalType,
+                            itemSerializationOptions);
+                    }
+
+                    itemSerializationInfo = new BsonSerializationInfo(
+                        indexName,
+                        itemSerializationInfo.Serializer,
+                        itemSerializationInfo.NominalType,
+                        itemSerializationInfo.SerializationOptions);
+
+                    return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
+                }
             }
 
-            var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-            itemSerializationInfo = new BsonSerializationInfo(
-                index.ToString(),
-                itemSerializationInfo.Serializer,
-                itemSerializationInfo.NominalType,
-                itemSerializationInfo.SerializationOptions);
+            var documentSerializer = serializationInfo.Serializer as IBsonDocumentSerializer;
+            if (documentSerializer != null)
+            {
+                var memberSerializationInfo = documentSerializer.GetMemberSerializationInfo(indexName);
+                return CombineSerializationInfo(serializationInfo, memberSerializationInfo);
+            }
 
-            return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
+            return null;
         }
 
         private BsonSerializationInfo VisitElementAt(MethodCallExpression node)
@@ -275,6 +311,17 @@ namespace MongoDB.Driver.Linq.Utils
                 itemSerializationInfo.Serializer,
                 itemSerializationInfo.NominalType,
                 itemSerializationInfo.SerializationOptions);
+
+            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
+            if (arrayOptions != null)
+            {
+                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
+                itemSerializationInfo = new BsonSerializationInfo(
+                    itemSerializationInfo.ElementName,
+                    itemSerializationInfo.Serializer,
+                    itemSerializationInfo.NominalType,
+                    itemSerializationOptions);
+            }
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }

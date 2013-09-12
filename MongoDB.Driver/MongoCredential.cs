@@ -14,9 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -30,7 +32,8 @@ namespace MongoDB.Driver
         private readonly MongoIdentityEvidence _evidence;
         private readonly MongoIdentity _identity;
         private readonly string _mechanism;
-        
+        private readonly Dictionary<string, object> _mechanismProperties;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCredential" /> class.
@@ -52,6 +55,7 @@ namespace MongoDB.Driver
             _mechanism = mechanism;
             _identity = identity;
             _evidence = evidence;
+            _mechanismProperties = new Dictionary<string, object>();
         }
 
         // public properties
@@ -91,21 +95,7 @@ namespace MongoDB.Driver
                 var passwordEvidence = _evidence as PasswordEvidence;
                 if (passwordEvidence != null)
                 {
-                    var secureString = passwordEvidence.SecurePassword;
-                    if (secureString == null || secureString.Length == 0)
-                    {
-                        return "";
-                    }
-
-                    var bstr = Marshal.SecureStringToBSTR(secureString);
-                    try
-                    {
-                        return Marshal.PtrToStringBSTR(bstr);
-                    }
-                    finally
-                    {
-                        Marshal.ZeroFreeBSTR(bstr);
-                    }
+                    return MongoUtils.ToInsecureString(passwordEvidence.SecurePassword);
                 }
 
                 return null;
@@ -163,7 +153,7 @@ namespace MongoDB.Driver
             return FromComponents("GSSAPI",
                 "$external",
                 username,
-                (PasswordEvidence)null);
+                new ExternalEvidence());
         }
 
         /// <summary>
@@ -224,7 +214,55 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+        /// <summary>
+        /// Creates a PLAIN credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        public static MongoCredential CreatePlainCredential(string databaseName, string username, string password)
+        {
+            return FromComponents("PLAIN",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a PLAIN credential.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        public static MongoCredential CreatePlainCredential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents("PLAIN",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
         // public methods
+        /// <summary>
+        /// Gets the mechanism property.
+        /// </summary>
+        /// <typeparam name="T">The type of the mechanism property.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <returns>The mechanism property if one was set; otherwise the default value.</returns>
+        public T GetMechanismProperty<T>(string key, T defaultValue)
+        {
+            object value;
+            if (_mechanismProperties.TryGetValue(key, out value))
+            {
+                return (T)value;
+            }
+
+            return defaultValue;
+        }
+
         /// <summary>
         /// Compares this MongoCredential to another MongoCredential.
         /// </summary>
@@ -233,7 +271,10 @@ namespace MongoDB.Driver
         public bool Equals(MongoCredential rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return _identity == rhs._identity && _evidence == rhs._evidence && _mechanism == rhs._mechanism;
+            return _identity == rhs._identity &&
+                _evidence == rhs._evidence &&
+                _mechanism == rhs._mechanism &&
+                _mechanismProperties.OrderBy(x => x.Key).SequenceEqual(rhs._mechanismProperties.OrderBy(x => x.Key));
         }
 
         /// <summary>
@@ -253,11 +294,12 @@ namespace MongoDB.Driver
         public override int GetHashCode()
         {
             // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + _identity.GetHashCode();
-            hash = 37 * hash + _evidence.GetHashCode();
-            hash = 37 * hash + _mechanism.GetHashCode();
-            return hash;
+            return new Hasher()
+                .Hash(_identity)
+                .Hash(_evidence)
+                .Hash(_mechanism)
+                .HashElements(_mechanismProperties)
+                .GetHashCode();
         }
 
         /// <summary>
@@ -267,6 +309,23 @@ namespace MongoDB.Driver
         public override string ToString()
         {
             return string.Format("{0}@{1}", _identity.Username, _identity.Source);
+        }
+
+        /// <summary>
+        /// Creates a new MongoCredential with the specified mechanism property.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A new MongoCredential with the specified mechanism property.</returns>
+        public MongoCredential WithMechanismProperty(string key, object value)
+        {
+            var copy = new MongoCredential(_mechanism, _identity, _evidence);
+            foreach (var pair in _mechanismProperties)
+            {
+                copy._mechanismProperties.Add(pair.Key, pair.Value);
+            }
+            copy._mechanismProperties[key] = value; // overwrite if it's already set
+            return copy;
         }
 
         // internal static methods
@@ -323,6 +382,27 @@ namespace MongoDB.Driver
                     return new MongoCredential(
                         "GSSAPI",
                         new MongoExternalIdentity(source, username),
+                        evidence);
+                case "PLAIN":
+                    source = source ?? "admin";
+                    if (evidence == null || !(evidence is PasswordEvidence))
+                    {
+                        throw new ArgumentException("A PLAIN credential must have a password.");
+                    }
+
+                    MongoIdentity identity;
+                    if(source == "$external")
+                    {
+                        identity = new MongoExternalIdentity(source, username);
+                    }
+                    else
+                    {
+                        identity = new MongoInternalIdentity(source, username);
+                    }
+
+                    return new MongoCredential(
+                        mechanism,
+                        identity,
                         evidence);
                 default:
                     throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationMechanism {0}.", mechanism));

@@ -24,5 +24,6 @@
     <file src="License.rtf" target ="" />
     <file src="MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
     <file src="MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
+    <file src="MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
   </files>
 </package>

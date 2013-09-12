@@ -356,9 +356,7 @@ namespace MongoDB.Driver.Internal
                     throw new MongoInternalException("Invalid HandleExceptionAction");
             }
 
-            // forces a call to VerifyState before the next message is sent to this server instance
-            // this is a bit drastic but at least it's safe (and perhaps we can optimize a bit in the future)
-            _serverInstance.SetState(MongoServerState.Unknown);
+            _serverInstance.RefreshStateAsSoonAsPossible();
         }
 
         private enum HandleExceptionAction

@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal
         private readonly MongoServerAddress _primary;
         private readonly List<MongoServerAddress> _members;
         private readonly ReplicaSetTagSet _tagSet;
+        private int? _configVersion;
 
         // constructors
         /// <summary>
@@ -37,12 +38,19 @@ namespace MongoDB.Driver.Internal
         /// <param name="primary">The primary.</param>
         /// <param name="members">The members.</param>
         /// <param name="tagSet">The tag set.</param>
-        public ReplicaSetInformation(string name, MongoServerAddress primary, IEnumerable<MongoServerAddress> members, ReplicaSetTagSet tagSet)
+        /// <param name="configVersion">The replica set config version if available</param>
+        public ReplicaSetInformation(
+            string name, 
+            MongoServerAddress primary, 
+            IEnumerable<MongoServerAddress> members, 
+            ReplicaSetTagSet tagSet,
+            int? configVersion)
         {
             _name = name;
             _primary = primary;
             _members = members == null ? new List<MongoServerAddress>() : members.ToList();
             _tagSet = tagSet.FrozenCopy();
+            _configVersion = configVersion;
         }
 
         // public properties
@@ -76,6 +84,14 @@ namespace MongoDB.Driver.Internal
         public ReplicaSetTagSet TagSet
         {
             get { return _tagSet; }
+        }
+
+        /// <summary>
+        /// Gets the replica set config version if available
+        /// </summary>
+        public int? ConfigVersion
+        {
+            get { return _configVersion; }
         }
 
         // public operators
@@ -151,6 +167,11 @@ namespace MongoDB.Driver.Internal
                 return false;
             }
 
+            if (_configVersion != rhs._configVersion)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -171,6 +192,10 @@ namespace MongoDB.Driver.Internal
                 hash = 37 * hash + member.GetHashCode();
             }
             hash = 37 * hash + _tagSet.GetHashCode();
+            if (_configVersion.HasValue)
+            {
+                hash = 37 * hash + _configVersion.Value;
+            }
             return hash;
         }
 

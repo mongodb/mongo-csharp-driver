@@ -91,22 +91,11 @@ namespace MongoDB.Driver
         // private methods
         private Version ParseVersion(string versionString)
         {
-            var match = Regex.Match(versionString, @"^(?<major>\d+)\.(?<minor>\d+)\.(?<build>\d+)(\.(?<revision>\d+))?(-.*)?$");
+            var match = Regex.Match(versionString, @"^(?<version>\d+\.\d+(\.\d+(\.\d+)?)?)");
             if (match.Success)
             {
-                var majorString = match.Groups["major"].Value;
-                var minorString = match.Groups["minor"].Value;
-                var buildString = match.Groups["build"].Value;
-                var revisionString = match.Groups["revision"].Value;
-                if (revisionString == "") { revisionString = "0"; }
-                int major, minor, build, revision;
-                if (int.TryParse(majorString, out major) &&
-                    int.TryParse(minorString, out minor) &&
-                    int.TryParse(buildString, out build) &&
-                    int.TryParse(revisionString, out revision))
-                {
-                    return new Version(major, minor, build, revision);
-                }
+                var version = match.Groups["version"].Value;
+                return new Version(version);
             }
             return new Version(0, 0, 0, 0);
         }

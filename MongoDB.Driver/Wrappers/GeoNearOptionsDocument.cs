@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoGeoNearOptions is expected.
     /// </summary>
+    [Obsolete("Use GeoNearArgs instead.")]
     public class GeoNearOptionsDocument : BsonDocument, IMongoGeoNearOptions
     {
         // constructors
