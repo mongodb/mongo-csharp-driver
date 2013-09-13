@@ -280,7 +280,8 @@ namespace MongoDB.Driver.Internal
 
             var members = instance.ReplicaSetInformation.Members;
             var configVersion = instance.ReplicaSetInformation.ConfigVersion;
-            if (members.Any() && (!configVersion.HasValue || configVersion.Value > _configVersion))
+            if (members.Any() && (!configVersion.HasValue || !_configVersion.HasValue ||
+                configVersion.Value > _configVersion.Value))
             {
                 if (configVersion.HasValue)
                 {

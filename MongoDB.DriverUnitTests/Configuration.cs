@@ -29,6 +29,7 @@ namespace MongoDB.DriverUnitTests
         private static MongoServer __testServer;
         private static MongoDatabase __testDatabase;
         private static MongoCollection<BsonDocument> __testCollection;
+        private static bool __testServerIsReplicaSet;
 
         // static constructor
         static Configuration()
@@ -50,6 +51,12 @@ namespace MongoDB.DriverUnitTests
 
             // connect early so BuildInfo will be populated
             __testServer.Connect();
+            var isMasterResult = __testDatabase.RunCommand("isMaster").Response;
+            BsonValue setName = null;
+            if (isMasterResult.TryGetValue("setName", out setName))
+            {
+                __testServerIsReplicaSet = true;
+            }
         }
 
         // public static properties
@@ -83,6 +90,14 @@ namespace MongoDB.DriverUnitTests
         public static MongoServer TestServer
         {
             get { return __testServer; }
+        }
+
+        /// <summary>
+        /// Gets whether the tage MongoDB is a replica set.
+        /// </summary>
+        public static bool TestServerIsReplicaSet
+        {
+            get { return __testServerIsReplicaSet; }
         }
 
         // public static methods

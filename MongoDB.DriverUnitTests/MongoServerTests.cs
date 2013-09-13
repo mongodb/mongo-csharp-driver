@@ -28,6 +28,7 @@ namespace MongoDB.DriverUnitTests
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
         private bool _isMasterSlavePair;
+        private bool _isReplicaSet;
 
         [TestFixtureSetUp]
         public void Setup()
@@ -35,6 +36,7 @@ namespace MongoDB.DriverUnitTests
             _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
+            _isReplicaSet = Configuration.TestServerIsReplicaSet;
 
             var adminDatabase = _server.GetDatabase("admin");
             var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
@@ -45,7 +47,17 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestArbiters()
         {
-            Assert.AreEqual(0, _server.Arbiters.Length);
+            if (_isReplicaSet)
+            {
+                var isMasterResult = _database.RunCommand("isMaster").Response;
+                BsonValue arbiters;
+                int arbiterCount = 0;
+                if (isMasterResult.TryGetValue("arbiters", out arbiters))
+                {
+                    arbiterCount = arbiters.AsBsonArray.Count;
+                }
+                Assert.AreEqual(arbiterCount, _server.Arbiters.Length);
+            }
         }
 
         [Test]
@@ -197,7 +209,17 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestPassives()
         {
-            Assert.AreEqual(0, _server.Passives.Length);
+            if (_isReplicaSet)
+            {
+                var isMasterResult = _database.RunCommand("isMaster").Response;
+                BsonValue passives;
+                int passiveCount = 0;
+                if (isMasterResult.TryGetValue("passives", out passives))
+                {
+                    passiveCount = passives.AsBsonArray.Count;
+                }
+                Assert.AreEqual(passiveCount, _server.Passives.Length);
+            }
         }
 
         [Test]
@@ -224,14 +246,42 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestReplicaSetName()
         {
-            var instances = _server.Instances;
-            if (instances.Length == 1)
+            if (_isReplicaSet)
             {
-                Assert.IsNull(_server.ReplicaSetName);
+                Assert.IsNotNull(_server.ReplicaSetName);
             }
             else
             {
-                Assert.IsNotNull(_server.ReplicaSetName);
+                Assert.IsNull(_server.ReplicaSetName);
+            }
+        }
+
+        [Test]
+        public void TestReplicaSetMemberCount()
+        {
+            if (_isReplicaSet)
+            {
+                var isMasterResult = _database.RunCommand("isMaster").Response;
+                BsonValue hosts;
+                int hostCount = 0;
+                if (isMasterResult.TryGetValue("hosts", out hosts))
+                {
+                    hostCount = hosts.AsBsonArray.Count;
+                }
+                BsonValue passives;
+                int passiveCount = 0;
+                if (isMasterResult.TryGetValue("passives", out passives))
+                {
+                    passiveCount = passives.AsBsonArray.Count;
+                }
+                BsonValue arbiters;
+                int arbiterCount = 0;
+                if (isMasterResult.TryGetValue("arbiters", out arbiters))
+                {
+                    arbiterCount = arbiters.AsBsonArray.Count;
+                }
+                Assert.AreEqual(hostCount + passiveCount + arbiterCount,
+                    _server.Instances.Length);
             }
         }
 
