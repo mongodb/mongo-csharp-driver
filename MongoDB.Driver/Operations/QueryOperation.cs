@@ -83,12 +83,13 @@ namespace MongoDB.Driver.Operations
                 reply = GetFirstBatch(connectionProvider);
                 foreach (var document in reply.Documents)
                 {
+                    yield return document;
+                    count++;
+
                     if (limit != 0 && count == limit)
                     {
                         yield break;
                     }
-                    yield return document;
-                    count++;
                 }
 
                 while (reply.CursorId != 0)
@@ -96,12 +97,13 @@ namespace MongoDB.Driver.Operations
                     reply = GetNextBatch(connectionProvider, reply.CursorId);
                     foreach (var document in reply.Documents)
                     {
+                        yield return document;
+                        count++;
+
                         if (limit != 0 && count == limit)
                         {
                             yield break;
                         }
-                        yield return document;
-                        count++;
                     }
 
                     if (reply.CursorId != 0 && (_flags & QueryFlags.TailableCursor) != 0)
