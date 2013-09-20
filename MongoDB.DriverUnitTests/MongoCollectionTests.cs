@@ -130,17 +130,20 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new AggregateArgs
+                    if (failpoint.IsSupported())
                     {
-                        Pipeline = new BsonDocument[]
+                        failpoint.Times(1);
+                        var args = new AggregateArgs
+                        {
+                            Pipeline = new BsonDocument[]
                         {
                             new BsonDocument("$match", Query.Exists("_id").ToBsonDocument())
                         },
-                        MaxTime = TimeSpan.FromMilliseconds(1)
-                    };
-                    var query = _collection.Aggregate(args);
-                    Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        var query = _collection.Aggregate(args);
+                        Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
+                    }
                 }
             }
         }
@@ -216,9 +219,12 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.Times(1);
+                        var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                    }
                 }
             }
         }
@@ -524,13 +530,16 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new FindAndModifyArgs
+                    if (failpoint.IsSupported())
                     {
-                        Update = Update.Set("x", 1),
-                        MaxTime = TimeSpan.FromMilliseconds(1)
-                    };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                        failpoint.Times(1);
+                        var args = new FindAndModifyArgs
+                        {
+                            Update = Update.Set("x", 1),
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                    }
                 }
             }
         }
@@ -661,9 +670,12 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.Times(1);
+                        var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                    }
                 }
             }
         }
@@ -803,9 +815,12 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.Times(1);
+                        var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
+                    }
                 }
             }
         }
@@ -832,9 +847,12 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.Times(1);
+                        var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
+                    }
                 }
             }
         }
@@ -958,9 +976,12 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var maxTime = TimeSpan.FromMilliseconds(1);
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.Times(1);
+                        var maxTime = TimeSpan.FromMilliseconds(1);
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
+                    }
                 }
             }
         }
@@ -1031,17 +1052,20 @@ namespace MongoDB.DriverUnitTests
 
                         using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                         {
-                            failpoint.Times(1);
-                            var args = new GeoHaystackSearchArgs
+                            if (failpoint.IsSupported())
                             {
-                                Near = GeoNearPoint.From(33, 33),
-                                AdditionalFieldName = "Type",
-                                AdditionalFieldValue = "restaurant",
-                                Limit = 30,
-                                MaxDistance = 6,
-                                MaxTime = TimeSpan.FromMilliseconds(1)
-                            };
-                            Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+                                failpoint.Times(1);
+                                var args = new GeoHaystackSearchArgs
+                                {
+                                    Near = GeoNearPoint.From(33, 33),
+                                    AdditionalFieldName = "Type",
+                                    AdditionalFieldValue = "restaurant",
+                                    Limit = 30,
+                                    MaxDistance = 6,
+                                    MaxTime = TimeSpan.FromMilliseconds(1)
+                                };
+                                Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+                            }
                         }
                     }
                 }
@@ -1325,13 +1349,16 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new GeoNearArgs
+                    if (failpoint.IsSupported())
                     {
-                        Near = GeoNearPoint.From(0, 0),
-                        MaxTime = TimeSpan.FromMilliseconds(1)
-                    };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                        failpoint.Times(1);
+                        var args = new GeoNearArgs
+                        {
+                            Near = GeoNearPoint.From(0, 0),
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                    }
                 }
             }
         }
@@ -1980,14 +2007,17 @@ namespace MongoDB.DriverUnitTests
 
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new MapReduceArgs
+                    if (failpoint.IsSupported())
                     {
-                        MapFunction = "function() { }",
-                        ReduceFunction = "function(key, value) { return 0; }",
-                        MaxTime = TimeSpan.FromMilliseconds(1)
-                    };
-                    Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                        failpoint.Times(1);
+                        var args = new MapReduceArgs
+                        {
+                            MapFunction = "function() { }",
+                            ReduceFunction = "function(key, value) { return 0; }",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                    }
                 }
             }
         }

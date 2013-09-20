@@ -109,13 +109,16 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    failpoint.Times(1);
-                    var args = new EvalArgs
+                    if (failpoint.IsSupported())
                     {
-                        Code = "return 0;",
-                        MaxTime = TimeSpan.FromMilliseconds(1)
-                    };
-                    Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                        failpoint.Times(1);
+                        var args = new EvalArgs
+                        {
+                            Code = "return 0;",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                    }
                 }
             }
         }
