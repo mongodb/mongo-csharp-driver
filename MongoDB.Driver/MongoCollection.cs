@@ -17,6 +17,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -187,7 +188,7 @@ namespace MongoDB.Driver
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
             };
             var result = RunCommandAs<CommandResult>(command);
             return result.Response["n"].ToInt64();
@@ -528,7 +529,7 @@ namespace MongoDB.Driver
                 { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
                 { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
                 { "upsert", true, args.Upsert}, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             try
             {
@@ -579,7 +580,7 @@ namespace MongoDB.Driver
                 { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
                 { "remove", true },
                 { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             try
             {
@@ -632,7 +633,44 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>()
         {
-            return FindAllAs<TDocument>().SetLimit(1).FirstOrDefault();
+            var args = new FindOneArgs { Query = null };
+            return FindOneAs<TDocument>(args);
+        }
+
+        /// <summary>
+        /// Returns one document in this collection as a TDocument.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="args">The args.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
+        {
+            var query = args.Query ?? new QueryDocument();
+            var readPreference = args.ReadPreference ?? ReadPreference.Primary;
+            var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
+            var cursor = new MongoCursor<TDocument>(this, query, readPreference, serializer, args.SerializationOptions);
+            if (args.Fields != null)
+            {
+                cursor.SetFields(args.Fields);
+            }
+            if (args.Hint != null)
+            {
+                cursor.SetHint(args.Hint);
+            }
+            if (args.Skip.HasValue)
+            {
+                cursor.SetSkip(args.Skip.Value);
+            }
+            if (args.SortBy != null)
+            {
+                cursor.SetSortOrder(args.SortBy);
+            }
+            if (args.MaxTime.HasValue)
+            {
+                cursor.SetMaxTime(args.MaxTime.Value);
+            }
+            cursor.SetLimit(-1);
+            return cursor.FirstOrDefault();
         }
 
         /// <summary>
@@ -643,7 +681,8 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(IMongoQuery query)
         {
-            return FindAs<TDocument>(query).SetLimit(1).FirstOrDefault();
+            var args = new FindOneArgs { Query = query };
+            return FindOneAs<TDocument>(args);
         }
 
         /// <summary>
@@ -653,7 +692,28 @@ namespace MongoDB.Driver
         /// <returns>A document (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType)
         {
-            return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
+            var args = new FindOneArgs { Query = null };
+            return FindOneAs(documentType, args);
+        }
+
+        /// <summary>
+        /// Returns one document in this collection as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>A document (or null if not found).</returns>
+        public virtual object FindOneAs(Type documentType, FindOneArgs args)
+        {
+            var methodDefinition = GetType().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            try
+            {
+                return methodInfo.Invoke(this, new object[] { args });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         /// <summary>
@@ -664,7 +724,8 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType, IMongoQuery query)
         {
-            return FindAs(documentType, query).SetLimit(1).OfType<object>().FirstOrDefault();
+            var args = new FindOneArgs { Query = query };
+            return FindOneAs(documentType, args);
         }
 
         /// <summary>
@@ -743,7 +804,7 @@ namespace MongoDB.Driver
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
                 { "search", search, search != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
             };
             return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
         }
@@ -803,7 +864,7 @@ namespace MongoDB.Driver
                 { "distanceMultiplier", () => args.DistanceMultiplier.Value, args.DistanceMultiplier.HasValue }, // optional
                 { "includeLocs", () => args.IncludeLocs.Value, args.IncludeLocs.HasValue }, // optional
                 { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             return RunCommandAs<GeoNearResult<TDocument>>(command);
         }
@@ -1447,7 +1508,7 @@ namespace MongoDB.Driver
                 { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
                 { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
                 { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             var result = RunCommandAs<MapReduceResult>(command);
             result.SetInputDatabase(_database);
@@ -1869,7 +1930,7 @@ namespace MongoDB.Driver
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
                 { "cursor", cursor, cursor != null },
                 { "allowDiskUsage", true, args.AllowDiskUsage },
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
             };
 
             return RunCommandAs<AggregateResult>(aggregateCommand);

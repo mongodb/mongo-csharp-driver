@@ -122,24 +122,26 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAggregateWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
                 _collection.RemoveAll();
                 _collection.DropAllIndexes();
                 _collection.Insert(new BsonDocument("x", 1));
 
-                var args = new AggregateArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Pipeline = new BsonDocument[]
+                    failpoint.Times(1);
+                    var args = new AggregateArgs
                     {
-                        new BsonDocument("$match", Query.Exists("_id").ToBsonDocument())
-                    },
-                    MaxTime = TimeSpan.FromMinutes(1)
-                };
-                var query = _collection.Aggregate(args);
-                var results = query.ToList(); // can't actually test timeout but at least ensure that command runs without errors
-
-                Assert.AreEqual(1, results.Count);
+                        Pipeline = new BsonDocument[]
+                        {
+                            new BsonDocument("$match", Query.Exists("_id").ToBsonDocument())
+                        },
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    var query = _collection.Aggregate(args);
+                    Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
+                }
             }
         }
 
@@ -210,14 +212,14 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCountWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
-                var args = new CountArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Query = Query.Where("sleep(1000)"),
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                    failpoint.Times(1);
+                    var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                }
             }
         }
 
@@ -518,15 +520,18 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindAndModifyWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
-                var args = new FindAndModifyArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Query = Query.Where("sleep(1000)"),
-                    Update = Update.Set("x", 1),
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                    failpoint.Times(1);
+                    var args = new FindAndModifyArgs
+                    {
+                        Update = Update.Set("x", 1),
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                }
             }
         }
 
@@ -652,14 +657,14 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindAndRemoveWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
-                var args = new FindAndRemoveArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Query = Query.Where("sleep(1000)"),
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                    failpoint.Times(1);
+                    var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                }
             }
         }
 
@@ -789,6 +794,64 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFindOneAsGenericWithMaxTime()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
+            {
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument { { "X", 1 } });
+
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
+                {
+                    failpoint.Times(1);
+                    var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
+                }
+            }
+        }
+
+        [Test]
+        public void TestFindOneAsGenericWithSkipAndSortyBy()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var sortBy = SortBy.Ascending("X");
+            var args = new FindOneArgs { Skip = 1, SortBy = sortBy };
+            var document = _collection.FindOneAs<TestClass>(args);
+            Assert.AreEqual(2, document.X);
+        }
+
+        [Test]
+        public void TestFindOneAsWithMaxTime()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
+            {
+                _collection.RemoveAll();
+                _collection.Insert(new BsonDocument { { "X", 1 } });
+
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
+                {
+                    failpoint.Times(1);
+                    var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
+                }
+            }
+        }
+
+        [Test]
+        public void TestFindOneAsWithSkipAndSortyBy()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var sortBy = SortBy.Ascending("X");
+            var args = new FindOneArgs { Skip = 1, SortBy = sortBy };
+            var document = (TestClass)_collection.FindOneAs(typeof(TestClass), args);
+            Assert.AreEqual(2, document.X);
+        }
+
+        [Test]
         public void TestFindOneById()
         {
             _collection.RemoveAll();
@@ -890,9 +953,15 @@ namespace MongoDB.DriverUnitTests
         {
             if (_server.BuildInfo.Version >= new Version(2, 5, 2))
             {
-                var query = Query.Where("sleep(1000)");
-                var maxTime = TimeSpan.FromMilliseconds(1);
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.Find(query).SetMaxTime(maxTime).ToList());
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new BsonDocument("x", 1));
+
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
+                {
+                    failpoint.Times(1);
+                    var maxTime = TimeSpan.FromMilliseconds(1);
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
+                }
             }
         }
 
@@ -947,7 +1016,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoHaystackSearchWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
                 using (_database.RequestStart())
                 {
@@ -960,19 +1029,20 @@ namespace MongoDB.DriverUnitTests
                         _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
                         _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
-                        var args = new GeoHaystackSearchArgs
+                        using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                         {
-                            Near = GeoNearPoint.From(33, 33),
-                            AdditionalFieldName = "Type",
-                            AdditionalFieldValue = "restaurant",
-                            Limit = 30,
-                            MaxDistance = 6,
-                            MaxTime = TimeSpan.FromMinutes(1)
-                        };
-                        var result = _collection.GeoHaystackSearchAs<Place>(args);
-
-                        // there is no easy way to test the timeout, but at least test that it executed
-                        Assert.IsTrue(result.Ok);
+                            failpoint.Times(1);
+                            var args = new GeoHaystackSearchArgs
+                            {
+                                Near = GeoNearPoint.From(33, 33),
+                                AdditionalFieldName = "Type",
+                                AdditionalFieldValue = "restaurant",
+                                Limit = 30,
+                                MaxDistance = 6,
+                                MaxTime = TimeSpan.FromMilliseconds(1)
+                            };
+                            Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+                        }
                     }
                 }
             }
@@ -1247,19 +1317,22 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoNearWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new BsonDocument("loc", new BsonArray { 0, 0 }));
                 _collection.EnsureIndex(IndexKeys.GeoSpatial("loc"));
 
-                var args = new GeoNearArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Near = GeoNearPoint.From(0, 0),
-                    Query = Query.Where("sleep(1000)"),
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                    failpoint.Times(1);
+                    var args = new GeoNearArgs
+                    {
+                        Near = GeoNearPoint.From(0, 0),
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                }
             }
         }
 
@@ -1900,18 +1973,22 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestMapReduceInlineWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
                 _collection.RemoveAll();
                 _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
 
-                var args = new MapReduceArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    MapFunction = "function() { sleep(1000); }",
-                    ReduceFunction = "function(key, value) { return 0; }",
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                    failpoint.Times(1);
+                    var args = new MapReduceArgs
+                    {
+                        MapFunction = "function() { }",
+                        ReduceFunction = "function(key, value) { return 0; }",
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                }
             }
         }
 

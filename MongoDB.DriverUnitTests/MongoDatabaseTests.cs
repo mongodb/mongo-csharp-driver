@@ -105,14 +105,18 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEvalWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
             {
-                var args = new EvalArgs
+                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
                 {
-                    Code = "sleep(1000)",
-                    MaxTime = TimeSpan.FromMilliseconds(1)
-                };
-                Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                    failpoint.Times(1);
+                    var args = new EvalArgs
+                    {
+                        Code = "return 0;",
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
+                }
             }
         }
 

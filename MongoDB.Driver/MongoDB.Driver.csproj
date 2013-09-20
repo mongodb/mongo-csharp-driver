@@ -161,6 +161,7 @@
     <Compile Include="Communication\Security\Mechanisms\Sspi\Win32Exception.cs" />
     <Compile Include="EvalFlags.cs" />
     <Compile Include="FindAndRemoveArgs.cs" />
+    <Compile Include="FindOneArgs.cs" />
     <Compile Include="GeoHaystackSearchArgs.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />

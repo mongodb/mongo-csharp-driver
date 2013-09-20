@@ -410,12 +410,15 @@ namespace MongoDB.Driver
         /// <returns>The result of evaluating the code.</returns>
         public virtual BsonValue Eval(EvalArgs args)
         {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
+
             var command = new CommandDocument
             {
                 { "$eval", args.Code },
                 { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
                 { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
-                { "$maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             var result = RunCommandAs<CommandResult>(command);
             return result.Response["retval"];
