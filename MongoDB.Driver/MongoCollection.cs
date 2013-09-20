@@ -646,7 +646,7 @@ namespace MongoDB.Driver
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
             var query = args.Query ?? new QueryDocument();
-            var readPreference = args.ReadPreference ?? ReadPreference.Primary;
+            var readPreference = args.ReadPreference ?? _settings.ReadPreference;
             var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
             var cursor = new MongoCursor<TDocument>(this, query, readPreference, serializer, args.SerializationOptions);
             if (args.Fields != null)
