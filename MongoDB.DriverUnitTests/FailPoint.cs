@@ -28,8 +28,8 @@ namespace MongoDB.DriverUnitTests
         private readonly IDisposable _request;
         private readonly MongoServer _server;
         private readonly MongoServerInstance _serverInstance;
-        private bool _needsToBeTurnedOff;
         private bool _disposed;
+        private bool _wasSet;
 
         public FailPoint(string name, MongoServer server)
             : this(name, server, ReadPreference.Primary)
@@ -48,7 +48,7 @@ namespace MongoDB.DriverUnitTests
         public void AlwaysOn()
         {
             SetMode("alwaysOn");
-            _needsToBeTurnedOff = true;
+            _wasSet = true;
         }
 
         public bool IsSupported()
@@ -70,7 +70,7 @@ namespace MongoDB.DriverUnitTests
         public void Times(int n)
         {
             SetMode(new BsonDocument("times", n));
-            _needsToBeTurnedOff = true;
+            _wasSet = true;
         }
 
         public void Dispose()
@@ -85,9 +85,9 @@ namespace MongoDB.DriverUnitTests
                     }
                     finally
                     {
-                        if (_needsToBeTurnedOff)
+                        if (_wasSet)
                         {
-                            // use a new request to set the mode off because the original connection could be closed by now
+                            // use a new request to set the mode off because the original connection could be closed if an error occurred
                             using (_server.RequestStart(_adminDatabase, _serverInstance))
                             {
                                 SetMode("off");
