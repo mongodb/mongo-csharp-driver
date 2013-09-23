@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Threading;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Communication.FeatureDetection;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Operations;
 
@@ -611,7 +612,7 @@ namespace MongoDB.Driver
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
                     var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
-                    featureTable = new FeatureDetector(this, connection, buildInfo).CreateFeatureTable();
+                    featureTable = new FeatureTableCreator(this, connection, buildInfo).CreateFeatureTable();
                 }
                 catch (MongoCommandException ex)
                 {

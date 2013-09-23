@@ -84,7 +84,10 @@
       <Link>Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateEnumerableResult.cs" />
-    <Compile Include="Communication\FeatureDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\IFeatureDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureTableCreator.cs" />
+    <Compile Include="Communication\FeatureDetection\ServerParameterDependentFeatureDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\VersionDependentFeatureDetector.cs" />
     <Compile Include="Feature.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="FeatureTable.cs" />
