@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the version of this server instance.
+        /// Gets the build info of this server instance.
         /// </summary>
         public MongoServerBuildInfo BuildInfo
         {
@@ -184,6 +184,20 @@ namespace MongoDB.Driver
         public MongoConnectionPool ConnectionPool
         {
             get { return _connectionPool; }
+        }
+
+        /// <summary>
+        /// Gets the feature table of this server instance.
+        /// </summary>
+        public FeatureTable FeatureTable
+        {
+            get
+            {
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.FeatureTable;
+                }
+            }
         }
 
         /// <summary>
@@ -355,6 +369,24 @@ namespace MongoDB.Driver
         public void RefreshStateAsSoonAsPossible()
         {
             _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+        }
+
+        /// <summary>
+        /// Checks whether this server instance supports a feature.
+        /// </summary>
+        /// <param name="featureId">The id of the feature.</param>
+        /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
+        public bool Supports(FeatureId featureId)
+        {
+            Feature feature;
+            if (FeatureTable.TryGetFeature(featureId, out feature))
+            {
+                return feature.IsSupported;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -573,11 +605,13 @@ namespace MongoDB.Driver
                 isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
 
                 MongoServerBuildInfo buildInfo;
+                FeatureTable featureTable;
                 try
                 {
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
                     var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
+                    featureTable = new FeatureDetector(this, connection, buildInfo).CreateFeatureTable();
                 }
                 catch (MongoCommandException ex)
                 {
@@ -587,6 +621,7 @@ namespace MongoDB.Driver
                         throw;
                     }
                     buildInfo = null;
+                    featureTable = null;
                 }
 
                 ReplicaSetInformation replicaSetInformation = null;
@@ -605,6 +640,7 @@ namespace MongoDB.Driver
                 var newServerInfo = new ServerInformation
                 {
                     BuildInfo = buildInfo,
+                    FeatureTable = featureTable,
                     InstanceType = instanceType,
                     IsArbiter = isMasterResult.IsArbiterOnly,
                     IsMasterResult = isMasterResult,
@@ -638,6 +674,7 @@ namespace MongoDB.Driver
                     var newServerInfo = new ServerInformation
                     {
                         BuildInfo = currentServerInfo.BuildInfo,
+                        FeatureTable = currentServerInfo.FeatureTable,
                         InstanceType = currentServerInfo.InstanceType,
                         IsArbiter = false,
                         IsMasterResult = isMasterResult,
@@ -697,7 +734,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
+        internal TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
             where TCommandResult : CommandResult
         {
             var readerSettings = new BsonBinaryReaderSettings();
@@ -782,6 +819,8 @@ namespace MongoDB.Driver
         private class ServerInformation
         {
             public MongoServerBuildInfo BuildInfo { get; set; }
+
+            public FeatureTable FeatureTable { get; set; }
 
             public MongoServerInstanceType InstanceType { get; set; }
 

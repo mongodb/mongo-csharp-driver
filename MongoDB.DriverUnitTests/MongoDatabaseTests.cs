@@ -26,13 +26,14 @@ namespace MongoDB.DriverUnitTests
     public class MongoDatabaseTests
     {
         private MongoServer _server;
+        private MongoServerInstance _primary;
         private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _server.Connect();
+            _primary = Configuration.TestServer.Primary;
             _database = Configuration.TestDatabase;
             _database.Drop();
         }
@@ -105,20 +106,17 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEvalWithMaxTime()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 5, 3))
+            if (_primary.Supports(FeatureId.MaxTime) && _primary.Supports(FeatureId.FailPoints))
             {
-                using (var failpoint = new FailPoint(FailPoint.MaxTimeAlwaysTimeout, _server))
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    if (failpoint.IsSupported())
+                    failpoint.SetTimes(1);
+                    var args = new EvalArgs
                     {
-                        failpoint.Times(1);
-                        var args = new EvalArgs
-                        {
-                            Code = "return 0;",
-                            MaxTime = TimeSpan.FromMilliseconds(1)
-                        };
-                        Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
-                    }
+                        Code = "return 0;",
+                        MaxTime = TimeSpan.FromMilliseconds(1)
+                    };
+                    Assert.Throws<ExecutionTimeoutException>(() => _database.Eval(args));
                 }
             }
         }

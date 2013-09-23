@@ -19,10 +19,15 @@ using MongoDB.Driver;
 
 namespace MongoDB.DriverUnitTests
 {
+    public static class FailPointName
+    {
+        // public constants
+        public const string MaxTimeAlwaysTimeout = "maxTimeAlwaysTimeOut";
+    }
+
     public class FailPoint : IDisposable
     {
-        public const string MaxTimeAlwaysTimeout = "maxTimeAlwaysTimeOut";
-
+        // private fields
         private readonly MongoDatabase _adminDatabase;
         private readonly string _name;
         private readonly IDisposable _request;
@@ -31,48 +36,26 @@ namespace MongoDB.DriverUnitTests
         private bool _disposed;
         private bool _wasSet;
 
-        public FailPoint(string name, MongoServer server)
-            : this(name, server, ReadPreference.Primary)
+        // constructors
+        public FailPoint(string name, MongoServer server, MongoServerInstance serverInstance)
         {
-        }
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (server == null) { throw new ArgumentNullException("server"); }
+            if (serverInstance == null) { throw new ArgumentNullException("serverInstance"); }
 
-        public FailPoint(string name, MongoServer server, ReadPreference readPreference)
-        {
+            if (server.RequestConnection != null)
+            {
+                throw new InvalidOperationException("FailPoint cannot be used when you are already in a RequestStart.");
+            }
+
             _name = name;
             _server = server;
+            _serverInstance = serverInstance;
             _adminDatabase = server.GetDatabase("admin");
-            _request = server.RequestStart(_adminDatabase, readPreference);
-            _serverInstance = server.RequestConnection.ServerInstance;
+            _request = server.RequestStart(_adminDatabase, serverInstance);
         }
 
-        public void AlwaysOn()
-        {
-            SetMode("alwaysOn");
-            _wasSet = true;
-        }
-
-        public bool IsSupported()
-        {
-            var command = new CommandDocument
-            {
-                { "getParameter", 1 },
-                { "enableTestCommands", 1 }
-            };
-            var result = _adminDatabase.RunCommand(command);
-            return result.Response["enableTestCommands"].ToBoolean();
-        }
-
-        public void Off()
-        {
-            SetMode("off");
-        }
-
-        public void Times(int n)
-        {
-            SetMode(new BsonDocument("times", n));
-            _wasSet = true;
-        }
-
+        // public methods
         public void Dispose()
         {
             if (!_disposed)
@@ -102,6 +85,19 @@ namespace MongoDB.DriverUnitTests
             }
         }
 
+        public void SetAlwaysOn()
+        {
+            SetMode("alwaysOn");
+            _wasSet = true;
+        }
+
+        public void SetTimes(int n)
+        {
+            SetMode(new BsonDocument("times", n));
+            _wasSet = true;
+        }
+
+        // private methods
         private void SetMode(BsonValue mode)
         {
             var command = new CommandDocument
