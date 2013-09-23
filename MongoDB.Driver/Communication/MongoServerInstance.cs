@@ -612,7 +612,15 @@ namespace MongoDB.Driver
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
                     var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
-                    featureTable = new FeatureTableCreator(this, connection, buildInfo).CreateFeatureTable();
+                    var featureContext = new FeatureContext
+                    {
+                        BuildInfo = buildInfo,
+                        Connection = connection,
+                        MaxWireVersion = isMasterResult.MaxWireVersion,
+                        MinWireVersion = isMasterResult.MinWireVersion,
+                        ServerInstance = this
+                    };
+                    featureTable = new FeatureTableCreator().CreateFeatureTable(featureContext);
                 }
                 catch (MongoCommandException ex)
                 {

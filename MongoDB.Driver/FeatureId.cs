@@ -29,12 +29,20 @@ namespace MongoDB.Driver
         /// </summary>
         AggregateWithDollarOut,
         /// <summary>
+        /// The batch modify commands.
+        /// </summary>
+        BatchModifyCommands,
+        /// <summary>
         /// The fail points feature.
         /// </summary>
         FailPoints,
         /// <summary>
         /// The max time feature.
         /// </summary>
-        MaxTime
+        MaxTime,
+        /// <summary>
+        /// The modify op codes.
+        /// </summary>
+        ModifyOpCodes
     }
 }

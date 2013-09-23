@@ -13,12 +13,38 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
 {
-    internal interface IFeatureDetector
+    internal class WireVersionDependency : IFeatureDependency
     {
-        Feature DetectFeature(FeatureContext context);
+        // private fields
+        private readonly int _min;
+        private readonly int _max;
+
+        // constructors
+        public WireVersionDependency(int min, int max)
+        {
+            _min = min;
+            _max = max;
+        }
+
+        // public methods
+        public bool IsMet(FeatureContext context)
+        {
+            if (context.MaxWireVersion < _min)
+            {
+                return false;
+            }
+
+            if (context.MinWireVersion > _max)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

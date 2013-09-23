@@ -17,8 +17,8 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
 {
-    internal interface IFeatureDetector
+    internal interface IFeatureDependency
     {
-        Feature DetectFeature(FeatureContext context);
+        bool IsMet(FeatureContext context);
     }
 }

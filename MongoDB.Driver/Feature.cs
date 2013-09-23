@@ -25,21 +25,12 @@ namespace MongoDB.Driver
         // private fields
         private readonly FeatureId _id;
         private readonly bool _isSupported;
-        private readonly Version _firstSupportedInVersion;
-        private readonly Version _lastSupportedInVersion;
 
         // constructors
-        internal Feature(FeatureId id, bool isSupported, Version firstSupportedInVersion)
-            : this(id, isSupported, firstSupportedInVersion, null)
-        {
-        }
-
-        internal Feature(FeatureId id, bool isSupported, Version firstSupportedInVersion, Version lastSupportedInVersion)
+        internal Feature(FeatureId id, bool isSupported)
         {
             _id = id;
             _isSupported = isSupported;
-            _firstSupportedInVersion = firstSupportedInVersion;
-            _lastSupportedInVersion = lastSupportedInVersion;
         }
 
         // public properties
@@ -55,17 +46,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the version of the server this feature was first supported in.
-        /// </summary>
-        /// <value>
-        /// The version of the server this feature was first supported in.
-        /// </value>
-        public Version FirstSupportedInVersion
-        {
-            get { return _firstSupportedInVersion; }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this feature is supported by the current server instance.
         /// </summary>
         /// <value>
@@ -74,17 +54,6 @@ namespace MongoDB.Driver
         public bool IsSupported
         {
             get { return _isSupported; }
-        }
-
-        /// <summary>
-        /// Gets the version of the server this feature was last supported in.
-        /// </summary>
-        /// <value>
-        /// The version of the server this feature was last supported in (or null if open ended).
-        /// </value>
-        public Version LastSupportedInVersion
-        {
-            get { return _lastSupportedInVersion; }
         }
     }
 }

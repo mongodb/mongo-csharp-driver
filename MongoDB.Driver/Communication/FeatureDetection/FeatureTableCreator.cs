@@ -23,38 +23,31 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // private static fields
         private static readonly IFeatureDetector[] __featureDetectors = new[]
         {
+            // wire version dependent features
+            new FeatureDetector(FeatureId.ModifyOpCodes, new WireVersionDependency(0, 1)), // TODO: update max once server team defines which wire version removes the opcodes
+
             // added in 2.3.0
-            new ServerParameterDependentFeatureDetector(FeatureId.FailPoints, new Version(2, 3, 0), "enableTestCommands"),
+            new FeatureDetector(FeatureId.FailPoints, new ServerVersionDependency(2, 3, 0), new ServerParameterDependency("enableTestCommands")),
 
             // added in 2.5.2
-            new VersionDependentFeatureDetector(FeatureId.AggregateWithCursor, new Version(2, 5, 2)),
-            new VersionDependentFeatureDetector(FeatureId.AggregateWithDollarOut, new Version(2, 5, 2)),
+            new FeatureDetector(FeatureId.AggregateWithCursor, new ServerVersionDependency(2, 5, 2)),
+            new FeatureDetector(FeatureId.AggregateWithDollarOut, new ServerVersionDependency(2, 5, 2)),
+            new FeatureDetector(FeatureId.BatchModifyCommands,
+                new ServerVersionDependency(new Version(2, 5, 2), new Version(2, 5, 2)), // prototype implementation only works with 2.5.2
+                new ServerParameterDependency("enableExperimentalWriteCommands")), // and for now must be explicitly enabled in the server
 
             // added in 2.5.3
-            new VersionDependentFeatureDetector(FeatureId.MaxTime, new Version(2, 5, 3)) // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
+            new FeatureDetector(FeatureId.MaxTime, new ServerVersionDependency(2, 5, 3)) // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
         };
 
-        // private fields
-        private readonly MongoServerBuildInfo _buildInfo;
-        private readonly MongoConnection _connection;
-        private readonly MongoServerInstance _serverInstance;
-
-        // constructors
-        public FeatureTableCreator(MongoServerInstance serverInstance, MongoConnection connection, MongoServerBuildInfo buildInfo)
-        {
-            _serverInstance = serverInstance;
-            _connection = connection;
-            _buildInfo = buildInfo;
-        }
-
         // public methods
-        public FeatureTable CreateFeatureTable()
+        public FeatureTable CreateFeatureTable(FeatureContext context)
         {
             var featureTable = new FeatureTable();
 
             foreach (var featureDetector in __featureDetectors)
             {
-                featureTable.AddFeature(featureDetector.DetectFeature(_serverInstance, _connection, _buildInfo));
+                featureTable.AddFeature(featureDetector.DetectFeature(context));
             }
 
             return featureTable;
