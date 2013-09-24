@@ -110,7 +110,7 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new EvalArgs
                     {
                         Code = "return 0;",

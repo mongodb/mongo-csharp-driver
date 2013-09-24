@@ -131,7 +131,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.DropAllIndexes();
                     _collection.Insert(new BsonDocument("x", 1));
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new AggregateArgs
                     {
                         Pipeline = new BsonDocument[]
@@ -217,7 +217,7 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
                     Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
                 }
@@ -525,7 +525,7 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new FindAndModifyArgs
                     {
                         Update = Update.Set("x", 1),
@@ -662,7 +662,7 @@ namespace MongoDB.DriverUnitTests
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
                     Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
                 }
@@ -804,7 +804,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.RemoveAll();
                     _collection.Insert(new BsonDocument { { "X", 1 } });
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
                     Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
                 }
@@ -833,7 +833,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.RemoveAll();
                     _collection.Insert(new BsonDocument { { "X", 1 } });
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
                     Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
                 }
@@ -959,7 +959,7 @@ namespace MongoDB.DriverUnitTests
                     if (_collection.Exists()) { _collection.Drop(); }
                     _collection.Insert(new BsonDocument("x", 1));
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var maxTime = TimeSpan.FromMilliseconds(1);
                     Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
                 }
@@ -1029,7 +1029,7 @@ namespace MongoDB.DriverUnitTests
                         _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
                         _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
-                        failpoint.SetTimes(1);
+                        failpoint.SetAlwaysOn();
                         var args = new GeoHaystackSearchArgs
                         {
                             Near = GeoNearPoint.From(33, 33),
@@ -1322,7 +1322,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new BsonDocument("loc", new BsonArray { 0, 0 }));
                     _collection.EnsureIndex(IndexKeys.GeoSpatial("loc"));
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new GeoNearArgs
                     {
                         Near = GeoNearPoint.From(0, 0),
@@ -1977,7 +1977,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.RemoveAll();
                     _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
 
-                    failpoint.SetTimes(1);
+                    failpoint.SetAlwaysOn();
                     var args = new MapReduceArgs
                     {
                         MapFunction = "function() { }",
