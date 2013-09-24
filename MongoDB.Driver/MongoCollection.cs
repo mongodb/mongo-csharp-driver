@@ -126,13 +126,14 @@ namespace MongoDB.Driver
             var pipeline = (List<BsonDocument>)args.Pipeline;
             var lastStage = pipeline.LastOrDefault();
 
-            AggregateResult immediateExecutionResult = null;
+            string outputCollectionName = null;
             if (lastStage != null && lastStage.GetElement(0).Name == "$out")
             {
-                immediateExecutionResult = RunAggregateCommand(args);
+                outputCollectionName = lastStage["$out"].AsString;
+                RunAggregateCommand(args);
             }
 
-            return new AggregateEnumerableResult(this, args, immediateExecutionResult);
+            return new AggregateEnumerableResult(this, args, outputCollectionName);
         }
 
         /// <summary>

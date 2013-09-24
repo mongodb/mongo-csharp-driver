@@ -28,33 +28,31 @@ namespace MongoDB.Driver
         // private fields
         private readonly MongoCollection _collection;
         private readonly AggregateArgs _args;
-        private AggregateResult _immediateExecutionResult;
+        private readonly string _outputCollectionName;
 
         // constructors
         public AggregateEnumerableResult(
             MongoCollection collection,
             AggregateArgs args,
-            AggregateResult immediateExecutionResult)
+            string outputCollectionName)
         {
             _collection = collection;
             _args = args; // TODO: make a defensive copy?
-            _immediateExecutionResult = immediateExecutionResult;
+            _outputCollectionName = outputCollectionName;
         }
 
         // public methods
         public IEnumerator<BsonDocument> GetEnumerator()
         {
-            AggregateResult result;
-            if (_immediateExecutionResult != null)
+            if (_outputCollectionName != null)
             {
-                result = _immediateExecutionResult;
-                _immediateExecutionResult = null;
-            }
-            else
-            {
-                result = _collection.RunAggregateCommand(_args);
+                var database = _collection.Database;
+                var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
+                var collection = database.GetCollection<BsonDocument>(_outputCollectionName, collectionSettings);
+                return collection.FindAll().GetEnumerator();
             }
 
+            var result = _collection.RunAggregateCommand(_args);
             if (result.CursorId != 0)
             {
                 var connectionProvider = new ServerInstanceConnectionProvider(result.ServerInstance);
@@ -73,17 +71,6 @@ namespace MongoDB.Driver
                     readerSettings,
                     BsonDocumentSerializer.Instance,
                     null);
-            }
-            else if (result.OutputNamespace != null)
-            {
-                var ns = result.OutputNamespace;
-                var firstDot = ns.IndexOf('.');
-                var databaseName = ns.Substring(0, firstDot);
-                var collectionName = ns.Substring(firstDot + 1);
-                var database = _collection.Database.Server.GetDatabase(databaseName);
-                var collectionSettings = new MongoCollectionSettings { ReadPreference = ReadPreference.Primary };
-                var collection = database.GetCollection<BsonDocument>(collectionName, collectionSettings);
-                return collection.FindAll().GetEnumerator();
             }
             else if (result.ResultDocuments != null)
             {

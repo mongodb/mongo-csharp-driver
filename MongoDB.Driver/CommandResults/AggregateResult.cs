@@ -30,7 +30,6 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly long _cursorId;
-        private readonly string _outputNamespace;
         private readonly IEnumerable<BsonDocument> _resultDocuments;
 
         // constructors
@@ -46,10 +45,6 @@ namespace MongoDB.Driver
                 var cursorDocument = response["cursor"];
                 _cursorId = cursorDocument["id"].ToInt64();
                 _resultDocuments = cursorDocument["firstBatch"].AsBsonArray.Select(v => v.AsBsonDocument);
-            }
-            if (response.Contains("outputNs"))
-            {
-                _outputNamespace = response["outputNs"].AsString;
             }
             if (response.Contains("result"))
             {
@@ -67,17 +62,6 @@ namespace MongoDB.Driver
         public long CursorId
         {
             get { return _cursorId; }
-        }
-
-        /// <summary>
-        /// Gets the output namespace.
-        /// </summary>
-        /// <value>
-        /// The output namespace.
-        /// </value>
-        public string OutputNamespace
-        {
-            get { return _outputNamespace; }
         }
 
         /// <summary>
