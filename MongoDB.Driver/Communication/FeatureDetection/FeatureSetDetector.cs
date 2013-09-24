@@ -23,9 +23,6 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // private static fields
         private static readonly IFeatureDetector[] __featureDetectors = new[]
         {
-            // wire version dependent features
-            new FeatureDetector(FeatureId.ModifyOpCodes, new WireVersionDependency(0, 1)), // TODO: update max once server team defines which wire version removes the opcodes
-
             // added in 2.3.0
             new FeatureDetector(FeatureId.FailPoints, new ServerVersionDependency(2, 3, 0), new ServerParameterDependency("enableTestCommands")),
 

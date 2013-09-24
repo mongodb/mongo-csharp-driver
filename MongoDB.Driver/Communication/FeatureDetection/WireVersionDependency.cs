@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // public methods
         public bool IsMet(FeatureContext context)
         {
-            if (context.MaxWireVersion < _min)
+            if (context.IsMasterResult.MaxWireVersion < _min)
             {
                 return false;
             }
 
-            if (context.MinWireVersion > _max)
+            if (context.IsMasterResult.MinWireVersion > _max)
             {
                 return false;
             }

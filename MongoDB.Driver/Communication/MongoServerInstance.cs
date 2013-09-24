@@ -188,20 +188,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the feature set of this server instance.
-        /// </summary>
-        public FeatureSet FeatureSet
-        {
-            get
-            {
-                lock (_serverInstanceLock)
-                {
-                    return _serverInfo.FeatureSet;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets whether this server instance is an arbiter instance.
         /// </summary>
         public bool IsArbiter
@@ -379,7 +365,12 @@ namespace MongoDB.Driver
         /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
         public bool Supports(FeatureId featureId)
         {
-            return FeatureSet.IsSupported(featureId);
+            FeatureSet featureSet;
+            lock (_serverInstanceLock)
+            {
+                featureSet = _serverInfo.FeatureSet;
+            }
+            return featureSet.IsSupported(featureId);
         }
 
         /// <summary>
@@ -608,8 +599,7 @@ namespace MongoDB.Driver
                     {
                         BuildInfo = buildInfo,
                         Connection = connection,
-                        MaxWireVersion = isMasterResult.MaxWireVersion,
-                        MinWireVersion = isMasterResult.MinWireVersion,
+                        IsMasterResult = isMasterResult,
                         ServerInstance = this
                     };
                     featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);

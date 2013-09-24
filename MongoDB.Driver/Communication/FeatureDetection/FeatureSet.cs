@@ -15,12 +15,12 @@
 
 using System.Collections.Generic;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Communication.FeatureDetection
 {
     /// <summary>
     /// Represents a set of features that are supported by a server instance.
     /// </summary>
-    public class FeatureSet
+    internal class FeatureSet
     {
         // private fields
         private readonly HashSet<FeatureId> _features = new HashSet<FeatureId>();

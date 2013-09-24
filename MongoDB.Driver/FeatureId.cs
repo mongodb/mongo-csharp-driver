@@ -39,10 +39,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// The max time feature.
         /// </summary>
-        MaxTime,
-        /// <summary>
-        /// The modify op codes.
-        /// </summary>
-        ModifyOpCodes
+        MaxTime
     }
 }

@@ -22,8 +22,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // private fields
         private MongoServerBuildInfo _buildInfo;
         private MongoConnection _connection;
-        private int _maxWireVersion;
-        private int _minWireVersion;
+        private IsMasterResult _isMasterResult;
         private MongoServerInstance _serverInstance;
 
         // public methods
@@ -39,16 +38,10 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             set { _connection = value; }
         }
 
-        public int MaxWireVersion
+        public IsMasterResult IsMasterResult
         {
-            get { return _maxWireVersion; }
-            set { _maxWireVersion = value; }
-        }
-
-        public int MinWireVersion
-        {
-            get { return _minWireVersion; }
-            set { _minWireVersion = value; }
+            get { return _isMasterResult; }
+            set { _isMasterResult = value; }
         }
 
         public MongoServerInstance ServerInstance
