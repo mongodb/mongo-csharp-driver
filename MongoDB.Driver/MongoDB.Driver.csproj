@@ -88,13 +88,12 @@
     <Compile Include="Communication\FeatureDetection\FeatureContext.cs" />
     <Compile Include="Communication\FeatureDetection\IFeatureDependency.cs" />
     <Compile Include="Communication\FeatureDetection\IFeatureDetector.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureTableCreator.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureSetDetector.cs" />
     <Compile Include="Communication\FeatureDetection\ServerParameterDependency.cs" />
     <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
     <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
-    <Compile Include="Feature.cs" />
     <Compile Include="FeatureId.cs" />
-    <Compile Include="FeatureTable.cs" />
+    <Compile Include="FeatureSet.cs" />
     <Compile Include="CountArgs.cs" />
     <Compile Include="EvalArgs.cs" />
     <Compile Include="Exceptions\ExceptionMapper.cs" />

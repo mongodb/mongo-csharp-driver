@@ -19,6 +19,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
 {
     internal interface IFeatureDetector
     {
-        Feature DetectFeature(FeatureContext context);
+        FeatureId FeatureId { get; }
+        bool IsFeatureSupported(FeatureContext context);
     }
 }

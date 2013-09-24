@@ -21,8 +21,8 @@ namespace MongoDB.Driver.Communication.FeatureDetection
     internal class ServerVersionDependency : IFeatureDependency
     {
         // private fields
-        private readonly Version _firstSupportedInVersion;
-        private readonly Version _lastSupportedInVersion;
+        private readonly Version _min;
+        private readonly Version _max;
 
         // constructors
         public ServerVersionDependency(int major, int minor, int build)
@@ -30,26 +30,26 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         {
         }
 
-        public ServerVersionDependency(Version firstSupportedInVersionId)
-            : this(firstSupportedInVersionId, null)
+        public ServerVersionDependency(Version min)
+            : this(min, null)
         {
         }
 
-        public ServerVersionDependency(Version firstSupportedInVersionId, Version lastSupportedInVersionId)
+        public ServerVersionDependency(Version min, Version max)
         {
-            _firstSupportedInVersion = firstSupportedInVersionId;
-            _lastSupportedInVersion = lastSupportedInVersionId;
+            _min = min;
+            _max = max;
         }
 
         // public methods
         public bool IsMet(FeatureContext context)
         {
-            if (_firstSupportedInVersion != null && context.BuildInfo.Version < _firstSupportedInVersion)
+            if (_min != null && context.BuildInfo.Version < _min)
             {
                 return false;
             }
 
-            if (_lastSupportedInVersion != null && context.BuildInfo.Version > _lastSupportedInVersion)
+            if (_max != null && context.BuildInfo.Version > _max)
             {
                 return false;
             }

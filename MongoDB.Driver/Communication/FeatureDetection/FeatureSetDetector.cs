@@ -18,7 +18,7 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
 {
-    internal class FeatureTableCreator
+    internal class FeatureSetDetector
     {
         // private static fields
         private static readonly IFeatureDetector[] __featureDetectors = new[]
@@ -41,16 +41,19 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         };
 
         // public methods
-        public FeatureTable CreateFeatureTable(FeatureContext context)
+        public FeatureSet DetectFeatureSet(FeatureContext context)
         {
-            var featureTable = new FeatureTable();
+            var featureSet = new FeatureSet();
 
             foreach (var featureDetector in __featureDetectors)
             {
-                featureTable.AddFeature(featureDetector.DetectFeature(context));
+                if (featureDetector.IsFeatureSupported(context))
+                {
+                    featureSet.AddFeature(featureDetector.FeatureId);
+                }
             }
 
-            return featureTable;
+            return featureSet;
         }
     }
 }

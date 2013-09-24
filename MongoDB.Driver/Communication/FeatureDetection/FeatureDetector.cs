@@ -20,30 +20,34 @@ namespace MongoDB.Driver.Communication.FeatureDetection
     internal class FeatureDetector : IFeatureDetector
     {
         // private fields
+        private readonly FeatureId _featureId;
         private readonly IEnumerable<IFeatureDependency> _dependencies;
-        private readonly Feature _isNotSupportedInstance;
-        private readonly Feature _isSupportedInstance;
 
         // constructors
         public FeatureDetector(FeatureId featureId, params IFeatureDependency[] dependencies)
         {
+            _featureId = featureId;
             _dependencies = dependencies;
-            _isNotSupportedInstance = new Feature(featureId, false);
-            _isSupportedInstance = new Feature(featureId, true);
+        }
+
+        // public properties
+        public FeatureId FeatureId
+        {
+            get { return _featureId; }
         }
 
         // public methods
-        public Feature DetectFeature(FeatureContext context)
+        public bool IsFeatureSupported(FeatureContext context)
         {
             foreach (var dependency in _dependencies)
             {
                 if (!dependency.IsMet(context))
                 {
-                    return _isNotSupportedInstance;
+                    return false;
                 }
             }
 
-            return _isSupportedInstance;
+            return true;
         }
     }
 }

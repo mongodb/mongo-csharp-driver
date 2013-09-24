@@ -188,15 +188,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the feature table of this server instance.
+        /// Gets the feature set of this server instance.
         /// </summary>
-        public FeatureTable FeatureTable
+        public FeatureSet FeatureSet
         {
             get
             {
                 lock (_serverInstanceLock)
                 {
-                    return _serverInfo.FeatureTable;
+                    return _serverInfo.FeatureSet;
                 }
             }
         }
@@ -379,15 +379,7 @@ namespace MongoDB.Driver
         /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
         public bool Supports(FeatureId featureId)
         {
-            Feature feature;
-            if (FeatureTable.TryGetFeature(featureId, out feature))
-            {
-                return feature.IsSupported;
-            }
-            else
-            {
-                return false;
-            }
+            return FeatureSet.IsSupported(featureId);
         }
 
         /// <summary>
@@ -606,7 +598,7 @@ namespace MongoDB.Driver
                 isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
 
                 MongoServerBuildInfo buildInfo;
-                FeatureTable featureTable;
+                FeatureSet featureSet;
                 try
                 {
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
@@ -620,7 +612,7 @@ namespace MongoDB.Driver
                         MinWireVersion = isMasterResult.MinWireVersion,
                         ServerInstance = this
                     };
-                    featureTable = new FeatureTableCreator().CreateFeatureTable(featureContext);
+                    featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -630,7 +622,7 @@ namespace MongoDB.Driver
                         throw;
                     }
                     buildInfo = null;
-                    featureTable = null;
+                    featureSet = null;
                 }
 
                 ReplicaSetInformation replicaSetInformation = null;
@@ -649,7 +641,7 @@ namespace MongoDB.Driver
                 var newServerInfo = new ServerInformation
                 {
                     BuildInfo = buildInfo,
-                    FeatureTable = featureTable,
+                    FeatureSet = featureSet,
                     InstanceType = instanceType,
                     IsArbiter = isMasterResult.IsArbiterOnly,
                     IsMasterResult = isMasterResult,
@@ -683,7 +675,7 @@ namespace MongoDB.Driver
                     var newServerInfo = new ServerInformation
                     {
                         BuildInfo = currentServerInfo.BuildInfo,
-                        FeatureTable = currentServerInfo.FeatureTable,
+                        FeatureSet = currentServerInfo.FeatureSet,
                         InstanceType = currentServerInfo.InstanceType,
                         IsArbiter = false,
                         IsMasterResult = isMasterResult,
@@ -829,7 +821,7 @@ namespace MongoDB.Driver
         {
             public MongoServerBuildInfo BuildInfo { get; set; }
 
-            public FeatureTable FeatureTable { get; set; }
+            public FeatureSet FeatureSet { get; set; }
 
             public MongoServerInstanceType InstanceType { get; set; }
 
