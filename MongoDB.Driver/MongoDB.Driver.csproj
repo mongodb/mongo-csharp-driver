@@ -92,6 +92,7 @@
     <Compile Include="Communication\FeatureDetection\ServerParameterDependency.cs" />
     <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
     <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
+    <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
     <Compile Include="CountArgs.cs" />

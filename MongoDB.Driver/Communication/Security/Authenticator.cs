@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Communication.Security
         {
             // when we start negotiating, MONGODB-CR should be moved to the bottom of the list...
             new MongoCRAuthenticationProtocol(),
+            new X509AuthenticationProtocol(),
             new SaslAuthenticationProtocol(new GssapiMechanism()),
             new SaslAuthenticationProtocol(new PlainMechanism())
         };
