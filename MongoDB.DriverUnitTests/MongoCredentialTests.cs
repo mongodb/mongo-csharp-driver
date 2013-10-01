@@ -26,8 +26,18 @@ namespace MongoDB.DriverUnitTests
         public void TestCreateMongoCRCredential()
         {
             var credential = MongoCredential.CreateMongoCRCredential("db", "username", "password");
+            Assert.AreEqual("MONGODB-CR", credential.Mechanism);
             Assert.AreEqual("username", credential.Username);
             Assert.AreEqual(new PasswordEvidence("password"), credential.Evidence);
+        }
+
+        [Test]
+        public void TestCreateMongoX509Credential()
+        {
+            var credential = MongoCredential.CreateMongoX509Credential("username");
+            Assert.AreEqual("MONGODB-X509", credential.Mechanism);
+            Assert.AreEqual("username", credential.Username);
+            Assert.IsInstanceOf<ExternalEvidence>(credential.Evidence);
         }
 
         [Test]

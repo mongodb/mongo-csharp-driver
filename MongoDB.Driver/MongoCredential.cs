@@ -215,6 +215,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a credential used with MONGODB-CR.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
+        public static MongoCredential CreateMongoX509Credential(string username)
+        {
+            return FromComponents("MONGODB-X509",
+                "$external",
+                username,
+                new ExternalEvidence());
+        }
+
+        /// <summary>
         /// Creates a PLAIN credential.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
@@ -374,9 +389,20 @@ namespace MongoDB.Driver
                         mechanism,
                         new MongoInternalIdentity(source, username),
                         evidence);
+                case "MONGODB-X509":
+                    // always $external for X509.  
+                    source = "$external";
+                    if (evidence == null || !(evidence is ExternalEvidence))
+                    {
+                        throw new ArgumentException("A MONGODB-X509 does not support a password.");
+                    }
+
+                    return new MongoCredential(
+                        mechanism,
+                        new MongoExternalIdentity(username),
+                        evidence);
                 case "GSSAPI":
                     // always $external for GSSAPI.  
-                    // this will likely need to change in 2.6.
                     source = "$external";
 
                     return new MongoCredential(
