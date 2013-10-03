@@ -209,6 +209,18 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
             out uint quality);
 
         /// <summary>
+        /// Enumerates the security packages.
+        /// </summary>
+        /// <param name="numPackages">The pc packages.</param>
+        /// <param name="securityPackageInfoArray">The pp package information.</param>
+        /// <returns>A result code.</returns>
+        /// <remarks>
+        /// http://msdn.microsoft.com/en-us/library/aa375397%28v=VS.85%29.aspx
+        /// </remarks>
+        [DllImport("security.dll", CharSet = CharSet.Auto, SetLastError = false)]
+        public static extern uint EnumerateSecurityPackages(ref uint numPackages, ref IntPtr securityPackageInfoArray);
+
+        /// <summary>
         /// Encrypts the message.
         /// </summary>
         /// <param name="context">The context.</param>
@@ -224,6 +236,18 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
             EncryptQualityOfProtection quality,
             ref SecurityBufferDescriptor pMessage,
             uint sequenceNumber);
+
+        /// <summary>
+        /// Frees the context buffer.
+        /// </summary>
+        /// <param name="contextBuffer">The context buffer.</param>
+        /// <returns>A result code.</returns>
+        /// <remarks>
+        /// http://msdn.microsoft.com/en-us/library/aa375416(v=vs.85).aspx
+        /// </remarks>
+        [DllImport("security.dll", CharSet = CharSet.None)]
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        public static extern uint FreeContextBuffer(ref IntPtr contextBuffer);
 
         /// <summary>
         /// Frees the credentials handle.
