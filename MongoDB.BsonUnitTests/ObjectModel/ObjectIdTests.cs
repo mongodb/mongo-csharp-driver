@@ -311,6 +311,35 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestIConvertibleMethods()
+        {
+            var value = ObjectId.Empty;
+            Assert.AreEqual(TypeCode.Object, ((IConvertible)value).GetTypeCode());
+            Assert.AreEqual(value, ((IConvertible)value).ToType(typeof(object), null)); // not AreSame because of boxing
+            Assert.AreEqual(value, ((IConvertible)value).ToType(typeof(ObjectId), null)); // not AreSame because of boxing
+            Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToChar(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToDateTime(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToDecimal(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToDouble(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToInt16(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToInt32(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToInt64(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToSByte(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToSingle(value));
+            Assert.AreEqual("000000000000000000000000", Convert.ToString(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToUInt16(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToUInt32(value));
+            Assert.Throws<InvalidCastException>(() => Convert.ToUInt64(value));
+
+            Assert.AreEqual(new BsonObjectId(value), ((IConvertible)value).ToType(typeof(BsonObjectId), null));
+            Assert.AreEqual(new BsonString("000000000000000000000000"), ((IConvertible)value).ToType(typeof(BsonString), null));
+            Assert.AreEqual("000000000000000000000000", ((IConvertible)value).ToType(typeof(string), null));
+            Assert.Throws<InvalidCastException>(() => ((IConvertible)value).ToType(typeof(UInt64), null));
+        }
+
+        [Test]
         public void TestParse()
         {
             byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
