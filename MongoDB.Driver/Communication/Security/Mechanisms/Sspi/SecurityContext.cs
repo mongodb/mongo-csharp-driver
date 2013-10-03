@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
     internal class SecurityContext : SafeHandle
     {
         // private static fields
-        private static uint __maxTokenSize;
+        private static int __maxTokenSize;
 
         // private fields
         private SecurityCredential _credential;
@@ -274,7 +274,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         {
             outBytes = null;
 
-            var outputBuffer = new SecurityBufferDescriptor((int)__maxTokenSize);
+            var outputBuffer = new SecurityBufferDescriptor(__maxTokenSize);
             
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
@@ -385,7 +385,8 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         }
 
         // private methods
-        private static uint GetMaxTokenSize()
+        [SecuritySafeCritical]
+        private static int GetMaxTokenSize()
         {
             uint count = 0;
             var array = IntPtr.Zero;
@@ -405,7 +406,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
                     if (package.Name == SspiPackage.Kerberos.ToString())
                     {
-                        return package.MaxTokenSize;
+                        return (int)package.MaxTokenSize;
                     }
                     current = new IntPtr(current.ToInt64() + size);
                 }
