@@ -353,7 +353,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Refreshes the state as soon as possible.
         /// </summary>
-        internal void RefreshStateAsSoonAsPossible()
+        public void RefreshStateAsSoonAsPossible()
         {
             if (_stateVerificationTimer != null)
             {

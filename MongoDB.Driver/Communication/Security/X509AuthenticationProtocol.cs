@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Communication.Security
             {
                 var command = new CommandDocument
                 {
-                    { "authenticate", 1},
+                    { "authenticate", 1 },
                     { "mechanism", Name },
                     { "user", credential.Username }
                 };
