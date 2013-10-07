@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
@@ -32,13 +33,39 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // public methods
         public bool IsMet(FeatureContext context)
         {
+            var parameterValue = GetParameterValue(context);
+
+            // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
+            if (parameterValue.IsString)
+            {
+                var s = parameterValue.AsString;
+                if (s == "0" || s.Equals("false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return parameterValue.ToBoolean();
+        }
+
+        // private methods
+        private BsonValue GetParameterValue(FeatureContext context)
+        {
+            // allow environment variable to provide value in case authentication prevents use of getParameter command
+            var environmentVariableName = "mongod." + _parameterName;
+            var environmentVariableValue = Environment.GetEnvironmentVariable(environmentVariableName);
+            if (environmentVariableValue != null)
+            {
+                return environmentVariableValue;
+            }
+
             var command = new CommandDocument
             {
                 { "getParameter", 1 },
                 { _parameterName, 1 }
             };
             var result = context.ServerInstance.RunCommandAs<CommandResult>(context.Connection, "admin", command);
-            return result.Response[_parameterName].ToBoolean();
+            return result.Response[_parameterName];
         }
     }
 }

@@ -23,9 +23,6 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // private static fields
         private static readonly IFeatureDetector[] __featureDetectors = new[]
         {
-            // added in 2.3.0
-            new FeatureDetector(FeatureId.FailPoints, new ServerVersionDependency(2, 3, 0), new ServerParameterDependency("enableTestCommands")),
-
             // added in 2.5.2
             new FeatureDetector(FeatureId.AggregateWithCursor, new ServerVersionDependency(2, 5, 2)),
             new FeatureDetector(FeatureId.AggregateWithDollarOut, new ServerVersionDependency(2, 5, 2)),

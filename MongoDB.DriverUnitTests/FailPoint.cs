@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Internal;
 
 namespace MongoDB.DriverUnitTests
 {
@@ -56,6 +57,28 @@ namespace MongoDB.DriverUnitTests
         }
 
         // public methods
+        public bool IsSupported()
+        {
+            if (_serverInstance.BuildInfo.Version < new Version(2, 3, 0))
+            {
+                return false;
+            }
+
+            var parameterValue = GetParameterValue();
+
+            // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
+            if (parameterValue.IsString)
+            {
+                var s = parameterValue.AsString;
+                if (s == "0" || s.Equals("false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return parameterValue.ToBoolean();
+        }
+
         public void Dispose()
         {
             if (!_disposed)
@@ -98,6 +121,24 @@ namespace MongoDB.DriverUnitTests
         }
 
         // private methods
+        private BsonValue GetParameterValue()
+        {
+            // allow environment variable to provide value in case authentication prevents use of getParameter command
+            var environmentVariableValue = Environment.GetEnvironmentVariable("mongod.enableTestCommands");
+            if (environmentVariableValue != null)
+            {
+                return environmentVariableValue;
+            }
+
+            var command = new CommandDocument
+            {
+                { "getParameter", 1 },
+                { "enableTestCommands", 1 }
+            };
+            var result = _adminDatabase.RunCommand(command);
+            return result.Response["enableTestCommands"];
+        }
+
         private void SetMode(BsonValue mode)
         {
             var command = new CommandDocument

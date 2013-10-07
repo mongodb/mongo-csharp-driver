@@ -33,10 +33,6 @@ namespace MongoDB.Driver
         /// </summary>
         BatchModifyCommands,
         /// <summary>
-        /// The fail points feature.
-        /// </summary>
-        FailPoints,
-        /// <summary>
         /// The max time feature.
         /// </summary>
         MaxTime
