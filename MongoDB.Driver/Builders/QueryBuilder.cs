@@ -504,13 +504,36 @@ namespace MongoDB.Driver.Builders
                 }
 
                 var operatorValue = queryDocument[0];
-                if (operatorValue.IsBsonRegularExpression)
+                switch (operatorValue.BsonType)
                 {
-                    return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
-                }
+                    case BsonType.Array:
+                    case BsonType.Binary:
+                    case BsonType.Boolean:
+                    case BsonType.DateTime:
+                    case BsonType.Document:
+                    case BsonType.Double:
+                    case BsonType.Int32:
+                    case BsonType.Int64:
+                    case BsonType.MaxKey:
+                    case BsonType.MinKey:
+                    case BsonType.Null:
+                    case BsonType.ObjectId:
+                    case BsonType.String:
+                    case BsonType.Symbol:
+                    case BsonType.Timestamp:
+                    case BsonType.Undefined:
+                        // turn implied equality comparison into $ne
+                        return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
 
-                // turn implied equality comparison into $ne
-                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
+                    case BsonType.RegularExpression:
+                        return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
+
+                    case BsonType.JavaScript:
+                    case BsonType.JavaScriptWithScope:
+                    default:
+                        // $not only works as a meta operator on a single operator so simulate $not using $nor
+                        return new QueryDocument("$nor", new BsonArray { queryDocument });
+                }
             }
 
             // $not only works as a meta operator on a single operator so simulate $not using $nor
