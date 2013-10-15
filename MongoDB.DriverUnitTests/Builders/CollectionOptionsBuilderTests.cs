@@ -38,7 +38,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestSetAutoIndexIdFalse()
         {
             var options = CollectionOptions.SetAutoIndexId(false);
-            var expected = "{ }";
+            var expected = "{ 'autoIndexId' : false }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -54,7 +54,7 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestSetCappedFalse()
         {
             var options = CollectionOptions.SetCapped(false);
-            var expected = "{ }";
+            var expected = "{ 'capped' : false }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -79,6 +79,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var options = CollectionOptions.SetMaxSize(2147483649);
             var expected = "{ 'size' : NumberLong('2147483649') }".Replace("'", "\"");
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestSetNone()
+        {
+            var options = new CollectionOptionsBuilder();
+            var expected = "{ }".Replace("'", "\"");
             Assert.AreEqual(expected, options.ToJson());
         }
     }
