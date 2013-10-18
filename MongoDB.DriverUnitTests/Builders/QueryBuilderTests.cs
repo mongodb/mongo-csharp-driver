@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel;
@@ -33,6 +32,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GTE("x", 3), Query.LTE("x", 10));
             var expected = "{ \"x\" : { \"$gte\" : 3, \"$lte\" : 10 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -40,8 +40,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.All("j", array);
-            var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$all\" : [2, 4, 6] }";
+            Assert.AreEqual(PositiveTest("j", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("j", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -50,8 +51,9 @@ namespace MongoDB.DriverUnitTests.Builders
             var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.All("j", enumerable);
-            var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$all\" : [2, 4, 6] }";
+            Assert.AreEqual(PositiveTest("j", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("j", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -59,8 +61,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.All("j", enumerable);
-            var expected = "{ \"j\" : { \"$all\" : [2, 4, 6] } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$all\" : [2, 4, 6] }";
+            Assert.AreEqual(PositiveTest("j", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("j", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -72,6 +75,7 @@ namespace MongoDB.DriverUnitTests.Builders
             );
             var expected = "{ \"a\" : 1, \"b\" : 2 }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -118,30 +122,65 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestAndWithEmptyQuery()
         {
             var emptyQuery = new QueryDocument();
+            var expected = "{ }";
+            var negated = "{ \"$nor\" : [{ }] }";
 
             var query = Query.And(emptyQuery);
-            var expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.And(emptyQuery, emptyQuery);
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
+
+            expected = "{ \"x\" : 1 }";
+            negated = "{ \"x\" : { \"$ne\" : 1 } }";
 
             query = Query.And(emptyQuery, Query.EQ("x", 1));
-            expected = "{ \"x\" : 1 }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.And(Query.EQ("x", 1), emptyQuery);
-            expected = "{ \"x\" : 1 }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.And(emptyQuery, Query.EQ("x", 1), emptyQuery);
-            expected = "{ \"x\" : 1 }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.And(Query.EQ("x", 1), emptyQuery, Query.EQ("y", 2));
             expected = "{ \"x\" : 1, \"y\" : 2 }";
+            negated = "{ \"$nor\" : [{ \"x\" : 1, \"y\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestAndXNE1()
+        {
+            var query = Query.And(Query.NE("x", 1));
+            var expected = "{ \"x\" : { \"$ne\" : 1 } }";
+            var negated = "{ \"x\" : 1 }";
+            Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestAndXNE1XNE2()
+        {
+            var query = Query.And(Query.NE("x", 1), Query.NE("x", 2));
+            var expected = "{ \"$and\" : [{ \"x\" : { \"$ne\" : 1 } }, { \"x\" : { \"$ne\" : 2 } }] }";
+            Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestAndXNE1YNE2()
+        {
+            var query = Query.And(Query.NE("x", 1), Query.NE("y", 2));
+            var expected = "{ \"x\" : { \"$ne\" : 1 }, \"y\" : { \"$ne\" : 2 } }";
+            Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -153,20 +192,33 @@ namespace MongoDB.DriverUnitTests.Builders
                     Query.GT("b", 1)
                 )
             );
-            var expected = "{ \"x\" : { \"$elemMatch\" : { \"a\" : 1, \"b\" : { \"$gt\" : 1 } } } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$elemMatch\" : { \"a\" : 1, \"b\" : { \"$gt\" : 1 } } }";
+            Assert.AreEqual(PositiveTest("x", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("x", selector), Query.Not(query).ToJson());
         }
 
         [Test]
-        public void TestEquals()
+        public void TestEQ()
         {
             var query = Query.EQ("x", 3);
             var expected = "{ \"x\" : 3 }";
+            var negated = "{ \"x\" : { \"$ne\" : 3 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
-        public void TestEqualsTwoElements()
+        public void TestEQDBRef()
+        {
+            var query = Query.EQ("x", new BsonDocument { { "$ref", "c" }, { "$id", 1 } });
+            var expected = "{ \"x\" : { \"$ref\" : \"c\", \"$id\" : 1 } }";
+            var negated = "{ \"x\" : { \"$ne\" : { \"$ref\" : \"c\", \"$id\" : 1 } } }";
+            Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestEQTwoElements()
         {
             var query = Query.And(
                 Query.EQ("x", 3),
@@ -174,6 +226,7 @@ namespace MongoDB.DriverUnitTests.Builders
             );
             var expected = "{ \"x\" : 3, \"y\" : \"foo\" }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -181,7 +234,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Exists("x");
             var expected = "{ \"x\" : { \"$exists\" : true } }";
+            var negated = "{ \"x\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -189,7 +244,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.NotExists("x");
             var expected = "{ \"x\" : { \"$exists\" : false } }";
+            var negated = "{ \"x\" : { \"$exists\" : true } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -202,16 +259,18 @@ namespace MongoDB.DriverUnitTests.Builders
                 GeoJson.Geographic(40, 18));
 
             var query = Query.GeoIntersects("loc", poly);
-            var expected = "{ 'loc' : { '$geoIntersects' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$geoIntersects' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestGreaterThan()
         {
             var query = Query.GT("k", 10);
-            var expected = "{ \"k\" : { \"$gt\" : 10 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$gt\" : 10 }";
+            Assert.AreEqual(PositiveTest("k", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("k", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -220,6 +279,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GT("k", 10), Query.LT("k", 20));
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -228,6 +288,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GT("k", 10), Query.LTE("k", 20));
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -236,14 +297,16 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GT("k", 10), Query.Mod("k", 10, 1));
             var expected = "{ \"k\" : { \"$gt\" : 10, \"$mod\" : [10, 1] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(query.ToJson()), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestGreaterThanOrEqual()
         {
             var query = Query.GTE("k", 10);
-            var expected = "{ \"k\" : { \"$gte\" : 10 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$gte\" : 10 }";
+            Assert.AreEqual(PositiveTest("k", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("k", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -252,6 +315,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GTE("k", 10), Query.LT("k", 20));
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lt\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -260,6 +324,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.GTE("k", 10), Query.LTE("k", 20));
             var expected = "{ \"k\" : { \"$gte\" : 10, \"$lte\" : 20 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -268,7 +333,9 @@ namespace MongoDB.DriverUnitTests.Builders
             var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.In("j", array);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -278,7 +345,9 @@ namespace MongoDB.DriverUnitTests.Builders
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.In("j", enumerable);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -287,23 +356,27 @@ namespace MongoDB.DriverUnitTests.Builders
             var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.In("j", enumerable);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestLessThan()
         {
             var query = Query.LT("k", 10);
-            var expected = "{ \"k\" : { \"$lt\" : 10 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$lt\" : 10 }";
+            Assert.AreEqual(PositiveTest("k", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("k", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestLessThanOrEqual()
         {
             var query = Query.LTE("k", 10);
-            var expected = "{ \"k\" : { \"$lte\" : 10 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$lte\" : 10 }";
+            Assert.AreEqual(PositiveTest("k", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("k", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -312,6 +385,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.LTE("k", 10), Query.NE("k", 5));
             var expected = "{ \"k\" : { \"$lte\" : 10, \"$ne\" : 5 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -320,30 +394,34 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.LTE("k", 20), Query.NotIn("k", new BsonValue[] { 7, 11 }));
             var expected = "{ \"k\" : { \"$lte\" : 20, \"$nin\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestMatches()
         {
             var query = Query.Matches("a", "/abc/");
-            var expected = "{ 'a' : /abc/ }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "/abc/".Replace("'", "\"");
+            Assert.AreEqual(PositiveTest("a", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("a", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestMod()
         {
             var query = Query.Mod("a", 10, 1);
-            var expected = "{ \"a\" : { \"$mod\" : [10, 1] } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$mod\" : [10, 1] }";
+            Assert.AreEqual(PositiveTest("a", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("a", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestNear()
         {
             var query = Query.Near("loc", 1.1, 2.2);
-            var expected = "{ 'loc' : { '$near' : [1.1, 2.2] } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$near' : [1.1, 2.2] }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -352,6 +430,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.Near("loc", 1.1, 2.2, 3.3);
             var expected = "{ 'loc' : { '$near' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -360,6 +439,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.Near("loc", 1.1, 2.2, 3.3, true);
             var expected = "{ 'loc' : { '$nearSphere' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -367,8 +447,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var point = GeoJson.Point(GeoJson.Geographic(40,18));
             var query = Query.Near("loc", point);
-            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -378,6 +459,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.Near("loc", point, 42);
             var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -387,6 +469,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.Near("loc", point, 42, true);
             var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -401,6 +484,7 @@ namespace MongoDB.DriverUnitTests.Builders
             );
             var expected = "{ \"name\" : \"bob\", \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -415,6 +499,7 @@ namespace MongoDB.DriverUnitTests.Builders
             );
             var expected = "{ \"name\" : \"bob\", \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -425,15 +510,19 @@ namespace MongoDB.DriverUnitTests.Builders
                 Query.EQ("b", 2)
             ));
             var expected = "{ \"$nor\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            var negated = "{ \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
-        public void TestNotEquals()
+        public void TestNE()
         {
             var query = Query.NE("j", 3);
             var expected = "{ \"j\" : { \"$ne\" : 3 } }";
+            var negated = "{ \"j\" : 3 }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -442,7 +531,9 @@ namespace MongoDB.DriverUnitTests.Builders
             var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.NotIn("j", array);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -452,7 +543,9 @@ namespace MongoDB.DriverUnitTests.Builders
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.NotIn("j", enumerable);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -461,18 +554,29 @@ namespace MongoDB.DriverUnitTests.Builders
             var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
             var query = Query.NotIn("j", enumerable);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
+            var negated = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
-        public void TestOr()
+        public void TestOrXEQ1()
         {
-            var query = Query.Or(
-                Query.EQ("a", 1),
-                Query.EQ("b", 2)
-            );
-            var expected = "{ \"$or\" : [{ \"a\" : 1 }, { \"b\" : 2 }] }";
+            var query = Query.Or(Query.EQ("x", 1));
+            var expected = "{ \"x\" : 1 }";
+            var negated = "{ \"x\" : { \"$ne\" : 1 } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestOrXEQ1XEQ2()
+        {
+            var query = Query.Or(Query.EQ("x", 1), Query.EQ("x", 2));
+            var expected = "{ \"$or\" : [{ \"x\" : 1 }, { \"x\" : 2 }] }";
+            var negated = "{ \"$nor\" : [{ \"x\" : 1 }, { \"x\" : 2 }] }";
+            Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
@@ -519,200 +623,50 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestOrWithEmptyQuery()
         {
             var emptyQuery = new QueryDocument();
+            var expected = "{ }";
+            var negated = "{ \"$nor\" : [{ }] }";
 
             var query = Query.Or(emptyQuery);
-            var expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.Or(emptyQuery, emptyQuery);
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.Or(emptyQuery, Query.EQ("x", 1));
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.Or(Query.EQ("x", 1), emptyQuery);
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.Or(emptyQuery, Query.EQ("x", 1), emptyQuery);
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
 
             query = Query.Or(Query.EQ("x", 1), emptyQuery, Query.EQ("y", 2));
-            expected = "{ }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(negated, Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestRegex()
         {
             var query = Query.Matches("name", new BsonRegularExpression("acme.*corp", "i"));
-            var expected = "{ \"name\" : /acme.*corp/i }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotAllBsonArray()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.All("name", array));
-            var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotAllBsonArrayCastToIEnumerableBsonValue()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.All("name", enumerable));
-            var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotAllIEnumerableBsonValue()
-        {
-            var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.All("name", enumerable));
-            var expected = "{ \"name\" : { \"$not\" : { \"$all\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotElemMatch()
-        {
-            var query = Query.Not(Query.ElemMatch("name", Query.GT("x", 1)));
-            var expected = "{ \"name\" : { \"$not\" : { \"$elemMatch\" : { \"x\" : { \"$gt\" : 1 } } } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotExists()
-        {
-            var query = Query.NotExists("name");
-            var expected = "{ \"name\" : { \"$exists\" : false } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotGT()
-        {
-            var query = Query.Not(Query.GT("name", 1));
-            var expected = "{ \"name\" : { \"$not\" : { \"$gt\" : 1 } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotInBsonArray()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.In("name", array));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotInBsonArrayCastToIEnumerableBsonValue()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.In("name", enumerable));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotInIEnumerableBsonValue()
-        {
-            var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.In("name", enumerable));
-            var expected = "{ \"name\" : { \"$nin\" : [1, 2, 3] } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotNinBsonArray()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.NotIn("name", array));
-            var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotNinBsonArrayCastToIEnumerableBsonValue()
-        {
-            var array = new BsonArray { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var enumerable = (IEnumerable<BsonValue>)array;
-            var query = Query.Not(Query.NotIn("name", enumerable));
-            var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotNinIEnumerableBsonValue()
-        {
-            var enumerable = new List<BsonValue> { 1, 2, null, 3 }; // null will be skipped due to functional construction semantics
-            var query = Query.Not(Query.NotIn("name", enumerable));
-            var expected = "{ \"name\" : { \"$not\" : { \"$nin\" : [1, 2, 3] } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotRegex()
-        {
-            var query = Query.Not(Query.Matches("name", new BsonRegularExpression("acme.*corp", "i")));
-            var expected = "{ \"name\" : { \"$not\" : /acme.*corp/i } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
-        }
-
-        [Test]
-        public void TestNotSize()
-        {
-            var query = Query.Not(Query.Size("name", 1));
-            var expected = "{ \"name\" : { \"$not\" : { \"$size\" : 1 } } }";
-            JsonWriterSettings settings = new JsonWriterSettings { OutputMode = JsonOutputMode.JavaScript };
-            var actual = query.ToJson(settings);
-            Assert.AreEqual(expected, actual);
+            var selector = "/acme.*corp/i";
+            Assert.AreEqual(PositiveTest("name", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("name", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestSize()
         {
             var query = Query.Size("k", 20);
-            var expected = "{ \"k\" : { \"$size\" : 20 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$size\" : 20 }";
+            Assert.AreEqual(PositiveTest("k", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("k", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -721,14 +675,16 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.And(Query.Size("k", 20), Query.All("k", new BsonArray { 7, 11 }));
             var expected = "{ \"k\" : { \"$size\" : 20, \"$all\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestType()
         {
             var query = Query.Type("a", BsonType.String);
-            var expected = "{ \"a\" : { \"$type\" : 2 } }";
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ \"$type\" : 2 }";
+            Assert.AreEqual(PositiveTest("a", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("a", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -737,6 +693,7 @@ namespace MongoDB.DriverUnitTests.Builders
             var query = Query.Where("this.a > 3");
             var expected = "{ \"$where\" : { \"$code\" : \"this.a > 3\" } }";
             Assert.AreEqual(expected, query.ToJson());
+            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -749,24 +706,27 @@ namespace MongoDB.DriverUnitTests.Builders
                 GeoJson.Geographic(40, 18));
 
             var query = Query.Within("loc", poly);
-            var expected = "{ 'loc' : { '$within' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$within' : { '$geometry' : { 'type' : 'Polygon', 'coordinates' : [[[40.0, 18.0], [40.0, 19.0], [41.0, 19.0], [40.0, 18.0]]] } } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestWithinCircle()
         {
             var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3);
-            var expected = "{ 'loc' : { '$within' : { '$center' : [[1.1, 2.2], 3.3] } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$within' : { '$center' : [[1.1, 2.2], 3.3] } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
         public void TestWithinCircleSpherical()
         {
             var query = Query.WithinCircle("loc", 1.1, 2.2, 3.3, true);
-            var expected = "{ 'loc' : { '$within' : { '$centerSphere' : [[1.1, 2.2], 3.3] } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$within' : { '$centerSphere' : [[1.1, 2.2], 3.3] } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -774,8 +734,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var points = new double[,] { { 1.1, 2.2 }, { 3.3, 4.4 } };
             var query = Query.WithinPolygon("loc", points);
-            var expected = "{ 'loc' : { '$within' : { '$polygon' : [[1.1, 2.2], [3.3, 4.4]] } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$within' : { '$polygon' : [[1.1, 2.2], [3.3, 4.4]] } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -789,8 +750,24 @@ namespace MongoDB.DriverUnitTests.Builders
         public void TestWithinRectangle()
         {
             var query = Query.WithinRectangle("loc", 1.1, 2.2, 3.3, 4.4);
-            var expected = "{ 'loc' : { '$within' : { '$box' : [[1.1, 2.2], [3.3, 4.4]] } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            var selector = "{ '$within' : { '$box' : [[1.1, 2.2], [3.3, 4.4]] } }";
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
+        }
+
+        private string NegateArbitraryQuery(string query)
+        {
+            return "{ \"$nor\" : [#Q] }".Replace("#Q", query);
+        }
+
+        private string NegativeTest(string fieldName, string selector)
+        {
+            return "{ '#fieldName' : { '$not' : #selector } }".Replace("#fieldName", fieldName).Replace("#selector", selector).Replace("'", "\"");
+        }
+
+        private string PositiveTest(string fieldName, string selector)
+        {
+            return "{ '#fieldName' : #selector }".Replace("#fieldName", fieldName).Replace("#selector", selector).Replace("'", "\"");
         }
     }
 }

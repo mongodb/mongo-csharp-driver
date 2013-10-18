@@ -133,8 +133,8 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp283
             var query4 = Query.Not(Query.NotIn("name", _bsonValueList));
             var query5 = Query.Not(Query.NotIn("name", _ienumerableBsonValue));
 
-            var expectedSingle = "{ 'name' : { '$not' : { '$nin' : [1] } } }".Replace("'", "\"");
-            var expectedMultiple = "{ 'name' : { '$not' : { '$nin' : [1, 2, 3] } } }".Replace("'", "\"");
+            var expectedSingle = "{ 'name' : { '$in' : [1] } }".Replace("'", "\"");
+            var expectedMultiple = "{ 'name' : { '$in' : [1, 2, 3] } }".Replace("'", "\"");
 
             Assert.AreEqual(expectedSingle, query1.ToJson());
             Assert.AreEqual(expectedMultiple, query2.ToJson());
