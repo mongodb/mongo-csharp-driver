@@ -48,7 +48,8 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// </returns>
         public bool CanUse(MongoCredential credential)
         {
-            return credential.Evidence is PasswordEvidence;
+            return credential.Mechanism.Equals(Name, StringComparison.InvariantCultureIgnoreCase) &&
+                credential.Evidence is PasswordEvidence;
         }
 
         /// <summary>
