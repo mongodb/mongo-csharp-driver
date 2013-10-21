@@ -404,7 +404,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
                 for (int i = 0; i < count; i++)
                 {
                     var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
-                    if (package.Name == SspiPackage.Kerberos.ToString())
+                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         return (int)package.MaxTokenSize;
                     }
