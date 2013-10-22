@@ -1930,7 +1930,7 @@ namespace MongoDB.Driver
                 { "aggregate", _name },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
                 { "cursor", cursor, cursor != null },
-                { "allowDiskUsage", true, args.AllowDiskUsage },
+                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue },
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
             };
 

@@ -83,9 +83,31 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestAggregateWithCursor()
+        public void TestAggregateAllowDiskUsage()
         {
-            if (_primary.Supports(FeatureId.AggregateWithCursor))
+            if (_primary.Supports(FeatureId.AggregateAllowDiskUsage))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+
+                var query = _collection.Aggregate(new AggregateArgs
+                {
+                    Pipeline = new BsonDocument[]
+                    {
+                        new BsonDocument("$project", new BsonDocument("x", 1))
+                    },
+                    AllowDiskUsage = true
+                });
+                var results = query.ToList(); // all we can test is that the server doesn't reject the allowDiskUsage argument
+
+                Assert.AreEqual(0, results.Count);
+            }
+        }
+
+        [Test]
+        public void TestAggregateCursor()
+        {
+            if (_primary.Supports(FeatureId.AggregateCursor))
             {
                 _collection.RemoveAll();
                 _collection.DropAllIndexes();
@@ -121,7 +143,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestAggregateWithMaxTime()
+        public void TestAggregateMaxTime()
         {
             if (_primary.Supports(FeatureId.MaxTime))
             {
@@ -150,9 +172,9 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestAggregateWithDollarOut()
+        public void TestAggregateOutputToCollection()
         {
-            if (_primary.Supports(FeatureId.AggregateWithDollarOut))
+            if (_primary.Supports(FeatureId.AggregateOutputToCollection))
             {
                 _collection.RemoveAll();
                 _collection.DropAllIndexes();

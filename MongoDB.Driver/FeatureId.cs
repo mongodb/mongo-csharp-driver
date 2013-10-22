@@ -21,13 +21,17 @@ namespace MongoDB.Driver
     public enum FeatureId
     {
         /// <summary>
-        /// The aggregate with cursor feature.
+        /// The aggregate allow disk usage feature.
         /// </summary>
-        AggregateWithCursor,
+        AggregateAllowDiskUsage,
         /// <summary>
-        /// The aggregate with $out feature.
+        /// The aggregate cursor feature.
         /// </summary>
-        AggregateWithDollarOut,
+        AggregateCursor,
+        /// <summary>
+        /// The aggregate output to collection feature.
+        /// </summary>
+        AggregateOutputToCollection,
         /// <summary>
         /// The batch modify commands.
         /// </summary>

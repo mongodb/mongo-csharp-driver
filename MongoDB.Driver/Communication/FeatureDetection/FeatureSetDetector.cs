@@ -24,8 +24,9 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         private static readonly IFeatureDetector[] __featureDetectors = new[]
         {
             // added in 2.5.2
-            new FeatureDetector(FeatureId.AggregateWithCursor, new ServerVersionDependency(2, 5, 2)),
-            new FeatureDetector(FeatureId.AggregateWithDollarOut, new ServerVersionDependency(2, 5, 2)),
+            new FeatureDetector(FeatureId.AggregateAllowDiskUsage, new ServerVersionDependency(2, 5, 2)),
+            new FeatureDetector(FeatureId.AggregateCursor, new ServerVersionDependency(2, 5, 2)),
+            new FeatureDetector(FeatureId.AggregateOutputToCollection, new ServerVersionDependency(2, 5, 2)),
             new FeatureDetector(FeatureId.BatchModifyCommands,
                 new ServerVersionDependency(new Version(2, 5, 2), new Version(2, 5, 2)), // prototype implementation only works with 2.5.2
                 new ServerParameterDependency("enableExperimentalWriteCommands")), // and for now must be explicitly enabled in the server
