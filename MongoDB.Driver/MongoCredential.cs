@@ -190,7 +190,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>A credential for MONGODB-CR.</returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, string password)
         {
             return FromComponents("MONGODB-CR",
@@ -205,7 +205,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>A credential for MONGODB-CR.</returns>
         public static MongoCredential CreateMongoCRCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents("MONGODB-CR",
@@ -217,10 +217,8 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a credential used with MONGODB-CR.
         /// </summary>
-        /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>A credential for MONGODB-X509.</returns>
         public static MongoCredential CreateMongoX509Credential(string username)
         {
             return FromComponents("MONGODB-X509",
@@ -235,7 +233,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>A credential for PLAIN.</returns>
         public static MongoCredential CreatePlainCredential(string databaseName, string username, string password)
         {
             return FromComponents("PLAIN",
@@ -250,7 +248,7 @@ namespace MongoDB.Driver
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <returns></returns>
+        /// <returns>A credential for PLAIN.</returns>
         public static MongoCredential CreatePlainCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents("PLAIN",
