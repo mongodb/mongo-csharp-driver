@@ -260,11 +260,38 @@ namespace MongoDB.Driver
         /// <summary>
         /// Returns the distinct values for a given field.
         /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>The distint values of the field.</returns>
+        public IEnumerable<TValue> Distinct<TValue>(DistinctArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Key == null) { throw new ArgumentException("Key is null.", "args"); }
+
+            var command = new CommandDocument
+            {
+                { "distinct", _name },
+                { "key", args.Key },
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var valueSerializer = args.ValueSerializer ?? BsonSerializer.LookupSerializer(typeof(TValue));
+            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer, args.ValueSerializationOptions);
+            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer, null);
+            return result.Values;
+        }
+
+        /// <summary>
+        /// Returns the distinct values for a given field.
+        /// </summary>
         /// <param name="key">The key of the field.</param>
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<BsonValue> Distinct(string key)
         {
-            return Distinct(key, Query.Null);
+            return Distinct<BsonValue>(new DistinctArgs
+            {
+                Key = key,
+                ValueSerializer = BsonValueSerializer.Instance
+            });
         }
 
         /// <summary>
@@ -275,7 +302,12 @@ namespace MongoDB.Driver
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<BsonValue> Distinct(string key, IMongoQuery query)
         {
-            return Distinct<BsonValue>(key, query, BsonValueSerializer.Instance, null);
+            return Distinct<BsonValue>(new DistinctArgs
+            {
+                Key = key,
+                Query = query,
+                ValueSerializer = BsonValueSerializer.Instance
+            });
         }
 
         /// <summary>
@@ -286,7 +318,10 @@ namespace MongoDB.Driver
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<TValue> Distinct<TValue>(string key)
         {
-            return Distinct<TValue>(key, Query.Null);
+            return Distinct<TValue>(new DistinctArgs
+            {
+                Key = key
+            });
         }
 
         /// <summary>
@@ -298,8 +333,11 @@ namespace MongoDB.Driver
         /// <returns>The distint values of the field.</returns>
         public virtual IEnumerable<TValue> Distinct<TValue>(string key, IMongoQuery query)
         {
-            var valueSerializer = BsonSerializer.LookupSerializer(typeof(TValue));
-            return Distinct<TValue>(key, query, valueSerializer, null);
+            return Distinct<TValue>(new DistinctArgs
+            {
+                Key = key,
+                Query = query
+            });
         }
 
         /// <summary>
@@ -646,6 +684,8 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
         {
+            if (args == null) { throw new ArgumentNullException("args"); }
+
             var query = args.Query ?? new QueryDocument();
             var readPreference = args.ReadPreference ?? _settings.ReadPreference;
             var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
@@ -805,7 +845,7 @@ namespace MongoDB.Driver
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
                 { "search", search, search != null }, // optional
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
         }
@@ -991,7 +1031,24 @@ namespace MongoDB.Driver
         /// <returns>The stats for this collection as a <see cref="CollectionStatsResult"/>.</returns>
         public virtual CollectionStatsResult GetStats()
         {
-            var command = new CommandDocument("collstats", _name);
+            return GetStats(new GetStatsArgs());
+        }
+
+        /// <summary>
+        /// Gets the stats for this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>The stats for this collection as a <see cref="CollectionStatsResult"/>.</returns>
+        public virtual CollectionStatsResult GetStats(GetStatsArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+
+            var command = new CommandDocument
+            {
+                { "collstats", _name },
+                { "scale", () => args.Scale.Value, args.Scale.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
             return RunCommandAs<CollectionStatsResult>(command);
         }
 
@@ -1030,6 +1087,50 @@ namespace MongoDB.Driver
         /// <summary>
         /// Runs the group command on this collection.
         /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A list of results as BsonDocuments.</returns>
+        public virtual IEnumerable<BsonDocument> Group(GroupArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.KeyFields == null && args.KeyFunction == null)
+            {
+                throw new ArgumentException("KeyFields and KeyFunction are both null.", "args");
+            }
+            if (args.KeyFields != null && args.KeyFunction != null)
+            {
+                throw new ArgumentException("KeyFields and KeyFunction are mutually exclusive.", "args");
+            }
+            if (args.Initial == null)
+            {
+                throw new ArgumentException("Initial is null.", "args");
+            }
+            if (args.ReduceFunction == null)
+            {
+                throw new ArgumentException("ReduceFunction is null.", "args");
+            }
+
+            var command = new CommandDocument
+            {
+                { "group", new BsonDocument
+                    {
+                        { "ns", _name },
+                        { "key", () => BsonDocumentWrapper.Create(args.KeyFields), args.KeyFields != null }, // key and keyf are mutually exclusive
+                        { "$keyf", args.KeyFunction, args.KeyFunction != null },
+                        { "$reduce", args.ReduceFunction },
+                        { "initial", args.Initial },
+                        { "cond", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                        { "finalize", args.FinalizeFunction, args.FinalizeFunction != null } // optional
+                    }
+                },
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var result = RunCommandAs<CommandResult>(command);
+            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+        }
+
+        /// <summary>
+        /// Runs the group command on this collection.
+        /// </summary>
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="keyFunction">A JavaScript function that returns the key value to group on.</param>
         /// <param name="initial">Initial value passed to the reduce function for each group.</param>
@@ -1043,35 +1144,14 @@ namespace MongoDB.Driver
             BsonJavaScript reduce,
             BsonJavaScript finalize)
         {
-            if (keyFunction == null)
+            return Group(new GroupArgs
             {
-                throw new ArgumentNullException("keyFunction");
-            }
-            if (initial == null)
-            {
-                throw new ArgumentNullException("initial");
-            }
-            if (reduce == null)
-            {
-                throw new ArgumentNullException("reduce");
-            }
-
-            var command = new CommandDocument
-            {
-                {
-                    "group", new BsonDocument
-                    {
-                        { "ns", _name },
-                        { "condition", BsonDocumentWrapper.Create(query), query != null }, // condition is optional
-                        { "$keyf", keyFunction },
-                        { "initial", initial },
-                        { "$reduce", reduce },
-                        { "finalize", finalize, finalize != null } // finalize is optional
-                    }
-                }
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+                Query = query,
+                KeyFunction = keyFunction,
+                Initial = initial,
+                ReduceFunction = reduce,
+                FinalizeFunction = finalize
+            });
         }
 
         /// <summary>
@@ -1090,35 +1170,14 @@ namespace MongoDB.Driver
             BsonJavaScript reduce,
             BsonJavaScript finalize)
         {
-            if (keys == null)
+            return Group(new GroupArgs
             {
-                throw new ArgumentNullException("keys");
-            }
-            if (initial == null)
-            {
-                throw new ArgumentNullException("initial");
-            }
-            if (reduce == null)
-            {
-                throw new ArgumentNullException("reduce");
-            }
-
-            var command = new CommandDocument
-            {
-                {
-                    "group", new BsonDocument
-                    {
-                        { "ns", _name },
-                        { "condition", BsonDocumentWrapper.Create(query), query != null }, // condition is optional
-                        { "key", BsonDocumentWrapper.Create(keys) },
-                        { "initial", initial },
-                        { "$reduce", reduce },
-                        { "finalize", finalize, finalize != null } // finalize is optional
-                    }
-                }
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"].AsBsonArray.Values.Cast<BsonDocument>();
+                Query = query,
+                KeyFields = keys,
+                Initial = initial,
+                ReduceFunction = reduce,
+                FinalizeFunction = finalize
+            });
         }
 
         /// <summary>
@@ -1137,7 +1196,14 @@ namespace MongoDB.Driver
             BsonJavaScript reduce,
             BsonJavaScript finalize)
         {
-            return Group(query, GroupBy.Keys(key), initial, reduce, finalize);
+            return Group(new GroupArgs
+            {
+                Query = query,
+                KeyFields = GroupBy.Keys(key),
+                Initial = initial,
+                ReduceFunction = reduce,
+                FinalizeFunction = finalize
+            });
         }
 
         /// <summary>
@@ -1485,7 +1551,7 @@ namespace MongoDB.Driver
             }
             else
             {
-                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null when OutputMode is not Inline.", "args"); }
+                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null and OutputMode is not Inline.", "args"); }
                 var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
                 output = new BsonDocument
                 {
@@ -1887,7 +1953,25 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="ValidateCollectionResult"/>.</returns>
         public virtual ValidateCollectionResult Validate()
         {
-            var command = new CommandDocument("validate", _name);
+            return Validate(new ValidateCollectionArgs());
+        }
+
+        /// <summary>
+        /// Validates the integrity of this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="ValidateCollectionResult"/>.</returns>
+        public virtual ValidateCollectionResult Validate(ValidateCollectionArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+
+            var command = new CommandDocument
+            {
+                { "validate", _name },
+                { "full", () => args.Full.Value, args.Full.HasValue }, // optional
+                { "scandata", () => args.ScanData.Value, args.ScanData.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
             return RunCommandAs<ValidateCollectionResult>(command);
         }
 
@@ -1929,32 +2013,15 @@ namespace MongoDB.Driver
             {
                 { "aggregate", _name },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
-                { "cursor", cursor, cursor != null },
-                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue },
-                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
+                { "cursor", cursor, cursor != null }, // optional
+                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
 
             return RunCommandAs<AggregateResult>(aggregateCommand);
         }
 
         // private methods
-        private IEnumerable<TValue> Distinct<TValue>(
-            string key,
-            IMongoQuery query,
-            IBsonSerializer valueSerializer,
-            IBsonSerializationOptions valueSerializationOptions)
-        {
-            var command = new CommandDocument
-            {
-                { "distinct", _name },
-                { "key", key },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
-            };
-            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer, valueSerializationOptions);
-            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer, null);
-            return result.Values;
-        }
-
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer, serializationOptions);

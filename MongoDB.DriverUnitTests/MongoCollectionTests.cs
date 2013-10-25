@@ -404,6 +404,30 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestDistinctWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.Drop();
+                        _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+
+                        failpoint.SetAlwaysOn();
+                        var args = new DistinctArgs
+                        {
+                            Key = "x",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Distinct<BsonValue>(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestDistinctWithQuery()
         {
             _collection.RemoveAll();
@@ -1455,18 +1479,51 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestGroup()
+        public void TestGroupWithFinalizeFunction()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-            var initial = new BsonDocument("count", 0);
-            var reduce = "function(doc, prev) { prev.count += 1 }";
-            var results = _collection.Group(Query.Null, "x", initial, reduce, null).ToArray();
+
+            var results = _collection.Group(new GroupArgs
+            {
+                KeyFields = GroupBy.Keys("x"),
+                Initial = new BsonDocument("count", 0),
+                ReduceFunction = "function(doc, prev) { prev.count += 1 }",
+                FinalizeFunction = "function(result) { result.count = -result.count; }"
+            }).ToArray();
+
+            Assert.AreEqual(3, results.Length);
+            Assert.AreEqual(1, results[0]["x"].ToInt32());
+            Assert.AreEqual(-2, results[0]["count"].ToInt32());
+            Assert.AreEqual(2, results[1]["x"].ToInt32());
+            Assert.AreEqual(-1, results[1]["count"].ToInt32());
+            Assert.AreEqual(3, results[2]["x"].ToInt32());
+            Assert.AreEqual(-3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
+        public void TestGroupWithKeyFields()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var results = _collection.Group(new GroupArgs
+            {
+                KeyFields = GroupBy.Keys("x"),
+                Initial = new BsonDocument("count", 0),
+                ReduceFunction = "function(doc, prev) { prev.count += 1 }"
+            }).ToArray();
+
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -1477,19 +1534,23 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestGroupByFunction()
+        public void TestGroupWithKeyFunction()
         {
-            _collection.RemoveAll();
+            _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
             _collection.Insert(new BsonDocument("x", 3));
-            var keyFunction = (BsonJavaScript)"function(doc) { return { x : doc.x }; }";
-            var initial = new BsonDocument("count", 0);
-            var reduce = (BsonJavaScript)"function(doc, prev) { prev.count += 1 }";
-            var results = _collection.Group(Query.Null, keyFunction, initial, reduce, null).ToArray();
+
+            var results = _collection.Group(new GroupArgs
+            {
+                KeyFunction = "function(doc) { return { x : doc.x }; }",
+                Initial = new BsonDocument("count", 0),
+                ReduceFunction = "function(doc, prev) { prev.count += 1 }"
+            }).ToArray();
+
             Assert.AreEqual(3, results.Length);
             Assert.AreEqual(1, results[0]["x"].ToInt32());
             Assert.AreEqual(2, results[0]["count"].ToInt32());
@@ -1497,6 +1558,58 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, results[1]["count"].ToInt32());
             Assert.AreEqual(3, results[2]["x"].ToInt32());
             Assert.AreEqual(3, results[2]["count"].ToInt32());
+        }
+
+        [Test]
+        public void TestGroupWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.Drop();
+                        _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+
+                        failpoint.SetAlwaysOn();
+                        var args = new GroupArgs
+                        {
+                            KeyFields = GroupBy.Keys("x"),
+                            Initial = new BsonDocument("count", 0),
+                            ReduceFunction = "function(doc, prev) { prev.count += 1 }",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Group(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestGroupWithQuery()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var results = _collection.Group(new GroupArgs
+            {
+                Query = Query.LT("x", 3),
+                KeyFields = GroupBy.Keys("x"),
+                Initial = new BsonDocument("count", 0),
+                ReduceFunction = "function(doc, prev) { prev.count += 1 }"
+            }).ToArray();
+
+            Assert.AreEqual(2, results.Length);
+            Assert.AreEqual(1, results[0]["x"].ToInt32());
+            Assert.AreEqual(2, results[0]["count"].ToInt32());
+            Assert.AreEqual(2, results[1]["x"].ToInt32());
+            Assert.AreEqual(1, results[1]["count"].ToInt32());
         }
 
         [Test]
@@ -2240,6 +2353,41 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestGetStatsWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.Drop();
+                        _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+
+                        failpoint.SetAlwaysOn();
+                        var args = new GetStatsArgs
+                        {
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.GetStats(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestGetStatsWithScale()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+
+            var stats1 = _collection.GetStats();
+            var args = new GetStatsArgs { Scale = 2 };
+            var stats2 = _collection.GetStats(args);
+            Assert.AreEqual(stats1.DataSize / 2, stats2.DataSize);
+        }
+
+        [Test]
         public void TestStrictRead()
         {
             var settings = new MongoCollectionSettings { ReadEncoding = new UTF8Encoding(false, true) };
@@ -2348,10 +2496,13 @@ namespace MongoDB.DriverUnitTests
                 if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
                 {
                     // ensure collection exists
-                    _collection.RemoveAll();
+                    _collection.Drop();
                     _collection.Insert(new BsonDocument("x", 1));
 
                     var result = _collection.Validate();
+                    Assert.AreEqual(_collection.FullName, result.Namespace);
+
+                    // just test that all the values can be extracted without throwing an exception, we don't know what the correct values should be
                     var ns = result.Namespace;
                     var firstExtent = result.FirstExtent;
                     var lastExtent = result.LastExtent;
@@ -2375,6 +2526,77 @@ namespace MongoDB.DriverUnitTests
                     var valid = result.IsValid;
                     var errors = result.Errors;
                     var warning = result.Warning;
+                }
+            }
+        }
+
+        [Test]
+        public void TestValidateWithFull()
+        {
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    // ensure collection exists
+                    _collection.Drop();
+                    _collection.Insert(new BsonDocument("x", 1));
+
+                    var result = _collection.Validate(new ValidateCollectionArgs
+                    {
+                        Full = true
+                    });
+
+                    Assert.AreEqual(_collection.FullName, result.Namespace);
+                }
+            }
+        }
+
+        [Test]
+        public void TestValidateWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    var instance = _server.RequestConnection.ServerInstance; // FailPoint did a RequestStart
+                    if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                    {
+                        if (failpoint.IsSupported())
+                        {
+                            _collection.Drop();
+                            _collection.Insert(new BsonDocument("x", 1)); // ensure collection is not empty
+
+                            failpoint.SetAlwaysOn();
+                            var args = new ValidateCollectionArgs
+                            {
+                                MaxTime = TimeSpan.FromMilliseconds(1)
+                            };
+                            Assert.Throws<ExecutionTimeoutException>(() => _collection.Validate(args));
+                        }
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestValidateWithScanData()
+        {
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    // ensure collection exists
+                    _collection.Drop();
+                    _collection.Insert(new BsonDocument("x", 1));
+
+                    var result = _collection.Validate(new ValidateCollectionArgs
+                    {
+                        ScanData = true
+                    });
+
+                    Assert.AreEqual(_collection.FullName, result.Namespace);
                 }
             }
         }

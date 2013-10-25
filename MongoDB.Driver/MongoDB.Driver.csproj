@@ -93,6 +93,7 @@
     <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
     <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
     <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
+    <Compile Include="DistinctArgs.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
     <Compile Include="CountArgs.cs" />
@@ -237,6 +238,8 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
     <Compile Include="GeoNearArgs.cs" />
     <Compile Include="GeoNearPoint.cs" />
+    <Compile Include="GetStatsArgs.cs" />
+    <Compile Include="GroupArgs.cs" />
     <Compile Include="InsertFlags.cs" />
     <Compile Include="IMongoCollectionOptions.cs" />
     <Compile Include="IMongoCommand.cs" />
@@ -288,6 +291,7 @@
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
     <Compile Include="SystemProfileInfo.cs" />
+    <Compile Include="ValidateCollectionArgs.cs" />
     <Compile Include="Wrappers\BaseWrapper.cs" />
     <Compile Include="Wrappers\CollectionOptionsDocument.cs" />
     <Compile Include="Wrappers\CollectionOptionsWrapper.cs" />
