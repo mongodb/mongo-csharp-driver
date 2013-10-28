@@ -728,7 +728,7 @@ namespace MongoDB.Driver
             }
         }
 
-        internal TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
+        private TCommandResult RunCommandAs<TCommandResult>(MongoConnection connection, string databaseName, IMongoCommand command)
             where TCommandResult : CommandResult
         {
             var readerSettings = new BsonBinaryReaderSettings();

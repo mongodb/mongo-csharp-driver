@@ -15,7 +15,10 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
 {
@@ -64,7 +67,20 @@ namespace MongoDB.Driver.Communication.FeatureDetection
                 { "getParameter", 1 },
                 { _parameterName, 1 }
             };
-            var result = context.ServerInstance.RunCommandAs<CommandResult>(context.Connection, "admin", command);
+
+            var commandOperation = new CommandOperation<CommandResult>(
+                "admin", // databaseName
+                new BsonBinaryReaderSettings(), // readerSettings
+                new BsonBinaryWriterSettings(), // writerSettings
+                command,
+                QueryFlags.SlaveOk,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                BsonSerializer.LookupSerializer(typeof(CommandResult)) // resultSerializer
+            );
+
+            var result = commandOperation.Execute(context.Connection);
             return result.Response[_parameterName];
         }
     }
