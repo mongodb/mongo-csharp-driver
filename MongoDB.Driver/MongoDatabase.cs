@@ -380,17 +380,13 @@ namespace MongoDB.Driver
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
         /// <returns>The result of evaluating the code.</returns>
+        [Obsolete("Use the overload of Eval that has an EvalArgs parameter instead.")]
         public virtual BsonValue Eval(EvalFlags flags, BsonJavaScript code, params object[] args)
         {
-            var argsArray = (args != null && args.Length > 0) ? new BsonArray(args) : null;
-            var command = new CommandDocument
-            {
-                { "$eval", code },
-                { "args", argsArray, argsArray != null },
-                { "nolock", true, (flags & EvalFlags.NoLock) != 0 }
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["retval"];
+            var mappedArgs = args.Select(a => BsonTypeMapper.MapToBsonValue(a));
+            var @lock = ((flags & EvalFlags.NoLock) != 0) ? (bool?)false : null;
+            var evalArgs = new EvalArgs { Code = code, Args = mappedArgs, Lock = @lock };
+            return Eval(evalArgs);
         }
 
         /// <summary>
@@ -399,9 +395,33 @@ namespace MongoDB.Driver
         /// <param name="code">The code to evaluate.</param>
         /// <param name="args">Optional arguments (only used when the code is a function with parameters).</param>
         /// <returns>The result of evaluating the code.</returns>
+        [Obsolete("Use the overload of Eval that has an EvalArgs parameter instead.")]
         public virtual BsonValue Eval(BsonJavaScript code, params object[] args)
         {
-            return Eval(EvalFlags.None, code, args);
+            var mappedArgs = args.Select(a => BsonTypeMapper.MapToBsonValue(a));
+            var evalArgs = new EvalArgs { Code = code, Args = mappedArgs };
+            return Eval(evalArgs);
+        }
+
+        /// <summary>
+        /// Evaluates JavaScript code at the server.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>The result of evaluating the code.</returns>
+        public virtual BsonValue Eval(EvalArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Code == null) { throw new ArgumentException("Code is null.", "args"); }
+
+            var command = new CommandDocument
+            {
+                { "$eval", args.Code },
+                { "args", () => new BsonArray(args.Args), args.Args != null }, // optional
+                { "nolock", () => !args.Lock.Value, args.Lock.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var result = RunCommandAs<CommandResult>(command);
+            return result.Response["retval"];
         }
 
         /// <summary>

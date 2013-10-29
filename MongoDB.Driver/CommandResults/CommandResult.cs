@@ -27,6 +27,7 @@ namespace MongoDB.Driver
     public class CommandResult
     {
         // private fields
+        private MongoServerInstance _serverInstance;
         private IMongoCommand _command;
         private BsonDocument _response;
 
@@ -126,6 +127,18 @@ namespace MongoDB.Driver
                     throw new MongoCommandException(message, this);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the server instance this command was executed on.
+        /// </summary>
+        /// <value>
+        /// The server instance.
+        /// </value>
+        public MongoServerInstance ServerInstance
+        {
+            get { return _serverInstance; }
+            internal set { _serverInstance = value; }
         }
     }
 }

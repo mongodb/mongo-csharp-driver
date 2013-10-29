@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -25,12 +27,20 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
     /// </summary>
     internal class SecurityContext : SafeHandle
     {
+        // private static fields
+        private static int __maxTokenSize;
+
         // private fields
         private SecurityCredential _credential;
         private SspiHandle _sspiHandle;
         private bool _isInitialized;
 
         // constructors
+        static SecurityContext()
+        {
+            __maxTokenSize = GetMaxTokenSize();
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityContext" /> class.
         /// </summary>
@@ -264,7 +274,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         {
             outBytes = null;
 
-            var outputBuffer = new SecurityBufferDescriptor(Win32.MAX_TOKEN_SIZE);
+            var outputBuffer = new SecurityBufferDescriptor(__maxTokenSize);
             
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
@@ -372,6 +382,50 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         protected override bool ReleaseHandle()
         {
             return Win32.DeleteSecurityContext(ref _sspiHandle) == 0;
+        }
+
+        // private methods
+        [SecuritySafeCritical]
+        private static int GetMaxTokenSize()
+        {
+            uint count = 0;
+            var array = IntPtr.Zero;
+
+            try
+            {
+                var result = Win32.EnumerateSecurityPackages(ref count, ref array);
+                if (result != Win32.SEC_E_OK)
+                {
+                    return Win32.MAX_TOKEN_SIZE;
+                }
+
+                var current = new IntPtr(array.ToInt64());
+                var size = Marshal.SizeOf(typeof(SecurityPackageInfo));
+                for (int i = 0; i < count; i++)
+                {
+                    var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
+                    if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return (int)package.MaxTokenSize;
+                    }
+                    current = new IntPtr(current.ToInt64() + size);
+                }
+
+                return Win32.MAX_TOKEN_SIZE;
+            }
+            catch
+            {
+                return Win32.MAX_TOKEN_SIZE;
+            }
+            finally
+            {
+                try
+                {
+                    Win32.FreeContextBuffer(ref array);
+                }
+                catch
+                { }
+            }
         }
     }
 }

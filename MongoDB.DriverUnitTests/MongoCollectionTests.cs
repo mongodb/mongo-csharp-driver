@@ -36,6 +36,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         private MongoServer _server;
+        private MongoServerInstance _primary;
         private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
@@ -43,7 +44,7 @@ namespace MongoDB.DriverUnitTests
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _server.Connect();
+            _primary = Configuration.TestServer.Primary;
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }
@@ -62,11 +63,139 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new BsonDocument("x", 3));
                 _collection.Insert(new BsonDocument("x", 3));
 
+#pragma warning disable 618
                 var commandResult = _collection.Aggregate(
                     new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
                 );
+#pragma warning restore
                 var dictionary = new Dictionary<int, int>();
                 foreach (var result in commandResult.ResultDocuments)
+                {
+                    var x = result["_id"].AsInt32;
+                    var count = result["count"].AsInt32;
+                    dictionary[x] = count;
+                }
+                Assert.AreEqual(3, dictionary.Count);
+                Assert.AreEqual(1, dictionary[1]);
+                Assert.AreEqual(1, dictionary[2]);
+                Assert.AreEqual(2, dictionary[3]);
+            }
+        }
+
+        [Test]
+        public void TestAggregateAllowDiskUsage()
+        {
+            if (_primary.Supports(FeatureId.AggregateAllowDiskUsage))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+
+                var query = _collection.Aggregate(new AggregateArgs
+                {
+                    Pipeline = new BsonDocument[]
+                    {
+                        new BsonDocument("$project", new BsonDocument("x", 1))
+                    },
+                    AllowDiskUsage = true
+                });
+                var results = query.ToList(); // all we can test is that the server doesn't reject the allowDiskUsage argument
+
+                Assert.AreEqual(0, results.Count);
+            }
+        }
+
+        [Test]
+        public void TestAggregateCursor()
+        {
+            if (_primary.Supports(FeatureId.AggregateCursor))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.Insert(new BsonDocument("x", 3));
+                _collection.Insert(new BsonDocument("x", 3));
+
+                var args = new AggregateArgs
+                {
+                    Pipeline = new BsonDocument[]
+                    {
+                        new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } })
+                    },
+                    OutputMode = AggregateOutputMode.Cursor,
+                    BatchSize = 1
+                };
+                var query = _collection.Aggregate(args);
+                var results = query.ToList();
+
+                var dictionary = new Dictionary<int, int>();
+                foreach (var result in results)
+                {
+                    var x = result["_id"].AsInt32;
+                    var count = result["count"].AsInt32;
+                    dictionary[x] = count;
+                }
+                Assert.AreEqual(3, dictionary.Count);
+                Assert.AreEqual(1, dictionary[1]);
+                Assert.AreEqual(1, dictionary[2]);
+                Assert.AreEqual(2, dictionary[3]);
+            }
+        }
+
+        [Test]
+        public void TestAggregateMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.RemoveAll();
+                        _collection.DropAllIndexes();
+                        _collection.Insert(new BsonDocument("x", 1));
+
+                        failpoint.SetAlwaysOn();
+                        var args = new AggregateArgs
+                        {
+                            Pipeline = new BsonDocument[]
+                            {
+                                new BsonDocument("$match", Query.Exists("_id").ToBsonDocument())
+                            },
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        var query = _collection.Aggregate(args);
+                        Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestAggregateOutputToCollection()
+        {
+            if (_primary.Supports(FeatureId.AggregateOutputToCollection))
+            {
+                _collection.RemoveAll();
+                _collection.DropAllIndexes();
+                _collection.Insert(new BsonDocument("x", 1));
+                _collection.Insert(new BsonDocument("x", 2));
+                _collection.Insert(new BsonDocument("x", 3));
+                _collection.Insert(new BsonDocument("x", 3));
+
+                var args = new AggregateArgs
+                {
+                    Pipeline = new BsonDocument[]
+                    {
+                        new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
+                        new BsonDocument("$out", "temp")
+                    }
+                };
+                var query = _collection.Aggregate(args);
+                var results = query.ToList();
+
+                var dictionary = new Dictionary<int, int>();
+                foreach (var result in results)
                 {
                     var x = result["_id"].AsInt32;
                     var count = result["count"].AsInt32;
@@ -104,6 +233,23 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument());
             var count = _collection.Count();
             Assert.AreEqual(1, count);
+        }
+
+        [Test]
+        public void TestCountWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.SetAlwaysOn();
+                        var args = new CountArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.Count(args));
+                    }
+                }
+            }
         }
 
         [Test]
@@ -362,12 +508,18 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "priority", 1 }, { "inprogress", false }, { "name", "abc" } });
             _collection.Insert(new BsonDocument { { "_id", 2 }, { "priority", 2 }, { "inprogress", false }, { "name", "def" } });
 
-            var query = Query.EQ("inprogress", false);
-            var sortBy = SortBy.Descending("priority");
+
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
-            var update = Update.Set("inprogress", true).Set("started", started);
-            var result = _collection.FindAndModify(query, sortBy, update, false); // return old
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("inprogress", false),
+                SortBy = SortBy.Descending("priority"),
+                Update = Update.Set("inprogress", true).Set("started", started),
+                VersionReturned = FindAndModifyDocumentVersion.Original
+            };
+            var result = _collection.FindAndModify(args);
+
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(2, result.ModifiedDocument["_id"].AsInt32);
             Assert.AreEqual(2, result.ModifiedDocument["priority"].AsInt32);
@@ -377,8 +529,15 @@ namespace MongoDB.DriverUnitTests
 
             started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
-            update = Update.Set("inprogress", true).Set("started", started);
-            result = _collection.FindAndModify(query, sortBy, update, true); // return new
+            args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("inprogress", false),
+                SortBy = SortBy.Descending("priority"),
+                Update = Update.Set("inprogress", true).Set("started", started),
+                VersionReturned = FindAndModifyDocumentVersion.Modified
+            };
+            result = _collection.FindAndModify(args);
+
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(1, result.ModifiedDocument["_id"].AsInt32);
             Assert.AreEqual(1, result.ModifiedDocument["priority"].AsInt32);
@@ -388,16 +547,42 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFindAndModifyWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.SetAlwaysOn();
+                        var args = new FindAndModifyArgs
+                        {
+                            Update = Update.Set("x", 1),
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndModify(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestFindAndModifyNoMatchingDocument()
         {
             _collection.RemoveAll();
 
-            var query = Query.EQ("inprogress", false);
-            var sortBy = SortBy.Descending("priority");
             var started = DateTime.UtcNow;
             started = started.AddTicks(-(started.Ticks % 10000)); // adjust for MongoDB DateTime precision
-            var update = Update.Set("inprogress", true).Set("started", started);
-            var result = _collection.FindAndModify(query, sortBy, update, false); // return old
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("inprogress", false),
+                SortBy = SortBy.Descending("priority"),
+                Update = Update.Set("inprogress", true).Set("started", started),
+                VersionReturned = FindAndModifyDocumentVersion.Original
+            };
+            var result = _collection.FindAndModify(args);
+
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ModifiedDocument);
@@ -409,10 +594,15 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.RemoveAll();
 
-            var query = Query.EQ("name", "Tom");
-            var sortBy = SortBy.Null;
-            var update = Update.Inc("count", 1);
-            var result = _collection.FindAndModify(query, sortBy, update, true, true); // upsert
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("name", "Tom"),
+                Update = Update.Inc("count", 1),
+                Upsert = true,
+                VersionReturned = FindAndModifyDocumentVersion.Modified
+            };
+            var result = _collection.FindAndModify(args);
+
             Assert.AreEqual("Tom", result.ModifiedDocument["name"].AsString);
             Assert.AreEqual(1, result.ModifiedDocument["count"].AsInt32);
         }
@@ -430,13 +620,34 @@ namespace MongoDB.DriverUnitTests
             var obj = new FindAndModifyClass { Id = ObjectId.GenerateNewId(), Value = 1 };
             _collection.Insert(obj);
 
-            var query = Query.EQ("_id", obj.Id);
-            var sortBy = SortBy.Null;
-            var update = Update.Inc("Value", 1);
-            var result = _collection.FindAndModify(query, sortBy, update, true); // returnNew
+            var args = new FindAndModifyArgs
+            {
+                Query = Query.EQ("_id", obj.Id),
+                Update = Update.Inc("Value", 1),
+                VersionReturned = FindAndModifyDocumentVersion.Modified
+            };
+            var result = _collection.FindAndModify(args);
             var rehydrated = result.GetModifiedDocumentAs<FindAndModifyClass>();
+
             Assert.AreEqual(obj.Id, rehydrated.Id);
             Assert.AreEqual(2, rehydrated.Value);
+        }
+
+        [Test]
+        public void TestFindAndRemove()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 1 } });
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+
+            var args = new FindAndRemoveArgs
+            {
+                Query = Query.EQ("x", 1),
+                SortBy = SortBy.Ascending("y")
+            };
+            var result = _collection.FindAndRemove(args);
+            Assert.AreEqual(1, result.ModifiedDocument["y"].ToInt32());
+            Assert.AreEqual(1, _collection.Count());
         }
 
         [Test]
@@ -444,13 +655,52 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.RemoveAll();
 
-            var query = Query.EQ("inprogress", false);
-            var sortBy = SortBy.Descending("priority");
-            var result = _collection.FindAndRemove(query, sortBy);
+            var args = new FindAndRemoveArgs
+            {
+                Query = Query.EQ("inprogress", false),
+                SortBy = SortBy.Descending("priority")
+            };
+            var result = _collection.FindAndRemove(args);
+
             Assert.IsTrue(result.Ok);
             Assert.IsNull(result.ErrorMessage);
             Assert.IsNull(result.ModifiedDocument);
             Assert.IsNull(result.GetModifiedDocumentAs<FindAndModifyClass>());
+        }
+
+        [Test]
+        public void TestFindAndRemoveWithFields()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 1 } });
+            _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
+
+            var args = new FindAndRemoveArgs
+            {
+                Query = Query.EQ("x", 1),
+                SortBy = SortBy.Ascending("y"),
+                Fields = Fields.Include("_id")
+            };
+            var result = _collection.FindAndRemove(args);
+            Assert.AreEqual(1, result.ModifiedDocument.ElementCount);
+            Assert.AreEqual("_id", result.ModifiedDocument.GetElement(0).Name);
+        }
+
+        [Test]
+        public void TestFindAndRemoveWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        failpoint.SetAlwaysOn();
+                        var args = new FindAndRemoveArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAndRemove(args));
+                    }
+                }
+            }
         }
 
         [Test]
@@ -579,6 +829,70 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFindOneAsGenericWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.RemoveAll();
+                        _collection.Insert(new BsonDocument { { "X", 1 } });
+
+                        failpoint.SetAlwaysOn();
+                        var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs<TestClass>(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestFindOneAsGenericWithSkipAndSortyBy()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var sortBy = SortBy.Ascending("X");
+            var args = new FindOneArgs { Skip = 1, SortBy = sortBy };
+            var document = _collection.FindOneAs<TestClass>(args);
+            Assert.AreEqual(2, document.X);
+        }
+
+        [Test]
+        public void TestFindOneAsWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.RemoveAll();
+                        _collection.Insert(new BsonDocument { { "X", 1 } });
+
+                        failpoint.SetAlwaysOn();
+                        var args = new FindOneArgs { MaxTime = TimeSpan.FromMilliseconds(1) };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindOneAs(typeof(TestClass), args));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void TestFindOneAsWithSkipAndSortyBy()
+        {
+            _collection.RemoveAll();
+            _collection.Insert(new BsonDocument { { "X", 2 } });
+            _collection.Insert(new BsonDocument { { "X", 1 } });
+            var sortBy = SortBy.Ascending("X");
+            var args = new FindOneArgs { Skip = 1, SortBy = sortBy };
+            var document = (TestClass)_collection.FindOneAs(typeof(TestClass), args);
+            Assert.AreEqual(2, document.X);
+        }
+
+        [Test]
         public void TestFindOneById()
         {
             _collection.RemoveAll();
@@ -675,6 +989,26 @@ namespace MongoDB.DriverUnitTests
             // note: the hits are unordered
         }
 
+        [Test]
+        public void TestFindWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        if (_collection.Exists()) { _collection.Drop(); }
+                        _collection.Insert(new BsonDocument("x", 1));
+
+                        failpoint.SetAlwaysOn();
+                        var maxTime = TimeSpan.FromMilliseconds(1);
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.FindAll().SetMaxTime(maxTime).ToList());
+                    }
+                }
+            }
+        }
+
 #pragma warning disable 649 // never assigned to
         private class Place
         {
@@ -699,11 +1033,16 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
                     _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
-                    var options = GeoHaystackSearchOptions
-                        .SetLimit(30)
-                        .SetMaxDistance(6)
-                        .SetQuery("Type", "restaurant");
-                    var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
+                    var args = new GeoHaystackSearchArgs
+                    {
+                        Near = GeoNearPoint.From(33, 33),
+                        AdditionalFieldName = "Type",
+                        AdditionalFieldValue = "restaurant",
+                        Limit = 30,
+                        MaxDistance = 6
+                    };
+                    var result = _collection.GeoHaystackSearchAs<Place>(args);
+
                     Assert.IsTrue(result.Ok);
                     Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
                     Assert.AreEqual(2, result.Stats.BTreeMatches);
@@ -714,6 +1053,40 @@ namespace MongoDB.DriverUnitTests
                     Assert.AreEqual(34.2, result.Hits[1].Document.Location[0]);
                     Assert.AreEqual(37.3, result.Hits[1].Document.Location[1]);
                     Assert.AreEqual("restaurant", result.Hits[1].Document.Type);
+                }
+            }
+        }
+
+        [Test]
+        public void TestGeoHaystackSearchWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
+                {
+                    using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                    {
+                        if (failpoint.IsSupported())
+                        {
+                            if (_collection.Exists()) { _collection.Drop(); }
+                            _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
+                            _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
+                            _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
+                            _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+
+                            failpoint.SetAlwaysOn();
+                            var args = new GeoHaystackSearchArgs
+                            {
+                                Near = GeoNearPoint.From(33, 33),
+                                AdditionalFieldName = "Type",
+                                AdditionalFieldValue = "restaurant",
+                                Limit = 30,
+                                MaxDistance = 6,
+                                MaxTime = TimeSpan.FromMilliseconds(1)
+                            };
+                            Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoHaystackSearchAs<Place>(args));
+                        }
+                    }
                 }
             }
         }
@@ -732,11 +1105,15 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
                     _collection.EnsureIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
 
-                    var options = GeoHaystackSearchOptions<Place>
-                        .SetLimit(30)
-                        .SetMaxDistance(6)
-                        .SetQuery(x => x.Type, "restaurant");
-                    var result = _collection.GeoHaystackSearchAs<Place>(33, 33, options);
+                    var args = new GeoHaystackSearchArgs
+                    {
+                        Near = GeoNearPoint.From(33, 33),
+                        Limit = 30,
+                        MaxDistance = 6
+                    }
+                    .SetAdditionalField<Place, string>(x => x.Type, "restaurant");
+                    var result = _collection.GeoHaystackSearchAs<Place>(args);
+
                     Assert.IsTrue(result.Ok);
                     Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
                     Assert.AreEqual(2, result.Stats.BTreeMatches);
@@ -762,10 +1139,15 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
             _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
 
-            var options = GeoNearOptions
-                .SetDistanceMultiplier(1)
-                .SetMaxDistance(100);
-            var result = _collection.GeoNearAs(typeof(Place), Query.Null, 0.0, 0.0, 100, options);
+            var args = new GeoNearArgs
+            {
+                Near = GeoNearPoint.From(0, 0),
+                Limit = 100,
+                DistanceMultiplier = 1,
+                MaxDistance = 100
+            };
+            var result = _collection.GeoNearAs(typeof(Place), args);
+
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
@@ -799,10 +1181,15 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
             _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
 
-            var options = GeoNearOptions
-                .SetDistanceMultiplier(1)
-                .SetMaxDistance(100);
-            var result = _collection.GeoNearAs<Place>(Query.Null, 0.0, 0.0, 100, options);
+            var args = new GeoNearArgs
+            {
+                Near = GeoNearPoint.From(0, 0),
+                Limit = 100,
+                DistanceMultiplier = 1,
+                MaxDistance = 100
+            };
+            var result = _collection.GeoNearAs<Place>(args);
+
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
@@ -834,8 +1221,14 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
             _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
 
-            var options = GeoNearOptions.SetSpherical(false);
-            var result = _collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+            var args = new GeoNearArgs
+            {
+                Near = GeoNearPoint.From(-74.0, 40.74),
+                Limit = 100,
+                Spherical = false
+            };
+            var result = _collection.GeoNearAs<Place>(args);
+
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
@@ -881,8 +1274,14 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
                 _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
 
-                var options = GeoNearOptions.SetSpherical(true);
-                var result = _collection.GeoNearAs<Place>(Query.Null, -74.0, 40.74, 100, options);
+                var args = new GeoNearArgs
+                {
+                    Near = GeoNearPoint.From(-74.0, 40.74),
+                    Limit = 100,
+                    Spherical = true
+                };
+                var result = _collection.GeoNearAs<Place>(args);
+
                 Assert.IsTrue(result.Ok);
                 Assert.AreEqual(_collection.FullName, result.Namespace);
                 Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
@@ -915,6 +1314,71 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(41.73, hit2.RawDocument["Location"][1].AsDouble);
                 Assert.AreEqual("Three", hit2.RawDocument["Name"].AsString);
                 Assert.AreEqual("Coffee", hit2.RawDocument["Type"].AsString);
+            }
+        }
+
+        [Test]
+        public void TestGeoNearWithGeoJsonPoints()
+        {
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            {
+                if (_collection.Exists()) { _collection.Drop(); }
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
+                _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
+                _collection.EnsureIndex(IndexKeys.GeoSpatialSpherical("Location"));
+
+                var args = new GeoNearArgs
+                {
+                    Near = GeoNearPoint.From(GeoJson.Point(GeoJson.Geographic(-74.0, 40.74))),
+                    Spherical = true
+                };
+                var result = _collection.GeoNearAs<PlaceGeoJson>(args);
+                var hits = result.Hits;
+
+                var hit0 = hits[0].Document;
+                Assert.AreEqual(-74.0, hit0.Location.Coordinates.Longitude);
+                Assert.AreEqual(40.74, hit0.Location.Coordinates.Latitude);
+                Assert.AreEqual("10gen", hit0.Name);
+                Assert.AreEqual("Office", hit0.Type);
+
+                // with spherical true "Two" is considerably closer than "Three"
+                var hit1 = hits[1].Document;
+                Assert.AreEqual(-75.0, hit1.Location.Coordinates.Longitude);
+                Assert.AreEqual(40.74, hit1.Location.Coordinates.Latitude);
+                Assert.AreEqual("Two", hit1.Name);
+                Assert.AreEqual("Coffee", hit1.Type);
+
+                var hit2 = hits[2].Document;
+                Assert.AreEqual(-74.0, hit2.Location.Coordinates.Longitude);
+                Assert.AreEqual(41.73, hit2.Location.Coordinates.Latitude);
+                Assert.AreEqual("Three", hit2.Name);
+                Assert.AreEqual("Coffee", hit2.Type);
+            }
+        }
+
+        [Test]
+        public void TestGeoNearWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        if (_collection.Exists()) { _collection.Drop(); }
+                        _collection.Insert(new BsonDocument("loc", new BsonArray { 0, 0 }));
+                        _collection.EnsureIndex(IndexKeys.GeoSpatial("loc"));
+
+                        failpoint.SetAlwaysOn();
+                        var args = new GeoNearArgs
+                        {
+                            Near = GeoNearPoint.From(0, 0),
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
+                    }
+                }
             }
         }
 
@@ -1421,8 +1885,15 @@ namespace MongoDB.DriverUnitTests
                 "    return {count : total};\n" +
                 "}\n";
 
-            var options = MapReduceOptions.SetOutput("mrout");
-            var result = _collection.MapReduce(map, reduce, options);
+
+            var result = _collection.MapReduce(new MapReduceArgs
+            {
+                MapFunction = map,
+                ReduceFunction = reduce,
+                OutputMode = MapReduceOutputMode.Replace,
+                OutputCollectionName = "mrout"
+            });
+
             Assert.IsTrue(result.Ok);
             Assert.IsTrue(result.Duration >= TimeSpan.Zero);
             Assert.AreEqual(9, result.EmitCount);
@@ -1491,7 +1962,12 @@ namespace MongoDB.DriverUnitTests
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = _collection.MapReduce(map, reduce);
+                var result = _collection.MapReduce(new MapReduceArgs
+                {
+                    MapFunction = map,
+                    ReduceFunction = reduce
+                });
+
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);
@@ -1541,6 +2017,31 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestMapReduceInlineWithMaxTime()
+        {
+            if (_primary.Supports(FeatureId.MaxTime))
+            {
+                using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
+                {
+                    if (failpoint.IsSupported())
+                    {
+                        _collection.RemoveAll();
+                        _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
+
+                        failpoint.SetAlwaysOn();
+                        var args = new MapReduceArgs
+                        {
+                            MapFunction = "function() { }",
+                            ReduceFunction = "function(key, value) { return 0; }",
+                            MaxTime = TimeSpan.FromMilliseconds(1)
+                        };
+                        Assert.Throws<ExecutionTimeoutException>(() => _collection.MapReduce(args));
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestMapReduceInlineWithQuery()
         {
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
@@ -1571,7 +2072,13 @@ namespace MongoDB.DriverUnitTests
                     "    return {count : total};\n" +
                     "}\n";
 
-                var result = _collection.MapReduce(query, map, reduce);
+                var result = _collection.MapReduce(new MapReduceArgs
+                {
+                    Query = query,
+                    MapFunction = map,
+                    ReduceFunction = reduce
+                });
+
                 Assert.IsTrue(result.Ok);
                 Assert.IsTrue(result.Duration >= TimeSpan.Zero);
                 Assert.AreEqual(9, result.EmitCount);

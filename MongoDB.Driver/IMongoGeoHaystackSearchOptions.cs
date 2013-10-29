@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents geo haystack search options (see GeoSearchHaystackOptionsDocument and the GeoHaystackSearchOptions builder).
     /// </summary>
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public interface IMongoGeoHaystackSearchOptions
     {
     }

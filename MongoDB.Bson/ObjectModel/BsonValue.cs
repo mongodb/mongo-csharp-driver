@@ -1449,6 +1449,11 @@ namespace MongoDB.Bson
 
         object IConvertible.ToType(Type conversionType, IFormatProvider provider)
         {
+            if (conversionType == typeof(object))
+            {
+                return this;
+            }
+
             switch (_bsonType)
             {
                 case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);

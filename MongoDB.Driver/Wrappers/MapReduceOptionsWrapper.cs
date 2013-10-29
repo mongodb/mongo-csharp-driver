@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoMapReduceOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [Obsolete("Use MapReduceArgs instead.")]
     public class MapReduceOptionsWrapper : BaseWrapper, IMongoMapReduceOptions
     {
         // constructors

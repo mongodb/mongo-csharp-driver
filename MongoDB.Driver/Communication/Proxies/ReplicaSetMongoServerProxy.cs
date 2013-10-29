@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Internal
         // private fields
         private readonly Random _random = new Random();
         private readonly object _randomLock = new object();
+        private int? _configVersion;
         private MongoServerInstance _primary;
         private string _replicaSetName;
 
@@ -278,8 +279,14 @@ namespace MongoDB.Driver.Internal
             Interlocked.CompareExchange(ref _replicaSetName, instance.ReplicaSetInformation.Name, null);
 
             var members = instance.ReplicaSetInformation.Members;
-            if (members.Any())
+            var configVersion = instance.ReplicaSetInformation.ConfigVersion;
+            if (members.Any() && (!configVersion.HasValue || !_configVersion.HasValue ||
+                configVersion.Value > _configVersion.Value))
             {
+                if (configVersion.HasValue)
+                {
+                    _configVersion = configVersion.Value;
+                }
                 // remove instances the primary doesn't know about and add instances we don't know about
                 MakeInstancesMatchAddresses(members);
             }

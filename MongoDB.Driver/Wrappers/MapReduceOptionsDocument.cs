@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoMapReduceOptions is expected.
     /// </summary>
+    [Obsolete("Use MapReduceArgs instead.")]
     public class MapReduceOptionsDocument : BsonDocument, IMongoMapReduceOptions
     {
         // constructors

@@ -94,6 +94,13 @@ namespace MongoDB.Driver.Internal
                 {
                     document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
                 }
+
+                var mappedException = ExceptionMapper.Map(document);
+                if (mappedException != null)
+                {
+                    throw mappedException;
+                }
+
                 var err = document.GetValue("$err", "Unknown error.");
                 var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
                 throw new MongoQueryException(message, document);

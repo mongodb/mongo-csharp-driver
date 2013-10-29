@@ -103,14 +103,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetAutoIndexId(bool value)
         {
-            if (value)
-            {
-                _document["autoIndexId"] = value;
-            }
-            else
-            {
-                _document.Remove("autoIndexId");
-            }
+            _document["autoIndexId"] = value;
             return this;
         }
 
@@ -121,14 +114,7 @@ namespace MongoDB.Driver.Builders
         /// <returns>The builder (so method calls can be chained).</returns>
         public CollectionOptionsBuilder SetCapped(bool value)
         {
-            if (value)
-            {
-                _document["capped"] = value;
-            }
-            else
-            {
-                _document.Remove("capped");
-            }
+            _document["capped"] = value;
             return this;
         }
 

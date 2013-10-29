@@ -24,6 +24,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
+    [Obsolete("Use GeoNearArgs instead.")]
     public static class GeoNearOptions
     {
         // public static properties
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options of the GeoNear command.
     /// </summary>
     [Serializable]
+    [Obsolete("Use GeoNearArgs instead.")]
     public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions
     {
         // private fields

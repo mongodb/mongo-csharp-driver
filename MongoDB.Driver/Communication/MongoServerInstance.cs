@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Threading;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Communication.FeatureDetection;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Operations;
 
@@ -151,7 +152,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the version of this server instance.
+        /// Gets the build info of this server instance.
         /// </summary>
         public MongoServerBuildInfo BuildInfo
         {
@@ -354,7 +355,25 @@ namespace MongoDB.Driver
         /// </summary>
         public void RefreshStateAsSoonAsPossible()
         {
-            _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+            if (_stateVerificationTimer != null)
+            {
+                _stateVerificationTimer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // verify state as soon as possible
+            }
+        }
+
+        /// <summary>
+        /// Checks whether this server instance supports a feature.
+        /// </summary>
+        /// <param name="featureId">The id of the feature.</param>
+        /// <returns>True if this server instance supports the feature; otherwise, false.</returns>
+        public bool Supports(FeatureId featureId)
+        {
+            FeatureSet featureSet;
+            lock (_serverInstanceLock)
+            {
+                featureSet = _serverInfo.FeatureSet;
+            }
+            return featureSet.IsSupported(featureId);
         }
 
         /// <summary>
@@ -573,11 +592,20 @@ namespace MongoDB.Driver
                 isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
 
                 MongoServerBuildInfo buildInfo;
+                FeatureSet featureSet;
                 try
                 {
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
                     var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
+                    var featureContext = new FeatureContext
+                    {
+                        BuildInfo = buildInfo,
+                        Connection = connection,
+                        IsMasterResult = isMasterResult,
+                        ServerInstance = this
+                    };
+                    featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -587,6 +615,7 @@ namespace MongoDB.Driver
                         throw;
                     }
                     buildInfo = null;
+                    featureSet = null;
                 }
 
                 ReplicaSetInformation replicaSetInformation = null;
@@ -594,7 +623,7 @@ namespace MongoDB.Driver
                 if (isMasterResult.IsReplicaSet)
                 {
                     var peers = isMasterResult.Hosts.Concat(isMasterResult.Passives).Concat(isMasterResult.Arbiters).ToList();
-                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags);
+                    replicaSetInformation = new ReplicaSetInformation(isMasterResult.ReplicaSetName, isMasterResult.Primary, peers, isMasterResult.Tags, isMasterResult.ReplicaSetConfigVersion);
                     instanceType = MongoServerInstanceType.ReplicaSetMember;
                 }
                 else if (isMasterResult.Message != null && isMasterResult.Message == "isdbgrid")
@@ -605,6 +634,7 @@ namespace MongoDB.Driver
                 var newServerInfo = new ServerInformation
                 {
                     BuildInfo = buildInfo,
+                    FeatureSet = featureSet,
                     InstanceType = instanceType,
                     IsArbiter = isMasterResult.IsArbiterOnly,
                     IsMasterResult = isMasterResult,
@@ -638,6 +668,7 @@ namespace MongoDB.Driver
                     var newServerInfo = new ServerInformation
                     {
                         BuildInfo = currentServerInfo.BuildInfo,
+                        FeatureSet = currentServerInfo.FeatureSet,
                         InstanceType = currentServerInfo.InstanceType,
                         IsArbiter = false,
                         IsMasterResult = isMasterResult,
@@ -782,6 +813,8 @@ namespace MongoDB.Driver
         private class ServerInformation
         {
             public MongoServerBuildInfo BuildInfo { get; set; }
+
+            public FeatureSet FeatureSet { get; set; }
 
             public MongoServerInstanceType InstanceType { get; set; }
 

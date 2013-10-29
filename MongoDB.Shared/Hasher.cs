@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 
 namespace MongoDB.Shared
@@ -57,6 +58,13 @@ namespace MongoDB.Shared
         public Hasher Hash(long obj)
         {
             _hashCode = 37 * _hashCode + obj.GetHashCode();
+            return this;
+        }
+
+        // this overload added to avoid boxing
+        public Hasher Hash<T>(Nullable<T> obj) where T : struct
+        {
+            _hashCode = 37 * _hashCode + ((obj == null) ? 0 : obj.Value.GetHashCode());
             return this;
         }
 

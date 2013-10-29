@@ -17,13 +17,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 using MongoDB.Driver.Internal;
 using MongoDB.Driver.Operations;
 using MongoDB.Driver.Wrappers;
@@ -113,34 +114,52 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Runs an aggregation framework command.
+        /// Represents an aggregate framework query. The command is not sent to the server until the result is enumerated.
         /// </summary>
-        /// <param name="operations">The pipeline operations.</param>
-        /// <returns>An AggregateResult.</returns>
-        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> operations)
+        /// <param name="args">The args.</param>
+        /// <returns>A sequence of documents.</returns>
+        public virtual IEnumerable<BsonDocument> Aggregate(AggregateArgs args)
         {
-            var pipeline = new BsonArray();
-            foreach (var operation in operations)
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Pipeline == null) { throw new ArgumentException("Pipeline is null.", "args"); }
+
+            var pipeline = (List<BsonDocument>)args.Pipeline;
+            var lastStage = pipeline.LastOrDefault();
+
+            string outputCollectionName = null;
+            if (lastStage != null && lastStage.GetElement(0).Name == "$out")
             {
-                pipeline.Add(operation);
+                outputCollectionName = lastStage["$out"].AsString;
+                RunAggregateCommand(args);
             }
 
-            var aggregateCommand = new CommandDocument
-            {
-                { "aggregate", _name },
-                { "pipeline", pipeline }
-            };
-            return RunCommandAs<AggregateResult>(aggregateCommand);
+            return new AggregateEnumerableResult(this, args, outputCollectionName);
         }
 
         /// <summary>
         /// Runs an aggregation framework command.
         /// </summary>
-        /// <param name="operations">The pipeline operations.</param>
-        /// <returns>An AggregateResult.</returns>
-        public virtual AggregateResult Aggregate(params BsonDocument[] operations)
+        /// <param name="pipeline">The pipeline operations.</param>
+        /// <returns>
+        /// An AggregateResult.
+        /// </returns>
+        [Obsolete("Use the overload with an AggregateArgs parameter.")]
+        public virtual AggregateResult Aggregate(IEnumerable<BsonDocument> pipeline)
         {
-            return Aggregate((IEnumerable<BsonDocument>) operations);
+            var args = new AggregateArgs { Pipeline = pipeline, OutputMode = AggregateOutputMode.Inline };
+            return RunAggregateCommand(args);
+        }
+
+        /// <summary>
+        /// Runs an aggregation framework command.
+        /// </summary>
+        /// <param name="pipeline">The pipeline operations.</param>
+        /// <returns>An AggregateResult.</returns>
+        [Obsolete("Use the overload with an AggregateArgs parameter.")]
+        public virtual AggregateResult Aggregate(params BsonDocument[] pipeline)
+        {
+            var args = new AggregateArgs { Pipeline = pipeline, OutputMode = AggregateOutputMode.Inline };
+            return RunAggregateCommand(args);
         }
 
         /// <summary>
@@ -149,7 +168,31 @@ namespace MongoDB.Driver
         /// <returns>The number of documents in this collection.</returns>
         public virtual long Count()
         {
-            return Count(Query.Null);
+            var args = new CountArgs { Query = null };
+            return Count(args);
+        }
+
+        /// <summary>
+        /// Counts the number of documents in this collection that match a query.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>
+        /// The number of documents in this collection that match the query.
+        /// </returns>
+        public virtual long Count(CountArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+
+            var command = new CommandDocument
+            {
+                { "count", _name },
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                { "skip", () => args.Skip.Value, args.Skip.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } //optional
+            };
+            var result = RunCommandAs<CommandResult>(command);
+            return result.Response["n"].ToInt64();
         }
 
         /// <summary>
@@ -159,13 +202,8 @@ namespace MongoDB.Driver
         /// <returns>The number of documents in this collection that match the query.</returns>
         public virtual long Count(IMongoQuery query)
         {
-            var command = new CommandDocument
-            {
-                { "count", _name },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
-            };
-            var result = RunCommandAs<CommandResult>(command);
-            return result.Response["n"].ToInt64();
+            var args = new CountArgs { Query = query };
+            return Count(args);
         }
 
         /// <summary>
@@ -400,9 +438,11 @@ namespace MongoDB.Driver
         /// <param name="sortBy">The sort order to select one of the matching documents.</param>
         /// <param name="update">The update to apply to the matching document.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        [Obsolete("Use the overload of FindAndModify that has a FindAndModifyArgs parameter instead.")]
         public virtual FindAndModifyResult FindAndModify(IMongoQuery query, IMongoSortBy sortBy, IMongoUpdate update)
         {
-            return FindAndModify(query, sortBy, update, false);
+            var args = new FindAndModifyArgs { Query = query, SortBy = sortBy, Update = update };
+            return FindAndModify(args);
         }
 
         /// <summary>
@@ -413,13 +453,16 @@ namespace MongoDB.Driver
         /// <param name="update">The update to apply to the matching document.</param>
         /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        [Obsolete("Use the overload of FindAndModify that has a FindAndModifyArgs parameter instead.")]
         public virtual FindAndModifyResult FindAndModify(
             IMongoQuery query,
             IMongoSortBy sortBy,
             IMongoUpdate update,
             bool returnNew)
         {
-            return FindAndModify(query, sortBy, update, returnNew, false);
+            var versionReturned = returnNew ? FindAndModifyDocumentVersion.Modified : FindAndModifyDocumentVersion.Original;
+            var args = new FindAndModifyArgs { Query = query, SortBy = sortBy, Update = update, VersionReturned = versionReturned };
+            return FindAndModify(args);
         }
 
         /// <summary>
@@ -431,6 +474,7 @@ namespace MongoDB.Driver
         /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
         /// <param name="upsert">Whether to do an upsert if no matching document is found.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        [Obsolete("Use the overload of FindAndModify that has a FindAndModifyArgs parameter instead.")]
         public virtual FindAndModifyResult FindAndModify(
             IMongoQuery query,
             IMongoSortBy sortBy,
@@ -438,7 +482,9 @@ namespace MongoDB.Driver
             bool returnNew,
             bool upsert)
         {
-            return FindAndModify(query, sortBy, update, Fields.Null, returnNew, upsert);
+            var versionReturned = returnNew ? FindAndModifyDocumentVersion.Modified : FindAndModifyDocumentVersion.Original;
+            var args = new FindAndModifyArgs { Query = query, SortBy = sortBy, Update = update, VersionReturned = versionReturned, Upsert = upsert };
+            return FindAndModify(args);
         }
 
         /// <summary>
@@ -451,6 +497,7 @@ namespace MongoDB.Driver
         /// <param name="returnNew">Whether to return the new or old version of the modified document in the <see cref="FindAndModifyResult"/>.</param>
         /// <param name="upsert">Whether to do an upsert if no matching document is found.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        [Obsolete("Use the overload of FindAndModify that has a FindAndModifyArgs parameter instead.")]
         public virtual FindAndModifyResult FindAndModify(
             IMongoQuery query,
             IMongoSortBy sortBy,
@@ -459,15 +506,31 @@ namespace MongoDB.Driver
             bool returnNew,
             bool upsert)
         {
+            var versionReturned = returnNew ? FindAndModifyDocumentVersion.Modified : FindAndModifyDocumentVersion.Original;
+            var args = new FindAndModifyArgs { Query = query, SortBy = sortBy, Update = update, Fields = fields, VersionReturned = versionReturned, Upsert = upsert };
+            return FindAndModify(args);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the supplied arguments and applies the specified update to it.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndModify(FindAndModifyArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Update == null) { throw new ArgumentException("Update is null.", "args"); }
+
             var command = new CommandDocument
             {
                 { "findAndModify", _name },
-                { "query", BsonDocumentWrapper.Create(query), query != null }, // query is optional
-                { "sort", BsonDocumentWrapper.Create(sortBy), sortBy != null }, // sortBy is optional
-                { "update", BsonDocumentWrapper.Create(update, true) }, // isUpdateDocument = true
-                { "fields", BsonDocumentWrapper.Create(fields), fields != null }, // fields is optional
-                { "new", true, returnNew },
-                { "upsert", true, upsert}
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                { "update", BsonDocumentWrapper.Create(args.Update, true) }, // isUpdateDocument = true
+                { "new", () => args.VersionReturned.Value == FindAndModifyDocumentVersion.Modified, args.VersionReturned.HasValue }, // optional
+                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
+                { "upsert", true, args.Upsert}, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             try
             {
@@ -495,14 +558,30 @@ namespace MongoDB.Driver
         /// <param name="query">The query (usually a QueryDocument or constructed using the Query builder).</param>
         /// <param name="sortBy">The sort order to select one of the matching documents.</param>
         /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        [Obsolete("Use the overload of FindAndRemove that has a FindAndRemoveArgs parameter instead.")]
         public virtual FindAndModifyResult FindAndRemove(IMongoQuery query, IMongoSortBy sortBy)
         {
+            var args = new FindAndRemoveArgs { Query = query, SortBy = sortBy };
+            return FindAndRemove(args);
+        }
+
+        /// <summary>
+        /// Finds one matching document using the supplied args and removes it from this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="FindAndModifyResult"/>.</returns>
+        public virtual FindAndModifyResult FindAndRemove(FindAndRemoveArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            
             var command = new CommandDocument
             {
                 { "findAndModify", _name },
-                { "query", BsonDocumentWrapper.Create(query), query != null }, // query is optional
-                { "sort", BsonDocumentWrapper.Create(sortBy), sortBy != null }, // sort is optional
-                { "remove", true }
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                { "remove", true },
+                { "fields", () => BsonDocumentWrapper.Create(args.Fields), args.Fields != null }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
             try
             {
@@ -555,7 +634,44 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>()
         {
-            return FindAllAs<TDocument>().SetLimit(1).FirstOrDefault();
+            var args = new FindOneArgs { Query = null };
+            return FindOneAs<TDocument>(args);
+        }
+
+        /// <summary>
+        /// Returns one document in this collection as a TDocument.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="args">The args.</param>
+        /// <returns>A TDocument (or null if not found).</returns>
+        public virtual TDocument FindOneAs<TDocument>(FindOneArgs args)
+        {
+            var query = args.Query ?? new QueryDocument();
+            var readPreference = args.ReadPreference ?? _settings.ReadPreference;
+            var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
+            var cursor = new MongoCursor<TDocument>(this, query, readPreference, serializer, args.SerializationOptions);
+            if (args.Fields != null)
+            {
+                cursor.SetFields(args.Fields);
+            }
+            if (args.Hint != null)
+            {
+                cursor.SetHint(args.Hint);
+            }
+            if (args.Skip.HasValue)
+            {
+                cursor.SetSkip(args.Skip.Value);
+            }
+            if (args.SortBy != null)
+            {
+                cursor.SetSortOrder(args.SortBy);
+            }
+            if (args.MaxTime.HasValue)
+            {
+                cursor.SetMaxTime(args.MaxTime.Value);
+            }
+            cursor.SetLimit(-1);
+            return cursor.FirstOrDefault();
         }
 
         /// <summary>
@@ -566,7 +682,8 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual TDocument FindOneAs<TDocument>(IMongoQuery query)
         {
-            return FindAs<TDocument>(query).SetLimit(1).FirstOrDefault();
+            var args = new FindOneArgs { Query = query };
+            return FindOneAs<TDocument>(args);
         }
 
         /// <summary>
@@ -576,7 +693,28 @@ namespace MongoDB.Driver
         /// <returns>A document (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType)
         {
-            return FindAllAs(documentType).SetLimit(1).OfType<object>().FirstOrDefault();
+            var args = new FindOneArgs { Query = null };
+            return FindOneAs(documentType, args);
+        }
+
+        /// <summary>
+        /// Returns one document in this collection as a TDocument.
+        /// </summary>
+        /// <param name="documentType">The nominal type of the documents.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>A document (or null if not found).</returns>
+        public virtual object FindOneAs(Type documentType, FindOneArgs args)
+        {
+            var methodDefinition = GetType().GetMethod("FindOneAs", new Type[] { typeof(FindOneArgs) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            try
+            {
+                return methodInfo.Invoke(this, new object[] { args });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         /// <summary>
@@ -587,7 +725,8 @@ namespace MongoDB.Driver
         /// <returns>A TDocument (or null if not found).</returns>
         public virtual object FindOneAs(Type documentType, IMongoQuery query)
         {
-            return FindAs(documentType, query).SetLimit(1).OfType<object>().FirstOrDefault();
+            var args = new FindOneArgs { Query = query };
+            return FindOneAs(documentType, args);
         }
 
         /// <summary>
@@ -620,17 +759,54 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="options">The options for the geoHaystack search (null if none).</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoHaystackSearchAs that has a GeoHaystackSearchArgs parameter instead.")]
         public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(
             double x,
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
+            var optionsDocument = options.ToBsonDocument();
+            var args = new GeoHaystackSearchArgs
+            {
+                Near = GeoNearPoint.From(x, y),
+                MaxDistance = optionsDocument.Contains("maxDistance") ? (int?)optionsDocument["maxDistance"].ToInt32() : null,
+                Limit = optionsDocument.Contains("limit") ? (int?)optionsDocument["limit"].ToInt32() : null
+            };
+            if (optionsDocument.Contains("search"))
+            {
+                var searchElement = optionsDocument["search"].AsBsonDocument.GetElement(0);
+                args.AdditionalFieldName = searchElement.Name;
+                args.AdditionalFieldValue = searchElement.Value;
+            }
+            return GeoHaystackSearchAs<TDocument>(args);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the found documents.</typeparam>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDocument> GeoHaystackSearchAs<TDocument>(GeoHaystackSearchArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Near == null) { throw new ArgumentException("Near is null.", "args"); }
+
+            BsonDocument search = null;
+            if (args.AdditionalFieldName != null && args.AdditionalFieldValue != null)
+            {
+                search = new BsonDocument(args.AdditionalFieldName, args.AdditionalFieldValue);
+            }
+
             var command = new CommandDocument
             {
                 { "geoSearch", _name },
-                { "near", new BsonArray { x, y } }
+                { "near", new BsonArray { args.Near.X, args.Near.Y } },
+                { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
+                { "search", search, search != null }, // optional
+                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
             };
-            command.Merge(options.ToBsonDocument());
             return RunCommandAs<GeoHaystackSearchResult<TDocument>>(command);
         }
 
@@ -642,6 +818,7 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="options">The options for the geoHaystack search (null if none).</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoHaystackSearchAs that has a GeoHaystackSearchArgs parameter instead.")]
         public virtual GeoHaystackSearchResult GeoHaystackSearchAs(
             Type documentType,
             double x,
@@ -654,6 +831,46 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult GeoHaystackSearchAs(Type documentType, GeoHaystackSearchArgs args)
+        {
+            var methodDefinition = GetType().GetMethod("GeoHaystackSearchAs", new Type[] { typeof(GeoHaystackSearchArgs) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            return (GeoHaystackSearchResult)methodInfo.Invoke(this, new object[] { args });
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(GeoNearArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.Near == null) { throw new ArgumentException("Near is null.", "args"); }
+
+            var command = new CommandDocument
+            {
+                { "geoNear", _name },
+                { "near", args.Near.ToGeoNearCommandField() },
+                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "spherical", () => args.Spherical.Value, args.Spherical.HasValue }, // optional
+                { "distanceMultiplier", () => args.DistanceMultiplier.Value, args.DistanceMultiplier.HasValue }, // optional
+                { "includeLocs", () => args.IncludeLocs.Value, args.IncludeLocs.HasValue }, // optional
+                { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            return RunCommandAs<GeoNearResult<TDocument>>(command);
+        }
+
+        /// <summary>
         /// Runs a GeoNear command on this collection.
         /// </summary>
         /// <typeparam name="TDocument">The type to deserialize the documents as.</typeparam>
@@ -662,13 +879,16 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="limit">The maximum number of results returned.</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNearAs that has a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(
             IMongoQuery query,
             double x,
             double y,
             int limit)
         {
+#pragma warning disable 618
             return GeoNearAs<TDocument>(query, x, y, limit, GeoNearOptions.Null);
+#pragma warning restore
         }
 
         /// <summary>
@@ -681,6 +901,7 @@ namespace MongoDB.Driver
         /// <param name="limit">The maximum number of results returned.</param>
         /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNearAs that has a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult<TDocument> GeoNearAs<TDocument>(
             IMongoQuery query,
             double x,
@@ -688,15 +909,30 @@ namespace MongoDB.Driver
             int limit,
             IMongoGeoNearOptions options)
         {
-            var command = new CommandDocument
+            var optionsDocument = options.ToBsonDocument();
+            var args = new GeoNearArgs
             {
-                { "geoNear", _name },
-                { "near", new BsonArray { x, y } },
-                { "num", limit },
-                { "query", BsonDocumentWrapper.Create(query), query != null } // query is optional
+                Near = GeoNearPoint.From(x, y),
+                Limit = limit,
+                Query = query,
+                DistanceMultiplier = optionsDocument.Contains("distanceMultiplier") ? (double?)optionsDocument["distanceMultiplier"].ToDouble() : null,
+                MaxDistance = optionsDocument.Contains("maxDistance") ? (double?)optionsDocument["maxDistance"].ToDouble() : null,
+                Spherical = optionsDocument.Contains("spherical") ? (bool?)optionsDocument["spherical"].ToBoolean() : null
             };
-            command.Merge(options.ToBsonDocument());
-            return RunCommandAs<GeoNearResult<TDocument>>(command);
+            return GeoNearAs<TDocument>(args);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="documentType">The type to deserialize the documents as.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        public virtual GeoNearResult GeoNearAs(Type documentType, GeoNearArgs args)
+        {
+            var methodDefinition = GetType().GetMethod("GeoNearAs", new Type[] { typeof(GeoNearArgs) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            return (GeoNearResult)methodInfo.Invoke(this, new object[] { args });
         }
 
         /// <summary>
@@ -708,6 +944,7 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="limit">The maximum number of results returned.</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNearAs that has a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult GeoNearAs(Type documentType, IMongoQuery query, double x, double y, int limit)
         {
             return GeoNearAs(documentType, query, x, y, limit, GeoNearOptions.Null);
@@ -723,6 +960,7 @@ namespace MongoDB.Driver
         /// <param name="limit">The maximum number of results returned.</param>
         /// <param name="options">The GeoNear command options (usually a GeoNearOptionsDocument or constructed using the GeoNearOptions builder).</param>
         /// <returns>A <see cref="GeoNearResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNearAs that has a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult GeoNearAs(
             Type documentType,
             IMongoQuery query,
@@ -1170,21 +1408,16 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options)
         {
-            var command = new CommandDocument
-            {
-                { "mapreduce", _name },
-                { "map", map },
-                { "reduce", reduce }
-            };
-            command.AddRange(options.ToBsonDocument());
-            var result = RunCommandAs<MapReduceResult>(command);
-            result.SetInputDatabase(_database);
-            return result;
+            var args = MapReduceArgsFromOptions(options);
+            args.MapFunction = map;
+            args.ReduceFunction = reduce;
+            return MapReduce(args);
         }
 
         /// <summary>
@@ -1195,15 +1428,18 @@ namespace MongoDB.Driver
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <param name="options">Options for this map/reduce command (see <see cref="MapReduceOptionsDocument"/>, <see cref="MapReduceOptionsWrapper"/> and the <see cref="MapReduceOptions"/> builder).</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(
             IMongoQuery query,
             BsonJavaScript map,
             BsonJavaScript reduce,
             IMongoMapReduceOptions options)
         {
-            // create a new set of options because we don't want to modify caller's data
-            options = MapReduceOptions.SetQuery(query).AddOptions(options.ToBsonDocument());
-            return MapReduce(map, reduce, options);
+            var args = MapReduceArgsFromOptions(options);
+            args.Query = query;
+            args.MapFunction = map;
+            args.ReduceFunction = reduce;
+            return MapReduce(args);
         }
 
         /// <summary>
@@ -1213,10 +1449,10 @@ namespace MongoDB.Driver
         /// <param name="map">A JavaScript function called for each document.</param>
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(IMongoQuery query, BsonJavaScript map, BsonJavaScript reduce)
         {
-            var options = MapReduceOptions.SetQuery(query).SetOutput(MapReduceOutput.Inline);
-            return MapReduce(map, reduce, options);
+            return MapReduce(new MapReduceArgs { Query = query, MapFunction = map, ReduceFunction = reduce });
         }
 
         /// <summary>
@@ -1225,10 +1461,60 @@ namespace MongoDB.Driver
         /// <param name="map">A JavaScript function called for each document.</param>
         /// <param name="reduce">A JavaScript function called on the values emitted by the map function.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use the overload of MapReduce that has a MapReduceArgs parameter instead.")]
         public virtual MapReduceResult MapReduce(BsonJavaScript map, BsonJavaScript reduce)
         {
-            var options = MapReduceOptions.SetOutput(MapReduceOutput.Inline);
-            return MapReduce(map, reduce, options);
+            return MapReduce(new MapReduceArgs { MapFunction = map, ReduceFunction = reduce });
+        }
+
+        /// <summary>
+        /// Runs a Map/Reduce command on this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        public virtual MapReduceResult MapReduce(MapReduceArgs args)
+        {
+            if (args == null) { throw new ArgumentNullException("args"); }
+            if (args.MapFunction == null) { throw new ArgumentException("MapFunction is null.", "args"); }
+            if (args.ReduceFunction == null) { throw new ArgumentException("ReduceFunction is null.", "args"); }
+
+            BsonDocument output;
+            if (args.OutputMode == MapReduceOutputMode.Inline)
+            {
+                output = new BsonDocument("inline", 1);
+            }
+            else
+            {
+                if (args.OutputCollectionName == null) { throw new ArgumentException("OutputCollectionName is null when OutputMode is not Inline.", "args"); }
+                var action = MongoUtils.ToCamelCase(args.OutputMode.ToString());
+                output = new BsonDocument
+                {
+                    { action, args.OutputCollectionName },
+                    { "db", args.OutputDatabaseName, args.OutputDatabaseName != null }, // optional
+                    { "sharded", () => args.OutputIsSharded.Value, args.OutputIsSharded.HasValue }, // optional
+                    { "nonAtomic", () => args.OutputIsNonAtomic.Value, args.OutputIsNonAtomic.HasValue } // optional
+                };
+            }
+
+            var command = new CommandDocument
+            {
+                { "mapReduce", _name },
+                { "map", args.MapFunction },
+                { "reduce", args.ReduceFunction },
+                { "out", output },
+                { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
+                { "sort", () => BsonDocumentWrapper.Create(args.SortBy), args.SortBy != null }, // optional
+                { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
+                { "finalize", args.FinalizeFunction, args.FinalizeFunction != null }, // optional
+                { "scope", () => BsonDocumentWrapper.Create(args.Scope), args.Scope != null }, // optional
+                { "jsMode", () => args.JsMode.Value, args.JsMode.HasValue }, // optional
+                { "verbose", () => args.Verbose.Value, args.Verbose.HasValue }, // optional
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
+            };
+            var result = RunCommandAs<MapReduceResult>(command);
+            result.SetInputDatabase(_database);
+
+            return result;
         }
 
         /// <summary>
@@ -1628,6 +1914,29 @@ namespace MongoDB.Driver
             };
         }
 
+        internal AggregateResult RunAggregateCommand(AggregateArgs args)
+        {
+            BsonDocument cursor = null;
+            if (args.OutputMode == AggregateOutputMode.Cursor)
+            {
+                cursor = new BsonDocument
+                {
+                    { "batchSize", () => args.BatchSize.Value, args.BatchSize.HasValue }
+                };
+            }
+
+            var aggregateCommand = new CommandDocument
+            {
+                { "aggregate", _name },
+                { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
+                { "cursor", cursor, cursor != null },
+                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue },
+                { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue }
+            };
+
+            return RunCommandAs<AggregateResult>(aggregateCommand);
+        }
+
         // private methods
         private IEnumerable<TValue> Distinct<TValue>(
             string key,
@@ -1713,6 +2022,101 @@ namespace MongoDB.Driver
                 sb.Append("_1");
             }
             return sb.ToString();
+        }
+
+#pragma warning disable 618
+        private MapReduceArgs MapReduceArgsFromOptions(IMongoMapReduceOptions options)
+#pragma warning restore
+        {
+            var args = new MapReduceArgs();
+            var optionsDocument = options.ToBsonDocument();
+
+            BsonValue finalizeFunction;
+            if (optionsDocument.TryGetValue("finalize", out finalizeFunction))
+            {
+                args.FinalizeFunction = finalizeFunction.AsBsonJavaScript;
+            }
+
+            BsonValue jsMode;
+            if (optionsDocument.TryGetValue("jsMode", out jsMode))
+            {
+                args.JsMode = jsMode.ToBoolean();
+            }
+
+            BsonValue limit;
+            if (optionsDocument.TryGetValue("limit", out limit))
+            {
+                args.Limit = limit.ToInt64();
+            }
+
+            BsonValue mapFunction;
+            if (optionsDocument.TryGetValue("map", out mapFunction))
+            {
+                args.MapFunction = mapFunction.AsBsonJavaScript;
+            }
+
+            BsonValue output;
+            if (optionsDocument.TryGetValue("out", out output))
+            {
+                var outputDocument = output.AsBsonDocument;
+                var actionElement = outputDocument.GetElement(0);
+
+                args.OutputMode = (MapReduceOutputMode)Enum.Parse(typeof(MapReduceOutputMode), actionElement.Name, true); // ignoreCase
+                if (args.OutputMode != MapReduceOutputMode.Inline)
+                {
+                    args.OutputCollectionName = actionElement.Value.AsString;
+
+                    BsonValue databaseName;
+                    if (outputDocument.TryGetValue("db", out databaseName))
+                    {
+                        args.OutputDatabaseName = databaseName.AsString;
+                    }
+
+                    BsonValue outputIsSharded;
+                    if (outputDocument.TryGetValue("sharded", out outputIsSharded))
+                    {
+                        args.OutputIsSharded = outputIsSharded.ToBoolean();
+                    }
+
+                    BsonValue nonAtomic;
+                    if (outputDocument.TryGetValue("nonAtomic", out nonAtomic))
+                    {
+                        args.OutputIsNonAtomic = nonAtomic.ToBoolean();
+                    }
+                }
+            }
+
+            BsonValue queryOption;
+            if (optionsDocument.TryGetValue("query", out queryOption))
+            {
+                args.Query = new QueryDocument(queryOption.ToBsonDocument());
+            }
+
+            BsonValue reduceFunction;
+            if (optionsDocument.TryGetValue("reduce", out reduceFunction))
+            {
+                args.ReduceFunction = reduceFunction.AsBsonJavaScript;
+            }
+
+            BsonValue scope;
+            if (optionsDocument.TryGetValue("scope", out scope))
+            {
+                args.SortBy = new SortByDocument(scope.ToBsonDocument());
+            }
+
+            BsonValue sortBy;
+            if (optionsDocument.TryGetValue("sort", out sortBy))
+            {
+                args.SortBy = new SortByDocument(sortBy.ToBsonDocument());
+            }
+
+            BsonValue verbose;
+            if (optionsDocument.TryGetValue("verbose", out verbose))
+            {
+                args.Verbose = verbose.ToBoolean();
+            }
+
+            return args;
         }
 
         private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
@@ -1859,12 +2263,33 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="options">The options for the geoHaystack search (null if none).</param>
         /// <returns>A <see cref="GeoHaystackSearchResult{TDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoHaystackSearch that has a GeoHaystackSearchArgs parameter instead.")]
         public virtual GeoHaystackSearchResult<TDefaultDocument> GeoHaystackSearch(
             double x,
             double y,
             IMongoGeoHaystackSearchOptions options)
         {
             return GeoHaystackSearchAs<TDefaultDocument>(x, y, options);
+        }
+
+        /// <summary>
+        /// Runs a geoHaystack search command on this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoHaystackSearchResult{TDocument}"/>.</returns>
+        public virtual GeoHaystackSearchResult<TDefaultDocument> GeoHaystackSearch(GeoHaystackSearchArgs args)
+        {
+            return GeoHaystackSearchAs<TDefaultDocument>(args);
+        }
+
+        /// <summary>
+        /// Runs a GeoNear command on this collection.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>A <see cref="GeoNearResult{TDefaultDocument}"/>.</returns>
+        public virtual GeoNearResult<TDefaultDocument> GeoNear(GeoNearArgs args)
+        {
+            return GeoNearAs<TDefaultDocument>(args);
         }
 
         /// <summary>
@@ -1875,6 +2300,7 @@ namespace MongoDB.Driver
         /// <param name="y">The y coordinate of the starting location.</param>
         /// <param name="limit">The maximum number of results returned.</param>
         /// <returns>A <see cref="GeoNearResult{TDefaultDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNear that takes a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult<TDefaultDocument> GeoNear(IMongoQuery query, double x, double y, int limit)
         {
             return GeoNearAs<TDefaultDocument>(query, x, y, limit);
@@ -1889,6 +2315,7 @@ namespace MongoDB.Driver
         /// <param name="limit">The maximum number of results returned.</param>
         /// <param name="options">Options for the GeoNear command (see <see cref="GeoNearOptionsDocument"/>, <see cref="GeoNearOptionsWrapper"/>, and the <see cref="GeoNearOptions"/> builder).</param>
         /// <returns>A <see cref="GeoNearResult{TDefaultDocument}"/>.</returns>
+        [Obsolete("Use the overload of GeoNear that takes a GeoNearArgs parameter instead.")]
         public virtual GeoNearResult<TDefaultDocument> GeoNear(
             IMongoQuery query,
             double x,

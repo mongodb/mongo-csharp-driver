@@ -617,6 +617,31 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Creates and adds an element to the document, but only if the condition is true.
+        /// If the condition is false the value factory is not called at all.
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="valueFactory">A delegate called to compute the value of the element if condition is true.</param>
+        /// <param name="condition">Whether to add the element to the document.</param>
+        /// <returns>The document (so method calls can be chained).</returns>
+        public virtual BsonDocument Add(string name, Func<BsonValue> valueFactory, bool condition)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (valueFactory == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            if (condition)
+            {
+                Add(new BsonElement(name, valueFactory()));
+            }
+            return this;
+        }
+
+        /// <summary>
         /// Adds elements to the document from a dictionary of key/value pairs.
         /// </summary>
         /// <param name="dictionary">The dictionary.</param>

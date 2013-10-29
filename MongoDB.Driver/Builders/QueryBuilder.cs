@@ -448,71 +448,7 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("query");
             }
 
-            var queryDocument = query.ToBsonDocument();
-            if (queryDocument.ElementCount == 1)
-            {
-                var elementName = queryDocument.GetElement(0).Name;
-                switch (elementName)
-                {
-                    case "$and":
-                        // there is no $nand and $not only works as a meta operator on a single operator so simulate $not using $nor
-                        return new QueryDocument("$nor", new BsonArray { queryDocument });
-                    case "$or":
-                        return new QueryDocument("$nor", queryDocument[0].AsBsonArray);
-                    case "$nor":
-                        return new QueryDocument("$or", queryDocument[0].AsBsonArray);
-                }
-
-                var operatorDocument = queryDocument[0] as BsonDocument;
-                if (operatorDocument != null && operatorDocument.ElementCount > 0)
-                {
-                    var operatorName = operatorDocument.GetElement(0).Name;
-                    if (operatorDocument.ElementCount == 1)
-                    {
-                        switch (operatorName)
-                        {
-                            case "$exists":
-                                var boolValue = operatorDocument[0].AsBoolean;
-                                return new QueryDocument(elementName, new BsonDocument("$exists", !boolValue));
-                            case "$in":
-                                var values = operatorDocument[0].AsBsonArray;
-                                return new QueryDocument(elementName, new BsonDocument("$nin", values));
-                            case "$not":
-                                var predicate = operatorDocument[0];
-                                return new QueryDocument(elementName, predicate);
-                            case "$ne":
-                                var comparisonValue = operatorDocument[0];
-                                return new QueryDocument(elementName, comparisonValue);
-                        }
-                        if (operatorName[0] == '$')
-                        {
-                            // use $not as a meta operator on a single operator
-                            return new QueryDocument(elementName, new BsonDocument("$not", operatorDocument));
-                        }
-                    }
-                    else
-                    {
-                        // $ref isn't an operator (it's the first field of a DBRef)
-                        if (operatorName[0] == '$' && operatorName != "$ref")
-                        {
-                            // $not only works as a meta operator on a single operator so simulate $not using $nor
-                            return new QueryDocument("$nor", new BsonArray { queryDocument });
-                        }
-                    }
-                }
-
-                var operatorValue = queryDocument[0];
-                if (operatorValue.IsBsonRegularExpression)
-                {
-                    return new QueryDocument(elementName, new BsonDocument("$not", operatorValue));
-                }
-
-                // turn implied equality comparison into $ne
-                return new QueryDocument(elementName, new BsonDocument("$ne", operatorValue));
-            }
-
-            // $not only works as a meta operator on a single operator so simulate $not using $nor
-            return new QueryDocument("$nor", new BsonArray { queryDocument });
+            return NegateQuery(query.ToBsonDocument());
         }
 
         /// <summary>
@@ -852,6 +788,105 @@ namespace MongoDB.Driver.Builders
                         query.Add(clause);
                     }
                 }
+            }
+        }
+
+        private static IMongoQuery NegateArbitraryQuery(BsonDocument query)
+        {
+            // $not only works as a meta operator on a single operator so simulate Not using $nor
+            return new QueryDocument("$nor", new BsonArray { query });
+        }
+
+        private static IMongoQuery NegateQuery(BsonDocument query)
+        {
+            if (query.ElementCount == 1)
+            {
+                return NegateSingleElementQuery(query, query.GetElement(0));
+            }
+            else
+            {
+                return NegateArbitraryQuery(query);
+            }
+        }
+
+        private static IMongoQuery NegateSingleElementQuery(BsonDocument query, BsonElement element)
+        {
+            if (element.Name[0] == '$')
+            {
+                return NegateSingleTopLevelOperatorQuery(query, element.Name, element.Value);
+            }
+            else
+            {
+                return NegateSingleFieldQuery(query, element.Name, element.Value);
+            }
+        }
+
+        private static IMongoQuery NegateSingleFieldOperatorQuery(BsonDocument query, string fieldName, string operatorName, BsonValue args)
+        {
+            switch (operatorName)
+            {
+                case "$exists":
+                    return new QueryDocument(fieldName, new BsonDocument("$exists", !args.AsBoolean));
+                case "$in":
+                    return new QueryDocument(fieldName, new BsonDocument("$nin", args.AsBsonArray));
+                case "$ne":
+                case "$not":
+                    return new QueryDocument(fieldName, args);
+                case "$nin":
+                    return new QueryDocument(fieldName, new BsonDocument("$in", args.AsBsonArray));
+                default:
+                    return new QueryDocument(fieldName, new BsonDocument("$not", new BsonDocument(operatorName, args)));
+            }
+        }
+
+        private static IMongoQuery NegateSingleFieldQuery(BsonDocument query, string fieldName, BsonValue selector)
+        {
+            var selectorDocument = selector as BsonDocument;
+            if (selectorDocument != null)
+            {
+                if (selectorDocument.ElementCount >= 1)
+                {
+                    var operatorName = selectorDocument.GetElement(0).Name;
+                    if (operatorName[0] == '$' && operatorName != "$ref")
+                    {
+                        if (selectorDocument.ElementCount == 1)
+                        {
+                            return NegateSingleFieldOperatorQuery(query, fieldName, operatorName, selectorDocument[0]);
+                        }
+                        else
+                        {
+                            return NegateArbitraryQuery(query);
+                        }
+                    }
+                }
+            }
+
+            return NegateSingleFieldValueQuery(query, fieldName, selector);
+        }
+
+        private static IMongoQuery NegateSingleFieldValueQuery(BsonDocument query, string fieldName, BsonValue value)
+        {
+            if (value.IsBsonRegularExpression)
+            {
+                return new QueryDocument(fieldName, new BsonDocument("$not", value));
+            }
+            else
+            {
+                // turn implied equality comparison into $ne
+                return new QueryDocument(fieldName, new BsonDocument("$ne", value));
+            }
+        }
+
+        private static IMongoQuery NegateSingleTopLevelOperatorQuery(BsonDocument query, string operatorName, BsonValue args)
+        {
+            switch (operatorName)
+            {
+                case "$or":
+                    return new QueryDocument("$nor", args);
+                case "$nor":
+                    return new QueryDocument("$or", args);
+                default:
+                    return NegateArbitraryQuery(query);
             }
         }
 

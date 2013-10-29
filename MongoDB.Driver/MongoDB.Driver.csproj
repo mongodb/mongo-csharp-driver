@@ -83,6 +83,24 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Hasher.cs</Link>
     </Compile>
+    <Compile Include="AggregateEnumerableResult.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureContext.cs" />
+    <Compile Include="Communication\FeatureDetection\IFeatureDependency.cs" />
+    <Compile Include="Communication\FeatureDetection\IFeatureDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureSetDetector.cs" />
+    <Compile Include="Communication\FeatureDetection\ServerParameterDependency.cs" />
+    <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
+    <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
+    <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
+    <Compile Include="FeatureId.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
+    <Compile Include="CountArgs.cs" />
+    <Compile Include="EvalArgs.cs" />
+    <Compile Include="Exceptions\ExceptionMapper.cs" />
+    <Compile Include="Exceptions\ExecutionTimeoutException.cs" />
+    <Compile Include="FindAndModifyArgs.cs" />
+    <Compile Include="AggregateArgs.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CollectionOptionsBuilder.cs" />
     <Compile Include="Builders\FieldsBuilder.cs" />
@@ -117,6 +135,7 @@
     <Compile Include="Communication\Security\Authenticator.cs" />
     <Compile Include="Communication\MongoServerInstanceType.cs" />
     <Compile Include="Communication\Security\IAuthenticationProtocol.cs" />
+    <Compile Include="Communication\Security\Mechanisms\PlainMechanism.cs" />
     <Compile Include="Communication\Security\Mechanisms\SaslImplementationBase.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\Gsasl.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslContext.cs" />
@@ -124,6 +143,7 @@
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslProperty.cs" />
     <Compile Include="Communication\Security\Mechanisms\Gsasl\GsaslSession.cs" />
     <Compile Include="Communication\Security\ISaslStep.cs" />
+    <Compile Include="Communication\Security\Mechanisms\Sspi\SecurityPackageInfo.cs" />
     <Compile Include="Communication\Security\MongoCRAuthenticationProtocol.cs" />
     <Compile Include="Communication\Security\Mechanisms\GsaslImplementationBase.cs" />
     <Compile Include="Communication\Security\Mechanisms\GsaslGssapiImplementation.cs" />
@@ -152,6 +172,9 @@
     <Compile Include="Communication\Security\Mechanisms\Sspi\Win32.cs" />
     <Compile Include="Communication\Security\Mechanisms\Sspi\Win32Exception.cs" />
     <Compile Include="EvalFlags.cs" />
+    <Compile Include="FindAndRemoveArgs.cs" />
+    <Compile Include="FindOneArgs.cs" />
+    <Compile Include="GeoHaystackSearchArgs.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonBoundingBox.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonCoordinateReferenceSystem.cs" />
@@ -212,6 +235,8 @@
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonCoordinatesSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonPolygonSerializer.cs" />
     <Compile Include="GeoJsonObjectModel\Serializers\GeoJson2DCoordinatesSerializer.cs" />
+    <Compile Include="GeoNearArgs.cs" />
+    <Compile Include="GeoNearPoint.cs" />
     <Compile Include="InsertFlags.cs" />
     <Compile Include="IMongoCollectionOptions.cs" />
     <Compile Include="IMongoCommand.cs" />
@@ -226,6 +251,7 @@
     <Compile Include="IMongoScope.cs" />
     <Compile Include="IMongoSortBy.cs" />
     <Compile Include="IMongoUpdate.cs" />
+    <Compile Include="MapReduceArgs.cs" />
     <Compile Include="MongoClient.cs" />
     <Compile Include="MongoClientSettings.cs" />
     <Compile Include="MongoCollectionSettings.cs" />
@@ -245,6 +271,7 @@
     <Compile Include="MongoUser.cs" />
     <Compile Include="Operations\CommandOperation.cs" />
     <Compile Include="Operations\DatabaseOperation.cs" />
+    <Compile Include="Operations\CursorEnumerator.cs" />
     <Compile Include="Operations\IConnectionProvider.cs" />
     <Compile Include="Operations\InsertOperation.cs" />
     <Compile Include="Operations\QueryOperation.cs" />
@@ -257,6 +284,7 @@
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReplicaSetTag.cs" />
     <Compile Include="ReplicaSetTagSet.cs" />
+    <Compile Include="ServerInstanceConnectionProvider.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
     <Compile Include="SystemProfileInfo.cs" />

@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoGeoHaystackSearchOptions is expected.
     /// </summary>
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoHaystackSearchOptionsDocument : BsonDocument, IMongoGeoHaystackSearchOptions
     {
         // constructors
