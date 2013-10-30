@@ -97,6 +97,11 @@ namespace MongoDB.Bson
             }
         }
 
+        public override bool IsReadOnly
+        {
+            get { return true; }
+        }
+
         /// <summary>
         /// Gets the array elements as raw values (see BsonValue.RawValue).
         /// </summary>

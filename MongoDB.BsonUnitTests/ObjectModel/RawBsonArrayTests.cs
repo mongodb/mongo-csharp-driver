@@ -178,6 +178,18 @@ namespace MongoDB.BsonUnitTests
         }
 
         [Test]
+        public void TestIsReadOnly()
+        {
+            var bsonDocument = new BsonDocument("a", new BsonArray { 1, 2, 3 });
+            var bson = bsonDocument.ToBson();
+            using (var rawBsonDocument = BsonSerializer.Deserialize<RawBsonDocument>(bson))
+            {
+                var rawBsonArray = rawBsonDocument["a"].AsBsonArray;
+                Assert.IsTrue(rawBsonArray.IsReadOnly);
+            }
+        }
+
+        [Test]
         public void TestNestedRawBsonArray()
         {
             var bsonDocument = new BsonDocument("a", new BsonArray { new BsonArray { 1, 2 } });
