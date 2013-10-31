@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Text.RegularExpressions;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -53,6 +52,48 @@ namespace MongoDB.Driver
                 {
                     return new ExecutionTimeoutException("Operation exceeded time limit.");
                 }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Maps the specified writeConcernResult to a custom exception (if necessary).
+        /// </summary>
+        /// <param name="writeConcernResult">The write concern result.</param>
+        /// <returns>
+        /// The custom exception (or null if the writeConcernResult was not mapped to an exception).
+        /// </returns>
+        public static Exception Map(WriteConcernResult writeConcernResult)
+        {
+            if (writeConcernResult.Code.HasValue)
+            {
+                switch(writeConcernResult.Code.Value)
+                {
+                    case 11000:
+                    case 11001:
+                    case 12582:
+                        var errorMessage = string.Format(
+                            "WriteConcern detected an error '{0}'. (Response was {1}).",
+                            writeConcernResult.ErrorMessage, writeConcernResult.Response.ToJson());
+                        return new MongoDuplicateKeyException(errorMessage, writeConcernResult);
+                }
+            }
+
+            if (!writeConcernResult.Ok)
+            {
+                var errorMessage = string.Format(
+                    "WriteConcern detected an error '{0}'. (Response was {1}).",
+                    writeConcernResult.ErrorMessage, writeConcernResult.Response.ToJson());
+                return new WriteConcernException(errorMessage, writeConcernResult);
+            }
+
+            if (writeConcernResult.HasLastErrorMessage)
+            {
+                var errorMessage = string.Format(
+                    "WriteConcern detected an error '{0}'. (Response was {1}).",
+                    writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
+                return new WriteConcernException(errorMessage, writeConcernResult);
             }
 
             return null;

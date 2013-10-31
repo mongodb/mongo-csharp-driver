@@ -1903,6 +1903,20 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestInsertDuplicateKey()
+        {
+            var collection = _database.GetCollection("duplicatekeys");
+            collection.Drop();
+
+            collection.Insert(new BsonDocument("_id", 1));
+
+            Assert.Throws<MongoDuplicateKeyException>(() =>
+            {
+                collection.Insert(new BsonDocument("_id", 1));
+            });
+        }
+
+        [Test]
         public void TestIsCappedFalse()
         {
             var collection = _database.GetCollection("notcappedcollection");
@@ -2485,6 +2499,22 @@ namespace MongoDB.DriverUnitTests
             _collection.Update(Query.Null, Update.Set("x", 2));
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
+        }
+
+        [Test]
+        public void TestUpsertDuplicateKey()
+        {
+            var collection = _database.GetCollection("duplicatekeys");
+            collection.Drop();
+
+            collection.Insert(new BsonDocument("_id", 1));
+
+            Assert.Throws<MongoDuplicateKeyException>(() =>
+            {
+                var query = Query.And(Query.EQ("_id", 1), Query.EQ("x", 1));
+                var update = Update.Set("x", 1);
+                collection.Update(query, update, UpdateFlags.Upsert);
+            });
         }
 
         [Test]

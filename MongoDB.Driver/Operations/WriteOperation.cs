@@ -84,19 +84,10 @@ namespace MongoDB.Driver.Operations
                 writeConcernResult = replyMessage.Documents[0];
                 writeConcernResult.Command = getLastErrorCommand;
 
-                if (!writeConcernResult.Ok)
+                var mappedException = ExceptionMapper.Map(writeConcernResult);
+                if (mappedException != null)
                 {
-                    var errorMessage = string.Format(
-                        "WriteConcern detected an error '{0}'. (response was {1}).",
-                        writeConcernResult.ErrorMessage, writeConcernResult.Response.ToJson());
-                    throw new WriteConcernException(errorMessage, writeConcernResult);
-                }
-                if (writeConcernResult.HasLastErrorMessage)
-                {
-                    var errorMessage = string.Format(
-                        "WriteConcern detected an error '{0}'. (Response was {1}).",
-                        writeConcernResult.LastErrorMessage, writeConcernResult.Response.ToJson());
-                    throw new WriteConcernException(errorMessage, writeConcernResult);
+                    throw mappedException;
                 }
             }
 

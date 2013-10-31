@@ -94,6 +94,7 @@
     <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
     <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
     <Compile Include="DistinctArgs.cs" />
+    <Compile Include="Exceptions\MongoDuplicateKeyException.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
     <Compile Include="CountArgs.cs" />
