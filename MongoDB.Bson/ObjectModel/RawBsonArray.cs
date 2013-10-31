@@ -97,6 +97,9 @@ namespace MongoDB.Bson
             }
         }
 
+        /// <summary>
+        /// Gets whether the array is read-only.
+        /// </summary>
         public override bool IsReadOnly
         {
             get { return true; }
