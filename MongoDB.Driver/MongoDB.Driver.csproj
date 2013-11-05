@@ -285,6 +285,7 @@
     <Compile Include="Operations\WriteOperation.cs" />
     <Compile Include="PasswordEvidence.cs" />
     <Compile Include="ProfilingLevel.cs" />
+    <Compile Include="Range.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReplicaSetTag.cs" />
     <Compile Include="ReplicaSetTagSet.cs" />

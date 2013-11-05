@@ -140,28 +140,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the max wire version.
-        /// </summary>
-        /// <value>
-        /// The max wire version.
-        /// </value>
-        public int MaxWireVersion
-        {
-            get { return Response.GetValue("maxWireVersion", 0).ToInt32(); }
-        }
-
-        /// <summary>
-        /// Gets the min wire version.
-        /// </summary>
-        /// <value>
-        /// The min wire version.
-        /// </value>
-        public int MinWireVersion
-        {
-            get { return Response.GetValue("minWireVersion", 0).ToInt32(); }
-        }
-
-        /// <summary>
         /// Gets the message.
         /// </summary>
         public string Message
@@ -275,6 +253,17 @@ namespace MongoDB.Driver
                 {
                     return null;
                 }
+            }
+        }
+
+        // internal properties
+        internal Range<int> WireVersion
+        {
+            get
+            {
+                return new Range<int>(
+                    Response.GetValue("minWireVersion", 0).ToInt32(),
+                    Response.GetValue("maxWireVersion", 0).ToInt32());
             }
         }
 

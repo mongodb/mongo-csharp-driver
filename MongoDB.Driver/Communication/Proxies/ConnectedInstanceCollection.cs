@@ -27,8 +27,9 @@ namespace MongoDB.Driver.Internal
         // private fields
         private readonly object _connectedInstancesLock = new object();
 
-        private Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>> _instanceLookup;
-        private LinkedList<InstanceWithPingTime> _instances;
+        private Dictionary<MongoServerInstance, LinkedListNode<CachedInstance>> _instanceLookup;
+        private LinkedList<CachedInstance> _instances;
+        private int _incompatibleServers;
 
         // constructors
         /// <summary>
@@ -36,8 +37,20 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         public ConnectedInstanceCollection()
         {
-            _instances = new LinkedList<InstanceWithPingTime>();
-            _instanceLookup = new Dictionary<MongoServerInstance, LinkedListNode<InstanceWithPingTime>>();
+            _instances = new LinkedList<CachedInstance>();
+            _instanceLookup = new Dictionary<MongoServerInstance, LinkedListNode<CachedInstance>>();
+        }
+
+        // public properties
+        public bool AreAllServersVersionCompatible
+        {
+            get 
+            {
+                lock (_connectedInstancesLock)
+                {
+                    return _incompatibleServers == 0;
+                }
+            }
         }
 
         // public methods
@@ -50,6 +63,7 @@ namespace MongoDB.Driver.Internal
             {
                 _instances.Clear();
                 _instanceLookup.Clear();
+                _incompatibleServers = 0;
             }
         }
 
@@ -57,13 +71,13 @@ namespace MongoDB.Driver.Internal
         /// Gets a list of all instances.
         /// </summary>
         /// <returns>The list of all instances.</returns>
-        public List<InstanceWithPingTime> GetAllInstances()
+        public List<CachedInstance> GetAllInstances()
         {
             lock (_connectedInstancesLock)
             {
                 // note: make copies of InstanceWithPingTime values because they can change after we return
                 return _instances
-                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .Select(x => new CachedInstance { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
                     .ToList();
             }
         }
@@ -73,14 +87,14 @@ namespace MongoDB.Driver.Internal
         /// </summary>
         /// <param name="primary">The current primary.</param>
         /// <returns>The list of primary and secondary instances.</returns>
-        public List<InstanceWithPingTime> GetPrimaryAndSecondaries(MongoServerInstance primary)
+        public List<CachedInstance> GetPrimaryAndSecondaries(MongoServerInstance primary)
         {
             lock (_connectedInstancesLock)
             {
                 // note: make copies of InstanceWithPingTime values because they can change after we return
                 return _instances
                     .Where(x => x.Instance == primary || x.Instance.IsSecondary)
-                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .Select(x => new CachedInstance { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
                     .ToList();
             }
         }
@@ -89,14 +103,14 @@ namespace MongoDB.Driver.Internal
         /// Gets a list of secondaries.
         /// </summary>
         /// <returns>The list of secondaries.</returns>
-        public List<InstanceWithPingTime> GetSecondaries()
+        public List<CachedInstance> GetSecondaries()
         {
             lock (_connectedInstancesLock)
             {
                 // note: make copies of InstanceWithPingTime values because they can change after we return
                 return _instances
                     .Where(x => x.Instance.IsSecondary)
-                    .Select(x => new InstanceWithPingTime { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
+                    .Select(x => new CachedInstance { Instance = x.Instance, CachedAveragePingTime = x.CachedAveragePingTime })
                     .ToList();
             }
         }
@@ -114,9 +128,10 @@ namespace MongoDB.Driver.Internal
                     return;
                 }
 
-                var node = new LinkedListNode<InstanceWithPingTime>(new InstanceWithPingTime
+                var node = new LinkedListNode<CachedInstance>(new CachedInstance
                 {
                     Instance = instance,
+                    IsCompatible = instance.IsCompatible,
                     CachedAveragePingTime = instance.AveragePingTime
                 });
 
@@ -138,6 +153,10 @@ namespace MongoDB.Driver.Internal
 
                 _instanceLookup.Add(instance, node);
                 instance.AveragePingTimeChanged += InstanceAveragePingTimeChanged;
+                if (!instance.IsCompatible)
+                {
+                    _incompatibleServers++;
+                }
             }
         }
 
@@ -149,7 +168,7 @@ namespace MongoDB.Driver.Internal
         {
             lock (_connectedInstancesLock)
             {
-                LinkedListNode<InstanceWithPingTime> node;
+                LinkedListNode<CachedInstance> node;
                 if (!_instanceLookup.TryGetValue(instance, out node))
                 {
                     return;
@@ -158,6 +177,10 @@ namespace MongoDB.Driver.Internal
                 instance.AveragePingTimeChanged -= InstanceAveragePingTimeChanged;
                 _instanceLookup.Remove(instance);
                 _instances.Remove(node);
+                if (!node.Value.IsCompatible)
+                {
+                    _incompatibleServers--;
+                }
             }
         }
 
@@ -167,7 +190,7 @@ namespace MongoDB.Driver.Internal
             var instance = (MongoServerInstance)sender;
             lock (_connectedInstancesLock)
             {
-                LinkedListNode<InstanceWithPingTime> node;
+                LinkedListNode<CachedInstance> node;
                 if (!_instanceLookup.TryGetValue(instance, out node))
                 {
                     instance.AveragePingTimeChanged -= InstanceAveragePingTimeChanged;
@@ -218,9 +241,12 @@ namespace MongoDB.Driver.Internal
 
         // When dealing with an always sorted linked list, we need to maintain a cached version of the ping time 
         // to compare against because a MongoServerInstance's could change on it's own making the sorting of the list incorrect.
-        internal class InstanceWithPingTime
+        // In addition, we need to maintain a cached version of the IsCompatible flag in order to efficiently
+        // re-calculate whether all servers are compatible.
+        internal class CachedInstance
         {
             public MongoServerInstance Instance;
+            public bool IsCompatible;
             public TimeSpan CachedAveragePingTime;
         }
     }

@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Internal
         /// <param name="readPreference">The read preference that must be matched.</param>
         /// <param name="secondaryAcceptableLatency">The maximum acceptable secondary latency.</param>
         /// <returns>A randomly selected matching instance.</returns>
-        private MongoServerInstance GetMatchingInstance(List<ConnectedInstanceCollection.InstanceWithPingTime> instancesWithPingTime, ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
+        private MongoServerInstance GetMatchingInstance(List<ConnectedInstanceCollection.CachedInstance> instancesWithPingTime, ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
         {
             var tagSets = readPreference.TagSets ?? new ReplicaSetTagSet[] { new ReplicaSetTagSet() };
             foreach (var tagSet in tagSets)

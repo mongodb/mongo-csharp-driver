@@ -14,25 +14,42 @@
 */
 
 using System;
-using MongoDB.Driver.Internal;
 
-namespace MongoDB.Driver.Communication.FeatureDetection
+namespace MongoDB.Driver
 {
-    internal class WireVersionDependency : IFeatureDependency
+    internal class Range<T> where T : IComparable<T>
     {
-        // private fields
-        private readonly Range<int> _range;
+        // private readonly field
+        private readonly T _max;
+        private readonly T _min;
 
         // constructors
-        public WireVersionDependency(int min, int max)
+        public Range(T min, T max)
         {
-            _range = new Range<int>(min, max);
+            _min = min;
+            _max = max;
+        }
+
+        // public properties
+        public T Max
+        {
+            get { return _max; }
+        }
+
+        public T Min
+        {
+            get { return _min; }
         }
 
         // public methods
-        public bool IsMet(FeatureContext context)
+        public bool Intersects(Range<T> other)
         {
-            return _range.Intersects(context.IsMasterResult.WireVersion);
+            return _min.CompareTo(other.Max) <= 0 && _max.CompareTo(other.Min) >= 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[{0}, {1}]", _min, _max);
         }
     }
 }

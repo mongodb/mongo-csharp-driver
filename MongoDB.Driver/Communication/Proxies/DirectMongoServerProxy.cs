@@ -126,6 +126,12 @@ namespace MongoDB.Driver.Internal
 
             if (_instance.State == MongoServerState.Connected)
             {
+                if (!_instance.IsCompatible)
+                {
+                    var msg = "This version of the driver is not compatible with the server.";
+                    throw new MongoConnectionException(msg);
+                }
+
                 return _instance;
             }
 

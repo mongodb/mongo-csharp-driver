@@ -163,6 +163,12 @@ namespace MongoDB.Driver.Internal
         {
             for (int attempt = 1; attempt <= 2; attempt++)
             {
+                if (!_connectedInstances.AreAllServersVersionCompatible)
+                {
+                    var msg = "This version of the driver is not compatible with at least one of the servers.";
+                    throw new MongoConnectionException(msg);
+                }
+
                 var instance = ChooseServerInstance(_connectedInstances, readPreference);
                 if (instance != null)
                 {
@@ -449,6 +455,11 @@ namespace MongoDB.Driver.Internal
                 {
                     if (instance.State == MongoServerState.Connected)
                     {
+                        if (!instance.IsCompatible)
+                        {
+
+                        }
+
                         if (!IsValidInstance(instance))
                         {
                             RemoveInstance(instance);
