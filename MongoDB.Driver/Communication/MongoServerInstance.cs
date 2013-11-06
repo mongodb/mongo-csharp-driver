@@ -330,7 +330,7 @@ namespace MongoDB.Driver
                     serverRange = _serverInfo.IsMasterResult.WireVersionRange;
                 }
 
-                return __supportedWireVersionRange.Intersects(serverRange);
+                return __supportedWireVersionRange.Overlaps(serverRange);
             }
         }
 

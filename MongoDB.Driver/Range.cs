@@ -42,7 +42,7 @@ namespace MongoDB.Driver
         }
 
         // public methods
-        public bool Intersects(Range<T> other)
+        public bool Overlaps(Range<T> other)
         {
             return _min.CompareTo(other.Max) <= 0 && _max.CompareTo(other.Min) >= 0;
         }

@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // public methods
         public bool IsMet(FeatureContext context)
         {
-            return _range.Intersects(context.IsMasterResult.WireVersionRange);
+            return _range.Overlaps(context.IsMasterResult.WireVersionRange);
         }
     }
 }
