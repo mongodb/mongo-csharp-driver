@@ -34,7 +34,7 @@ namespace MongoDB.Driver
     {
         // private static fields
         private static int __nextSequentialId;
-        private static readonly Range<int> __supportedWireVersion = new Range<int>(0, 2);
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(0, 2);
 
         // public events
         /// <summary>
@@ -327,10 +327,10 @@ namespace MongoDB.Driver
                 Range<int> serverRange;
                 lock (_serverInstanceLock)
                 {
-                    serverRange = _serverInfo.IsMasterResult.WireVersion;
+                    serverRange = _serverInfo.IsMasterResult.WireVersionRange;
                 }
 
-                return __supportedWireVersion.Intersects(serverRange);
+                return __supportedWireVersionRange.Intersects(serverRange);
             }
         }
 

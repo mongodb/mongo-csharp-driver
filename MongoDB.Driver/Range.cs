@@ -19,7 +19,7 @@ namespace MongoDB.Driver
 {
     internal class Range<T> where T : IComparable<T>
     {
-        // private readonly field
+        // private fields
         private readonly T _max;
         private readonly T _min;
 

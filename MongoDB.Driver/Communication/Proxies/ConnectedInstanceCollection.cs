@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Internal
 
         private Dictionary<MongoServerInstance, LinkedListNode<CachedInstance>> _instanceLookup;
         private LinkedList<CachedInstance> _instances;
-        private int _incompatibleServers;
+        private int _incompatibleServerCount;
 
         // constructors
         /// <summary>
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Internal
             {
                 lock (_connectedInstancesLock)
                 {
-                    return _incompatibleServers == 0;
+                    return _incompatibleServerCount == 0;
                 }
             }
         }
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Internal
             {
                 _instances.Clear();
                 _instanceLookup.Clear();
-                _incompatibleServers = 0;
+                _incompatibleServerCount = 0;
             }
         }
 
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Internal
                 instance.AveragePingTimeChanged += InstanceAveragePingTimeChanged;
                 if (!instance.IsCompatible)
                 {
-                    _incompatibleServers++;
+                    _incompatibleServerCount++;
                 }
             }
         }
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Internal
                 _instances.Remove(node);
                 if (!node.Value.IsCompatible)
                 {
-                    _incompatibleServers--;
+                    _incompatibleServerCount--;
                 }
             }
         }

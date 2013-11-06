@@ -257,7 +257,7 @@ namespace MongoDB.Driver
         }
 
         // internal properties
-        internal Range<int> WireVersion
+        internal Range<int> WireVersionRange
         {
             get
             {

@@ -128,8 +128,8 @@ namespace MongoDB.Driver.Internal
             {
                 if (!_instance.IsCompatible)
                 {
-                    var msg = "This version of the driver is not compatible with the server.";
-                    throw new MongoConnectionException(msg);
+                    var message = "This version of the driver is not compatible with the server.";
+                    throw new MongoConnectionException(message);
                 }
 
                 return _instance;
