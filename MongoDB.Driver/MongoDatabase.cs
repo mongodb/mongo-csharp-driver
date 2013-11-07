@@ -259,17 +259,20 @@ namespace MongoDB.Driver
         /// Adds a user to this database.
         /// </summary>
         /// <param name="user">The user.</param>
+        [Obsolete("Use the new user management command 'createUser' or 'updateUser'.")]
         public virtual void AddUser(MongoUser user)
         {
-            var users = GetCollection("system.users");
-            var document = users.FindOne(Query.EQ("user", user.Username));
-            if (document == null)
+            using (RequestStart(ReadPreference.Primary))
             {
-                document = new BsonDocument("user", user.Username);
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                {
+                    AddUserWithUserManagementCommands(user);
+                }
+                else
+                {
+                    AddUserWithInsert(user);
+                }
             }
-            document["readOnly"] = user.IsReadOnly;
-            document["pwd"] = user.PasswordHash;
-            users.Save(document);
         }
 
         /// <summary>
@@ -467,19 +470,18 @@ namespace MongoDB.Driver
         /// Finds all users of this database.
         /// </summary>
         /// <returns>An array of users.</returns>
+        [Obsolete("Use the new user management command 'usersInfo'.")]
         public virtual MongoUser[] FindAllUsers()
         {
-            var result = new List<MongoUser>();
-            var users = GetCollection("system.users");
-            foreach (var document in users.FindAll())
+            using (RequestStart(ReadPreference.Primary))
             {
-                var username = document["user"].AsString;
-                var passwordHash = document["pwd"].AsString;
-                var readOnly = document["readOnly"].ToBoolean();
-                var user = new MongoUser(username, passwordHash, readOnly);
-                result.Add(user);
-            };
-            return result.ToArray();
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                {
+                    return FindAllUsersWithUserManagementCommands();
+                }
+
+                return FindAllUsersWithQuery();
+            }
         }
 
         /// <summary>
@@ -487,20 +489,17 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>The user.</returns>
+        [Obsolete("Use the new user management command 'usersInfo'.")]
         public virtual MongoUser FindUser(string username)
         {
-            var users = GetCollection("system.users");
-            var query = Query.EQ("user", username);
-            var document = users.FindOne(query);
-            if (document != null)
+            using (RequestStart(ReadPreference.Primary))
             {
-                var passwordHash = document["pwd"].AsString;
-                var readOnly = document["readOnly"].ToBoolean();
-                return new MongoUser(username, passwordHash, readOnly);
-            }
-            else
-            {
-                return null;
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                {
+                    return FindUserWithUserManagementCommands(username);
+                }
+
+                return FindUserWithQuery(username);
             }
         }
 
@@ -796,6 +795,7 @@ namespace MongoDB.Driver
         /// Removes a user from this database.
         /// </summary>
         /// <param name="user">The user to remove.</param>
+        [Obsolete("Use RunCommand with a { dropUser: <username> } document.")]
         public virtual void RemoveUser(MongoUser user)
         {
             RemoveUser(user.Username);
@@ -805,10 +805,21 @@ namespace MongoDB.Driver
         /// Removes a user from this database.
         /// </summary>
         /// <param name="username">The username to remove.</param>
+        [Obsolete("Use RunCommand with a { dropUser: <username> } document.")]
         public virtual void RemoveUser(string username)
         {
-            var users = GetCollection("system.users");
-            users.Remove(Query.EQ("user", username));
+            using (RequestStart(ReadPreference.Primary))
+            {
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands))
+                {
+                    RunCommand(new CommandDocument("dropUser", username));
+                }
+                else
+                {
+                    var users = GetCollection("system.users");
+                    users.Remove(Query.EQ("user", username));
+                }
+            }
         }
 
         /// <summary>
@@ -1009,6 +1020,118 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        #pragma warning disable 618
+        private void AddUserWithInsert(MongoUser user)
+        {
+            var users = GetCollection("system.users");
+            var document = users.FindOne(Query.EQ("user", user.Username));
+            if (document == null)
+            {
+                document = new BsonDocument("user", user.Username);
+            }
+            document["readOnly"] = user.IsReadOnly;
+            document["pwd"] = user.PasswordHash;
+            users.Save(document);
+        }
+        #pragma warning restore
+
+        #pragma warning disable 618
+        private void AddUserWithUserManagementCommands(MongoUser user)
+        {
+            var usersInfo = RunCommand(new CommandDocument("usersInfo", user.Username));
+
+            var roles = new BsonArray();
+            if (_name == "admin")
+            {
+                roles.Add(user.IsReadOnly ? "readAnyDatabase" : "root");
+            }
+            else
+            {
+                roles.Add(user.IsReadOnly ? "read" : "dbOwner");
+            }
+
+            var commandName = "createUser";
+
+            if (usersInfo.Response.Contains("users") && usersInfo.Response["users"].AsBsonArray.Count > 0)
+            {
+                commandName = "updateUser";
+            }
+
+            var userCommand = new CommandDocument
+            {
+                { commandName, user.Username },
+                { "pwd", user.PasswordHash },
+                { "digestPassword", false },
+                { "roles", roles }
+            };
+
+            RunCommand(userCommand);
+        }
+        #pragma warning restore
+
+        #pragma warning disable 618
+        private MongoUser FindUserWithQuery(string username)
+        {
+            var users = GetCollection("system.users");
+            var query = Query.EQ("user", username);
+            var document = users.FindOne(query);
+            if (document != null)
+            {
+                var passwordHash = document.GetValue("pwd", "").AsString;
+                var readOnly = document["readOnly"].ToBoolean();
+                return new MongoUser(username, passwordHash, readOnly);
+            }
+
+            return null;
+        }
+        #pragma warning restore
+
+        #pragma warning disable 618
+        private MongoUser FindUserWithUserManagementCommands(string username)
+        {
+            var usersInfoResult = RunCommand(new CommandDocument("usersInfo", username));
+            if (usersInfoResult.Response.Contains("users") && usersInfoResult.Response["users"].AsBsonArray.Count > 0)
+            {
+                return new MongoUser(username, new PasswordEvidence(""), false);
+            }
+
+            return null;
+        }
+        #pragma warning restore
+
+        #pragma warning disable 618
+        private MongoUser[] FindAllUsersWithQuery()
+        {
+            var results = new List<MongoUser>();
+            var users = GetCollection("system.users");
+            foreach (var document in users.FindAll())
+            {
+                var username = document["user"].AsString;
+                var passwordHash = document.GetValue("pwd", "").AsString;
+                var readOnly = document["readOnly"].ToBoolean();
+                var user = new MongoUser(username, passwordHash, readOnly);
+                results.Add(user);
+            };
+            return results.ToArray();
+        }
+        #pragma warning restore
+
+        #pragma warning disable 618
+        private MongoUser[] FindAllUsersWithUserManagementCommands()
+        {
+            var results = new List<MongoUser>();
+            var usersInfoResult = RunCommand(new CommandDocument("usersInfo", 1));
+            if (usersInfoResult.Response.Contains("users"))
+            {
+                foreach (var document in usersInfoResult.Response["users"].AsBsonArray)
+                {
+                    results.Add(new MongoUser(document["user"].AsString, new PasswordEvidence(""), false));
+                }
+            }
+            return results.ToArray();
+        }
+        #pragma warning restore
+
         private TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
             IBsonSerializer resultSerializer,

@@ -334,26 +334,49 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestUserMethods()
+        [TestCase("user1", "pass1", true)]
+        [TestCase("user2", "pass2", false)]
+        public void TestUserMethods(string username, string password, bool isReadOnly)
         {
-            var collection = _database.GetCollection("system.users");
-            collection.RemoveAll();
-            _database.AddUser(new MongoUser("username", new PasswordEvidence("password"), true));
-            Assert.AreEqual(1, collection.Count());
+            #pragma warning disable 618
+            using (_database.RequestStart(ReadPreference.Primary))
+            {
+                bool usesCommands = _database.Server.RequestConnection.ServerInstance.Supports(FeatureId.UserManagementCommands);
+                if (usesCommands)
+                {
+                    _database.RunCommand("dropAllUsersFromDatabase");
+                }
+                else
+                {
+                    var collection = _database.GetCollection("system.users");
+                    collection.RemoveAll();
+                }
 
-            var user = _database.FindUser("username");
-            Assert.AreEqual("username", user.Username);
-            Assert.AreEqual(MongoUtils.Hash("username:mongo:password"), user.PasswordHash);
-            Assert.AreEqual(true, user.IsReadOnly);
+                _database.AddUser(new MongoUser(username, new PasswordEvidence(password), isReadOnly));
 
-            var users = _database.FindAllUsers();
-            Assert.AreEqual(1, users.Length);
-            Assert.AreEqual("username", users[0].Username);
-            Assert.AreEqual(MongoUtils.Hash("username:mongo:password"), users[0].PasswordHash);
-            Assert.AreEqual(true, users[0].IsReadOnly);
+                var user = _database.FindUser(username);
+                Assert.IsNotNull(user);
+                Assert.AreEqual(username, user.Username);
+                if (!usesCommands)
+                {
+                    Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), user.PasswordHash);
+                    Assert.AreEqual(isReadOnly, user.IsReadOnly);
+                }
 
-            _database.RemoveUser(user);
-            Assert.AreEqual(0, collection.Count());
+                var users = _database.FindAllUsers();
+                Assert.AreEqual(1, users.Length);
+                Assert.AreEqual(username, users[0].Username);
+                if (!usesCommands)
+                {
+                    Assert.AreEqual(MongoUtils.Hash(string.Format("{0}:mongo:{1}", username, password)), users[0].PasswordHash);
+                    Assert.AreEqual(isReadOnly, users[0].IsReadOnly);
+                }
+
+                _database.RemoveUser(user);
+                user = _database.FindUser(username);
+                Assert.IsNull(user);
+                #pragma warning restore
+            }
         }
     }
 }

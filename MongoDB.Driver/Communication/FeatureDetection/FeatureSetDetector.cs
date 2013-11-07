@@ -32,7 +32,8 @@ namespace MongoDB.Driver.Communication.FeatureDetection
                 new ServerParameterDependency("enableExperimentalWriteCommands")), // and for now must be explicitly enabled in the server
 
             // added in 2.5.3
-            new FeatureDetector(FeatureId.MaxTime, new ServerVersionDependency(2, 5, 3)) // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
+            new FeatureDetector(FeatureId.MaxTime, new ServerVersionDependency(2, 5, 3)), // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
+            new FeatureDetector(FeatureId.UserManagementCommands, new ServerVersionDependency(2, 5, 3))
         };
 
         // public methods

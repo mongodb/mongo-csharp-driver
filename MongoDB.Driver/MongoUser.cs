@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// Represents a MongoDB user.
     /// </summary>
     [Serializable]
+    [Obsolete("Use the new user management commands instead.")]
     public class MongoUser : IEquatable<MongoUser>
     {
         // private fields

@@ -16,6 +16,7 @@
 using MongoDB.Driver;
 using NUnit.Framework;
 
+#pragma warning disable 618
 namespace MongoDB.DriverUnitTests
 {
     [TestFixture]
@@ -87,3 +88,4 @@ namespace MongoDB.DriverUnitTests
         }
     }
 }
+#pragma warning restore

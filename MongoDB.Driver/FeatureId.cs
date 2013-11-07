@@ -39,6 +39,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// The max time feature.
         /// </summary>
-        MaxTime
+        MaxTime,
+        /// <summary>
+        /// The user management commands.
+        /// </summary>
+        UserManagementCommands
     }
 }
