@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is greater than its current value (see $max).
         /// </summary>
         /// <param name="name">The name of the element to be updated.</param>
         /// <param name="value">The value to use.</param>
@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is less than its current value (see $max).
         /// </summary>
         /// <param name="name">The name of the element to be updated.</param>
         /// <param name="value">The value to use.</param>
@@ -1036,7 +1036,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is greater than its current value (see $max).
         /// </summary>
         /// <param name="name">The name of the element to be updated.</param>
         /// <param name="value">The value to use.</param>
@@ -1058,7 +1058,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is less than its current value (see $max).
         /// </summary>
         /// <param name="name">The name of the element to be updated.</param>
         /// <param name="value">The value to use.</param>
@@ -2003,7 +2003,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is greater than its current value (see $max).
         /// </summary>
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
@@ -2017,7 +2017,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is less than its current value (see $max).
         /// </summary>
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
@@ -2346,8 +2346,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseAnd(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2367,8 +2366,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseAnd(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2388,8 +2386,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseOr(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2409,8 +2406,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseOr(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2430,8 +2426,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseXor(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2451,8 +2446,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, value);
-            return this;
+            return BitwiseXor(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2482,13 +2476,13 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var options = serializationInfo.SerializationOptions as DateTimeSerializationOptions;
-            BsonType typeToUse = BsonType.DateTime;
+            BsonType externalRepresentation = BsonType.DateTime;
             if (options != null)
             {
-                typeToUse = options.Representation;
+                externalRepresentation = options.Representation;
             }
 
-            switch (typeToUse)
+            switch (externalRepresentation)
             {
                 case BsonType.DateTime:
                     _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Date);
@@ -2555,8 +2549,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
-            return this;
+            return Inc(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2576,8 +2569,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
-            return this;
+            return Inc(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2597,12 +2589,11 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
-            return this;
+            return Inc(serializationInfo, serializedValue);
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is greater than its current value (see $max).
         /// </summary>
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
@@ -2620,12 +2611,12 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Max(serializationInfo.ElementName, BsonValue.Create(value));
+            _updateBuilder = _updateBuilder.Max(serializationInfo.ElementName, BsonValue.Create(serializedValue));
             return this;
         }
 
         /// <summary>
-        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// Updates the named element if and only if the provided value is less than its current value (see $max).
         /// </summary>
         /// <typeparam name="TMember">The type of the member.</typeparam>
         /// <param name="memberExpression">The member expression.</param>
@@ -2642,7 +2633,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Min(serializationInfo.ElementName, BsonValue.Create(value));
+            _updateBuilder = _updateBuilder.Min(serializationInfo.ElementName, BsonValue.Create(serializedValue));
             return this;
         }
 
@@ -2663,8 +2654,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
-            return this;
+            return Mul(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2684,8 +2674,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
-            return this;
+            return Mul(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -2705,8 +2694,7 @@ namespace MongoDB.Driver.Builders
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
-            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
-            return this;
+            return Mul(serializationInfo, serializedValue);
         }
 
         /// <summary>
@@ -3032,6 +3020,96 @@ namespace MongoDB.Driver.Builders
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             ((IBsonSerializable)_updateBuilder).Serialize(bsonWriter, nominalType, options);
+        }
+
+        // private methods
+        private UpdateBuilder<TDocument> BitwiseAnd(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
+        {
+            switch (serializedValue.BsonType)
+            {
+                case BsonType.Int32:
+                    _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, serializedValue.AsInt32);
+                    break;
+                case BsonType.Int64:
+                    _updateBuilder = _updateBuilder.BitwiseAnd(serializationInfo.ElementName, serializedValue.AsInt64);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $bit with a BsonType of {0}.", serializedValue.BsonType));
+            }
+            return this;
+        }
+
+        private UpdateBuilder<TDocument> BitwiseOr(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
+        {
+            switch (serializedValue.BsonType)
+            {
+                case BsonType.Int32:
+                    _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, serializedValue.AsInt32);
+                    break;
+                case BsonType.Int64:
+                    _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, serializedValue.AsInt64);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $bit with a BsonType of {0}.", serializedValue.BsonType));
+            }
+            return this;
+        }
+
+        private UpdateBuilder<TDocument> BitwiseXor(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
+        {
+            switch (serializedValue.BsonType)
+            {
+                case BsonType.Int32:
+                    _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, serializedValue.AsInt32);
+                    break;
+                case BsonType.Int64:
+                    _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, serializedValue.AsInt64);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $bit with a BsonType of {0}.", serializedValue.BsonType));
+            }
+            return this;
+        }
+
+        private UpdateBuilder<TDocument> Inc(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
+        {
+            switch (serializedValue.BsonType)
+            {
+                case BsonType.Double:
+                    _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, serializedValue.AsDouble);
+                    break;
+                case BsonType.Int32:
+                    _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, serializedValue.AsInt32);
+                    break;
+                case BsonType.Int64:
+                    _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, serializedValue.AsInt64);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $inc with a BsonType of {0}.", serializedValue.BsonType));
+
+            }
+
+            return this;
+        }
+
+        private UpdateBuilder<TDocument> Mul(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
+        {
+            switch (serializedValue.BsonType)
+            {
+                case BsonType.Double:
+                    _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, serializedValue.AsDouble);
+                    break;
+                case BsonType.Int32:
+                    _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, serializedValue.AsInt32);
+                    break;
+                case BsonType.Int64:
+                    _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, serializedValue.AsInt64);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $mul with a BsonType of {0}.", serializedValue.BsonType));
+            }
+
+            return this;
         }
     }
 }

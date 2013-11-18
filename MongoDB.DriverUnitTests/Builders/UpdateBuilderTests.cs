@@ -25,9 +25,6 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class UpdateBuilderTests
     {
-        /// <summary>
-        /// 
-        /// </summary>
         private class Test
         {
             public int Id = 0;
