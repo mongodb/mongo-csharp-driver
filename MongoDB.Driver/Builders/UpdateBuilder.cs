@@ -157,6 +157,28 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseXor(string name, int value)
+        {
+            return new UpdateBuilder().BitwiseXor(name, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder BitwiseXor(string name, long value)
+        {
+            return new UpdateBuilder().BitwiseXor(name, value);
+        }
+
+        /// <summary>
         /// Combines several UpdateBuilders into a single UpdateBuilder.
         /// </summary>
         /// <param name="updates">The UpdateBuilders to combine.</param>
@@ -850,6 +872,32 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             BitwiseOperation(name, "or", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseXor(string name, int value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            BitwiseOperation(name, "xor", value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="name">The name of the element to be modified.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder BitwiseXor(string name, long value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            BitwiseOperation(name, "xor", value);
             return this;
         }
 
@@ -1753,6 +1801,32 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseXor(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseXor(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> BitwiseXor(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            return new UpdateBuilder<TDocument>().BitwiseXor(memberExpression, value);
+        }
+
+        /// <summary>
         /// Combines several UpdateBuilders into a single UpdateBuilder.
         /// </summary>
         /// <param name="updates">The UpdateBuilders to combine.</param>
@@ -2215,7 +2289,7 @@ namespace MongoDB.Driver.Builders
         /// Sets the named element to the bitwise or of its value with another value (see $bit with "or").
         /// </summary>
         /// <param name="memberExpression">The member expression.</param>
-        /// <param name="value">The value to be and-ed with the current value.</param>
+        /// <param name="value">The value to be or-ed with the current value.</param>
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
@@ -2229,6 +2303,48 @@ namespace MongoDB.Driver.Builders
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             _updateBuilder = _updateBuilder.BitwiseOr(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseXor(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the named element to the bitwise xor of its value with another value (see $bit with "xor").
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to be xor-ed with the current value.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> BitwiseXor(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.BitwiseXor(serializationInfo.ElementName, value);
             return this;
         }
 

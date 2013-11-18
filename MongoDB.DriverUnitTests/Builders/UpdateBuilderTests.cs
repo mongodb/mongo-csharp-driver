@@ -232,6 +232,54 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestBitwiseXorInt()
+        {
+            var update = Update.BitwiseXor("name", 1);
+            var expected = "{ '$bit' : { 'name' : { 'xor' : 1 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseXorInt_Typed()
+        {
+            var update = Update<Test>.BitwiseXor(t => t.X, 1);
+            var expected = "{ '$bit' : { 'x' : { 'xor' : 1 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseXorIntTwice()
+        {
+            var update = Update.BitwiseXor("x", 1).BitwiseXor("y", 2);
+            var expected = "{ '$bit' : { 'x' : { 'xor' : 1 }, 'y' : { 'xor' : 2 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseXorLong()
+        {
+            var update = Update.BitwiseXor("name", 1L);
+            var expected = "{ '$bit' : { 'name' : { 'xor' : NumberLong(1) } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseXorLong_Typed()
+        {
+            var update = Update<Test>.BitwiseXor(t => t.XL, 1L);
+            var expected = "{ '$bit' : { 'xl' : { 'xor' : NumberLong(1) } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestBitwiseXorLongTwice()
+        {
+            var update = Update.BitwiseXor("x", 1L).BitwiseXor("y", 2L);
+            var expected = "{ '$bit' : { 'x' : { 'xor' : NumberLong(1) }, 'y' : { 'xor' : NumberLong(2) } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestCombineIncSet()
         {
             var update = Update.Combine(
