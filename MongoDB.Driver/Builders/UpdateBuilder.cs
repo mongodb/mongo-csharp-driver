@@ -217,6 +217,39 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Mul(string name, double value)
+        {
+            return new UpdateBuilder().Mul(name, value);
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Mul(string name, int value)
+        {
+            return new UpdateBuilder().Mul(name, value);
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Mul(string name, long value)
+        {
+            return new UpdateBuilder().Mul(name, value);
+        }
+
+        /// <summary>
         /// Removes the first value from the named array element (see $pop).
         /// </summary>
         /// <param name="name">The name of the array element.</param>
@@ -862,6 +895,45 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             Inc(name, BsonValue.Create(value));
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Mul(string name, double value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            Mul(name, BsonValue.Create(value));
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Mul(string name, int value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            Mul(name, BsonValue.Create(value));
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="name">The name of the element to be multiplied.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Mul(string name, long value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            Mul(name, BsonValue.Create(value));
             return this;
         }
 
@@ -1512,6 +1584,19 @@ namespace MongoDB.Driver.Builders
 
             incDocument.Add(name, value);
         }
+
+        private void Mul(string name, BsonValue value)
+        {
+            BsonElement mulElement;
+            if (!_document.TryGetElement("$mul", out mulElement))
+            {
+                mulElement = new BsonElement("$mul", new BsonDocument());
+                _document.Add(mulElement);
+            }
+            var mulDocument = mulElement.Value.AsBsonDocument;
+
+            mulDocument.Add(name, value);
+        }
     }
 
     /// <summary>
@@ -1668,6 +1753,45 @@ namespace MongoDB.Driver.Builders
         public static UpdateBuilder<TDocument> Inc(Expression<Func<TDocument, long>> memberExpression, long value)
         {
             return new UpdateBuilder<TDocument>().Inc(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, double>> memberExpression, double value)
+        {
+            return new UpdateBuilder<TDocument>().Mul(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            return new UpdateBuilder<TDocument>().Mul(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            return new UpdateBuilder<TDocument>().Mul(memberExpression, value);
         }
 
         /// <summary>
@@ -2085,6 +2209,69 @@ namespace MongoDB.Driver.Builders
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, double>> memberExpression, double value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, int>> memberExpression, int value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Multiplies the named element by a value (see $mul).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to multiply by.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Mul(Expression<Func<TDocument, long>> memberExpression, long value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Mul(serializationInfo.ElementName, value);
             return this;
         }
 

@@ -32,6 +32,12 @@ namespace MongoDB.DriverUnitTests.Builders
             [BsonElement("x")]
             public int X = 0;
 
+            [BsonElement("xl")]
+            public long XL = 0;
+
+            [BsonElement("xd")]
+            public double XD = 0;
+
             [BsonElement("y")]
             public int[] Y { get; set; }
 
@@ -287,6 +293,62 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update.Inc("name", 1L);
             var expected = "{ \"$inc\" : { \"name\" : NumberLong(1) } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulDouble()
+        {
+            var update = Update.Mul("name", 1.1);
+            var expected = "{ \"$mul\" : { \"name\" : 1.1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulDouble_Typed()
+        {
+            var update = Update<Test>.Mul(x => x.XD, 1.1);
+            var expected = "{ \"$mul\" : { \"xd\" : 1.1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulInt()
+        {
+            var update = Update.Mul("name", 1);
+            var expected = "{ \"$mul\" : { \"name\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulInt_Typed()
+        {
+            var update = Update<Test>.Mul(t => t.X, 1);
+            var expected = "{ \"$mul\" : { \"x\" : 1 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulInt_Twice()
+        {
+            var update = Update.Mul("name", 1).Mul("name2", 2);
+            var expected = "{ \"$mul\" : { \"name\" : 1, \"name2\" : 2 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulLong()
+        {
+            var update = Update.Mul("name", 1L);
+            var expected = "{ \"$mul\" : { \"name\" : NumberLong(1) } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMulLong_Typed()
+        {
+            var update = Update<Test>.Mul(x => x.XL, 1L);
+            var expected = "{ \"$mul\" : { \"xl\" : NumberLong(1) } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -595,7 +657,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"y\" : null, \"b\" : null }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -604,7 +666,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update<Test>.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"y\" : null, \"b\" : null }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
