@@ -701,6 +701,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestPushEachWithPosition()
+        {
+            var update = Update.PushEach("name", new PushEachOptions { Position = 10 }, _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$position\" : 10 } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestPushEachWithSlice()
         {
             var update = Update.PushEach("name", new PushEachOptions { Slice = -2 }, _docA1, _docA2);
@@ -717,10 +725,10 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        public void TestPushEachWithSortAndSlice()
+        public void TestPushEachWithPositionAndSortAndSlice()
         {
-            var update = Update.PushEach("name", new PushEachOptions { Slice = -3, Sort = SortBy.Descending("a") }, _docA1, _docA2);
-            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$slice\" : -3, \"$sort\" : { \"a\" : -1 } } } }";
+            var update = Update.PushEach("name", new PushEachOptions { Position = 10, Slice = -3, Sort = SortBy.Descending("a") }, _docA1, _docA2);
+            var expected = "{ \"$push\" : { \"name\" : { \"$each\" : [{ \"a\" : 1 }, { \"a\" : 2 }], \"$position\" : 10, \"$slice\" : -3, \"$sort\" : { \"a\" : -1 } } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -729,6 +737,14 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var update = Update<Test>.PushEach(x => x.B, new[] { new B { C = 0 }, new B { C = 1 } });
             var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }] } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestPushEachWithPosition_Typed()
+        {
+            var update = Update<Test>.PushEach(x => x.B, args => args.Position(10), new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$position\" : 10 } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -749,10 +765,10 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        public void TestPushEachWithSortAndSlice_Typed()
+        public void TestPushEachWithPositionAndSortAndSlice_Typed()
         {
-            var update = Update<Test>.PushEach(x => x.B, args => args.SortDescending(x => x.C).Slice(-3), new[] { new B { C = 0 }, new B { C = 1 } });
-            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$slice\" : -3, \"$sort\" : { \"c\" : -1 } } } }";
+            var update = Update<Test>.PushEach(x => x.B, args => args.SortDescending(x => x.C).Slice(-3).Position(10), new[] { new B { C = 0 }, new B { C = 1 } });
+            var expected = "{ \"$push\" : { \"b\" : { \"$each\" : [{ \"c\" : 0 }, { \"c\" : 1 }], \"$position\" : 10, \"$slice\" : -3, \"$sort\" : { \"c\" : -1 } } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

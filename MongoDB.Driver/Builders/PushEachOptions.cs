@@ -29,10 +29,20 @@ namespace MongoDB.Driver.Builders
     public class PushEachOptions
     {
         // private fields
+        private int? _position;
         private int? _slice;
         private IMongoSortBy _sort;
 
         // public properties
+        /// <summary>
+        /// Gets or sets the position (see $position).
+        /// </summary>
+        public int? Position
+        {
+            get { return _position; }
+            set { _position = value; }
+        }
+
         /// <summary>
         /// Gets or sets the slice (see $slice).
         /// </summary>
@@ -60,6 +70,7 @@ namespace MongoDB.Driver.Builders
     {
         // private fields
         private readonly BsonSerializationInfoHelper _serializationInfoHelper;
+        private int? _position;
         private SortByBuilder<TValue> _sortBy;
         private int? _slice;
 
@@ -74,6 +85,17 @@ namespace MongoDB.Driver.Builders
         }
 
         // public methods
+        /// <summary>
+        /// Specifies the position for the array.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <returns>The builder.</returns>
+        public PushEachOptionsBuilder<TValue> Position(int position)
+        {
+            _position = position;
+            return this;
+        }
+
         /// <summary>
         /// Specifies a slice for the array.
         /// </summary>
@@ -125,6 +147,7 @@ namespace MongoDB.Driver.Builders
         {
             return new PushEachOptions
             {
+                Position = _position,
                 Slice = _slice,
                 Sort = _sortBy
             };

@@ -1473,6 +1473,10 @@ namespace MongoDB.Driver.Builders
             var args = new BsonDocument("$each", values);
             if (options != null)
             {
+                if (options.Position.HasValue)
+                {
+                    args["$position"] = options.Position.Value;
+                }
                 if (options.Slice.HasValue)
                 {
                     args["$slice"] = options.Slice.Value;
