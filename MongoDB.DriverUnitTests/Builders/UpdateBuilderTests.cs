@@ -297,6 +297,54 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestMax()
+        {
+            var update = Update.Max("x", 100);
+            var expected = "{ \"$max\" : { \"x\" : 100 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMax_Twice()
+        {
+            var update = Update.Max("x", 100).Max("y", 200);
+            var expected = "{ \"$max\" : { \"x\" : 100, \"y\" : 200 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMax_Typed()
+        {
+            var update = Update<Test>.Max(x => x.X, 100);
+            var expected = "{ \"$max\" : { \"x\" : 100 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMin()
+        {
+            var update = Update.Min("x", 100);
+            var expected = "{ \"$min\" : { \"x\" : 100 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMin_Twice()
+        {
+            var update = Update.Min("x", 100).Min("y", 200);
+            var expected = "{ \"$min\" : { \"x\" : 100, \"y\" : 200 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestMin_Typed()
+        {
+            var update = Update<Test>.Min(x => x.X, 100);
+            var expected = "{ \"$min\" : { \"x\" : 100 } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
         public void TestMulDouble()
         {
             var update = Update.Mul("name", 1.1);

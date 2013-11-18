@@ -217,6 +217,28 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// </summary>
+        /// <param name="name">The name of the element to be updated.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Max(string name, BsonValue value)
+        {
+            return new UpdateBuilder().Max(name, value);
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// </summary>
+        /// <param name="name">The name of the element to be updated.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder Min(string name, BsonValue value)
+        {
+            return new UpdateBuilder().Min(name, value);
+        }
+
+        /// <summary>
         /// Multiplies the named element by a value (see $mul).
         /// </summary>
         /// <param name="name">The name of the element to be multiplied.</param>
@@ -895,6 +917,50 @@ namespace MongoDB.Driver.Builders
         {
             if (name == null) { throw new ArgumentNullException("name"); }
             Inc(name, BsonValue.Create(value));
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// </summary>
+        /// <param name="name">The name of the element to be updated.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Max(string name, BsonValue value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
+            BsonElement element;
+            if (_document.TryGetElement("$max", out element))
+            {
+                element.Value.AsBsonDocument.Add(name, value);
+            }
+            else
+            {
+                _document.Add("$max", new BsonDocument(name, value));
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// </summary>
+        /// <param name="name">The name of the element to be updated.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder Min(string name, BsonValue value)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            if (value == null) { throw new ArgumentNullException("value"); }
+            BsonElement element;
+            if (_document.TryGetElement("$min", out element))
+            {
+                element.Value.AsBsonDocument.Add(name, value);
+            }
+            else
+            {
+                _document.Add("$min", new BsonDocument(name, value));
+            }
             return this;
         }
 
@@ -1756,6 +1822,34 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Max<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().Max(memberExpression, value);
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> Min<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            return new UpdateBuilder<TDocument>().Min(memberExpression, value);
+        }
+
+        /// <summary>
         /// Multiplies the named element by a value (see $mul).
         /// </summary>
         /// <param name="memberExpression">The member expression.</param>
@@ -2209,6 +2303,51 @@ namespace MongoDB.Driver.Builders
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
             var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
             _updateBuilder = _updateBuilder.Inc(serializationInfo.ElementName, value);
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is greater than it's current value (see $max).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">memberExpression</exception>
+        public UpdateBuilder<TDocument> Max<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Max(serializationInfo.ElementName, BsonValue.Create(value));
+            return this;
+        }
+
+        /// <summary>
+        /// Updates the named element if and only if the provided value is less than it's current value (see $max).
+        /// </summary>
+        /// <typeparam name="TMember">The type of the member.</typeparam>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <param name="value">The value to use.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> Min<TMember>(Expression<Func<TDocument, TMember>> memberExpression, TMember value)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var serializedValue = _serializationInfoHelper.SerializeValue(serializationInfo, value);
+            _updateBuilder = _updateBuilder.Min(serializationInfo.ElementName, BsonValue.Create(value));
             return this;
         }
 
