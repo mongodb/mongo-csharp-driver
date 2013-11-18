@@ -84,6 +84,7 @@
       <Link>Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateEnumerableResult.cs" />
+    <Compile Include="Builders\UpdateCurrentDateType.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureDetector.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureContext.cs" />
     <Compile Include="Communication\FeatureDetection\IFeatureDependency.cs" />

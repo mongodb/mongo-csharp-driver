@@ -25,6 +25,9 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class UpdateBuilderTests
     {
+        /// <summary>
+        /// 
+        /// </summary>
         private class Test
         {
             public int Id = 0;
@@ -43,6 +46,19 @@ namespace MongoDB.DriverUnitTests.Builders
 
             [BsonElement("b")]
             public List<B> B { get; set; }
+
+            [BsonElement("dAsDateTime")]
+            public DateTime DAsDateTime { get; set; }
+
+            [BsonElement("dAsInt64")]
+            [BsonDateTimeOptions(Representation=BsonType.Int64)]
+            public DateTime DAsInt64 { get; set; }
+
+            [BsonElement("bdt")]
+            public BsonDateTime BsonDateTime { get; set; }
+
+            [BsonElement("bts")]
+            public BsonTimestamp BsonTimestamp { get; set; }
         }
 
         private class B
@@ -309,6 +325,60 @@ namespace MongoDB.DriverUnitTests.Builders
                 Update.Set("y", 2)
             );
             var expected = "{ '$set' : { 'x' : 1, 'y' : 2 } }".Replace("'", "\"");
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDate()
+        {
+            var update = Update.CurrentDate("name");
+            var expected = "{ \"$currentDate\" : { \"name\" : true } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDate_Typed_AsDateTime()
+        {
+            var update = Update<Test>.CurrentDate(x => x.DAsDateTime);
+            var expected = "{ \"$currentDate\" : { \"dAsDateTime\" : { \"$type\" : \"date\" } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDate_Typed_AsInt64()
+        {
+            Assert.Throws<NotSupportedException>(() => Update<Test>.CurrentDate(x => x.DAsInt64));
+        }
+
+        [Test]
+        public void TestCurrentDate_Typed_AsBsonDateTime()
+        {
+            var update = Update<Test>.CurrentDate(x => x.BsonDateTime);
+            var expected = "{ \"$currentDate\" : { \"bdt\" : { \"$type\" : \"date\" } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDate_Typed_AsBsonTimestamp()
+        {
+            var update = Update<Test>.CurrentDate(x => x.BsonTimestamp);
+            var expected = "{ \"$currentDate\" : { \"bts\" : { \"$type\" : \"timestamp\" } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDateAsDate()
+        {
+            var update = Update.CurrentDate("name", UpdateCurrentDateType.Date);
+            var expected = "{ \"$currentDate\" : { \"name\" : { \"$type\" : \"date\" } } }";
+            Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Test]
+        public void TestCurrentDateAsTimestamp()
+        {
+            var update = Update.CurrentDate("name", UpdateCurrentDateType.Timestamp);
+            var expected = "{ \"$currentDate\" : { \"name\" : { \"$type\" : \"timestamp\" } } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -753,7 +823,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 
@@ -762,7 +832,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var t = new Test { Id = 1, X = 2, Y = null, B = null };
             var update = Update<Test>.Replace(t);
-            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null }";
+            var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
             Assert.AreEqual(expected, update.ToJson());
         }
 

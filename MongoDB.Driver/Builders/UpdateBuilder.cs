@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 using MongoDB.Driver.Wrappers;
@@ -203,6 +204,27 @@ namespace MongoDB.Driver.Builders
         public static UpdateBuilder Combine(params IMongoUpdate[] updates)
         {
             return Combine((IEnumerable<IMongoUpdate>)updates);
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder CurrentDate(string name)
+        {
+            return new UpdateBuilder().CurrentDate(name);
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="type">The type to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static UpdateBuilder CurrentDate(string name, UpdateCurrentDateType type)
+        {
+            return new UpdateBuilder().CurrentDate(name, type);
         }
 
         /// <summary>
@@ -925,6 +947,51 @@ namespace MongoDB.Driver.Builders
                 {
                     _document.Add(otherOperationName, otherTargets);
                 }
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder CurrentDate(string name)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            BsonElement element;
+            if (_document.TryGetElement("$currentDate", out element))
+            {
+                element.Value.AsBsonDocument.Add(name, true);
+            }
+            else
+            {
+                _document.Add("$currentDate", new BsonDocument(name, true));
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="name">The name of the element.</param>
+        /// <param name="type">The type to use.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public UpdateBuilder CurrentDate(string name, UpdateCurrentDateType type)
+        {
+            if (name == null) { throw new ArgumentNullException("name"); }
+            var op = type == UpdateCurrentDateType.Date ?
+                new BsonDocument("$type", "date") :
+                new BsonDocument("$type", "timestamp");
+
+            BsonElement element;
+            if (_document.TryGetElement("$currentDate", out element))
+            {
+                element.Value.AsBsonDocument.Add(name, op);
+            }
+            else
+            {
+                _document.Add("$currentDate", new BsonDocument(name, op));
             }
             return this;
         }
@@ -1857,6 +1924,42 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, DateTime>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().CurrentDate(memberExpression);
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, BsonDateTime>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().CurrentDate(memberExpression);
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, BsonTimestamp>> memberExpression)
+        {
+            return new UpdateBuilder<TDocument>().CurrentDate(memberExpression);
+        }
+
+        /// <summary>
         /// Increments the named element by a value (see $inc).
         /// </summary>
         /// <param name="memberExpression">The member expression.</param>
@@ -2356,6 +2459,78 @@ namespace MongoDB.Driver.Builders
         public UpdateBuilder<TDocument> Combine(IMongoUpdate other)
         {
             _updateBuilder = _updateBuilder.Combine(other);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, DateTime>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            var options = serializationInfo.SerializationOptions as DateTimeSerializationOptions;
+            BsonType typeToUse = BsonType.DateTime;
+            if (options != null)
+            {
+                typeToUse = options.Representation;
+            }
+
+            switch (typeToUse)
+            {
+                case BsonType.DateTime:
+                    _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Date);
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Cannot use $currentDate with a Representation of {0}.", options.Representation));
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, BsonDateTime>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Date);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the value of the named element to the current date (see $currentDate).
+        /// </summary>
+        /// <param name="memberExpression">The member expression.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public UpdateBuilder<TDocument> CurrentDate(Expression<Func<TDocument, BsonTimestamp>> memberExpression)
+        {
+            if (memberExpression == null)
+            {
+                throw new ArgumentNullException("memberExpression");
+            }
+
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+             _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Timestamp);
             return this;
         }
 
