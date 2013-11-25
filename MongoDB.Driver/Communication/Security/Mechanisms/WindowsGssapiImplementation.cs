@@ -165,8 +165,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                 // if it isn't true, this breaks on Windows XP, so we are skipping the check for windows
                 // XP, identified as Win32NT 5.1: http://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
                 if (Environment.OSVersion.Platform != PlatformID.Win32NT ||
-                    Environment.OSVersion.Version.Major != 5 ||
-                    Environment.OSVersion.Version.Minor != 1)
+                    Environment.OSVersion.Version.Major != 5)
                 {
                     if (bytesReceivedFromServer == null || bytesReceivedFromServer.Length != 32) //RFC specifies this must be 4 octets
                     {
