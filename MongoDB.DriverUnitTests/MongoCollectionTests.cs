@@ -116,7 +116,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new BsonDocument("x", 3));
                 _collection.Insert(new BsonDocument("x", 3));
 
-                var args = new AggregateArgs
+                var query = _collection.Aggregate(new AggregateArgs
                 {
                     Pipeline = new BsonDocument[]
                     {
@@ -124,8 +124,7 @@ namespace MongoDB.DriverUnitTests
                     },
                     OutputMode = AggregateOutputMode.Cursor,
                     BatchSize = 1
-                };
-                var query = _collection.Aggregate(args);
+                });
                 var results = query.ToList();
 
                 var dictionary = new Dictionary<int, int>();
@@ -143,6 +142,26 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestAggregateExplain()
+        {
+            if (_primary.Supports(FeatureId.AggregateExplain))
+            {
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
+
+                var result = _collection.AggregateExplain(new AggregateArgs
+                {
+                    Pipeline = new BsonDocument[]
+                    {
+                        new BsonDocument("$project", new BsonDocument("x", "$x"))
+                    }
+                });
+
+                Assert.IsTrue(result.Response.Contains("stages"));
+            }
+        }
+
+        [Test]
         public void TestAggregateMaxTime()
         {
             if (_primary.Supports(FeatureId.MaxTime))
@@ -156,15 +175,14 @@ namespace MongoDB.DriverUnitTests
                         _collection.Insert(new BsonDocument("x", 1));
 
                         failpoint.SetAlwaysOn();
-                        var args = new AggregateArgs
+                        var query = _collection.Aggregate(new AggregateArgs
                         {
                             Pipeline = new BsonDocument[]
                             {
                                 new BsonDocument("$match", Query.Exists("_id").ToBsonDocument())
                             },
                             MaxTime = TimeSpan.FromMilliseconds(1)
-                        };
-                        var query = _collection.Aggregate(args);
+                        });
                         Assert.Throws<ExecutionTimeoutException>(() => query.ToList());
                     }
                 }
@@ -183,15 +201,14 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new BsonDocument("x", 3));
                 _collection.Insert(new BsonDocument("x", 3));
 
-                var args = new AggregateArgs
+                var query = _collection.Aggregate(new AggregateArgs
                 {
                     Pipeline = new BsonDocument[]
                     {
                         new BsonDocument("$group", new BsonDocument { { "_id", "$x" }, { "count", new BsonDocument("$sum", 1) } }),
                         new BsonDocument("$out", "temp")
                     }
-                };
-                var query = _collection.Aggregate(args);
+                });
                 var results = query.ToList();
 
                 var dictionary = new Dictionary<int, int>();

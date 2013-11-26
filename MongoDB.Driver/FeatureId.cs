@@ -29,6 +29,10 @@ namespace MongoDB.Driver
         /// </summary>
         AggregateCursor,
         /// <summary>
+        /// The aggregate explain feature.
+        /// </summary>
+        AggregateExplain,
+        /// <summary>
         /// The aggregate output to collection feature.
         /// </summary>
         AggregateOutputToCollection,

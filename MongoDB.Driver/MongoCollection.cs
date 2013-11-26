@@ -163,6 +163,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Runs an aggregate command with explain set and returns the explain result.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>The explain result.</returns>
+        public virtual CommandResult AggregateExplain(AggregateArgs args)
+        {
+            var aggregateCommand = new CommandDocument
+            {
+                { "aggregate", _name },
+                { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
+                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue },
+                { "explain", true }
+            };
+
+            return RunCommandAs<CommandResult>(aggregateCommand);
+        }
+
+        /// <summary>
         /// Counts the number of documents in this collection.
         /// </summary>
         /// <returns>The number of documents in this collection.</returns>
