@@ -16,9 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Communication.Security.Mechanisms;
 using MongoDB.Driver.Internal;
+using MongoDB.Driver.Operations;
 
 namespace MongoDB.Driver.Communication.Security
 {
@@ -64,9 +66,12 @@ namespace MongoDB.Driver.Communication.Security
                 return;
             }
 
-            foreach (var credential in _credentials)
+            if (!IsArbiter())
             {
-                Authenticate(credential);
+                foreach (var credential in _credentials)
+                {
+                    Authenticate(credential);
+                }
             }
         }
 
@@ -85,6 +90,32 @@ namespace MongoDB.Driver.Communication.Security
             var message = string.Format("Unable to find a protocol to authenticate. The credential for source {0}, username {1} over mechanism {2} could not be authenticated.", credential.Source, credential.Username, credential.Mechanism);
             throw new MongoSecurityException(message);
         }
-    }
 
+        private bool IsArbiter()
+        {
+            var command = new CommandDocument("isMaster", true);
+            var result = RunCommand(_connection, "admin", command);
+            return result.Response.GetValue("arbiterOnly", false).ToBoolean();
+        }
+
+        private CommandResult RunCommand(MongoConnection connection, string databaseName, IMongoCommand command)
+        {
+            var readerSettings = new BsonBinaryReaderSettings();
+            var writerSettings = new BsonBinaryWriterSettings();
+            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+
+            var commandOperation = new CommandOperation<CommandResult>(
+                databaseName,
+                readerSettings,
+                writerSettings,
+                command,
+                QueryFlags.SlaveOk,
+                null, // options
+                null, // readPreference
+                null, // serializationOptions
+                resultSerializer);
+
+            return commandOperation.Execute(connection);
+        }
+    }
 }

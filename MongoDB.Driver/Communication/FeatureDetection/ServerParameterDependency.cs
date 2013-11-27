@@ -36,7 +36,16 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // public methods
         public bool IsMet(FeatureContext context)
         {
-            var parameterValue = GetParameterValue(context);
+            BsonValue parameterValue;
+            try
+            {
+                parameterValue = GetParameterValue(context);
+            }
+            catch
+            {
+                // if we aren't authorized to use getParameter the only safe thing to assume is that the dependency isn't met
+                return false; 
+            }
 
             // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
             if (parameterValue.IsString)
