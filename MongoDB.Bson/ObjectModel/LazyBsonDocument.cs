@@ -30,10 +30,9 @@ namespace MongoDB.Bson
     /// </summary>
     [Serializable]
     [BsonSerializer(typeof(LazyBsonDocumentSerializer))]
-    public class LazyBsonDocument : BsonDocument, IDisposable
+    public class LazyBsonDocument : MaterializedOnDemandBsonDocument
     {
         // private fields
-        private bool _disposed;
         private IByteBuffer _slice;
         private List<IDisposable> _disposableItems = new List<IDisposable>();
         private BsonBinaryReaderSettings _readerSettings = BsonBinaryReaderSettings.Defaults;
@@ -66,55 +65,6 @@ namespace MongoDB.Bson
 
         // public properties
         /// <summary>
-        /// Gets the number of elements.
-        /// </summary>
-        public override int ElementCount
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base.ElementCount;
-            }
-        }
-
-        /// <summary>
-        /// Gets the elements.
-        /// </summary>
-        public override IEnumerable<BsonElement> Elements
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base.Elements;
-            }
-        }
-
-        /// <summary>
-        /// Gets the element names.
-        /// </summary>
-        public override IEnumerable<string> Names
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base.Names;
-            }
-        }
-
-        /// <summary>
-        /// Gets the raw values (see BsonValue.RawValue).
-        /// </summary>
-        [Obsolete("Use Values instead.")]
-        public override IEnumerable<object> RawValues
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base.RawValues;
-            }
-        }
-
-        /// <summary>
         /// Gets the slice.
         /// </summary>
         /// <value>
@@ -123,274 +73,6 @@ namespace MongoDB.Bson
         public IByteBuffer Slice
         {
             get { return _slice; }
-        }
-
-        /// <summary>
-        /// Gets the values.
-        /// </summary>
-        public override IEnumerable<BsonValue> Values
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base.Values;
-            }
-        }
-
-        // public indexers
-        /// <summary>
-        /// Gets or sets a value by position.
-        /// </summary>
-        /// <param name="index">The position.</param>
-        /// <returns>The value.</returns>
-        public override BsonValue this[int index]
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base[index];
-            }
-            set
-            {
-                EnsureDataIsAccessible();
-                base[index] = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value to return if the element is not found.</param>
-        /// <returns>Teh value of the element or a default value if the element is not found.</returns>
-        [Obsolete("Use GetValue(string name, BsonValue defaultValue) instead.")]
-        public override BsonValue this[string name, BsonValue defaultValue]
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base[name, defaultValue];
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value by name.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <returns>The value.</returns>
-        public override BsonValue this[string name]
-        {
-            get
-            {
-                EnsureDataIsAccessible();
-                return base[name];
-            }
-            set
-            {
-                EnsureDataIsAccessible();
-                base[name] = value;
-            }
-       }
-
-        // public methods
-        /// <summary>
-        /// Adds an element to the document.
-        /// </summary>
-        /// <param name="element">The element to add.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Add(BsonElement element)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(element);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(Dictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IDictionary dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <param name="keys">Which keys of the hash table to add.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(IDictionary dictionary, IEnumerable keys)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(dictionary, keys);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange instead.")]
-        public override BsonDocument Add(IEnumerable<BsonElement> elements)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(elements);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
-        public override BsonDocument Add(params BsonElement[] elements)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(elements);
-        }
-
-        /// <summary>
-        /// Creates and adds an element to the document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Add(string name, BsonValue value)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(name, value);
-        }
-
-        /// <summary>
-        /// Creates and adds an element to the document, but only if the condition is true.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <param name="condition">Whether to add the element to the document.</param>
-        /// <returns>The document (so method calls can be chained).</returns>
-        public override BsonDocument Add(string name, BsonValue value, bool condition)
-        {
-            EnsureDataIsAccessible();
-            return base.Add(name, value, condition);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument AddRange(Dictionary<string, object> dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument AddRange(IDictionary dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Adds a list of elements to the document.
-        /// </summary>
-        /// <param name="elements">The list of elements.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument AddRange(IEnumerable<BsonElement> elements)
-        {
-            EnsureDataIsAccessible();
-            return base.AddRange(elements);
-        }
-
-        /// <summary>
-        /// Adds elements to the document from a dictionary of key/value pairs.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument AddRange(IEnumerable<KeyValuePair<string, object>> dictionary)
-        {
-            EnsureDataIsAccessible();
-            return base.AddRange(dictionary);
-        }
-
-        /// <summary>
-        /// Clears the document (removes all elements).
-        /// </summary>
-        public override void Clear()
-        {
-            EnsureDataIsAccessible();
-            base.Clear();
         }
 
         /// <summary>
@@ -412,56 +94,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Compares this document to another document.
-        /// </summary>
-        /// <param name="other">The other document.</param>
-        /// <returns>
-        /// A 32-bit signed integer that indicates whether this document is less than, equal to, or greather than the other.
-        /// </returns>
-        public override int CompareTo(BsonDocument other)
-        {
-            EnsureDataIsAccessible();
-            return base.CompareTo(other);
-        }
-
-        /// <summary>
-        /// Compares the BsonDocument to another BsonValue.
-        /// </summary>
-        /// <param name="other">The other BsonValue.</param>
-        /// <returns>A 32-bit signed integer that indicates whether this BsonDocument is less than, equal to, or greather than the other BsonValue.</returns>
-        public override int CompareTo(BsonValue other)
-        {
-            EnsureDataIsAccessible();
-            return base.CompareTo(other);
-        }
-
-        /// <summary>
-        /// Tests whether the document contains an element with the specified name.
-        /// </summary>
-        /// <param name="name">The name of the element to look for.</param>
-        /// <returns>
-        /// True if the document contains an element with the specified name.
-        /// </returns>
-        public override bool Contains(string name)
-        {
-            EnsureDataIsAccessible();
-            return base.Contains(name);
-        }
-
-        /// <summary>
-        /// Tests whether the document contains an element with the specified value.
-        /// </summary>
-        /// <param name="value">The value of the element to look for.</param>
-        /// <returns>
-        /// True if the document contains an element with the specified value.
-        /// </returns>
-        public override bool ContainsValue(BsonValue value)
-        {
-            EnsureDataIsAccessible();
-            return base.ContainsValue(value);
-        }
-
-        /// <summary>
         /// Creates a deep clone of the document (see also Clone).
         /// </summary>
         /// <returns>
@@ -479,265 +111,14 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Gets an element of this document.
-        /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>
-        /// The element.
-        /// </returns>
-        public override BsonElement GetElement(int index)
-        {
-            EnsureDataIsAccessible();
-            return base.GetElement(index);
-        }
-
-        /// <summary>
-        /// Gets an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <returns>
-        /// A BsonElement.
-        /// </returns>
-        public override BsonElement GetElement(string name)
-        {
-            EnsureDataIsAccessible();
-            return base.GetElement(name);
-        }
-
-        /// <summary>
-        /// Gets an enumerator that can be used to enumerate the elements of this document.
-        /// </summary>
-        /// <returns>
-        /// An enumerator.
-        /// </returns>
-        public override IEnumerator<BsonElement> GetEnumerator()
-        {
-            EnsureDataIsAccessible();
-            return base.GetEnumerator();
-        }
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
-        {
-            EnsureDataIsAccessible();
-            return base.GetHashCode();
-        }
-
-        /// <summary>
-        /// Gets the value of an element.
-        /// </summary>
-        /// <param name="index">The zero based index of the element.</param>
-        /// <returns>
-        /// The value of the element.
-        /// </returns>
-        public override BsonValue GetValue(int index)
-        {
-            EnsureDataIsAccessible();
-            return base.GetValue(index);
-        }
-
-        /// <summary>
-        /// Gets the value of an element.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <returns>
-        /// The value of the element.
-        /// </returns>
-        public override BsonValue GetValue(string name)
-        {
-            EnsureDataIsAccessible();
-            return base.GetValue(name);
-        }
-
-        /// <summary>
-        /// Gets the value of an element or a default value if the element is not found.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="defaultValue">The default value returned if the element is not found.</param>
-        /// <returns>
-        /// The value of the element or the default value if the element is not found.
-        /// </returns>
-        public override BsonValue GetValue(string name, BsonValue defaultValue)
-        {
-            EnsureDataIsAccessible();
-            return base.GetValue(name, defaultValue);
-        }
-
-        /// <summary>
-        /// Inserts a new element at a specified position.
-        /// </summary>
-        /// <param name="index">The position of the new element.</param>
-        /// <param name="element">The element.</param>
-        public override void InsertAt(int index, BsonElement element)
-        {
-            EnsureDataIsAccessible();
-            base.InsertAt(index, element);
-        }
-
-        /// <summary>
-        /// Merges another document into this one. Existing elements are not overwritten.
-        /// </summary>
-        /// <param name="document">The other document.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Merge(BsonDocument document)
-        {
-            EnsureDataIsAccessible();
-            return base.Merge(document);
-        }
-
-        /// <summary>
-        /// Merges another document into this one, specifying whether existing elements are overwritten.
-        /// </summary>
-        /// <param name="document">The other document.</param>
-        /// <param name="overwriteExistingElements">Whether to overwrite existing elements.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Merge(BsonDocument document, bool overwriteExistingElements)
-        {
-            EnsureDataIsAccessible();
-            return base.Merge(document, overwriteExistingElements);
-        }
-
-        /// <summary>
-        /// Removes an element from this document (if duplicate element names are allowed
-        /// then all elements with this name will be removed).
-        /// </summary>
-        /// <param name="name">The name of the element to remove.</param>
-        public override void Remove(string name)
-        {
-            EnsureDataIsAccessible();
-            base.Remove(name);
-        }
-
-        /// <summary>
-        /// Removes an element from this document.
-        /// </summary>
-        /// <param name="index">The zero based index of the element to remove.</param>
-        public override void RemoveAt(int index)
-        {
-            EnsureDataIsAccessible();
-            base.RemoveAt(index);
-        }
-
-        /// <summary>
-        /// Removes an element from this document.
-        /// </summary>
-        /// <param name="element">The element to remove.</param>
-        public override void RemoveElement(BsonElement element)
-        {
-            EnsureDataIsAccessible();
-            base.RemoveElement(element);
-        }
-
-        /// <summary>
-        /// Sets the value of an element.
-        /// </summary>
-        /// <param name="index">The zero based index of the element whose value is to be set.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Set(int index, BsonValue value)
-        {
-            EnsureDataIsAccessible();
-            return base.Set(index, value);
-        }
-
-        /// <summary>
-        /// Sets the value of an element (an element will be added if no element with this name is found).
-        /// </summary>
-        /// <param name="name">The name of the element whose value is to be set.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>
-        /// The document (so method calls can be chained).
-        /// </returns>
-        public override BsonDocument Set(string name, BsonValue value)
-        {
-            EnsureDataIsAccessible();
-            return base.Set(name, value);
-        }
-
-        /// <summary>
-        /// Sets an element of the document (replaces any existing element with the same name or adds a new element if an element with the same name is not found).
-        /// </summary>
-        /// <param name="element">The new element.</param>
-        /// <returns>
-        /// The document.
-        /// </returns>
-        public override BsonDocument SetElement(BsonElement element)
-        {
-            EnsureDataIsAccessible();
-            return base.SetElement(element);
-        }
-
-        /// <summary>
-        /// Sets an element of the document (replacing the existing element at that position).
-        /// </summary>
-        /// <param name="index">The zero based index of the element to replace.</param>
-        /// <param name="element">The new element.</param>
-        /// <returns>
-        /// The document.
-        /// </returns>
-        public override BsonDocument SetElement(int index, BsonElement element)
-        {
-            EnsureDataIsAccessible();
-            return base.SetElement(index, element);
-        }
-
-        /// <summary>
-        /// Tries to get an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The element.</param>
-        /// <returns>
-        /// True if an element with that name was found.
-        /// </returns>
-        public override bool TryGetElement(string name, out BsonElement value)
-        {
-            EnsureDataIsAccessible();
-            return base.TryGetElement(name, out value);
-        }
-
-        /// <summary>
-        /// Tries to get the value of an element of this document.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>
-        /// True if an element with that name was found.
-        /// </returns>
-        public override bool TryGetValue(string name, out BsonValue value)
-        {
-            EnsureDataIsAccessible();
-            return base.TryGetValue(name, out value);
-        }
-
         // protected methods
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!IsDisposed)
             {
                 if (disposing)
                 {
@@ -752,20 +133,27 @@ namespace MongoDB.Bson
                         _disposableItems = null;
                     }
                 }
-                _disposed = true;
             }
+            base.Dispose(disposing);
         }
 
         /// <summary>
-        /// Throws if disposed.
+        /// Materializes the BsonDocument.
         /// </summary>
-        /// <exception cref="System.ObjectDisposedException"></exception>
-        protected void ThrowIfDisposed()
+        /// <returns>The materialized elements.</returns>
+        protected override IEnumerable<BsonElement> Materialize()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
+            return MaterializeThisLevel();
+        }
+
+        /// <summary>
+        /// Informs subclasses that the Materialize process completed so they can free any resources related to the unmaterialized state.
+        /// </summary>
+        protected override void MaterializeCompleted()
+        {
+            var slice = _slice;
+            _slice = null;
+            slice.Dispose();
         }
 
         // private methods
@@ -790,7 +178,7 @@ namespace MongoDB.Bson
             return nestedDocument;
         }
 
-        private void DeserializeThisLevel()
+        private IEnumerable<BsonElement> MaterializeThisLevel()
         {
             var elements = new List<BsonElement>();
 
@@ -813,33 +201,7 @@ namespace MongoDB.Bson
                 bsonReader.ReadEndDocument();
             }
 
-            var slice = _slice;
-            try
-            {
-                _slice = null;
-                AddRange(elements);
-                slice.Dispose();
-            }
-            catch
-            {
-                try { Clear(); } catch { }
-                _slice = slice;
-                throw;
-            }
-        }
-
-        private void EnsureDataIsAccessible()
-        {
-            ThrowIfDisposed();
-            EnsureThisLevelHasBeenDeserialized();
-        }
-
-        private void EnsureThisLevelHasBeenDeserialized()
-        {
-            if (_slice != null)
-            {
-                DeserializeThisLevel();
-            }
+            return elements;
         }
     }
 }

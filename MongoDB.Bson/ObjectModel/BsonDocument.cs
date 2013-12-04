@@ -822,7 +822,7 @@ namespace MongoDB.Bson
         /// <param name="options">The serialization options (ignored).</param>
         /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
         [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        public virtual object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             return BsonDocumentSerializer.Instance.Deserialize(bsonReader, nominalType, options);
         }
@@ -835,7 +835,7 @@ namespace MongoDB.Bson
         /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
         /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
         [Obsolete("GetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] or document.GetValue(\"_id\") instead.")]
-        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        public virtual bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
         {
             var idProvider = (IBsonIdProvider)BsonDocumentSerializer.Instance;
             return idProvider.GetDocumentId(this, out id, out idNominalType, out idGenerator);
@@ -1071,7 +1071,7 @@ namespace MongoDB.Bson
         /// <param name="nominalType">The nominalType.</param>
         /// <param name="options">The serialization options (can be null).</param>
         [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        public virtual void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, this, options);
         }
@@ -1117,7 +1117,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="id">The value of the Id.</param>
         [Obsolete("SetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] = value or document.Set(\"_id\", value) instead.")]
-        public void SetDocumentId(object id)
+        public virtual void SetDocumentId(object id)
         {
             var idProvider = (IBsonIdProvider)BsonDocumentSerializer.Instance;
             idProvider.SetDocumentId(this, id);

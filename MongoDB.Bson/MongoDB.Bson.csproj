@@ -107,6 +107,8 @@
     <Compile Include="ObjectModel\BsonTypeMapperOptions.cs" />
     <Compile Include="ObjectModel\LazyBsonArray.cs" />
     <Compile Include="ObjectModel\LazyBsonDocument.cs" />
+    <Compile Include="ObjectModel\MaterializedOnDemandBsonArray.cs" />
+    <Compile Include="ObjectModel\MaterializedOnDemandBsonDocument.cs" />
     <Compile Include="ObjectModel\RawBsonArray.cs" />
     <Compile Include="ObjectModel\RawBsonDocument.cs" />
     <Compile Include="Serialization\Attributes\BsonConstructorAttribute.cs" />

@@ -80,6 +80,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             var wrapper = (BsonDocumentWrapper)value;
+            var wrappedObject = wrapper.WrappedObject;
+            var wrappedActualType = (wrappedObject == null) ? wrapper.WrappedNominalType : wrappedObject.GetType();
+            var serializer = (wrappedActualType == wrapper.WrappedNominalType) ? wrapper.Serializer : BsonSerializer.LookupSerializer(wrappedActualType);
+
             if (wrapper.IsUpdateDocument)
             {
                 var savedCheckElementNames = bsonWriter.CheckElementNames;
@@ -88,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     bsonWriter.CheckElementNames = false;
                     bsonWriter.CheckUpdateDocument = true;
-                    BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
+                    serializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, wrapper.SerializationOptions);
                 }
                 finally
                 {
@@ -98,7 +102,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                BsonSerializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, null); // TODO: wrap options also?
+                serializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, wrapper.SerializationOptions);
             }
         }
     }

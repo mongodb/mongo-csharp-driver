@@ -23,25 +23,28 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson
 {
-    // this class is a wrapper for an object that we intend to serialize as a BsonValue
-    // it is a subclass of BsonValue so that it may be used where a BsonValue is expected
+    // this class is a wrapper for an object that we intend to serialize as a BsonDocument
+    // it is a subclass of BsonDocument so that it may be used where a BsonDocument is expected
     // this class is mostly used by MongoCollection and MongoCursor when supporting generic query objects
+
+    // if all that ever happens with this wrapped object is that it gets serialized then the BsonDocument is never materialized
 
     /// <summary>
     /// Represents a BsonDocument wrapper.
     /// </summary>
-    public class BsonDocumentWrapper : BsonValue, IBsonSerializable
+    public class BsonDocumentWrapper : MaterializedOnDemandBsonDocument
     {
         // private fields
         private Type _wrappedNominalType;
         private object _wrappedObject;
+        private IBsonSerializer _serializer;
+        private IBsonSerializationOptions _serializationOptions;
         private bool _isUpdateDocument;
 
         // constructors
         // needed for Deserialize
         // (even though we're going to end up throwing an InvalidOperationException)
         private BsonDocumentWrapper()
-            : base(BsonType.Document)
         {
         }
 
@@ -71,14 +74,34 @@ namespace MongoDB.Bson
         /// <param name="wrappedObject">The wrapped object.</param>
         /// <param name="isUpdateDocument">Whether the wrapped object is an update document that needs to be checked.</param>
         public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject, bool isUpdateDocument)
-            : base(BsonType.Document)
+            : this(wrappedNominalType, wrappedObject, BsonSerializer.LookupSerializer(wrappedNominalType), null, isUpdateDocument)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWrapper class.
+        /// </summary>
+        /// <param name="wrappedNominalType">The nominal type of the wrapped object.</param>
+        /// <param name="wrappedObject">The wrapped object.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="serializationOptions">The serialization options.</param>
+        /// <param name="isUpdateDocument">Whether the wrapped object is an update document that needs to be checked.</param>
+        public BsonDocumentWrapper(Type wrappedNominalType, object wrappedObject, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions, bool isUpdateDocument)
         {
             if (wrappedNominalType == null)
             {
                 throw new ArgumentNullException("wrappedNominalType");
             }
+
+            if (serializer == null)
+            {
+                throw new ArgumentNullException("serializer");
+            }
+
             _wrappedNominalType = wrappedNominalType;
             _wrappedObject = wrappedObject;
+            _serializer = serializer;
+            _serializationOptions = serializationOptions;
             _isUpdateDocument = isUpdateDocument;
         }
 
@@ -89,6 +112,28 @@ namespace MongoDB.Bson
         public bool IsUpdateDocument
         {
             get { return _isUpdateDocument; }
+        }
+
+        /// <summary>
+        /// Gets the serialization options.
+        /// </summary>
+        /// <value>
+        /// The serialization options.
+        /// </value>
+        public IBsonSerializationOptions SerializationOptions
+        {
+            get { return _serializationOptions; }
+        }
+
+        /// <summary>
+        /// Gets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
+        public IBsonSerializer Serializer
+        {
+            get { return _serializer; }
         }
 
         /// <summary>
@@ -192,13 +237,26 @@ namespace MongoDB.Bson
 
         // public methods
         /// <summary>
-        /// CompareTo is an invalid operation for BsonDocumentWrapper.
+        /// Creates a shallow clone of the document (see also DeepClone).
         /// </summary>
-        /// <param name="other">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        public override int CompareTo(BsonValue other)
+        /// <returns>
+        /// A shallow clone of the document.
+        /// </returns>
+        public override BsonValue Clone()
         {
-            throw new NotSupportedException();
+            if (IsMaterialized)
+            {
+                return base.Clone();
+            }
+            else
+            {
+                return new BsonDocumentWrapper(
+                    _wrappedNominalType,
+                    _wrappedObject,
+                    _serializer,
+                    _serializationOptions,
+                    _isUpdateDocument);
+            }
         }
 
         /// <summary>
@@ -209,39 +267,7 @@ namespace MongoDB.Bson
         /// <param name="options">Not applicable.</param>
         /// <returns>Not applicable.</returns>
         [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// GetDocumentId is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="id">Not applicable.</param>
-        /// <param name="idNominalType">Not applicable.</param>
-        /// <param name="idGenerator">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        [Obsolete("GetDocumentId was intended to be private and will become private in a future release.")]
-        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Equals is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="obj">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        public override bool Equals(object obj)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// GetHashCode is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <returns>Not applicable.</returns>
-        public override int GetHashCode()
+        public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
         {
             throw new NotSupportedException();
         }
@@ -250,31 +276,36 @@ namespace MongoDB.Bson
         /// Serializes the wrapped object to a BsonWriter.
         /// </summary>
         /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type (overridded by the wrapped nominal type).</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="nominalType">The nominal type (overridden by the wrapped nominal type).</param>
+        /// <param name="options">The serialization options (can be null).</param>
         [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        public override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, this, options);
         }
 
+        // protected methods
         /// <summary>
-        /// SetDocumentId is an invalid operation for BsonDocumentWrapper.
+        /// Materializes the BsonDocument.
         /// </summary>
-        /// <param name="Id">Not applicable.</param>
-        [Obsolete("SetDocumentId was intended to be private and will become private in a future release.")]
-        public void SetDocumentId(object Id)
+        /// <returns>The materialized elements.</returns>
+        protected override IEnumerable<BsonElement> Materialize()
         {
-            throw new NotSupportedException();
+            var bsonDocument = new BsonDocument();
+            var writerSettings = BsonDocumentWriterSettings.Defaults;
+            using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
+            {
+                BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocumentWrapper), this, null);
+            }
+
+            return bsonDocument.Elements;
         }
 
         /// <summary>
-        /// Returns a string representation of the wrapped document.
+        /// Informs subclasses that the Materialize process completed so they can free any resources related to the unmaterialized state.
         /// </summary>
-        /// <returns>A string representation of the wrapped document.</returns>
-        public override string ToString()
+        protected override void MaterializeCompleted()
         {
-            return this.ToJson();
         }
     }
 }
