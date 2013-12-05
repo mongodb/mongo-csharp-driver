@@ -45,6 +45,7 @@ namespace MongoDB.Driver
         private static int __waitQueueSize = 0; // use multiple by default
         private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
         private static UTF8Encoding __writeEncoding = new UTF8Encoding(false, true);
+        private static int __maxDocumentSize = 4 * 1024 * 1024; // 4 MiB. Original MongoDB max document size
 
         // public static properties
         /// <summary>
@@ -129,12 +130,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the max document size (this is an alias for BsonDefaults.MaxDocumentSize).
+        /// Gets or sets the max document size
         /// </summary>
         public static int MaxDocumentSize
         {
-            get { return BsonDefaults.MaxDocumentSize; }
-            set { BsonDefaults.MaxDocumentSize = value; }
+            get { return __maxDocumentSize; }
+            set { __maxDocumentSize = value; }
         }
 
         /// <summary>
