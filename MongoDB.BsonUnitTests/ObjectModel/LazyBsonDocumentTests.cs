@@ -852,5 +852,22 @@ namespace MongoDB.BsonUnitTests
                 Assert.AreEqual(2, lazyValues[1].AsInt32);
             }
         }
+
+        [Test]
+        public void TestLargeDocumentDeserialization()
+        {
+            var bsonDocument = new BsonDocument { { "stringfield", "A" } };
+            var noOfDoubleFields = 200000;
+            for (var i = 0; i < noOfDoubleFields; i++)
+            {
+                bsonDocument.Add("doublefield_"+i, i*1.0);
+            }
+            var bson = bsonDocument.ToBson();
+            BsonDefaults.MaxDocumentSize = 4 * 1024 * 1024;
+            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
+            {
+                Assert.AreEqual(noOfDoubleFields + 1, lazyBsonDocument.ElementCount);
+            }
+        }
     }
 }

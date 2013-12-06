@@ -169,8 +169,10 @@ namespace MongoDB.Bson
         private IEnumerable<BsonValue> MaterializeThisLevel()
         {
             var values = new List<BsonValue>();
+            var readerSettings = _readerSettings.Clone();
+            readerSettings.MaxDocumentSize = _slice.Length;
 
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, _readerSettings))
+            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, readerSettings))
             {
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;

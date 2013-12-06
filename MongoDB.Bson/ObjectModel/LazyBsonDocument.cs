@@ -181,8 +181,9 @@ namespace MongoDB.Bson
         private IEnumerable<BsonElement> MaterializeThisLevel()
         {
             var elements = new List<BsonElement>();
-
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, _readerSettings))
+            var readerSettings = _readerSettings.Clone();
+            readerSettings.MaxDocumentSize = _slice.Length;
+            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, readerSettings))
             {
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;

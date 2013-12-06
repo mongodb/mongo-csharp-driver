@@ -616,5 +616,25 @@ namespace MongoDB.BsonUnitTests
                 Assert.AreEqual(2, values[1].AsInt32);
             }
         }
+
+        [Test]
+        public void TestLargeArrayDeserialization()
+        {
+            var bsonDocument = new BsonDocument { { "stringfield", "A" } };
+            var noOfArrayFields = 400000;
+            var bsonArray = new BsonArray(noOfArrayFields);
+            for (var i = 0; i < noOfArrayFields; i++)
+            {
+                bsonArray.Add(i * 1.0);
+            }
+            bsonDocument.Add("arrayfield", bsonArray);
+            var bson = bsonDocument.ToBson();
+            BsonDefaults.MaxDocumentSize = 4 * 1024 * 1024;
+            using (var lazyBsonDocument = BsonSerializer.Deserialize<LazyBsonDocument>(bson))
+            {
+                Assert.AreEqual(2, lazyBsonDocument.ElementCount);
+                Assert.AreEqual(noOfArrayFields, lazyBsonDocument["arrayfield"].AsBsonArray.Count);
+            }
+        }
     }
 }
