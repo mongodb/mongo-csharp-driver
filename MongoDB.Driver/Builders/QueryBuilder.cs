@@ -736,6 +736,37 @@ namespace MongoDB.Driver.Builders
             return new QueryDocument(name, condition);
         }
 
+        /// <summary>
+        /// Generate a text search query that tests whether the given search string is present.
+        /// </summary>
+        /// <param name="searchString">The search string.</param>
+        /// <returns>An IMongoQuery that represents the text search.</returns>
+        public static IMongoQuery Text(string searchString)
+        {
+            return Text(searchString, null);
+        }
+
+        /// <summary>
+        /// Generate a text search query that tests whether the given search string is present using the specified language's rules. 
+        /// Specifies use of language appropriate stop words, stemming rules etc.
+        /// </summary>
+        /// <param name="searchString">The search string.</param>
+        /// <param name="language">The language to restrict the search by.</param>
+        /// <returns>An IMongoQuery that represents the text search for the particular language.</returns>
+        public static IMongoQuery Text(string searchString, string language)
+        {
+            if (searchString == null)
+            {
+                throw new ArgumentNullException("searchString");
+            }
+            var condition = new BsonDocument
+            {
+                { "$search", searchString },
+                { "$language", language, language != null }
+            };
+            return new QueryDocument("$text", condition);
+        }
+
         // private methods
         private static void AddAndClause(BsonDocument query, BsonElement clause)
         {

@@ -23,6 +23,9 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // private static fields
         private static readonly IFeatureDetector[] __featureDetectors = new[]
         {
+            // added in 2.4.0
+            new FeatureDetector(FeatureId.TextSearchCommand, new ServerVersionDependency(2, 4, 0)),
+
             // added in 2.5.2
             new FeatureDetector(FeatureId.AggregateAllowDiskUsage, new ServerVersionDependency(2, 5, 2)),
             new FeatureDetector(FeatureId.AggregateCursor, new ServerVersionDependency(2, 5, 2)),
@@ -34,7 +37,10 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             // added in 2.5.3
             new FeatureDetector(FeatureId.AggregateExplain, new ServerVersionDependency(2, 5, 3)),
             new FeatureDetector(FeatureId.MaxTime, new ServerVersionDependency(2, 5, 3)), // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
-            new FeatureDetector(FeatureId.UserManagementCommands, new ServerVersionDependency(2, 5, 3))
+            new FeatureDetector(FeatureId.UserManagementCommands, new ServerVersionDependency(2, 5, 3)),
+
+            // added in 2.5.5
+            new FeatureDetector(FeatureId.TextSearchQuery, new ServerVersionDependency(2, 5, 5)),
         };
 
         // public methods

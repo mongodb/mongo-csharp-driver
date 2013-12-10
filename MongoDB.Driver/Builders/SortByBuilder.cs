@@ -59,6 +59,17 @@ namespace MongoDB.Driver.Builders
         {
             return new SortByBuilder().Descending(keys);
         }
+
+        /// <summary>
+        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
+        /// the name of the projected relevance.
+        /// </summary>
+        /// <param name="key">The name of the computed relevance field.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static SortByBuilder MetaText(string key)
+        {
+            return new SortByBuilder().MetaText(key);
+        }
     }
 
     /// <summary>
@@ -105,6 +116,18 @@ namespace MongoDB.Driver.Builders
             {
                 _document.Add(key, -1);
             }
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
+        /// the name of the projected relevance.
+        /// </summary>
+        /// <param name="key">The name of the computed relevance field.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public SortByBuilder MetaText(string key)
+        {
+            _document.Add(key, new BsonDocument("$meta", "text"));
             return this;
         }
 
@@ -158,6 +181,17 @@ namespace MongoDB.Driver.Builders
         public static SortByBuilder<TDocument> Descending(params Expression<Func<TDocument, object>>[] memberExpressions)
         {
             return new SortByBuilder<TDocument>().Descending(memberExpressions);
+        }
+
+        /// <summary>
+        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
+        /// the name of the projected relevance.
+        /// </summary>
+        /// <param name="memberExpression">The member expression specifying the projected field.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static SortByBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        {
+            return new SortByBuilder<TDocument>().MetaText(memberExpression);
         }
     }
 
@@ -216,6 +250,19 @@ namespace MongoDB.Driver.Builders
         {
             var elementNames = GetElementNames(memberExpressions);
             _sortByBuilder = _sortByBuilder.Descending(elementNames.ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
+        /// the name of the projected relevance.
+        /// </summary>
+        /// <param name="memberExpression">The member expression specifying the projected field.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public SortByBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _sortByBuilder = _sortByBuilder.MetaText(serializationInfo.ElementName);
             return this;
         }
 

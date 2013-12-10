@@ -14,6 +14,8 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -24,9 +26,13 @@ namespace MongoDB.DriverUnitTests.Builders
     {
         public class TestClass
         {
+            public int _id;
             public int[] a;
             public SubClass[] a2;
             public int x;
+            public string textfield;
+            [BsonIgnoreIfDefault]
+            public double relevance;
         }
 
         public class SubClass
@@ -90,7 +96,7 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
-        public void TesIncludetExclude()
+        public void TestIncludeExclude()
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Exclude(tc => tc.a);
             string expected = "{ \"x\" : 1, \"a\" : 0 }";
@@ -110,6 +116,63 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var fields = Fields<TestClass>.Include(tc => tc.x).Slice(tc => tc.a, 10, 20);
             string expected = "{ \"x\" : 1, \"a\" : { \"$slice\" : [10, 20] } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestMetaText()
+        {
+            var server = Configuration.TestServer;
+            var primary = server.Primary;
+            if (primary.Supports(FeatureId.TextSearchQuery))
+            {
+                Configuration.EnableTextSearch(primary);
+                using (server.RequestStart(null, primary))
+                {
+                    var collection = Configuration.TestDatabase.GetCollection<TestClass>("test_meta_text");
+                    collection.Drop();
+                    collection.EnsureIndex(new IndexKeysDocument("textfield", "text"));
+                    collection.Insert(new TestClass
+                    {
+                        _id = 1,
+                        textfield = "The quick brown fox jumped",
+                        x = 1
+                    });
+                    collection.Insert(new TestClass
+                    {
+                        _id = 2,
+                        textfield = "over the lazy brown dog",
+                        x = 1
+                    });
+
+                    var query = Query.Text("fox");
+                    var result = collection.FindOneAs<BsonDocument>(query);
+                    Assert.AreEqual(1, result["_id"].AsInt32);
+                    Assert.IsFalse(result.Contains("relevance"));
+                    Assert.IsTrue(result.Contains("x"));
+
+                    var fields = Fields<TestClass>.MetaText(y => y.relevance).Exclude(y => y.x);
+                    result = collection.FindOneAs<BsonDocument>(new FindOneArgs() { Query = query, Fields = fields });
+                    Assert.AreEqual(1, result["_id"].AsInt32);
+                    Assert.IsTrue(result.Contains("relevance"));
+                    Assert.IsFalse(result.Contains("x"));
+                }
+            }
+        }
+
+        [Test]
+        public void TestMetaTextGenerate()
+        {
+            var fields = Fields<TestClass>.MetaText(y => y.relevance);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" } }";
+            Assert.AreEqual(expected, fields.ToJson());
+        }
+
+        [Test]
+        public void TestMetaTextIncludeExcludeGenerate()
+        {
+            var fields = Fields<TestClass>.MetaText(y => y.relevance).Include(y => y.x).Exclude(y => y._id);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" }, \"x\" : 1, \"_id\" : 0 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
     }

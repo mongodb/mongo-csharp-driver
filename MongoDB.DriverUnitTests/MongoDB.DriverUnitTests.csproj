@@ -41,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -101,6 +102,7 @@
     <Compile Include="Builders\QueryBuilderTests.cs" />
     <Compile Include="Builders\SortByBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderTypedTests.cs" />
+    <Compile Include="Builders\SortByBuilderTypedTests.cs" />
     <Compile Include="Builders\UpdateBuilderTests.cs" />
     <Compile Include="CommandResults\CollectionStatsResultTests.cs" />
     <Compile Include="CommandResults\CommandResultTests.cs" />

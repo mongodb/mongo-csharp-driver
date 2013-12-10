@@ -2448,31 +2448,26 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestTextIndex()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            if (_primary.Supports(FeatureId.TextSearchCommand))
             {
-                var enableTextSearchCommand = new CommandDocument
+                Configuration.EnableTextSearch(_primary);
+                using (_server.RequestStart(null, _primary))
                 {
-                    { "setParameter", 1 },
-                    { "textSearchEnabled", true }
-                };
-                var adminDatabase = _server.GetDatabase("admin");
-                adminDatabase.RunCommand(enableTextSearchCommand);
+                    _collection.Drop();
+                    _collection.Insert(new BsonDocument("x", "The quick brown fox"));
+                    _collection.Insert(new BsonDocument("x", "jumped over the fence"));
+                    _collection.EnsureIndex(new IndexKeysDocument("x", "text"));
 
-                if (_collection.Exists()) { _collection.Drop(); }
-                _collection.Insert(new BsonDocument("x", "The quick brown fox"));
-                _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                _collection.EnsureIndex(new IndexKeysDocument("x", "text"));
-
-                var textSearchCommand = new CommandDocument
-                {
-                    { "text", _collection.Name },
-                    { "search", "fox" }
-                };
-                var commandResult = _database.RunCommand(textSearchCommand);
-                var response = commandResult.Response;
-
-                Assert.AreEqual(1, response["stats"]["nfound"].ToInt32());
-                Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
+                    var textSearchCommand = new CommandDocument
+                    {
+                        { "text", _collection.Name },
+                        { "search", "fox" }
+                    };
+                    var commandResult = _database.RunCommand(textSearchCommand);
+                    var response = commandResult.Response;
+                    Assert.AreEqual(1, response["stats"]["nfound"].ToInt32());
+                    Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
+                }
             }
         }
 

@@ -72,6 +72,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Specifies the name of field to hold the computed relevance for text search.
+        /// </summary>
+        /// <param name="name">The name of the field to hold the computed relevance.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static FieldsBuilder MetaText(string name)
+        {
+            return new FieldsBuilder().MetaText(name);
+        }
+
+        /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
         /// <param name="name">The name of the field to slice.</param>
@@ -152,6 +162,17 @@ namespace MongoDB.Driver.Builders
             {
                 _document.Add(name, 1);
             }
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the name of field to hold the computed relevance for text search.
+        /// </summary>
+        /// <param name="name">The name of the field to hold the computed relevance.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public FieldsBuilder MetaText(string name)
+        {
+            _document.Add(name, new BsonDocument("$meta", "text"));
             return this;
         }
 
@@ -251,6 +272,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Specifies the name of field to hold the computed relevance for text search.
+        /// </summary>
+        /// <param name="memberExpression">The member expression specifying the field to hold the computed relevance.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static FieldsBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        {
+            return new FieldsBuilder<TDocument>().MetaText(memberExpression);
+        }
+
+        /// <summary>
         /// Adds a slice to be included in the results.
         /// </summary>
         /// <typeparam name="TValue">The type of the enumerable member values.</typeparam>
@@ -336,6 +367,18 @@ namespace MongoDB.Driver.Builders
         {
             var elementNames = GetElementNames(memberExpressions);
             _fieldsBuilder = _fieldsBuilder.Include(elementNames.ToArray());
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the name of field to hold the computed relevance for text search.
+        /// </summary>
+        /// <param name="memberExpression">The member expression specifying the field to hold the computed relevance.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public FieldsBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _fieldsBuilder = _fieldsBuilder.MetaText(serializationInfo.ElementName);
             return this;
         }
 

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -26,6 +27,20 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class QueryBuilderTests
     {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoDatabase _adminDatabase;
+        private MongoServerInstance _primary;
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _adminDatabase = _server.GetDatabase("admin");
+            _database = Configuration.TestDatabase;
+            _primary = _server.Primary;
+        }
+
         [Test]
         public void TestNewSyntax()
         {
@@ -676,6 +691,95 @@ namespace MongoDB.DriverUnitTests.Builders
             var expected = "{ \"k\" : { \"$size\" : 20, \"$all\" : [7, 11] } }";
             Assert.AreEqual(expected, query.ToJson());
             Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+        }
+
+        [Test]
+        public void TestTextQueryGeneration()
+        {
+            var query = Query.Text("foo");
+            var expected = "{ \"$text\" : { \"$search\" : \"foo\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestTextWithLanguageQueryGeneration()
+        {
+            var query = Query.Text("foo", "norwegian");
+            var expected = "{ \"$text\" : { \"$search\" : \"foo\", \"$language\" : \"norwegian\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestTextQueryGenerationWithNullLanguage()
+        {
+            var query = Query.Text("foo", null);
+            var expected = "{ \"$text\" : { \"$search\" : \"foo\" } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestText()
+        {
+            if (_primary.Supports(FeatureId.TextSearchQuery))
+            {
+                Configuration.EnableTextSearch(_primary);
+                using (_server.RequestStart(null, _primary))
+                {
+                    var collection = _database.GetCollection<BsonDocument>("test_text");
+                    collection.Drop();
+                    collection.EnsureIndex(new IndexKeysDocument("textfield", "text"));
+                    collection.Insert(new BsonDocument
+                    {
+                        { "_id", 1 },
+                        { "textfield", "The quick brown fox" }
+                    });
+                    collection.Insert(new BsonDocument
+                    {
+                        { "_id", 2 },
+                        { "textfield", "over the lazy brown dog" }
+                    });
+                    var query = Query.Text("fox");
+                    var results = collection.Find(query).ToArray();
+                    Assert.AreEqual(1, results.Length);
+                    Assert.AreEqual(1, results[0]["_id"].AsInt32);
+                }
+            }
+        }
+
+        [Test]
+        public void TestTextWithLanguage()
+        {
+            if (_primary.Supports(FeatureId.TextSearchQuery))
+            {
+                Configuration.EnableTextSearch(_primary);
+                using (_server.RequestStart(null, _primary))
+                {
+                    var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
+                    collection.Drop();
+                    collection.EnsureIndex(new IndexKeysDocument("textfield", "text"), new IndexOptionsDocument("default_language", "spanish"));
+                    collection.Insert(new BsonDocument
+                    {
+                        { "_id", 1 },
+                        { "textfield", "este es mi tercer blog stemmed" }
+                    });
+                    collection.Insert(new BsonDocument
+                    {
+                        { "_id", 2 },
+                        { "textfield", "This stemmed blog is in english" },
+                        { "language", "english" }
+                    });
+
+                    var query = Query.Text("stemmed");
+                    var results = collection.Find(query).ToArray();
+                    Assert.AreEqual(1, results.Length);
+                    Assert.AreEqual(1, results[0]["_id"].AsInt32);
+
+                    query = Query.Text("stemmed", "english");
+                    results = collection.Find(query).ToArray();
+                    Assert.AreEqual(1, results.Length);
+                    Assert.AreEqual(2, results[0]["_id"].AsInt32);
+                }
+            }
         }
 
         [Test]

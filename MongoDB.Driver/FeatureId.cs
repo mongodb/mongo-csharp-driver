@@ -45,6 +45,14 @@ namespace MongoDB.Driver
         /// </summary>
         MaxTime,
         /// <summary>
+        /// The text search command.
+        /// </summary>
+        TextSearchCommand,
+        /// <summary>
+        /// The text search query operator.
+        /// </summary>
+        TextSearchQuery,
+        /// <summary>
         /// The user management commands.
         /// </summary>
         UserManagementCommands

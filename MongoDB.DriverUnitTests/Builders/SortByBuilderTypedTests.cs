@@ -15,6 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
@@ -22,12 +23,32 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
-    public class SortByBuilderTests
+    public class SortByBuilderTypedTests
     {
+        private class Test
+        {
+            public int Id { get; set; }
+
+            [BsonElement("a")]
+            public string A { get; set; }
+
+            [BsonElement("b")]
+            public string B { get; set; }
+
+            [BsonElement("textfield")]
+            public string T { get; set; }
+
+            public int z;
+
+            [BsonIgnoreIfDefault]
+            [BsonElement("relevance")]
+            public double R { get; set; }
+        }
+
         [Test]
         public void TestAscending1()
         {
-            var sortBy = SortBy.Ascending("a");
+            var sortBy = SortBy<Test>.Ascending(x => x.A);
             string expected = "{ \"a\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -35,7 +56,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAscending2()
         {
-            var sortBy = SortBy.Ascending("a", "b");
+            var sortBy = SortBy<Test>.Ascending(x => x.A, x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -43,7 +64,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAscendingAscending()
         {
-            var sortBy = SortBy.Ascending("a").Ascending("b");
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Ascending(x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -51,7 +72,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestAscendingDescending()
         {
-            var sortBy = SortBy.Ascending("a").Descending("b");
+            var sortBy = SortBy<Test>.Ascending(x => x.A).Descending(x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -59,7 +80,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestDescending1()
         {
-            var sortBy = SortBy.Descending("a");
+            var sortBy = SortBy<Test>.Descending(x => x.A);
             string expected = "{ \"a\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -67,7 +88,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestDescending2()
         {
-            var sortBy = SortBy.Descending("a", "b");
+            var sortBy = SortBy<Test>.Descending(x => x.A, x => x.B);
             string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
@@ -75,8 +96,16 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestDescendingAscending()
         {
-            var sortBy = SortBy.Descending("a").Ascending("b");
+            var sortBy = SortBy<Test>.Descending(x => x.A).Ascending(x => x.B);
             string expected = "{ \"a\" : -1, \"b\" : 1 }";
+            Assert.AreEqual(expected, sortBy.ToJson());
+        }
+
+        [Test]
+        public void TestDescendingDescending()
+        {
+            var sortBy = SortBy<Test>.Descending(x => x.A).Descending(x => x.B);
+            string expected = "{ \"a\" : -1, \"b\" : -1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
@@ -90,30 +119,30 @@ namespace MongoDB.DriverUnitTests.Builders
                 Configuration.EnableTextSearch(primary);
                 using (server.RequestStart(null, primary))
                 {
-                    var collection = Configuration.TestDatabase.GetCollection<BsonDocument>("test_meta_text_sort");
+                    var collection = Configuration.TestDatabase.GetCollection<Test>("test_meta_text_sort");
                     collection.Drop();
                     collection.EnsureIndex(new IndexKeysDocument("textfield", "text"));
-                    collection.Insert(new BsonDocument
+                    collection.Insert(new Test
                     {
-                        { "_id", 1 },
-                        { "textfield", "The quick brown fox jumped" },
-                        { "z", 1 }
+                        Id = 1,
+                        T = "The quick brown fox jumped",
+                        z = 1
                     });
-                    collection.Insert(new BsonDocument
+                    collection.Insert(new Test
                     {
-                        { "_id", 2 },
-                        { "textfield", "over the lazy brown dog and brown cat" },
-                        { "z", 2 }
+                        Id = 2,
+                        T = "over the lazy brown dog and brown cat",
+                        z = 2
                     });
-                    collection.Insert(new BsonDocument
+                    collection.Insert(new Test
                     {
-                        { "_id", 3 },
-                        { "textfield", "over the lazy brown dog and brown cat" },
-                        { "z", 3 }
+                        Id = 3,
+                        T = "over the lazy brown dog and brown cat",
+                        z = 3
                     });
 
                     var query = Query.Text("brown");
-                    var fields = Fields.MetaText("relevance");
+                    var fields = Fields<Test>.MetaText(y => y.R);
                     var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields);
                     var result = cursor.ToArray();
                     Assert.AreEqual(3, result.Length);
@@ -121,7 +150,7 @@ namespace MongoDB.DriverUnitTests.Builders
                     Assert.AreEqual(2, result[1]["_id"].AsInt32);
                     Assert.AreEqual(3, result[2]["_id"].AsInt32);
 
-                    var sortBy = SortBy.MetaText("relevance").Descending("z");
+                    var sortBy = SortBy<Test>.MetaText(y => y.R).Descending(y => y.z);
                     cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
                     result = cursor.ToArray();
                     Assert.AreEqual(3, result.Length);
@@ -135,16 +164,16 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestMetaTextGenerate()
         {
-            var sortBy = SortBy.MetaText("score");
-            string expected = "{ \"score\" : { \"$meta\" : \"text\" } }";
+            var sortBy = SortBy<Test>.MetaText(y => y.R);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" } }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
         public void TestMetaTextAndOtherFields()
         {
-            var sortBy = SortBy.MetaText("searchrelevancescore").Descending("y").Ascending("z");
-            string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"text\" }, \"y\" : -1, \"z\" : 1 }";
+            var sortBy = SortBy<Test>.MetaText(y => y.R).Descending(y => y.A).Ascending(y => y.z);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" }, \"a\" : -1, \"z\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
     }
