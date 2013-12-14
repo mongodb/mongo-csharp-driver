@@ -27,8 +27,9 @@ namespace MongoDB.Driver
     public class WriteConcern : IEquatable<WriteConcern>
     {
         // private static fields
-        private readonly static WriteConcern __acknowledged = new WriteConcern { W = 1 }.Freeze();
+        private readonly static WriteConcern __acknowledged = new WriteConcern().Freeze();
         private readonly static WriteConcern __unacknowledged = new WriteConcern { W = 0 }.Freeze();
+        private readonly static WriteConcern __w1 = new WriteConcern { W = 1 }.Freeze();
         private readonly static WriteConcern __w2 = new WriteConcern { W = 2 }.Freeze();
         private readonly static WriteConcern __w3 = new WriteConcern { W = 3 }.Freeze();
         private readonly static WriteConcern __w4 = new WriteConcern { W = 4 }.Freeze();
@@ -73,6 +74,14 @@ namespace MongoDB.Driver
         public static WriteConcern Unacknowledged
         {
             get { return __unacknowledged; }
+        }
+
+        /// <summary>
+        /// Gets an instance of WriteConcern where w=1.
+        /// </summary>
+        public static WriteConcern W1
+        {
+            get { return __w1; }
         }
 
         /// <summary>
@@ -370,7 +379,7 @@ namespace MongoDB.Driver
 
             if (parts.Count == 0)
             {
-                return Enabled ? "w=1" : "w=0";
+                return Enabled ? "Acknowledged" : "w=0";
             }
             else
             {

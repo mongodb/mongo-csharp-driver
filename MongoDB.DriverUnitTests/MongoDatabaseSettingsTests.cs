@@ -46,7 +46,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
 #pragma warning disable 618
-            Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
+            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
 #pragma warning restore
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
         }
@@ -65,7 +65,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(GuidRepresentation.PythonLegacy, settings.GuidRepresentation);
             Assert.AreSame(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
+            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
             Assert.AreEqual(false, settings.SlaveOk);
             Assert.AreSame(WriteConcern.Acknowledged, settings.WriteConcern);
 #pragma warning restore
@@ -105,7 +105,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual("database", settings.DatabaseName);
             Assert.AreEqual(MongoDefaults.GuidRepresentation, settings.GuidRepresentation);
             Assert.AreEqual(ReadPreference.Primary, settings.ReadPreference);
-            Assert.AreEqual(new SafeMode(false) { W = 1 }, settings.SafeMode);
+            Assert.AreEqual(new SafeMode(true), settings.SafeMode);
             Assert.AreEqual(false, settings.SlaveOk);
             Assert.AreEqual(WriteConcern.Acknowledged, settings.WriteConcern);
 #pragma warning restore
