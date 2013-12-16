@@ -109,25 +109,25 @@ namespace MongoDB.DriverUnitTests.Builders
                     {
                         { "_id", 3 },
                         { "textfield", "over the lazy brown dog and brown cat" },
+                        { "z", 4 }
+                    });
+                    collection.Insert(new BsonDocument
+                    {
+                        { "_id", 4 },
+                        { "textfield", "over the lazy brown dog and brown cat" },
                         { "z", 3 }
                     });
 
                     var query = Query.Text("brown");
                     var fields = Fields.MetaText("relevance");
-                    var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields);
-                    var result = cursor.ToArray();
-                    Assert.AreEqual(3, result.Length);
-                    Assert.AreEqual(1, result[0]["_id"].AsInt32);
-                    Assert.AreEqual(2, result[1]["_id"].AsInt32);
-                    Assert.AreEqual(3, result[2]["_id"].AsInt32);
-
                     var sortBy = SortBy.MetaText("relevance").Descending("z");
-                    cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
-                    result = cursor.ToArray();
-                    Assert.AreEqual(3, result.Length);
+                    var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
+                    var result = cursor.ToArray();
+                    Assert.AreEqual(4, result.Length);
                     Assert.AreEqual(3, result[0]["_id"].AsInt32);
-                    Assert.AreEqual(2, result[1]["_id"].AsInt32);
-                    Assert.AreEqual(1, result[2]["_id"].AsInt32);
+                    Assert.AreEqual(4, result[1]["_id"].AsInt32);
+                    Assert.AreEqual(2, result[2]["_id"].AsInt32);
+                    Assert.AreEqual(1, result[3]["_id"].AsInt32);
                 }
             }
         }
