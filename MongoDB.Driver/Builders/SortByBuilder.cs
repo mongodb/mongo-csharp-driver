@@ -61,14 +61,14 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
-        /// the name of the projected relevance.
+        /// Adds a key to sort by the computed relevance score when using text search. The name of the key should be
+        /// the name of the projected relevance score field.
         /// </summary>
-        /// <param name="key">The name of the computed relevance field.</param>
+        /// <param name="key">The name of the computed relevance score field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static SortByBuilder MetaText(string key)
+        public static SortByBuilder MetaTextScore(string key)
         {
-            return new SortByBuilder().MetaText(key);
+            return new SortByBuilder().MetaTextScore(key);
         }
     }
 
@@ -120,14 +120,14 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
-        /// the name of the projected relevance.
+        /// Adds a key to sort by the computed relevance score when using text search. The name of the key should be
+        /// the name of the projected relevance score field.
         /// </summary>
-        /// <param name="key">The name of the computed relevance field.</param>
+        /// <param name="key">The name of the computed relevance score field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder MetaText(string key)
+        public SortByBuilder MetaTextScore(string key)
         {
-            _document.Add(key, new BsonDocument("$meta", "text"));
+            _document.Add(key, new BsonDocument("$meta", "textScore"));
             return this;
         }
 
@@ -184,14 +184,14 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
-        /// the name of the projected relevance.
+        /// Adds a key to sort by the computed relevance score when using text search. The name of the key should be
+        /// the name of the projected relevance score field.
         /// </summary>
         /// <param name="memberExpression">The member expression specifying the projected field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static SortByBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        public static SortByBuilder<TDocument> MetaTextScore(Expression<Func<TDocument, object>> memberExpression)
         {
-            return new SortByBuilder<TDocument>().MetaText(memberExpression);
+            return new SortByBuilder<TDocument>().MetaTextScore(memberExpression);
         }
     }
 
@@ -254,15 +254,15 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Adds a key to sort by the computed relevance when using text search. The name of the key should be
-        /// the name of the projected relevance.
+        /// Adds a key to sort by the computed relevance score when using text search. The name of the key should be
+        /// the name of the projected relevance score field.
         /// </summary>
         /// <param name="memberExpression">The member expression specifying the projected field.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public SortByBuilder<TDocument> MetaText(Expression<Func<TDocument, object>> memberExpression)
+        public SortByBuilder<TDocument> MetaTextScore(Expression<Func<TDocument, object>> memberExpression)
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            _sortByBuilder = _sortByBuilder.MetaText(serializationInfo.ElementName);
+            _sortByBuilder = _sortByBuilder.MetaTextScore(serializationInfo.ElementName);
             return this;
         }
 

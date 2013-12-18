@@ -119,8 +119,8 @@ namespace MongoDB.DriverUnitTests.Builders
                     });
 
                     var query = Query.Text("brown");
-                    var fields = Fields.MetaText("relevance");
-                    var sortBy = SortBy.MetaText("relevance").Descending("z");
+                    var fields = Fields.MetaTextScore("relevance");
+                    var sortBy = SortBy.MetaTextScore("relevance").Descending("z");
                     var cursor = collection.FindAs<BsonDocument>(query).SetFields(fields).SetSortOrder(sortBy);
                     var result = cursor.ToArray();
                     Assert.AreEqual(4, result.Length);
@@ -135,16 +135,16 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestMetaTextGenerate()
         {
-            var sortBy = SortBy.MetaText("score");
-            string expected = "{ \"score\" : { \"$meta\" : \"text\" } }";
+            var sortBy = SortBy.MetaTextScore("score");
+            string expected = "{ \"score\" : { \"$meta\" : \"textScore\" } }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
 
         [Test]
         public void TestMetaTextAndOtherFields()
         {
-            var sortBy = SortBy.MetaText("searchrelevancescore").Descending("y").Ascending("z");
-            string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"text\" }, \"y\" : -1, \"z\" : 1 }";
+            var sortBy = SortBy.MetaTextScore("searchrelevancescore").Descending("y").Ascending("z");
+            string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"textScore\" }, \"y\" : -1, \"z\" : 1 }";
             Assert.AreEqual(expected, sortBy.ToJson());
         }
     }

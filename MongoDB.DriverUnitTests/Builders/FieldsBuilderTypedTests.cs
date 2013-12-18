@@ -151,7 +151,7 @@ namespace MongoDB.DriverUnitTests.Builders
                     Assert.IsFalse(result.Contains("relevance"));
                     Assert.IsTrue(result.Contains("x"));
 
-                    var fields = Fields<TestClass>.MetaText(y => y.relevance).Exclude(y => y.x);
+                    var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Exclude(y => y.x);
                     result = collection.FindOneAs<BsonDocument>(new FindOneArgs() { Query = query, Fields = fields });
                     Assert.AreEqual(1, result["_id"].AsInt32);
                     Assert.IsTrue(result.Contains("relevance"));
@@ -163,16 +163,16 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestMetaTextGenerate()
         {
-            var fields = Fields<TestClass>.MetaText(y => y.relevance);
-            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" } }";
+            var fields = Fields<TestClass>.MetaTextScore(y => y.relevance);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
 
         [Test]
         public void TestMetaTextIncludeExcludeGenerate()
         {
-            var fields = Fields<TestClass>.MetaText(y => y.relevance).Include(y => y.x).Exclude(y => y._id);
-            string expected = "{ \"relevance\" : { \"$meta\" : \"text\" }, \"x\" : 1, \"_id\" : 0 }";
+            var fields = Fields<TestClass>.MetaTextScore(y => y.relevance).Include(y => y.x).Exclude(y => y._id);
+            string expected = "{ \"relevance\" : { \"$meta\" : \"textScore\" }, \"x\" : 1, \"_id\" : 0 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
     }

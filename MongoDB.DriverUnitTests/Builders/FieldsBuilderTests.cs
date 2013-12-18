@@ -130,7 +130,7 @@ namespace MongoDB.DriverUnitTests.Builders
                     Assert.AreEqual(2, result.ElementCount);
                     Assert.IsFalse(result.Contains("relevance"));
 
-                    var fields = Fields.MetaText("relevance");
+                    var fields = Fields.MetaTextScore("relevance");
                     result = collection.FindOneAs<BsonDocument>(new FindOneArgs { Query = query, Fields = fields });
                     Assert.AreEqual(3, result.ElementCount);
                     Assert.IsTrue(result.Contains("relevance"));
@@ -141,16 +141,16 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestMetaTextGenerate()
         {
-            var fields = Fields.MetaText("score");
-            string expected = "{ \"score\" : { \"$meta\" : \"text\" } }";
+            var fields = Fields.MetaTextScore("score");
+            string expected = "{ \"score\" : { \"$meta\" : \"textScore\" } }";
             Assert.AreEqual(expected, fields.ToJson());
         }
 
         [Test]
         public void TestMetaTextIncludeExcludeGenerate()
         {
-            var fields = Fields.MetaText("searchrelevancescore").Include("x").Exclude("_id");
-            string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"text\" }, \"x\" : 1, \"_id\" : 0 }";
+            var fields = Fields.MetaTextScore("searchrelevancescore").Include("x").Exclude("_id");
+            string expected = "{ \"searchrelevancescore\" : { \"$meta\" : \"textScore\" }, \"x\" : 1, \"_id\" : 0 }";
             Assert.AreEqual(expected, fields.ToJson());
         }
     }
