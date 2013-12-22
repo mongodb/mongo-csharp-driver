@@ -539,15 +539,24 @@ namespace MongoDB.Driver.GridFS
             var filesCollection = GetFilesCollection(database);
             var chunksCollection = GetChunksCollection(database);
 
-            // only create indexes if number of GridFS files is still small (to avoid performance surprises)
-            var count = filesCollection.Count();
-            if (count < maxFiles)
+            var filesCollectionIdx1Name = "filename";
+            var filesCollectionIdx2Name = "uploadDate";
+
+            bool filesCollectionIdxExists = filesCollection.IndexExists(filesCollectionIdx1Name, filesCollectionIdx2Name);
+            IndexKeysBuilder chunksCollectionKeys = IndexKeys.Ascending("files_id", "n");
+
+            bool chunksCollectionIdxExists = chunksCollection.IndexExists(chunksCollectionKeys);
+            if (!filesCollectionIdxExists || !chunksCollectionIdxExists)
             {
-                filesCollection.EnsureIndex("filename", "uploadDate");
-                chunksCollection.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
+                // only create indexes if number of GridFS files is still small (to avoid performance surprises)
+                var count = filesCollection.Count();
+                if (count < maxFiles)
+                {
+                    filesCollection.EnsureIndex(filesCollectionIdx1Name, filesCollectionIdx2Name);
+                    chunksCollection.EnsureIndex(chunksCollectionKeys, IndexOptions.SetUnique(true));
+                }
             }
         }
-
         /// <summary>
         /// Tests whether a GridFS file exists.
         /// </summary>
