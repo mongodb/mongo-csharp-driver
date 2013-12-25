@@ -25,7 +25,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         {
             public string FirstName { get; set; }
             public int Age { get; set; }
-            public string _DumbName { get; set; }
+            public string _dumbName { get; set; }
             public string lowerCase { get; set; }
         }
 
@@ -36,7 +36,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
 #pragma warning disable 618
             Assert.AreEqual("FirstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
             Assert.AreEqual("Age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
-            Assert.AreEqual("_DumbName", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
+            Assert.AreEqual("_dumbName", convention.GetElementName(typeof(TestClass).GetProperty("_dumbName")));
             Assert.AreEqual("lowerCase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
 #pragma warning restore 618
         }
@@ -48,7 +48,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
 #pragma warning disable 618
             Assert.AreEqual("firstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
             Assert.AreEqual("age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
-            Assert.AreEqual("_DumbName", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
+            Assert.AreEqual("_dumbName", convention.GetElementName(typeof(TestClass).GetProperty("_dumbName")));
             Assert.AreEqual("lowerCase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
 #pragma warning restore 618
         }

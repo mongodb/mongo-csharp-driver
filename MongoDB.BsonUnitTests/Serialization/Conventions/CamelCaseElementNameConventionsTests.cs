@@ -26,8 +26,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         {
             public string FirstName { get; set; }
             public int Age { get; set; }
-            public string _DumbName { get; set; }
+            public string _dumbName { get; set; }
             public string lowerCase { get; set; }
+            public string IO { get; set; }
+            public string IOStream { get; set; }
         }
 
         [Test]
@@ -37,7 +39,7 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
             var classMap = new BsonClassMap<TestClass>();
             var firstName = classMap.MapMember(x => x.FirstName);
             var age = classMap.MapMember(x => x.Age);
-            var _dumbName = classMap.MapMember(x => x._DumbName);
+            var _dumbName = classMap.MapMember(x => x._dumbName);
             var lowerCase = classMap.MapMember(x => x.lowerCase);
 
             convention.Apply(firstName);
@@ -47,8 +49,32 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
 
             Assert.AreEqual("firstName", firstName.ElementName);
             Assert.AreEqual("age", age.ElementName);
-            Assert.AreEqual("_DumbName", _dumbName.ElementName);
+            Assert.AreEqual("_dumbName", _dumbName.ElementName);
             Assert.AreEqual("lowerCase", lowerCase.ElementName);
+        }
+
+        [Test]
+        public void TestNameIsAbbrShouldDowncaseIt()
+        {
+            var convention = new CamelCaseElementNameConvention();
+            var classMap = new BsonClassMap<TestClass>();
+            var io = classMap.MapMember(x => x.IO);
+
+            convention.Apply(io);
+
+            Assert.AreEqual("io", io.ElementName);
+        }
+
+        [Test]
+        public void TestNameStartsWithAbbrShouldDowncaseAbbr()
+        {
+            var convention = new CamelCaseElementNameConvention();
+            var classMap = new BsonClassMap<TestClass>();
+            var ioStream = classMap.MapMember(x => x.IOStream);
+
+            convention.Apply(ioStream);
+
+            Assert.AreEqual("ioStream", ioStream.ElementName);
         }
     }
 }

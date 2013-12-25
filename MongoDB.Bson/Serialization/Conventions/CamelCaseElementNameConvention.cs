@@ -56,13 +56,13 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return "";
             }
-            else if(memberName.Length == 1)
+            else if(memberName.Length <= 2)
             {
-                return Char.ToLowerInvariant(memberName[0]).ToString();
+                return memberName.ToLowerInvariant();
             }
             else 
             {
-                return Char.ToLowerInvariant(memberName[0]) + memberName.Substring(1);
+                return memberName.Substring(0, 2).ToLowerInvariant() + memberName.Substring(2);
             }
         }
     }
