@@ -28,7 +28,6 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
             public int Age { get; set; }
             public string _dumbName { get; set; }
             public string lowerCase { get; set; }
-            public string IO { get; set; }
             public string IOStream { get; set; }
         }
 
@@ -54,21 +53,10 @@ namespace MongoDB.BsonUnitTests.Serialization.Conventions
         }
 
         [Test]
-        public void TestNameIsAbbrShouldDowncaseIt()
+        public void TestShouldDowncaseCertainNumberOfChars()
         {
-            var convention = new CamelCaseElementNameConvention();
-            var classMap = new BsonClassMap<TestClass>();
-            var io = classMap.MapMember(x => x.IO);
-
-            convention.Apply(io);
-
-            Assert.AreEqual("io", io.ElementName);
-        }
-
-        [Test]
-        public void TestNameStartsWithAbbrShouldDowncaseAbbr()
-        {
-            var convention = new CamelCaseElementNameConvention();
+            var charsToDowncase = 2;
+            var convention = new CamelCaseElementNameConvention(charsToDowncase);
             var classMap = new BsonClassMap<TestClass>();
             var ioStream = classMap.MapMember(x => x.IOStream);
 

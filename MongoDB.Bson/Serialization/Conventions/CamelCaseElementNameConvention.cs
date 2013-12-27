@@ -25,6 +25,17 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class CamelCaseElementNameConvention : ConventionBase, IMemberMapConvention, IElementNameConvention
 #pragma warning restore 618
     {
+        private readonly int charsToDowncase;
+
+        public CamelCaseElementNameConvention() : this(1)
+        {
+        }
+
+        public CamelCaseElementNameConvention(int charsToDowncase)
+        {
+            this.charsToDowncase = charsToDowncase;
+        }
+
         // public methods
         /// <summary>
         /// Applies a modification to the member map.
@@ -56,13 +67,13 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 return "";
             }
-            else if(memberName.Length <= 2)
+            else if (memberName.Length <= charsToDowncase)
             {
                 return memberName.ToLowerInvariant();
             }
             else 
             {
-                return memberName.Substring(0, 2).ToLowerInvariant() + memberName.Substring(2);
+                return memberName.Substring(0, charsToDowncase).ToLowerInvariant() + memberName.Substring(charsToDowncase);
             }
         }
     }
