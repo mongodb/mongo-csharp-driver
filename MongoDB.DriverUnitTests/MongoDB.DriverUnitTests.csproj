@@ -97,6 +97,7 @@
     <Compile Include="Builders\GroupByBuilderTests.cs" />
     <Compile Include="Builders\IndexKeysBuilderTests.cs" />
     <Compile Include="Builders\IndexOptionsBuilderTests.cs" />
+    <Compile Include="Builders\IndexKeysBuilderTypedTests.cs" />
     <Compile Include="Builders\MapReduceOptionsBuilderTests.cs" />
     <Compile Include="Builders\QueryBuilderGeoJsonIntegrationTests.cs" />
     <Compile Include="Builders\QueryBuilderTests.cs" />
