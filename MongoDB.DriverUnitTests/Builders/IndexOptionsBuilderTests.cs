@@ -138,7 +138,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextLanguageOverride_Typed()
         {
-            throw new NotImplementedException();
+            var options = IndexOptions<TestClass>.SetTextLanguageOverride(x => x.idioma);
+            string expected = "{ \"language_override\" : \"idioma\" }";
+            Assert.AreEqual(expected, options.ToJson());
         }
 
         [Test]
@@ -152,7 +154,9 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextOptions_Typed()
         {
-            throw new NotImplementedException();
+            var options = IndexOptions<TestClass>.SetTextLanguageOverride(x => x.idioma).SetName("custom").SetTextDefaultLanguage("spanish");
+            string expected = "{ \"language_override\" : \"idioma\", \"name\" : \"custom\", \"default_language\" : \"spanish\" }";
+            Assert.AreEqual(expected, options.ToJson());
         }
     }
 }

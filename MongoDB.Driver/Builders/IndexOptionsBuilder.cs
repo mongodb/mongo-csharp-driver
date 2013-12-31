@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Builders
             return new IndexOptionsBuilder().SetUnique(value);
         }
     }
-    
+
     /// <summary>
     /// A builder for the options used when creating an index.
     /// </summary>
@@ -290,6 +290,27 @@ namespace MongoDB.Driver.Builders
         protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
         {
             BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
+        }
+    }
+
+    /// <summary>
+    /// A builder for the options used when creating an index.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public static class IndexOptions<TDocument>
+    {
+        // public static methods
+        /// <summary>
+        /// Specifies a member expression for the field name containing the language for the text index.
+        /// </summary>
+        /// <param name="memberExpression">The member expression indicating the language field name.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public static IndexOptionsBuilder SetTextLanguageOverride(Expression<Func<TDocument, object>> memberExpression)
+        {
+            var serializationInfo = (new BsonSerializationInfoHelper()).GetSerializationInfo(memberExpression);
+            return new IndexOptionsBuilder().SetTextLanguageOverride(serializationInfo.ElementName);
         }
     }
 }
