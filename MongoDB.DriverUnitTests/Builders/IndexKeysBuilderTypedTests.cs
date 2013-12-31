@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -22,6 +24,18 @@ namespace MongoDB.DriverUnitTests.Builders
 {
     public class IndexKeysBuilderTypedTests
     {
+        private MongoServer _server;
+        private MongoDatabase _database;
+        private MongoServerInstance _primary;
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetup()
+        {
+            _server = Configuration.TestServer;
+            _database = Configuration.TestDatabase;
+            _primary = _server.Primary;
+        }
+
         private class Test
         {
             [BsonElement("a")]
@@ -29,6 +43,9 @@ namespace MongoDB.DriverUnitTests.Builders
 
             [BsonElement("b")]
             public string B { get; set; }
+
+            [BsonElement("c")]
+            public int C { get; set; }
         }
 
         [Test]
@@ -165,6 +182,48 @@ namespace MongoDB.DriverUnitTests.Builders
             var keys = IndexKeys<Test>.Ascending(x => x.A).Hashed(x => x.B);
             string expected = "{ \"a\" : 1, \"b\" : \"hashed\" }";
             Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestText()
+        {
+            var key = IndexKeys<Test>.Text(x => x.A);
+            string expected = "{ \"a\" : \"text\" }";
+            Assert.AreEqual(expected, key.ToJson());
+        }
+
+        [Test]
+        public void TestTextMultiple()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.A, x => x.B);
+            string expected = "{ \"a\" : \"text\", \"b\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestTextCombination()
+        {
+            var key = IndexKeys<Test>.Text(x => x.A).Ascending(x => x.B);
+            string expected = "{ \"a\" : \"text\", \"b\" : 1 }";
+            Assert.AreEqual(expected, key.ToJson());
+        }
+
+        [Test]
+        public void TestTextIndexCreation()
+        {
+            Configuration.EnableTextSearch(_primary);
+            using (_server.RequestStart(null, _primary))
+            {
+                var collection = _database.GetCollection<Test>("test_text");
+                collection.Drop();
+                collection.EnsureIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+                var indexCollection = _database.GetCollection("system.indexes");
+                var result = indexCollection.FindOne(Query.EQ("name", "custom"));
+                Assert.AreEqual("custom", result["name"].AsString);
+                Assert.AreEqual("idioma", result["language_override"].AsString);
+                Assert.AreEqual("spanish", result["default_language"].AsString);
+                Assert.AreEqual(1, result["key"]["c"].AsInt32);
+            }
         }
     }
 }

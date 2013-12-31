@@ -101,6 +101,25 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder().Hashed(name);
         }
+
+        /// <summary>
+        /// Sets one or more key names to include in the text index.
+        /// </summary>
+        /// <param name="names">List of key names to include in the text index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder Text(params string[] names)
+        {
+            return new IndexKeysBuilder().Text(names);
+        }
+
+        /// <summary>
+        /// Create a text index that indexes all text fields of a document.
+        /// </summary>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder TextAll()
+        {
+            return new IndexKeysBuilder().Text("$**");
+        }
     }
 
     /// <summary>
@@ -203,6 +222,20 @@ namespace MongoDB.Driver.Builders
         public IndexKeysBuilder Hashed(string name)
         {
             _document.Add(name, "hashed");
+            return this;
+        }
+
+        /// <summary>
+        /// Sets one or more key names to include in the text index.
+        /// </summary>
+        /// <param name="names">List of key names to include in the text index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder Text(params string[] names)
+        {
+            foreach (var name in names)
+            {
+                _document.Add(name, "text");
+            }
             return this;
         }
 
@@ -325,6 +358,16 @@ namespace MongoDB.Driver.Builders
         {
             return new IndexKeysBuilder<TDocument>().Hashed(memberExpression);
         }
+
+        /// <summary>
+        /// Sets one or more key names to include in the text index.
+        /// </summary>
+        /// <param name="memberExpressions">List of member expressions depicting key names to include in the text index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            return new IndexKeysBuilder<TDocument>().Text(memberExpressions);
+        }
     }
 
     /// <summary>
@@ -444,6 +487,17 @@ namespace MongoDB.Driver.Builders
         public IndexKeysBuilder<TDocument> Hashed<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
             _indexKeysBuilder = _indexKeysBuilder.Hashed(GetElementName(memberExpression));
+            return this;
+        }
+
+        /// <summary>
+        /// Sets one or more key names to include in the text index.
+        /// </summary>
+        /// <param name="memberExpressions">List of member expressions depicting key names to include in the text index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, object>>[] memberExpressions)
+        {
+            _indexKeysBuilder = _indexKeysBuilder.Text(GetElementNames(memberExpressions).ToArray());
             return this;
         }
 

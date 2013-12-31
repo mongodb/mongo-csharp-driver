@@ -14,10 +14,12 @@
 */
 
 using System;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Utils;
 
 namespace MongoDB.Driver.Builders
 {
@@ -98,6 +100,26 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the default language for the text index.
+        /// </summary>
+        /// <param name="language">The default language.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetTextDefaultLanguage(string language)
+        {
+            return new IndexOptionsBuilder().SetTextDefaultLanguage(language);
+        }
+
+        /// <summary>
+        /// Specifies the field name containing the language for the text index.
+        /// </summary>
+        /// <param name="fieldName">The field name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetTextLanguageOverride(string fieldName)
+        {
+            return new IndexOptionsBuilder().SetTextLanguageOverride(fieldName);
+        }
+
+        /// <summary>
         /// Sets the time to live value.
         /// </summary>
         /// <param name="timeToLive">The time to live.</param>
@@ -117,7 +139,7 @@ namespace MongoDB.Driver.Builders
             return new IndexOptionsBuilder().SetUnique(value);
         }
     }
-
+    
     /// <summary>
     /// A builder for the options used when creating an index.
     /// </summary>
@@ -202,6 +224,28 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetSparse(bool value)
         {
             _document["sparse"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the default language for the text index.
+        /// </summary>
+        /// <param name="language">The default language.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetTextDefaultLanguage(string language)
+        {
+            _document["default_language"] = language;
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies the field name containing the language for the text index.
+        /// </summary>
+        /// <param name="fieldName">The field name.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetTextLanguageOverride(string fieldName)
+        {
+            _document["language_override"] = fieldName;
             return this;
         }
 

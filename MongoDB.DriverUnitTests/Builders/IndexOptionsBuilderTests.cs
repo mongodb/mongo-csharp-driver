@@ -23,6 +23,14 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class IndexOptionsBuilderTests
     {
+
+        public class TestClass
+        {
+            public int _id;
+            public string textfield;
+            public string idioma;
+        }
+
         [Test]
         public void TestBackground()
         {
@@ -109,6 +117,42 @@ namespace MongoDB.DriverUnitTests.Builders
             var options = IndexOptions.SetName("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestTextDefaultLanguage()
+        {
+            var options = IndexOptions.SetTextDefaultLanguage("spanish");
+            string expected = "{ \"default_language\" : \"spanish\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestTextLanguageOverride()
+        {
+            var options = IndexOptions.SetTextLanguageOverride("idioma");
+            string expected = "{ \"language_override\" : \"idioma\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestTextLanguageOverride_Typed()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Test]
+        public void TestTextOptions()
+        {
+            var options = IndexOptions.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride("idioma");
+            string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\" }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestTextOptions_Typed()
+        {
+            throw new NotImplementedException();
         }
     }
 }
