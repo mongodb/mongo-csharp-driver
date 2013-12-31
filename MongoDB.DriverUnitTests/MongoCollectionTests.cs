@@ -2456,7 +2456,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Drop();
                     _collection.Insert(new BsonDocument("x", "The quick brown fox"));
                     _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                    _collection.EnsureIndex(new IndexKeysDocument("x", "text"));
+                    _collection.EnsureIndex(IndexKeys.Text("x"));
 
                     var textSearchCommand = new CommandDocument
                     {

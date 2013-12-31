@@ -92,7 +92,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 {
                     var collection = Configuration.TestDatabase.GetCollection<BsonDocument>("test_meta_text_sort");
                     collection.Drop();
-                    collection.EnsureIndex(new IndexKeysDocument("textfield", "text"));
+                    collection.EnsureIndex(IndexKeys.Text("textfield"));
                     collection.Insert(new BsonDocument
                     {
                         { "_id", 1 },

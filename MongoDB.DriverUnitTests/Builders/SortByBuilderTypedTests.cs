@@ -121,7 +121,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 {
                     var collection = Configuration.TestDatabase.GetCollection<Test>("test_meta_text_sort");
                     collection.Drop();
-                    collection.EnsureIndex(new IndexKeysDocument("textfield", "text"));
+                    collection.EnsureIndex(IndexKeys<Test>.Text(x => x.T));
                     collection.Insert(new Test
                     {
                         Id = 1,
