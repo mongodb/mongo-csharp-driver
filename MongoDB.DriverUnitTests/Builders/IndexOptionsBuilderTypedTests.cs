@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-2013 10gen Inc.
+﻿/* Copyright 2010-2014 10gen Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,12 +21,20 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests.Builders
 {
     [TestFixture]
-    public class IndexOptionsBuilderTests
+    public class IndexOptionsBuilderTypedTests
     {
+
+        public class TestClass
+        {
+            public int _id;
+            public string textfield;
+            public string idioma;
+        }
+
         [Test]
         public void TestBackground()
         {
-            var options = IndexOptions.SetBackground(true);
+            var options = IndexOptions<TestClass>.SetBackground(true);
             string expected = "{ \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -34,7 +42,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestDropDups()
         {
-            var options = IndexOptions.SetDropDups(true);
+            var options = IndexOptions<TestClass>.SetDropDups(true);
             string expected = "{ \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -42,7 +50,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestGeoSpatialRange()
         {
-            var options = IndexOptions.SetGeoSpatialRange(1.1, 2.2);
+            var options = IndexOptions<TestClass>.SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -50,7 +58,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestName()
         {
-            var options = IndexOptions.SetName("custom");
+            var options = IndexOptions<TestClass>.SetName("custom");
             string expected = "{ \"name\" : \"custom\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -58,7 +66,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestSparse()
         {
-            var options = IndexOptions.SetSparse(true);
+            var options = IndexOptions<TestClass>.SetSparse(true);
             string expected = "{ \"sparse\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -66,7 +74,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTimeToLive()
         {
-            var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
+            var options = IndexOptions<TestClass>.SetTimeToLive(TimeSpan.FromHours(1));
             string expected = "{ \"expireAfterSeconds\" : 3600 }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -74,7 +82,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestUnique()
         {
-            var options = IndexOptions.SetUnique(true);
+            var options = IndexOptions<TestClass>.SetUnique(true);
             string expected = "{ \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -82,7 +90,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNameBackground()
         {
-            var options = IndexOptions.SetName("custom").SetBackground(true);
+            var options = IndexOptions<TestClass>.SetName("custom").SetBackground(true);
             string expected = "{ \"name\" : \"custom\", \"background\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -90,7 +98,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNameDropDups()
         {
-            var options = IndexOptions.SetName("custom").SetDropDups(true);
+            var options = IndexOptions<TestClass>.SetName("custom").SetDropDups(true);
             string expected = "{ \"name\" : \"custom\", \"dropDups\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -98,7 +106,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNameGeoSpatialRange()
         {
-            var options = IndexOptions.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
+            var options = IndexOptions<TestClass>.SetName("custom").SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"name\" : \"custom\", \"min\" : 1.1, \"max\" : 2.2 }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -106,7 +114,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNameUnique()
         {
-            var options = IndexOptions.SetName("custom").SetUnique(true);
+            var options = IndexOptions<TestClass>.SetName("custom").SetUnique(true);
             string expected = "{ \"name\" : \"custom\", \"unique\" : true }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -114,7 +122,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextDefaultLanguage()
         {
-            var options = IndexOptions.SetTextDefaultLanguage("spanish");
+            var options = IndexOptions<TestClass>.SetTextDefaultLanguage("spanish");
             string expected = "{ \"default_language\" : \"spanish\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -122,7 +130,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextLanguageOverride()
         {
-            var options = IndexOptions.SetTextLanguageOverride("idioma");
+            var options = IndexOptions<TestClass>.SetTextLanguageOverride(x => x.idioma);
             string expected = "{ \"language_override\" : \"idioma\" }";
             Assert.AreEqual(expected, options.ToJson());
         }
@@ -130,7 +138,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextOptions()
         {
-            var options = IndexOptions.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride("idioma");
+            var options = IndexOptions<TestClass>.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride(x => x.idioma);
             string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\" }";
             Assert.AreEqual(expected, options.ToJson());
         }

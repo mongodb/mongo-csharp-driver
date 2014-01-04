@@ -299,7 +299,87 @@ namespace MongoDB.Driver.Builders
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public static class IndexOptions<TDocument>
     {
+        // public static properties
+        /// <summary>
+        /// Gets a null value with a type of IMongoIndexOptions.
+        /// </summary>
+        public static IMongoIndexOptions Null
+        {
+            get { return null; }
+        }
+
         // public static methods
+        /// <summary>
+        /// Sets whether to build the index in the background.
+        /// </summary>
+        /// <param name="value">Whether to build the index in the background.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetBackground(bool value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetBackground(value);
+        }
+
+        /// <summary>
+        /// Sets the bucket size for geospatial haystack indexes.
+        /// </summary>
+        /// <param name="value">The bucket size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetBucketSize(double value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetBucketSize(value);
+        }
+
+        /// <summary>
+        /// Sets whether duplicates should be dropped.
+        /// </summary>
+        /// <param name="value">Whether duplicates should be dropped.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetDropDups(bool value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetDropDups(value);
+        }
+
+        /// <summary>
+        /// Sets the geospatial range.
+        /// </summary>
+        /// <param name="min">The min value of the range.</param>
+        /// <param name="max">The max value of the range.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetGeoSpatialRange(double min, double max)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetGeoSpatialRange(min, max);
+        }
+
+        /// <summary>
+        /// Sets the name of the index.
+        /// </summary>
+        /// <param name="value">The name of the index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetName(string value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetName(value);
+        }
+
+        /// <summary>
+        /// Sets whether the index is a sparse index.
+        /// </summary>
+        /// <param name="value">Whether the index is a sparse index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetSparse(bool value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetSparse(value);
+        }
+
+        /// <summary>
+        /// Sets the default language for the text index.
+        /// </summary>
+        /// <param name="language">The default language.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetTextDefaultLanguage(string language)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetTextDefaultLanguage(language);
+        }
+
         /// <summary>
         /// Specifies a member expression for the field name containing the language for the text index.
         /// </summary>
@@ -307,10 +387,190 @@ namespace MongoDB.Driver.Builders
         /// <returns>
         /// The builder (so method calls can be chained).
         /// </returns>
-        public static IndexOptionsBuilder SetTextLanguageOverride(Expression<Func<TDocument, object>> memberExpression)
+        public static IndexOptionsBuilder<TDocument> SetTextLanguageOverride(Expression<Func<TDocument, string>> memberExpression)
         {
-            var serializationInfo = (new BsonSerializationInfoHelper()).GetSerializationInfo(memberExpression);
-            return new IndexOptionsBuilder().SetTextLanguageOverride(serializationInfo.ElementName);
+            return new IndexOptionsBuilder<TDocument>().SetTextLanguageOverride(memberExpression);
         }
+
+        /// <summary>
+        /// Sets the time to live value.
+        /// </summary>
+        /// <param name="timeToLive">The time to live.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetTimeToLive(TimeSpan timeToLive)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetTimeToLive(timeToLive);
+        }
+
+        /// <summary>
+        /// Sets whether the index enforces unique values.
+        /// </summary>
+        /// <param name="value">Whether the index enforces unique values.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetUnique(bool value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetUnique(value);
+        }
+    }
+
+    /// <summary>
+    /// A builder for the options used when creating an index.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [Serializable]
+    public class IndexOptionsBuilder<TDocument> : BuilderBase, IMongoIndexOptions
+    {
+        // private fields
+        private readonly BsonSerializationInfoHelper _serializationInfoHelper;
+        private IndexOptionsBuilder _indexOptionsBuilder;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the IndexOptionsBuilder class.
+        /// </summary>
+        public IndexOptionsBuilder()
+        {
+            _serializationInfoHelper = new BsonSerializationInfoHelper();
+            _indexOptionsBuilder = new IndexOptionsBuilder();
+        }
+
+        // public methods
+        /// <summary>
+        /// Sets whether to build the index in the background.
+        /// </summary>
+        /// <param name="value">Whether to build the index in the background.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetBackground(bool value)
+        {
+            _indexOptionsBuilder.SetBackground(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the bucket size for geospatial haystack indexes.
+        /// </summary>
+        /// <param name="value">The bucket size.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetBucketSize(double value)
+        {
+            _indexOptionsBuilder.SetBucketSize(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether duplicates should be dropped.
+        /// </summary>
+        /// <param name="value">Whether duplicates should be dropped.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetDropDups(bool value)
+        {
+            _indexOptionsBuilder.SetDropDups(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the geospatial range.
+        /// </summary>
+        /// <param name="min">The min value of the range.</param>
+        /// <param name="max">The max value of the range.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetGeoSpatialRange(double min, double max)
+        {
+            _indexOptionsBuilder.SetGeoSpatialRange(min, max);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the name of the index.
+        /// </summary>
+        /// <param name="value">The name of the index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetName(string value)
+        {
+            _indexOptionsBuilder.SetName(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether the index is a sparse index.
+        /// </summary>
+        /// <param name="value">Whether the index is a sparse index.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetSparse(bool value)
+        {
+            _indexOptionsBuilder.SetSparse(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the default language for the text index.
+        /// </summary>
+        /// <param name="language">The default language.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetTextDefaultLanguage(string language)
+        {
+            _indexOptionsBuilder.SetTextDefaultLanguage(language);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies a member expression for the field name containing the language for the text index.
+        /// </summary>
+        /// <param name="memberExpression">The member expression indicating the language field name.</param>
+        /// <returns>
+        /// The builder (so method calls can be chained).
+        /// </returns>
+        public IndexOptionsBuilder<TDocument> SetTextLanguageOverride(Expression<Func<TDocument, string>> memberExpression)
+        {
+            var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
+            _indexOptionsBuilder.SetTextLanguageOverride(serializationInfo.ElementName);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the time to live value.
+        /// </summary>
+        /// <param name="timeToLive">The time to live.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetTimeToLive(TimeSpan timeToLive)
+        {
+            _indexOptionsBuilder.SetTimeToLive(timeToLive);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets whether the index enforces unique values.
+        /// </summary>
+        /// <param name="value">Whether the index enforces unique values.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetUnique(bool value)
+        {
+            _indexOptionsBuilder.SetUnique(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public override BsonDocument ToBsonDocument()
+        {
+            return _indexOptionsBuilder.ToBsonDocument();
+        }
+
+        // protected methods
+        /// <summary>
+        /// Serializes the result of the builder to a BsonWriter.
+        /// </summary>
+        /// <param name="bsonWriter">The writer.</param>
+        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="options">The serialization options.</param>
+        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        {
+            ((IBsonSerializable)_indexOptionsBuilder).Serialize(bsonWriter, nominalType, options);
+        }
+
     }
 }

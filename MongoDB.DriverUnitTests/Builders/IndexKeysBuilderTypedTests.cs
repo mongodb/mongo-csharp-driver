@@ -201,6 +201,13 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestTextAll()
+        {
+            var key = IndexKeys<Test>.TextAll();
+            string expected = "{ \"$**\" : \"text\" }";
+            Assert.AreEqual(expected, key.ToJson());
+        }
+        [Test]
         public void TestTextCombination()
         {
             var key = IndexKeys<Test>.Text(x => x.A).Ascending(x => x.B);
@@ -211,18 +218,21 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextIndexCreation()
         {
-            Configuration.EnableTextSearch(_primary);
-            using (_server.RequestStart(null, _primary))
+            if (_primary.Supports(FeatureId.TextSearchCommand))
             {
-                var collection = _database.GetCollection<Test>("test_text");
-                collection.Drop();
-                collection.EnsureIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                var indexCollection = _database.GetCollection("system.indexes");
-                var result = indexCollection.FindOne(Query.EQ("name", "custom"));
-                Assert.AreEqual("custom", result["name"].AsString);
-                Assert.AreEqual("idioma", result["language_override"].AsString);
-                Assert.AreEqual("spanish", result["default_language"].AsString);
-                Assert.AreEqual(1, result["key"]["c"].AsInt32);
+                Configuration.EnableTextSearch(_primary);
+                using (_server.RequestStart(null, _primary))
+                {
+                    var collection = _database.GetCollection<Test>("test_text");
+                    collection.Drop();
+                    collection.EnsureIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+                    var indexCollection = _database.GetCollection("system.indexes");
+                    var result = indexCollection.FindOne(Query.EQ("name", "custom"));
+                    Assert.AreEqual("custom", result["name"].AsString);
+                    Assert.AreEqual("idioma", result["language_override"].AsString);
+                    Assert.AreEqual("spanish", result["default_language"].AsString);
+                    Assert.AreEqual(1, result["key"]["c"].AsInt32);
+                }
             }
         }
     }

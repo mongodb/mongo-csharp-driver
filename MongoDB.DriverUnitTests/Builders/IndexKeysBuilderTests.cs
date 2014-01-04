@@ -207,7 +207,7 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextIndexCreation()
         {
-            if (_primary.Supports(FeatureId.TextSearchQuery))
+            if (_primary.Supports(FeatureId.TextSearchCommand))
             {
                 Configuration.EnableTextSearch(_primary);
                 using (_server.RequestStart(null, _primary))
