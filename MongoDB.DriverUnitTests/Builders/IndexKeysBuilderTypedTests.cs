@@ -46,6 +46,12 @@ namespace MongoDB.DriverUnitTests.Builders
 
             [BsonElement("c")]
             public int C { get; set; }
+
+            [BsonElement("d")]
+            public string[] D { get; set; }
+
+            [BsonElement("e")]
+            public string[] E { get; set; }
         }
 
         [Test]
@@ -234,6 +240,38 @@ namespace MongoDB.DriverUnitTests.Builders
                     Assert.AreEqual(1, result["key"]["c"].AsInt32);
                 }
             }
+        }
+
+        [Test]
+        public void TestTextArrayField()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.D);
+            string expected = "{ \"d\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestTextArrayFields()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.D).Text(x => x.E);
+            string expected = "{ \"d\" : \"text\", \"e\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestTextArrayNonArrayFields()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.A, x => x.B).Text(x => x.D, x=> x.E);
+            string expected = "{ \"a\" : \"text\", \"b\" : \"text\", \"d\" : \"text\", \"e\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
+        }
+
+        [Test]
+        public void TestTextArrayNonArrayFields2()
+        {
+            var keys = IndexKeys<Test>.Text(x => x.A).Text(x => x.E).Text(x => x.D).Text(x => x.B);
+            string expected = "{ \"a\" : \"text\", \"e\" : \"text\", \"d\" : \"text\", \"b\" : \"text\" }";
+            Assert.AreEqual(expected, keys.ToJson());
         }
     }
 }
