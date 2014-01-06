@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public static IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, string[]>>[] memberExpressions)
+        public static IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, IEnumerable<string>>>[] memberExpressions)
         {
             return new IndexKeysBuilder<TDocument>().Text(memberExpressions);
         }
@@ -536,7 +536,7 @@ namespace MongoDB.Driver.Builders
         /// </summary>
         /// <param name="memberExpressions">The member expressions.</param>
         /// <returns>The builder (so method calls can be chained).</returns>
-        public IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, string[]>>[] memberExpressions)
+        public IndexKeysBuilder<TDocument> Text(params Expression<Func<TDocument, IEnumerable<string>>>[] memberExpressions)
         {
             _indexKeysBuilder = _indexKeysBuilder.Text(GetElementNames(memberExpressions).ToArray());
             return this;

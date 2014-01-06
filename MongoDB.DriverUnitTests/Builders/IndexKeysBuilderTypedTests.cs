@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -51,7 +52,7 @@ namespace MongoDB.DriverUnitTests.Builders
             public string[] D { get; set; }
 
             [BsonElement("e")]
-            public string[] E { get; set; }
+            public List<string> E { get; set; }
         }
 
         [Test]
