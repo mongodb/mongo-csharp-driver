@@ -104,13 +104,9 @@ namespace MongoDB.Driver.Operations
             {
                 numberToReturn = _limit;
             }
-            else if (_limit < _batchSize)
-            {
-                numberToReturn = _limit;
-            }
             else
             {
-                numberToReturn = _batchSize;
+                numberToReturn = Math.Min(_batchSize, _limit);
             }
 
             var connection = connectionProvider.AcquireConnection();

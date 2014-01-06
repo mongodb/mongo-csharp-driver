@@ -155,8 +155,19 @@ namespace MongoDB.Driver.Operations
             var connection = _connectionProvider.AcquireConnection();
             try
             {
+                int numberToReturn;
+                if (_limit == 0)
+                {
+                    numberToReturn = _batchSize;
+                }
+                else
+                {
+                    var numberToHitLimit = _limit - _count;
+                    numberToReturn = (int)Math.Min(_batchSize, numberToHitLimit);
+                }
+
                 var readerSettings = GetNodeAdjustedReaderSettings(connection.ServerInstance);
-                var getMoreMessage = new MongoGetMoreMessage(_collectionFullName, _batchSize, _cursorId);
+                var getMoreMessage = new MongoGetMoreMessage(_collectionFullName, numberToReturn, _cursorId);
                 connection.SendMessage(getMoreMessage);
                 return connection.ReceiveMessage<TDocument>(readerSettings, _serializer, _serializationOptions);
             }
