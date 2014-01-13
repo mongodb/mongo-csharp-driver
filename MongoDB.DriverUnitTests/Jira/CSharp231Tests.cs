@@ -335,11 +335,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
         {
             _collection.RemoveAll();
 
-            var doc = new BsonDocument { { "_id", new BsonTimestamp(0, 0) }, { "X", 1 } };
-            _collection.Insert(doc);
-            Assert.AreEqual(new BsonTimestamp(0, 0), doc["_id"].AsBsonTimestamp);
-
-            doc = new BsonDocument { { "_id", new BsonTimestamp(1, 2) }, { "X", 1 } };
+            var doc = new BsonDocument { { "_id", new BsonTimestamp(1, 2) }, { "X", 1 } };
             _collection.Insert(doc);
         }
 
@@ -588,10 +584,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
             _collection.Insert(doc);
             Assert.IsNull(doc.Id);
 
-            doc = new ClassWithBsonTimestampId { Id = new BsonTimestamp(0, 0), X = 1 };
-            _collection.Insert(doc);
-            Assert.AreEqual(new BsonTimestamp(0, 0), doc.Id);
-
             doc = new ClassWithBsonTimestampId { Id = new BsonTimestamp(1, 2), X = 1 };
             _collection.Insert(doc);
         }
@@ -791,10 +783,6 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp231
                 var doc = new ClassWithBsonValueId { Id = null, X = 1 };
                 _collection.Insert(doc);
                 Assert.IsNull(doc.Id);
-
-                doc = new ClassWithBsonValueId { Id = new BsonTimestamp(0, 0), X = 1 };
-                _collection.Insert(doc);
-                Assert.AreEqual(new BsonTimestamp(0, 0), doc.Id);
 
                 doc = new ClassWithBsonValueId { Id = new BsonTimestamp(1, 2), X = 1 };
                 _collection.Insert(doc);
