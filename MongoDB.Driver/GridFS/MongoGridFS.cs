@@ -200,6 +200,13 @@ namespace MongoDB.Driver.GridFS
         /// <returns>The file info of the new GridFS file.</returns>
         public MongoGridFSFileInfo CopyTo(string sourceFileName, string destFileName)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                return gridFS.CopyTo(sourceFileName, destFileName);
+            }
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null)
             {
@@ -221,6 +228,13 @@ namespace MongoDB.Driver.GridFS
             string destFileName,
             MongoGridFSCreateOptions createOptions)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                return gridFS.CopyTo(sourceFileName, destFileName, createOptions);
+            }
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null)
             {
@@ -298,6 +312,14 @@ namespace MongoDB.Driver.GridFS
         /// <param name="query">A query that specifies the GridFS files to delete.</param>
         public void Delete(IMongoQuery query)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                gridFS.Delete(query);
+                return;
+            }
             foreach (var fileInfo in Find(query))
             {
                 fileInfo.Delete();
@@ -310,6 +332,14 @@ namespace MongoDB.Driver.GridFS
         /// <param name="remoteFileName">The remote file name.</param>
         public void Delete(string remoteFileName)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                gridFS.Delete(remoteFileName);
+                return;
+            }
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
                 EnsureIndexes();
@@ -323,6 +353,14 @@ namespace MongoDB.Driver.GridFS
         /// <param name="id">The GridFS file Id.</param>
         public void DeleteById(BsonValue id)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                gridFS.DeleteById(id);
+                return;
+            }
             Delete(Query.EQ("_id", id));
         }
 
@@ -709,6 +747,14 @@ namespace MongoDB.Driver.GridFS
         /// <param name="destFileName">The destination file name.</param>
         public void MoveTo(string sourceFileName, string destFileName)
         {
+            if (_settings.ReadPreference != ReadPreference.Primary)
+            {
+                var settings = _settings.Clone();
+                settings.ReadPreference = ReadPreference.Primary;
+                var gridFS = new MongoGridFS(_server, _databaseName, settings);
+                gridFS.MoveTo(sourceFileName, destFileName);
+                return;
+            }
             var fileInfo = FindOne(sourceFileName);
             if (fileInfo == null)
             {
