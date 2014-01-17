@@ -89,6 +89,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         [Test]
         public void TestAppendText()
         {
+            _gridFS.Delete(Query.Null);
             Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
             using (var writer = _gridFS.AppendText("HelloWorld.txt"))
             {
@@ -515,11 +516,175 @@ namespace MongoDB.DriverUnitTests.GridFS
             var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
             var gridFS = _database.GetGridFS(settings);
             gridFS.MoveTo("HelloWorld.txt", "HelloWorld2.txt");
-            Assert.AreEqual(1, gridFS.Chunks.Count());
-            Assert.AreEqual(1, gridFS.Files.Count());
-            var movedInfo = gridFS.FindOne("HelloWorld2.txt");
+            Assert.AreEqual(1, _gridFS.Chunks.Count());
+            Assert.AreEqual(1, _gridFS.Files.Count());
+            var movedInfo = _gridFS.FindOne("HelloWorld2.txt");
             Assert.AreEqual("HelloWorld2.txt", movedInfo.Name);
             Assert.AreEqual(fileInfo.Id, movedInfo.Id);
+        }
+
+        [Test]
+        public void TestAppendTextWithSecondaryReadPreference()
+        {
+            _gridFS.Delete(Query.Null);
+            Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            using (var writer = gridFS.AppendText("HelloWorld.txt"))
+            {
+                Assert.IsFalse(writer.BaseStream.CanRead);
+                Assert.IsTrue(writer.BaseStream.CanSeek);
+                Assert.IsTrue(writer.BaseStream.CanWrite);
+                writer.Write("Hello");
+            }
+            Assert.IsTrue(_gridFS.Exists("HelloWorld.txt"));
+            using (var writer = gridFS.AppendText("HelloWorld.txt"))
+            {
+                writer.Write(" World");
+            }
+            var memoryStream = new MemoryStream();
+            _gridFS.Download(memoryStream, "HelloWorld.txt");
+            var bytes = memoryStream.ToArray();
+            Assert.AreEqual(0xEF, bytes[0]); // the BOM
+            Assert.AreEqual(0xBB, bytes[1]);
+            Assert.AreEqual(0xBF, bytes[2]);
+            var text = Encoding.UTF8.GetString(bytes, 3, bytes.Length - 3);
+            Assert.AreEqual("Hello World", text);
+        }
+
+        [Test]
+        public void TestCreateWithSecondaryReadPreference()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            using (var stream = gridFS.Create(fileName))
+            {
+                stream.WriteByte(1);
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+        }
+
+        [Test]
+        public void TestCreateWithSecondaryReadPreferenceAndOptions()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            var createOptions = new MongoGridFSCreateOptions
+            {
+                Aliases = new[] { "test" },
+                Id = ObjectId.GenerateNewId(),
+                Metadata = new BsonDocument { { "a", 1 } }
+            };
+            using (var stream = gridFS.Create(fileName, createOptions))
+            {
+                stream.WriteByte(1);
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+            Assert.AreEqual(createOptions.Aliases, fileInfo.Aliases);
+            Assert.AreEqual(createOptions.Id, fileInfo.Id);
+            Assert.AreEqual(createOptions.Metadata, fileInfo.Metadata);
+        }
+
+        [Test]
+        public void TestCreateTextWithSecondaryReadPreference()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            using (var stream = gridFS.CreateText(fileName))
+            {
+                stream.Write("1");
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+        }
+
+        [Test]
+        public void TestCreateTextWithSecondaryReadPreferenceAndOptions()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            var createOptions = new MongoGridFSCreateOptions
+            {
+                Aliases = new[] { "test" },
+                Id = ObjectId.GenerateNewId(),
+                Metadata = new BsonDocument { { "a", 1 } }
+            };
+            using (var stream = gridFS.CreateText(fileName, createOptions))
+            {
+                stream.Write("1");
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+            Assert.AreEqual(createOptions.Aliases, fileInfo.Aliases);
+            Assert.AreEqual(createOptions.Id, fileInfo.Id);
+            Assert.AreEqual(createOptions.Metadata, fileInfo.Metadata);
+        }
+
+        [Test]
+        public void TestOpenWriteWithSecondaryReadPreference()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            using (var stream = gridFS.OpenWrite(fileName))
+            {
+                stream.WriteByte(1);
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+        }
+
+        [Test]
+        public void TestOpenWriteWithSecondaryReadPreferenceAndOptions()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings() { ReadPreference = ReadPreference.Secondary };
+            var gridFS = _database.GetGridFS(settings);
+            var fileName = "test.txt";
+            var createOptions = new MongoGridFSCreateOptions
+            {
+                Aliases = new[] { "test" },
+                Id = ObjectId.GenerateNewId(),
+                Metadata = new BsonDocument { { "a", 1 } }
+            };
+            using (var stream = gridFS.OpenWrite(fileName, createOptions))
+            {
+                stream.WriteByte(1);
+            }
+            var fileInfo = _gridFS.FindOne("test.txt");
+            Assert.IsNotNull(fileInfo);
+            Assert.AreEqual(createOptions.Aliases, fileInfo.Aliases);
+            Assert.AreEqual(createOptions.Id, fileInfo.Id);
+            Assert.AreEqual(createOptions.Metadata, fileInfo.Metadata);
+        }
+
+        [Test]
+        public void TestUploadWithSecondaryReadPreference()
+        {
+            _gridFS.Delete(Query.Null);
+            var settings = new MongoGridFSSettings 
+            {
+                ReadPreference = ReadPreference.Secondary,
+                VerifyMD5 = true 
+            };
+            var gridFS = _database.GetGridFS(settings);
+            var bytes = Encoding.UTF8.GetBytes("Hello World");
+            var stream = new MemoryStream(bytes);
+            var fileName = "HelloWorld.txt";
+            var fileInfo = gridFS.Upload(stream, fileName);
+            Assert.IsNotNull(fileInfo);
+            Assert.AreEqual(fileName, fileInfo.Name);
         }
 
         private MongoGridFSFileInfo UploadHelloWorld()
