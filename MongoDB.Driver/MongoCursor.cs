@@ -737,6 +737,10 @@ namespace MongoDB.Driver
 
             if (readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary && Collection.Name == "$cmd")
             {
+                if (Server.ProxyType == MongoServerProxyType.Unknown)
+                {
+                    Server.Connect();
+                }
                 if (Server.ProxyType == MongoServerProxyType.ReplicaSet && !CanCommandBeSentToSecondary.Delegate(Query.ToBsonDocument()))
                 {
                     // if the command can't be sent to a secondary, then we use primary here

@@ -2355,6 +2355,10 @@ namespace MongoDB.Driver
             var readPreference = _settings.ReadPreference;
             if (readPreference != ReadPreference.Primary)
             {
+                if (_server.ProxyType == MongoServerProxyType.Unknown)
+                {
+                    _server.Connect();
+                }
                 if (_server.ProxyType == MongoServerProxyType.ReplicaSet  && !CanCommandBeSentToSecondary.Delegate(command.ToBsonDocument()))
                 {
                     readPreference = ReadPreference.Primary;
