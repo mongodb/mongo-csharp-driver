@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>mongocsharpdriver</id>
+    <id>mongocsharpdriverbuild</id>
     <version>0.0.0</version>
     <title>Official MongoDB C# driver</title>
     <authors>MongoDB, Inc.</authors>
     <owners>Sridhar Nanjundeswaran, Robert Stam, Craig Wilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>Official C# driver for MongoDB</description>
+    <description>Continuous integration build of the official C# driver for MongoDB.</description>
     <projectUrl>http://www.mongodb.org/display/DOCS/CSharp+Language+Center</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <tags>mongodb mongo nosql</tags>
+    <tags>mongodb mongo nosql build</tags>
     <language>en-US</language>
   </metadata>
   <files>
