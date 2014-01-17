@@ -13,26 +13,32 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Driver.Internal;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver.Communication.FeatureDetection
 {
-    internal class WireVersionDependency : IFeatureDependency
+    internal class FeatureSetDependency
     {
         // private fields
-        private readonly Range<int> _range;
+        private readonly IFeatureDependency _dependency;
+        private readonly IEnumerable<FeatureId> _featureIds;
 
         // constructors
-        public WireVersionDependency(int min, int max)
+        public FeatureSetDependency(IFeatureDependency dependency, params FeatureId[] featureIds)
         {
-            _range = new Range<int>(min, max);
+            _dependency = dependency;
+            _featureIds = featureIds;
         }
 
-        // public methods
-        public bool IsMet(FeatureContext context)
+        // public properties
+        public IFeatureDependency Dependency
         {
-            return _range.Overlaps(context.IsMasterResult.WireVersionRange);
+            get { return _dependency; }
+        }
+
+        public IEnumerable<FeatureId> FeatureIds
+        {
+            get { return _featureIds; }
         }
     }
 }

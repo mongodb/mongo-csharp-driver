@@ -20,7 +20,7 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Operations
 {
-    internal class CommandOperation<TCommandResult> : ReadOperation where TCommandResult : CommandResult
+    internal class CommandOperation<TCommandResult> : ReadOperationBase where TCommandResult : CommandResult
     {
         private readonly IMongoCommand _command;
         private readonly QueryFlags _flags;
@@ -51,14 +51,14 @@ namespace MongoDB.Driver.Operations
 
         public TCommandResult Execute(MongoConnection connection)
         {
-            var readerSettings = GetNodeAdjustedReaderSettings(connection.ServerInstance);
-            var writerSettings = GetNodeAdjustedWriterSettings(connection.ServerInstance);
+            var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
             var forShardRouter = connection.ServerInstance.InstanceType == MongoServerInstanceType.ShardRouter;
             var wrappedQuery = WrapQuery(_command, _options, _readPreference, forShardRouter);
-            var queryMessage = new MongoQueryMessage(writerSettings, CollectionFullName, _flags, 0, -1, wrappedQuery, null);
+
+            var queryMessage = new MongoQueryMessage(WriterSettings, CollectionFullName, _flags, maxWireDocumentSize, 0, -1, wrappedQuery, null);
             connection.SendMessage(queryMessage);
 
-            var reply = connection.ReceiveMessage<TCommandResult>(readerSettings, _serializer, _serializationOptions);
+            var reply = connection.ReceiveMessage<TCommandResult>(ReaderSettings, _serializer, _serializationOptions);
             if (reply.NumberReturned == 0)
             {
                 var commandDocument = _command.ToBsonDocument();

@@ -24,11 +24,12 @@ namespace MongoDB.Driver.Internal
     internal class MongoUpdateMessage : MongoRequestMessage
     {
         // private fields
-        private string _collectionFullName;
-        private bool _checkUpdateDocument;
-        private UpdateFlags _flags;
-        private IMongoQuery _query;
-        private IMongoUpdate _update;
+        private readonly string _collectionFullName;
+        private readonly bool _checkUpdateDocument;
+        private readonly UpdateFlags _flags;
+        private readonly int _maxDocumentSize;
+        private readonly IMongoQuery _query;
+        private readonly IMongoUpdate _update;
 
         // constructors
         internal MongoUpdateMessage(
@@ -36,6 +37,7 @@ namespace MongoDB.Driver.Internal
             string collectionFullName,
             bool checkUpdateDocument,
             UpdateFlags flags,
+            int maxDocumentSize,
             IMongoQuery query,
             IMongoUpdate update)
             : base(MessageOpcode.Update, writerSettings)
@@ -43,19 +45,17 @@ namespace MongoDB.Driver.Internal
             _collectionFullName = collectionFullName;
             _checkUpdateDocument = checkUpdateDocument;
             _flags = flags;
+            _maxDocumentSize = maxDocumentSize;
             _query = query;
             _update = update;
         }
 
-        // protected methods
-        protected override void WriteBody(BsonBuffer buffer)
+        // internal methods
+        internal override void WriteBodyTo(BsonBuffer buffer)
         {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32((int)_flags);
-
             using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
+                bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 if (_query == null)
                 {
                     bsonWriter.WriteStartDocument();
@@ -67,7 +67,16 @@ namespace MongoDB.Driver.Internal
                 }
                 bsonWriter.CheckUpdateDocument = _checkUpdateDocument;
                 BsonSerializer.Serialize(bsonWriter, _update.GetType(), _update, DocumentSerializationOptions.SerializeIdFirstInstance);
+                bsonWriter.PopMaxDocumentSize();
             }
+        }
+
+        internal override void WriteHeaderTo(BsonBuffer buffer)
+        {
+            base.WriteHeaderTo(buffer);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            buffer.WriteInt32((int)_flags);
         }
     }
 }

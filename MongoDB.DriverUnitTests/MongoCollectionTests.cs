@@ -226,6 +226,156 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestBulkDelete()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var bulkDeleteResult = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
+                new DeleteRequest(Query.EQ("x", 1)),
+                new DeleteRequest(Query.EQ("x", 3)));
+
+            Assert.AreEqual(1, _collection.Count());
+            Assert.AreEqual(2, _collection.FindOne()["x"].ToInt32());
+        }
+
+        [Test]
+        public void TestBulkInsert()
+        {
+            _collection.Drop();
+            var result = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 2)),
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 3)));
+
+            Assert.AreEqual(3, _collection.Count());
+        }
+
+        [Test]
+        public void TestBulkUpdate()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var bulkUpdateResult = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
+                new UpdateRequest(Query.GT("x", 0), Update.Set("z", 1)) { IsMultiUpdate = true },
+                new UpdateRequest(Query.EQ("x", 3), Update.Set("z", 3)),
+                new UpdateRequest(Query.EQ("x", 4), Update.Set("z", 4)) { IsUpsert = true });
+
+            Assert.AreEqual(4, _collection.Count());
+            foreach (var document in _collection.FindAll())
+            {
+                var x = document["x"].ToInt32();
+                var z = document["z"].ToInt32();
+                var expected = (x == 2) ? 1 : x;
+                Assert.AreEqual(expected, z);
+            }
+        }
+
+        [Test]
+        public void TestBulkWrite()
+        {
+            _collection.Drop();
+            var result = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 2)),
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 3)),
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 4)),
+                new UpdateRequest(Query.GT("x", 2), Update.Inc("x", 10)) { IsMultiUpdate = true },
+                new DeleteRequest(Query.EQ("x", 13)),
+                new DeleteRequest(Query.EQ("x", 14)));
+
+            Assert.AreEqual(2, _collection.Count());
+        }
+
+        [Test]
+        public void TestBulkWriteCounts()
+        {
+            _collection.Drop();
+            var result = _collection.BulkWrite(
+                new BulkWriteArgs { IsOrdered = true, WriteConcern = WriteConcern.Acknowledged },
+                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("x", 2)),
+                new DeleteRequest(Query.EQ("x", 2)));
+
+            Assert.AreEqual(1, result.DeletedCount);
+            Assert.AreEqual(1, result.InsertedCount);
+            Assert.AreEqual(1, result.ModifiedCount);
+            Assert.AreEqual(3, result.RequestCount);
+            Assert.AreEqual(1, result.UpdatedCount);
+        }
+
+        [Test]
+        public void TestBulkWriteCountsWithUpsert()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+                var id = new BsonObjectId(ObjectId.GenerateNewId());
+                var result = _collection.BulkWrite(
+                    new BulkWriteArgs { IsOrdered = true, WriteConcern = WriteConcern.Acknowledged },
+                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
+                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
+                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 3)));
+
+                var expectedModifiedCount = 1;
+                if (serverInstance.BuildInfo.Version < new Version(2, 5, 5))
+                {
+                    expectedModifiedCount = 2;
+                }
+
+                Assert.AreEqual(0, result.DeletedCount);
+                Assert.AreEqual(0, result.InsertedCount);
+                Assert.AreEqual(expectedModifiedCount, result.ModifiedCount);
+                Assert.AreEqual(3, result.RequestCount);
+                Assert.AreEqual(2, result.UpdatedCount);
+                Assert.AreEqual(1, result.Upserts.Count);
+                Assert.AreEqual(0, result.Upserts.First().Index);
+                Assert.AreEqual(id, result.Upserts.First().Id);
+            }
+        }
+
+        [Test]
+        public void TestBulkWriteOrdered()
+        {
+            _collection.Drop();
+            var result = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged, IsOrdered = true },
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                new DeleteRequest(Query.EQ("x", 1)),
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                new DeleteRequest(Query.EQ("x", 1)),
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true });
+
+            Assert.AreEqual(1, _collection.Count());
+        }
+
+        [Test]
+        public void TestBulkWriteUnordered()
+        {
+            _collection.Drop();
+            var result = _collection.BulkWrite(
+                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged, IsOrdered = false },
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                new DeleteRequest(Query.EQ("x", 1)),
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                new DeleteRequest(Query.EQ("x", 1)),
+                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true });
+
+            Assert.AreEqual(0, _collection.Count());
+        }
+
+        [Test]
         public void TestConstructorArgumentChecking()
         {
             var settings = new MongoCollectionSettings();
@@ -1050,6 +1200,107 @@ namespace MongoDB.DriverUnitTests
             }
         }
 
+        [Test]
+        public void TestFluentBulkDelete()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Find(Query.EQ("x", 1)).RemoveOne();
+            bulk.Find(Query.EQ("x", 3)).RemoveOne();
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(1, _collection.Count());
+            Assert.AreEqual(2, _collection.FindOne()["x"].ToInt32());
+        }
+
+        [Test]
+        public void TestFluentBulkInsert()
+        {
+            _collection.Drop();
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Insert(new BsonDocument("x", 1));
+            bulk.Insert(new BsonDocument("x", 2));
+            bulk.Insert(new BsonDocument("x", 3));
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(3, _collection.Count());
+        }
+
+        [Test]
+        public void TestFluentBulkUpdate()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            _collection.Insert(new BsonDocument("x", 2));
+            _collection.Insert(new BsonDocument("x", 3));
+
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Find(Query.GT("x", 0)).Update(Update.Set("z", 1));
+            bulk.Find(Query.EQ("x", 3)).UpdateOne(Update.Set("z", 3));
+            bulk.Find(Query.EQ("x", 4)).Upsert().UpdateOne(Update.Set("z", 4));
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(4, _collection.Count());
+            foreach (var document in _collection.FindAll())
+            {
+                var x = document["x"].ToInt32();
+                var z = document["z"].ToInt32();
+                var expected = (x == 2) ? 1 : x;
+                Assert.AreEqual(expected, z);
+            }
+        }
+
+        [Test]
+        public void TestFluentBulkWrite()
+        {
+            _collection.Drop();
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Insert(new BsonDocument("x", 1));
+            bulk.Insert(new BsonDocument("x", 2));
+            bulk.Insert(new BsonDocument("x", 3));
+            bulk.Insert(new BsonDocument("x", 4));
+            bulk.Find(Query.GT("x", 2)).Update(Update.Inc("x", 10));
+            bulk.Find(Query.EQ("x", 13)).RemoveOne();
+            bulk.Find(Query.EQ("x", 14)).RemoveOne();
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(2, _collection.Count());
+        }
+
+        [Test]
+        public void TestBulkFluentWriteOrdered()
+        {
+            _collection.Drop();
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("x", 1)).RemoveOne();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("x", 1)).RemoveOne();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(1, _collection.Count());
+        }
+
+        [Test]
+        public void TestFluentBulkWriteUnordered()
+        {
+            _collection.Drop();
+            var bulk = _collection.InitializeUnorderedBulkOperation();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("x", 1)).RemoveOne();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("x", 1)).RemoveOne();
+            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            var result = bulk.Execute(WriteConcern.Acknowledged);
+
+            Assert.AreEqual(0, _collection.Count());
+        }
+
 #pragma warning disable 649 // never assigned to
         private class Place
         {
@@ -1817,14 +2068,18 @@ namespace MongoDB.DriverUnitTests
                 }
                 catch (WriteConcernException ex)
                 {
-                    var results = (IEnumerable<WriteConcernResult>)ex.Data["results"];
-                    Assert.AreEqual(2, results.Count());
-
-                    var result1 = results.ElementAt(0);
-                    Assert.AreEqual(false, result1.HasLastErrorMessage);
-
-                    var result2 = results.ElementAt(1);
-                    Assert.AreEqual(true, result2.HasLastErrorMessage);
+                    var results = ((IEnumerable<WriteConcernResult>)ex.Data["results"]).ToArray();
+                    if (results.Length == 2)
+                    {
+                        Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                        Assert.AreEqual(true, results[1].HasLastErrorMessage);
+                    }
+                    else
+                    {
+                        // it the opcode was emulated there will just be one synthesized result
+                        Assert.AreEqual(1, results.Length);
+                        Assert.AreEqual(true, results[0].HasLastErrorMessage);
+                    }
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -1868,17 +2123,19 @@ namespace MongoDB.DriverUnitTests
                 }
                 catch (WriteConcernException ex)
                 {
-                    var results = (IEnumerable<WriteConcernResult>)ex.Data["results"];
-                    Assert.AreEqual(3, results.Count());
-
-                    var result1 = results.ElementAt(0);
-                    Assert.AreEqual(false, result1.HasLastErrorMessage);
-
-                    var result2 = results.ElementAt(1);
-                    Assert.AreEqual(true, result2.HasLastErrorMessage);
-
-                    var result3 = results.ElementAt(2);
-                    Assert.AreEqual(false, result3.HasLastErrorMessage);
+                    var results = ((IEnumerable<WriteConcernResult>)ex.Data["results"]).ToArray();
+                    if (results.Length == 3)
+                    {
+                        Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                        Assert.AreEqual(true, results[1].HasLastErrorMessage);
+                        Assert.AreEqual(false, results[2].HasLastErrorMessage);
+                    }
+                    else
+                    {
+                        // it the opcode was emulated there will just be one synthesized result
+                        Assert.AreEqual(1, results.Length);
+                        Assert.AreEqual(true, results[0].HasLastErrorMessage);
+                    }
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -2300,6 +2557,50 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestRemove()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Remove(Query.EQ("x", 1));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(false, result.Response.Contains("updatedExisting"));
+            Assert.AreEqual(null, result.Upserted);
+
+            Assert.AreEqual(0, _collection.Count());
+        }
+
+        [Test]
+        public void TestRemoveNoMatchingDocument()
+        {
+            _collection.Drop();
+            var result = _collection.Remove(Query.EQ("x", 1));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(0, result.DocumentsAffected);
+            Assert.AreEqual(false, result.Response.Contains("updatedExisting"));
+            Assert.AreEqual(null, result.Upserted);
+
+            Assert.AreEqual(0, _collection.Count());
+        }
+
+        [Test]
+        public void TestRemoveUnacknowledeged()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Remove(Query.EQ("x", 1), WriteConcern.Unacknowledged);
+
+            Assert.AreEqual(null, result);
+            Assert.AreEqual(0, _collection.Count());
+        }
+
+        [Test]
         public void TestSetFields()
         {
             _collection.RemoveAll();
@@ -2488,9 +2789,34 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(true, result.UpdatedExisting);
+            Assert.AreEqual(null, result.Upserted);
+
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(1, _collection.Count());
+        }
+
+        [Test]
+        public void TestUpdateNoMatchingDocument()
+        {
+            _collection.Drop();
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(0, result.DocumentsAffected);
+            Assert.AreEqual(false, result.UpdatedExisting);
+            Assert.AreEqual(null, result.Upserted);
+
+            Assert.AreEqual(0, _collection.Count());
         }
 
         [Test]
@@ -2498,9 +2824,19 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            _collection.Update(new QueryDocument(), Update.Set("x", 2));
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Update(new QueryDocument(), Update.Set("x", 2));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(true, result.UpdatedExisting);
+            Assert.AreEqual(null, result.Upserted);
+
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(2, _collection.Count());
         }
 
         [Test]
@@ -2508,9 +2844,71 @@ namespace MongoDB.DriverUnitTests
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
-            _collection.Update(Query.Null, Update.Set("x", 2));
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Update(Query.Null, Update.Set("x", 2));
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(true, result.UpdatedExisting);
+            Assert.AreEqual(null, result.Upserted);
+
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(2, _collection.Count());
+        }
+
+        [Test]
+        public void TestUpdateUnacknowledged()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), WriteConcern.Unacknowledged);
+
+            Assert.AreEqual(null, result);
+
+            var document = _collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(1, _collection.Count());
+        }
+
+        [Test]
+        public void TestUpsertExisting()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument("x", 1));
+            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), UpdateFlags.Upsert);
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(true, result.UpdatedExisting);
+            Assert.AreEqual(null, result.Upserted);
+
+            var document = _collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(1, _collection.Count());
+        }
+
+        [Test]
+        public void TestUpsertInsert()
+        {
+            _collection.Drop();
+            var id = new BsonObjectId(ObjectId.GenerateNewId());
+            var result = _collection.Update(Query.EQ("_id", id), Update.Set("x", 2), UpdateFlags.Upsert);
+
+            Assert.AreEqual(true, result.Ok);
+            Assert.AreEqual(null, result.Code);
+            Assert.AreEqual(null, result.LastErrorMessage);
+            Assert.AreEqual(1, result.DocumentsAffected);
+            Assert.AreEqual(false, result.UpdatedExisting);
+            Assert.AreEqual(id, result.Upserted);
+
+            var document = _collection.FindOne();
+            Assert.AreEqual(2, document["x"].AsInt32);
+            Assert.AreEqual(1, _collection.Count());
         }
 
         [Test]

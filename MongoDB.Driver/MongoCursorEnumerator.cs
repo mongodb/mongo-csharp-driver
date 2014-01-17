@@ -233,6 +233,8 @@ namespace MongoDB.Driver
             var connection = AcquireConnection();
             try
             {
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+
                 // some of these weird conditions are necessary to get commands to run correctly
                 // specifically numberToReturn has to be 1 or -1 for commands
                 int numberToReturn;
@@ -258,7 +260,7 @@ namespace MongoDB.Driver
                 }
 
                 var writerSettings = _cursor.Collection.GetWriterSettings(connection);
-                var queryMessage = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _queryFlags, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields);
+                var queryMessage = new MongoQueryMessage(writerSettings, _cursor.Collection.FullName, _queryFlags, maxDocumentSize, _cursor.Skip, numberToReturn, WrapQuery(), _cursor.Fields);
                 return GetReply(connection, queryMessage);
             }
             finally

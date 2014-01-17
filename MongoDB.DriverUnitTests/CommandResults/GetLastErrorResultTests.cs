@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -44,7 +45,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
                 var result = _server.GetLastError();
                 Assert.IsFalse(result.HasLastErrorMessage);
                 Assert.IsFalse(result.UpdatedExisting);
-                Assert.AreEqual(0, result.DocumentsAffected); // note: DocumentsAffected is only set after an Update?
+                Assert.AreEqual(0, result.DocumentsAffected);
             }
         }
 

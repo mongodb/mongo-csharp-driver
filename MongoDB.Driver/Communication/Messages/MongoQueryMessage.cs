@@ -24,18 +24,20 @@ namespace MongoDB.Driver.Internal
     internal class MongoQueryMessage : MongoRequestMessage
     {
         // private fields
-        private string _collectionFullName;
-        private QueryFlags _flags;
-        private int _numberToSkip;
-        private int _numberToReturn;
-        private IMongoQuery _query;
-        private IMongoFields _fields;
+        private readonly string _collectionFullName;
+        private readonly QueryFlags _flags;
+        private readonly int _maxDocumentSize;
+        private readonly int _numberToSkip;
+        private readonly int _numberToReturn;
+        private readonly IMongoQuery _query;
+        private readonly IMongoFields _fields;
 
         // constructors
         internal MongoQueryMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             QueryFlags flags,
+            int maxDocumentSize,
             int numberToSkip,
             int numberToReturn,
             IMongoQuery query,
@@ -44,22 +46,19 @@ namespace MongoDB.Driver.Internal
         {
             _collectionFullName = collectionFullName;
             _flags = flags;
+            _maxDocumentSize = maxDocumentSize;
             _numberToSkip = numberToSkip;
             _numberToReturn = numberToReturn;
             _query = query;
             _fields = fields;
         }
 
-        // protected methods
-        protected override void WriteBody(BsonBuffer buffer)
+        // internal methods
+        internal override void WriteBodyTo(BsonBuffer buffer)
         {
-            buffer.WriteInt32((int)_flags);
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32(_numberToSkip);
-            buffer.WriteInt32(_numberToReturn);
-
             using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
+                bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 if (_query == null)
                 {
                     bsonWriter.WriteStartDocument();
@@ -73,7 +72,17 @@ namespace MongoDB.Driver.Internal
                 {
                     BsonSerializer.Serialize(bsonWriter, _fields);
                 }
+                bsonWriter.PopMaxDocumentSize();
             }
+        }
+
+        internal override void WriteHeaderTo(BsonBuffer buffer)
+        {
+            base.WriteHeaderTo(buffer);
+            buffer.WriteInt32((int)_flags);
+            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            buffer.WriteInt32(_numberToSkip);
+            buffer.WriteInt32(_numberToReturn);
         }
     }
 }

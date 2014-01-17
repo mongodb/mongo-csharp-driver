@@ -21,38 +21,52 @@ namespace MongoDB.Driver.Communication.FeatureDetection
     internal class FeatureSetDetector
     {
         // private static fields
-        private static readonly IFeatureDetector[] __featureDetectors = new[]
+        private static readonly FeatureSetDependency[] __featureSetDependencies = new[]
         {
+            // present in all versions
+            new FeatureSetDependency(
+                new ServerVersionDependency(0, 0, 0),
+                FeatureId.WriteOpcodes),
+
             // added in 2.4.0
-            new FeatureDetector(FeatureId.TextSearchCommand, new ServerVersionDependency(2, 4, 0)),
+            new FeatureSetDependency(
+                new ServerVersionDependency(new Version(2, 4, 0)),
+                FeatureId.TextSearchCommand),
 
             // added in 2.5.2
-            new FeatureDetector(FeatureId.AggregateAllowDiskUsage, new ServerVersionDependency(2, 5, 2)),
-            new FeatureDetector(FeatureId.AggregateCursor, new ServerVersionDependency(2, 5, 2)),
-            new FeatureDetector(FeatureId.AggregateOutputToCollection, new ServerVersionDependency(2, 5, 2)),
-            new FeatureDetector(FeatureId.BatchModifyCommands,
-                new ServerVersionDependency(new Version(2, 5, 2), new Version(2, 5, 2)), // prototype implementation only works with 2.5.2
-                new ServerParameterDependency("enableExperimentalWriteCommands")), // and for now must be explicitly enabled in the server
+            new FeatureSetDependency(
+                new ServerVersionDependency(2, 5, 2),
+                FeatureId.AggregateAllowDiskUsage,
+                FeatureId.AggregateCursor,
+                FeatureId.AggregateOutputToCollection),
 
             // added in 2.5.3
-            new FeatureDetector(FeatureId.AggregateExplain, new ServerVersionDependency(2, 5, 3)),
-            new FeatureDetector(FeatureId.MaxTime, new ServerVersionDependency(2, 5, 3)), // while MaxTime was added in 2.5.2 the FailPoint for it wasn't added until 2.5.3
-            new FeatureDetector(FeatureId.UserManagementCommands, new ServerVersionDependency(2, 5, 3)),
+            new FeatureSetDependency(
+                new ServerVersionDependency(2, 5, 3),
+                FeatureId.AggregateExplain,
+                FeatureId.MaxTime,
+                FeatureId.UserManagementCommands),
 
             // added in 2.5.5
-            new FeatureDetector(FeatureId.TextSearchQuery, new ServerVersionDependency(2, 5, 5)),
-        };
+            new FeatureSetDependency(
+                new ServerVersionDependency(2, 5, 5),
+                FeatureId.TextSearchQuery,
+                FeatureId.WriteCommands),
+       };
 
         // public methods
         public FeatureSet DetectFeatureSet(FeatureContext context)
         {
             var featureSet = new FeatureSet();
 
-            foreach (var featureDetector in __featureDetectors)
+            foreach (var featureSetDependency in __featureSetDependencies)
             {
-                if (featureDetector.IsFeatureSupported(context))
+                if (featureSetDependency.Dependency.IsMet(context))
                 {
-                    featureSet.AddFeature(featureDetector.FeatureId);
+                    foreach (var featureId in featureSetDependency.FeatureIds)
+                    {
+                        featureSet.AddFeature(featureId);
+                    }
                 }
             }
 

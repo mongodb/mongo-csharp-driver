@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Internal
         // private fields
         private readonly BsonBinaryReaderSettings _readerSettings;
         private readonly IBsonSerializer _serializer;
+        private readonly IBsonSerializationOptions _serializationOptions;
         private ResponseFlags _responseFlags;
         private long _cursorId;
         private int _startingFrom;
@@ -34,11 +35,12 @@ namespace MongoDB.Driver.Internal
         private List<TDocument> _documents;
 
         // constructors
-        internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings, IBsonSerializer serializer)
+        internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
             : base(MessageOpcode.Reply)
         {
             _readerSettings = readerSettings;
             _serializer = serializer;
+            _serializationOptions = serializationOptions;
         }
 
         // internal properties
@@ -68,16 +70,49 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal void ReadFrom(BsonBuffer buffer, IBsonSerializationOptions serializationOptions)
+        internal void ReadBodyFrom(BsonBuffer buffer)
         {
+            var serializationOptions = _serializationOptions;
             if (serializationOptions == null && typeof(TDocument) == typeof(BsonDocument))
             {
                 serializationOptions = DocumentSerializationOptions.AllowDuplicateNamesInstance;
             }
 
-            var messageStartPosition = buffer.Position;
+            _documents = new List<TDocument>(_numberReturned);
+            for (int i = 0; i < _numberReturned; i++)
+            {
+                BsonBuffer sliceBuffer;
+                if (buffer.ByteBuffer is MultiChunkBuffer)
+                {
+                    // we can use slightly faster SingleChunkBuffers for all documents that don't span chunk boundaries
+                    var position = buffer.Position;
+                    var length = buffer.ReadInt32();
+                    var slice = buffer.ByteBuffer.GetSlice(position, length);
+                    buffer.Position = position + length;
+                    sliceBuffer = new BsonBuffer(slice, true);
+                }
+                else
+                {
+                    sliceBuffer = new BsonBuffer(buffer.ByteBuffer, false);
+                }
 
-            ReadMessageHeaderFrom(buffer);
+                using (var bsonReader = new BsonBinaryReader(sliceBuffer, true, _readerSettings))
+                {
+                    var document = (TDocument)_serializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
+                    _documents.Add(document);
+                }
+            }
+        }
+
+        internal void ReadFrom(BsonBuffer buffer)
+        {
+            ReadHeaderFrom(buffer);
+            ReadBodyFrom(buffer);
+        }
+
+        internal override void ReadHeaderFrom(BsonBuffer buffer)
+        {
+            base.ReadHeaderFrom(buffer);
             _responseFlags = (ResponseFlags)buffer.ReadInt32();
             _cursorId = buffer.ReadInt64();
             _startingFrom = buffer.ReadInt32();
@@ -104,31 +139,6 @@ namespace MongoDB.Driver.Internal
                 var err = document.GetValue("$err", "Unknown error.");
                 var message = string.Format("QueryFailure flag was {0} (response was {1}).", err, document.ToJson());
                 throw new MongoQueryException(message, document);
-            }
-
-            _documents = new List<TDocument>(_numberReturned);
-            for (int i = 0; i < _numberReturned; i++)
-            {
-                BsonBuffer sliceBuffer;
-                if (buffer.ByteBuffer is MultiChunkBuffer)
-                {
-                    // we can use slightly faster SingleChunkBuffers for all documents that don't span chunk boundaries
-                    var position = buffer.Position;
-                    var length = buffer.ReadInt32();
-                    var slice = buffer.ByteBuffer.GetSlice(position, length);
-                    buffer.Position = position + length;
-                    sliceBuffer = new BsonBuffer(slice, true);
-                }
-                else
-                {
-                    sliceBuffer = new BsonBuffer(buffer.ByteBuffer, false);
-                }
-
-                using (var bsonReader = new BsonBinaryReader(sliceBuffer, true, _readerSettings))
-                {
-                    var document = (TDocument)_serializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
-                    _documents.Add(document);
-                }
             }
         }
     }

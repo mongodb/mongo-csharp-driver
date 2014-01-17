@@ -37,10 +37,6 @@ namespace MongoDB.Driver
         /// </summary>
         AggregateOutputToCollection,
         /// <summary>
-        /// The batch modify commands.
-        /// </summary>
-        BatchModifyCommands,
-        /// <summary>
         /// The max time feature.
         /// </summary>
         MaxTime,
@@ -55,6 +51,14 @@ namespace MongoDB.Driver
         /// <summary>
         /// The user management commands.
         /// </summary>
-        UserManagementCommands
+        UserManagementCommands,
+        /// <summary>
+        /// The write commands.
+        /// </summary>
+        WriteCommands,
+        /// <summary>
+        /// The write opcodes.
+        /// </summary>
+        WriteOpcodes
     }
 }

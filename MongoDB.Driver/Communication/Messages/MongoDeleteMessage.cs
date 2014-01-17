@@ -24,32 +24,32 @@ namespace MongoDB.Driver.Internal
     internal class MongoDeleteMessage : MongoRequestMessage
     {
         // private fields
-        private string _collectionFullName;
-        private RemoveFlags _flags;
-        private IMongoQuery _query;
+        private readonly string _collectionFullName;
+        private readonly RemoveFlags _flags;
+        private readonly int _maxDocumentSize;
+        private readonly IMongoQuery _query;
 
         // constructors
         internal MongoDeleteMessage(
             BsonBinaryWriterSettings writerSettings,
             string collectionFullName,
             RemoveFlags flags,
+            int maxDocumentSize,
             IMongoQuery query)
             : base(MessageOpcode.Delete, writerSettings)
         {
             _collectionFullName = collectionFullName;
             _flags = flags;
+            _maxDocumentSize = maxDocumentSize;
             _query = query;
         }
 
-        // protected methods
-        protected override void WriteBody(BsonBuffer buffer)
+        // internal methods
+        internal override void WriteBodyTo(BsonBuffer buffer)
         {
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32((int)_flags);
-
             using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
             {
+                bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 if (_query == null)
                 {
                     bsonWriter.WriteStartDocument();
@@ -59,7 +59,16 @@ namespace MongoDB.Driver.Internal
                 {
                     BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
                 }
+                bsonWriter.PopMaxDocumentSize();
             }
+        }
+
+        internal override void WriteHeaderTo(BsonBuffer buffer)
+        {
+            base.WriteHeaderTo(buffer);
+            buffer.WriteInt32(0); // reserved
+            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            buffer.WriteInt32((int)_flags);
         }
     }
 }

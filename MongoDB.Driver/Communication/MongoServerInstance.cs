@@ -287,6 +287,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the maximum size of a wire document. Normally slightly larger than MaxDocumentSize.
+        /// </summary>
+        /// <value>
+        /// The  maximum size of a wire document.
+        /// </value>
+        public int MaxWireDocumentSize
+        {
+            get
+            {
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.MaxWireDocumentSize;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the unique sequential Id for this server instance.
         /// </summary>
         public int SequentialId
@@ -851,6 +868,8 @@ namespace MongoDB.Driver
 
             public int MaxMessageLength { get; set; }
 
+            public int MaxWireDocumentSize { get { return MaxDocumentSize + 16 * 1024; } }
+
             public ReplicaSetInformation ReplicaSetInformation { get; set; }
 
             public bool IsDifferentFrom(ServerInformation other)
@@ -886,6 +905,11 @@ namespace MongoDB.Driver
                 }
 
                 if (MaxMessageLength != other.MaxMessageLength)
+                {
+                    return true;
+                }
+
+                if (MaxWireDocumentSize != other.MaxWireDocumentSize)
                 {
                     return true;
                 }

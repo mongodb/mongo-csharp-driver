@@ -27,7 +27,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="message">The error message.</param>
         /// <param name="commandResult">The command result.</param>
-        public MongoDuplicateKeyException(string message, CommandResult commandResult)
+        public MongoDuplicateKeyException(string message, WriteConcernResult commandResult)
             : base(message, commandResult)
         {
         }

@@ -166,22 +166,14 @@ namespace MongoDB.Driver.Operations
                     numberToReturn = (int)Math.Min(_batchSize, numberToHitLimit);
                 }
 
-                var readerSettings = GetNodeAdjustedReaderSettings(connection.ServerInstance);
                 var getMoreMessage = new MongoGetMoreMessage(_collectionFullName, numberToReturn, _cursorId);
                 connection.SendMessage(getMoreMessage);
-                return connection.ReceiveMessage<TDocument>(readerSettings, _serializer, _serializationOptions);
+                return connection.ReceiveMessage<TDocument>(_readerSettings, _serializer, _serializationOptions);
             }
             finally
             {
                 _connectionProvider.ReleaseConnection(connection);
             }
-        }
-
-        private BsonBinaryReaderSettings GetNodeAdjustedReaderSettings(MongoServerInstance node)
-        {
-            var readerSettings = _readerSettings.Clone();
-            readerSettings.MaxDocumentSize = node.MaxDocumentSize;
-            return readerSettings;
         }
 
         private void KillCursor(IConnectionProvider connectionProvider, long cursorId)

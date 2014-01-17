@@ -45,27 +45,25 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal void WriteToBuffer(BsonBuffer buffer)
-        {
-            // normally this method is only called once (from MongoConnection.SendMessage)
-            // but in the case of InsertBatch it is called before SendMessage is called to initialize the message so that AddDocument can be called
-            // therefore we need the if statement to ignore subsequent calls from SendMessage
-            if (_messageStartPosition == -1)
-            {
-                _messageStartPosition = buffer.Position;
-                WriteMessageHeaderTo(buffer);
-                WriteBody(buffer);
-                BackpatchMessageLength(buffer);
-            }
-        }
-
-        // protected methods
-        protected void BackpatchMessageLength(BsonBuffer buffer)
+        internal void BackpatchMessageLength(BsonBuffer buffer)
         {
             MessageLength = buffer.Position - _messageStartPosition;
             buffer.Backpatch(_messageStartPosition, MessageLength);
         }
 
-        protected abstract void WriteBody(BsonBuffer buffer);
+        internal abstract void WriteBodyTo(BsonBuffer buffer);
+
+        internal override void WriteHeaderTo(BsonBuffer buffer)
+        {
+            _messageStartPosition = buffer.Position;
+            base.WriteHeaderTo(buffer);
+        }
+
+        internal void WriteTo(BsonBuffer buffer)
+        {
+            WriteHeaderTo(buffer);
+            WriteBodyTo(buffer);
+            BackpatchMessageLength(buffer);
+        }
     }
 }

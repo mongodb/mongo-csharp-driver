@@ -17,14 +17,14 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Operations
 {
-    internal abstract class DatabaseOperation
+    internal abstract class DatabaseOperationBase
     {
         private readonly string _databaseName;
         private readonly string _collectionName;
         private readonly BsonBinaryReaderSettings _readerSettings;
         private readonly BsonBinaryWriterSettings _writerSettings;
 
-        protected DatabaseOperation(
+        protected DatabaseOperationBase(
             string databaseName,
             string collectionName,
             BsonBinaryReaderSettings readerSettings,
@@ -59,20 +59,6 @@ namespace MongoDB.Driver.Operations
         protected BsonBinaryWriterSettings WriterSettings
         {
             get { return _writerSettings; }
-        }
-
-        protected BsonBinaryReaderSettings GetNodeAdjustedReaderSettings(MongoServerInstance node)
-        {
-            var readerSettings = _readerSettings.Clone();
-            readerSettings.MaxDocumentSize = node.MaxDocumentSize;
-            return readerSettings;
-        }
-
-        protected BsonBinaryWriterSettings GetNodeAdjustedWriterSettings(MongoServerInstance node)
-        {
-            var writerSettings = _writerSettings.Clone();
-            writerSettings.MaxDocumentSize = node.MaxDocumentSize;
-            return writerSettings;
         }
     }
 }

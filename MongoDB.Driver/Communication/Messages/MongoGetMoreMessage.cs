@@ -35,13 +35,18 @@ namespace MongoDB.Driver.Internal
             _cursorId = cursorId;
         }
 
-        // protected methods
-        protected override void WriteBody(BsonBuffer buffer)
+        // internal methods
+        internal override void WriteBodyTo(BsonBuffer buffer)
         {
+            buffer.WriteInt64(_cursorId);
+        }
+
+        internal override void WriteHeaderTo(BsonBuffer buffer)
+        {
+            base.WriteHeaderTo(buffer);
             buffer.WriteInt32(0); // reserved
             buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
             buffer.WriteInt32(_numberToReturn);
-            buffer.WriteInt64(_cursorId);
         }
     }
 }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -32,6 +33,7 @@ namespace MongoDB.Bson.IO
         private BsonBuffer _buffer;
         private bool _disposeBuffer;
         private BsonBinaryWriterSettings _binaryWriterSettings; // same value as in base class just declared as derived class
+        private Stack<int> _maxDocumentSizeStack = new Stack<int>();
         private BsonBinaryWriterContext _context;
 
         // constructors
@@ -69,6 +71,7 @@ namespace MongoDB.Bson.IO
             _buffer = buffer;
             _disposeBuffer = disposeBuffer;
             _binaryWriterSettings = settings; // already frozen by base class
+            _maxDocumentSizeStack.Push(_binaryWriterSettings.MaxDocumentSize);
 
             _context = null;
             State = BsonWriterState.Initial;
@@ -125,6 +128,23 @@ namespace MongoDB.Bson.IO
                 _stream.Flush();
                 _buffer.Clear(); // only clear the buffer if we have written it to a stream
             }
+        }
+
+        /// <summary>
+        /// Pops the max document size stack, restoring the previous max document size.
+        /// </summary>
+        public void PopMaxDocumentSize()
+        {
+            _maxDocumentSizeStack.Pop();
+        }
+
+        /// <summary>
+        /// Pushes a new max document size onto the max document size stack.
+        /// </summary>
+        /// <param name="maxDocumentSize">The maximum size of the document.</param>
+        public void PushMaxDocumentSize(int maxDocumentSize)
+        {
+            _maxDocumentSizeStack.Push(Math.Min(maxDocumentSize, _maxDocumentSizeStack.Peek()));
         }
 
 #pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
@@ -695,9 +715,9 @@ namespace MongoDB.Bson.IO
         private void BackpatchSize()
         {
             int size = _buffer.Position - _context.StartPosition;
-            if (size > _binaryWriterSettings.MaxDocumentSize)
+            if (size > _maxDocumentSizeStack.Peek())
             {
-                var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, _binaryWriterSettings.MaxDocumentSize);
+                var message = string.Format("Size {0} is larger than MaxDocumentSize {1}.", size, _maxDocumentSizeStack.Peek());
                 throw new FileFormatException(message);
             }
             _buffer.Backpatch(_context.StartPosition, size);

@@ -22,6 +22,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel.Serializers;
@@ -178,6 +179,63 @@ namespace MongoDB.Driver
             };
 
             return RunCommandAs<CommandResult>(aggregateCommand);
+        }
+
+        /// <summary>
+        /// Executes multiple write requests.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <param name="requests">The write requests.</param>
+        /// <returns>
+        /// A BulkWriteResult.
+        /// </returns>
+        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args, IEnumerable<WriteRequest> requests)
+        {
+            var connection = _server.AcquireConnection(ReadPreference.Primary);
+            try
+            {
+                var assignId = args.AssignId ?? (_settings.AssignIdOnInsert ? (Action<InsertRequest>)AssignId : null);
+                var checkElementNames = args.CheckElementNames ?? true;
+                var maxBatchCount = args.MaxBatchCount ?? 1000;
+                var maxBatchLength = Math.Min(args.MaxBatchLength ?? int.MaxValue, connection.ServerInstance.MaxDocumentSize);
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+                var writeConcern = args.WriteConcern ?? _settings.WriteConcern;
+
+                var operation = new BulkMixedWriteOperation(
+                    assignId,
+                    checkElementNames,
+                    _name,
+                    _database.Name,
+                    maxBatchCount,
+                    maxBatchLength,
+                    maxDocumentSize,
+                    maxWireDocumentSize,
+                    args.IsOrdered ?? true,
+                    GetBinaryReaderSettings(),
+                    requests,
+                    writeConcern,
+                    GetBinaryWriterSettings());
+
+                return operation.Execute(connection);
+            }
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
+        }
+
+        /// <summary>
+        /// Executes multiple write requests.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <param name="requests">The write requests.</param>
+        /// <returns>
+        /// A BulkWriteResult.
+        /// </returns>
+        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args, params WriteRequest[] requests)
+        {
+            return BulkWrite(args, (IEnumerable<WriteRequest>)requests);
         }
 
         /// <summary>
@@ -1258,6 +1316,24 @@ namespace MongoDB.Driver
             return indexes.Count(query) != 0;
         }
 
+        /// <summary>
+        /// Creates a fluent builder for an ordered bulk operation.
+        /// </summary>
+        /// <returns>A fluent bulk operation builder.</returns>
+        public virtual BulkWriteOperation InitializeOrderedBulkOperation()
+        {
+            return new BulkWriteOperation(this, true);
+        }
+
+        /// <summary>
+        /// Creates a fluent builder for an unordered bulk operation.
+        /// </summary>
+        /// <returns>A fluent bulk operation builder.</returns>
+        public virtual BulkWriteOperation InitializeUnorderedBulkOperation()
+        {
+            return new BulkWriteOperation(this, false);
+        }
+
         // WARNING: be VERY careful about adding any new overloads of Insert or InsertBatch (just don't do it!)
         // it's very easy for the compiler to end up inferring the wrong type for TDocument!
         // that's also why Insert and InsertBatch have to have different names
@@ -1430,44 +1506,51 @@ namespace MongoDB.Driver
             IEnumerable documents,
             MongoInsertOptions options)
         {
+            if (nominalType == null)
+            {
+                throw new ArgumentNullException("nominalType");
+            }
             if (documents == null)
             {
                 throw new ArgumentNullException("documents");
             }
-
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
 
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var insertOperation = new InsertOperation(
-                _database.Name,
-                _name,
-                readerSettings,
-                writerSettings,
-                options.WriteConcern ?? _settings.WriteConcern,
-                _settings.AssignIdOnInsert,
-                options.CheckElementNames,
-                nominalType,
-                documents,
-                options.Flags,
-                this);
-
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
+                var assignId = _settings.AssignIdOnInsert ? (Action<InsertRequest>)AssignId : null;
+                var checkElementNames = options.CheckElementNames;
+                var isOrdered = ((options.Flags & InsertFlags.ContinueOnError) == 0);
+                var maxBatchCount = int.MaxValue;
+                var maxBatchLength = connection.ServerInstance.MaxMessageLength;
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+                var requests = documents.Cast<object>().Select(document =>
+                {
+                    return new InsertRequest(nominalType, document);
+                });
+                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+
+                var args = new BulkInsertOperationArgs(
+                    assignId,
+                    checkElementNames,
+                    _name,
+                    _database.Name,
+                    maxBatchCount,
+                    maxBatchLength,
+                    maxDocumentSize,
+                    maxWireDocumentSize,
+                    isOrdered,
+                    GetBinaryReaderSettings(),
+                    requests,
+                    writeConcern,
+                    GetBinaryWriterSettings());
+                var insertOperation = new InsertOpcodeOperation(args);
+
                 return insertOperation.Execute(connection);
             }
             finally
@@ -1652,31 +1735,35 @@ namespace MongoDB.Driver
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
         public virtual WriteConcernResult Remove(IMongoQuery query, RemoveFlags flags, WriteConcern writeConcern)
         {
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var removeOperation = new RemoveOperation(
-                _database.Name,
-                _name,
-                readerSettings,
-                writerSettings,
-                writeConcern ?? _settings.WriteConcern,
-                query,
-                flags);
-
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
-                return removeOperation.Execute(connection);
+                var maxBatchCount = 1;
+                var maxBatchLength = connection.ServerInstance.MaxDocumentSize;
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+                var isOrdered = true;
+                var requests = new[]
+                {
+                    new DeleteRequest(query) { Limit = ((flags & RemoveFlags.Single) != 0) ? 1 : 0 }
+                };
+                writeConcern = writeConcern ?? _settings.WriteConcern;
+
+                var deleteOperationArgs = new BulkDeleteOperationArgs(
+                    _name,
+                    _database.Name,
+                    maxBatchCount,
+                    maxBatchLength,
+                    maxDocumentSize,
+                    maxWireDocumentSize,
+                    isOrdered,
+                    GetBinaryReaderSettings(),
+                    requests,
+                    writeConcern,
+                    GetBinaryWriterSettings());
+                var deleteOperation = new DeleteOpcodeOperation(deleteOperationArgs);
+
+                return deleteOperation.Execute(connection);
             }
             finally
             {
@@ -1883,32 +1970,40 @@ namespace MongoDB.Driver
                 throw new ArgumentNullException("options");
             }
 
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-
-            var updateOperation = new UpdateOperation(
-                _database.Name,
-                _name,
-                readerSettings,
-                writerSettings,
-                options.WriteConcern ?? _settings.WriteConcern,
-                query,
-                update,
-                options.Flags,
-                options.CheckElementNames);
-
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
+                var checkElementNames = options.CheckElementNames;
+                var maxBatchCount = 1;
+                var maxBatchLength = connection.ServerInstance.MaxDocumentSize;
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+                var isOrdered = true;
+                var requests = new[]
+                {
+                    new UpdateRequest(query, update)
+                    {
+                        IsMultiUpdate = (options.Flags & UpdateFlags.Multi) != 0,
+                        IsUpsert = (options.Flags & UpdateFlags.Upsert) != 0
+                    }
+                };
+                var writeConcern = options.WriteConcern ?? _settings.WriteConcern;
+
+                var updateOperationArgs = new BulkUpdateOperationArgs(
+                    checkElementNames,
+                    _name, // collectionName
+                    _database.Name,
+                    maxBatchCount,
+                    maxBatchLength,
+                    maxDocumentSize,
+                    maxWireDocumentSize,
+                    isOrdered,
+                    GetBinaryReaderSettings(),
+                    requests,
+                    writeConcern,
+                    GetBinaryWriterSettings());
+                var updateOperation = new UpdateOpcodeOperation(updateOperationArgs);
+
                 return updateOperation.Execute(connection);
             }
             finally
@@ -2040,6 +2135,30 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private void AssignId(InsertRequest request)
+        {
+            var serializer = request.Serializer ?? BsonSerializer.LookupSerializer(request.NominalType);
+            var idProvider = serializer as IBsonIdProvider;
+            if (idProvider != null)
+            {
+                var document = request.Document;
+                if (document != null)
+                {
+                    object id;
+                    Type idNominalType;
+                    IIdGenerator idGenerator;
+                    if (idProvider.GetDocumentId(document, out id, out idNominalType, out idGenerator))
+                    {
+                        if (idGenerator != null && idGenerator.IsEmpty(id))
+                        {
+                            id = idGenerator.GenerateId((MongoCollection)this, document);
+                            idProvider.SetDocumentId(document, id);
+                        }
+                    }
+                }
+            }
+        }
+
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer, serializationOptions);
@@ -2058,6 +2177,24 @@ namespace MongoDB.Driver
         private TDocument FindOneAs<TDocument>(IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             return FindAs<TDocument>(query, serializer, serializationOptions).SetLimit(1).FirstOrDefault();
+        }
+
+        private BsonBinaryReaderSettings GetBinaryReaderSettings()
+        {
+            return new BsonBinaryReaderSettings
+            {
+                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
+        }
+
+        private BsonBinaryWriterSettings GetBinaryWriterSettings()
+        {
+            return new BsonBinaryWriterSettings
+            {
+                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
+                GuidRepresentation = _settings.GuidRepresentation
+            };
         }
 
         private string GetIndexName(BsonDocument keys, BsonDocument options)
@@ -2215,16 +2352,6 @@ namespace MongoDB.Driver
             IBsonSerializer resultSerializer,
             IBsonSerializationOptions resultSerializationOptions) where TCommandResult : CommandResult
         {
-            var readerSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _settings.ReadEncoding ?? MongoDefaults.ReadEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
-            var writerSettings = new BsonBinaryWriterSettings
-            {
-                Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
-                GuidRepresentation = _settings.GuidRepresentation
-            };
             var readPreference = _settings.ReadPreference;
             if (readPreference != ReadPreference.Primary)
             {
@@ -2237,8 +2364,8 @@ namespace MongoDB.Driver
 
             var commandOperation = new CommandOperation<TCommandResult>(
                 _database.Name,
-                readerSettings,
-                writerSettings,
+                GetBinaryReaderSettings(),
+                GetBinaryWriterSettings(),
                 command,
                 flags,
                 null, // options

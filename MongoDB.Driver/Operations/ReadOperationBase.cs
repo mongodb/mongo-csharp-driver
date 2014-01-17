@@ -20,9 +20,9 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Operations
 {
-    internal abstract class ReadOperation : DatabaseOperation
+    internal abstract class ReadOperationBase : DatabaseOperationBase
     {
-        protected ReadOperation(
+        protected ReadOperationBase(
             string databaseName,
             string collectionName,
             BsonBinaryReaderSettings readerSettings,

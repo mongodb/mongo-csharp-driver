@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// Represents the different WriteConcerns that can be used.
     /// </summary>
     [Serializable]
-    public class WriteConcern : IEquatable<WriteConcern>
+    public class WriteConcern : IEquatable<WriteConcern>, IConvertibleToBsonDocument
     {
         // private static fields
         private readonly static WriteConcern __acknowledged = new WriteConcern().Freeze();
@@ -351,6 +351,23 @@ namespace MongoDB.Driver
             hash = 37 * hash + ((_w == null) ? 0 : _w.GetHashCode());
             hash = 37 * hash + _wTimeout.GetHashCode();
             return hash;
+        }
+
+        /// <summary>
+        /// Converts this object to a BsonDocument.
+        /// </summary>
+        /// <returns>
+        /// A BsonDocument.
+        /// </returns>
+        public BsonDocument ToBsonDocument()
+        {
+            return new BsonDocument
+            {
+                { "w", () => _w.ToGetLastErrorWValue(), _w != null }, // optional
+                { "wtimeout", () => _wTimeout.Value.TotalMilliseconds, _wTimeout.HasValue }, // optional
+                { "fsync", () => _fsync.Value, _fsync.HasValue }, // optional
+                { "j", () => _journal.Value, _journal.HasValue } // optional
+            };
         }
 
         /// <summary>

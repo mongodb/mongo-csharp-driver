@@ -50,8 +50,8 @@ namespace MongoDB.Driver.Internal
             get { return _responseTo; }
         }
 
-        // protected methods
-        protected void ReadMessageHeaderFrom(BsonBuffer buffer)
+        // internal methods
+        internal virtual void ReadHeaderFrom(BsonBuffer buffer)
         {
             _messageLength = buffer.ReadInt32();
             _requestId = buffer.ReadInt32();
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        protected void WriteMessageHeaderTo(BsonBuffer buffer)
+        internal virtual void WriteHeaderTo(BsonBuffer buffer)
         {
             buffer.WriteInt32(0); // messageLength will be backpatched later
             buffer.WriteInt32(_requestId);

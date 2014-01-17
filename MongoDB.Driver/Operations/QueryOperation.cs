@@ -23,7 +23,7 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Operations
 {
-    internal class QueryOperation<TDocument> : ReadOperation
+    internal class QueryOperation<TDocument> : ReadOperationBase
     {
         private readonly int _batchSize;
         private readonly IMongoFields _fields;
@@ -112,13 +112,12 @@ namespace MongoDB.Driver.Operations
             var connection = connectionProvider.AcquireConnection();
             try
             {
-                var readerSettings = GetNodeAdjustedReaderSettings(connection.ServerInstance);
-                var writerSettings = GetNodeAdjustedWriterSettings(connection.ServerInstance);
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
                 var forShardRouter = connection.ServerInstance.InstanceType == MongoServerInstanceType.ShardRouter;
                 var wrappedQuery = WrapQuery(_query, _options, _readPreference, forShardRouter);
-                var queryMessage = new MongoQueryMessage(writerSettings, CollectionFullName, _flags, _skip, numberToReturn, wrappedQuery, _fields);
+                var queryMessage = new MongoQueryMessage(WriterSettings, CollectionFullName, _flags, maxDocumentSize, _skip, numberToReturn, wrappedQuery, _fields);
                 connection.SendMessage(queryMessage);
-                return connection.ReceiveMessage<TDocument>(readerSettings, _serializer, _serializationOptions);
+                return connection.ReceiveMessage<TDocument>(ReaderSettings, _serializer, _serializationOptions);
             }
             finally
             {

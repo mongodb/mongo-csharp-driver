@@ -31,9 +31,9 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the WriteConcernException class.
         /// </summary>
         /// <param name="message">The error message.</param>
-        /// <param name="commandResult">The command result.</param>
-        public WriteConcernException(string message, CommandResult commandResult)
-            : base(message, commandResult)
+        /// <param name="writeConcernResult">The command result.</param>
+        public WriteConcernException(string message, WriteConcernResult writeConcernResult)
+            : base(message, writeConcernResult)
         {
         }
 
@@ -45,6 +45,18 @@ namespace MongoDB.Driver
         public WriteConcernException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the write concern result.
+        /// </summary>
+        /// <value>
+        /// The write concern result.
+        /// </value>
+        public WriteConcernResult WriteConcernResult
+        {
+            get { return (WriteConcernResult)CommandResult; }
         }
     }
 }

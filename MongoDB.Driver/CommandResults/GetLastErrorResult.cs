@@ -66,6 +66,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the _id of an upsert that resulted in an insert.
+        /// </summary>
+        public BsonValue Upserted
+        {
+            get
+            {
+                return Response.GetValue("upserted", null);
+            }
+        }
+
+        /// <summary>
         /// Gets whether the last command updated an existing document.
         /// </summary>
         public bool UpdatedExisting

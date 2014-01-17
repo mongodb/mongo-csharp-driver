@@ -42,7 +42,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\MongoDB.Driver.XML</DocumentationFile>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -82,23 +82,41 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
-      <Link>Hasher.cs</Link>
+      <Link>Support\Hasher.cs</Link>
     </Compile>
     <Compile Include="AggregateEnumerableResult.cs" />
     <Compile Include="Builders\UpdateCurrentDateType.cs" />
-    <Compile Include="Communication\FeatureDetection\FeatureDetector.cs" />
+    <Compile Include="WriteConcernError.cs" />
+    <Compile Include="BulkWriteError.cs" />
+    <Compile Include="BulkWriteResult.cs" />
+    <Compile Include="BulkWriteUpsert.cs" />
+    <Compile Include="Exceptions\BulkWriteException.cs" />
+    <Compile Include="Operations\BulkWriteBatchResult.cs" />
+    <Compile Include="Operations\BulkWriteResultConverter.cs" />
+    <Compile Include="Operations\BulkWriteBatchResultCombiner.cs" />
+    <Compile Include="Operations\BulkUnmixedWriteOperationEmulatorBase.cs" />
+    <Compile Include="Support\Batch.cs" />
+    <Compile Include="Support\BatchProgress.cs" />
+    <Compile Include="Support\IndexMap.cs" />
+    <Compile Include="Operations\BulkWriteOperation.cs" />
+    <Compile Include="Operations\BulkWriteRequestBuilder.cs" />
+    <Compile Include="Operations\BulkUpdateRequestBuilder.cs" />
+    <Compile Include="Operations\InsertRequest.cs" />
+    <Compile Include="Operations\BulkUnmixedWriteOperationBase.cs" />
+    <Compile Include="Operations\BulkWriteOperationArgs.cs" />
+    <Compile Include="Operations\WriteRequest.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureContext.cs" />
+    <Compile Include="Communication\FeatureDetection\FeatureSetDependency.cs" />
     <Compile Include="Communication\FeatureDetection\IFeatureDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\IFeatureDetector.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSetDetector.cs" />
-    <Compile Include="Communication\FeatureDetection\ServerParameterDependency.cs" />
     <Compile Include="Communication\FeatureDetection\ServerVersionDependency.cs" />
-    <Compile Include="Communication\FeatureDetection\WireVersionDependency.cs" />
     <Compile Include="Communication\Security\X509AuthenticationProtocol.cs" />
     <Compile Include="DistinctArgs.cs" />
     <Compile Include="Exceptions\MongoDuplicateKeyException.cs" />
     <Compile Include="FeatureId.cs" />
     <Compile Include="Communication\FeatureDetection\FeatureSet.cs" />
+    <Compile Include="Operations\BulkWriteArgs.cs" />
+    <Compile Include="AcknowledgedBulkWriteResult.cs" />
     <Compile Include="CountArgs.cs" />
     <Compile Include="EvalArgs.cs" />
     <Compile Include="Exceptions\ExceptionMapper.cs" />
@@ -275,26 +293,42 @@
     <Compile Include="MongoUpdateOptions.cs" />
     <Compile Include="MongoUrlBuilder.cs" />
     <Compile Include="MongoUser.cs" />
+    <Compile Include="Operations\BulkMixedWriteOperation.cs" />
+    <Compile Include="Operations\BulkDeleteOperation.cs" />
+    <Compile Include="Operations\DeleteOpcodeOperationEmulator.cs" />
+    <Compile Include="Operations\BulkDeleteOperationArgs.cs" />
+    <Compile Include="Operations\BulkInsertOperation.cs" />
+    <Compile Include="Operations\InsertOpcodeOperationEmulator.cs" />
+    <Compile Include="Operations\BulkInsertOperationArgs.cs" />
+    <Compile Include="Operations\BulkUpdateOperation.cs" />
     <Compile Include="Operations\CommandOperation.cs" />
-    <Compile Include="Operations\DatabaseOperation.cs" />
+    <Compile Include="Operations\DatabaseOperationBase.cs" />
     <Compile Include="Operations\CursorEnumerator.cs" />
+    <Compile Include="Operations\BulkDeleteOperationEmulator.cs" />
+    <Compile Include="Operations\BulkInsertOperationEmulator.cs" />
+    <Compile Include="Operations\BulkUpdateOperationEmulator.cs" />
     <Compile Include="Operations\IConnectionProvider.cs" />
-    <Compile Include="Operations\InsertOperation.cs" />
+    <Compile Include="Operations\InsertOpcodeOperation.cs" />
     <Compile Include="Operations\QueryOperation.cs" />
-    <Compile Include="Operations\ReadOperation.cs" />
-    <Compile Include="Operations\RemoveOperation.cs" />
-    <Compile Include="Operations\UpdateOperation.cs" />
-    <Compile Include="Operations\WriteOperation.cs" />
+    <Compile Include="Operations\ReadOperationBase.cs" />
+    <Compile Include="Operations\DeleteOpcodeOperation.cs" />
+    <Compile Include="Operations\UpdateOpcodeOperationEmulator.cs" />
+    <Compile Include="Operations\UpdateOpcodeOperation.cs" />
+    <Compile Include="Operations\BulkUpdateOperationArgs.cs" />
+    <Compile Include="Operations\WriteOpcodeOperationBase.cs" />
     <Compile Include="PasswordEvidence.cs" />
     <Compile Include="ProfilingLevel.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="ReadPreference.cs" />
     <Compile Include="ReplicaSetTag.cs" />
     <Compile Include="ReplicaSetTagSet.cs" />
+    <Compile Include="Operations\DeleteRequest.cs" />
+    <Compile Include="Operations\UpdateRequest.cs" />
     <Compile Include="ServerInstanceConnectionProvider.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SslSettings.cs" />
     <Compile Include="SystemProfileInfo.cs" />
+    <Compile Include="UnacknowledgedBulkWriteResult.cs" />
     <Compile Include="ValidateCollectionArgs.cs" />
     <Compile Include="Wrappers\BaseWrapper.cs" />
     <Compile Include="Wrappers\CollectionOptionsDocument.cs" />
@@ -433,6 +467,7 @@
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

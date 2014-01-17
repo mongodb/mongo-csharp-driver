@@ -20,11 +20,11 @@ using MongoDB.Driver.Internal;
 
 namespace MongoDB.Driver.Operations
 {
-    internal abstract class WriteOperation : DatabaseOperation
+    internal abstract class WriteOpcodeOperationBase : DatabaseOperationBase
     {
         private readonly WriteConcern _writeConcern;
 
-        protected WriteOperation(
+        protected WriteOpcodeOperationBase(
             string databaseName,
             string collectionName,
             BsonBinaryReaderSettings readerSettings,
@@ -40,7 +40,27 @@ namespace MongoDB.Driver.Operations
             get { return _writeConcern; }
         }
 
-        protected WriteConcernResult SendMessageWithWriteConcern(
+        protected WriteConcernResult ReadWriteConcernResult(MongoConnection connection, SendMessageWithWriteConcernResult sendMessageResult)
+        {
+            var writeConcernResultSerializer = BsonSerializer.LookupSerializer(typeof(WriteConcernResult));
+            var replyMessage = connection.ReceiveMessage<WriteConcernResult>(ReaderSettings, writeConcernResultSerializer, null);
+            if (replyMessage.NumberReturned == 0)
+            {
+                throw new MongoCommandException("Command 'getLastError' failed. No response returned");
+            }
+            var writeConcernResult = replyMessage.Documents[0];
+            writeConcernResult.Command = sendMessageResult.GetLastErrorCommand;
+
+            var mappedException = ExceptionMapper.Map(writeConcernResult);
+            if (mappedException != null)
+            {
+                throw mappedException;
+            }
+
+            return writeConcernResult;
+        }
+
+        protected SendMessageWithWriteConcernResult SendMessageWithWriteConcern(
             MongoConnection connection,
             BsonBuffer buffer,
             int requestId,
@@ -48,15 +68,18 @@ namespace MongoDB.Driver.Operations
             BsonBinaryWriterSettings writerSettings,
             WriteConcern writeConcern)
         {
-            CommandDocument getLastErrorCommand = null;
+            var result = new SendMessageWithWriteConcernResult();
+
             if (writeConcern.Enabled)
             {
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+
                 var fsync = (writeConcern.FSync == null) ? null : (BsonValue)writeConcern.FSync;
                 var journal = (writeConcern.Journal == null) ? null : (BsonValue)writeConcern.Journal;
                 var w = (writeConcern.W == null) ? null : writeConcern.W.ToGetLastErrorWValue();
                 var wTimeout = (writeConcern.WTimeout == null) ? null : (BsonValue)(int)writeConcern.WTimeout.Value.TotalMilliseconds;
 
-                getLastErrorCommand = new CommandDocument
+                var getLastErrorCommand = new CommandDocument
                 {
                     { "getlasterror", 1 }, // use all lowercase for backward compatibility
                     { "fsync", fsync, fsync != null },
@@ -66,32 +89,23 @@ namespace MongoDB.Driver.Operations
                 };
 
                 // piggy back on network transmission for message
-                var getLastErrorMessage = new MongoQueryMessage(writerSettings, DatabaseName + ".$cmd", QueryFlags.None, 0, 1, getLastErrorCommand, null);
-                getLastErrorMessage.WriteToBuffer(buffer);
+                var getLastErrorMessage = new MongoQueryMessage(writerSettings, DatabaseName + ".$cmd", QueryFlags.None, maxDocumentSize, 0, 1, getLastErrorCommand, null);
+                getLastErrorMessage.WriteTo(buffer);
+
+                result.GetLastErrorCommand = getLastErrorCommand;
+                result.GetLastErrorRequestId = getLastErrorMessage.RequestId;
             }
 
             connection.SendMessage(buffer, requestId);
 
-            WriteConcernResult writeConcernResult = null;
-            if (writeConcern.Enabled)
-            {
-                var writeConcernResultSerializer = BsonSerializer.LookupSerializer(typeof(WriteConcernResult));
-                var replyMessage = connection.ReceiveMessage<WriteConcernResult>(readerSettings, writeConcernResultSerializer, null);
-                if (replyMessage.NumberReturned == 0)
-                {
-                    throw new MongoCommandException("Command 'getLastError' failed. No response returned");
-                }
-                writeConcernResult = replyMessage.Documents[0];
-                writeConcernResult.Command = getLastErrorCommand;
+            return result;
+        }
 
-                var mappedException = ExceptionMapper.Map(writeConcernResult);
-                if (mappedException != null)
-                {
-                    throw mappedException;
-                }
-            }
-
-            return writeConcernResult;
+        // nested classes
+        protected class SendMessageWithWriteConcernResult
+        {
+            public IMongoCommand GetLastErrorCommand;
+            public int? GetLastErrorRequestId;
         }
     }
 }

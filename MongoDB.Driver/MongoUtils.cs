@@ -41,6 +41,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a TimeSpan from microseconds.
+        /// </summary>
+        /// <param name="microseconds">The microseconds.</param>
+        /// <returns>The TimeSpan.</returns>
+        public static TimeSpan TimeSpanFromMicroseconds(long microseconds)
+        {
+            return TimeSpan.FromTicks(microseconds * 10); // there are 10 ticks in a microsecond
+        }
+
+        /// <summary>
         /// Converts a string to camel case by lower casing the first letter (only the first letter is modified).
         /// </summary>
         /// <param name="value">The string to camel case.</param>
