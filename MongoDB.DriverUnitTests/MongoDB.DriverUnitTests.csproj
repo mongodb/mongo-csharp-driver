@@ -111,6 +111,8 @@
     <Compile Include="CommandResults\DatabaseStatsResultTests.cs" />
     <Compile Include="CommandResults\GetLastErrorResultTests.cs" />
     <Compile Include="CommandResults\ValidateCollectionResultTests.cs" />
+    <Compile Include="Communication\Security\PlainAuthenticationTests.cs" />
+    <Compile Include="Communication\Security\GssapiAuthenticationTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DCoordinatesTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DGeographicCoordinatesTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJson2DProjectedCoordinatesTests.cs" />

@@ -46,7 +46,7 @@ namespace MongoDB.DriverUnitTests
 
             __testClient = new MongoClient(clientSettings);
             __testServer = __testClient.GetServer();
-            __testDatabase = __testServer.GetDatabase("csharpdriverunittests");
+            __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
             __testCollection = __testDatabase.GetCollection("testcollection");
 
             // connect early so BuildInfo will be populated
@@ -101,7 +101,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         // public static methods
-
         /// <summary>
         /// Enable full text search on a specified server instance.
         /// </summary>
