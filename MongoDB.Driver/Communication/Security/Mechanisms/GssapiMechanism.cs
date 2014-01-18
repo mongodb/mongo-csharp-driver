@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using MongoDB.Driver.Internal;
 
@@ -70,20 +71,31 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
             var serviceName = credential.GetMechanismProperty<string>("SERVICE_NAME", "mongodb");
+            var canonicalizeHostname = credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false);
+
+            var hostname = connection.ServerInstance.Address.Host;
+            if (canonicalizeHostname)
+            {
+                var entry = Dns.GetHostEntry(hostname);
+                if (entry != null)
+                {
+                    hostname = entry.HostName;
+                }
+            }
 
             // TODO: provide an override to force the use of gsasl?
             if (__useGsasl)
             {
                 return new GsaslGssapiImplementation(
                     serviceName,
-                    connection.ServerInstance.Address.Host,
+                    hostname,
                     credential.Username,
                     credential.Evidence);
             }
 
             return new WindowsGssapiImplementation(
                 serviceName,
-                connection.ServerInstance.Address.Host,
+                hostname,
                 credential.Username,
                 credential.Evidence);
         }
