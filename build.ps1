@@ -1,32 +1,31 @@
 Properties {
-
-	$base_version = "1.9.0"
-	$pre_release = "local"
-	$build_number = Get-BuildNumber
+    $base_version = "1.9.0"
+    $pre_release = "local"
+    $build_number = Get-BuildNumber
     $config = "Release"
 
     $git_commit = Get-GitCommit
 
-	$base_dir = Split-Path $psake.build_script_file	
-	$src_dir = "$base_dir"
-	$tools_dir = "$base_dir\tools"
-	$artifacts_dir = "$base_dir\artifacts"
-	$bin_dir = "$artifacts_dir\bin\"
-	$test_results_dir = "$artifacts_dir\test_results"
-	$docs_dir = "$artifacts_dir\docs"
+    $base_dir = Split-Path $psake.build_script_file 
+    $src_dir = "$base_dir"
+    $tools_dir = "$base_dir\tools"
+    $artifacts_dir = "$base_dir\artifacts"
+    $bin_dir = "$artifacts_dir\bin\"
+    $test_results_dir = "$artifacts_dir\test_results"
+    $docs_dir = "$artifacts_dir\docs"
 
-	$sln_file = "$base_dir\CSharpDriver.sln"
-	$asm_file = "$src_dir\GlobalAssemblyInfo.cs"
-	$docs_file = "$base_dir\Docs\Api\CSharpDriverDocs.shfbproj"
-	$installer_file = "$base_dir\Installer\CSharpDriverInstaller.wixproj"
-	$nuspec_file = "$base_dir\mongocsharpdriver.nuspec"
+    $sln_file = "$base_dir\CSharpDriver.sln"
+    $asm_file = "$src_dir\GlobalAssemblyInfo.cs"
+    $docs_file = "$base_dir\Docs\Api\CSharpDriverDocs.shfbproj"
+    $installer_file = "$base_dir\Installer\CSharpDriverInstaller.wixproj"
+    $nuspec_file = "$base_dir\mongocsharpdriver.nuspec"
     $nuspec_build_file = "$base_dir\mongocsharpdriverbuild.nuspec"
-	$license_file = "$base_dir\License.txt"
+    $license_file = "$base_dir\License.txt"
     $version_file = "$artifacts_dir\version.txt"
 
-	$nuget_tool = "$tools_dir\nuget\nuget.exe"
-	$nunit_tool = "$tools_dir\nunit\nunit-console.exe"
-	$zip_tool = "$tools_dir\7Zip\7za.exe"
+    $nuget_tool = "$tools_dir\nuget\nuget.exe"
+    $nunit_tool = "$tools_dir\nunit\nunit-console.exe"
+    $zip_tool = "$tools_dir\7Zip\7za.exe"
 }
 
 function IsReleaseBuild {
@@ -73,15 +72,15 @@ Framework('4.0')
 Include tools\psake\psake-ext.ps1
 
 function BuildHasBeenRun {
-	$build_exists = (Test-Path $bin_dir)
-	Assert $build_exists "Build task has not been run."
-	$true
+    $build_exists = (Test-Path $bin_dir)
+    Assert $build_exists "Build task has not been run."
+    $true
 }
 
 function DocsHasBeenRun {
-	$build_exists = Test-Path $chm_file
-	Assert $build_exists "Docs task has not been run."
-	$true
+    $build_exists = Test-Path $chm_file
+    Assert $build_exists "Docs task has not been run."
+    $true
 }
 
 function NotLocalPreRelease {
@@ -105,13 +104,13 @@ Task OutputVersion {
 }
 
 Task Clean {
-	RemoveDirectory $artifacts_dir
-	
-	Write-Host "Cleaning $sln_file" -ForegroundColor Green
-	Exec { msbuild "$sln_file" /t:Clean /p:Configuration=$config /v:quiet } 
+    RemoveDirectory $artifacts_dir
+    
+    Write-Host "Cleaning $sln_file" -ForegroundColor Green
+    Exec { msbuild "$sln_file" /t:Clean /p:Configuration=$config /v:quiet } 
 }
 
-Task Build -Depends Clean, OutputVersion {	
+Task Build -Depends Clean, OutputVersion {  
     try {
         Generate-AssemblyInfo `
             -file $asm_file `
@@ -129,61 +128,61 @@ Task Build -Depends Clean, OutputVersion {
 }
 
 Task Test -precondition { BuildHasBeenRun } {
-	mkdir -path $test_results_dir | out-null
-	$test_assemblies = ls -rec $bin_dir/*Tests*.dll
-	Write-Host "Testing $test_assemblies for .NET 3.5" -ForegroundColor Green
-	Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\test-results.xml /framework=net-3.5 /nologo /noshadow }
+    mkdir -path $test_results_dir | out-null
+    $test_assemblies = ls -rec $bin_dir/*Tests*.dll
+    Write-Host "Testing $test_assemblies for .NET 3.5" -ForegroundColor Green
+    Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\test-results.xml /framework=net-3.5 /nologo /noshadow }
 }
 
 Task Docs -precondition { BuildHasBeenRun } {
-	RemoveDirectory $docs_dir
+    RemoveDirectory $docs_dir
 
-	mkdir -path $docs_dir | out-null
+    mkdir -path $docs_dir | out-null
 
     $preliminary = "False"
     if(-not [string]::IsNullOrEmpty($pre_release)) {
         $preliminary = "True"
     }
 
-	Exec { msbuild "$docs_file" /p:Configuration=$config /p:CleanIntermediate=True /p:Preliminary=$preliminary /p:HelpFileVersion=$version /p:OutputPath=$docs_dir } 
+    Exec { msbuild "$docs_file" /p:Configuration=$config /p:CleanIntermediate=True /p:Preliminary=$preliminary /p:HelpFileVersion=$version /p:OutputPath=$docs_dir } 
 
-	mv "$docs_dir\CSharpDriverDocs.chm" $chm_file
-	mv "$docs_dir\Index.html" "$docs_dir\index.html"
-	Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$short_version-html.zip" "$docs_dir\*" }
-	RemoveDirectory $docs_dir
+    mv "$docs_dir\CSharpDriverDocs.chm" $chm_file
+    mv "$docs_dir\Index.html" "$docs_dir\index.html"
+    Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$short_version-html.zip" "$docs_dir\*" }
+    RemoveDirectory $docs_dir
 }
 
 task Zip -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) }{
-	$zip_dir = "$artifacts_dir\ziptemp"
-	
-	RemoveDirectory $zip_dir
+    $zip_dir = "$artifacts_dir\ziptemp"
+    
+    RemoveDirectory $zip_dir
 
-	mkdir -path $zip_dir | out-null
-	
-	$items = @("$bin_dir\MongoDB.Bson.dll", `
-		"$bin_dir\MongoDB.Bson.pdb", `
-		"$bin_dir\MongoDB.Bson.xml", `
-		"$bin_dir\MongoDB.Driver.dll", `
-		"$bin_dir\MongoDB.Driver.pdb", `
-		"$bin_dir\MongoDB.Driver.xml")
-	cp $items "$zip_dir"
+    mkdir -path $zip_dir | out-null
+    
+    $items = @("$bin_dir\MongoDB.Bson.dll", `
+        "$bin_dir\MongoDB.Bson.pdb", `
+        "$bin_dir\MongoDB.Bson.xml", `
+        "$bin_dir\MongoDB.Driver.dll", `
+        "$bin_dir\MongoDB.Driver.pdb", `
+        "$bin_dir\MongoDB.Driver.xml")
+    cp $items "$zip_dir"
 
-	cp $license_file $zip_dir
-	cp "Release Notes\Release Notes v$release_notes_version.md" "$zip_dir\Release Notes.txt"
-	cp $chm_file "$zip_dir\CSharpDriverDocs.chm"
+    cp $license_file $zip_dir
+    cp "Release Notes\Release Notes v$release_notes_version.md" "$zip_dir\Release Notes.txt"
+    cp $chm_file "$zip_dir\CSharpDriverDocs.chm"
 
-	Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$short_version.zip" "$zip_dir\*" }
+    Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$short_version.zip" "$zip_dir\*" }
 
-	rd $zip_dir -rec -force | out-null
+    rd $zip_dir -rec -force | out-null
 }
 
 Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
-	$release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
-	$doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
+    $release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
+    $doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-	Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
-	
-	rm -force $artifacts_dir\*.wixpdb
+    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
+    
+    rm -force $artifacts_dir\*.wixpdb
 }
 
 task NugetPack -precondition { (NotLocalPreRelease) -and (BuildHasBeenRun) -and (DocsHasBeenRun) } {
@@ -194,5 +193,5 @@ task NugetPack -precondition { (NotLocalPreRelease) -and (BuildHasBeenRun) -and 
     }
 
 
-	Exec { &$nuget_tool pack $nf -o $artifacts_dir -Version $sem_version -Symbols -BasePath $base_dir }
+    Exec { &$nuget_tool pack $nf -o $artifacts_dir -Version $sem_version -Symbols -BasePath $base_dir }
 }
