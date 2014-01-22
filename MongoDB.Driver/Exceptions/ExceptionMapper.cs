@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -66,9 +67,10 @@ namespace MongoDB.Driver
         /// </returns>
         public static Exception Map(WriteConcernResult writeConcernResult)
         {
-            if (writeConcernResult.Code.HasValue)
+            var code = GetCode(writeConcernResult.Response);
+            if (code.HasValue)
             {
-                switch(writeConcernResult.Code.Value)
+                switch(code.Value)
                 {
                     case 11000:
                     case 11001:
@@ -97,6 +99,30 @@ namespace MongoDB.Driver
             }
 
             return null;
+        }
+
+        private static int? GetCode(BsonDocument response)
+        {
+            BsonValue code;
+            if (!response.TryGetValue("code", out code))
+            {
+                BsonValue err;
+                BsonValue errObjects;
+                if (response.TryGetValue("err", out err) && response.TryGetValue("errObjects", out errObjects) && errObjects.IsBsonArray)
+                {
+                    foreach (var errObject in errObjects.AsBsonArray.OfType<BsonDocument>())
+                    {
+                        BsonValue currentErr = errObject.GetValue("err", null);
+                        if (err.Equals(currentErr))
+                        {
+                            code = errObject.GetValue("code", null);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return (code != null) ? code.ToInt32() : (int?)null;
         }
     }
 }
