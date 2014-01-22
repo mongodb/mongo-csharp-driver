@@ -814,6 +814,12 @@ namespace MongoDB.Bson.IO
 
             if (_checkElementNames)
             {
+                if (name == "")
+                {
+                    var message = "Element name '' is not valid because it is an empty string.";
+                    throw new BsonSerializationException(message);
+                }
+
                 if (name[0] == '$')
                 {
                     // a few element names starting with $ have to be allowed for historical reasons
@@ -830,6 +836,7 @@ namespace MongoDB.Bson.IO
                             throw new BsonSerializationException(message);
                     }
                 }
+
                 if (name.IndexOf('.') != -1)
                 {
                     var message = string.Format("Element name '{0}' is not valid because it contains a '.'.", name);

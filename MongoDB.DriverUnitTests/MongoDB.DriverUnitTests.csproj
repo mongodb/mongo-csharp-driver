@@ -136,6 +136,7 @@
     <Compile Include="Jira\CSharp779Tests.cs" />
     <Compile Include="Jira\CSharp801Tests.cs" />
     <Compile Include="Jira\CSharp840Tests.cs" />
+    <Compile Include="Jira\CSharp893Tests.cs" />
     <Compile Include="Linq\BsonDocumentBackedClassSerializerTests.cs" />
     <Compile Include="Linq\BsonDocumentTests.cs" />
     <Compile Include="FailPoint.cs" />

@@ -172,7 +172,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         foreach (object key in dictionary.Keys)
                         {
                             var name = key as string; // key might not be a string
-                            if (name == null || (name.Length > 0 && name[0] == '$') || name.IndexOf('.') != -1)
+                            if (string.IsNullOrEmpty(name) || (name.Length > 0 && name[0] == '$') || name.IndexOf('.') != -1)
                             {
                                 dictionaryRepresentation = DictionaryRepresentation.ArrayOfArrays;
                                 break;
