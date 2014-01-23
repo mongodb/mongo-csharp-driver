@@ -807,7 +807,7 @@ namespace MongoDB.Bson.IO
         {
             if (_checkUpdateDocument)
             {
-                _checkElementNames = (name[0] != '$');
+                _checkElementNames = name == "" || name[0] != '$';
                 _checkUpdateDocument = false;
                 return;
             }

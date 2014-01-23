@@ -33,7 +33,6 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp624
         }
 
         [Test]
-        [TestCase("")]
         [TestCase("x")]
         [TestCase("x$")]
         public void TestDocumentRepresentation(string key)
@@ -55,6 +54,7 @@ namespace MongoDB.BsonUnitTests.Jira.CSharp624
         }
 
         [Test]
+        [TestCase("")]
         [TestCase("$")]
         [TestCase("$x")]
         [TestCase(".")]
