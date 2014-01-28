@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             // added in 2.5.5
             new FeatureSetDependency(
                 new ServerVersionDependency(2, 5, 5),
+                FeatureId.CreateIndexCommand,
                 FeatureId.TextSearchQuery,
                 FeatureId.WriteCommands),
        };

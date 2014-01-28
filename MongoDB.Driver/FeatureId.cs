@@ -37,6 +37,10 @@ namespace MongoDB.Driver
         /// </summary>
         AggregateOutputToCollection,
         /// <summary>
+        /// The create index command feature.
+        /// </summary>
+        CreateIndexCommand,
+        /// <summary>
         /// The max time feature.
         /// </summary>
         MaxTime,

@@ -473,7 +473,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestEnsureIndex()
+        public void TestCreateIndex()
         {
             var expectedIndexVersion = (_server.BuildInfo.Version >= new Version(2, 0, 0)) ? 1 : 0;
 
@@ -492,7 +492,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
 
             _collection.DropAllIndexes();
-            _collection.EnsureIndex("x");
+            _collection.CreateIndex("x");
 
             indexes = _collection.GetIndexes();
             Assert.AreEqual(2, indexes.Count);
@@ -515,7 +515,7 @@ namespace MongoDB.DriverUnitTests
 
             _collection.DropAllIndexes();
             var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-            _collection.EnsureIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
             indexes = _collection.GetIndexes();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
@@ -643,14 +643,14 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, _collection.GetIndexes().Count());
             Assert.Throws<MongoCommandException>(() => _collection.DropIndex("x"));
 
-            _collection.EnsureIndex("x");
+            _collection.CreateIndex("x");
             Assert.AreEqual(2, _collection.GetIndexes().Count());
             _collection.DropIndex("x");
             Assert.AreEqual(1, _collection.GetIndexes().Count());
         }
 
         [Test]
-        public void TestEnsureIndexTimeToLive()
+        public void TestCreateIndexTimeToLive()
         {
             if (_server.BuildInfo.Version >= new Version(2, 2))
             {
@@ -659,7 +659,7 @@ namespace MongoDB.DriverUnitTests
 
                 var keys = IndexKeys.Ascending("ts");
                 var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
-                _collection.EnsureIndex(keys, options);
+                _collection.CreateIndex(keys, options);
 
                 var indexes = _collection.GetIndexes();
                 Assert.AreEqual("_id_", indexes[0].Name);
@@ -901,7 +901,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.Near("Location", -74.0, 40.74);
             var hits = _collection.Find(query).ToArray();
@@ -950,7 +950,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var query = Query.Near("Location", -74.0, 40.74, double.MaxValue, true); // spherical
                 var hits = _collection.Find(query).ToArray();
@@ -1123,7 +1123,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.WithinCircle("Location", -74.0, 40.74, 1.0, false); // not spherical
             var hits = _collection.Find(query).ToArray();
@@ -1148,7 +1148,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var query = Query.WithinCircle("Location", -74.0, 40.74, 0.1, true); // spherical
                 var hits = _collection.Find(query).ToArray();
@@ -1172,7 +1172,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var query = Query.WithinRectangle("Location", -75.0, 40, -73.0, 42.0);
             var hits = _collection.Find(query).ToArray();
@@ -1323,7 +1323,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                     _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                     _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-                    _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+                    _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
                     var args = new GeoHaystackSearchArgs
                     {
@@ -1364,7 +1364,7 @@ namespace MongoDB.DriverUnitTests
                             _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                             _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                             _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-                            _collection.EnsureIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
+                            _collection.CreateIndex(IndexKeys.GeoSpatialHaystack("Location", "Type"), IndexOptions.SetBucketSize(1));
 
                             failpoint.SetAlwaysOn();
                             var args = new GeoHaystackSearchArgs
@@ -1395,7 +1395,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new Place { Location = new[] { 34.2, 33.3 }, Type = "restaurant" });
                     _collection.Insert(new Place { Location = new[] { 34.2, 37.3 }, Type = "restaurant" });
                     _collection.Insert(new Place { Location = new[] { 59.1, 87.2 }, Type = "office" });
-                    _collection.EnsureIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
+                    _collection.CreateIndex(IndexKeys<Place>.GeoSpatialHaystack(x => x.Location, x => x.Type), IndexOptions.SetBucketSize(1));
 
                     var args = new GeoHaystackSearchArgs
                     {
@@ -1429,7 +1429,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
             _collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var args = new GeoNearArgs
             {
@@ -1471,7 +1471,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { 1.0, 3.0 }, Name = "Three", Type = "Library" });
             _collection.Insert(new Place { Location = new[] { 1.0, 4.0 }, Name = "Four", Type = "Museum" });
             _collection.Insert(new Place { Location = new[] { 1.0, 5.0 }, Name = "Five", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var args = new GeoNearArgs
             {
@@ -1511,7 +1511,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
             _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
             _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-            _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+            _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
             var args = new GeoNearArgs
             {
@@ -1564,7 +1564,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
                 _collection.Insert(new Place { Location = new[] { -75.0, 40.74 }, Name = "Two", Type = "Coffee" });
                 _collection.Insert(new Place { Location = new[] { -74.0, 41.73 }, Name = "Three", Type = "Coffee" });
-                _collection.EnsureIndex(IndexKeys.GeoSpatial("Location"));
+                _collection.CreateIndex(IndexKeys.GeoSpatial("Location"));
 
                 var args = new GeoNearArgs
                 {
@@ -1618,7 +1618,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three", Type = "Coffee" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two", Type = "Coffee" });
-                _collection.EnsureIndex(IndexKeys.GeoSpatialSpherical("Location"));
+                _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 var args = new GeoNearArgs
                 {
@@ -1660,7 +1660,7 @@ namespace MongoDB.DriverUnitTests
                     {
                         if (_collection.Exists()) { _collection.Drop(); }
                         _collection.Insert(new BsonDocument("loc", new BsonArray { 0, 0 }));
-                        _collection.EnsureIndex(IndexKeys.GeoSpatial("loc"));
+                        _collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
 
                         failpoint.SetAlwaysOn();
                         var args = new GeoNearArgs
@@ -1691,7 +1691,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen" , Type = "Office" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 41.73)), Name = "Three" , Type = "Coffee" });
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-75.0, 40.74)), Name = "Two"   , Type = "Coffee" });
-                _collection.EnsureIndex(IndexKeys.GeoSpatialSpherical("Location"));
+                _collection.CreateIndex(IndexKeys.GeoSpatialSpherical("Location"));
 
                 // TODO: add Query builder support for 2dsphere queries
                 var query = Query<PlaceGeoJson>.Near(x => x.Location, GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)));
@@ -1889,7 +1889,7 @@ namespace MongoDB.DriverUnitTests
                 _collection.Insert(new BsonDocument { { "x", "abc" } });
                 _collection.Insert(new BsonDocument { { "x", "def" } });
                 _collection.Insert(new BsonDocument { { "x", "ghi" } });
-                _collection.EnsureIndex(IndexKeys.Hashed("x"));
+                _collection.CreateIndex(IndexKeys.Hashed("x"));
 
                 var query = Query.EQ("x", "abc");
                 var cursor = _collection.FindAs<BsonDocument>(query);
@@ -1909,10 +1909,10 @@ namespace MongoDB.DriverUnitTests
             _collection.DropAllIndexes();
             Assert.AreEqual(false, _collection.IndexExists("x"));
 
-            _collection.EnsureIndex("x");
+            _collection.CreateIndex("x");
             Assert.AreEqual(true, _collection.IndexExists("x"));
 
-            _collection.EnsureIndex(IndexKeys.Ascending("y"));
+            _collection.CreateIndex(IndexKeys.Ascending("y"));
             Assert.AreEqual(true, _collection.IndexExists(IndexKeys.Ascending("y")));
         }
 
@@ -1921,7 +1921,7 @@ namespace MongoDB.DriverUnitTests
         {
             var collection = Configuration.TestCollection;
             collection.Drop();
-            collection.EnsureIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
+            collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetUnique(true));
 
             var batch = new BsonDocument[]
             {
@@ -2540,7 +2540,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Insert(new BsonDocument("x", 1));
                     _collection.Insert(new BsonDocument("x", 2));
                     _collection.DropAllIndexes();
-                    _collection.EnsureIndex("x");
+                    _collection.CreateIndex("x");
                     // note: prior to 1.8.1 the reIndex command was returning duplicate ok elements
                     try
                     {
@@ -2617,7 +2617,7 @@ namespace MongoDB.DriverUnitTests
             _collection.DropAllIndexes();
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            _collection.EnsureIndex(IndexKeys.Ascending("x"));
+            _collection.CreateIndex(IndexKeys.Ascending("x"));
             var query = Query.EQ("x", 1);
             var cursor = _collection.Find(query).SetHint(new BsonDocument("x", 1));
             var count = 0;
@@ -2634,7 +2634,7 @@ namespace MongoDB.DriverUnitTests
             _collection.DropAllIndexes();
             _collection.RemoveAll();
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            _collection.EnsureIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
+            _collection.CreateIndex(IndexKeys.Ascending("x"), IndexOptions.SetName("xIndex"));
             var query = Query.EQ("x", 1);
             var cursor = _collection.Find(query).SetHint("xIndex");
             var count = 0;
@@ -2757,7 +2757,7 @@ namespace MongoDB.DriverUnitTests
                     _collection.Drop();
                     _collection.Insert(new BsonDocument("x", "The quick brown fox"));
                     _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                    _collection.EnsureIndex(IndexKeys.Text("x"));
+                    _collection.CreateIndex(IndexKeys.Text("x"));
 
                     var textSearchCommand = new CommandDocument
                     {

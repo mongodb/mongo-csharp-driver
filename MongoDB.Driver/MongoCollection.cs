@@ -288,27 +288,30 @@ namespace MongoDB.Driver
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
         /// <returns>A WriteConcernResult.</returns>
-        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            var keysDocument = keys.ToBsonDocument();
-            var optionsDocument = options.ToBsonDocument();
-            var indexes = _database.GetCollection("system.indexes");
-            var indexName = GetIndexName(keysDocument, optionsDocument);
-            var index = new BsonDocument
+            using (_database.RequestStart(ReadPreference.Primary))
             {
-                { "name", indexName },
-                { "ns", FullName },
-                { "key", keysDocument }
-            };
-            index.Merge(optionsDocument);
-            var insertOptions = new MongoInsertOptions
-            {
-                CheckElementNames = false,
-                WriteConcern = WriteConcern.Acknowledged
-            };
-            var result = indexes.Insert(index, insertOptions);
-            return result;
+                if (_server.RequestConnection.ServerInstance.Supports(FeatureId.CreateIndexCommand))
+                {
+                    try
+                    {
+                        CreateIndexWithCommand(keys, options);
+                        var fakeResponse = new BsonDocument("ok", 1);
+                        return new WriteConcernResult(fakeResponse);
+                    }
+                    catch (MongoCommandException ex)
+                    {
+                        var translatedResult = new WriteConcernResult(ex.CommandResult.Response);
+                        translatedResult.Command = ex.CommandResult.Command;
+                        throw new WriteConcernException(ex.Message, translatedResult);
+                    }
+                }
+                else
+                {
+                    return CreateIndexWithInsert(keys, options);
+                }
+            }
         }
 
         /// <summary>
@@ -316,7 +319,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <returns>A WriteConcernResult.</returns>
-        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(IMongoIndexKeys keys)
         {
             return CreateIndex(keys, IndexOptions.Null);
@@ -327,7 +329,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keyNames">The names of the indexed fields.</param>
         /// <returns>A WriteConcernResult.</returns>
-        [Obsolete("Use EnsureIndex instead.")]
         public virtual WriteConcernResult CreateIndex(params string[] keyNames)
         {
             return CreateIndex(IndexKeys.Ascending(keyNames));
@@ -487,33 +488,30 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
         /// <param name="options">The index options(usually an IndexOptionsDocument or created using the IndexOption builder).</param>
+        [Obsolete("Use CreateIndex instead.")]
         public virtual void EnsureIndex(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-#pragma warning disable 618
             CreateIndex(keys, options);
-#pragma warning restore
         }
 
         /// <summary>
         /// Ensures that the desired index exists and creates it if it does not.
         /// </summary>
         /// <param name="keys">The indexed fields (usually an IndexKeysDocument or constructed using the IndexKeys builder).</param>
+        [Obsolete("Use CreateIndex instead.")]
         public virtual void EnsureIndex(IMongoIndexKeys keys)
         {
-#pragma warning disable 618
             CreateIndex(keys);
-#pragma warning restore
         }
 
         /// <summary>
         /// Ensures that the desired index exists and creates it if it does not.
         /// </summary>
         /// <param name="keyNames">The names of the indexed fields.</param>
+        [Obsolete("Use CreateIndex instead.")]
         public virtual void EnsureIndex(params string[] keyNames)
         {
-#pragma warning disable 618
             CreateIndex(keyNames);
-#pragma warning restore
         }
 
         /// <summary>
@@ -2159,6 +2157,30 @@ namespace MongoDB.Driver
             }
         }
 
+        private CommandResult CreateIndexWithCommand(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var command = new CommandDocument
+            {
+                { "createIndexes", Name },
+                { "indexes", new BsonArray { GetIndexDocument(keys, options) } }
+            };
+
+            return RunCommandAs<CommandResult>(command);
+        }
+
+        private WriteConcernResult CreateIndexWithInsert(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var index = GetIndexDocument(keys, options);
+            var insertOptions = new MongoInsertOptions
+            {
+                CheckElementNames = false,
+                WriteConcern = WriteConcern.Acknowledged
+            };
+            var indexes = _database.GetCollection("system.indexes");
+            var result = indexes.Insert(index, insertOptions);
+            return result;
+        }
+
         private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
         {
             return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer, serializationOptions);
@@ -2195,6 +2217,22 @@ namespace MongoDB.Driver
                 Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
                 GuidRepresentation = _settings.GuidRepresentation
             };
+        }
+
+        private BsonDocument GetIndexDocument(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var keysDocument = keys.ToBsonDocument();
+            var optionsDocument = options.ToBsonDocument();
+            var indexName = GetIndexName(keysDocument, optionsDocument);
+            var index = new BsonDocument
+            {
+                { "ns", FullName },
+                { "name", indexName },
+                { "key", keysDocument }
+            };
+            index.Merge(optionsDocument);
+
+            return index;
         }
 
         private string GetIndexName(BsonDocument keys, BsonDocument options)

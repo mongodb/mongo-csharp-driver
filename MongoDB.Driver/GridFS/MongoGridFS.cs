@@ -595,8 +595,8 @@ namespace MongoDB.Driver.GridFS
             var count = filesCollection.Count();
             if (count < maxFiles)
             {
-                filesCollection.EnsureIndex("filename", "uploadDate");
-                chunksCollection.EnsureIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
+                filesCollection.CreateIndex("filename", "uploadDate");
+                chunksCollection.CreateIndex(IndexKeys.Ascending("files_id", "n"), IndexOptions.SetUnique(true));
             }
         }
 
