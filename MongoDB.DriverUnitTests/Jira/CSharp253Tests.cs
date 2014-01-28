@@ -97,9 +97,9 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp253
         }
 
         [Test]
-        public void TestEnsureIndexOnNestedElement()
+        public void TestCreateIndexOnNestedElement()
         {
-            _collection.EnsureIndex("a.b");
+            _collection.CreateIndex("a.b");
         }
     }
 }

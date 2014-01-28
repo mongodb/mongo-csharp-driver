@@ -48,8 +48,8 @@ namespace MongoDB.DriverUnitTests.Builders
             _collection = db.GetCollection<GeoClass>("geo");
 
             _collection.Drop();
-            _collection.EnsureIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Location));
-            _collection.EnsureIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Surrounding));
+            _collection.CreateIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Location));
+            _collection.CreateIndex(IndexKeys<GeoClass>.GeoSpatialSpherical(x => x.Surrounding));
 
             var doc = new GeoClass
             {

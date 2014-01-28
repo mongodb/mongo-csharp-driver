@@ -232,7 +232,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 {
                     var collection = _database.GetCollection<Test>("test_text");
                     collection.Drop();
-                    collection.EnsureIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+                    collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
                     var indexCollection = _database.GetCollection("system.indexes");
                     var result = indexCollection.FindOne(Query.EQ("name", "custom"));
                     Assert.AreEqual("custom", result["name"].AsString);

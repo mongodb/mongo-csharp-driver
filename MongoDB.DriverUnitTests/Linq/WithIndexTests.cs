@@ -46,8 +46,8 @@ namespace MongoDB.DriverUnitTests.Linq
             _collection = Configuration.GetTestCollection<B>();
 
             _collection.Drop();
-            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
-            _collection.EnsureIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+            _collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
+            _collection.CreateIndex(new IndexKeysBuilder().Ascending("a", "b"), IndexOptions.SetName("i"));
 
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 1, b = 10, c = 100 });
             _collection.Insert(new B { Id = ObjectId.GenerateNewId(), a = 2, b = 20, c = 200 });

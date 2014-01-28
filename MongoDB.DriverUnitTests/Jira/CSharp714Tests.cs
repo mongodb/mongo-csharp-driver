@@ -68,7 +68,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp714
             {
                 _collection.Insert(new C { Id = i, Guid = (Guid)_generator.GenerateId(null, null) });
             }
-            _collection.EnsureIndex("Guid");
+            _collection.CreateIndex("Guid");
         }
     }
 }

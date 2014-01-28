@@ -727,7 +727,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 {
                     var collection = _database.GetCollection<BsonDocument>("test_text");
                     collection.Drop();
-                    collection.EnsureIndex(IndexKeys.Text("textfield"));
+                    collection.CreateIndex(IndexKeys.Text("textfield"));
                     collection.Insert(new BsonDocument
                     {
                         { "_id", 1 },
@@ -756,7 +756,7 @@ namespace MongoDB.DriverUnitTests.Builders
                 {
                     var collection = _database.GetCollection<BsonDocument>("test_text_spanish");
                     collection.Drop();
-                    collection.EnsureIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
+                    collection.CreateIndex(IndexKeys.Text("textfield"), IndexOptions.SetTextDefaultLanguage("spanish"));
                     collection.Insert(new BsonDocument
                     {
                         { "_id", 1 },

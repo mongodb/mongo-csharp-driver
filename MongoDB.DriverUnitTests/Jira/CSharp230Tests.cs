@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp230
         }
 
         [Test]
-        public void TestEnsureIndexAfterDropCollection()
+        public void TestCreateIndexAfterDropCollection()
         {
             if (_collection.Exists())
             {
@@ -43,12 +43,12 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp230
             }
 
             Assert.IsFalse(_collection.IndexExists("x"));
-            _collection.EnsureIndex("x");
+            _collection.CreateIndex("x");
             Assert.IsTrue(_collection.IndexExists("x"));
 
             _collection.Drop();
             Assert.IsFalse(_collection.IndexExists("x"));
-            _collection.EnsureIndex("x");
+            _collection.CreateIndex("x");
             Assert.IsTrue(_collection.IndexExists("x"));
         }
     }

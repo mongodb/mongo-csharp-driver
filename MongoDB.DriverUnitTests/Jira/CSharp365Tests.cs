@@ -33,7 +33,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp365
                 var collection = Configuration.TestCollection;
                 collection.Drop();
 
-                collection.EnsureIndex("A", "_id");
+                collection.CreateIndex("A", "_id");
                 collection.Insert(new BsonDocument { { "_id", 1 }, { "A", 1 } });
                 collection.Insert(new BsonDocument { { "_id", 2 }, { "A", 2 } });
                 collection.Insert(new BsonDocument { { "_id", 3 }, { "A", 3 } });

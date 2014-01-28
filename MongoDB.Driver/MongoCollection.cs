@@ -2157,12 +2157,28 @@ namespace MongoDB.Driver
             }
         }
 
+        private BsonDocument CreateIndexDocument(IMongoIndexKeys keys, IMongoIndexOptions options)
+        {
+            var keysDocument = keys.ToBsonDocument();
+            var optionsDocument = options.ToBsonDocument();
+            var indexName = GetIndexName(keysDocument, optionsDocument);
+            var index = new BsonDocument
+            {
+                { "ns", FullName },
+                { "name", indexName },
+                { "key", keysDocument }
+            };
+            index.Merge(optionsDocument);
+
+            return index;
+        }
+
         private CommandResult CreateIndexWithCommand(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
             var command = new CommandDocument
             {
                 { "createIndexes", Name },
-                { "indexes", new BsonArray { GetIndexDocument(keys, options) } }
+                { "indexes", new BsonArray { CreateIndexDocument(keys, options) } }
             };
 
             return RunCommandAs<CommandResult>(command);
@@ -2170,7 +2186,7 @@ namespace MongoDB.Driver
 
         private WriteConcernResult CreateIndexWithInsert(IMongoIndexKeys keys, IMongoIndexOptions options)
         {
-            var index = GetIndexDocument(keys, options);
+            var index = CreateIndexDocument(keys, options);
             var insertOptions = new MongoInsertOptions
             {
                 CheckElementNames = false,
@@ -2217,22 +2233,6 @@ namespace MongoDB.Driver
                 Encoding = _settings.WriteEncoding ?? MongoDefaults.WriteEncoding,
                 GuidRepresentation = _settings.GuidRepresentation
             };
-        }
-
-        private BsonDocument GetIndexDocument(IMongoIndexKeys keys, IMongoIndexOptions options)
-        {
-            var keysDocument = keys.ToBsonDocument();
-            var optionsDocument = options.ToBsonDocument();
-            var indexName = GetIndexName(keysDocument, optionsDocument);
-            var index = new BsonDocument
-            {
-                { "ns", FullName },
-                { "name", indexName },
-                { "key", keysDocument }
-            };
-            index.Merge(optionsDocument);
-
-            return index;
         }
 
         private string GetIndexName(BsonDocument keys, BsonDocument options)
