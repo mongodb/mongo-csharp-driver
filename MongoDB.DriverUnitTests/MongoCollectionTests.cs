@@ -85,7 +85,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAggregateAllowDiskUsage()
         {
-            if (_primary.Supports(FeatureId.AggregateAllowDiskUsage))
+            if (_primary.Supports(FeatureId.AggregateAllowDiskUse))
             {
                 _collection.RemoveAll();
                 _collection.DropAllIndexes();
@@ -96,7 +96,7 @@ namespace MongoDB.DriverUnitTests
                     {
                         new BsonDocument("$project", new BsonDocument("x", 1))
                     },
-                    AllowDiskUsage = true
+                    AllowDiskUse = true
                 });
                 var results = query.ToList(); // all we can test is that the server doesn't reject the allowDiskUsage argument
 

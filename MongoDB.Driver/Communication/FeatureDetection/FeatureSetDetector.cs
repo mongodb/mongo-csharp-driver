@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             // added in 2.5.2
             new FeatureSetDependency(
                 new ServerVersionDependency(2, 5, 2),
-                FeatureId.AggregateAllowDiskUsage,
+                FeatureId.AggregateAllowDiskUse,
                 FeatureId.AggregateCursor,
                 FeatureId.AggregateOutputToCollection),
 

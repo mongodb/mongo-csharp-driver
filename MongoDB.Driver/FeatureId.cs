@@ -21,9 +21,9 @@ namespace MongoDB.Driver
     public enum FeatureId
     {
         /// <summary>
-        /// The aggregate allow disk usage feature.
+        /// The aggregate allow disk use feature.
         /// </summary>
-        AggregateAllowDiskUsage,
+        AggregateAllowDiskUse,
         /// <summary>
         /// The aggregate cursor feature.
         /// </summary>

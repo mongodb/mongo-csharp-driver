@@ -174,7 +174,7 @@ namespace MongoDB.Driver
             {
                 { "aggregate", _name },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
-                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue },
+                { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue },
                 { "explain", true }
             };
 
@@ -2125,7 +2125,7 @@ namespace MongoDB.Driver
                 { "aggregate", _name },
                 { "pipeline", new BsonArray(args.Pipeline.Cast<BsonValue>()) },
                 { "cursor", cursor, cursor != null }, // optional
-                { "allowDiskUsage", () => args.AllowDiskUsage.Value, args.AllowDiskUsage.HasValue }, // optional
+                { "allowDiskUse", () => args.AllowDiskUse.Value, args.AllowDiskUse.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
 

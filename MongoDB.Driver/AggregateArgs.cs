@@ -41,7 +41,7 @@ namespace MongoDB.Driver
     public class AggregateArgs
     {
         // private fields
-        private bool? _allowDiskUsage;
+        private bool? _allowDiskUse;
         private int? _batchSize;
         private TimeSpan? _maxTime;
         private AggregateOutputMode _outputMode = AggregateOutputMode.Inline;
@@ -49,15 +49,15 @@ namespace MongoDB.Driver
 
         // public properties
         /// <summary>
-        /// Gets or sets a value indicating whether disk usage is allowed.
+        /// Gets or sets a value indicating whether disk use is allowed.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if disk usage is allowed; otherwise, <c>false</c>.
+        ///   <c>true</c> if disk use is allowed; otherwise, <c>false</c>.
         /// </value>
-        public bool? AllowDiskUsage
+        public bool? AllowDiskUse
         {
-            get { return _allowDiskUsage; }
-            set { _allowDiskUsage = value; }
+            get { return _allowDiskUse; }
+            set { _allowDiskUse = value; }
         }
 
         /// <summary>
