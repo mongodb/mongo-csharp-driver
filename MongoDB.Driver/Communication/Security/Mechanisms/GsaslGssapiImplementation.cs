@@ -23,9 +23,10 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     internal class GsaslGssapiImplementation : GsaslImplementationBase
     {
         // private fields
-        private readonly string _userPrincipalName;
+        private readonly string _authorizationId;
         private readonly MongoIdentityEvidence _evidence;
         private readonly string _hostname;
+        private readonly string _hostRealm;
         private readonly string _service;
 
         // constructors
@@ -35,11 +36,13 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="hostName">Name of the host.</param>
         /// <param name="username">The username.</param>
+        /// <param name="hostRealm">The realm.</param>
         /// <param name="evidence">The evidence.</param>
-        public GsaslGssapiImplementation(string serviceName, string hostName, string username, MongoIdentityEvidence evidence)
+        public GsaslGssapiImplementation(string serviceName, string hostName, string hostRealm, string username, MongoIdentityEvidence evidence)
             : base("GSSAPI", new byte[0])
         {
-            _userPrincipalName = username;
+            _authorizationId = username;
+            _hostRealm = hostRealm;
             _evidence = evidence;
             _hostname = hostName;
             _service = serviceName;
@@ -52,9 +55,13 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <returns>The properties.</returns>
         protected override IEnumerable<KeyValuePair<string, string>> GetProperties()
         {
-            yield return new KeyValuePair<string, string>("AUTHID", _userPrincipalName);
+            yield return new KeyValuePair<string, string>("AUTHID", _authorizationId);
             yield return new KeyValuePair<string, string>("HOSTNAME", _hostname);
             yield return new KeyValuePair<string, string>("SERVICE", _service);
+            if (!string.IsNullOrEmpty(_hostRealm))
+            {
+                yield return new KeyValuePair<string, string>("REALM", _hostRealm);
+            }
         }
     }
 }

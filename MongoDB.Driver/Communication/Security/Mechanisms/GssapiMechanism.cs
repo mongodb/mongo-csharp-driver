@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         public ISaslStep Initialize(MongoConnection connection, MongoCredential credential)
         {
             var serviceName = credential.GetMechanismProperty<string>("SERVICE_NAME", "mongodb");
+            var realm = credential.GetMechanismProperty<string>("REALM", null);
             var canonicalizeHostname = credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", false);
 
             var hostname = connection.ServerInstance.Address.Host;
@@ -89,6 +90,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                 return new GsaslGssapiImplementation(
                     serviceName,
                     hostname,
+                    realm,
                     credential.Username,
                     credential.Evidence);
             }
@@ -96,6 +98,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
             return new WindowsGssapiImplementation(
                 serviceName,
                 hostname,
+                realm,
                 credential.Username,
                 credential.Evidence);
         }

@@ -35,13 +35,18 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="hostName">Name of the host.</param>
+        /// <param name="hostRealm">The domain.</param>
         /// <param name="username">The username.</param>
         /// <param name="evidence">The evidence.</param>
-        public WindowsGssapiImplementation(string serviceName, string hostName, string username, MongoIdentityEvidence evidence)
+        public WindowsGssapiImplementation(string serviceName, string hostName, string hostRealm, string username, MongoIdentityEvidence evidence)
         {
             _authorizationId = username;
             _evidence = evidence;
             _servicePrincipalName = string.Format("{0}/{1}", serviceName, hostName);
+            if (!string.IsNullOrEmpty(hostRealm))
+            {
+                _servicePrincipalName += "@" + hostRealm;
+            }
         }
 
         // properties
