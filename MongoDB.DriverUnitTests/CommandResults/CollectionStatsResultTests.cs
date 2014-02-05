@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -68,7 +69,15 @@ namespace MongoDB.DriverUnitTests.CommandResults
             Assert.IsTrue(result.StorageSize > 0);
             Assert.AreEqual(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
             Assert.IsTrue(result.TotalIndexSize > 0);
-            Assert.AreEqual(CollectionUserFlags.None, result.UserFlags);
+            if (_server.Instances.First().BuildInfo.Version <= new Version(2, 5, 4, 0))
+            {
+                Assert.AreEqual(CollectionUserFlags.None, result.UserFlags);
+            }
+            else
+            {
+                Assert.AreEqual(CollectionUserFlags.UsePowerOf2Sizes, result.UserFlags);
+
+            }
         }
     }
 }
