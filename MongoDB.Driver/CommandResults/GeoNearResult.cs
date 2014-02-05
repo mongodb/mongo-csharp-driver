@@ -225,9 +225,10 @@ namespace MongoDB.Driver
             /// <summary>
             /// Gets the count of b-tree locations.
             /// </summary>
+            [Obsolete("Does not exist when using server 2.6.")]
             public int BTreeLocations
             {
-                get { return _stats["btreelocs"].ToInt32(); }
+                get { return _stats.GetValue("btreelocs", -1).ToInt32(); }
             }
 
             /// <summary>
@@ -249,9 +250,10 @@ namespace MongoDB.Driver
             /// <summary>
             /// Gets the number of documents scanned.
             /// </summary>
+            [Obsolete("Does not exist when using server 2.6.")]
             public int NumberScanned
             {
-                get { return _stats["nscanned"].ToInt32(); }
+                get { return _stats.GetValue("nscanned", -1).ToInt32(); }
             }
 
             /// <summary>

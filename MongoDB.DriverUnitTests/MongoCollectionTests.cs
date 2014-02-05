@@ -1443,10 +1443,14 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
-            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.BTreeLocations >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
             Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
-            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.NumberScanned >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
             Assert.AreEqual(5, result.Hits.Count);
             Assert.IsTrue(result.Hits[0].Distance > 1.0);
@@ -1485,10 +1489,14 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
-            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.BTreeLocations >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
             Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
-            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.NumberScanned >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
             Assert.AreEqual(5, result.Hits.Count);
             Assert.IsTrue(result.Hits[0].Distance > 1.0);
@@ -1524,10 +1532,14 @@ namespace MongoDB.DriverUnitTests
             Assert.IsTrue(result.Ok);
             Assert.AreEqual(_collection.FullName, result.Namespace);
             Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
-            Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.BTreeLocations >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
             Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
-            Assert.IsTrue(result.Stats.NumberScanned >= 0);
+#pragma warning disable 618
+            Assert.IsTrue(result.Stats.NumberScanned >= -1);
+#pragma warning restore
             Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
             Assert.AreEqual(3, result.Hits.Count);
 
@@ -1577,10 +1589,14 @@ namespace MongoDB.DriverUnitTests
                 Assert.IsTrue(result.Ok);
                 Assert.AreEqual(_collection.FullName, result.Namespace);
                 Assert.IsTrue(result.Stats.AverageDistance >= 0.0);
-                Assert.IsTrue(result.Stats.BTreeLocations >= 0);
+#pragma warning disable 618
+                Assert.IsTrue(result.Stats.BTreeLocations >= -1);
+#pragma warning restore
                 Assert.IsTrue(result.Stats.Duration >= TimeSpan.Zero);
                 Assert.IsTrue(result.Stats.MaxDistance >= 0.0);
-                Assert.IsTrue(result.Stats.NumberScanned >= 0);
+#pragma warning disable 618
+                Assert.IsTrue(result.Stats.NumberScanned >= -1);
+#pragma warning restore
                 Assert.IsTrue(result.Stats.ObjectsLoaded >= 0);
                 Assert.AreEqual(3, result.Hits.Count);
 

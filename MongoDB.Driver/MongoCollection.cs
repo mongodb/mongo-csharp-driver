@@ -981,7 +981,9 @@ namespace MongoDB.Driver
                 { "uniqueDocs", () => args.UniqueDocs.Value, args.UniqueDocs.HasValue }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            return RunCommandAs<GeoNearResult<TDocument>>(command);
+            var result = RunCommandAs<GeoNearResult<TDocument>>(command);
+            result.Response["ns"] = FullName; 
+            return result;
         }
 
         /// <summary>
