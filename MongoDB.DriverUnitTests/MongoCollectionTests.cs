@@ -2782,7 +2782,7 @@ namespace MongoDB.DriverUnitTests
                     };
                     var commandResult = _database.RunCommand(textSearchCommand);
                     var response = commandResult.Response;
-                    Assert.AreEqual(1, response["stats"]["nfound"].ToInt32());
+                    Assert.AreEqual(1, response["stats"]["n"].ToInt32());
                     Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
                 }
             }
