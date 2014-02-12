@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
-        /// Tests that the size of the named array is greater than some value (see $size).
+        /// Tests that the size of the named array is greater than some value.
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="size">The size to compare to.</param>
@@ -606,14 +606,13 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("name");
             }
 
-            var element = string.Format("{0}.{1}", name, size);
-
+            var elementName = string.Format("{0}.{1}", name, size);
             var condition = new BsonDocument("$exists", true);
-            return new QueryDocument(element, condition);
+            return new QueryDocument(elementName, condition);
         }
 
         /// <summary>
-        /// Tests that the size of the named array is greater than some value (see $size).
+        /// Tests that the size of the named array is greater than or equal to some value.
         /// </summary>
         /// <param name="name">The name of the element to test.</param>
         /// <param name="size">The size to compare to.</param>
@@ -625,10 +624,45 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("name");
             }
 
-            var element = string.Format("{0}.{1}", name, size - 1);
-
+            var elementName = string.Format("{0}.{1}", name, size - 1);
             var condition = new BsonDocument("$exists", true);
-            return new QueryDocument(element, condition);
+            return new QueryDocument(elementName, condition);
+        }
+
+        /// <summary>
+        /// Tests that the size of the named array is less than some value.
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="size">The size to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery SizeLessThan(string name, int size)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            var elementName = string.Format("{0}.{1}", name, size - 1);
+            var condition = new BsonDocument("$exists", false);
+            return new QueryDocument(elementName, condition);
+        }
+
+        /// <summary>
+        /// Tests that the size of the named array is less than or equal to some value.
+        /// </summary>
+        /// <param name="name">The name of the element to test.</param>
+        /// <param name="size">The size to compare to.</param>
+        /// <returns>An IMongoQuery.</returns>
+        public static IMongoQuery SizeLessThanOrEqual(string name, int size)
+        {
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+
+            var elementName = string.Format("{0}.{1}", name, size);
+            var condition = new BsonDocument("$exists", false);
+            return new QueryDocument(elementName, condition);
         }
 
         /// <summary>

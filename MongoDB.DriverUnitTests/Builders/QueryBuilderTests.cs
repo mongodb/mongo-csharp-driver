@@ -694,6 +694,70 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestSizeGreaterThan()
+        {
+            var query = Query.SizeGreaterThan("k", 20);
+            var expected = "{ \"k.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeGreaterThanOrEqual()
+        {
+            var query = Query.SizeGreaterThanOrEqual("k", 20);
+            var expected = "{ \"k.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeLessThan()
+        {
+            var query = Query.SizeLessThan("k", 20);
+            var expected = "{ \"k.19\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeLessThanOrEqual()
+        {
+            var query = Query.SizeLessThanOrEqual("k", 20);
+            var expected = "{ \"k.20\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeNotGreaterThan()
+        {
+            var query = Query.Not(Query.SizeGreaterThan("k", 20));
+            var expected = "{ \"k.20\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeNotGreaterThanOrEqual()
+        {
+            var query = Query.Not(Query.SizeGreaterThanOrEqual("k", 20));
+            var expected = "{ \"k.19\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeNotLessThan()
+        {
+            var query = Query.Not(Query.SizeLessThan("k", 20));
+            var expected = "{ \"k.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeNotLessThanOrEqual()
+        {
+            var query = Query.Not(Query.SizeLessThanOrEqual("k", 20));
+            var expected = "{ \"k.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestTextQueryGeneration()
         {
             var query = Query.Text("foo");
@@ -714,38 +778,6 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var query = Query.Text("foo", null);
             var expected = "{ \"$text\" : { \"$search\" : \"foo\" } }";
-            Assert.AreEqual(expected, query.ToJson());
-        }
-
-        [Test]
-        public void TestSizeGreaterThan()
-        {
-            var query = Query.SizeGreaterThan("k", 20);
-            var expected = "{ \"k.20\" : { \"$exists\" : true } }";
-            Assert.AreEqual(expected, query.ToJson());
-        }
-
-        [Test]
-        public void TestSizeGreaterThanOrEqual()
-        {
-            var query = Query.SizeGreaterThanOrEqual("k", 20);
-            var expected = "{ \"k.19\" : { \"$exists\" : true } }";
-            Assert.AreEqual(expected, query.ToJson());
-        }
-
-        [Test]
-        public void TestNotSizeGreaterThan()
-        {
-            var query = Query.Not(Query.SizeGreaterThan("k", 20));
-            var expected = "{ \"k.20\" : { \"$exists\" : false } }";
-            Assert.AreEqual(expected, query.ToJson());
-        }
-
-        [Test]
-        public void TestNotSizeGreaterThanOrEqual()
-        {
-            var query = Query.Not(Query.SizeGreaterThanOrEqual("k", 20));
-            var expected = "{ \"k.19\" : { \"$exists\" : false } }";
             Assert.AreEqual(expected, query.ToJson());
         }
 

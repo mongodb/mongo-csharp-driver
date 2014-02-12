@@ -158,11 +158,14 @@ namespace MongoDB.Driver.Linq
         private IMongoQuery BuildArrayLengthQuery(Expression variableExpression, ExpressionType operatorType, ConstantExpression constantExpression)
         {
             var allowedOperators = new[]
-                {
-                    ExpressionType.Equal, ExpressionType.NotEqual, ExpressionType.GreaterThan,
-                    ExpressionType.GreaterThanOrEqual, ExpressionType.LessThan,
-                    ExpressionType.LessThanOrEqual
-                };
+            {
+                ExpressionType.Equal,
+                ExpressionType.NotEqual,
+                ExpressionType.GreaterThan,
+                ExpressionType.GreaterThanOrEqual,
+                ExpressionType.LessThan,
+                ExpressionType.LessThanOrEqual
+            };
 
             if (!allowedOperators.Contains(operatorType))
             {
@@ -224,9 +227,9 @@ namespace MongoDB.Driver.Linq
                     case ExpressionType.GreaterThanOrEqual:
                         return Query.SizeGreaterThanOrEqual(serializationInfo.ElementName, value);
                     case ExpressionType.LessThan:
-                        return Query.Not(Query.SizeGreaterThanOrEqual(serializationInfo.ElementName, value));
+                        return Query.SizeLessThan(serializationInfo.ElementName, value);
                     case ExpressionType.LessThanOrEqual:
-                        return Query.Not(Query.SizeGreaterThan(serializationInfo.ElementName, value));
+                        return Query.SizeLessThanOrEqual(serializationInfo.ElementName, value);
                 }
             }
 
