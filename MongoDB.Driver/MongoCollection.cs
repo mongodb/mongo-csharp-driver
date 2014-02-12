@@ -1685,6 +1685,59 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Scans an entire collection in parallel using multiple cursors.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="args">The args.</param>
+        /// <returns>Multiple enumerators, one for each cursor.</returns>
+        public List<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs args)
+        {
+            var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
+            var connection = _server.AcquireConnection(readPreference);
+            try
+            {
+                var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
+                var serializationOptions = args.SerializationOptions;
+
+                var operation = new ParallelScanOperation<TDocument>(
+                    _database.Name,
+                    _name,
+                    args.NumberOfCursors,
+                    args.BatchSize,
+                    serializer,    
+                    serializationOptions,
+                    readPreference,
+                    GetBinaryReaderSettings(),
+                    GetBinaryWriterSettings());
+                return operation.Execute(connection);
+            }
+            finally
+            {
+                _server.ReleaseConnection(connection);
+            }
+        }
+
+        /// <summary>
+        /// Scans an entire collection in parallel using multiple cursors.
+        /// </summary>
+        /// <param name="documentType">Type of the document.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>Multiple enumerators, one for each cursor.</returns>
+        public List<IEnumerable> ParallelScanAs(Type documentType, ParallelScanArgs args)
+        {
+            var methodDefinition = GetType().GetMethod("ParallelScanAs", new Type[] { typeof(ParallelScanArgs) });
+            var methodInfo = methodDefinition.MakeGenericMethod(documentType);
+            try
+            {
+                return (List<IEnumerable>)methodInfo.Invoke(this, new object[] { args });
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        /// <summary>
         /// Runs the ReIndex command on this collection.
         /// </summary>
         /// <returns>A CommandResult.</returns>
@@ -2648,6 +2701,16 @@ namespace MongoDB.Driver
             WriteConcern writeConcern)
         {
             return InsertBatch<TDefaultDocument>(documents, writeConcern);
+        }
+
+        /// <summary>
+        /// Scans an entire collection in parallel using multiple cursors.
+        /// </summary>
+        /// <param name="args">The args.</param>
+        /// <returns>Multiple enumerators, one for each cursor.</returns>
+        public virtual List<IEnumerator<TDefaultDocument>> ParallelScan(ParallelScanArgs args)
+        {
+            return ParallelScanAs<TDefaultDocument>(args);
         }
 
         /// <summary>

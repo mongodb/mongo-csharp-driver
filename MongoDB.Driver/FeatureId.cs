@@ -45,6 +45,10 @@ namespace MongoDB.Driver
         /// </summary>
         MaxTime,
         /// <summary>
+        /// The parallel scan command.
+        /// </summary>
+        ParallelScanCommand,
+        /// <summary>
         /// The text search command.
         /// </summary>
         TextSearchCommand,

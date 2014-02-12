@@ -53,6 +53,13 @@ namespace MongoDB.Driver.Communication.FeatureDetection
                 FeatureId.CreateIndexCommand,
                 FeatureId.TextSearchQuery,
                 FeatureId.WriteCommands),
+
+            // added in 2.5.5 but not on mongos
+            new FeatureSetDependency(
+                new AndDependency(
+                    new ServerVersionDependency(2, 5, 5),
+                    new NotDependency(new InstanceTypeDependency(MongoServerInstanceType.ShardRouter))),
+                FeatureId.ParallelScanCommand)
        };
 
         // public methods

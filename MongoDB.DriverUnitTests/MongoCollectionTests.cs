@@ -2545,6 +2545,47 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestParallelScan()
+        {
+            using (_database.RequestStart())
+            {
+                var instance = _server.RequestConnection.ServerInstance;
+                if (instance.Supports(FeatureId.ParallelScanCommand))
+                {
+                    var numberOfDocuments = 2000;
+                    var numberOfCursors = 3;
+                    var ids = new HashSet<int>();
+
+                    _collection.Drop();
+                    for (int i = 0; i < numberOfDocuments; i++)
+                    {
+                        _collection.Insert(new BsonDocument("_id", i));
+                        ids.Add(i);
+                    }
+
+                    var enumerators = _collection.ParallelScan(new ParallelScanArgs
+                    {
+                        BatchSize = 100,
+                        NumberOfCursors = numberOfCursors
+                    });
+
+                    foreach (var enumerator in enumerators)
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            var document = enumerator.Current;
+                            var id = document["_id"].ToInt32();
+                            Assert.AreEqual(true, ids.Remove(id));
+                        }
+                    }
+
+                    Assert.AreEqual(3, enumerators.Count);
+                    Assert.AreEqual(0, ids.Count);
+                }
+            }
+        }
+
+        [Test]
         public void TestReIndex()
         {
             using (_database.RequestStart())
