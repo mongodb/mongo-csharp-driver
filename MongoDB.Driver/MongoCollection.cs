@@ -1665,7 +1665,7 @@ namespace MongoDB.Driver
 
             var command = new CommandDocument
             {
-                { "mapReduce", _name },
+                { "mapreduce", _name }, // all lowercase for backwards compatibility
                 { "map", args.MapFunction },
                 { "reduce", args.ReduceFunction },
                 { "out", output },
