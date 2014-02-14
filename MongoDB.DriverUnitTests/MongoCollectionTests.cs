@@ -44,7 +44,7 @@ namespace MongoDB.DriverUnitTests
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _primary = Configuration.TestServer.Primary;
+            _primary = _server.Instances.First(x => ReadPreference.Primary.MatchesInstance(x));
             _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }
@@ -1752,7 +1752,7 @@ namespace MongoDB.DriverUnitTests
             using (_server.RequestStart(_database))
             {
                 _collection.RemoveAll();
-                var count = _server.Primary.MaxMessageLength / 1000000;
+                var count = _primary.MaxMessageLength / 1000000;
                 for (int i = 0; i < count; i++)
                 {
                     var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
@@ -2763,27 +2763,30 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestTextIndex()
+        public void TestTextSearch()
         {
             if (_primary.Supports(FeatureId.TextSearchCommand))
             {
-                Configuration.EnableTextSearch(_primary);
-                using (_server.RequestStart(null, _primary))
+                if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
                 {
-                    _collection.Drop();
-                    _collection.Insert(new BsonDocument("x", "The quick brown fox"));
-                    _collection.Insert(new BsonDocument("x", "jumped over the fence"));
-                    _collection.CreateIndex(IndexKeys.Text("x"));
+                    Configuration.EnableTextSearch(_primary);
+                    using (_server.RequestStart(null, _primary))
+                    {
+                        _collection.Drop();
+                        _collection.Insert(new BsonDocument("x", "The quick brown fox"));
+                        _collection.Insert(new BsonDocument("x", "jumped over the fence"));
+                        _collection.CreateIndex(IndexKeys.Text("x"));
 
-                    var textSearchCommand = new CommandDocument
+                        var textSearchCommand = new CommandDocument
                     {
                         { "text", _collection.Name },
                         { "search", "fox" }
                     };
-                    var commandResult = _database.RunCommand(textSearchCommand);
-                    var response = commandResult.Response;
-                    Assert.AreEqual(1, response["stats"]["n"].ToInt32());
-                    Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
+                        var commandResult = _database.RunCommand(textSearchCommand);
+                        var response = commandResult.Response;
+                        Assert.AreEqual(1, response["stats"]["n"].ToInt32());
+                        Assert.AreEqual("The quick brown fox", response["results"][0]["obj"]["x"].AsString);
+                    }
                 }
             }
         }
