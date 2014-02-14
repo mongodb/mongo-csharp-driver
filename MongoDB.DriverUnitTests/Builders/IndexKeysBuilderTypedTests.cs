@@ -225,20 +225,23 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextIndexCreation()
         {
-            if (_primary.Supports(FeatureId.TextSearchCommand))
+            if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
-                Configuration.EnableTextSearch(_primary);
-                using (_server.RequestStart(null, _primary))
+                if (_primary.Supports(FeatureId.TextSearchCommand))
                 {
-                    var collection = _database.GetCollection<Test>("test_text");
-                    collection.Drop();
-                    collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
-                    var indexCollection = _database.GetCollection("system.indexes");
-                    var result = indexCollection.FindOne(Query.EQ("name", "custom"));
-                    Assert.AreEqual("custom", result["name"].AsString);
-                    Assert.AreEqual("idioma", result["language_override"].AsString);
-                    Assert.AreEqual("spanish", result["default_language"].AsString);
-                    Assert.AreEqual(1, result["key"]["c"].AsInt32);
+                    Configuration.EnableTextSearch(_primary);
+                    using (_server.RequestStart(null, _primary))
+                    {
+                        var collection = _database.GetCollection<Test>("test_text");
+                        collection.Drop();
+                        collection.CreateIndex(IndexKeys<Test>.Text(x => x.A, x => x.B).Ascending(x => x.C), IndexOptions.SetTextLanguageOverride("idioma").SetName("custom").SetTextDefaultLanguage("spanish"));
+                        var indexCollection = _database.GetCollection("system.indexes");
+                        var result = indexCollection.FindOne(Query.EQ("name", "custom"));
+                        Assert.AreEqual("custom", result["name"].AsString);
+                        Assert.AreEqual("idioma", result["language_override"].AsString);
+                        Assert.AreEqual("spanish", result["default_language"].AsString);
+                        Assert.AreEqual(1, result["key"]["c"].AsInt32);
+                    }
                 }
             }
         }

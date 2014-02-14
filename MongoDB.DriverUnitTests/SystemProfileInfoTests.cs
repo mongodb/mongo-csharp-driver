@@ -150,73 +150,76 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDeserializeSystemProfileInfoReturnedFromServer()
         {
-            _database.SetProfilingLevel(ProfilingLevel.None);
-            var systemProfileCollection = _database.GetCollection<SystemProfileInfo>("system.profile");
-            if (systemProfileCollection.Exists())
-            {
-                systemProfileCollection.Drop();
-            }
-
-            _database.SetProfilingLevel(ProfilingLevel.All);
-            try
-            {
-                _collection.Insert(new BsonDocument("foo", 1));
-            }
-            finally
+            if (_server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 _database.SetProfilingLevel(ProfilingLevel.None);
-            }
+                var systemProfileCollection = _database.GetCollection<SystemProfileInfo>("system.profile");
+                if (systemProfileCollection.Exists())
+                {
+                    systemProfileCollection.Drop();
+                }
 
-            var systemProfileInfo = systemProfileCollection.FindOne();
+                _database.SetProfilingLevel(ProfilingLevel.All);
+                try
+                {
+                    _collection.Insert(new BsonDocument("foo", 1));
+                }
+                finally
+                {
+                    _database.SetProfilingLevel(ProfilingLevel.None);
+                }
 
-            // since we don't know what most of the values should be simply call all the properties and make sure they don't throw
-            var abbreviated = systemProfileInfo.Abbreviated;
-            var client = systemProfileInfo.Client;
-            var command = systemProfileInfo.Command;
-            var cursorId = systemProfileInfo.CursorId;
-            var duration = systemProfileInfo.Duration;
-            var error = systemProfileInfo.Error;
-            var exception = systemProfileInfo.Exception;
-            var exceptionCode = systemProfileInfo.ExceptionCode;
-            var exhaust = systemProfileInfo.Exhaust;
-            var fastMod = systemProfileInfo.FastMod;
-            var fastModInsert = systemProfileInfo.FastModInsert;
-            var idHack = systemProfileInfo.IdHack;
-            var info = systemProfileInfo.Info;
-            var keyUpdates = systemProfileInfo.KeyUpdates;
-            var lockStatistics = systemProfileInfo.LockStatistics;
-            var moved = systemProfileInfo.Moved;
-            var ns = systemProfileInfo.Namespace;
-            var numberMoved = systemProfileInfo.NumberMoved;
-            var numberOfYields = systemProfileInfo.NumberOfYields;
-            var numberReturned = systemProfileInfo.NumberReturned;
-            var numberScanned = systemProfileInfo.NumberScanned;
-            var numberToReturn = systemProfileInfo.NumberToReturn;
-            var numberToSkip = systemProfileInfo.NumberToSkip;
-            var numberUpdated = systemProfileInfo.NumberUpdated;
-            var op = systemProfileInfo.Op;
-            var query = systemProfileInfo.Query;
-            var rawDocument = systemProfileInfo.RawDocument;
-            var responseLength = systemProfileInfo.ResponseLength;
-            var scanAndOrder = systemProfileInfo.ScanAndOrder;
-            var timestamp = systemProfileInfo.Timestamp;
-            var updateObject = systemProfileInfo.UpdateObject;
-            var upsert = systemProfileInfo.Upsert;
-            var user = systemProfileInfo.User;
+                var systemProfileInfo = systemProfileCollection.FindOne();
 
-            if (lockStatistics != null)
-            {
-                var timeAcquiring = lockStatistics.TimeAcquiring;
-                var timeAcquiringDatabaseReadLock = timeAcquiring.DatabaseReadLock;
-                var timeAcquiringDatabaseWriteLock = timeAcquiring.DatabaseWriteLock;
-                var timeAcquiringGlobalReadLock = timeAcquiring.GlobalReadLock;
-                var timeAcquiringGlobalWriteLock = timeAcquiring.GlobalWriteLock;
+                // since we don't know what most of the values should be simply call all the properties and make sure they don't throw
+                var abbreviated = systemProfileInfo.Abbreviated;
+                var client = systemProfileInfo.Client;
+                var command = systemProfileInfo.Command;
+                var cursorId = systemProfileInfo.CursorId;
+                var duration = systemProfileInfo.Duration;
+                var error = systemProfileInfo.Error;
+                var exception = systemProfileInfo.Exception;
+                var exceptionCode = systemProfileInfo.ExceptionCode;
+                var exhaust = systemProfileInfo.Exhaust;
+                var fastMod = systemProfileInfo.FastMod;
+                var fastModInsert = systemProfileInfo.FastModInsert;
+                var idHack = systemProfileInfo.IdHack;
+                var info = systemProfileInfo.Info;
+                var keyUpdates = systemProfileInfo.KeyUpdates;
+                var lockStatistics = systemProfileInfo.LockStatistics;
+                var moved = systemProfileInfo.Moved;
+                var ns = systemProfileInfo.Namespace;
+                var numberMoved = systemProfileInfo.NumberMoved;
+                var numberOfYields = systemProfileInfo.NumberOfYields;
+                var numberReturned = systemProfileInfo.NumberReturned;
+                var numberScanned = systemProfileInfo.NumberScanned;
+                var numberToReturn = systemProfileInfo.NumberToReturn;
+                var numberToSkip = systemProfileInfo.NumberToSkip;
+                var numberUpdated = systemProfileInfo.NumberUpdated;
+                var op = systemProfileInfo.Op;
+                var query = systemProfileInfo.Query;
+                var rawDocument = systemProfileInfo.RawDocument;
+                var responseLength = systemProfileInfo.ResponseLength;
+                var scanAndOrder = systemProfileInfo.ScanAndOrder;
+                var timestamp = systemProfileInfo.Timestamp;
+                var updateObject = systemProfileInfo.UpdateObject;
+                var upsert = systemProfileInfo.Upsert;
+                var user = systemProfileInfo.User;
 
-                var timeLocked = lockStatistics.TimeLocked;
-                var timeLockedDatabaseReadLock = timeLocked.DatabaseReadLock;
-                var timeLockedDatabaseWriteLock = timeLocked.DatabaseWriteLock;
-                var timeLockedGlobalReadLock = timeLocked.GlobalReadLock;
-                var timeLockedGlobalWriteLock = timeLocked.GlobalWriteLock;
+                if (lockStatistics != null)
+                {
+                    var timeAcquiring = lockStatistics.TimeAcquiring;
+                    var timeAcquiringDatabaseReadLock = timeAcquiring.DatabaseReadLock;
+                    var timeAcquiringDatabaseWriteLock = timeAcquiring.DatabaseWriteLock;
+                    var timeAcquiringGlobalReadLock = timeAcquiring.GlobalReadLock;
+                    var timeAcquiringGlobalWriteLock = timeAcquiring.GlobalWriteLock;
+
+                    var timeLocked = lockStatistics.TimeLocked;
+                    var timeLockedDatabaseReadLock = timeLocked.DatabaseReadLock;
+                    var timeLockedDatabaseWriteLock = timeLocked.DatabaseWriteLock;
+                    var timeLockedGlobalReadLock = timeLocked.GlobalReadLock;
+                    var timeLockedGlobalWriteLock = timeLocked.GlobalWriteLock;
+                }
             }
         }
 

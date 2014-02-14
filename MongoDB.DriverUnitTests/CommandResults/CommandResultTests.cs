@@ -169,7 +169,7 @@ namespace MongoDB.DriverUnitTests.CommandResults
                     // this should be considered a server bug that they don't report the error in the same way
 
                     var instance = _server.RequestConnection.ServerInstance;
-                    if (instance.InstanceType == MongoServerInstanceType.ShardRouter)
+                    if (instance.InstanceType == MongoServerInstanceType.ShardRouter && instance.BuildInfo.Version < new Version(2, 4, 0))
                     {
                         Assert.IsInstanceOf<MongoQueryException>(ex);
                         Assert.IsTrue(ex.Message.StartsWith("QueryFailure flag was unrecognized command: ", StringComparison.Ordinal));

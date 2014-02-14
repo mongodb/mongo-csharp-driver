@@ -291,7 +291,7 @@ namespace MongoDB.Driver
                 if (directProxy != null)
                 {
                     var instance = directProxy.Instances[0];
-                    if (instance.IsPrimary)
+                    if (instance.IsPrimary || instance.InstanceType == MongoServerInstanceType.ShardRouter)
                     {
                         return instance;
                     }
@@ -302,6 +302,12 @@ namespace MongoDB.Driver
                 if (replicaSetProxy != null)
                 {
                     return replicaSetProxy.Primary;
+                }
+
+                var shardedProxy = serverProxy as ShardedMongoServerProxy;
+                if (shardedProxy != null)
+                {
+                    return shardedProxy.Instances.FirstOrDefault(x => x.State == MongoServerState.Connected);
                 }
 
                 return null;

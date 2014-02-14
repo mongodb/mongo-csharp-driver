@@ -184,16 +184,7 @@ namespace MongoDB.DriverUnitTests
         {
             var instances = _server.Instances;
             Assert.IsNotNull(instances);
-
-            if (instances.Length == 1)
-            {
-                Assert.IsTrue(instances[0].IsPrimary);
-            }
-            else
-            {
-                Assert.IsTrue(instances.Length > 1);
-                Assert.AreEqual(1, instances.Count(i => i.IsPrimary));
-            }
+            Assert.GreaterOrEqual(instances.Length, 1);
         }
 
         [Test]
