@@ -1723,13 +1723,13 @@ namespace MongoDB.Driver
         /// <param name="documentType">Type of the document.</param>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public List<IEnumerable> ParallelScanAs(Type documentType, ParallelScanArgs args)
+        public List<IEnumerator> ParallelScanAs(Type documentType, ParallelScanArgs args)
         {
             var methodDefinition = GetType().GetMethod("ParallelScanAs", new Type[] { typeof(ParallelScanArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
-                return (List<IEnumerable>)methodInfo.Invoke(this, new object[] { args });
+                return ((IEnumerable)methodInfo.Invoke(this, new object[] { args })).Cast<IEnumerator>().ToList();
             }
             catch (TargetInvocationException ex)
             {

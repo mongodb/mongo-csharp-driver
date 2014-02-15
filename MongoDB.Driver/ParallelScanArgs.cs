@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     public class ParallelScanArgs
     {
         // private fields
-        private int _batchSize;
+        private int? _batchSize;
         private int _numberOfCursors = 1;
         private ReadPreference _readPreference;
         private IBsonSerializationOptions _serializationOptions;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The size of the batch.
         /// </value>
-        public int BatchSize
+        public int? BatchSize
         {
             get { return _batchSize; }
             set { _batchSize = value; }

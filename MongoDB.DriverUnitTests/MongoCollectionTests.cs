@@ -2563,7 +2563,7 @@ namespace MongoDB.DriverUnitTests
                         ids.Add(i);
                     }
 
-                    var enumerators = _collection.ParallelScan(new ParallelScanArgs
+                    var enumerators = _collection.ParallelScanAs(typeof(BsonDocument), new ParallelScanArgs
                     {
                         BatchSize = 100,
                         NumberOfCursors = numberOfCursors
@@ -2573,7 +2573,7 @@ namespace MongoDB.DriverUnitTests
                     {
                         while (enumerator.MoveNext())
                         {
-                            var document = enumerator.Current;
+                            var document = (BsonDocument)enumerator.Current;
                             var id = document["_id"].ToInt32();
                             Assert.AreEqual(true, ids.Remove(id));
                         }

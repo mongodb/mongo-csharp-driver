@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Operations
     internal class ParallelScanOperation<TDocument>
     {
         // private fields
-        private readonly int _batchSize;
+        private readonly int? _batchSize;
         private readonly string _collectionName;
         private readonly string _databaseName;
         private readonly int _numberOfCursors;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Operations
             string databaseName,
             string collectionName,
             int numberOfCursors,
-            int batchSize,
+            int? batchSize,
             IBsonSerializer serializer,
             IBsonSerializationOptions serializationOptions,
             ReadPreference readPreference,
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Operations
                     collectionFullName,
                     firstBatch,
                     cursorId,
-                    _batchSize,
+                    _batchSize ?? 0,
                     0, // limit
                     _readerSettings,
                     _serializer,
