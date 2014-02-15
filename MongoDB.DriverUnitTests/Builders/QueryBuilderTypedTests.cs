@@ -881,6 +881,38 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestSizeExpressionList_GreaterThan()
+        {
+            var query = Query<A>.Where(a => a.L.Count > 20);
+            var expected = "{ \"l.20\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionList_GreaterThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.L.Count >= 20);
+            var expected = "{ \"l.19\" : { \"$exists\" : true } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionList_LessThan()
+        {
+            var query = Query<A>.Where(a => a.L.Count < 20);
+            var expected = "{ \"l.19\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
+        public void TestSizeExpressionList_LessThanOrEqual()
+        {
+            var query = Query<A>.Where(a => a.L.Count <= 20);
+            var expected = "{ \"l.20\" : { \"$exists\" : false } }";
+            Assert.AreEqual(expected, query.ToJson());
+        }
+
+        [Test]
         public void TestSizeExpressionList_Not()
         {
             var query = Query<A>.Where(a => a.L.Count != 20);
