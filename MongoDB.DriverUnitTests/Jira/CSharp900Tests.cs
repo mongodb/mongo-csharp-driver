@@ -25,7 +25,7 @@ using NUnit.Framework;
 namespace MongoDB.DriverUnitTests.Linq
 {
     [TestFixture]
-    public class DowncastTests
+    public class CSharp900Tests
     {
         private class B
         {
