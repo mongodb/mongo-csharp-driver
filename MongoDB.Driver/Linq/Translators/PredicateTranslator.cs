@@ -355,11 +355,11 @@ namespace MongoDB.Driver.Linq
                         }
                     }
                 }
-				else
-				{
-					//Allows a cast, which would be required for compilation, such as (float){object} >= 25f to be built as Query.GTE({object}, 25)
-					serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
-				}
+                else
+                {
+                    //Allows a cast, which would be required for compilation, such as (float){object} >= 25f to be built as Query.GTE({object}, 25)
+                    serializationInfo = _serializationInfoHelper.GetSerializationInfo(unaryExpression.Operand);
+                }
             }
             else
             {
