@@ -2724,7 +2724,9 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetStatsUsePowerOf2Sizes()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 2))
+            // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
+            if ((_server.BuildInfo.Version >= new Version(2, 2) && _server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
+                || _server.BuildInfo.Version >= new Version(2, 4))
             {
                 _collection.Drop();
                 _database.CreateCollection(_collection.Name); // collMod command only works if collection exists
