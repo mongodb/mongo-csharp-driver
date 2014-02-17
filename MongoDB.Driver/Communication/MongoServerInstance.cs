@@ -628,20 +628,11 @@ namespace MongoDB.Driver
                 isMasterResult = RunCommandAs<IsMasterResult>(connection, "admin", isMasterCommand);
 
                 MongoServerBuildInfo buildInfo;
-                FeatureSet featureSet;
                 try
                 {
                     var buildInfoCommand = new CommandDocument("buildinfo", 1);
                     var buildInfoResult = RunCommandAs<CommandResult>(connection, "admin", buildInfoCommand);
                     buildInfo = MongoServerBuildInfo.FromCommandResult(buildInfoResult);
-                    var featureContext = new FeatureContext
-                    {
-                        BuildInfo = buildInfo,
-                        Connection = connection,
-                        IsMasterResult = isMasterResult,
-                        ServerInstance = this
-                    };
-                    featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);
                 }
                 catch (MongoCommandException ex)
                 {
@@ -651,7 +642,6 @@ namespace MongoDB.Driver
                         throw;
                     }
                     buildInfo = null;
-                    featureSet = null;
                 }
 
                 ReplicaSetInformation replicaSetInformation = null;
@@ -666,6 +656,15 @@ namespace MongoDB.Driver
                 {
                     instanceType = MongoServerInstanceType.ShardRouter;
                 }
+
+                var featureContext = new FeatureContext
+                {
+                    BuildInfo = buildInfo,
+                    Connection = connection,
+                    IsMasterResult = isMasterResult,
+                    ServerInstanceType = instanceType
+                };
+                var featureSet = new FeatureSetDetector().DetectFeatureSet(featureContext);
 
                 var newServerInfo = new ServerInformation
                 {

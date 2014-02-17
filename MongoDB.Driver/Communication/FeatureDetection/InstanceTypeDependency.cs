@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         // public methods
         public bool IsMet(FeatureContext context)
         {
-            return context.ServerInstance.InstanceType == _instanceType;
+            return context.ServerInstanceType == _instanceType;
         }
     }
 }

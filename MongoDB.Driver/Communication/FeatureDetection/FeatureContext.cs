@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
         private MongoServerBuildInfo _buildInfo;
         private MongoConnection _connection;
         private IsMasterResult _isMasterResult;
-        private MongoServerInstance _serverInstance;
+        private MongoServerInstanceType _serverInstanceType;
 
         // public methods
         public MongoServerBuildInfo BuildInfo
@@ -44,10 +44,10 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             set { _isMasterResult = value; }
         }
 
-        public MongoServerInstance ServerInstance
+        public MongoServerInstanceType ServerInstanceType
         {
-            get { return _serverInstance; }
-            set { _serverInstance = value; }
+            get { return _serverInstanceType; }
+            set { _serverInstanceType = value; }
         }
     }
 }
