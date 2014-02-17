@@ -228,6 +228,7 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        [Explicit]
         public void TestReconnect()
         {
             _server.Reconnect();
