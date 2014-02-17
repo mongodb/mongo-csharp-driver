@@ -106,7 +106,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestEvalWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime))
+            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
