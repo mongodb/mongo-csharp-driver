@@ -25,6 +25,7 @@ http://jira.mongodb.org/browse/CSHARP
 * Bit Diffusion Limited     code@bitdiff.com
 * Alex Brown                https://github.com/alexjamesbrown
 * Justin Dearing            zippy1981@gmail.com
+* Dan DeBilt                dan.debilt@gmail.com
 * Teun Duynstee             teun@duynstee.com
 * Einar Egilsson            https://github.com/einaregilsson
 * Ken Egozi                 mail@kenegozi.com
@@ -36,7 +37,7 @@ http://jira.mongodb.org/browse/CSHARP
 * Richard Kreuter           richard@10gen.com
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
-* Alex Lyman				mail.alex.lyman@gmail.com
+* Alex Lyman                mail.alex.lyman@gmail.com
 * Alexander Nagy            optimiz3@gmail.com
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
