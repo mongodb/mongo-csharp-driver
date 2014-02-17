@@ -23,8 +23,10 @@ http://jira.mongodb.org/browse/CSHARP
 
 ### Contributors:
 * Bit Diffusion Limited     code@bitdiff.com
+* Alex Brown                https://github.com/alexjamesbrown
 * Justin Dearing            zippy1981@gmail.com
 * Teun Duynstee             teun@duynstee.com
+* Einar Egilsson            https://github.com/einaregilsson
 * Ken Egozi                 mail@kenegozi.com
 * Daniel Goldman            daniel@stackwave.com
 * Simon Green               simon@captaincodeman.com
@@ -38,9 +40,8 @@ http://jira.mongodb.org/browse/CSHARP
 * Alexander Nagy            optimiz3@gmail.com
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
-* Testo                     test1@doramail.com   
-* Alex Brown                https://github.com/alexjamesbrown
+* Pete Smith                roysvork@gmail.com
 * staywellandy              https://github.com/staywellandy
-* Einar Egilsson            https://github.com/einaregilsson
+* Testo                     test1@doramail.com   
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
