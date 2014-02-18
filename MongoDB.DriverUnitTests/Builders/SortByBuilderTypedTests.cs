@@ -116,7 +116,6 @@ namespace MongoDB.DriverUnitTests.Builders
             var primary = server.Primary;
             if (primary.Supports(FeatureId.TextSearchQuery))
             {
-                Configuration.EnableTextSearch(primary);
                 using (server.RequestStart(null, primary))
                 {
                     var collection = Configuration.TestDatabase.GetCollection<Test>("test_meta_text_sort");

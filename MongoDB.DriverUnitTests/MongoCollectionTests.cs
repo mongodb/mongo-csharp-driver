@@ -2812,7 +2812,6 @@ namespace MongoDB.DriverUnitTests
             {
                 if (_primary.InstanceType != MongoServerInstanceType.ShardRouter)
                 {
-                    Configuration.EnableTextSearch(_primary);
                     using (_server.RequestStart(null, _primary))
                     {
                         _collection.Drop();

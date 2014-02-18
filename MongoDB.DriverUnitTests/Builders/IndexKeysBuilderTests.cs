@@ -211,7 +211,6 @@ namespace MongoDB.DriverUnitTests.Builders
             {
                 if (_primary.Supports(FeatureId.TextSearchCommand))
                 {
-                    Configuration.EnableTextSearch(_primary);
                     using (_server.RequestStart(null, _primary))
                     {
                         var collection = _database.GetCollection<BsonDocument>("test_text");

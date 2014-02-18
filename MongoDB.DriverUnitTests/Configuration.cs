@@ -102,23 +102,6 @@ namespace MongoDB.DriverUnitTests
 
         // public static methods
         /// <summary>
-        /// Enable full text search on a specified server instance.
-        /// </summary>
-        /// <param name="serverInstance">The server instance to enable text search on.</param>
-        public static void EnableTextSearch(MongoServerInstance serverInstance)
-        {
-            using (__testServer.RequestStart(null, serverInstance))
-            {
-                var enableTextSearchCommand = new CommandDocument
-                {
-                    { "setParameter", 1 },
-                    { "textSearchEnabled", true }
-                };
-                __testServer.GetDatabase("admin").RunCommand(enableTextSearchCommand);
-            }
-        }
-
-        /// <summary>
         /// Gets the test collection with a default document type of T.
         /// </summary>
         /// <typeparam name="T">The default document type.</typeparam>

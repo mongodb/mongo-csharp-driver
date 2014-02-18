@@ -786,7 +786,6 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             if (_primary.Supports(FeatureId.TextSearchQuery))
             {
-                Configuration.EnableTextSearch(_primary);
                 using (_server.RequestStart(null, _primary))
                 {
                     var collection = _database.GetCollection<BsonDocument>("test_text");
@@ -815,7 +814,6 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             if (_primary.Supports(FeatureId.TextSearchQuery))
             {
-                Configuration.EnableTextSearch(_primary);
                 using (_server.RequestStart(null, _primary))
                 {
                     var collection = _database.GetCollection<BsonDocument>("test_text_spanish");

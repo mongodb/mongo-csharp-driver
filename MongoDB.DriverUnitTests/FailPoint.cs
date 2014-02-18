@@ -59,7 +59,7 @@ namespace MongoDB.DriverUnitTests
         // public methods
         public bool IsSupported()
         {
-            return AreFailPointsSupported() && AreTestCommandsEnabled() && IsThisFailPointSupported();
+            return AreFailPointsSupported() && IsThisFailPointSupported();
         }
 
         public void Dispose()
@@ -107,41 +107,6 @@ namespace MongoDB.DriverUnitTests
         private bool AreFailPointsSupported()
         {
             return _serverInstance.BuildInfo.Version >= new Version(2, 3, 0);
-        }
-
-        private bool AreTestCommandsEnabled()
-        {
-            var parameterValue = GetEnableTestCommandsParameterValue();
-
-            // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
-            if (parameterValue.IsString)
-            {
-                var s = parameterValue.AsString;
-                if (s == "0" || s.Equals("false", StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-
-            return parameterValue.ToBoolean();
-        }
-
-        private BsonValue GetEnableTestCommandsParameterValue()
-        {
-            // allow environment variable to provide value in case authentication prevents use of getParameter command
-            var environmentVariableValue = Environment.GetEnvironmentVariable("mongod.enableTestCommands");
-            if (environmentVariableValue != null)
-            {
-                return environmentVariableValue;
-            }
-
-            var command = new CommandDocument
-            {
-                { "getParameter", 1 },
-                { "enableTestCommands", 1 }
-            };
-            var result = _adminDatabase.RunCommand(command);
-            return result.Response["enableTestCommands"];
         }
 
         private bool IsThisFailPointSupported()
