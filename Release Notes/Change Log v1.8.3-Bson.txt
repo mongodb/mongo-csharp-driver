@@ -1,0 +1,5 @@
+BSON library changes from 1.8.2 to 1.8.3
+
+NamedIdMemberConvention.cs
+    Make sure Id is declared in this class (and not just overridden) before mapping it
+

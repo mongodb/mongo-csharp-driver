@@ -1,0 +1,29 @@
+C#/.NET driver changes from 1.8.2 to 1.8.3
+
+MongoConnection.cs
+    When an error occurs don't set server instance state to Unknown (instead call RefreshStateAsSoonAsPossible)
+
+MongoServerInstance.cs
+    Added RefreshStateAsSoonAsPossible method
+
+GeoJson2DCoordinatesSerializer.cs
+GeoJson2DGeographicCoordinatesSerializer.cs
+GeoJson2DProjectedCoordinatesSerializer.cs
+GeoJson3DCoordinatesSerializer.cs
+GeoJson3DGeographicCoordinatesSerializer.cs
+GeoJson3DProjectedCoordinatesSerializer.cs
+    Deserialize methods now use DoubleSerializer (to handle conversions from other types to double)
+
+InsertOperation.cs
+    Container parameter in call to GenerateId is now a MongoCollection instance (like it used to be)
+
+QueryOperation.cs
+    Execute was sometimes fetching one more batch of results than necessary when limit was used
+    Exceptions thrown by KillCursor should be ignored
+
+MongoCollection.cs
+    Pass MongoCollection to new container parameter of InsertOperation (to be passed to GenerateId)
+    Fixed Save to correctly handle _id value for all possible serializers
+
+MongoServerState.cs
+    Remove Unknown enum value
