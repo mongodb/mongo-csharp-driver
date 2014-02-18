@@ -70,6 +70,21 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestCopyDatabase()
+        {
+            if (_isMasterSlavePair) return;
+            const string copied = "copied";
+            _server.DropDatabase(copied);
+
+            _collection.Insert(new BsonDocument());
+            Assert.IsTrue(_server.DatabaseExists(_database.Name));
+
+            _server.CopyDatabase(_database.Name, copied, null);
+            Assert.IsTrue(_server.DatabaseExists(_database.Name));
+            Assert.IsTrue(_server.DatabaseExists(copied));
+        }
+
+        [Test]
         public void TestCreateMongoServerSettings()
         {
 #pragma warning disable 618
