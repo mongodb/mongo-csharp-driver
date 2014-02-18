@@ -61,6 +61,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release Notes", "Release No
 		Release Notes\Release Notes v1.8.2.md = Release Notes\Release Notes v1.8.2.md
 		Release Notes\Release Notes v1.8.3.md = Release Notes\Release Notes v1.8.3.md
 		Release Notes\Release Notes v1.8.md = Release Notes\Release Notes v1.8.md
+		Release Notes\Release Notes v1.9.md = Release Notes\Release Notes v1.9.md
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "MongoDB.DriverUnitTestsVB", "MongoDB.DriverUnitTestsVB\MongoDB.DriverUnitTestsVB.vbproj", "{19ED9AD5-A2CA-4F1B-9BE4-96450382F404}"
