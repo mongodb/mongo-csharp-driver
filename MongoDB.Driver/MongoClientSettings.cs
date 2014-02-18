@@ -57,6 +57,8 @@ namespace MongoDB.Driver
         private int _frozenHashCode;
         private string _frozenStringRepresentation;
 
+        private bool _dontUseSecureString;
+
         // constructors
         /// <summary>
         /// Creates a new instance of MongoClientSettings. Usually you would use a connection string instead.
@@ -112,6 +114,12 @@ namespace MongoDB.Driver
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _connectTimeout = value;
             }
+        }
+
+        public bool DontUseSecureString
+        {
+            get { return _dontUseSecureString; }
+            set { _dontUseSecureString = value; }
         }
 
         /// <summary>
@@ -449,13 +457,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="builder">The connection string builder.</param>
         /// <returns>A MongoClientSettings.</returns>
-        public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder)
+        public static MongoClientSettings FromConnectionStringBuilder(MongoConnectionStringBuilder builder, bool dontUseSecureString = false)
         {
             var credential = MongoCredential.FromComponents(
                 builder.AuthenticationMechanism,
                 builder.AuthenticationSource ?? builder.DatabaseName,
                 builder.Username,
-                builder.Password);
+                builder.Password,
+                dontUseSecureString);
 
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = builder.ConnectionMode;
@@ -495,13 +504,14 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="url">The MongoURL.</param>
         /// <returns>A MongoClientSettings.</returns>
-        public static MongoClientSettings FromUrl(MongoUrl url)
+        public static MongoClientSettings FromUrl(MongoUrl url, bool dontUseSecureString = false)
         {
             var credential = MongoCredential.FromComponents(
                 url.AuthenticationMechanism,
                 url.AuthenticationSource ?? url.DatabaseName,
                 url.Username,
-                url.Password);
+                url.Password,
+                dontUseSecureString);
 
             var clientSettings = new MongoClientSettings();
             clientSettings.ConnectionMode = url.ConnectionMode;

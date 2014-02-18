@@ -27,7 +27,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
-        public MongoClient()
+        public MongoClient(bool dontUseSecureString = false)
             : this(new MongoClientSettings())
         {
         }
@@ -45,8 +45,8 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
         /// <param name="url">The URL.</param>
-        public MongoClient(MongoUrl url)
-            : this(MongoClientSettings.FromUrl(url))
+        public MongoClient(MongoUrl url, bool dontUseSecureString = false)
+            : this(MongoClientSettings.FromUrl(url, dontUseSecureString))
         {
         }
 
@@ -54,11 +54,11 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the MongoClient class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public MongoClient(string connectionString)
-            : this(ParseConnectionString(connectionString))
+        public MongoClient(string connectionString, bool dontUseSecureString = false)
+            : this(ParseConnectionString(connectionString, dontUseSecureString))
         {
         }
-
+        
         // public properties
         /// <summary>
         /// Gets the client settings.
@@ -69,17 +69,17 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-        private static MongoClientSettings ParseConnectionString(string connectionString)
+        private static MongoClientSettings ParseConnectionString(string connectionString, bool dontUseSecureString)
         {
             if (connectionString.StartsWith("mongodb://"))
             {
                 var url = new MongoUrl(connectionString);
-                return MongoClientSettings.FromUrl(url);
+                return MongoClientSettings.FromUrl(url, dontUseSecureString);
             }
             else
             {
                 var builder = new MongoConnectionStringBuilder(connectionString);
-                return MongoClientSettings.FromConnectionStringBuilder(builder);
+                return MongoClientSettings.FromConnectionStringBuilder(builder, dontUseSecureString);
             }
         }
 

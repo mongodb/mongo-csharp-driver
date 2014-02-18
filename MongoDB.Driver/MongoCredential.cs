@@ -342,9 +342,9 @@ namespace MongoDB.Driver
         }
 
         // internal static methods
-        internal static MongoCredential FromComponents(string mechanism, string source, string username, string password)
+        internal static MongoCredential FromComponents(string mechanism, string source, string username, string password, bool dontUseSecureString)
         {
-            var evidence = password == null ? (MongoIdentityEvidence)new ExternalEvidence() : new PasswordEvidence(password);
+            var evidence = password == null ? (MongoIdentityEvidence)new ExternalEvidence() : new PasswordEvidence(password, dontUseSecureString);
             return FromComponents(mechanism, source, username, evidence);
         }
 
