@@ -480,7 +480,7 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             _collection.DropAllIndexes(); // doesn't drop the index on _id
 
-            var indexes = _collection.GetIndexes();
+            var indexes = _collection.GetIndexes().ToList();
             Assert.AreEqual(1, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
@@ -494,7 +494,7 @@ namespace MongoDB.DriverUnitTests
             _collection.DropAllIndexes();
             _collection.CreateIndex("x");
 
-            indexes = _collection.GetIndexes();
+            indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
@@ -516,7 +516,7 @@ namespace MongoDB.DriverUnitTests
             _collection.DropAllIndexes();
             var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
             _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
-            indexes = _collection.GetIndexes();
+            indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
             Assert.AreEqual(false, indexes[0].IsBackground);
