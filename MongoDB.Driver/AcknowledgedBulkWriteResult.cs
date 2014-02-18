@@ -29,8 +29,8 @@ namespace MongoDB.Driver
         // private fields
         private readonly long _deletedCount;
         private readonly long _insertedCount;
+        private readonly long _matchedCount;
         private readonly long _modifiedCount;
-        private readonly long _updatedCount;
         private readonly ReadOnlyCollection<BulkWriteUpsert> _upserts;
 
         // constructors
@@ -38,26 +38,26 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="AcknowledgedBulkWriteResult" /> class.
         /// </summary>
         /// <param name="requestCount">The request count.</param>
+        /// <param name="matchedCount">The matched count.</param>
         /// <param name="deletedCount">The deleted count.</param>
         /// <param name="insertedCount">The inserted count.</param>
         /// <param name="modifiedCount">The modified count.</param>
-        /// <param name="updatedCount">The updated count.</param>
         /// <param name="processedRequests">The processed requests.</param>
         /// <param name="upserts">The upserts.</param>
         public AcknowledgedBulkWriteResult(
             int requestCount,
+            long matchedCount,
             long deletedCount,
             long insertedCount,
             long modifiedCount,
-            long updatedCount,
             IEnumerable<WriteRequest> processedRequests,
             IEnumerable<BulkWriteUpsert> upserts)
             : base(requestCount, processedRequests)
         {
+            _matchedCount = matchedCount;
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
-            _updatedCount = updatedCount;
             _upserts = new ReadOnlyCollection<BulkWriteUpsert>(upserts.ToList());
         }
 
@@ -85,8 +85,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the number of documents that were matched.
+        /// </summary>
+        /// <value>
+        /// The number of document that were matched.
+        /// </value>
+        public override long MatchedCount
+        {
+            get { return _matchedCount; }
+        }
+
+        /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal UpdatedCount.
+        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.
@@ -105,17 +116,6 @@ namespace MongoDB.Driver
         public override bool IsAcknowledged
         {
             get { return true; }
-        }
-
-        /// <summary>
-        /// Gets the number of documents that were updated.
-        /// </summary>
-        /// <value>
-        /// The number of document that were updated.
-        /// </value>
-        public override long UpdatedCount
-        {
-            get { return _updatedCount; }
         }
 
         /// <summary>

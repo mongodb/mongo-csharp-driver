@@ -37,11 +37,11 @@ namespace MongoDB.Driver.Operations
         private readonly long _deletedCount;
         private readonly IndexMap _indexMap;
         private readonly long _insertedCount;
+        private readonly long _matchedCount;
         private readonly long _modifiedCount;
         private readonly Batch<WriteRequest> _nextBatch;
         private readonly ReadOnlyCollection<WriteRequest> _processedRequests;
         private readonly ReadOnlyCollection<WriteRequest> _unprocessedRequests;
-        private readonly long _updatedCount;
         private readonly ReadOnlyCollection<BulkWriteUpsert> _upserts;
         private readonly WriteConcernError _writeConcernError;
         private readonly ReadOnlyCollection<BulkWriteError> _writeErrors;
@@ -51,10 +51,10 @@ namespace MongoDB.Driver.Operations
             int batchCount,
             IEnumerable<WriteRequest> processedRequests,
             IEnumerable<WriteRequest> unprocessedRequests,
+            long matchedCount,
             long deletedCount,
             long insertedCount,
             long modifiedCount,
-            long updatedCount,
             IEnumerable<BulkWriteUpsert> upserts,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
@@ -62,10 +62,10 @@ namespace MongoDB.Driver.Operations
             Batch<WriteRequest> nextBatch)
         {
             _batchCount = batchCount;
+            _matchedCount = matchedCount;
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
-            _updatedCount = updatedCount;
             _indexMap = indexMap;
             _nextBatch = nextBatch;
             _processedRequests = ToReadOnlyCollection(processedRequests);
@@ -106,6 +106,11 @@ namespace MongoDB.Driver.Operations
             get { return _insertedCount; }
         }
 
+        public long MatchedCount
+        {
+            get { return _matchedCount; }
+        }
+
         public long ModifiedCount
         {
             get { return _modifiedCount; }
@@ -124,11 +129,6 @@ namespace MongoDB.Driver.Operations
         public ReadOnlyCollection<WriteRequest> UnprocessedRequests
         {
             get { return _unprocessedRequests; }
-        }
-
-        public long UpdatedCount
-        {
-            get { return _updatedCount; }
         }
 
         public ReadOnlyCollection<BulkWriteUpsert> Upserts
@@ -152,17 +152,17 @@ namespace MongoDB.Driver.Operations
             BulkWriteException exception,
             IndexMap indexMap)
         {
+            var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
-            var updatedCount = 0L;
             var upserts = Enumerable.Empty<BulkWriteUpsert>();
             if (result.IsAcknowledged)
             {
+                matchedCount = result.MatchedCount;
                 deletedCount = result.DeletedCount;
                 insertedCount = result.InsertedCount;
                 modifiedCount = result.ModifiedCount;
-                updatedCount = result.UpdatedCount;
                 upserts = result.Upserts;
             }
 
@@ -180,10 +180,10 @@ namespace MongoDB.Driver.Operations
                 result.RequestCount,
                 result.ProcessedRequests,
                 unprocessedRequests,
+                matchedCount,
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                updatedCount,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -205,10 +205,10 @@ namespace MongoDB.Driver.Operations
             var upserts = CreateUpserts(writeCommandResponse);
 
             var n = writeCommandResponse.GetValue("n", 0).ToInt64();
+            var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
-            var updatedCount = 0L;
             switch (requests.First().RequestType)
             {
                 case WriteRequestType.Delete:
@@ -218,8 +218,8 @@ namespace MongoDB.Driver.Operations
                     insertedCount = n;
                     break;
                 case WriteRequestType.Update:
+                    matchedCount = n - upserts.Count();
                     modifiedCount = writeCommandResponse.GetValue("nModified", 0).ToInt64();
-                    updatedCount = n - upserts.Count();
                     break;
             }
 
@@ -227,10 +227,10 @@ namespace MongoDB.Driver.Operations
                 requests.Count,
                 processedRequests,
                 unprocessedRequests,
+                matchedCount,
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                updatedCount,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -271,10 +271,10 @@ namespace MongoDB.Driver.Operations
                 documentsAffected = 1; // note: DocumentsAffected is 0 for inserts
             }
 
+            var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
-            var updatedCount = 0L;
             switch (request.RequestType)
             {
                 case WriteRequestType.Delete:
@@ -284,8 +284,8 @@ namespace MongoDB.Driver.Operations
                     insertedCount = documentsAffected;
                     break;
                 case WriteRequestType.Update:
+                    matchedCount = documentsAffected - upserts.Count();
                     modifiedCount = documentsAffected - upserts.Count();
-                    updatedCount = documentsAffected - upserts.Count();
                     break;
             }
 
@@ -293,10 +293,10 @@ namespace MongoDB.Driver.Operations
                 1, // batchCount
                 processedRequests,
                 unprocessedRequests,
+                matchedCount,
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                updatedCount,
                 upserts,
                 writeErrors,
                 writeConcernError,

@@ -45,7 +45,7 @@ namespace MongoDB.DriverUnitTests.Operations
             Assert.AreEqual(deletedCount1 + deletedCount2, result.DeletedCount);
             Assert.AreEqual(0, result.InsertedCount);
             Assert.AreEqual(0, result.ModifiedCount);
-            Assert.AreEqual(0, result.UpdatedCount);
+            Assert.AreEqual(0, result.MatchedCount);
         }
 
         [Test]
@@ -61,7 +61,23 @@ namespace MongoDB.DriverUnitTests.Operations
             Assert.AreEqual(insertedCount1 + insertedCount2, result.InsertedCount);
             Assert.AreEqual(0, result.DeletedCount);
             Assert.AreEqual(0, result.ModifiedCount);
-            Assert.AreEqual(0, result.UpdatedCount);
+            Assert.AreEqual(0, result.MatchedCount);
+        }
+
+        [Test]
+        [TestCase(0, 0)]
+        [TestCase(1, 0)]
+        [TestCase(0, 2)]
+        [TestCase(3, 4)]
+        public void TestCombineMatchedCount(long matchedCount1, long matchedCount2)
+        {
+            var result1 = CreateBatchResult(matchedCount: matchedCount1);
+            var result2 = CreateBatchResult(matchedCount: matchedCount2);
+            var result = CombineResults(result1, result2);
+            Assert.AreEqual(matchedCount1 + matchedCount2, result.MatchedCount);
+            Assert.AreEqual(0, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
         }
 
         [Test]
@@ -77,7 +93,7 @@ namespace MongoDB.DriverUnitTests.Operations
             Assert.AreEqual(modifiedCount1 + modifiedCount2, result.ModifiedCount);
             Assert.AreEqual(0, result.DeletedCount);
             Assert.AreEqual(0, result.InsertedCount);
-            Assert.AreEqual(0, result.UpdatedCount);
+            Assert.AreEqual(0, result.MatchedCount);
         }
 
         [Test]
@@ -94,22 +110,6 @@ namespace MongoDB.DriverUnitTests.Operations
             var result = CombineResults(result1, result2);
             var expectedProcessedRequests = processedRequests1.Concat(processedRequests2);
             Assert.IsTrue(expectedProcessedRequests.SequenceEqual(result.ProcessedRequests));
-        }
-
-        [Test]
-        [TestCase(0, 0)]
-        [TestCase(1, 0)]
-        [TestCase(0, 2)]
-        [TestCase(3, 4)]
-        public void TestCombineUpdatedCount(long updatedCount1, long updatedCount2)
-        {
-            var result1 = CreateBatchResult(updatedCount: updatedCount1);
-            var result2 = CreateBatchResult(updatedCount: updatedCount2);
-            var result = CombineResults(result1, result2);
-            Assert.AreEqual(updatedCount1 + updatedCount2, result.UpdatedCount);
-            Assert.AreEqual(0, result.DeletedCount);
-            Assert.AreEqual(0, result.InsertedCount);
-            Assert.AreEqual(0, result.ModifiedCount);
         }
 
         [Test]
@@ -137,10 +137,10 @@ namespace MongoDB.DriverUnitTests.Operations
         private BulkWriteBatchResult CreateBatchResult(
             int? batchCount = null,
             int? requestCount = null,
+            long? matchedCount = null,
             long? deletedCount = null,
             long? insertedCount = null,
             long? modifiedCount = null,
-            long? updatedCount = null,
             IEnumerable<WriteRequest> processedRequests = null,
             IEnumerable<WriteRequest> unprocessedRequests = null,
             IEnumerable<BulkWriteUpsert> upserts = null,
@@ -153,10 +153,10 @@ namespace MongoDB.DriverUnitTests.Operations
                 batchCount ?? 1,
                 processedRequests ?? Enumerable.Empty<WriteRequest>(),
                 unprocessedRequests ?? Enumerable.Empty<WriteRequest>(),
+                matchedCount ?? 0,
                 deletedCount ?? 0,
                 insertedCount ?? 0,
                 modifiedCount ?? 0,
-                updatedCount ?? 0,
                 upserts ?? Enumerable.Empty<BulkWriteUpsert>(),
                 writeErrors ?? Enumerable.Empty<BulkWriteError>(),
                 writeConcernError,

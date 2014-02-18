@@ -65,8 +65,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the number of documents that were matched.
+        /// </summary>
+        /// <value>
+        /// The number of document that were matched
+        /// .
+        /// </value>
+        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the MatchedCount property.</exception>
+        public override long MatchedCount
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the MatchedCount property."); }
+        }
+
+        /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal UpdatedCount.
+        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.
@@ -86,18 +99,6 @@ namespace MongoDB.Driver
         public override bool IsAcknowledged
         {
             get { return false; }
-        }
-
-        /// <summary>
-        /// Gets the number of documents that were updated.
-        /// </summary>
-        /// <value>
-        /// The number of document that were updated.
-        /// </value>
-        /// <exception cref="System.NotSupportedException">Only acknowledged writes support the UpdatedCount property.</exception>
-        public override long UpdatedCount
-        {
-            get { throw new NotSupportedException("Only acknowledged writes support the UpdatedCount property."); }
         }
 
         /// <summary>

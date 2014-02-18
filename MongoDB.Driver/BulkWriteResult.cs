@@ -70,8 +70,16 @@ namespace MongoDB.Driver
         public abstract bool IsAcknowledged { get; }
 
         /// <summary>
+        /// Gets the number of documents that were matched.
+        /// </summary>
+        /// <value>
+        /// The number of document that were matched.
+        /// </value>
+        public abstract long MatchedCount { get; }
+
+        /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal UpdatedCount.
+        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.
@@ -99,14 +107,6 @@ namespace MongoDB.Driver
         {
             get { return _requestCount; }
         }
-
-        /// <summary>
-        /// Gets the number of documents that were updated.
-        /// </summary>
-        /// <value>
-        /// The number of document that were updated.
-        /// </value>
-        public abstract long UpdatedCount { get; }
 
         /// <summary>
         /// Gets a list with information about each request that resulted in an upsert.

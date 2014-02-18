@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Operations
             // don't include InsertedCount in getLastErrorResponse
             var documentsAffectedCount =
                 bulkWriteResult.DeletedCount +
-                bulkWriteResult.UpdatedCount +
+                bulkWriteResult.MatchedCount +
                 bulkWriteResult.Upserts.Count;
 
             var isUpdate = bulkWriteResult.ProcessedRequests.Any(r => r.RequestType == WriteRequestType.Update);

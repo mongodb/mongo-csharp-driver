@@ -60,6 +60,11 @@ namespace MongoDB.Driver.Operations
             return _batchResults.Sum(r => r.InsertedCount);
         }
 
+        private long CombineMatchedCount()
+        {
+            return _batchResults.Sum(r => r.MatchedCount);
+        }
+
         private long CombineModifiedCount()
         {
             return _batchResults.Sum(r => r.ModifiedCount);
@@ -73,11 +78,6 @@ namespace MongoDB.Driver.Operations
         private IEnumerable<WriteRequest> CombineUnprocessedRequests()
         {
             return _batchResults.SelectMany(r => r.UnprocessedRequests);
-        }
-
-        private long CombineUpdatedCount()
-        {
-            return _batchResults.Sum(r => r.UpdatedCount);
         }
 
         private IEnumerable<BulkWriteUpsert> CombineUpserts()
@@ -117,18 +117,18 @@ namespace MongoDB.Driver.Operations
                     processedRequests);
             }
 
+            var matchedCount = CombineMatchedCount();
             var deletedCount = CombineDeletedCount();
             var insertedCount = CombineInsertedCount();
             var modifiedCount = CombineModifiedCount();
-            var updatedCount = CombineUpdatedCount();
             var upserts = CombineUpserts();
 
             return new AcknowledgedBulkWriteResult(
                 requestCount,
+                matchedCount,
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                updatedCount,
                 processedRequests,
                 upserts);
         }

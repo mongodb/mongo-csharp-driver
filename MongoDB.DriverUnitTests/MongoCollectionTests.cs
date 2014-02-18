@@ -310,7 +310,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(1, result.InsertedCount);
             Assert.AreEqual(1, result.ModifiedCount);
             Assert.AreEqual(3, result.RequestCount);
-            Assert.AreEqual(1, result.UpdatedCount);
+            Assert.AreEqual(1, result.MatchedCount);
         }
 
         [Test]
@@ -338,7 +338,7 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(0, result.InsertedCount);
                 Assert.AreEqual(expectedModifiedCount, result.ModifiedCount);
                 Assert.AreEqual(3, result.RequestCount);
-                Assert.AreEqual(2, result.UpdatedCount);
+                Assert.AreEqual(2, result.MatchedCount);
                 Assert.AreEqual(1, result.Upserts.Count);
                 Assert.AreEqual(0, result.Upserts.First().Index);
                 Assert.AreEqual(id, result.Upserts.First().Id);
