@@ -164,7 +164,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAggregateMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -405,7 +405,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCountWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -573,7 +573,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestDistinctWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -740,7 +740,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindAndModifyWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -880,7 +880,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindAndRemoveWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -1022,7 +1022,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindOneAsGenericWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -1054,7 +1054,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindOneAsWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -1183,7 +1183,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -1668,7 +1668,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoNearWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -1847,7 +1847,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGroupWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -2436,7 +2436,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestMapReduceInlineWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {
@@ -2746,7 +2746,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGetStatsWithMaxTime()
         {
-            if (_primary.Supports(FeatureId.MaxTime) && _primary.InstanceType != MongoServerInstanceType.ShardRouter)
+            if (_primary.Supports(FeatureId.MaxTime))
             {
                 using (var failpoint = new FailPoint(FailPointName.MaxTimeAlwaysTimeout, _server, _primary))
                 {

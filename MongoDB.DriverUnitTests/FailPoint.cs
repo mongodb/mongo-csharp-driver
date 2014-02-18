@@ -59,24 +59,7 @@ namespace MongoDB.DriverUnitTests
         // public methods
         public bool IsSupported()
         {
-            if (_serverInstance.BuildInfo.Version < new Version(2, 3, 0))
-            {
-                return false;
-            }
-
-            var parameterValue = GetParameterValue();
-
-            // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
-            if (parameterValue.IsString)
-            {
-                var s = parameterValue.AsString;
-                if (s == "0" || s.Equals("false", StringComparison.OrdinalIgnoreCase))
-                {
-                    return false;
-                }
-            }
-
-            return parameterValue.ToBoolean();
+            return AreFailPointsSupported() && AreTestCommandsEnabled() && IsThisFailPointSupported();
         }
 
         public void Dispose()
@@ -121,7 +104,29 @@ namespace MongoDB.DriverUnitTests
         }
 
         // private methods
-        private BsonValue GetParameterValue()
+        private bool AreFailPointsSupported()
+        {
+            return _serverInstance.BuildInfo.Version >= new Version(2, 3, 0);
+        }
+
+        private bool AreTestCommandsEnabled()
+        {
+            var parameterValue = GetEnableTestCommandsParameterValue();
+
+            // treat "0" and "false" as false even though JavaScript truthiness would consider them to be true
+            if (parameterValue.IsString)
+            {
+                var s = parameterValue.AsString;
+                if (s == "0" || s.Equals("false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return parameterValue.ToBoolean();
+        }
+
+        private BsonValue GetEnableTestCommandsParameterValue()
         {
             // allow environment variable to provide value in case authentication prevents use of getParameter command
             var environmentVariableValue = Environment.GetEnvironmentVariable("mongod.enableTestCommands");
@@ -137,6 +142,22 @@ namespace MongoDB.DriverUnitTests
             };
             var result = _adminDatabase.RunCommand(command);
             return result.Response["enableTestCommands"];
+        }
+
+        private bool IsThisFailPointSupported()
+        {
+            // some failpoints aren't supported everywhere
+            switch (_name)
+            {
+                case FailPointName.MaxTimeAlwaysTimeout:
+                    if (_serverInstance.InstanceType == MongoServerInstanceType.ShardRouter)
+                    {
+                        return false;
+                    }
+                    break;
+            }
+
+            return true;
         }
 
         private void SetMode(BsonValue mode)
