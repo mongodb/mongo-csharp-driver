@@ -14,7 +14,7 @@ function Get-GitCommit
 function Get-BuildNumber
 {
   try {
-    $version = git describe HEAD^1 --tags --long --match v*
+    $version = git describe HEAD^1 --tags --long --match "v[0-9].[0-9].[0-9].[0-9]*"
     $regex = [regex]"-(\d+)-"
     $match = $regex.Match($version)
     return $match.Groups[1].Value
