@@ -530,6 +530,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="from">The name of an existing database.</param>
         /// <param name="to">The name of the new database.</param>
+        [Obsolete("Will not be implemented because this should not be part of the public API.")]
         public virtual void CopyDatabase(string from, string to)
         {
             throw new NotImplementedException();
