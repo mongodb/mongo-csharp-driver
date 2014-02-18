@@ -256,6 +256,19 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestBulkInsertZeroDocuments()
+        {
+            if (_primary.BuildInfo.Version >= new Version(2, 5, 5))
+            {
+                _collection.Drop();
+                var result = _collection.BulkWrite(
+                    new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged });
+
+                Assert.AreEqual(0, _collection.Count());
+            }
+        }
+
+        [Test]
         public void TestBulkUpdate()
         {
             _collection.Drop();
@@ -2189,6 +2202,17 @@ namespace MongoDB.DriverUnitTests
                 collection.InsertBatch(documents);
 
                 Assert.AreEqual(documentCount, collection.Count());
+            }
+        }
+
+        [Test]
+        public void TestInsertBatchZeroDocuments()
+        {
+            if (_primary.BuildInfo.Version >= new Version(2, 5, 5))
+            {
+                _collection.Drop();
+                _collection.InsertBatch(new BsonDocument[0]);
+                Assert.AreEqual(0, _collection.Count());
             }
         }
 

@@ -209,18 +209,22 @@ namespace MongoDB.Driver.Operations
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
-            switch (requests.First().RequestType)
+            var firstRequest = requests.FirstOrDefault();
+            if (firstRequest != null)
             {
-                case WriteRequestType.Delete:
-                    deletedCount = n;
-                    break;
-                case WriteRequestType.Insert:
-                    insertedCount = n;
-                    break;
-                case WriteRequestType.Update:
-                    matchedCount = n - upserts.Count();
-                    modifiedCount = writeCommandResponse.GetValue("nModified", 0).ToInt64();
-                    break;
+                switch (firstRequest.RequestType)
+                {
+                    case WriteRequestType.Delete:
+                        deletedCount = n;
+                        break;
+                    case WriteRequestType.Insert:
+                        insertedCount = n;
+                        break;
+                    case WriteRequestType.Update:
+                        matchedCount = n - upserts.Count();
+                        modifiedCount = writeCommandResponse.GetValue("nModified", 0).ToInt64();
+                        break;
+                }
             }
 
             return new BulkWriteBatchResult(
