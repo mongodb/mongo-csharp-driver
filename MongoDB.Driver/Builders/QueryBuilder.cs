@@ -79,10 +79,8 @@ namespace MongoDB.Driver.Builders
             var queryDocument = new QueryDocument();
             foreach (var query in queries)
             {
-                if (query == null)
-                {
-                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
-                }
+                if (query == null) continue;
+
                 foreach (var clause in query.ToBsonDocument())
                 {
                     AddAndClause(queryDocument, clause);
@@ -527,10 +525,7 @@ namespace MongoDB.Driver.Builders
             var queryArray = new BsonArray();
             foreach (var query in queries)
             {
-                if (query == null)
-                {
-                    throw new ArgumentOutOfRangeException("queries", "One of the queries is null.");
-                }
+                if (query == null) continue;
 
                 // flatten out nested $or
                 var queryDocument = query.ToBsonDocument();
