@@ -23,9 +23,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ConvertGuids")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("10gen Inc.")]
+[assembly: AssemblyCompany("MongoDB Inc.")]
 [assembly: AssemblyProduct("ConvertGuids")]
-[assembly: AssemblyCopyright("Copyright © 2010-2013 10gen Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -4,7 +4,7 @@
            Name="!(wix.ProductName)" 
            Language="1033" 
            Version="$(var.Version)" 
-           Manufacturer="10gen Inc." 
+           Manufacturer="MongoDB Inc." 
            UpgradeCode="$(var.UpgradeCode)">
     
 		<Package InstallerVersion="200" Compressed="yes" />

@@ -10,9 +10,9 @@ Imports System.Runtime.InteropServices
 
 <Assembly: AssemblyTitle("DriverUnitTestsVB")> 
 <Assembly: AssemblyDescription("")> 
-<Assembly: AssemblyCompany("Microsoft")> 
+<Assembly: AssemblyCompany("MongoDB Inc.")> 
 <Assembly: AssemblyProduct("DriverUnitTestsVB")> 
-<Assembly: AssemblyCopyright("Copyright © 2010-2013 10gen Inc.")> 
+<Assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>

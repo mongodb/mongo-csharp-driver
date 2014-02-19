@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         JavaScript,
         /// <summary>
-        /// Use JavaScript and 10gen data types for some values.
+        /// Use JavaScript and MongoDB data types for some values.
         /// </summary>
         TenGen,
         /// <summary>

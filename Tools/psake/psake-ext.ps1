@@ -42,7 +42,7 @@ param(
   [string]$file = $(throw "file is a required parameter.")
 )
   $commit = Get-GitCommit
-  $asmInfo = "/* Copyright 2010-2013 10gen Inc.
+  $asmInfo = "/* Copyright 2010-2014 MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the ""License"");
 * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 
-[assembly: AssemblyCompany(""10gen Inc."")]
-[assembly: AssemblyCopyright(""Copyright © 2010-2013 10gen Inc."")]
+[assembly: AssemblyCompany(""MongoDB Inc."")]
+[assembly: AssemblyCopyright(""Copyright © 2010-2014 MongoDB Inc."")]
 [assembly: AssemblyVersion(""$version"")]
 [assembly: AssemblyInformationalVersion(""{version: '$version', semver: '$sem_version', commit: '$($commit.Hash)', commit_date: '$($commit.Date)'}"")]
 [assembly: AssemblyFileVersion(""$version"")]

@@ -16,8 +16,8 @@
 using System.Reflection;
 using System.Security;
 
-[assembly: AssemblyCompany("10gen Inc.")]
-[assembly: AssemblyCopyright("Copyright © 2010-2013 10gen Inc.")]
+[assembly: AssemblyCompany("MongoDB Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2010-2014 MongoDB Inc.")]
 [assembly: AssemblyVersion("0.0.0.0")]
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]

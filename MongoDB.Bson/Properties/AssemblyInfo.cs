@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MongoDB.Bson")]
-[assembly: AssemblyDescription("Official 10gen supported C# BSON library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.")]
+[assembly: AssemblyDescription("Official MongoDB supported BSON library. See http://www.mongodb.org/display/DOCS/CSharp+Language+Center for more details.")]
 [assembly: AssemblyProduct("MongoDB.Bson")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM

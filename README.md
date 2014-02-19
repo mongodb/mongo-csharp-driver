@@ -17,9 +17,8 @@ mongodb home: http://www.mongodb.org/
 http://jira.mongodb.org/browse/CSHARP
 
 ### Maintainers:
-* Robert Stam               robert@10gen.com
-* Sridhar Nanjundeswaran    sridhar@10gen.com
-* Craig Wilson              craig.wilson@10gen.com
+* Robert Stam               robert@mongodb.com
+* Craig Wilson              craig.wilson@mongodb.com
 
 ### Contributors:
 * Bit Diffusion Limited     code@bitdiff.com
@@ -39,6 +38,7 @@ http://jira.mongodb.org/browse/CSHARP
 * Dow Liu                   redforks@gmail.com
 * Alex Lyman                mail.alex.lyman@gmail.com
 * Alexander Nagy            optimiz3@gmail.com
+* Sridhar Nanjundeswaran    https://github.com/sridharn
 * Andrew Rondeau            github@andrewrondeau.com
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Pete Smith                roysvork@gmail.com

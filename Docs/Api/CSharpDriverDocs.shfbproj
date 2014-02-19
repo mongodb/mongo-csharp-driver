@@ -44,7 +44,7 @@
       <NamespaceSummaryItem name="MongoDB.Driver.Linq" isDocumented="True">The MongoDB.Driver.Linq namespace contains the LINQ related classes.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <CopyrightText>Copyright &amp;#169%3b 2010-2014 MongoDB Inc.</CopyrightText>
-    <FeedbackEMailAddress>craig.wilson%40mongodb.com,robert%40mongodb.com,sridhar%40mongodb.com</FeedbackEMailAddress>
+    <FeedbackEMailAddress>dotnet-driver@mongodb.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>MongoDB</FeedbackEMailLinkText>
     <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
     <HelpFileVersion>0.0.0.0</HelpFileVersion>
