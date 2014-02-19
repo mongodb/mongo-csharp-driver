@@ -57,6 +57,10 @@ namespace MongoDB.Driver
         /// </summary>
         public void ReplaceOne<TDocument>(TDocument document)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
             new BulkUpdateRequestBuilder(_addRequest, _query, false).ReplaceOne(document);
         }
 
@@ -65,6 +69,10 @@ namespace MongoDB.Driver
         /// </summary>
         public void Update(IMongoUpdate update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException("update");
+            }
             new BulkUpdateRequestBuilder(_addRequest, _query, false).Update(update);
         }
 
@@ -73,6 +81,10 @@ namespace MongoDB.Driver
         /// </summary>
         public void UpdateOne(IMongoUpdate update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException("update");
+            }
             new BulkUpdateRequestBuilder(_addRequest, _query, false).UpdateOne(update);
         }
 

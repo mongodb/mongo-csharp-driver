@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Driver
@@ -38,7 +39,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Executes the bulk operation.
         /// </summary>
-        /// <param name="writeConcern">The write concern.</param>
+        /// <param name="writeConcern">Optional write concern (collection default will be used if null).</param>
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute(WriteConcern writeConcern)
         {
@@ -57,6 +58,10 @@ namespace MongoDB.Driver
         /// <returns>A FluentWriteRequestBuilder.</returns>
         public BulkWriteRequestBuilder Find(IMongoQuery query)
         {
+            if (query == null)
+            {
+                throw new ArgumentNullException("query");
+            }
             return new BulkWriteRequestBuilder(AddRequest, query);
         }
 
@@ -67,6 +72,10 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         public void Insert<TDocument>(TDocument document)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
             var request = new InsertRequest(typeof(TDocument), document);
             AddRequest(request);
         }

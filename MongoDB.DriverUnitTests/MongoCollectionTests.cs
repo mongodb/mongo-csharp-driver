@@ -1231,6 +1231,13 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFluentBulkDeleteMissingQuery()
+        {
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
+        }
+
+        [Test]
         public void TestFluentBulkInsert()
         {
             _collection.Drop();

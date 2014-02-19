@@ -42,6 +42,10 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         public void ReplaceOne<TDocument>(TDocument document)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document");
+            }
             var update = Builders.Update.Replace(document);
             Update(update, false);
         }
@@ -52,6 +56,10 @@ namespace MongoDB.Driver
         /// <param name="update">The update.</param>
         public void Update(IMongoUpdate update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException("update");
+            }
             Update(update, true);
         }
 
@@ -61,6 +69,10 @@ namespace MongoDB.Driver
         /// <param name="update">The update.</param>
         public void UpdateOne(IMongoUpdate update)
         {
+            if (update == null)
+            {
+                throw new ArgumentNullException("update");
+            }
             Update(update, false);
         }
 
