@@ -2673,12 +2673,15 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestRemoveUnacknowledeged()
         {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            var result = _collection.Remove(Query.EQ("x", 1), WriteConcern.Unacknowledged);
+            using (_server.RequestStart(null))
+            {
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
+                var result = _collection.Remove(Query.EQ("x", 1), WriteConcern.Unacknowledged);
 
-            Assert.AreEqual(null, result);
-            Assert.AreEqual(0, _collection.Count());
+                Assert.AreEqual(null, result);
+                Assert.AreEqual(0, _collection.Count());
+            }
         }
 
         [Test]
@@ -2947,15 +2950,18 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestUpdateUnacknowledged()
         {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), WriteConcern.Unacknowledged);
+            using (_server.RequestStart(null))
+            {
+                _collection.Drop();
+                _collection.Insert(new BsonDocument("x", 1));
+                var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), WriteConcern.Unacknowledged);
 
-            Assert.AreEqual(null, result);
+                Assert.AreEqual(null, result);
 
-            var document = _collection.FindOne();
-            Assert.AreEqual(2, document["x"].AsInt32);
-            Assert.AreEqual(1, _collection.Count());
+                var document = _collection.FindOne();
+                Assert.AreEqual(2, document["x"].AsInt32);
+                Assert.AreEqual(1, _collection.Count());
+            }
         }
 
         [Test]
