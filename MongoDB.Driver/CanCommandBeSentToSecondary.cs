@@ -30,7 +30,6 @@ namespace MongoDB.Driver
         private static Func<BsonDocument, bool> __delegate = DefaultImplementation;
         private static HashSet<string> __secondaryOkCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
-            "group",
             "aggregate",
             "collStats",
             "dbStats",
@@ -38,7 +37,9 @@ namespace MongoDB.Driver
             "distinct",
             "geoNear",
             "geoSearch",
-            "geoWalk"
+            "geoWalk",
+            "group",
+            "text"
         };
 
         // public static properties

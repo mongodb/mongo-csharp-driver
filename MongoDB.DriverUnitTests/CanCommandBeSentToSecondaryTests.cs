@@ -39,12 +39,17 @@ namespace MongoDB.DriverUnitTests
             CanCommandBeSentToSecondary.Delegate = CanCommandBeSentToSecondary.DefaultImplementation; // reset Delegate
         }
 
-        [TestCase("group", true)]
         [TestCase("aggregate", true)]
+        [TestCase("collStats", true)]
+        [TestCase("dbStats", true)]
+        [TestCase("count", true)]
+        [TestCase("distinct", true)]
+        [TestCase("geoNear", true)]
         [TestCase("geoSearch", true)]
-        [TestCase("blah", false)]
+        [TestCase("geoWalk", true)]
+        [TestCase("group", true)]
+        [TestCase("text", true)]
         [TestCase("foo", false)]
-        [TestCase("bar", false)]
         [TestCase("mapreduce", false)]
         public void TestCanSendCommandToSecondary(string command, bool expectedResult)
         {
