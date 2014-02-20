@@ -37,12 +37,16 @@ namespace MongoDB.Driver
 
         // public methods
         /// <summary>
-        /// Executes the bulk operation.
+        /// Executes the bulk operation using the default write concern from the collection.
         /// </summary>
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute()
         {
-            return Execute(null);
+            var args = new BulkWriteArgs
+            {
+                IsOrdered = _isOrdered
+            };
+            return _collection.BulkWrite(args, _requests);
         }
 
         /// <summary>
@@ -52,6 +56,10 @@ namespace MongoDB.Driver
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute(WriteConcern writeConcern)
         {
+            if (writeConcern == null)
+            {
+                throw new ArgumentNullException("writeConcern");
+            }
             var args = new BulkWriteArgs
             {
                 IsOrdered = _isOrdered,
