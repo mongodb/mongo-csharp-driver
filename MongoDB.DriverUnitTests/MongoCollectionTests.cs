@@ -1321,6 +1321,22 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(0, _collection.Count());
         }
 
+        [Test]
+        public void TestInitializeOrderedBulkOperationSetsOrderedInArgumentsToTrue()
+        {
+            var bulk = _collection.InitializeOrderedBulkOperation();
+
+            Assert.IsTrue(bulk.Arguments.IsOrdered.Value);
+        }
+
+        [Test]
+        public void TestInitializeUnorderedBulkOperationSetsOrderedInArgumentsToFalse()
+        {
+            var bulk = _collection.InitializeUnorderedBulkOperation();
+
+            Assert.IsFalse(bulk.Arguments.IsOrdered.Value);
+        }
+
 #pragma warning disable 649 // never assigned to
         private class Place
         {
