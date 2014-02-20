@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to wait for an fsync to complete.
+        /// Gets or sets whether the write concern includes { fsync : true }.
         /// </summary>
         public bool? FSync
         {
@@ -172,7 +172,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether to wait for journal commit.
+        /// Gets or sets whether the write concern includes { j : true }.
         /// </summary>
         public bool? Journal
         {
