@@ -138,8 +138,24 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextOptions()
         {
-            var options = IndexOptions<TestClass>.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride(x => x.idioma);
-            string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\" }";
+            var options = IndexOptions<TestClass>.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride(x => x.idioma).SetWeight(x => x.textfield, 2);
+            string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\", \"weights\" : { \"textfield\" : 2 } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestWeight()
+        {
+            var options = IndexOptions<TestClass>.SetWeight(x => x.textfield, 2);
+            string expected = "{ \"weights\" : { \"textfield\" : 2 } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestMultipleWeights()
+        {
+            var options = IndexOptions<TestClass>.SetWeight(x => x.textfield, 2).SetWeight(x => x.idioma, 10);
+            string expected = "{ \"weights\" : { \"textfield\" : 2, \"idioma\" : 10 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
     }

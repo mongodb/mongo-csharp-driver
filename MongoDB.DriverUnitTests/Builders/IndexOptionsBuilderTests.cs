@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -24,15 +23,6 @@ namespace MongoDB.DriverUnitTests.Builders
     [TestFixture]
     public class IndexOptionsBuilderTests
     {
-        private class Test
-        {
-            [BsonElement("a")]
-            public string A { get; set; }
-
-            [BsonElement("b")]
-            public string B { get; set; }
-        }
-
         [Test]
         public void TestBackground()
         {
@@ -54,38 +44,6 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var options = IndexOptions.SetGeoSpatialRange(1.1, 2.2);
             string expected = "{ \"min\" : 1.1, \"max\" : 2.2 }";
-            Assert.AreEqual(expected, options.ToJson());
-        }
-
-        [Test]
-        public void TestWeight()
-        {
-            var options = IndexOptions.SetWeight("a", 2);
-            string expected = "{ \"weights\" : { \"a\" : 2 } }";
-            Assert.AreEqual(expected, options.ToJson());
-        }
-
-        [Test]
-        public void TestWeight_Typed()
-        {
-            var options = IndexOptions<Test>.SetWeight(x => x.A, 2);
-            string expected = "{ \"weights\" : { \"a\" : 2 } }";
-            Assert.AreEqual(expected, options.ToJson());
-        }
-
-        [Test]
-        public void TestMultipleWeights()
-        {
-            var options = IndexOptions.SetWeight("a", 2).SetWeight("b", 10);
-            string expected = "{ \"weights\" : { \"a\" : 2, \"b\" : 10 } }";
-            Assert.AreEqual(expected, options.ToJson());
-        }
-
-        [Test]
-        public void TestMultipleWeights_Typed()
-        {
-            var options = IndexOptions<Test>.SetWeight(x => x.A, 2).SetWeight(x => x.B, 10);
-            string expected = "{ \"weights\" : { \"a\" : 2, \"b\" : 10 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
 
@@ -172,8 +130,24 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestTextOptions()
         {
-            var options = IndexOptions.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride("idioma");
-            string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\" }";
+            var options = IndexOptions.SetName("custom").SetTextDefaultLanguage("spanish").SetTextLanguageOverride("idioma").SetWeight("a", 2);
+            string expected = "{ \"name\" : \"custom\", \"default_language\" : \"spanish\", \"language_override\" : \"idioma\", \"weights\" : { \"a\" : 2 } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestWeight()
+        {
+            var options = IndexOptions.SetWeight("a", 2);
+            string expected = "{ \"weights\" : { \"a\" : 2 } }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
+        public void TestMultipleWeights()
+        {
+            var options = IndexOptions.SetWeight("a", 2).SetWeight("b", 10);
+            string expected = "{ \"weights\" : { \"a\" : 2, \"b\" : 10 } }";
             Assert.AreEqual(expected, options.ToJson());
         }
     }
