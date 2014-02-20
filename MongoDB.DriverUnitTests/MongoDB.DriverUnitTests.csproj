@@ -129,6 +129,7 @@
     <Compile Include="GeoJsonObjectModel\GeoJsonMultiPolygonTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPointTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
+    <Compile Include="Jira\CSharp613Tests.cs" />
     <Compile Include="Jira\CSharp542Tests.cs" />
     <Compile Include="Jira\CSharp653Tests.cs" />
     <Compile Include="Jira\CSharp714Tests.cs" />
