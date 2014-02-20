@@ -25,30 +25,44 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly MongoCollection _collection;
-        private readonly bool _isOrdered;
+        private readonly BulkWriteArgs _arguments = new BulkWriteArgs();
         private readonly List<WriteRequest> _requests = new List<WriteRequest>();
+
+        // public properties
+        /// <summary>
+        /// The arguments for this bulk operation.
+        /// </summary>
+        public BulkWriteArgs Arguments
+        {
+            get { return _arguments; }
+        }
 
         // constructors
         internal BulkWriteOperation(MongoCollection collection, bool isOrdered)
         {
             _collection = collection;
-            _isOrdered = isOrdered;
+            _arguments.IsOrdered = isOrdered;
         }
 
         // public methods
         /// <summary>
         /// Executes the bulk operation.
         /// </summary>
-        /// <param name="writeConcern">Optional write concern (collection default will be used if null).</param>
+        /// <returns>A BulkWriteResult.</returns>
+        public BulkWriteResult Execute()
+        {
+            return _collection.BulkWrite(_arguments, _requests);
+        }
+
+        /// <summary>
+        /// Executes the bulk operation.
+        /// </summary>
+        /// <param name="writeConcern">The write concern for this bulk operation.</param>
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute(WriteConcern writeConcern)
         {
-            var args = new BulkWriteArgs
-            {
-                IsOrdered = _isOrdered,
-                WriteConcern = writeConcern
-            };
-            return _collection.BulkWrite(args, _requests);
+            _arguments.WriteConcern = writeConcern;
+            return _collection.BulkWrite(_arguments, _requests);
         }
 
         /// <summary>
