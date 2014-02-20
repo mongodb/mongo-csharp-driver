@@ -39,7 +39,16 @@ namespace MongoDB.Driver
         /// <summary>
         /// Executes the bulk operation.
         /// </summary>
-        /// <param name="writeConcern">Optional write concern (collection default will be used if null).</param>
+        /// <returns>A BulkWriteResult.</returns>
+        public BulkWriteResult Execute()
+        {
+            return Execute(null);
+        }
+
+        /// <summary>
+        /// Executes the bulk operation.
+        /// </summary>
+        /// <param name="writeConcern">The write concern for this bulk operation.</param>
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute(WriteConcern writeConcern)
         {
