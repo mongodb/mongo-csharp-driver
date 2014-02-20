@@ -185,12 +185,15 @@ namespace MongoDB.Driver
         /// Executes multiple write requests.
         /// </summary>
         /// <param name="args">The args.</param>
-        /// <param name="requests">The write requests.</param>
         /// <returns>
         /// A BulkWriteResult.
         /// </returns>
-        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args, IEnumerable<WriteRequest> requests)
+        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args)
         {
+            if (!args.Requests.Any())
+            {
+                throw new ArgumentException("No requests specified in bulk operation.", "args");
+            }
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
@@ -213,7 +216,7 @@ namespace MongoDB.Driver
                     maxWireDocumentSize,
                     args.IsOrdered ?? true,
                     GetBinaryReaderSettings(),
-                    requests,
+                    args.Requests,
                     writeConcern,
                     GetBinaryWriterSettings());
 
@@ -223,19 +226,6 @@ namespace MongoDB.Driver
             {
                 _server.ReleaseConnection(connection);
             }
-        }
-
-        /// <summary>
-        /// Executes multiple write requests.
-        /// </summary>
-        /// <param name="args">The args.</param>
-        /// <param name="requests">The write requests.</param>
-        /// <returns>
-        /// A BulkWriteResult.
-        /// </returns>
-        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args, params WriteRequest[] requests)
-        {
-            return BulkWrite(args, (IEnumerable<WriteRequest>)requests);
         }
 
         /// <summary>
