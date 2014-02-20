@@ -44,9 +44,10 @@ namespace MongoDB.Driver
         {
             var args = new BulkWriteArgs
             {
-                IsOrdered = _isOrdered
+                IsOrdered = _isOrdered,
+                Requests = _requests
             };
-            return _collection.BulkWrite(args, _requests);
+            return _collection.BulkWrite(args);
         }
 
         /// <summary>
@@ -63,9 +64,10 @@ namespace MongoDB.Driver
             var args = new BulkWriteArgs
             {
                 IsOrdered = _isOrdered,
-                WriteConcern = writeConcern
+                WriteConcern = writeConcern,
+                Requests = _requests
             };
-            return _collection.BulkWrite(args, _requests);
+            return _collection.BulkWrite(args);
         }
 
         /// <summary>
