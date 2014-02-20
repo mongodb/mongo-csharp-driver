@@ -294,10 +294,13 @@ namespace MongoDB.Driver.Builders
         /// </returns>
         public IndexOptionsBuilder SetWeight(string name, int value)
         {
-            if (!_document.Contains("weights"))
-                _document.Add("weights", new BsonDocument());
-
-            _document["weights"][name] = value;
+            BsonValue weights;
+            if (!_document.TryGetValue("weights", out weights))
+            {
+                weights = new BsonDocument();
+                _document.Add("weights", weights);
+            }
+            weights[name] = value;
             return this;
         }
 
