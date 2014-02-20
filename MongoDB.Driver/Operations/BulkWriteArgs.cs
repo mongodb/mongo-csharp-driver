@@ -29,7 +29,7 @@ namespace MongoDB.Driver
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private WriteConcern _writeConcern;
-        private IList<WriteRequest> _requests;
+        private IList<WriteRequest> _requests = new List<WriteRequest>();
 
         // public properties
         /// <summary>
@@ -107,7 +107,7 @@ namespace MongoDB.Driver
         public IList<WriteRequest> Requests
         {
             get { return _requests; }
-            set { _requests = value; }
+            set { _requests = value ?? new List<WriteRequest>(); }
         }
     }
 }
