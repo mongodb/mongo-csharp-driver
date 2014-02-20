@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -28,6 +29,7 @@ namespace MongoDB.Driver
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private WriteConcern _writeConcern;
+        private IList<WriteRequest> _requests;
 
         // public properties
         /// <summary>
@@ -97,6 +99,15 @@ namespace MongoDB.Driver
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the write requests.
+        /// </summary>
+        public IList<WriteRequest> Requests
+        {
+            get { return _requests; }
+            set { _requests = value; }
         }
     }
 }

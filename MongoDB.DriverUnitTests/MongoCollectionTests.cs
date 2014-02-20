@@ -232,11 +232,15 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
-
-            var bulkDeleteResult = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
-                new DeleteRequest(Query.EQ("x", 1)),
-                new DeleteRequest(Query.EQ("x", 3)));
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged,
+                Requests = new WriteRequest[]
+                {
+                    new DeleteRequest(Query.EQ("x", 1)),
+                    new DeleteRequest(Query.EQ("x", 3))
+                }
+            });
 
             Assert.AreEqual(1, _collection.Count());
             Assert.AreEqual(2, _collection.FindOne()["x"].ToInt32());
@@ -246,11 +250,16 @@ namespace MongoDB.DriverUnitTests
         public void TestBulkInsert()
         {
             _collection.Drop();
-            var result = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 2)),
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 3)));
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged,
+                Requests = new WriteRequest[]
+                {
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 1)),
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 2)),
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 3))
+                }
+            });
 
             Assert.AreEqual(3, _collection.Count());
         }
@@ -276,11 +285,16 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 2));
             _collection.Insert(new BsonDocument("x", 3));
 
-            var bulkUpdateResult = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
-                new UpdateRequest(Query.GT("x", 0), Update.Set("z", 1)) { IsMultiUpdate = true },
-                new UpdateRequest(Query.EQ("x", 3), Update.Set("z", 3)),
-                new UpdateRequest(Query.EQ("x", 4), Update.Set("z", 4)) { IsUpsert = true });
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged,
+                Requests = new WriteRequest[]
+                {
+                    new UpdateRequest(Query.GT("x", 0), Update.Set("z", 1)) { IsMultiUpdate = true },
+                    new UpdateRequest(Query.EQ("x", 3), Update.Set("z", 3)),
+                    new UpdateRequest(Query.EQ("x", 4), Update.Set("z", 4)) { IsUpsert = true }
+                }
+            });
 
             Assert.AreEqual(4, _collection.Count());
             foreach (var document in _collection.FindAll())
@@ -296,15 +310,20 @@ namespace MongoDB.DriverUnitTests
         public void TestBulkWrite()
         {
             _collection.Drop();
-            var result = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged },
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 2)),
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 3)),
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 4)),
-                new UpdateRequest(Query.GT("x", 2), Update.Inc("x", 10)) { IsMultiUpdate = true },
-                new DeleteRequest(Query.EQ("x", 13)),
-                new DeleteRequest(Query.EQ("x", 14)));
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged,
+                Requests = new WriteRequest[]
+                {
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 1)),
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 2)),
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 3)),
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 4)),
+                    new UpdateRequest(Query.GT("x", 2), Update.Inc("x", 10)) { IsMultiUpdate = true },
+                    new DeleteRequest(Query.EQ("x", 13)),
+                    new DeleteRequest(Query.EQ("x", 14))
+                }
+            });
 
             Assert.AreEqual(2, _collection.Count());
         }
@@ -313,11 +332,17 @@ namespace MongoDB.DriverUnitTests
         public void TestBulkWriteCounts()
         {
             _collection.Drop();
-            var result = _collection.BulkWrite(
-                new BulkWriteArgs { IsOrdered = true, WriteConcern = WriteConcern.Acknowledged },
-                new InsertRequest(typeof(BsonDocument), new BsonDocument("x", 1)),
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("x", 2)),
-                new DeleteRequest(Query.EQ("x", 2)));
+            var result = _collection.BulkWrite(new BulkWriteArgs
+            {
+                IsOrdered = true,
+                WriteConcern = WriteConcern.Acknowledged,
+                Requests = new WriteRequest[]
+                {
+                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 1)),
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("x", 2)),
+                    new DeleteRequest(Query.EQ("x", 2))
+                }
+            });
 
             Assert.AreEqual(1, result.DeletedCount);
             Assert.AreEqual(1, result.InsertedCount);
@@ -335,11 +360,18 @@ namespace MongoDB.DriverUnitTests
 
                 _collection.Drop();
                 var id = new BsonObjectId(ObjectId.GenerateNewId());
-                var result = _collection.BulkWrite(
-                    new BulkWriteArgs { IsOrdered = true, WriteConcern = WriteConcern.Acknowledged },
-                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
-                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
-                    new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 3)));
+
+                var result = _collection.BulkWrite(new BulkWriteArgs
+                {
+                    IsOrdered = true,
+                    WriteConcern = WriteConcern.Acknowledged,
+                    Requests = new WriteRequest[]
+                    {
+                        new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
+                        new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 2)) { IsUpsert = true },
+                        new UpdateRequest(Query.EQ("_id", id), Update.Set("x", 3))
+                    }
+                });
 
                 var expectedModifiedCount = 1;
                 if (serverInstance.BuildInfo.Version < new Version(2, 5, 5))
@@ -362,13 +394,19 @@ namespace MongoDB.DriverUnitTests
         public void TestBulkWriteOrdered()
         {
             _collection.Drop();
-            var result = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged, IsOrdered = true },
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
-                new DeleteRequest(Query.EQ("x", 1)),
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
-                new DeleteRequest(Query.EQ("x", 1)),
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true });
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged,
+                IsOrdered = true,
+                Requests = new WriteRequest[]
+                {
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                    new DeleteRequest(Query.EQ("x", 1)),
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                    new DeleteRequest(Query.EQ("x", 1)),
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true }
+                }
+            });
 
             Assert.AreEqual(1, _collection.Count());
         }
@@ -377,13 +415,19 @@ namespace MongoDB.DriverUnitTests
         public void TestBulkWriteUnordered()
         {
             _collection.Drop();
-            var result = _collection.BulkWrite(
-                new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged, IsOrdered = false },
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
-                new DeleteRequest(Query.EQ("x", 1)),
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
-                new DeleteRequest(Query.EQ("x", 1)),
-                new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true });
+            _collection.BulkWrite(new BulkWriteArgs
+            {
+                WriteConcern = WriteConcern.Acknowledged, 
+                IsOrdered = false, 
+                Requests = new WriteRequest[]
+                {
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                    new DeleteRequest(Query.EQ("x", 1)),
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true },
+                    new DeleteRequest(Query.EQ("x", 1)),
+                    new UpdateRequest(Query.EQ("x", 1), Update.Set("y", 1)) { IsUpsert = true }
+                }
+            });
 
             Assert.AreEqual(0, _collection.Count());
         }
