@@ -54,7 +54,6 @@ namespace MongoDB.Driver
         private Exception _connectException;
         private bool _inStateVerification;
         private ServerInformation _serverInfo;
-        private IPEndPoint _ipEndPoint;
         private bool _permanentlyDisconnected;
         private int _sequentialId;
         private MongoServerState _state;
@@ -340,7 +339,7 @@ namespace MongoDB.Driver
         internal bool IsCompatible
         {
             get
-            {   
+            {
                 Range<int> serverRange;
                 lock (_serverInstanceLock)
                 {
@@ -358,16 +357,8 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
-            // use a lock free algorithm because DNS lookups are rare and concurrent lookups are tolerable
-            // the intermediate variable is important to avoid race conditions
-            var ipEndPoint = Interlocked.CompareExchange(ref _ipEndPoint, null, null);
-            if (ipEndPoint == null)
-            {
-                var addressFamily = _settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
-                ipEndPoint = _address.ToIPEndPoint(addressFamily);
-                Interlocked.CompareExchange(ref _ipEndPoint, _ipEndPoint, null);
-            }
-            return ipEndPoint;
+            var addressFamily = _settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            return _address.ToIPEndPoint(addressFamily);
         }
 
         /// <summary>
@@ -540,7 +531,7 @@ namespace MongoDB.Driver
             }
 
             // we know for certain state has just changed.
-            OnStateChanged(); 
+            OnStateChanged();
 
             try
             {
