@@ -744,7 +744,7 @@ namespace MongoDB.Driver.Builders
         /// <param name="radius">The radius of the circle.</param>
         /// <param name="spherical">if set to <c>true</c> [spherical].</param>
         /// <returns>An IMongoQuery.</returns>
-        public static IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius, bool spherical)
+        public static IMongoQuery WithinCircle(string name, double centerX, double centerY, double radius, bool spherical, bool useGeoWithin = false)
         {
             if (name == null)
             {
@@ -752,9 +752,11 @@ namespace MongoDB.Driver.Builders
             }
 
             var shape = spherical ? "$centerSphere" : "$center";
-            var condition = new BsonDocument("$within", new BsonDocument(shape, new BsonArray { new BsonArray { centerX, centerY }, radius }));
+            var within = useGeoWithin ? "$geoWithin" : "$within";
+            var condition = new BsonDocument(within, new BsonDocument(shape, new BsonArray { new BsonArray { centerX, centerY }, radius }));
             return new QueryDocument(name, condition);
         }
+        
 
         /// <summary>
         /// Tests that the value of the named element is within a polygon (see $within and $polygon).
