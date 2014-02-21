@@ -162,6 +162,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the maximum size of the write batch.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the write batch.
+        /// </value>
+        public int MaxWriteBatchSize
+        {
+            get { return Response.GetValue("maxWriteBatchSize", 1000).ToInt32(); }
+        }
+
+        /// <summary>
         /// Gets the message.
         /// </summary>
         public string Message

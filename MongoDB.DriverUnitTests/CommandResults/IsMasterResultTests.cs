@@ -62,5 +62,30 @@ namespace MongoDB.DriverUnitTests.CommandResults
 
             Assert.AreEqual(MongoDefaults.MaxMessageLength + 1024, result.MaxMessageLength);
         }
+
+        [Test]
+        public void TestMaxWriteBatchSizeWhenServerSupplied()
+        {
+            var document = new BsonDocument
+            {
+                { "ok", 1 },
+                { "maxWriteBatchSize", 200 }
+            };
+            var result = new IsMasterResult(document);
+
+            Assert.AreEqual(200, result.MaxWriteBatchSize);
+        }
+
+        [Test]
+        public void TestMaxWriteBatchSizeWhenNotServerSupplied()
+        {
+            var document = new BsonDocument
+            {
+                { "ok", 1 }
+            };
+            var result = new IsMasterResult(document);
+
+            Assert.AreEqual(1000, result.MaxWriteBatchSize);
+        }
     }
 }
