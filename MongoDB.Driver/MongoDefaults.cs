@@ -30,6 +30,7 @@ namespace MongoDB.Driver
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
         private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
+        private static int __maxBatchCount = 1000;
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
         private static int __minConnectionPoolSize = 0;
@@ -100,6 +101,15 @@ namespace MongoDB.Driver
         {
             get { return BsonDefaults.GuidRepresentation; }
             set { BsonDefaults.GuidRepresentation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum batch count.
+        /// </summary>
+        public static int MaxBatchCount
+        {
+            get { return __maxBatchCount; }
+            set { __maxBatchCount = value; }
         }
 
         /// <summary>

@@ -74,6 +74,7 @@ namespace MongoDB.Driver
             _state = MongoServerState.Disconnected;
             _serverInfo = new ServerInformation
             {
+                MaxBatchCount = MongoDefaults.MaxBatchCount,
                 MaxDocumentSize = MongoDefaults.MaxDocumentSize,
                 MaxMessageLength = MongoDefaults.MaxMessageLength,
                 InstanceType = MongoServerInstanceType.Unknown
@@ -684,6 +685,7 @@ namespace MongoDB.Driver
                     IsPassive = isMasterResult.IsPassive,
                     IsPrimary = isMasterResult.IsPrimary,
                     IsSecondary = isMasterResult.IsSecondary,
+                    MaxBatchCount = isMasterResult.MaxWriteBatchSize,
                     MaxDocumentSize = isMasterResult.MaxBsonObjectSize,
                     MaxMessageLength = isMasterResult.MaxMessageLength,
                     ReplicaSetInformation = replicaSetInformation

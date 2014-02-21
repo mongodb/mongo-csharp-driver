@@ -169,7 +169,7 @@ namespace MongoDB.Driver
         /// </value>
         public int MaxWriteBatchSize
         {
-            get { return Response.GetValue("maxWriteBatchSize", 1000).ToInt32(); }
+            get { return Response.GetValue("maxWriteBatchSize", MongoDefaults.MaxBatchCount).ToInt32(); }
         }
 
         /// <summary>
