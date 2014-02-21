@@ -303,6 +303,23 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the maximum size of the wire batch.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the wire batch.
+        /// </value>
+        public int MaxWireBatchSize
+        {
+            get
+            {
+                lock (_serverInstanceLock)
+                {
+                    return _serverInfo.MaxWireBatchSize;
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the unique sequential Id for this server instance.
         /// </summary>
         public int SequentialId
@@ -703,6 +720,7 @@ namespace MongoDB.Driver
                         IsSecondary = false,
                         MaxDocumentSize = currentServerInfo.MaxDocumentSize,
                         MaxMessageLength = currentServerInfo.MaxMessageLength,
+                        MaxWireBatchSize = currentServerInfo.MaxWireBatchSize,
                         ReplicaSetInformation = currentServerInfo.ReplicaSetInformation
                     };
 
@@ -860,6 +878,8 @@ namespace MongoDB.Driver
 
             public int MaxWireDocumentSize { get { return MaxDocumentSize + 16 * 1024; } }
 
+            public int MaxWireBatchSize { get; set; }
+
             public ReplicaSetInformation ReplicaSetInformation { get; set; }
 
             public bool IsDifferentFrom(ServerInformation other)
@@ -900,6 +920,11 @@ namespace MongoDB.Driver
                 }
 
                 if (MaxWireDocumentSize != other.MaxWireDocumentSize)
+                {
+                    return true;
+                }
+
+                if (MaxWireBatchSize != other.MaxWireBatchSize)
                 {
                     return true;
                 }
