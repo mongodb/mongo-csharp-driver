@@ -28,8 +28,8 @@ namespace MongoDB.Driver
         private bool? _isOrdered;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
+        private IEnumerable<WriteRequest> _requests = new List<WriteRequest>();
         private WriteConcern _writeConcern;
-        private IList<WriteRequest> _requests = new List<WriteRequest>();
 
         // public properties
         /// <summary>
@@ -90,6 +90,15 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the write requests.
+        /// </summary>
+        public IEnumerable<WriteRequest> Requests
+        {
+            get { return _requests; }
+            set { _requests = value ?? new List<WriteRequest>(); }
+        }
+
+        /// <summary>
         /// Gets or sets the write concern.
         /// </summary>
         /// <value>
@@ -99,15 +108,6 @@ namespace MongoDB.Driver
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the write requests.
-        /// </summary>
-        public IList<WriteRequest> Requests
-        {
-            get { return _requests; }
-            set { _requests = value ?? new List<WriteRequest>(); }
         }
     }
 }

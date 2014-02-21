@@ -190,10 +190,6 @@ namespace MongoDB.Driver
         /// </returns>
         public virtual BulkWriteResult BulkWrite(BulkWriteArgs args)
         {
-            if (!args.Requests.Any())
-            {
-                throw new ArgumentException("No requests specified in bulk operation.", "args");
-            }
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
