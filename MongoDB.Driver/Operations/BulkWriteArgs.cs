@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -28,7 +29,7 @@ namespace MongoDB.Driver
         private bool? _isOrdered;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
-        private IEnumerable<WriteRequest> _requests = new List<WriteRequest>();
+        private IEnumerable<WriteRequest> _requests = Enumerable.Empty<WriteRequest>();
         private WriteConcern _writeConcern;
 
         // public properties
@@ -95,7 +96,7 @@ namespace MongoDB.Driver
         public IEnumerable<WriteRequest> Requests
         {
             get { return _requests; }
-            set { _requests = value ?? new List<WriteRequest>(); }
+            set { _requests = value ?? Enumerable.Empty<WriteRequest>(); }
         }
 
         /// <summary>
