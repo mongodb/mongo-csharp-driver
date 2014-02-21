@@ -195,12 +195,12 @@ namespace MongoDB.Driver
             {
                 var assignId = args.AssignId ?? (_settings.AssignIdOnInsert ? (Action<InsertRequest>)AssignId : null);
                 var checkElementNames = args.CheckElementNames ?? true;
-                var maxBatchCount = args.MaxBatchCount ?? 1000;
+                var maxBatchCount = args.MaxBatchCount ?? connection.ServerInstance.MaxBatchCount;
                 var maxBatchLength = Math.Min(args.MaxBatchLength ?? int.MaxValue, connection.ServerInstance.MaxDocumentSize);
                 var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
                 var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
                 var writeConcern = args.WriteConcern ?? _settings.WriteConcern;
-
+                
                 var operation = new BulkMixedWriteOperation(
                     assignId,
                     checkElementNames,
