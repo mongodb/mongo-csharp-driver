@@ -104,6 +104,7 @@
     <Compile Include="Serialization\Conventions\CamelCaseElementNameConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\ConventionPackTests.cs" />
     <Compile Include="Serialization\Conventions\ConventionRunnerTests.cs" />
+    <Compile Include="Serialization\Conventions\DecimalRepresentationConventionTests.cs" />
     <Compile Include="Serialization\Conventions\DelegateClassMapConventionTests.cs" />
     <Compile Include="Serialization\Conventions\DelegateMemberMapConventionTests.cs" />
     <Compile Include="Serialization\Conventions\DelegatePostProcessingConventionTests.cs" />
