@@ -247,6 +247,23 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestBulkEmpty()
+        {
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            Assert.Throws<InvalidOperationException>(() => bulk.Execute());
+        }
+
+        [Test]
+        public void TestBulkExecuteTwice()
+        {
+            _collection.Drop();
+            var bulk = _collection.InitializeOrderedBulkOperation();
+            bulk.Insert(new BsonDocument());
+            bulk.Execute();
+            Assert.Throws<InvalidOperationException>(() => bulk.Execute());
+        }
+
+        [Test]
         public void TestBulkInsert()
         {
             _collection.Drop();
@@ -262,19 +279,6 @@ namespace MongoDB.DriverUnitTests
             });
 
             Assert.AreEqual(3, _collection.Count());
-        }
-
-        [Test]
-        public void TestBulkInsertZeroDocuments()
-        {
-            if (_primary.BuildInfo.Version >= new Version(2, 5, 5))
-            {
-                _collection.Drop();
-                var result = _collection.BulkWrite(
-                    new BulkWriteArgs { WriteConcern = WriteConcern.Acknowledged });
-
-                Assert.AreEqual(0, _collection.Count());
-            }
         }
 
         [Test]

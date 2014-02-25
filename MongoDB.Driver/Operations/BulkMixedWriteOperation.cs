@@ -79,8 +79,11 @@ namespace MongoDB.Driver.Operations
             var remainingRequests = Enumerable.Empty<WriteRequest>();
             var hasWriteErrors = false;
 
+            var runCount = 0;
             foreach (var run in FindRuns())
             {
+                runCount++;
+
                 if (hasWriteErrors && _isOrdered)
                 {
                     remainingRequests = remainingRequests.Concat(run.Requests);
@@ -91,6 +94,11 @@ namespace MongoDB.Driver.Operations
                 batchResults.Add(batchResult);
 
                 hasWriteErrors |= batchResult.HasWriteErrors;
+            }
+
+            if (runCount == 0)
+            {
+                throw new InvalidOperationException("Bulk write operation is empty.");
             }
 
             var combiner = new BulkWriteBatchResultCombiner(batchResults, _writeConcern.Enabled);

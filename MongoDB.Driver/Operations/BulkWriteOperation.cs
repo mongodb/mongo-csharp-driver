@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         private readonly MongoCollection _collection;
         private readonly bool _isOrdered;
         private readonly List<WriteRequest> _requests = new List<WriteRequest>();
+        private bool _hasAlreadyBeenExecuted;
 
         // constructors
         internal BulkWriteOperation(MongoCollection collection, bool isOrdered)
@@ -42,6 +43,12 @@ namespace MongoDB.Driver
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute()
         {
+            if (_hasAlreadyBeenExecuted)
+            {
+                throw new InvalidOperationException("A bulk write operation can only be executed once.");
+            }
+            _hasAlreadyBeenExecuted = true;
+
             var args = new BulkWriteArgs
             {
                 IsOrdered = _isOrdered,

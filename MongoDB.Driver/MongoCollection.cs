@@ -190,6 +190,15 @@ namespace MongoDB.Driver
         /// </returns>
         public virtual BulkWriteResult BulkWrite(BulkWriteArgs args)
         {
+            if (args == null)
+            {
+                throw new ArgumentNullException("args");
+            }
+            if (args.Requests == null)
+            {
+                throw new ArgumentNullException("args.Requests");
+            }
+
             var connection = _server.AcquireConnection(ReadPreference.Primary);
             try
             {
