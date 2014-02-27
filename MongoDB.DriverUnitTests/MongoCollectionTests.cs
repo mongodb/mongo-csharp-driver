@@ -247,23 +247,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestBulkEmpty()
-        {
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            Assert.Throws<InvalidOperationException>(() => bulk.Execute());
-        }
-
-        [Test]
-        public void TestBulkExecuteTwice()
-        {
-            _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument());
-            bulk.Execute();
-            Assert.Throws<InvalidOperationException>(() => bulk.Execute());
-        }
-
-        [Test]
         public void TestBulkInsert()
         {
             _collection.Drop();
@@ -1259,114 +1242,6 @@ namespace MongoDB.DriverUnitTests
                     }
                 }
             }
-        }
-
-        [Test]
-        public void TestFluentBulkDelete()
-        {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.Insert(new BsonDocument("x", 3));
-
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 3)).RemoveOne();
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(1, _collection.Count());
-            Assert.AreEqual(2, _collection.FindOne()["x"].ToInt32());
-        }
-
-        [Test]
-        public void TestFluentBulkDeleteMissingQuery()
-        {
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
-        }
-
-        [Test]
-        public void TestFluentBulkInsert()
-        {
-            _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument("x", 1));
-            bulk.Insert(new BsonDocument("x", 2));
-            bulk.Insert(new BsonDocument("x", 3));
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(3, _collection.Count());
-        }
-
-        [Test]
-        public void TestFluentBulkUpdate()
-        {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.Insert(new BsonDocument("x", 3));
-
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.GT("x", 0)).Update(Update.Set("z", 1));
-            bulk.Find(Query.EQ("x", 3)).UpdateOne(Update.Set("z", 3));
-            bulk.Find(Query.EQ("x", 4)).Upsert().UpdateOne(Update.Set("z", 4));
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(4, _collection.Count());
-            foreach (var document in _collection.FindAll())
-            {
-                var x = document["x"].ToInt32();
-                var z = document["z"].ToInt32();
-                var expected = (x == 2) ? 1 : x;
-                Assert.AreEqual(expected, z);
-            }
-        }
-
-        [Test]
-        public void TestFluentBulkWrite()
-        {
-            _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument("x", 1));
-            bulk.Insert(new BsonDocument("x", 2));
-            bulk.Insert(new BsonDocument("x", 3));
-            bulk.Insert(new BsonDocument("x", 4));
-            bulk.Find(Query.GT("x", 2)).Update(Update.Inc("x", 10));
-            bulk.Find(Query.EQ("x", 13)).RemoveOne();
-            bulk.Find(Query.EQ("x", 14)).RemoveOne();
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(2, _collection.Count());
-        }
-
-        [Test]
-        public void TestBulkFluentWriteOrdered()
-        {
-            _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(1, _collection.Count());
-        }
-
-        [Test]
-        public void TestFluentBulkWriteUnordered()
-        {
-            _collection.Drop();
-            var bulk = _collection.InitializeUnorderedBulkOperation();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            var result = bulk.Execute(WriteConcern.Acknowledged);
-
-            Assert.AreEqual(0, _collection.Count());
         }
 
 #pragma warning disable 649 // never assigned to

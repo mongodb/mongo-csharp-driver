@@ -27,7 +27,7 @@ namespace MongoDB.Driver
         private readonly MongoCollection _collection;
         private readonly bool _isOrdered;
         private readonly List<WriteRequest> _requests = new List<WriteRequest>();
-        private bool _hasAlreadyBeenExecuted;
+        private bool _hasBeenExecuted;
 
         // constructors
         internal BulkWriteOperation(MongoCollection collection, bool isOrdered)
@@ -43,18 +43,7 @@ namespace MongoDB.Driver
         /// <returns>A BulkWriteResult.</returns>
         public BulkWriteResult Execute()
         {
-            if (_hasAlreadyBeenExecuted)
-            {
-                throw new InvalidOperationException("A bulk write operation can only be executed once.");
-            }
-            _hasAlreadyBeenExecuted = true;
-
-            var args = new BulkWriteArgs
-            {
-                IsOrdered = _isOrdered,
-                Requests = _requests
-            };
-            return _collection.BulkWrite(args);
+            return ExecuteHelper(null);
         }
 
         /// <summary>
@@ -68,13 +57,7 @@ namespace MongoDB.Driver
             {
                 throw new ArgumentNullException("writeConcern");
             }
-            var args = new BulkWriteArgs
-            {
-                IsOrdered = _isOrdered,
-                WriteConcern = writeConcern,
-                Requests = _requests
-            };
-            return _collection.BulkWrite(args);
+            return ExecuteHelper(writeConcern);
         }
 
         /// <summary>
@@ -87,6 +70,10 @@ namespace MongoDB.Driver
             if (query == null)
             {
                 throw new ArgumentNullException("query");
+            }
+            if (_hasBeenExecuted)
+            {
+                throw new InvalidOperationException("The bulk write operation has already been executed.");
             }
             return new BulkWriteRequestBuilder(AddRequest, query);
         }
@@ -109,7 +96,28 @@ namespace MongoDB.Driver
         // private methods
         private void AddRequest(WriteRequest request)
         {
+            if (_hasBeenExecuted)
+            {
+                throw new InvalidOperationException("The bulk write operation has already been executed.");
+            }
             _requests.Add(request);
+        }
+
+        private BulkWriteResult ExecuteHelper(WriteConcern writeConcern)
+        {
+            if (_hasBeenExecuted)
+            {
+                throw new InvalidOperationException("The bulk write operation has already been executed.");
+            }
+            _hasBeenExecuted = true;
+
+            var args = new BulkWriteArgs
+            {
+                IsOrdered = _isOrdered,
+                WriteConcern = writeConcern,
+                Requests = _requests
+            };
+            return _collection.BulkWrite(args);
         }
     }
 }
