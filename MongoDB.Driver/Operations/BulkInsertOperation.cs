@@ -107,12 +107,21 @@ namespace MongoDB.Driver.Operations
                 }
 
                 var actualType = document.GetType();
-                if (_cachedSerializerType != actualType)
+
+                IBsonSerializer serializer;
+                if (actualType == insertRequest.NominalType && insertRequest.Serializer != null)
                 {
-                    _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
-                    _cachedSerializerType = actualType;
+                    serializer = insertRequest.Serializer;
                 }
-                var serializer = _cachedSerializer;
+                else
+                {
+                    if (_cachedSerializerType != actualType)
+                    {
+                        _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
+                        _cachedSerializerType = actualType;
+                    }
+                    serializer = _cachedSerializer;
+                }
                 var serializationOptions = insertRequest.SerializationOptions ?? DocumentSerializationOptions.SerializeIdFirstInstance;
 
                 var savedCheckElementNames = bsonWriter.CheckElementNames;

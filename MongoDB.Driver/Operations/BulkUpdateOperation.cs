@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Operations
             {
                 var updateRequest = (UpdateRequest)request;
 
-                bsonWriter.PushMaxDocumentSize(_args.MaxDocumentSize); 
+                bsonWriter.PushMaxDocumentSize(_args.MaxWireDocumentSize);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("q");
                 BsonSerializer.Serialize(bsonWriter, updateRequest.Query ?? new QueryDocument());

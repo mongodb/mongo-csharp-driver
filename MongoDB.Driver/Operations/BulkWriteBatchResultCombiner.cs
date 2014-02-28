@@ -34,11 +34,11 @@ namespace MongoDB.Driver.Operations
         }
 
         // public methods
-        public BulkWriteResult CreateResultOrThrowIfHasErrors(IEnumerable<WriteRequest> remainingRequest)
+        public BulkWriteResult CreateResultOrThrowIfHasErrors(IEnumerable<WriteRequest> remainingRequests)
         {
             if (_batchResults.Any(r => r.HasWriteErrors || r.HasWriteConcernError))
             {
-                throw CreateBulkWriteException(remainingRequest);
+                throw CreateBulkWriteException(remainingRequests);
             }
 
             return CreateBulkWriteResult();

@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -124,8 +125,8 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Pipeline == null) { throw new ArgumentException("Pipeline is null.", "args"); }
 
-            var pipeline = (List<BsonDocument>)args.Pipeline;
-            var lastStage = pipeline.LastOrDefault();
+            args = args.WithMaterializedPipeline(); // materialize the pipeline if necessary to prevent double enumeration side effects
+            var lastStage = args.Pipeline.LastOrDefault();
 
             string outputCollectionName = null;
             if (lastStage != null && lastStage.GetElement(0).Name == "$out")
@@ -1685,7 +1686,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public List<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs args)
+        public ReadOnlyCollection<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs args)
         {
             var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             var connection = _server.AcquireConnection(readPreference);
@@ -1718,13 +1719,13 @@ namespace MongoDB.Driver
         /// <param name="documentType">Type of the document.</param>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public List<IEnumerator> ParallelScanAs(Type documentType, ParallelScanArgs args)
+        public ReadOnlyCollection<IEnumerator> ParallelScanAs(Type documentType, ParallelScanArgs args)
         {
             var methodDefinition = GetType().GetMethod("ParallelScanAs", new Type[] { typeof(ParallelScanArgs) });
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
-                return ((IEnumerable)methodInfo.Invoke(this, new object[] { args })).Cast<IEnumerator>().ToList();
+                return new ReadOnlyCollection<IEnumerator>(((IEnumerable)methodInfo.Invoke(this, new object[] { args })).Cast<IEnumerator>().ToList());
             }
             catch (TargetInvocationException ex)
             {
@@ -2703,7 +2704,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public virtual List<IEnumerator<TDefaultDocument>> ParallelScan(ParallelScanArgs args)
+        public virtual ReadOnlyCollection<IEnumerator<TDefaultDocument>> ParallelScan(ParallelScanArgs args)
         {
             return ParallelScanAs<TDefaultDocument>(args);
         }

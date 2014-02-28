@@ -125,7 +125,7 @@ namespace MongoDB.DriverUnitTests.Operations
             var result2 = CreateBatchResult(upserts: upserts2);
             var result = CombineResults(result1, result2);
             var expectedUpserts = upserts1.Concat(upserts2).ToArray();
-            Assert.IsTrue(expectedUpserts.SequenceEqual(result.Upserts));
+            Assert.IsTrue(expectedUpserts.SequenceEqual(result.Upserts, new BulkWriteUpsertComparer()));
         }
 
         private BulkWriteResult CombineResults(params BulkWriteBatchResult[] batchResults)
@@ -162,6 +162,22 @@ namespace MongoDB.DriverUnitTests.Operations
                 writeConcernError,
                 indexMap ?? IndexMap.IdentityMap,
                 nextBatch);
+        }
+
+        // nested types
+        private class BulkWriteUpsertComparer : IEqualityComparer<BulkWriteUpsert>
+        {
+            public bool Equals(BulkWriteUpsert lhs, BulkWriteUpsert rhs)
+            {
+                if (object.ReferenceEquals(lhs, rhs)) { return true; }
+                if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) { return false; }
+                return lhs.Index == rhs.Index && lhs.Id == rhs.Id;
+            }
+
+            public int GetHashCode(BulkWriteUpsert obj)
+            {
+                return 0;
+            }
         }
     }
 }

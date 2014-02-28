@@ -632,7 +632,7 @@ namespace MongoDB.Bson
             }
             if (valueFactory == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException("valueFactory");
             }
             if (condition)
             {

@@ -65,39 +65,6 @@ namespace MongoDB.Driver
             get { return _index; }
         }
 
-        // public methods
-        /// <summary>
-        /// Determines whether the specified <see cref="System.Object"></see>, is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Equals(object obj)
-        {
-            if (obj == null || obj.GetType() != typeof(BulkWriteUpsert))
-            {
-                return false;
-            }
-
-            var rhs = (BulkWriteUpsert)obj;
-            return _id == rhs._id && _index == rhs._index;
-        }
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
-        {
-            return new Hasher()
-                .Hash(_id)
-                .Hash(_index)
-                .GetHashCode();
-        }
-
         // internal methods
         internal BulkWriteUpsert WithMappedIndex(IndexMap indexMap)
         {

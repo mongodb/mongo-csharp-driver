@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -59,7 +60,7 @@ namespace MongoDB.Driver.Operations
         }
 
         // public methods
-        public List<IEnumerator<TDocument>> Execute(MongoConnection connection)
+        public ReadOnlyCollection<IEnumerator<TDocument>> Execute(MongoConnection connection)
         {
             var command = new CommandDocument
             {
@@ -113,7 +114,7 @@ namespace MongoDB.Driver.Operations
                 enumerators.Add(enumerator);
             }
 
-            return enumerators;
+            return new ReadOnlyCollection<IEnumerator<TDocument>>(enumerators);
         }
     }
 }
