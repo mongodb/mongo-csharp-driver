@@ -186,7 +186,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.AppendText(remoteFileName);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -207,7 +207,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.CopyTo(sourceFileName, destFileName);
             }
             var fileInfo = FindOne(sourceFileName);
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.CopyTo(sourceFileName, destFileName, createOptions);
             }
             var fileInfo = FindOne(sourceFileName);
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.Create(remoteFileName);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.Create(remoteFileName, createOptions);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -294,7 +294,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.CreateText(remoteFileName);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.CreateText(remoteFileName, createOptions);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 gridFS.Delete(query);
                 return;
             }
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 gridFS.Delete(remoteFileName);
                 return;
             }
@@ -371,7 +371,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 gridFS.DeleteById(id);
                 return;
             }
@@ -763,7 +763,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 gridFS.MoveTo(sourceFileName, destFileName);
                 return;
             }
@@ -870,7 +870,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.OpenWrite(remoteFileName);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -891,7 +891,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.OpenWrite(remoteFileName, createOptions);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -975,7 +975,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (_settings.ReadPreference != ReadPreference.Primary)
             {
-                var gridFS = GetPrimaryGridFSSettings();
+                var gridFS = WithReadPreferencePrimary();
                 return gridFS.Upload(stream, remoteFileName, createOptions);
             }
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -1160,7 +1160,7 @@ namespace MongoDB.Driver.GridFS
             return _settings.ReadPreference;
         }
 
-        private MongoGridFS GetPrimaryGridFSSettings()
+        private MongoGridFS WithReadPreferencePrimary()
         {
             var settings = _settings.Clone();
             settings.ReadPreference = ReadPreference.Primary;
