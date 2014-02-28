@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Operations
                 enumerators.Add(enumerator);
             }
 
-            return new ReadOnlyCollection<IEnumerator<TDocument>>(enumerators);
+            return enumerators.AsReadOnly();
         }
     }
 }

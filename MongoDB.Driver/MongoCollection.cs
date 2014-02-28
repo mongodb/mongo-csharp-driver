@@ -125,7 +125,6 @@ namespace MongoDB.Driver
             if (args == null) { throw new ArgumentNullException("args"); }
             if (args.Pipeline == null) { throw new ArgumentException("Pipeline is null.", "args"); }
 
-            args = args.WithMaterializedPipeline(); // materialize the pipeline if necessary to prevent double enumeration side effects
             var lastStage = args.Pipeline.LastOrDefault();
 
             string outputCollectionName = null;
@@ -1725,7 +1724,7 @@ namespace MongoDB.Driver
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
-                return new ReadOnlyCollection<IEnumerator>(((IEnumerable)methodInfo.Invoke(this, new object[] { args })).Cast<IEnumerator>().ToList());
+                return ((IEnumerable)methodInfo.Invoke(this, new object[] { args })).Cast<IEnumerator>().ToList().AsReadOnly();
             }
             catch (TargetInvocationException ex)
             {

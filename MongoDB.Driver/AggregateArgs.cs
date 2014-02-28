@@ -114,26 +114,7 @@ namespace MongoDB.Driver
         public IEnumerable<BsonDocument> Pipeline
         {
             get { return _pipeline; }
-            set { _pipeline = value; }
-        }
-
-        // internal methods
-        internal AggregateArgs WithMaterializedPipeline()
-        {
-            if (_pipeline is BsonDocument[] || _pipeline is List<BsonDocument>)
-            {
-                return this;
-            }
-
-            var materializedPipeline = _pipeline.ToArray();
-            return new AggregateArgs
-            {
-                AllowDiskUse = _allowDiskUse,
-                BatchSize = _batchSize,
-                MaxTime = _maxTime,
-                OutputMode = _outputMode,
-                Pipeline = materializedPipeline
-            };
+            set { _pipeline = value.ToList(); }
         }
     }
 }
