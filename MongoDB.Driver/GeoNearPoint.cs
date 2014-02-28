@@ -21,138 +21,142 @@ using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Represents a GeoNearLocation (either a legacy coordinate pair or a GeoJsonPoint).
+    /// Represents a GeoNearPoint (wraps either an XYPoint or a GeoJsonPoint).
     /// </summary>
     public abstract class GeoNearPoint
     {
-        // public static methods
+        // implicit conversions
         /// <summary>
-        /// Creates a GeoNearLocation.GeoJson{TCoordinates} from a GeoJsonPoint{TCoordinates}.
+        /// Implicit conversion to wrap an XYPoint in a GeoNearPoint value.
         /// </summary>
-        /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-        /// <param name="point">The GeoJson point.</param>
-        /// <returns>A GeoNearLocation.GeoJson{TCoordinates}.</returns>
-        public static GeoNearPoint.GeoJson<TCoordinates> From<TCoordinates>(GeoJsonPoint<TCoordinates> point) where TCoordinates : GeoJsonCoordinates
+        /// <param name="value">The value.</param>
+        /// <returns>A GeoNearPoint value.</returns>
+        public static implicit operator GeoNearPoint(XYPoint value)
         {
-            return new GeoJson<TCoordinates>(point);
+            return new Legacy(value);
         }
 
         /// <summary>
-        /// Creates a GeoNearPoint from legacy x and y coordinates.
+        /// Implicit conversion to wrap a 2D GeoJson point in a GeoNearPoint value.
         /// </summary>
-        /// <param name="x">The x value.</param>
-        /// <param name="y">The y value.</param>
-        /// <returns></returns>
-        public static GeoNearPoint.Legacy From(double x, double y)
+        /// <param name="value">The value.</param>
+        /// <returns>A GeoNearPoint value.</returns>
+        public static implicit operator GeoNearPoint(GeoJsonPoint<GeoJson2DCoordinates> value)
         {
-            return new Legacy(x, y);
+            return new GeoJson<GeoJson2DCoordinates>(value);
         }
 
-        // public methods
         /// <summary>
-        /// Converts the GeoNearLocation into a BsonValue for the GeoNear command.
+        /// Implicit conversion to wrap a 2D GeoJson point in a GeoNearPoint value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A GeoNearPoint value.</returns>
+        public static implicit operator GeoNearPoint(GeoJsonPoint<GeoJson2DGeographicCoordinates> value)
+        {
+            return new GeoJson<GeoJson2DGeographicCoordinates>(value);
+        }
+
+        /// <summary>
+        /// Implicit conversion to wrap a 2D GeoJson point in a GeoNearPoint value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>A GeoNearPoint value.</returns>
+        public static implicit operator GeoNearPoint(GeoJsonPoint<GeoJson2DProjectedCoordinates> value)
+        {
+            return new GeoJson<GeoJson2DProjectedCoordinates>(value);
+        }
+
+        // internal methods
+        /// <summary>
+        /// Converts the GeoNearPoint into a BsonValue for the GeoNear command.
         /// </summary>
         /// <returns></returns>
-        public abstract BsonValue ToGeoNearCommandField();
+        internal abstract BsonValue ToGeoNearCommandValue();
 
         // nested classes
         /// <summary>
-        /// Represents a GeoNearLocation expressed as a legacy coordinate pair.
+        /// Represents a GeoNearPoint that wraps an XYPoint.
         /// </summary>
         public class Legacy : GeoNearPoint
         {
             // private fields
-            private readonly double _x;
-            private readonly double _y;
+            private readonly XYPoint _value;
 
             // constructors
             /// <summary>
             /// Initializes a new instance of the <see cref="Legacy"/> class.
             /// </summary>
-            /// <param name="x">The x value.</param>
-            /// <param name="y">The y value.</param>
-            public Legacy(double x, double y)
+            /// <param name="value">The value.</param>
+            public Legacy(XYPoint value)
             {
-                _x = x;
-                _y = y;
+                _value = value;
             }
 
             // public properties
             /// <summary>
-            /// Gets the X value.
+            /// Gets the value.
             /// </summary>
             /// <value>
-            /// The X value.
+            /// The value.
             /// </value>
-            public double X
+            public XYPoint Value
             {
-                get { return _x; }
+                get { return _value; }
             }
 
+            // internal methods
             /// <summary>
-            /// Gets the Y value.
+            /// Converts the GeoNearPoint into a BsonValue for the GeoNear command.
             /// </summary>
-            /// <value>
-            /// The Y value.
-            /// </value>
-            public double Y
+            /// <returns>A BsonValue.</returns>
+            internal override BsonValue ToGeoNearCommandValue()
             {
-                get { return _y; }
-            }
-
-            // public methods
-            /// <summary>
-            /// Converts the GeoNearLocation into a BsonValue for the GeoNear command.
-            /// </summary>
-            /// <returns></returns>
-            public override BsonValue ToGeoNearCommandField()
-            {
-                return new BsonArray { _x, _y };
+                return new BsonArray { _value.X, _value.Y };
             }
         }
 
         /// <summary>
-        /// Represents a GeoNearLocation expressed as a GeoJsonPoint.
+        /// Represents a GeoNearPoint that wraps a GeoJsonPoint.
         /// </summary>
         /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
         public class GeoJson<TCoordinates> : GeoNearPoint where TCoordinates : GeoJsonCoordinates
         {
             // private fields
-            private readonly GeoJsonPoint<TCoordinates> _point;
+            private readonly GeoJsonPoint<TCoordinates> _value;
 
             // constructors
             /// <summary>
             /// Initializes a new instance of the <see cref="GeoJson{TCoordinates}"/> class.
             /// </summary>
-            /// <param name="point">The point.</param>
-            public GeoJson(GeoJsonPoint<TCoordinates> point)
+            /// <param name="value">The value.</param>
+            public GeoJson(GeoJsonPoint<TCoordinates> value)
             {
-                _point = point;
+                _value = value;
             }
 
             // public properties
             /// <summary>
-            /// Gets the point.
+            /// Gets the value.
             /// </summary>
             /// <value>
-            /// The point.
+            /// The value.
             /// </value>
-            public GeoJsonPoint<TCoordinates> Point
+            public GeoJsonPoint<TCoordinates> Value
             {
-                get { return _point; }
+                get { return _value; }
             }
 
-            // public methods
+            // internal methods
             /// <summary>
-            /// Converts the GeoNearLocation into a BsonValue for the GeoNear command.
+            /// Converts the GeoNearPoint into a BsonValue for the GeoNear command.
             /// </summary>
-            /// <returns></returns>
-            public override BsonValue ToGeoNearCommandField()
+            /// <returns>A BsonValue.</returns>
+            internal override BsonValue ToGeoNearCommandValue()
             {
                 var document = new BsonDocument();
                 using (var writer = new BsonDocumentWriter(document, BsonDocumentWriterSettings.Defaults))
                 {
-                    new GeoJsonPointSerializer<TCoordinates>().Serialize(writer, typeof(GeoJsonPoint<TCoordinates>), _point, null);
+                    new GeoJsonPointSerializer<TCoordinates>().Serialize(writer, typeof(GeoJsonPoint<TCoordinates>), _value, null);
                 }
                 return document;
             }

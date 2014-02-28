@@ -877,7 +877,7 @@ namespace MongoDB.Driver
             var optionsDocument = options.ToBsonDocument();
             var args = new GeoHaystackSearchArgs
             {
-                Near = GeoNearPoint.From(x, y),
+                Near = new XYPoint(x, y),
                 MaxDistance = optionsDocument.Contains("maxDistance") ? (int?)optionsDocument["maxDistance"].ToInt32() : null,
                 Limit = optionsDocument.Contains("limit") ? (int?)optionsDocument["limit"].ToInt32() : null
             };
@@ -966,7 +966,7 @@ namespace MongoDB.Driver
             var command = new CommandDocument
             {
                 { "geoNear", _name },
-                { "near", args.Near.ToGeoNearCommandField() },
+                { "near", args.Near.ToGeoNearCommandValue() },
                 { "limit", () => args.Limit.Value, args.Limit.HasValue }, // optional
                 { "maxDistance", () => args.MaxDistance.Value, args.MaxDistance.HasValue }, // optional
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
@@ -1023,7 +1023,7 @@ namespace MongoDB.Driver
             var optionsDocument = options.ToBsonDocument();
             var args = new GeoNearArgs
             {
-                Near = GeoNearPoint.From(x, y),
+                Near = new XYPoint(x, y),
                 Limit = limit,
                 Query = query,
                 DistanceMultiplier = optionsDocument.Contains("distanceMultiplier") ? (double?)optionsDocument["distanceMultiplier"].ToDouble() : null,

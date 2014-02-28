@@ -445,6 +445,7 @@
     <Compile Include="SafeMode.cs" />
     <Compile Include="UpdateFlags.cs" />
     <Compile Include="ExternalEvidence.cs" />
+    <Compile Include="XYPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

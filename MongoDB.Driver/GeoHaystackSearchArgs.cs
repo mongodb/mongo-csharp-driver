@@ -31,7 +31,7 @@ namespace MongoDB.Driver
         private int? _limit;
         private double? _maxDistance;
         private TimeSpan? _maxTime;
-        private GeoNearPoint.Legacy _near;
+        private XYPoint _near;
 
         // public properties
         /// <summary>
@@ -100,7 +100,7 @@ namespace MongoDB.Driver
         /// <value>
         /// The location near which to search.
         /// </value>
-        public GeoNearPoint.Legacy Near
+        public XYPoint Near
         {
             get { return _near; }
             set { _near = value; }

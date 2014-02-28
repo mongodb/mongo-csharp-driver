@@ -1270,7 +1270,7 @@ namespace MongoDB.DriverUnitTests
 
                     var args = new GeoHaystackSearchArgs
                     {
-                        Near = GeoNearPoint.From(33, 33),
+                        Near = new XYPoint(33, 33),
                         AdditionalFieldName = "Type",
                         AdditionalFieldValue = "restaurant",
                         Limit = 30,
@@ -1312,7 +1312,7 @@ namespace MongoDB.DriverUnitTests
                             failpoint.SetAlwaysOn();
                             var args = new GeoHaystackSearchArgs
                             {
-                                Near = GeoNearPoint.From(33, 33),
+                                Near = new XYPoint(33, 33),
                                 AdditionalFieldName = "Type",
                                 AdditionalFieldValue = "restaurant",
                                 Limit = 30,
@@ -1342,7 +1342,7 @@ namespace MongoDB.DriverUnitTests
 
                     var args = new GeoHaystackSearchArgs
                     {
-                        Near = GeoNearPoint.From(33, 33),
+                        Near = new XYPoint(33, 33),
                         Limit = 30,
                         MaxDistance = 6
                     }
@@ -1376,7 +1376,7 @@ namespace MongoDB.DriverUnitTests
 
             var args = new GeoNearArgs
             {
-                Near = GeoNearPoint.From(0, 0),
+                Near = new XYPoint(0, 0),
                 Limit = 100,
                 DistanceMultiplier = 1,
                 MaxDistance = 100
@@ -1422,7 +1422,7 @@ namespace MongoDB.DriverUnitTests
 
             var args = new GeoNearArgs
             {
-                Near = GeoNearPoint.From(0, 0),
+                Near = new XYPoint(0, 0),
                 Limit = 100,
                 DistanceMultiplier = 1,
                 MaxDistance = 100
@@ -1466,7 +1466,7 @@ namespace MongoDB.DriverUnitTests
 
             var args = new GeoNearArgs
             {
-                Near = GeoNearPoint.From(-74.0, 40.74),
+                Near = new XYPoint(-74.0, 40.74),
                 Limit = 100,
                 Spherical = false
             };
@@ -1523,7 +1523,7 @@ namespace MongoDB.DriverUnitTests
 
                 var args = new GeoNearArgs
                 {
-                    Near = GeoNearPoint.From(-74.0, 40.74),
+                    Near = new XYPoint(-74.0, 40.74),
                     Limit = 100,
                     Spherical = true
                 };
@@ -1581,7 +1581,7 @@ namespace MongoDB.DriverUnitTests
 
                 var args = new GeoNearArgs
                 {
-                    Near = GeoNearPoint.From(GeoJson.Point(GeoJson.Geographic(-74.0, 40.74))),
+                    Near = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)),
                     Spherical = true
                 };
                 var result = _collection.GeoNearAs<PlaceGeoJson>(args);
@@ -1624,7 +1624,7 @@ namespace MongoDB.DriverUnitTests
                         failpoint.SetAlwaysOn();
                         var args = new GeoNearArgs
                         {
-                            Near = GeoNearPoint.From(0, 0),
+                            Near = new XYPoint(0, 0),
                             MaxTime = TimeSpan.FromMilliseconds(1)
                         };
                         Assert.Throws<ExecutionTimeoutException>(() => _collection.GeoNearAs<BsonDocument>(args));
