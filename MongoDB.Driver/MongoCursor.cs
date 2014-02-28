@@ -36,9 +36,9 @@ namespace MongoDB.Driver
         // private fields
         private readonly MongoCollection _collection;
         private readonly MongoDatabase _database;
-        private readonly IMongoQuery _query;
         private readonly IBsonSerializer _serializer;
         private readonly MongoServer _server;
+        private IMongoQuery _query;
         private IMongoFields _fields;
         private BsonDocument _options;
         private QueryFlags _flags;
@@ -100,6 +100,11 @@ namespace MongoDB.Driver
         public virtual IMongoQuery Query
         {
             get { return _query; }
+            set
+            {
+                if (_isFrozen) { ThrowFrozen(); }
+                _query = value;
+            }
         }
 
         /// <summary>
