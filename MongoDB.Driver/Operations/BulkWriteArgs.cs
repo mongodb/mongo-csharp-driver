@@ -21,7 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the arguments to a BulkWrite method (BulkDelete, BulkInsert, BulkUpdate or BulkWrite).
     /// </summary>
-    public class BulkWriteArgs
+    internal class BulkWriteArgs
     {
         // private fields
         private Action<InsertRequest> _assignId;

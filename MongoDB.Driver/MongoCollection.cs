@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A BulkWriteResult.
         /// </returns>
-        public virtual BulkWriteResult BulkWrite(BulkWriteArgs args)
+        internal virtual BulkWriteResult BulkWrite(BulkWriteArgs args)
         {
             if (args == null)
             {
