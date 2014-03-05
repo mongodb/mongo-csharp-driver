@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -33,123 +34,270 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
-        public void TestDelete()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestDeleteMultiple(bool ordered)
         {
-            _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.Insert(new BsonDocument("x", 3));
+            var documents = new BsonDocument[]
+            {
+                new BsonDocument("_id", 1),
+                new BsonDocument("_id", 2),
+                new BsonDocument("_id", 3)
+            };
 
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 3)).RemoveOne();
-            bulk.Execute();
+            _collection.Drop();
+            _collection.Insert(documents[0]);
+            _collection.Insert(documents[1]);
+            _collection.Insert(documents[2]);
+
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Find(Query.EQ("_id", 1)).RemoveOne();
+            bulk.Find(Query.EQ("_id", 3)).RemoveOne();
+            var result = bulk.Execute();
+
+            Assert.AreEqual(2, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(0, result.MatchedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
+            Assert.AreEqual(2, result.ProcessedRequests.Count);
+            Assert.AreEqual(2, result.RequestCount);
+            Assert.AreEqual(0, result.Upserts.Count);
 
             Assert.AreEqual(1, _collection.Count());
-            Assert.AreEqual(2, _collection.FindOne()["x"].ToInt32());
+            Assert.AreEqual(documents[1], _collection.FindOne());
         }
 
         [Test]
-        public void TestExecuteTwice()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestExecuteTwice(bool ordered)
         {
             _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
             bulk.Insert(new BsonDocument());
             bulk.Execute();
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
         [Test]
-        public void TestExecuteWithExplicitWriteConcern()
+        [TestCase(false, 0)]
+        [TestCase(false, 1)]
+        [TestCase(true, 0)]
+        [TestCase(true, 1)]
+        public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
+            var document = new BsonDocument("_id", 1);
+
             _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument("x", 1));
-            bulk.Execute(WriteConcern.W1);
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Insert(document);
+            var result = bulk.Execute(new WriteConcern { W = w });
+
+            var isAcknowledged = (w > 0);
+            if (isAcknowledged)
+            {
+                Assert.AreEqual(0, result.DeletedCount);
+                Assert.AreEqual(1, result.InsertedCount);
+                Assert.AreEqual(0, result.MatchedCount);
+                Assert.AreEqual(0, result.ModifiedCount);
+                Assert.AreEqual(0, result.Upserts.Count);
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(() => { var x = result.DeletedCount; });
+                Assert.Throws<InvalidOperationException>(() => { var x = result.InsertedCount; });
+                Assert.Throws<InvalidOperationException>(() => { var x = result.MatchedCount; });
+                Assert.Throws<InvalidOperationException>(() => { var x = result.ModifiedCount; });
+                Assert.Throws<InvalidOperationException>(() => { var x = result.Upserts.Count; });
+            }
+            Assert.AreEqual(isAcknowledged, result.IsAcknowledged);
+            Assert.AreEqual(1, result.ProcessedRequests.Count);
+            Assert.AreEqual(1, result.RequestCount);
+
             Assert.AreEqual(1, _collection.Count());
+            Assert.AreEqual(document, _collection.FindOne());
         }
 
         [Test]
-        public void TestExecuteWithNoRequests()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestExecuteWithNoRequests(bool ordered)
         {
-            var bulk = _collection.InitializeOrderedBulkOperation();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
         [Test]
-        public void TestFindAfterExecute()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestFindAfterExecute(bool ordered)
         {
             _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
             bulk.Insert(new BsonDocument("x", 1));
             bulk.Execute();
             Assert.Throws<InvalidOperationException>(() => bulk.Find(new QueryDocument()));
         }
 
         [Test]
-        public void TestFindWithNullQuery()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestFindWithNullQuery(bool ordered)
         {
-            var bulk = _collection.InitializeOrderedBulkOperation();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
             Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
         }
 
         [Test]
-        public void TestInsert()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestInsertDoesNotAllowInvalidFieldNames(bool ordered)
         {
-            _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument("x", 1));
-            bulk.Insert(new BsonDocument("x", 2));
-            bulk.Insert(new BsonDocument("x", 3));
-            bulk.Execute();
-
-            Assert.AreEqual(3, _collection.Count());
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Insert(new BsonDocument("$key", 1));
+            Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
         [Test]
-        public void TestInsertAfterExecute()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestInsertMultiple(bool ordered)
+        {
+            var documents = new BsonDocument[]
+            {
+                new BsonDocument("_id", 1),
+                new BsonDocument("_id", 2),
+                new BsonDocument("_id", 3)
+            };
+
+            _collection.Drop();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Insert(documents[0]);
+            bulk.Insert(documents[1]);
+            bulk.Insert(documents[2]);
+            var result = bulk.Execute();
+
+            Assert.AreEqual(0, result.DeletedCount);
+            Assert.AreEqual(3, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(0, result.MatchedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
+            Assert.AreEqual(3, result.ProcessedRequests.Count);
+            Assert.AreEqual(3, result.RequestCount);
+            Assert.AreEqual(0, result.Upserts.Count);
+
+            Assert.AreEqual(3, _collection.Count());
+            Assert.IsTrue(documents.SequenceEqual(_collection.FindAll().SetSortOrder("_id")));
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestInsertOne(bool ordered)
+        {
+            var document = new BsonDocument("_id", 1);
+
+            _collection.Drop();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Insert(document);
+            var result = bulk.Execute();
+
+            Assert.AreEqual(0, result.DeletedCount);
+            Assert.AreEqual(1, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(0, result.MatchedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
+            Assert.AreEqual(1, result.ProcessedRequests.Count);
+            Assert.AreEqual(1, result.RequestCount);
+            Assert.AreEqual(0, result.Upserts.Count);
+
+            Assert.AreEqual(1, _collection.Count());
+            Assert.AreEqual(document, _collection.FindOne());
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestInsertAfterExecute(bool ordered)
         {
             _collection.Drop();
-            var bulk = _collection.InitializeOrderedBulkOperation();
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
             bulk.Insert(new BsonDocument("x", 1));
             bulk.Execute();
             Assert.Throws<InvalidOperationException>(() => bulk.Insert(new BsonDocument()));
         }
 
         [Test]
-        public void TestMixed()
+        public void TestMixedOrdered()
         {
+            var documents = new BsonDocument[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", 1 } },
+                new BsonDocument { { "_id", 2 }, { "x", 2 } },
+                new BsonDocument { { "_id", 3 }, { "x", 3 } },
+                new BsonDocument { { "_id", 4 }, { "x", 4 } }
+            };
+
             _collection.Drop();
             var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Insert(new BsonDocument("x", 1));
-            bulk.Insert(new BsonDocument("x", 2));
-            bulk.Insert(new BsonDocument("x", 3));
-            bulk.Insert(new BsonDocument("x", 4));
+            bulk.Insert(documents[0]);
+            bulk.Insert(documents[1]);
+            bulk.Insert(documents[2]);
+            bulk.Insert(documents[3]);
             bulk.Find(Query.GT("x", 2)).Update(Update.Inc("x", 10));
             bulk.Find(Query.EQ("x", 13)).RemoveOne();
             bulk.Find(Query.EQ("x", 14)).RemoveOne();
-            bulk.Execute();
+            var result = bulk.Execute();
+
+            Assert.AreEqual(2, result.DeletedCount);
+            Assert.AreEqual(4, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(2, result.MatchedCount);
+            Assert.AreEqual(2, result.ModifiedCount);
+            Assert.AreEqual(7, result.ProcessedRequests.Count);
+            Assert.AreEqual(7, result.RequestCount);
+            Assert.AreEqual(0, result.Upserts.Count);
+
+            var expectedDocuments = new BsonDocument[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", 1 } },
+                new BsonDocument { { "_id", 2 }, { "x", 2 } }
+            };
 
             Assert.AreEqual(2, _collection.Count());
+            Assert.IsTrue(expectedDocuments.SequenceEqual(_collection.FindAll().SetSortOrder("_id")));
         }
 
         [Test]
-        public void TestMixedOrdered()
+        public void TestMixedUpsertsOrdered()
         {
             _collection.Drop();
             var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Find(Query.EQ("x", 1)).RemoveOne();
-            bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Execute();
+            bulk.Find(Query.EQ("_id", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("_id", 1)).RemoveOne();
+            bulk.Find(Query.EQ("_id", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            bulk.Find(Query.EQ("_id", 1)).RemoveOne();
+            bulk.Find(Query.EQ("_id", 1)).Upsert().UpdateOne(Update.Set("y", 1));
+            var result = bulk.Execute();
+
+            Assert.AreEqual(2, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(0, result.MatchedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
+            Assert.AreEqual(5, result.ProcessedRequests.Count);
+            Assert.AreEqual(5, result.RequestCount);
+            Assert.AreEqual(3, result.Upserts.Count);
+
+            var expectedDocument = new BsonDocument { { "_id", 1 }, { "y", 1 } };
 
             Assert.AreEqual(1, _collection.Count());
+            Assert.AreEqual(expectedDocument, _collection.FindOne());
         }
 
         [Test]
-        public void TestMixedUnordered()
+        public void TestMixedUpsertsUnordered()
         {
             _collection.Drop();
             var bulk = _collection.InitializeUnorderedBulkOperation();
@@ -158,33 +306,70 @@ namespace MongoDB.DriverUnitTests.Operations
             bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
             bulk.Find(Query.EQ("x", 1)).RemoveOne();
             bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
-            bulk.Execute();
+            var result = bulk.Execute();
+
+            Assert.AreEqual(1, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(2, result.MatchedCount);
+            Assert.AreEqual(0, result.ModifiedCount);
+            Assert.AreEqual(5, result.ProcessedRequests.Count);
+            Assert.AreEqual(5, result.RequestCount);
+            Assert.AreEqual(1, result.Upserts.Count);
 
             Assert.AreEqual(0, _collection.Count());
         }
 
         [Test]
-        public void TestUpdate()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestUpdateDoesNotAllowInvalidFieldNames(bool ordered)
         {
+            var bulk = ordered ? _collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+            bulk.Insert(new BsonDocument("$key", 1));
+            Assert.Throws<BsonSerializationException>(() => bulk.Execute());
+        }
+
+        [Test]
+        public void TestUpdateMultipleOrdered()
+        {
+            var documents = new BsonDocument[]
+            {
+                new BsonDocument("_id", 1),
+                new BsonDocument("_id", 2),
+                new BsonDocument("_id", 3)
+            };
+
             _collection.Drop();
-            _collection.Insert(new BsonDocument("x", 1));
-            _collection.Insert(new BsonDocument("x", 2));
-            _collection.Insert(new BsonDocument("x", 3));
+            _collection.Insert(documents[0]);
+            _collection.Insert(documents[1]);
+            _collection.Insert(documents[2]);
 
             var bulk = _collection.InitializeOrderedBulkOperation();
-            bulk.Find(Query.GT("x", 0)).Update(Update.Set("z", 1));
-            bulk.Find(Query.EQ("x", 3)).UpdateOne(Update.Set("z", 3));
-            bulk.Find(Query.EQ("x", 4)).Upsert().UpdateOne(Update.Set("z", 4));
-            bulk.Execute();
+            bulk.Find(Query.GT("_id", 0)).Update(Update.Set("z", 1));
+            bulk.Find(Query.EQ("_id", 3)).UpdateOne(Update.Set("z", 3));
+            bulk.Find(Query.EQ("_id", 4)).Upsert().UpdateOne(Update.Set("z", 4));
+            var result = bulk.Execute();
+
+            Assert.AreEqual(0, result.DeletedCount);
+            Assert.AreEqual(0, result.InsertedCount);
+            Assert.AreEqual(true, result.IsAcknowledged);
+            Assert.AreEqual(4, result.MatchedCount);
+            Assert.AreEqual(4, result.ModifiedCount);
+            Assert.AreEqual(3, result.ProcessedRequests.Count);
+            Assert.AreEqual(3, result.RequestCount);
+            Assert.AreEqual(1, result.Upserts.Count);
+
+            var expectedDocuments = new BsonDocument[]
+            {
+                new BsonDocument { { "_id", 1 }, { "z", 1 } },
+                new BsonDocument { { "_id", 2 }, { "z", 1 } },
+                new BsonDocument { { "_id", 3 }, { "z", 3 } },
+                new BsonDocument { { "_id", 4 }, { "z", 4 } }
+            };
 
             Assert.AreEqual(4, _collection.Count());
-            foreach (var document in _collection.FindAll())
-            {
-                var x = document["x"].ToInt32();
-                var z = document["z"].ToInt32();
-                var expected = (x == 2) ? 1 : x;
-                Assert.AreEqual(expected, z);
-            }
+            Assert.IsTrue(expectedDocuments.SequenceEqual(_collection.FindAll().SetSortOrder("_id")));
         }
     }
 }
