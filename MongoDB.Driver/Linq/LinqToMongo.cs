@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq
         /// Returns an explanation of how the query was executed (instead of the results).
         /// </summary>
         /// <param name="source">The LINQ query to explain.</param>
-        /// <returns>An explanation of thow the query was executed.</returns>
+        /// <returns>An explanation of how the query was executed.</returns>
         public static BsonDocument Explain<T>(this IQueryable<T> source)
         {
             return Explain(source, false);
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <param name="source">The LINQ query to explain</param>
         /// <param name="verbose">Whether the explanation should contain more details.</param>
-        /// <returns>An explanation of thow the query was executed.</returns>
+        /// <returns>An explanation of how the query was executed.</returns>
         public static BsonDocument Explain<T>(this IQueryable<T> source, bool verbose)
         {
             var queryProvider = source.Provider as MongoQueryProvider;
