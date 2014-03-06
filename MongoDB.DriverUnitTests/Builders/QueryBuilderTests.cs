@@ -29,14 +29,12 @@ namespace MongoDB.DriverUnitTests.Builders
     {
         private MongoServer _server;
         private MongoDatabase _database;
-        private MongoDatabase _adminDatabase;
         private MongoServerInstance _primary;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
             _server = Configuration.TestServer;
-            _adminDatabase = _server.GetDatabase("admin");
             _database = Configuration.TestDatabase;
             _primary = _server.Primary;
         }

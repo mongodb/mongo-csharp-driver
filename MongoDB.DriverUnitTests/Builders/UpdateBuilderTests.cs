@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
@@ -69,10 +70,18 @@ namespace MongoDB.DriverUnitTests.Builders
             public int X = 0;
         }
 
+        private MongoCollection<BsonDocument> _collection;
+
         private C _a = new C { X = 1 };
         private C _b = new C { X = 2 };
         private BsonDocument _docA1 = new BsonDocument("a", 1);
         private BsonDocument _docA2 = new BsonDocument("a", 2);
+
+        [TestFixtureSetUp]
+        public void TestFixtureSetup()
+        {
+            _collection = Configuration.TestCollection;
+        }
 
         [Test]
         public void TestAddToSet()
@@ -838,6 +847,18 @@ namespace MongoDB.DriverUnitTests.Builders
             var update = Update.Replace(t);
             var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
             Assert.AreEqual(expected, update.ToJson());
+        }
+
+        [Explicit]
+        [Test]
+        public void TestReplaceWithInvalidFieldName()
+        {
+            _collection.Drop();
+            _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
+
+            var query = Query.EQ("_id", 1);
+            var update = Update.Replace(new BsonDocument { { "_id", 1 }, { "$x", 1 } });
+            Assert.Throws<BsonSerializationException>(() => { _collection.Update(query, update); });
         }
 
         [Test]
