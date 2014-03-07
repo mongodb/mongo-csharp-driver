@@ -318,24 +318,35 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestBulkWriteCounts()
         {
-            _collection.Drop();
-            var result = _collection.BulkWrite(new BulkWriteArgs
+            using (_server.RequestStart(null, ReadPreference.Primary))
             {
-                IsOrdered = true,
-                WriteConcern = WriteConcern.Acknowledged,
-                Requests = new WriteRequest[]
-                {
-                    new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 1)),
-                    new UpdateRequest(Query.EQ("x", 1), Update.Set("x", 2)),
-                    new DeleteRequest(Query.EQ("x", 2))
-                }
-            });
+                var serverInstance = _server.RequestConnection.ServerInstance;
 
-            Assert.AreEqual(1, result.DeletedCount);
-            Assert.AreEqual(1, result.InsertedCount);
-            Assert.AreEqual(1, result.ModifiedCount);
-            Assert.AreEqual(3, result.RequestCount);
-            Assert.AreEqual(1, result.MatchedCount);
+                _collection.Drop();
+                var result = _collection.BulkWrite(new BulkWriteArgs
+                {
+                    IsOrdered = true,
+                    WriteConcern = WriteConcern.Acknowledged,
+                    Requests = new WriteRequest[]
+                    {
+                        new InsertRequest(typeof (BsonDocument), new BsonDocument("x", 1)),
+                        new UpdateRequest(Query.EQ("x", 1), Update.Set("x", 2)),
+                        new DeleteRequest(Query.EQ("x", 2))
+                    }
+                });
+
+                var expectedModifiedCount = 1;
+                if (!serverInstance.Supports(FeatureId.WriteCommands))
+                {
+                    expectedModifiedCount = 0;
+                }
+
+                Assert.AreEqual(1, result.DeletedCount);
+                Assert.AreEqual(1, result.InsertedCount);
+                Assert.AreEqual(expectedModifiedCount, result.ModifiedCount);
+                Assert.AreEqual(3, result.RequestCount);
+                Assert.AreEqual(1, result.MatchedCount);
+            }
         }
 
         [Test]
@@ -361,9 +372,9 @@ namespace MongoDB.DriverUnitTests
                 });
 
                 var expectedModifiedCount = 1;
-                if (serverInstance.BuildInfo.Version < new Version(2, 5, 5))
+                if (!serverInstance.Supports(FeatureId.WriteCommands))
                 {
-                    expectedModifiedCount = 2;
+                    expectedModifiedCount = 0;
                 }
 
                 Assert.AreEqual(0, result.DeletedCount);

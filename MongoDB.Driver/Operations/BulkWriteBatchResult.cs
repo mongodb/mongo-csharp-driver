@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Operations
         {
             var processedRequests = new[] { request };
             var unprocessedRequests = Enumerable.Empty<WriteRequest>();
-            var upsertId = writeConcernResult.Upserted;
+            var upsertId = (writeConcernResult == null) ? null : writeConcernResult.Upserted;
             var upserts = (upsertId == null) ? Enumerable.Empty<BulkWriteUpsert>() : new[] { new BulkWriteUpsert(0, upsertId) };
             var writeErrors = __noWriteErrors;
             WriteConcernError writeConcernError = null;
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Operations
                 }
             }
 
-            var documentsAffected = writeConcernResult.DocumentsAffected;
+            var documentsAffected = (writeConcernResult == null) ? 0 : writeConcernResult.DocumentsAffected;
             if (request.RequestType == WriteRequestType.Insert && writeErrors.Count == 0)
             {
                 documentsAffected = 1; // note: DocumentsAffected is 0 for inserts
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Operations
                     break;
                 case WriteRequestType.Update:
                     matchedCount = documentsAffected - upserts.Count();
-                    modifiedCount = documentsAffected - upserts.Count();
+                    modifiedCount = 0; // getLasterror does not report this value
                     break;
             }
 

@@ -54,11 +54,15 @@ namespace MongoDB.Driver.Operations
                 _args.WriterSettings);
             var operation = new InsertOpcodeOperation(operationArgs);
 
-            WriteConcernResult writeConcernResult;
+            WriteConcernResult writeConcernResult = null;
             WriteConcernException writeConcernException = null;
             try
             {
-                writeConcernResult = operation.Execute(connection).First();
+                var operationResult = operation.Execute(connection);
+                if (operationResult != null)
+                {
+                    writeConcernResult = operationResult.First();
+                }
             }
             catch (WriteConcernException ex)
             {

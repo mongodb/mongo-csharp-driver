@@ -849,7 +849,7 @@ namespace MongoDB.DriverUnitTests.Builders
             Assert.AreEqual(expected, update.ToJson());
         }
 
-        [Explicit]
+        [Ignore]
         [Test]
         public void TestReplaceWithInvalidFieldName()
         {
