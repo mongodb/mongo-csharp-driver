@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Operations
         private readonly long _insertedCount;
         private readonly long _matchedCount;
         private readonly long _modifiedCount;
+        private readonly bool _isModifiedCountAvailable;
         private readonly Batch<WriteRequest> _nextBatch;
         private readonly ReadOnlyCollection<WriteRequest> _processedRequests;
         private readonly ReadOnlyCollection<WriteRequest> _unprocessedRequests;
@@ -55,6 +56,7 @@ namespace MongoDB.Driver.Operations
             long deletedCount,
             long insertedCount,
             long modifiedCount,
+            bool isModifiedCountAvailable,
             IEnumerable<BulkWriteUpsert> upserts,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
@@ -66,6 +68,7 @@ namespace MongoDB.Driver.Operations
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
+            _isModifiedCountAvailable = isModifiedCountAvailable;
             _indexMap = indexMap;
             _nextBatch = nextBatch;
             _processedRequests = ToReadOnlyCollection(processedRequests);
@@ -104,6 +107,11 @@ namespace MongoDB.Driver.Operations
         public long InsertedCount
         {
             get { return _insertedCount; }
+        }
+
+        public bool IsModifiedCountAvailable
+        {
+            get { return _isModifiedCountAvailable; }
         }
 
         public long MatchedCount
@@ -156,13 +164,18 @@ namespace MongoDB.Driver.Operations
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
+            var isModifiedCountAvailable = false;
             var upserts = Enumerable.Empty<BulkWriteUpsert>();
             if (result.IsAcknowledged)
             {
                 matchedCount = result.MatchedCount;
                 deletedCount = result.DeletedCount;
                 insertedCount = result.InsertedCount;
-                modifiedCount = result.ModifiedCount;
+                if (result.IsModifiedCountAvailable)
+                {
+                    modifiedCount = result.ModifiedCount;
+                    isModifiedCountAvailable = true;
+                }
                 upserts = result.Upserts;
             }
 
@@ -184,6 +197,7 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
+                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -209,6 +223,7 @@ namespace MongoDB.Driver.Operations
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
+            var isModifiedCountAvailable = true;
             var firstRequest = requests.FirstOrDefault();
             if (firstRequest != null)
             {
@@ -222,7 +237,15 @@ namespace MongoDB.Driver.Operations
                         break;
                     case WriteRequestType.Update:
                         matchedCount = n - upserts.Count();
-                        modifiedCount = writeCommandResponse.GetValue("nModified", 0).ToInt64();
+                        BsonValue nModified;
+                        if (writeCommandResponse.TryGetValue("nModified", out nModified))
+                        {
+                            modifiedCount = nModified.ToInt64();
+                        }
+                        else
+                        {
+                            isModifiedCountAvailable = false;
+                        }
                         break;
                 }
             }
@@ -235,6 +258,7 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
+                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -279,6 +303,7 @@ namespace MongoDB.Driver.Operations
             var deletedCount = 0L;
             var insertedCount = 0L;
             var modifiedCount = 0L;
+            var isModifiedCountAvailable = true;
             switch (request.RequestType)
             {
                 case WriteRequestType.Delete:
@@ -289,7 +314,7 @@ namespace MongoDB.Driver.Operations
                     break;
                 case WriteRequestType.Update:
                     matchedCount = documentsAffected - upserts.Count();
-                    modifiedCount = 0; // getLasterror does not report this value
+                    isModifiedCountAvailable = false; // getLasterror does not report this value
                     break;
             }
 
@@ -301,6 +326,7 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
+                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,

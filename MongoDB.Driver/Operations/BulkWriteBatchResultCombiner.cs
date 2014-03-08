@@ -60,6 +60,11 @@ namespace MongoDB.Driver.Operations
             return _batchResults.Sum(r => r.InsertedCount);
         }
 
+        private bool CombineIsModifiedCountAvailable()
+        {
+            return _batchResults.All(r => r.IsModifiedCountAvailable);
+        }
+
         private long CombineMatchedCount()
         {
             return _batchResults.Sum(r => r.MatchedCount);
@@ -120,7 +125,8 @@ namespace MongoDB.Driver.Operations
             var matchedCount = CombineMatchedCount();
             var deletedCount = CombineDeletedCount();
             var insertedCount = CombineInsertedCount();
-            var modifiedCount = CombineModifiedCount();
+            var isModifiedCountAvailable = CombineIsModifiedCountAvailable();
+            var modifiedCount = isModifiedCountAvailable ? CombineModifiedCount() : 0;
             var upserts = CombineUpserts();
 
             return new AcknowledgedBulkWriteResult(
@@ -129,6 +135,7 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
+                isModifiedCountAvailable,
                 processedRequests,
                 upserts);
         }

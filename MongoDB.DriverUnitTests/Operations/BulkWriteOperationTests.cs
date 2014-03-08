@@ -66,9 +66,8 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Insert(document);
                 var result = bulk.Execute(new WriteConcern { W = w });
 
-                var isAcknowledged = w > 0;
-                var expectedResult = new ExpectedResult { IsAcknowledged = w > 0, InsertedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult { IsAcknowledged = w > 0, InsertedCount = 1 };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { document };
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
@@ -151,7 +150,7 @@ namespace MongoDB.DriverUnitTests.Operations
                 var result = bulk.Execute();
 
                 var expectedResult = new ExpectedResult { InsertedCount = 3, RequestCount = 3 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                CheckExpectedResult(expectedResult, result);
 
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
             }
@@ -173,8 +172,8 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Insert(document);
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult { InsertedCount = 1 };
+                CheckExpectedResult(expectedResult, result);
 
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(new[] { document }));
             }
@@ -206,8 +205,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("x", 14)).RemoveOne();
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { DeletedCount = 2, InsertedCount = 4, MatchedCount = 2, ModifiedCount = 2, RequestCount = 7 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    DeletedCount = 2, InsertedCount = 4, MatchedCount = 2, ModifiedCount = 2, RequestCount = 7,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -235,8 +238,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("y", 1));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { DeletedCount = 2, RequestCount = 5, UpsertsCount = 3 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    DeletedCount = 2, RequestCount = 5, UpsertsCount = 3,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { new BsonDocument { { "_id", id }, { "y", 1 } } };
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
@@ -259,8 +266,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { DeletedCount = 1, MatchedCount = 2, RequestCount = 5, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    DeletedCount = 1, MatchedCount = 2, RequestCount = 5, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[0];
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
@@ -294,7 +305,7 @@ namespace MongoDB.DriverUnitTests.Operations
                 var result = bulk.Execute();
 
                 var expectedResult = new ExpectedResult { DeletedCount = 2, RequestCount = 2 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { documents[1] };
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
@@ -324,8 +335,8 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(new QueryDocument()).Remove();
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { DeletedCount = 2, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult { DeletedCount = 2 };
+                CheckExpectedResult(expectedResult, result);
 
                 Assert.AreEqual(0, _collection.Count());
             }
@@ -354,8 +365,8 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 1)).Remove();
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { DeletedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult { DeletedCount = 1 };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { new BsonDocument("key", 2) };
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
@@ -396,8 +407,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(query).ReplaceOne(replacement);
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 1, ModifiedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 1, ModifiedCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -457,8 +472,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(new QueryDocument()).UpdateOne(Update.Set("key", 3));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 1, ModifiedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 1, ModifiedCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -514,8 +533,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 2)).Update(Update.Set("x", 2));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 2, ModifiedCount = 2, RequestCount = 2 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 2, ModifiedCount = 2, RequestCount = 2,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
 
                 var expectedDocuments = new BsonDocument[]
@@ -550,8 +573,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(new QueryDocument()).Update(Update.Set("x", 3));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 2, ModifiedCount = 2, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 2, ModifiedCount = 2,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -578,8 +605,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 1)).Upsert().Update(Update.Set("x", bigString));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { RequestCount = 1, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -605,8 +636,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 2)).Upsert().ReplaceOne(new BsonDocument("x", 2));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 0, RequestCount = 2, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    RequestCount = 2, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { new BsonDocument { { "x", 2 } } };
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
@@ -636,8 +671,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 1)).Upsert().ReplaceOne(new BsonDocument("x", 1));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 1, ModifiedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 1, ModifiedCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[]
                 {
@@ -665,8 +704,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 2)).Upsert().UpdateOne(Update.Set("x", 2));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 0, RequestCount = 2, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    RequestCount = 2, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { new BsonDocument { { "key", 2 }, { "x", 2 } } };
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
@@ -677,8 +720,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk2.Find(Query.EQ("key", 2)).Upsert().UpdateOne(Update.Set("x", 2));
                 var result2 = bulk2.Execute();
 
-                var expectedResult2 = new ExpectedResult { MatchedCount = 1, RequestCount = 2, UpsertsCount = 0 };
-                CheckExpectedResult(expectedResult2, result2, serverInstance);
+                var expectedResult2 = new ExpectedResult
+                {
+                    MatchedCount = 1, RequestCount = 2,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult2, result2);
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
             }
         }
@@ -706,8 +753,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 1)).Upsert().UpdateOne(Update.Set("x", 1));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 1, ModifiedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 1, ModifiedCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -734,8 +785,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(Query.EQ("key", 2)).Upsert().Update(Update.Set("x", 2));
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 0, RequestCount = 2, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    RequestCount = 2, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new[] { new BsonDocument { { "key", 2 }, { "x", 2 } } };
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
@@ -746,8 +801,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk2.Find(Query.EQ("key", 2)).Upsert().Update(Update.Set("x", 2));
                 var result2 = bulk2.Execute();
 
-                var expectedResult2 = new ExpectedResult { MatchedCount = 1, RequestCount = 2, UpsertsCount = 0 };
-                CheckExpectedResult(expectedResult2, result2, serverInstance);
+                var expectedResult2 = new ExpectedResult
+                {
+                    MatchedCount = 1, RequestCount = 2,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult2, result2);
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
             }
         }
@@ -771,8 +830,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(query).Upsert().Update(update);
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 2, ModifiedCount = 2, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 2, ModifiedCount = 2,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -803,8 +866,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(query).Upsert().Update(update);
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { RequestCount = 1, UpsertsCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -834,8 +901,12 @@ namespace MongoDB.DriverUnitTests.Operations
                 bulk.Find(query).Upsert().Update(update);
                 var result = bulk.Execute();
 
-                var expectedResult = new ExpectedResult { MatchedCount = 1, ModifiedCount = 1, RequestCount = 1 };
-                CheckExpectedResult(expectedResult, result, serverInstance);
+                var expectedResult = new ExpectedResult
+                {
+                    MatchedCount = 1, ModifiedCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
 
                 var expectedDocuments = new BsonDocument[]
                 {
@@ -847,26 +918,27 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         // private methods
-        private void CheckExpectedResult(ExpectedResult expectedResult, BulkWriteResult result, MongoServerInstance instance)
+        private void CheckExpectedResult(ExpectedResult expectedResult, BulkWriteResult result)
         {
-            Assert.AreEqual(expectedResult.IsAcknowledged, result.IsAcknowledged);
-            Assert.AreEqual(expectedResult.ProcessedRequestsCount, result.ProcessedRequests.Count);
-            Assert.AreEqual(expectedResult.RequestCount, result.RequestCount);
+            Assert.AreEqual(expectedResult.IsAcknowledged ?? true, result.IsAcknowledged);
+            Assert.AreEqual(expectedResult.ProcessedRequestsCount ?? expectedResult.RequestCount ?? 1, result.ProcessedRequests.Count);
+            Assert.AreEqual(expectedResult.RequestCount ?? 1, result.RequestCount);
 
-            if (expectedResult.IsAcknowledged)
+            if (result.IsAcknowledged)
             {
-                Assert.AreEqual(expectedResult.DeletedCount, result.DeletedCount);
-                Assert.AreEqual(expectedResult.InsertedCount, result.InsertedCount);
-                Assert.AreEqual(expectedResult.MatchedCount, result.MatchedCount);
-                if (instance.Supports(FeatureId.WriteCommands))
+                Assert.AreEqual(expectedResult.DeletedCount ?? 0, result.DeletedCount);
+                Assert.AreEqual(expectedResult.InsertedCount ?? 0, result.InsertedCount);
+                Assert.AreEqual(expectedResult.MatchedCount ?? 0, result.MatchedCount);
+                Assert.AreEqual(expectedResult.IsModifiedCountAvailable ?? true, result.IsModifiedCountAvailable);
+                if (result.IsModifiedCountAvailable)
                 {
-                    Assert.AreEqual(expectedResult.ModifiedCount, result.ModifiedCount);
+                    Assert.AreEqual(expectedResult.ModifiedCount ?? 0, result.ModifiedCount);
                 }
                 else
                 {
-                    Assert.AreEqual(0, result.ModifiedCount);
+                    Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
                 }
-                Assert.AreEqual(expectedResult.UpsertsCount, result.Upserts.Count);
+                Assert.AreEqual(expectedResult.UpsertsCount ?? 0, result.Upserts.Count);
             }
             else
             {
@@ -892,56 +964,63 @@ namespace MongoDB.DriverUnitTests.Operations
             private bool? _isAcknowledged;
             private int? _matchedCount;
             private int? _modifiedCount;
+            private bool? _isModifiedCountAvailable;
             private int? _processedRequestsCount;
             private int? _requestCount;
             private int? _upsertsCount;
             
             // public properties
-            public int DeletedCount
+            public int? DeletedCount
             {
-                get { return _deletedCount ?? 0; }
+                get { return _deletedCount; }
                 set { _deletedCount = value; }
             }
 
-            public int InsertedCount
+            public int? InsertedCount
             {
-                get { return _insertedCount ?? 0; }
+                get { return _insertedCount; }
                 set { _insertedCount = value; }
             }
 
-            public bool IsAcknowledged
+            public bool? IsAcknowledged
             {
-                get { return _isAcknowledged ?? true; }
+                get { return _isAcknowledged; }
                 set { _isAcknowledged = value; }
             }
 
-            public int MatchedCount
+            public bool? IsModifiedCountAvailable
             {
-                get { return _matchedCount ?? 0; }
+                get { return _isModifiedCountAvailable; }
+                set { _isModifiedCountAvailable = value; }
+            }
+
+            public int? MatchedCount
+            {
+                get { return _matchedCount; }
                 set { _matchedCount = value; }
             }
 
-            public int ModifiedCount
+            public int? ModifiedCount
             {
-                get { return _modifiedCount ?? 0; }
+                get { return _modifiedCount; }
                 set { _modifiedCount = value; }
             }
 
-            public int ProcessedRequestsCount
+            public int? ProcessedRequestsCount
             {
-                get { return _processedRequestsCount ?? RequestCount; }
+                get { return _processedRequestsCount; }
                 set { _processedRequestsCount = value; }
             }
 
-            public int RequestCount
+            public int? RequestCount
             {
-                get { return _requestCount ?? 0; }
+                get { return _requestCount; }
                 set { _requestCount = value; }
             }
 
-            public int UpsertsCount
+            public int? UpsertsCount
             {
-                get { return _upsertsCount ?? 0; }
+                get { return _upsertsCount; }
                 set { _upsertsCount = value; }
             }
         }

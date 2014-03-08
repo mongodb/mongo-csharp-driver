@@ -335,15 +335,16 @@ namespace MongoDB.DriverUnitTests
                     }
                 });
 
-                var expectedModifiedCount = 1;
-                if (!serverInstance.Supports(FeatureId.WriteCommands))
-                {
-                    expectedModifiedCount = 0;
-                }
-
                 Assert.AreEqual(1, result.DeletedCount);
                 Assert.AreEqual(1, result.InsertedCount);
-                Assert.AreEqual(expectedModifiedCount, result.ModifiedCount);
+                if (serverInstance.Supports(FeatureId.WriteCommands))
+                {
+                    Assert.AreEqual(1, result.ModifiedCount);
+                }
+                else
+                {
+                    Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
+                }
                 Assert.AreEqual(3, result.RequestCount);
                 Assert.AreEqual(1, result.MatchedCount);
             }
@@ -371,15 +372,16 @@ namespace MongoDB.DriverUnitTests
                     }
                 });
 
-                var expectedModifiedCount = 1;
-                if (!serverInstance.Supports(FeatureId.WriteCommands))
-                {
-                    expectedModifiedCount = 0;
-                }
-
                 Assert.AreEqual(0, result.DeletedCount);
                 Assert.AreEqual(0, result.InsertedCount);
-                Assert.AreEqual(expectedModifiedCount, result.ModifiedCount);
+                if (serverInstance.Supports(FeatureId.WriteCommands))
+                {
+                    Assert.AreEqual(1, result.ModifiedCount);
+                }
+                else
+                {
+                    Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
+                }
                 Assert.AreEqual(3, result.RequestCount);
                 Assert.AreEqual(2, result.MatchedCount);
                 Assert.AreEqual(1, result.Upserts.Count);

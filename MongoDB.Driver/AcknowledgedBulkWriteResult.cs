@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private readonly long _insertedCount;
         private readonly long _matchedCount;
         private readonly long _modifiedCount;
+        private readonly bool _isModifiedCountAvailable;
         private readonly ReadOnlyCollection<BulkWriteUpsert> _upserts;
 
         // constructors
@@ -42,6 +43,7 @@ namespace MongoDB.Driver
         /// <param name="deletedCount">The deleted count.</param>
         /// <param name="insertedCount">The inserted count.</param>
         /// <param name="modifiedCount">The modified count.</param>
+        /// <param name="isModifiedCountAvailable">Whether the modified count is available.</param>
         /// <param name="processedRequests">The processed requests.</param>
         /// <param name="upserts">The upserts.</param>
         public AcknowledgedBulkWriteResult(
@@ -50,6 +52,7 @@ namespace MongoDB.Driver
             long deletedCount,
             long insertedCount,
             long modifiedCount,
+            bool isModifiedCountAvailable,
             IEnumerable<WriteRequest> processedRequests,
             IEnumerable<BulkWriteUpsert> upserts)
             : base(requestCount, processedRequests)
@@ -58,6 +61,7 @@ namespace MongoDB.Driver
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
+            _isModifiedCountAvailable = isModifiedCountAvailable;
             _upserts = new ReadOnlyCollection<BulkWriteUpsert>(upserts.ToList());
         }
 
@@ -85,6 +89,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether the modified count is available.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
+        /// </value>
+        public  override bool IsModifiedCountAvailable
+        {
+            get { return _isModifiedCountAvailable; }
+        }
+
+        /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
         /// <value>
@@ -97,14 +112,20 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.
         /// </value>
         public override long ModifiedCount
         {
-            get { return _modifiedCount; }
+            get
+            {
+                if (!_isModifiedCountAvailable)
+                {
+                    throw new NotSupportedException("ModifiedCount is not available.");
+                }
+                return _modifiedCount;
+            }
         }
 
         /// <summary>

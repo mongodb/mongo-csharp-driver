@@ -65,6 +65,18 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets a value indicating whether the modified count is available.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
+        /// </value>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public override bool IsModifiedCountAvailable
+        {
+            get { throw new NotSupportedException("Only acknowledged writes support the IsModifiedCountAvailable property."); }
+        }
+
+        /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
         /// <value>
@@ -79,7 +91,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.

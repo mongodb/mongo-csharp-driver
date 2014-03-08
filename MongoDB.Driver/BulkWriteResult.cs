@@ -70,6 +70,14 @@ namespace MongoDB.Driver
         public abstract bool IsAcknowledged { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the modified count is available.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
+        /// </value>
+        public abstract bool IsModifiedCountAvailable { get;  }
+
+        /// <summary>
         /// Gets the number of documents that were matched.
         /// </summary>
         /// <value>
@@ -79,7 +87,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets the number of documents that were actually modified during an update.
-        /// When connected to server versions before 2.6 ModifiedCount will equal MatchedCount.
         /// </summary>
         /// <value>
         /// The number of document that were actually modified during an update.
