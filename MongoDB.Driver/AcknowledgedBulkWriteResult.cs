@@ -30,8 +30,7 @@ namespace MongoDB.Driver
         private readonly long _deletedCount;
         private readonly long _insertedCount;
         private readonly long _matchedCount;
-        private readonly long _modifiedCount;
-        private readonly bool _isModifiedCountAvailable;
+        private readonly long? _modifiedCount;
         private readonly ReadOnlyCollection<BulkWriteUpsert> _upserts;
 
         // constructors
@@ -43,7 +42,6 @@ namespace MongoDB.Driver
         /// <param name="deletedCount">The deleted count.</param>
         /// <param name="insertedCount">The inserted count.</param>
         /// <param name="modifiedCount">The modified count.</param>
-        /// <param name="isModifiedCountAvailable">Whether the modified count is available.</param>
         /// <param name="processedRequests">The processed requests.</param>
         /// <param name="upserts">The upserts.</param>
         public AcknowledgedBulkWriteResult(
@@ -51,8 +49,7 @@ namespace MongoDB.Driver
             long matchedCount,
             long deletedCount,
             long insertedCount,
-            long modifiedCount,
-            bool isModifiedCountAvailable,
+            long? modifiedCount,
             IEnumerable<WriteRequest> processedRequests,
             IEnumerable<BulkWriteUpsert> upserts)
             : base(requestCount, processedRequests)
@@ -61,7 +58,6 @@ namespace MongoDB.Driver
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
-            _isModifiedCountAvailable = isModifiedCountAvailable;
             _upserts = new ReadOnlyCollection<BulkWriteUpsert>(upserts.ToList());
         }
 
@@ -91,12 +87,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether the modified count is available.
         /// </summary>
+        /// <remarks>
+        /// The modified count is only available when all servers have been upgraded to 2.6 or above.
+        /// </remarks>
         /// <value>
         /// <c>true</c> if the modified count is available; otherwise, <c>false</c>.
         /// </value>
         public  override bool IsModifiedCountAvailable
         {
-            get { return _isModifiedCountAvailable; }
+            get { return _modifiedCount.HasValue; }
         }
 
         /// <summary>
@@ -120,11 +119,11 @@ namespace MongoDB.Driver
         {
             get
             {
-                if (!_isModifiedCountAvailable)
+                if (!_modifiedCount.HasValue)
                 {
                     throw new NotSupportedException("ModifiedCount is not available.");
                 }
-                return _modifiedCount;
+                return _modifiedCount.Value;
             }
         }
 

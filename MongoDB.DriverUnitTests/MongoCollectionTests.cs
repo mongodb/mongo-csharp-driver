@@ -339,10 +339,12 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(1, result.InsertedCount);
                 if (serverInstance.Supports(FeatureId.WriteCommands))
                 {
+                    Assert.AreEqual(true, result.IsModifiedCountAvailable);
                     Assert.AreEqual(1, result.ModifiedCount);
                 }
                 else
                 {
+                    Assert.AreEqual(false, result.IsModifiedCountAvailable);
                     Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
                 }
                 Assert.AreEqual(3, result.RequestCount);
@@ -376,10 +378,12 @@ namespace MongoDB.DriverUnitTests
                 Assert.AreEqual(0, result.InsertedCount);
                 if (serverInstance.Supports(FeatureId.WriteCommands))
                 {
+                    Assert.AreEqual(true, result.IsModifiedCountAvailable);
                     Assert.AreEqual(1, result.ModifiedCount);
                 }
                 else
                 {
+                    Assert.AreEqual(false, result.IsModifiedCountAvailable);
                     Assert.Throws<NotSupportedException>(() => { var _ = result.ModifiedCount; });
                 }
                 Assert.AreEqual(3, result.RequestCount);

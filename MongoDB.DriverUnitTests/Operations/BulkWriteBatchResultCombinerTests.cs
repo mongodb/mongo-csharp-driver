@@ -157,7 +157,6 @@ namespace MongoDB.DriverUnitTests.Operations
                 deletedCount ?? 0,
                 insertedCount ?? 0,
                 modifiedCount ?? 0,
-                true, // isModifiedCountAvailable
                 upserts ?? Enumerable.Empty<BulkWriteUpsert>(),
                 writeErrors ?? Enumerable.Empty<BulkWriteError>(),
                 writeConcernError,

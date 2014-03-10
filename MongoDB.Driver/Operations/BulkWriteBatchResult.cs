@@ -38,8 +38,7 @@ namespace MongoDB.Driver.Operations
         private readonly IndexMap _indexMap;
         private readonly long _insertedCount;
         private readonly long _matchedCount;
-        private readonly long _modifiedCount;
-        private readonly bool _isModifiedCountAvailable;
+        private readonly long? _modifiedCount;
         private readonly Batch<WriteRequest> _nextBatch;
         private readonly ReadOnlyCollection<WriteRequest> _processedRequests;
         private readonly ReadOnlyCollection<WriteRequest> _unprocessedRequests;
@@ -55,8 +54,7 @@ namespace MongoDB.Driver.Operations
             long matchedCount,
             long deletedCount,
             long insertedCount,
-            long modifiedCount,
-            bool isModifiedCountAvailable,
+            long? modifiedCount,
             IEnumerable<BulkWriteUpsert> upserts,
             IEnumerable<BulkWriteError> writeErrors,
             WriteConcernError writeConcernError,
@@ -68,7 +66,6 @@ namespace MongoDB.Driver.Operations
             _deletedCount = deletedCount;
             _insertedCount = insertedCount;
             _modifiedCount = modifiedCount;
-            _isModifiedCountAvailable = isModifiedCountAvailable;
             _indexMap = indexMap;
             _nextBatch = nextBatch;
             _processedRequests = ToReadOnlyCollection(processedRequests);
@@ -109,17 +106,12 @@ namespace MongoDB.Driver.Operations
             get { return _insertedCount; }
         }
 
-        public bool IsModifiedCountAvailable
-        {
-            get { return _isModifiedCountAvailable; }
-        }
-
         public long MatchedCount
         {
             get { return _matchedCount; }
         }
 
-        public long ModifiedCount
+        public long? ModifiedCount
         {
             get { return _modifiedCount; }
         }
@@ -163,19 +155,14 @@ namespace MongoDB.Driver.Operations
             var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
-            var modifiedCount = 0L;
-            var isModifiedCountAvailable = false;
+            long? modifiedCount = null;
             var upserts = Enumerable.Empty<BulkWriteUpsert>();
             if (result.IsAcknowledged)
             {
                 matchedCount = result.MatchedCount;
                 deletedCount = result.DeletedCount;
                 insertedCount = result.InsertedCount;
-                if (result.IsModifiedCountAvailable)
-                {
-                    modifiedCount = result.ModifiedCount;
-                    isModifiedCountAvailable = true;
-                }
+                modifiedCount = result.IsModifiedCountAvailable ? (long?)result.ModifiedCount : null;
                 upserts = result.Upserts;
             }
 
@@ -197,7 +184,6 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -222,8 +208,7 @@ namespace MongoDB.Driver.Operations
             var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
-            var modifiedCount = 0L;
-            var isModifiedCountAvailable = true;
+            long? modifiedCount = 0L;
             var firstRequest = requests.FirstOrDefault();
             if (firstRequest != null)
             {
@@ -244,7 +229,7 @@ namespace MongoDB.Driver.Operations
                         }
                         else
                         {
-                            isModifiedCountAvailable = false;
+                            modifiedCount = null;
                         }
                         break;
                 }
@@ -258,7 +243,6 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,
@@ -302,8 +286,7 @@ namespace MongoDB.Driver.Operations
             var matchedCount = 0L;
             var deletedCount = 0L;
             var insertedCount = 0L;
-            var modifiedCount = 0L;
-            var isModifiedCountAvailable = true;
+            long? modifiedCount = 0L;
             switch (request.RequestType)
             {
                 case WriteRequestType.Delete:
@@ -314,7 +297,7 @@ namespace MongoDB.Driver.Operations
                     break;
                 case WriteRequestType.Update:
                     matchedCount = documentsAffected - upserts.Count();
-                    isModifiedCountAvailable = false; // getLasterror does not report this value
+                    modifiedCount = null; // getLasterror does not report this value
                     break;
             }
 
@@ -326,7 +309,6 @@ namespace MongoDB.Driver.Operations
                 deletedCount,
                 insertedCount,
                 modifiedCount,
-                isModifiedCountAvailable,
                 upserts,
                 writeErrors,
                 writeConcernError,
