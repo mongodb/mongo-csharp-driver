@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Operations
                 throw CreateBulkWriteException(remainingRequests);
             }
 
-            return CreateBulkWriteResult();
+            return CreateBulkWriteResult(0);
         }
 
         // private methods
@@ -104,17 +104,18 @@ namespace MongoDB.Driver.Operations
 
         private BulkWriteException CreateBulkWriteException(IEnumerable<WriteRequest> remainingRequests)
         {
-            var result = CreateBulkWriteResult();
+            var remainingRequestsList = remainingRequests.ToList();
+            var result = CreateBulkWriteResult(remainingRequestsList.Count);
             var writeErrors = CombineWriteErrors();
             var writeConcernError = CombineWriteConcernErrors();
-            var unprocessedRequests = CombineUnprocessedRequests().Concat(remainingRequests);
+            var unprocessedRequests = CombineUnprocessedRequests().Concat(remainingRequestsList);
 
             return new BulkWriteException(result, writeErrors, writeConcernError, unprocessedRequests);
         }
 
-        private BulkWriteResult CreateBulkWriteResult()
+        private BulkWriteResult CreateBulkWriteResult(int remainingRequestsCount)
         {
-            var requestCount = CombineBatchCount();
+            var requestCount = CombineBatchCount() + remainingRequestsCount;
             var processedRequests = CombineProcessedRequests();
 
             if (!_isAcknowledged)

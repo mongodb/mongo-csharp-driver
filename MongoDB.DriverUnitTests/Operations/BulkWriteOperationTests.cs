@@ -37,6 +37,93 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
+        public void TestBatchSplittingBySizeWithErrorsOrdered()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+
+                var documents = new BsonDocument[8];
+                for (var i = 0; i < 6; i++)
+                {
+                    documents[i] = new BsonDocument { { "_id", i }, { "a", new string('x', 4 * 1024 * 1024) } };
+                }
+                documents[6] = new BsonDocument("_id", 0); // will fail
+                documents[7] = new BsonDocument("_id", 100);
+
+                var bulk = _collection.InitializeOrderedBulkOperation();
+                for (var i = 0; i < 8; i++)
+                {
+                    bulk.Insert(documents[i]);
+                }
+                var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+                var result = exception.Result;
+
+                Assert.IsNull(exception.WriteConcernError);
+                Assert.AreEqual(1, exception.WriteErrors.Count);
+                var writeError = exception.WriteErrors[0];
+                Assert.AreEqual(6, writeError.Index);
+                Assert.AreEqual(11000, writeError.Code);
+
+                var expectedResult = new ExpectedResult
+                {
+                    InsertedCount = 6,
+                    ProcessedRequestsCount = 7,
+                    RequestCount = 8
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = documents.Take(6);
+                Assert.That(_collection.FindAll(), Is.EqualTo(expectedDocuments));
+            }
+        }
+
+        [Test]
+        public void TestBatchSplittingBySizeWithErrorsUnordered()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+
+                var documents = new BsonDocument[8];
+                for (var i = 0; i < 6; i++)
+                {
+                    documents[i] = new BsonDocument { { "_id", i }, { "a", new string('x', 4 * 1024 * 1024) } };
+                }
+                documents[6] = new BsonDocument("_id", 0); // will fail
+                documents[7] = new BsonDocument("_id", 100);
+
+                var bulk = _collection.InitializeUnorderedBulkOperation();
+                for (var i = 0; i < 8; i++)
+                {
+                    bulk.Insert(documents[i]);
+                }
+                var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+                var result = exception.Result;
+
+                Assert.IsNull(exception.WriteConcernError);
+                Assert.AreEqual(1, exception.WriteErrors.Count);
+                var writeError = exception.WriteErrors[0];
+                Assert.AreEqual(6, writeError.Index);
+                Assert.AreEqual(11000, writeError.Code);
+
+                var expectedResult = new ExpectedResult
+                {
+                    InsertedCount = 7,
+                    RequestCount = 8
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = Enumerable.Range(0, 8).Where(i => i != 6).Select(i => documents[i]);
+                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
         [TestCase(false)]
         [TestCase(true)]
         public void TestExecuteTwice(bool ordered)
@@ -180,7 +267,45 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
-        public void TestMixedOrdered()
+        public void TestMixedOperationsOrdered()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+
+                var bulk = _collection.InitializeOrderedBulkOperation();
+                bulk.Insert(new BsonDocument("a", 1));
+                bulk.Find(Query.EQ("a", 1)).UpdateOne(Update.Set("b", 1));
+                bulk.Find(Query.EQ("a", 2)).Upsert().UpdateOne(Update.Set("b", 2));
+                bulk.Insert(new BsonDocument("a", 3));
+                bulk.Find(Query.EQ("a", 3)).Remove();
+                var result = bulk.Execute();
+
+                var expectedResult = new ExpectedResult
+                {
+                    DeletedCount = 1, InsertedCount = 2, MatchedCount = 1, ModifiedCount = 1, RequestCount = 5, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var upserts = result.Upserts;
+                Assert.AreEqual(1, upserts.Count);
+                Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
+                Assert.AreEqual(2, upserts[0].Index);
+
+                var expectedDocuments = new BsonDocument[]
+                {
+                    new BsonDocument { { "a", 1 }, { "b", 1 } },
+                    new BsonDocument { { "a", 2 }, { "b", 2 } }
+                };
+                Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
+        public void TestMixedOperationsUnordered()
         {
             using (_server.RequestStart(null, ReadPreference.Primary))
             {
@@ -188,36 +313,45 @@ namespace MongoDB.DriverUnitTests.Operations
 
                 var documents = new BsonDocument[]
                 {
-                    new BsonDocument { { "_id", 1 }, { "x", 1 } },
-                    new BsonDocument { { "_id", 2 }, { "x", 2 } },
-                    new BsonDocument { { "_id", 3 }, { "x", 3 } },
-                    new BsonDocument { { "_id", 4 }, { "x", 4 } }
+                    new BsonDocument { { "a", 1 } },
+                    new BsonDocument { { "a", 2 } }
                 };
 
                 _collection.Drop();
-                var bulk = _collection.InitializeOrderedBulkOperation();
-                bulk.Insert(documents[0]);
-                bulk.Insert(documents[1]);
-                bulk.Insert(documents[2]);
-                bulk.Insert(documents[3]);
-                bulk.Find(Query.GT("x", 2)).Update(Update.Inc("x", 10));
-                bulk.Find(Query.EQ("x", 13)).RemoveOne();
-                bulk.Find(Query.EQ("x", 14)).RemoveOne();
+                _collection.Insert(documents[0]);
+                _collection.Insert(documents[1]);
+
+                var bulk = _collection.InitializeUnorderedBulkOperation();
+                bulk.Find(Query.EQ("a", 1)).Update(Update.Set("b", 1));
+                bulk.Find(Query.EQ("a", 2)).Remove();
+                bulk.Insert(new BsonDocument("a", 3));
+                bulk.Find(Query.EQ("a", 4)).Upsert().UpdateOne(Update.Set("b", 4));
                 var result = bulk.Execute();
 
                 var expectedResult = new ExpectedResult
                 {
-                    DeletedCount = 2, InsertedCount = 4, MatchedCount = 2, ModifiedCount = 2, RequestCount = 7,
+                    DeletedCount = 1,
+                    InsertedCount = 1,
+                    MatchedCount = 1,
+                    ModifiedCount = 1,
+                    RequestCount = 4,
+                    UpsertsCount = 1,
                     IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
                 };
                 CheckExpectedResult(expectedResult, result);
 
+                var upserts = result.Upserts;
+                Assert.AreEqual(1, upserts.Count);
+                Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
+                Assert.AreEqual(3, upserts[0].Index);
+
                 var expectedDocuments = new BsonDocument[]
                 {
-                    new BsonDocument { { "_id", 1 }, { "x", 1 } },
-                    new BsonDocument { { "_id", 2 }, { "x", 2 } }
+                    new BsonDocument { { "a", 1 }, { "b", 1 } },
+                    new BsonDocument { { "a", 3 } },
+                    new BsonDocument { { "a", 4 }, { "b", 4 } }
                 };
-                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
             }
         }
 
@@ -279,6 +413,54 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
+        public void TestOrderedBatchWithErrors()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+                _collection.CreateIndex(IndexKeys.Ascending("a"), IndexOptions.SetUnique(true));
+
+                var bulk = _collection.InitializeOrderedBulkOperation();
+                bulk.Insert(new BsonDocument { { "b", 1 }, { "a", 1 } });
+                bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1)); // will fail
+                bulk.Find(Query.EQ("b", 3)).Upsert().UpdateOne(Update.Set("a", 2));
+                bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1));
+                bulk.Insert(new BsonDocument { { "b", 4 }, { "a", 3 } });
+                bulk.Insert(new BsonDocument { { "b", 5 }, { "a", 1 } });
+                var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+                var result = exception.Result;
+
+                var expectedResult = new ExpectedResult
+                {
+                    InsertedCount = 1,
+                    ProcessedRequestsCount = 2,
+                    RequestCount = 6,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var upserts = result.Upserts;
+                Assert.AreEqual(0, upserts.Count);
+
+                Assert.IsNull(exception.WriteConcernError);
+                Assert.AreEqual(4, exception.UnprocessedRequests.Count);
+
+                var writeErrors = exception.WriteErrors;
+                Assert.AreEqual(1, writeErrors.Count);
+                Assert.AreEqual(1, writeErrors[0].Index);
+                Assert.AreEqual(11000, writeErrors[0].Code);
+
+                var expectedDocuments = new BsonDocument[]
+                {
+                    new BsonDocument { { "b", 1 }, { "a", 1 } }
+                };
+                Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
         [TestCase(false)]
         [TestCase(true)]
         public void TestRemoveMultiple(bool ordered)
@@ -309,6 +491,37 @@ namespace MongoDB.DriverUnitTests.Operations
 
                 var expectedDocuments = new[] { documents[1] };
                 Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestRemoveOneOnlyRemovesOneDocument(bool ordered)
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                var documents = new BsonDocument[]
+                {
+                    new BsonDocument("key", 1),
+                    new BsonDocument("key", 1)
+                };
+
+                _collection.Drop();
+                _collection.Insert(documents[0]);
+                _collection.Insert(documents[1]);
+
+                var bulk = InitializeBulkOperation(_collection, ordered);
+                bulk.Find(new QueryDocument()).RemoveOne();
+                var result = bulk.Execute();
+
+                var expectedResult = new ExpectedResult { DeletedCount = 1 };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = new[] { new BsonDocument("key", 1) };
+                Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
             }
         }
 
@@ -419,6 +632,61 @@ namespace MongoDB.DriverUnitTests.Operations
                     new BsonDocument("key", 1),
                     new BsonDocument("key", 3)
                 };
+                Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
+        public void TestUnorderedBatchWithErrors()
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                _collection.Drop();
+                _collection.CreateIndex(IndexKeys.Ascending("a"), IndexOptions.SetUnique(true));
+
+                var bulk = _collection.InitializeUnorderedBulkOperation();
+                bulk.Insert(new BsonDocument { { "b", 1 }, { "a", 1 } });
+                bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1));
+                bulk.Find(Query.EQ("b", 3)).Upsert().UpdateOne(Update.Set("a", 2));
+                bulk.Find(Query.EQ("b", 2)).Upsert().UpdateOne(Update.Set("a", 1));
+                bulk.Insert(new BsonDocument { { "b", 4 }, { "a", 3 } });
+                bulk.Insert(new BsonDocument { { "b", 5 }, { "a", 1 } });
+                var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(); });
+                var result = exception.Result;
+
+                var expectedResult = new ExpectedResult
+                {
+                    InsertedCount = 2, RequestCount = 6, UpsertsCount = 1,
+                    IsModifiedCountAvailable = serverInstance.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var upserts = result.Upserts;
+                Assert.AreEqual(1, upserts.Count);
+                Assert.IsInstanceOf<BsonObjectId>(upserts[0].Id);
+                Assert.AreEqual(2, upserts[0].Index);
+
+                Assert.IsNull(exception.WriteConcernError);
+                Assert.AreEqual(0, exception.UnprocessedRequests.Count);
+
+                var writeErrors = exception.WriteErrors;
+                Assert.AreEqual(3, writeErrors.Count);
+                Assert.AreEqual(1, writeErrors[0].Index);
+                Assert.AreEqual(3, writeErrors[1].Index);
+                Assert.AreEqual(5, writeErrors[2].Index);
+                Assert.IsTrue(writeErrors.All(e => e.Code == 11000));
+
+                var expectedDocuments = new BsonDocument[]
+                {
+                    new BsonDocument { { "b", 1 }, { "a", 1 } },                   
+                    serverInstance.BuildInfo.Version < new Version(2, 6, 0) ?
+                        new BsonDocument { { "a", 2 }, { "b", 3 } } : // servers prior to 2.6 rewrite field order on update
+                        new BsonDocument { { "b", 3 }, { "a", 2 } },
+                    new BsonDocument { { "b", 4 }, { "a", 3 } }
+                };
+
                 Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
             }
         }
