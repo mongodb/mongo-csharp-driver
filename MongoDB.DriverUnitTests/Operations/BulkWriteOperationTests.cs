@@ -134,9 +134,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
-            var document = new BsonDocument("_id", 1);
-
             _collection.Drop();
+
+            var document = new BsonDocument("_id", 1);
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(document);
             var result = bulk.Execute(new WriteConcern { W = w });
@@ -153,6 +153,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestExecuteWithNoRequests(bool ordered)
         {
+            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
@@ -174,6 +175,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestFindWithNullQuery(bool ordered)
         {
+            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
         }
@@ -195,6 +197,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestInsertKeyValidation(bool ordered)
         {
+            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument("$key", 1));
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
@@ -205,6 +208,8 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestInsertMultipleDocuments(bool ordered)
         {
+            _collection.Drop();
+
             var documents = new BsonDocument[]
             {
                 new BsonDocument("_id", 1),
@@ -212,7 +217,6 @@ namespace MongoDB.DriverUnitTests.Operations
                 new BsonDocument("_id", 3)
             };
 
-            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(documents[0]);
             bulk.Insert(documents[1]);
@@ -230,9 +234,10 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestInsertOneDocument(bool ordered)
         {
+            _collection.Drop();
+
             var document = new BsonDocument("_id", 1);
 
-            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(document);
             var result = bulk.Execute();
@@ -284,15 +289,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [Test]
         public void TestMixedOperationsUnordered()
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument { { "a", 1 } },
-                new BsonDocument { { "a", 2 } }
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument { { "a", 1 } });
+            _collection.Insert(new BsonDocument { { "a", 2 } });
 
             var bulk = _collection.InitializeUnorderedBulkOperation();
             bulk.Find(Query.EQ("a", 1)).Update(Update.Set("b", 1));
@@ -331,6 +330,7 @@ namespace MongoDB.DriverUnitTests.Operations
         public void TestMixedUpsertsOrdered()
         {
             _collection.Drop();
+
             var bulk = _collection.InitializeOrderedBulkOperation();
             var id = ObjectId.GenerateNewId();
             bulk.Find(Query.EQ("_id", id)).Upsert().UpdateOne(Update.Set("y", 1));
@@ -357,6 +357,7 @@ namespace MongoDB.DriverUnitTests.Operations
         public void TestMixedUpsertsUnordered()
         {
             _collection.Drop();
+
             var bulk = _collection.InitializeUnorderedBulkOperation();
             bulk.Find(Query.EQ("x", 1)).Upsert().UpdateOne(Update.Set("y", 1));
             bulk.Find(Query.EQ("x", 1)).RemoveOne();
@@ -385,6 +386,7 @@ namespace MongoDB.DriverUnitTests.Operations
         public void TestNoJournal(bool ordered)
         {
             _collection.Drop();
+
             var documents = new[]
             {
                 new BsonDocument("x", 1)
@@ -472,14 +474,14 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestRemoveMultiple(bool ordered)
         {
+            _collection.Drop();
+
             var documents = new BsonDocument[]
             {
                 new BsonDocument("_id", 1),
                 new BsonDocument("_id", 2),
                 new BsonDocument("_id", 3)
             };
-
-            _collection.Drop();
             _collection.Insert(documents[0]);
             _collection.Insert(documents[1]);
             _collection.Insert(documents[2]);
@@ -501,15 +503,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestRemoveOneOnlyRemovesOneDocument(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 1)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 1));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(new QueryDocument()).RemoveOne();
@@ -527,15 +523,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestRemoveWithEmptyQueryRemovesAllDocuments(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 1)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 1));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(new QueryDocument()).Remove();
@@ -552,15 +542,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestRemoveWithQueryRemovesOnlyMatchingDocuments(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 2)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 2));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(Query.EQ("key", 1)).Remove();
@@ -581,6 +565,7 @@ namespace MongoDB.DriverUnitTests.Operations
         {
             _collection.Drop();
             _collection.Insert(new BsonDocument("_id", 1));
+
             var bulk = InitializeBulkOperation(_collection, ordered);
             var query = Query.EQ("_id", 1);
             var replacement = new BsonDocument { { "_id", 1 }, { "$key", 1 } };
@@ -667,7 +652,6 @@ namespace MongoDB.DriverUnitTests.Operations
                     new BsonDocument { { "b", 3 }, { "a", 2 } },
                 new BsonDocument { { "b", 4 }, { "a", 3 } }
             };
-
             Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
         }
 
@@ -677,6 +661,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpdateChecksThatAllTopLevelFieldNamesAreOperators(bool ordered)
         {
+            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             var query = Query.EQ("_id", 1);
             var update = new UpdateDocument { { "key", 1 } };
@@ -690,6 +675,7 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpdateKeyValidation(bool ordered)
         {
+            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             var query = Query.EQ("_id", 1);
             var update = Update.Set("$key", 1);
@@ -702,15 +688,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpdateOneBasic(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 1)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 1));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(new QueryDocument()).UpdateOne(Update.Set("key", 3));
@@ -746,6 +726,7 @@ namespace MongoDB.DriverUnitTests.Operations
 
             foreach (var update in updates)
             {
+                _collection.Drop();
                 var bulk = InitializeBulkOperation(_collection, ordered);
                 var query = Query.EQ("_id", 1);
                 bulk.Find(query).UpdateOne(update);
@@ -758,15 +739,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpdateOnlyAffectsDocumentsThatMatch(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 2)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 2));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(Query.EQ("key", 1)).Update(Update.Set("x", 1));
@@ -796,15 +771,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpdateUpdatesAllMatchingDocuments(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 2)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 2));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(new QueryDocument()).Update(Update.Set("x", 3));
@@ -832,9 +801,9 @@ namespace MongoDB.DriverUnitTests.Operations
         public void TestUpsertOneVeryLargeDocument(bool ordered)
         {
             _collection.Drop();
-            var bigString = new string('x', 16 * 1024 * 1024 - 30);
 
             var bulk = InitializeBulkOperation(_collection, ordered);
+            var bigString = new string('x', 16 * 1024 * 1024 - 30);
             bulk.Find(Query.EQ("key", 1)).Upsert().Update(Update.Set("x", bigString));
             var result = bulk.Execute();
 
@@ -881,15 +850,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpsertReplaceOneOnlyReplacesOneMatchingDocument(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 1)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 1));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(Query.EQ("key", 1)).Upsert().ReplaceOne(new BsonDocument("x", 1));
@@ -956,15 +919,9 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpsertUpdateOneOnlyAffectsOneMatchingDocument(bool ordered)
         {
-            var documents = new BsonDocument[]
-            {
-                new BsonDocument("key", 1),
-                new BsonDocument("key", 1)
-            };
-
             _collection.Drop();
-            _collection.Insert(documents[0]);
-            _collection.Insert(documents[1]);
+            _collection.Insert(new BsonDocument("key", 1));
+            _collection.Insert(new BsonDocument("key", 1));
 
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Find(Query.EQ("key", 1)).Upsert().UpdateOne(Update.Set("x", 1));
@@ -1067,9 +1024,7 @@ namespace MongoDB.DriverUnitTests.Operations
             _collection.Insert(new BsonDocument { { "_id", id2 }, { "x", 2 } });
 
             var bulk = InitializeBulkOperation(_collection, ordered);
-            var query = Query.EQ("_id", id1);
-            var update = Update.Set("x", 1);
-            bulk.Find(query).Upsert().Update(update);
+            bulk.Find(Query.EQ("_id", id1)).Upsert().Update(Update.Set("x", 1));
             var result = bulk.Execute();
 
             var expectedResult = new ExpectedResult
@@ -1123,13 +1078,14 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestW0DoesNotReportErrors(bool ordered)
         {
+            _collection.Drop();
+
             var documents = new[]
             {
                 new BsonDocument("_id", 1),
                 new BsonDocument("_id", 1)
             };
 
-            _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(documents[0]);
             bulk.Insert(documents[1]);
@@ -1150,6 +1106,7 @@ namespace MongoDB.DriverUnitTests.Operations
             if (_primary.InstanceType == MongoServerInstanceType.StandAlone)
             {
                 _collection.Drop();
+
                 var documents = new[] { new BsonDocument("x", 1) };
 
                 var bulk = InitializeBulkOperation(_collection, ordered);
