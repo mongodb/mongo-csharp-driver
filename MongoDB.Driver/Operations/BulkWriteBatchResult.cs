@@ -413,7 +413,7 @@ namespace MongoDB.Driver.Operations
 
         private static bool IsGetLasterrorResponseAWriteConcernError(BsonDocument getLastErrorResponse)
         {
-            return getLastErrorResponse.Contains("wtimeout");
+            return new[] { "wtimeout", "jnote", "wnote" }.Any(n => getLastErrorResponse.Contains(n));
         }
 
         private static ReadOnlyCollection<T> ToReadOnlyCollection<T>(IEnumerable<T> list)

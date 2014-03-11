@@ -1185,6 +1185,47 @@ namespace MongoDB.DriverUnitTests.Operations
             }
         }
 
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestW2AgainstStandalone(bool ordered)
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+                if (serverInstance.InstanceType == MongoServerInstanceType.StandAlone)
+                {
+                    _collection.Drop();
+                    var documents = new[] { new BsonDocument("x", 1) };
+
+                    var bulk = InitializeBulkOperation(_collection, ordered);
+                    bulk.Insert(documents[0]);
+
+                    if (serverInstance.Supports(FeatureId.WriteCommands))
+                    {
+                        var exception = Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
+                        Assert.AreEqual(0, _collection.Count());
+                    }
+                    else
+                    {
+                        var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(WriteConcern.W2); });
+                        var result = exception.Result;
+
+                        var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
+                        CheckExpectedResult(expectedResult, result);
+
+                        Assert.AreEqual(0, exception.UnprocessedRequests.Count);
+                        Assert.AreEqual(0, exception.WriteErrors.Count);
+
+                        var writeConcernError = exception.WriteConcernError;
+                        Assert.IsNotNull(writeConcernError);
+
+                        Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+                    }
+                }
+            }
+        }
+
         // private methods
         private void CheckExpectedResult(ExpectedResult expectedResult, BulkWriteResult result)
         {
