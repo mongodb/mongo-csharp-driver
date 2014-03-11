@@ -413,6 +413,58 @@ namespace MongoDB.DriverUnitTests.Operations
         }
 
         [Test]
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestNoJournal(bool ordered)
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+                if (serverInstance.InstanceType == MongoServerInstanceType.StandAlone)
+                {
+                    _collection.Drop();
+                    var documents = new[]
+                    {
+                        new BsonDocument("x", 1)
+                    };
+
+                    var bulk = InitializeBulkOperation(_collection, ordered);
+                    bulk.Insert(documents[0]);
+
+                    var writeConcern = new WriteConcern { Journal = true };
+                    if (IsJournalEnabled(serverInstance))
+                    {
+                        var result = bulk.Execute(writeConcern);
+                        var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
+                        CheckExpectedResult(expectedResult, result);
+                        Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+                    }
+                    else
+                    {
+                        if (serverInstance.Supports(FeatureId.WriteCommands))
+                        {
+                            Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
+                            Assert.AreEqual(0, _collection.Count());
+                        }
+                        else
+                        {
+                            var exception = Assert.Throws<BulkWriteException>(() => { bulk.Execute(writeConcern); });
+                            var result = exception.Result;
+
+                            var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 1 };
+                            CheckExpectedResult(expectedResult, result);
+                            Assert.That(_collection.FindAll(), Is.EquivalentTo(documents));
+
+                            Assert.AreEqual(0, exception.UnprocessedRequests.Count);
+                            Assert.IsNotNull(exception.WriteConcernError);
+                            Assert.AreEqual(0, exception.WriteErrors.Count);
+                        }
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestOrderedBatchWithErrors()
         {
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -1188,6 +1240,35 @@ namespace MongoDB.DriverUnitTests.Operations
         [Test]
         [TestCase(false)]
         [TestCase(true)]
+        public void TestW0DoesNotReportErrors(bool ordered)
+        {
+            using (_server.RequestStart(null, ReadPreference.Primary))
+            {
+                var serverInstance = _server.RequestConnection.ServerInstance;
+
+                var documents = new[]
+                {
+                    new BsonDocument("_id", 1),
+                    new BsonDocument("_id", 1)
+                };
+
+                _collection.Drop();
+                var bulk = InitializeBulkOperation(_collection, ordered);
+                bulk.Insert(documents[0]);
+                bulk.Insert(documents[1]);
+                var result = bulk.Execute(WriteConcern.Unacknowledged);
+
+                var expectedResult = new ExpectedResult { IsAcknowledged = false, RequestCount = 2 };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = new[] { documents[0] };
+                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
+        }
+
+        [Test]
+        [TestCase(false)]
+        [TestCase(true)]
         public void TestW2AgainstStandalone(bool ordered)
         {
             using (_server.RequestStart(null, ReadPreference.Primary))
@@ -1203,7 +1284,7 @@ namespace MongoDB.DriverUnitTests.Operations
 
                     if (serverInstance.Supports(FeatureId.WriteCommands))
                     {
-                        var exception = Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
+                        Assert.Throws<MongoCommandException>(() => { bulk.Execute(WriteConcern.W2); });
                         Assert.AreEqual(0, _collection.Count());
                     }
                     else
@@ -1262,6 +1343,28 @@ namespace MongoDB.DriverUnitTests.Operations
         private BulkWriteOperation InitializeBulkOperation(MongoCollection collection, bool ordered)
         {
             return ordered ? collection.InitializeOrderedBulkOperation() : _collection.InitializeUnorderedBulkOperation();
+        }
+
+        private bool IsJournalEnabled(MongoServerInstance serverInstance)
+        {
+            using (_server.RequestStart(null, serverInstance))
+            {
+                var adminDatabase = _server.GetDatabase("admin");
+                var command = new CommandDocument("getCmdLineOpts", 1);
+                var result = adminDatabase.RunCommand(command);
+
+                BsonValue parsed;
+                if (result.Response.TryGetValue("parsed", out parsed))
+                {
+                    BsonValue nojournal;
+                    if (parsed.AsBsonDocument.TryGetValue("nojournal", out nojournal))
+                    {
+                        return !nojournal.ToBoolean();
+                    }
+                }
+
+                return true;
+            }
         }
 
         // nested classes

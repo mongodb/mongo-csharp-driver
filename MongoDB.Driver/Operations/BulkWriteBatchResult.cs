@@ -378,7 +378,22 @@ namespace MongoDB.Driver.Operations
         private static WriteConcernError CreateWriteConcernErrorFromGetLastErrorResponse(BsonDocument getLastErrorResponse)
         {
             var code = getLastErrorResponse.GetValue("code", 64).ToInt32(); // default = WriteConcernFailed
-            var message = (string)getLastErrorResponse.GetValue("err", null);
+
+            string message = null;
+            BsonValue value;
+            if (getLastErrorResponse.TryGetValue("err", out value) && value.BsonType == BsonType.String)
+            {
+                message = value.AsString;
+            }
+            else if (getLastErrorResponse.TryGetValue("jnote", out value) && value.BsonType == BsonType.String)
+            {
+                message = value.AsString;
+            }
+            else if (getLastErrorResponse.TryGetValue("wnote", out value) && value.BsonType == BsonType.String)
+            {
+                message = value.AsString;
+            }
+
             var details = new BsonDocument(getLastErrorResponse.Where(e => !new[] { "ok", "code", "err" }.Contains(e.Name)));
 
             return new WriteConcernError(code, message, details);
