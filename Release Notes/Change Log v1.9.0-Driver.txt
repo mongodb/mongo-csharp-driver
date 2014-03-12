@@ -1,0 +1,457 @@
+C#/.NET driver changes from 1.8.3 to 1.9.0
+
+as of 2014-02-21 commit: e25f9787615aacfe857fa6d22afee51da23d7769
+
+CollectionOptionsBuilder.cs
+  SetAutoIndexId no longer treats false differently
+  SetCapped no longer treats false differently
+
+FieldsBuilder.cs
+  added MetaTextScore
+
+GeoHaystackSearchOptionsBuilder.cs
+  obsoleted class (use GeoHaystackSearchArgs instead)
+
+GeoNearOptionsBuilder.cs
+  obsoleted class (use GeoNearArgs instead)
+
+IndexKeysBuilder.cs
+  added Text
+  added TextAll
+
+IndexOptionsBuilder.cs
+  added SetTextDefaultLanguage
+  added SetTextLanguageOverride
+  added SetWeight
+  added typed IndexOptions builder
+
+MapReduceOptionsBuilder.cs
+  obsolete class (use MapReduceArgs instead)
+  moved MapReduceOutputMode to MapReduceArgs.cs
+
+PushEachOptions.cs
+  added Position
+
+QueryBuilder.cs
+  added Negate helper methods and refactored Not to call it
+  added SizeGreaterThan
+  added SizeGreaterThanOrEqual
+  added SizeLessThan
+  added SizeLessThanOrEqual
+
+SortByBuilder.cs
+  added MetaTextScore
+
+UpdateBuilder.cs
+  added BitwiseXor
+  added CurrentDate
+  added Max
+  added Min
+  added Mul
+  changed PushEach to support PushEachOptions.Position
+  added many private helper methods
+
+UpdateCurrentDateType.cs
+  new enum
+
+AggregateResult.cs
+  added _cursorId
+  added _resultDocuments
+
+CommandResults.cs
+  added _serverInstance
+
+GeoNearResults.cs
+  obsoleted BTreeLocations (server 2.6 no longer returns this information)
+  obsoleted NumberScanned (server 2.6 no longer returns this information)
+
+GetLastErrorResults.cs
+  added Upserted
+
+IsMasterResult.cs
+  added MaxWireVersion
+  added MinWireVersion
+  added MaxWriteBatchSize
+  added ReplicaSetConfigVersion
+  
+AndDependency.cs
+FeatureContext.cs
+FeatureSet.cs
+FeatureSetDependency.cs
+FeatureSetDetector.cs
+IFeatureDependency.cs
+InstanceTypeDependency.cs
+NotDependency.cs
+ServerVersionDependency.cs
+  new classes for feature detection (based primarily on server version)
+
+MongoDeleteMessage.cs
+  added _maxDocumentSize
+  changed WriteBodyTo to not write the header
+  added WriteHeaderTo
+
+MongoGetMoreMessage.cs
+  changed WriteBodyTo to not write the header
+  added WriteHeaderTo
+
+MongoInsertMessage.cs
+  added BatchProgress (reports how much of the _batch was written to this message)
+  changed WriteBodyTo to not write the header
+  changed WriteBodyTo to consume as much of the _batch as fits in one message
+  added WriteHeaderTo
+
+MongoKillCursorsMessage.cs
+  changed WriteBodyTo to not write the header
+  added WriteHeaderTo
+
+MongoMessage.cs
+  renamed ReadMessageHeaderFrom to ReadHeaderFrom
+  renamed WriteMessageHeaderTo to WriteHeaderTo
+
+MongoQueryMessage.cs
+  added _maxDocumentSize
+  changed WriteBodyTo to not write the header
+  added WriteHeaderTo
+
+MongoReplyMessage.cs
+  added _serializationOptions
+  split ReadFrom into ReadBodyFrom and ReadHeaderFrom
+  ReadHeaderFrom now uses ExceptionMapper
+
+MongoRequestMessage.cs
+  split WriteToBuffer into WriteHeaderTo and WriteBodyTo
+
+MongoUpdateMessage.cs
+  added _maxDocumentSize
+  split ReadFrom into ReadBodyFrom and ReadHeaderFrom
+
+ConnectedInstanceCollection.cs
+  renamed nested class InstanceWithPingTime to CachedInstance
+  add _incompatibleServerCount
+  added AreAllServersVersionCompatible
+  changed EnsureContains to update _incompatibleServerCount
+  changed Remove to update _incompatibleServerCount
+  added IsCompatible to CachedInstance
+
+DirectMongoServerProxy.cs
+  changed ChooseServerInstance to check that instance is compatible
+
+MultipleInstanceServerProxy.cs
+  changed ChooseServerInstance to check that all connected instances are compatible
+
+ReplicaSetMongoServerProxy.cs
+  added _configVersion
+  changed ProcessConnectedPrimaryStateChange to check configVersion (if available)
+
+SecurityContext.cs
+  added _maxTokenSize
+  added GetMaxTokenSize helper method to set _maxTokenSize
+
+SecurityPackagedInfo.cs
+  new class
+
+Win32.cs
+  added EnumerateSecurityPackages
+  added FreeContextBuffer
+
+GsaslGssapiImplementation.cs
+  renamed _userPrincipalName to _authorizationId
+  added _hostRealm
+  added "REALM" to GetProperties
+
+GssapiMechanism.cs
+  changed Initialize to optionally canonicalize host name
+
+PlainMechanism.cs
+  new class
+
+WindowsGssapiImplementation.cs
+  added hostRealm parameter to the constructor
+  changed Transition to not check response length under more OS versions
+
+Authenticator.cs
+  added more supported protocols
+  change Authenticate to not authenticate against arbiters
+
+X509AuthenticationProtocol.cs
+  new class
+
+MongoConnection.cs
+  minor changes due to refactoring of other classes
+
+MongoServerInstance.cs
+  added __supportedWireVersionRange
+  removed _ipEndPoint (we don't cache DNS resolution anymore)
+  added MaxWireDocumentSize
+  added MaxBatchCount
+  changed GetIPEndPoint to not cache DNS resolution anymore
+  changed RefreshStateAsSoonAsPossible to verify that timer is not null
+  added Supports
+  changed LookupServerInformation to do feature detection
+
+ReplicaSetInformation.cs
+  added ConfigVersion
+
+BulkWriteException.cs
+ExecutionTimeoutException.cs
+MongoDuplicateKeyException.cs
+  new exceptions
+
+ExceptionMapper.cs
+  new class to map select error codes to custom exceptions
+
+WriteConcernException.cs
+  constructor now requires a WriteConcernResult instead of just a CommandResult
+  added WriteConcernResult
+
+MongoGridFS.cs
+  changed AppendText to ensure primary is used
+  changed CopyTo to ensure primary is used
+  changed Create to ensure primary is used
+  changed CreateText to ensure primary is used
+  changed Delete to ensure primary is used
+  changed DeleteById to ensure primary is used
+  changed EnsureIndexes to call CreateIndex instead of EnsureIndex
+  changed MoveTo to ensure primary is used
+  changed OpenWrite to ensure primary is used
+  changed Upload to ensure ReadPreference.Primary is used
+
+PredicateTranslator.cs
+  changed BuildArrayLengthQuery to also support greater than and less than operators
+  changed BuildComparisonQuery to support more kinds of variable expressions
+
+BsonSerializationInfoFinder.cs
+  changed VisitBinary to handle array serialization options
+  changed VisitGetItem to handle unsigned integer types, array serialization options and document serializers
+  changed VisitElementAt to handle array serialization options
+
+BulkDeleteOperation.cs
+BulkDeleteOperationArgs.cs
+BulkDeleteOperationEmulator.cs
+BulkInsertOperation.cs
+BulkInsertOperationArgs.cs
+BulkInsertOperationEmulator.cs
+BulkMixedWriteOperation.cs
+BulkUnmixedWriteOperationBase.cs
+BulkUnmixedWriteOperationEmulatorBase.cs
+BulkUpdateOperation.cs
+BulkUpdateOperationArgs.cs
+BulkUpdateOperationEmulator.cs
+BulkWriteArgs.cs
+BulkWriteBatchResult.cs
+BulkWriteBatchResultCombiner.cs
+BulkWriteOperationArgs.cs
+BulkWriteResultConverter.cs
+DeleteRequest.cs
+InsertRequest.cs
+UpdateRequest.cs
+WriteRequest.cs
+  new write command classes
+
+BulkUpdateRequestBuilder.cs
+BulkWriteOperation.cs
+BulkWriteRequestBuilder.cs
+  new fluent bulk API classes
+
+CommandOperation.cs
+  various changes to reflect refactoring elsewhere
+
+CursorEnumerator.cs
+  new class to encapsulate cursor implementation
+
+DatabaseOperationBase.cs
+  used to be named DatabaseOperation
+  replaced GetNodeAdjustedReaderSettings with ReaderSettings
+  replaced GetNodeAdjustedWriterSetting with WriterSettings
+
+DeleteOpcodeOperation.cs
+  used to be named RemoveOperation
+  replaced existing fields with composite _args
+  changed Execute to delegate to DeleteOpcodeOperationEmulator if server supports write commands
+  various other changes to reflect refactoring elsewhere
+
+DeleteOpcodeOperationEmulator.cs
+InsertOpcodeOperationEmulator.cs
+UpdateOpcodeOperationEmulator.cs
+  new classes to emulate opcodes using write commands
+
+InsertOpcodeOperation.cs
+  used to be named InsertOperation
+  replaced existing fields with composite _args
+  changed Execute to delegate to InsertOpcodeOperationEmulator if server supports write commands
+  refactored how Execute breaks large batches into sub-batches (pretty big changes)
+  various other changes to reflect refactoring elsewhere
+
+ParallelScanOperation.cs
+  new class to support the parallelCollectionScan command
+
+QueryOperation.cs
+  refactored to use new CursorEnumerator class
+
+ReadOperationBase.cs
+  used to be named ReadOperation
+
+UpdateOpcodeOperation.cs
+  used to be named UpdateOperation
+  replaced existing fields with composite _args
+  changed Execute to delegate to InsertOpcodeOperationEmulator if server supports write commands
+  various other changes to reflect refactoring elsewhere
+
+WriteOpcodeOperationBase.cs
+  used to be named WriteOperationBase
+  split SendMessageWithWriteConcern into two: SendMessageWithWriteConcern and ReadWriteConcernResult
+  ReadWriteConcernResult now uses the ExceptionMapper
+
+Batch.cs
+BatchProgress.cs
+IndexMap.cs
+  new support classes to support the write command implementation
+
+GeoHaystackSearchOptionsDocument.cs
+GeoHaystackSearchOptionsWrapper.cs
+GeoNearOptionsDocument.cs
+GeoNearOptionsWrapper.cs
+MapReduceOptionsDocument.cs
+MapReduceOptionsWrapper.cs
+  obsoleted classes (use new args classes instead)
+
+AcknowledgedBulkWriteResult.cs
+BulkWriteError.cs
+BulkWriteResult.cs
+BulkWriteUpsert.cs
+UnacknowledgedBulkWriteResult.cs
+  new classes to support write commands
+
+AggregateArgs.cs
+AggregateEnumerableResult.cs
+  new classes to support new Aggregate features
+
+CanCommandBeSentToSecondary.cs
+  added new commands to the list of commands that can be sent to a secondary
+
+CountArgs.cs
+DistinctArgs.cs
+EvalArgs.cs
+FindAndModifyArgs.cs
+FindAndRemoveArgs.cs
+FindOneArgs.cs
+GeoHaystackSearchArgs.cs
+GeoNearArgs.cs
+GetStatsArgs.cs
+GroupArgs.cs
+MapReduceArgs.cs
+ParallelScanArgs.cs
+ValidateCollectionArgs.cs
+  new args classes
+
+FeatureId.cs
+  new enum of certain features only supported in some versions of the server
+
+GeoNearPoint.cs
+  new class to represent alternative representations of a point
+  nested subclasses: Legacy and GeoJson
+
+IMongoGeoHaystackSearchOptions.cs
+IMongoGeoNearOptions.cs
+IMongoMapReduceOptions.cs
+  obsoleted interfaces
+
+MongoClientSettings.cs
+  add support for providing GSSAPI service name
+
+MongoCollection.cs
+  changed Aggregate to use AggregateArgs and support new features
+  added AggregateExplain
+  added BulkWrite
+  changed Count to use CountArgs and support new features
+  changed CreateIndex to be the preferred method to create an index (so now EnsureIndex is obsolete instead)
+  changed CreateIndex to use the new createIndexes command if the server supports it
+  changed Distinct to use DistinctArgs and support new features
+  obsoleted EnsureIndex
+  changed FindAndModify to use FindAndModifyArgs and support new features
+  changed FindAndRemove to use FindAndRemoveArgs and support new features
+  changed FindOne to use FindOneArgs and support new features
+  changed GeoHaystackSearch to use GeoHaystackSearchArgs and support new features
+  changed GeoNear to use GeoNearArgs and support new features
+  changed GetStats to use GetStatsArgs and support new features
+  changed Group to use GroupArgs and support new features
+  added InitializeOrderedBulkOperation and InitializeUnorderedBulkOperation to conform to the mandated fluent API spec
+  changed InsertBatch to use the new InsertOpcodeOperation class
+  changed MapReduce to use MapReduceArgs and support new features
+  added ParallelScan
+  changed Remove to use new DeleteOpcodeOperation class
+  changed Update to use new UpdateOpcodeOperation class
+  changed Validate to use new ValidateCollectionArgs class and support new features
+  added private GetBinaryReaderSettings and GetBinaryWriterSettings helper methods
+  changed RunCommandAs helper method to call Connect first so CanCommandBeSentToSecondary results are accurate
+  various other changes to reflect refactoring elsewhere
+
+MongoConnectionStringBuilder.cs
+  added support for providing GSSAPI service name
+
+MongoCredential.cs
+  added _mechanismProperties to support arbitrary mechanism specific properties
+  refactored Password to use new MongoUtils.ToInsecureString helper method
+  added new factory methods for new credential types (X509 and Plain)
+  added GetMechanismProperty
+  added WithMechanismProperty (returns new instance)
+  changed FromComponents to support new features
+
+MongoCursor.cs
+  added SetMaxTime
+  changed GetEnumerator to call Connect first so CanCommandBeSentToSecondary results are accurate
+  various other changes to reflect refactoring elsewhere
+
+MongoCursorEnumerator.cs
+  note: this class is obsolete
+  changed constructor to call Connect first so CanCommandBeSentToSecondary results are accurate
+  various other changes to reflect refactoring elsewhere
+
+MongoDatabase.cs
+  obsoleted AddUser
+  changed Eval to use EvalArgs and support new features
+  obsoleted FindAllUsers
+  obsoleted FindUser
+  obsoleted RemoveUser
+  changed obsoleted user management methods to use new user management commands if server supports them
+  changed RunCommandAs helper method to call Connect first so CanCommandBeSentToSecondary results are accurate
+
+MongoDefaults.cs
+  added _maxBatchCount with a default of 1000
+  added _maxDocumentSize with a default of 4Mib (no longer coupled to BsonDefault.MaxDocumentSize)
+
+MongoServer.cs
+  changed Primary to return an instance when connected to mongos (instead of null)
+  obsoleted CopyDatabase
+
+MongoServerBuildInfo.cs
+  let the .NET Version class parse the string itself
+
+MongoServerSettings.cs
+  add support for providing GSSAPI service name
+
+MongoUrl.cs
+MongoUrlBuilder.cs
+  added support for providing GSSAPI service name
+
+MongoUser.cs
+  obsoleted class
+
+MongoUtils.cs
+  added TimeSpanFromMicroseconds
+  added ToInsecureString
+
+Range.cs
+  new internal helper class
+
+ServerInstanceConnectionProvider.cs
+  new class used with the new CursorEnumerator class
+
+WriteConcern.cs
+  now implements IConvertibleToBsonDocument also
+  Acknowledeged is now only Enabled and does not send { w : 1 } to the server
+  new W1 value (it's like the old Acknowledged value)
+  added ToBsonDocument
+
+WriteConcernError.cs
+  new class used with write commands

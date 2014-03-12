@@ -1,0 +1,85 @@
+BSON library changes from 1.8.3 to 1.9.0
+
+as of 2014-02-21 commit: e25f9787615aacfe857fa6d22afee51da23d7769
+
+BsonBinaryWriter.cs
+  added _maxDocumentSizeStack
+  added PopMaxDocumentSize
+  added PushMaxDocumentSize
+
+BsonWriter.cs
+  fixed CheckElementName handling of empty name
+
+BsonDocument.cs
+  new Add method with valueFactory lambda
+  made some obsolete methods virtual
+
+BsonDocumentWrapper.cs
+  changed base class to MaterializedOnDemandBsonDocument
+  added new constructor
+  added SerializationOptions
+  added Serializer
+  removed methods now implemented by base class (CompareTo etc...)
+  added Clone
+  added Materialize
+  added MaterializeCompleted
+
+BsonValue.cs
+  fixed IConvertible.ToType to handle object
+
+LazyBsonArray.cs
+  changed base class to MaterializedOnDemandBsonArray
+  removed methods now implemented by base class
+  added Materialize
+  added MaterializeCompleted
+  added MaterializeThisLevel (was DeserializeThisLevel)
+
+LazyBsonDocument.cs
+  changed base class to MaterializedOnDemandBsonDocument
+  removed methods now implemented by base class
+  added Materialize
+  added MaterializeCompleted
+  added MaterializeThisLevel (was DeserializeThisLevel)
+
+MaterializedOnDemandBsonArray.cs
+  new class
+
+MaterializedOnDemandBsonDocument.cs
+  new class
+
+ObjectId.cs
+  changed IConvertible.ToType to handle object
+
+RawBsonArray.cs
+  added IsReadOnly
+
+EnumRepresentationConvention.cs
+  new class
+
+BsonArraySerializer.cs
+  now implementes IBsonArraySerializer
+  added GetItemSerializationInfo
+
+BsonDocumentBackedClassSerializer.cs
+  GetMemberSerializationInfo is not virtual
+
+BsonDocumentSerializer.cs
+  now implements IBsonDocumentSerializer
+  added GetMemberSerializationInfo
+
+BsonDocumentWrappedSerializer.cs
+  changed Serialize to use Serializer from wrapped object
+
+BsonValueSerializer.cs
+  now implements IBsonArraySerializer and IBSonDocumentSerializer
+  added GetItemSerializationInfo
+  added GetMemberSerializationInfo
+
+DictionaryGenericSerializer.cs
+  changed Serializer to handle empty string keys
+
+DictionarySerializer.cs
+  changed Serializer to handle empty string keys
+
+BsonDefaults.cs
+  changed _maxDocumentSize from 4MiB to int.MaxValue
