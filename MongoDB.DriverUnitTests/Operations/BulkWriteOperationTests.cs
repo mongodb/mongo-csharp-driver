@@ -1136,6 +1136,32 @@ namespace MongoDB.DriverUnitTests.Operations
             }
         }
 
+        [Test]
+        public void TestWTimeoutPlusDuplicateKeyError()
+        {
+            if (_primary.InstanceType == MongoServerInstanceType.ReplicaSetMember)
+            {
+                _collection.Drop();
+
+                var bulk = _collection.InitializeUnorderedBulkOperation();
+                bulk.Insert(new BsonDocument("_id", 1));
+                bulk.Insert(new BsonDocument("_id", 1));
+                var exception = Assert.Throws<BulkWriteException>(() => bulk.Execute(new WriteConcern { W = 999, WTimeout = TimeSpan.FromMilliseconds(1) }));
+                var result = exception.Result;
+
+                var expectedResult = new ExpectedResult { InsertedCount = 1, RequestCount = 2 };
+                CheckExpectedResult(expectedResult, result);
+
+                var writeErrors = exception.WriteErrors;
+                Assert.AreEqual(1, writeErrors.Count);
+                Assert.AreEqual(11000, writeErrors[0].Code);
+                Assert.AreEqual(1, writeErrors[0].Index);
+
+                var writeConcernError = exception.WriteConcernError;
+                Assert.AreEqual(64, writeConcernError.Code);
+            }
+        }
+
         // private methods
         private void CheckExpectedResult(ExpectedResult expectedResult, BulkWriteResult result)
         {
