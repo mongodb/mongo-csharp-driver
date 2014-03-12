@@ -553,7 +553,10 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(expectedIndexVersion, indexes[0].Version);
 
             _collection.DropAllIndexes();
-            _collection.CreateIndex("x");
+            var result = _collection.CreateIndex("x");
+
+            var expectedResult = new ExpectedWriteConcernResult();
+            CheckExpectedResult(expectedResult, result);
 
             indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
             Assert.AreEqual(2, indexes.Count);
@@ -576,7 +579,11 @@ namespace MongoDB.DriverUnitTests
 
             _collection.DropAllIndexes();
             var options = IndexOptions.SetBackground(true).SetDropDups(true).SetSparse(true).SetUnique(true);
-            _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+            result = _collection.CreateIndex(IndexKeys.Ascending("x").Descending("y"), options);
+
+            expectedResult = new ExpectedWriteConcernResult();
+            CheckExpectedResult(expectedResult, result);
+
             indexes = _collection.GetIndexes().OrderBy(x => x.Name).ToList();
             Assert.AreEqual(2, indexes.Count);
             Assert.AreEqual(false, indexes[0].DroppedDups);
@@ -720,7 +727,10 @@ namespace MongoDB.DriverUnitTests
 
                 var keys = IndexKeys.Ascending("ts");
                 var options = IndexOptions.SetTimeToLive(TimeSpan.FromHours(1));
-                _collection.CreateIndex(keys, options);
+                var result = _collection.CreateIndex(keys, options);
+
+                var expectedResult = new ExpectedWriteConcernResult();
+                CheckExpectedResult(expectedResult, result);
 
                 var indexes = _collection.GetIndexes();
                 Assert.AreEqual("_id_", indexes[0].Name);
@@ -1910,28 +1920,32 @@ namespace MongoDB.DriverUnitTests
             };
 
             // try the batch without ContinueOnError
-            try
+            var exception = Assert.Throws<MongoDuplicateKeyException>(() => collection.InsertBatch(batch));
+            var result = exception.WriteConcernResult;
+
+            var expectedResult = new ExpectedWriteConcernResult
             {
-                collection.InsertBatch(batch);
-            }
-            catch (WriteConcernException)
-            {
-                Assert.AreEqual(1, collection.Count());
-                Assert.AreEqual(1, collection.FindOne()["x"].AsInt32);
-            }
+                HasLastErrorMessage = true
+            };
+            CheckExpectedResult(expectedResult, result);
+
+            Assert.AreEqual(1, collection.Count());
+            Assert.AreEqual(1, collection.FindOne()["x"].AsInt32);
 
             // try the batch again with ContinueOnError
             if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
-                try
+                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                exception = Assert.Throws<MongoDuplicateKeyException>(() => collection.InsertBatch(batch, options));
+                result = exception.WriteConcernResult;
+
+                expectedResult = new ExpectedWriteConcernResult
                 {
-                    var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                    collection.InsertBatch(batch, options);
-                }
-                catch (WriteConcernException)
-                {
-                    Assert.AreEqual(3, collection.Count());
-                }
+                    HasLastErrorMessage = true
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                Assert.AreEqual(3, collection.Count());
             }
         }
 
@@ -1962,9 +1976,9 @@ namespace MongoDB.DriverUnitTests
                 };
 
                 var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
-                var result = collection.InsertBatch(documents, options);
+                var results = collection.InsertBatch(documents, options);
+                Assert.AreEqual(null, results);
 
-                Assert.AreEqual(null, result);
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
@@ -2000,9 +2014,9 @@ namespace MongoDB.DriverUnitTests
                 };
 
                 var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                var result = collection.InsertBatch(documents, options);
+                var results = collection.InsertBatch(documents, options);
+                Assert.AreEqual(null, results);
 
-                Assert.AreEqual(null, result);
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 2)));
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 3)));
@@ -2037,25 +2051,27 @@ namespace MongoDB.DriverUnitTests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                try
+                var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
+                var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
+                var result = exception.WriteConcernResult;
+
+                var expectedResult = new ExpectedWriteConcernResult
                 {
-                    var options = new MongoInsertOptions { Flags = InsertFlags.None }; // no ContinueOnError
-                    collection.InsertBatch(documents, options);
+                    HasLastErrorMessage = true
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
+                if (results.Length == 2)
+                {
+                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
                 }
-                catch (WriteConcernException ex)
+                else
                 {
-                    var results = ((IEnumerable<WriteConcernResult>)ex.Data["results"]).ToArray();
-                    if (results.Length == 2)
-                    {
-                        Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                        Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                    }
-                    else
-                    {
-                        // it the opcode was emulated there will just be one synthesized result
-                        Assert.AreEqual(1, results.Length);
-                        Assert.AreEqual(true, results[0].HasLastErrorMessage);
-                    }
+                    // it the opcode was emulated there will just be one synthesized result
+                    Assert.AreEqual(1, results.Length);
+                    Assert.AreEqual(true, results[0].HasLastErrorMessage);
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -2092,26 +2108,28 @@ namespace MongoDB.DriverUnitTests
                     new BsonDocument { { "_id", 5 }, { "filler", filler } },
                 };
 
-                try
+                var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
+                var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.InsertBatch(documents, options); });
+                var result = exception.WriteConcernResult;
+
+                var expectedResult = new ExpectedWriteConcernResult()
                 {
-                    var options = new MongoInsertOptions { Flags = InsertFlags.ContinueOnError };
-                    collection.InsertBatch(documents, options);
+                    HasLastErrorMessage = true
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
+                if (results.Length == 3)
+                {
+                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
+                    Assert.AreEqual(false, results[2].HasLastErrorMessage);
                 }
-                catch (WriteConcernException ex)
+                else
                 {
-                    var results = ((IEnumerable<WriteConcernResult>)ex.Data["results"]).ToArray();
-                    if (results.Length == 3)
-                    {
-                        Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                        Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                        Assert.AreEqual(false, results[2].HasLastErrorMessage);
-                    }
-                    else
-                    {
-                        // it the opcode was emulated there will just be one synthesized result
-                        Assert.AreEqual(1, results.Length);
-                        Assert.AreEqual(true, results[0].HasLastErrorMessage);
-                    }
+                    // it the opcode was emulated there will just be one synthesized result
+                    Assert.AreEqual(1, results.Length);
+                    Assert.AreEqual(true, results[0].HasLastErrorMessage);
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -2146,7 +2164,8 @@ namespace MongoDB.DriverUnitTests
                     documents[i] = document;
                 }
 
-                collection.InsertBatch(documents);
+                var results = collection.InsertBatch(documents);
+                Assert.IsNull(results);
 
                 Assert.AreEqual(documentCount, collection.Count());
             }
@@ -2158,7 +2177,10 @@ namespace MongoDB.DriverUnitTests
             if (_primary.BuildInfo.Version >= new Version(2, 5, 5))
             {
                 _collection.Drop();
-                _collection.InsertBatch(new BsonDocument[0]);
+                var results = _collection.InsertBatch(new BsonDocument[0]);
+                var expectedResult = new ExpectedWriteConcernResult();
+                CheckExpectedResult(expectedResult, results.Single());
+
                 Assert.AreEqual(0, _collection.Count());
             }
         }
@@ -2169,12 +2191,17 @@ namespace MongoDB.DriverUnitTests
             var collection = _database.GetCollection("duplicatekeys");
             collection.Drop();
 
-            collection.Insert(new BsonDocument("_id", 1));
+            var result = collection.Insert(new BsonDocument("_id", 1));
+            var expectedResult = new ExpectedWriteConcernResult();
+            CheckExpectedResult(expectedResult, result);
 
-            Assert.Throws<MongoDuplicateKeyException>(() =>
+            var exception = Assert.Throws<MongoDuplicateKeyException>(() => { collection.Insert(new BsonDocument("_id", 1)); });
+            result = exception.WriteConcernResult;
+            expectedResult = new ExpectedWriteConcernResult
             {
-                collection.Insert(new BsonDocument("_id", 1));
-            });
+                HasLastErrorMessage = true
+            };
+            CheckExpectedResult(expectedResult, result);
         }
 
         [Test]
@@ -2225,7 +2252,10 @@ namespace MongoDB.DriverUnitTests
             var collection = _database.GetCollection(Configuration.TestCollection.Name, settings);
 
             var document = new BsonDocument("x", "\udc00"); // invalid lone low surrogate
-            collection.Save(document);
+            var result = collection.Save(document);
+
+            var expectedResult = new ExpectedWriteConcernResult();
+            CheckExpectedResult(expectedResult, result);
 
             var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"]));
             Assert.AreEqual("\ufffd", rehydrated["x"].AsString);
@@ -2591,12 +2621,11 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             var result = _collection.Remove(Query.EQ("x", 1));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(false, result.Response.Contains("updatedExisting"));
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1
+            };
+            CheckExpectedResult(expectedResult, result);
 
             Assert.AreEqual(0, _collection.Count());
         }
@@ -2607,12 +2636,11 @@ namespace MongoDB.DriverUnitTests
             _collection.Drop();
             var result = _collection.Remove(Query.EQ("x", 1));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(0, result.DocumentsAffected);
-            Assert.AreEqual(false, result.Response.Contains("updatedExisting"));
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                UpdatedExisting = false
+            };
+            CheckExpectedResult(expectedResult, result);
 
             Assert.AreEqual(0, _collection.Count());
         }
@@ -2826,12 +2854,12 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(true, result.UpdatedExisting);
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1,
+                UpdatedExisting = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
@@ -2844,12 +2872,11 @@ namespace MongoDB.DriverUnitTests
             _collection.Drop();
             var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(0, result.DocumentsAffected);
-            Assert.AreEqual(false, result.UpdatedExisting);
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 0
+            };
+            CheckExpectedResult(expectedResult, result);
 
             Assert.AreEqual(0, _collection.Count());
         }
@@ -2862,12 +2889,12 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             var result = _collection.Update(new QueryDocument(), Update.Set("x", 2));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(true, result.UpdatedExisting);
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1,
+                UpdatedExisting = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
@@ -2882,12 +2909,12 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             var result = _collection.Update(Query.Null, Update.Set("x", 2));
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(true, result.UpdatedExisting);
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1,
+                UpdatedExisting = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
@@ -2918,12 +2945,12 @@ namespace MongoDB.DriverUnitTests
             _collection.Insert(new BsonDocument("x", 1));
             var result = _collection.Update(Query.EQ("x", 1), Update.Set("x", 2), UpdateFlags.Upsert);
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(true, result.UpdatedExisting);
-            Assert.AreEqual(null, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1,
+                UpdatedExisting = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
@@ -2937,12 +2964,12 @@ namespace MongoDB.DriverUnitTests
             var id = new BsonObjectId(ObjectId.GenerateNewId());
             var result = _collection.Update(Query.EQ("_id", id), Update.Set("x", 2), UpdateFlags.Upsert);
 
-            Assert.AreEqual(true, result.Ok);
-            Assert.AreEqual(null, result.Code);
-            Assert.AreEqual(null, result.LastErrorMessage);
-            Assert.AreEqual(1, result.DocumentsAffected);
-            Assert.AreEqual(false, result.UpdatedExisting);
-            Assert.AreEqual(id, result.Upserted);
+            var expectedResult = new ExpectedWriteConcernResult
+            {
+                DocumentsAffected = 1,
+                Upserted = id
+            };
+            CheckExpectedResult(expectedResult, result);
 
             var document = _collection.FindOne();
             Assert.AreEqual(2, document["x"].AsInt32);
@@ -3076,6 +3103,61 @@ namespace MongoDB.DriverUnitTests
 
                     Assert.AreEqual(_collection.FullName, result.Namespace);
                 }
+            }
+        }
+
+        // private methods
+        private void CheckExpectedResult(ExpectedWriteConcernResult expectedResult, WriteConcernResult result)
+        {
+            Assert.AreEqual(expectedResult.DocumentsAffected ?? 0, result.DocumentsAffected);
+            Assert.AreEqual(expectedResult.HasLastErrorMessage ?? false, result.HasLastErrorMessage);
+            if (expectedResult.LastErrorMessage != null)
+            {
+                Assert.AreEqual(expectedResult.LastErrorMessage, result.LastErrorMessage);
+            }
+            Assert.AreEqual(expectedResult.Upserted, result.Upserted);
+            Assert.AreEqual(expectedResult.UpdatedExisting ?? false, result.UpdatedExisting);
+        }
+
+        // nested types
+        private class ExpectedWriteConcernResult
+        {
+            // private fields
+            private int? _documentsAffected;
+            private bool? _hasLastErrorMessage;
+            private string _lastErrorMessage;
+            private BsonValue _upserted;
+            private bool? _updatedExisting;
+
+            // public properties
+            public int? DocumentsAffected
+            {
+                get { return _documentsAffected; }
+                set { _documentsAffected = value; }
+            }
+
+            public bool? HasLastErrorMessage
+            {
+                get { return _hasLastErrorMessage; }
+                set { _hasLastErrorMessage = value; }
+            }
+
+            public string LastErrorMessage
+            {
+                get { return _lastErrorMessage; }
+                set { _lastErrorMessage = value; }
+            }
+
+            public BsonValue Upserted
+            {
+                get { return _upserted; }
+                set { _upserted = value; }
+            }
+
+            public bool? UpdatedExisting
+            {
+                get { return _updatedExisting; }
+                set { _updatedExisting = value; }
             }
         }
     }

@@ -292,7 +292,7 @@ namespace MongoDB.Driver
                     try
                     {
                         CreateIndexWithCommand(keys, options);
-                        var fakeResponse = new BsonDocument("ok", 1);
+                        var fakeResponse = new BsonDocument { { "ok", 1 }, { "n", 0 } };
                         return new WriteConcernResult(fakeResponse);
                     }
                     catch (MongoCommandException ex)
