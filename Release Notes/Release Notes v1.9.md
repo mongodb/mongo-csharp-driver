@@ -1,5 +1,5 @@
-C#/.NET Driver Version 1.9.0-rc0 Release Notes
-==========================================
+C#/.NET Driver Version 1.9.0-rc1 Release Notes
+==============================================
 
 *This is a pre-release and is not recommended for production*.
 

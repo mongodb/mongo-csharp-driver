@@ -5,7 +5,7 @@
     <version>0.0.0</version>
     <title>Official MongoDB C# driver</title>
     <authors>MongoDB, Inc.</authors>
-    <owners>Sridhar Nanjundeswaran, Robert Stam, Craig Wilson</owners>
+    <owners>Robert Stam, Craig Wilson</owners>
     <iconUrl>http://jobs.mongodb.org/files/logos/889002/889002.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Official C# driver for MongoDB</description>
