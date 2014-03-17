@@ -1,4 +1,4 @@
-function Get-GitCommit
+﻿function Get-GitCommit
 {
   try {
     $commit = git log -1 --pretty=format:%H
