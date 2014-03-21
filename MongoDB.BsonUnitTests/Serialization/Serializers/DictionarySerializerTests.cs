@@ -85,6 +85,33 @@ namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+        [TestCase("")]
+        [TestCase("$x")]
+        [TestCase("x.y")]
+        [TestCase("x\0")]
+        [TestCase("x\u0000")]
+        public void TestInvalidKey(string key)
+        {
+            var ht = new Hashtable { { key, 1 } };
+            var ld = CreateListDictionary(ht);
+            var od = CreateOrderedDictionary(ht);
+            var sl = CreateSortedList(ht);
+            var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
+            var json = obj.ToJson();
+            var rep = string.Format("[['{0}', 1]]", key.Replace("\u0000", "\\u0000"));
+            var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = obj.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
+            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
+            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
+            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
+            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
         [Test]
         public void TestOneC()
         {
