@@ -2172,20 +2172,6 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
-        public void TestInsertBatchZeroDocuments()
-        {
-            if (_primary.BuildInfo.Version >= new Version(2, 5, 5))
-            {
-                _collection.Drop();
-                var results = _collection.InsertBatch(new BsonDocument[0]);
-                var expectedResult = new ExpectedWriteConcernResult();
-                CheckExpectedResult(expectedResult, results.Single());
-
-                Assert.AreEqual(0, _collection.Count());
-            }
-        }
-
-        [Test]
         public void TestInsertDuplicateKey()
         {
             var collection = _database.GetCollection("duplicatekeys");
