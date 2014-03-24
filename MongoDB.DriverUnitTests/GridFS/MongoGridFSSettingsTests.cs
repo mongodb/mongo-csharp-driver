@@ -35,7 +35,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestDefaults()
         {
             var settings = MongoGridFSSettings.Defaults;
-            Assert.AreEqual(256 * 1024, settings.ChunkSize);
+            Assert.AreEqual(255 * 1024, settings.ChunkSize);
             Assert.AreEqual("fs", settings.Root);
             Assert.AreEqual(true, settings.UpdateMD5);
             Assert.AreEqual(true, settings.VerifyMD5);
