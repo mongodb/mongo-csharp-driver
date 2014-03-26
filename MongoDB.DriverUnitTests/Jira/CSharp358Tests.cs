@@ -30,7 +30,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp358
             // starting with version 2.5.2 the server got stricter about dollars in element names
             // so this test should only be run when testing against older servers
             var server = Configuration.TestServer;
-            if (server.BuildInfo.Version < new Version(2, 5, 2))
+            if (server.BuildInfo.Version < new Version(2, 6, 0))
             {
                 var database = Configuration.TestDatabase;
                 var collection = Configuration.TestCollection;

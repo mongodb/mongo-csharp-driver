@@ -28,7 +28,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp199
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            if (server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 var database = Configuration.TestDatabase;
                 var collection = Configuration.TestCollection;
@@ -53,7 +53,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp199
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            if (server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 var database = Configuration.TestDatabase;
                 var collection = Configuration.TestCollection;
@@ -78,7 +78,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp199
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 7, 2, 0))
+            if (server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 var database = Configuration.TestDatabase;
                 var collection = Configuration.TestCollection;

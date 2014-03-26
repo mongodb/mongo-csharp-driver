@@ -97,7 +97,7 @@ namespace MongoDB.Driver
                 var version = match.Groups["version"].Value;
                 return new Version(version);
             }
-            return new Version(0, 0, 0, 0);
+            return new Version(0, 0, 0);
         }
 
         // public static methods

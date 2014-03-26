@@ -70,7 +70,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            if (server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
@@ -87,7 +87,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            if (server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
@@ -104,7 +104,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            if (server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 var polygon = GeoJson.Polygon(
                         GeoJson.Geographic(40, 18),
@@ -126,7 +126,7 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var server = Configuration.TestServer;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 3, 2))
+            if (server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 var polygon = GeoJson.Polygon(
                         GeoJson.Geographic(41, 19),

@@ -54,7 +54,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestAggregate()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 1, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 2, 0))
             {
                 _collection.RemoveAll();
                 _collection.DropAllIndexes();
@@ -720,7 +720,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestCreateIndexTimeToLive()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 2))
+            if (_server.BuildInfo.Version >= new Version(2, 2, 0))
             {
                 _collection.DropAllIndexes();
                 Assert.AreEqual(1, _collection.GetIndexes().Count());
@@ -1015,7 +1015,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindNearSphericalTrue()
         {
-            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
@@ -1213,7 +1213,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestFindWithinCircleSphericalTrue()
         {
-            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
@@ -1540,7 +1540,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoNearSphericalTrue()
         {
-            if (_server.BuildInfo.Version >= new Version(1, 7, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new Place { Location = new[] { -74.0, 40.74 }, Name = "10gen", Type = "Office" });
@@ -1598,7 +1598,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoNearWithGeoJsonPoints()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen", Type = "Office" });
@@ -1671,7 +1671,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestGeoSphericalIndex()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new PlaceGeoJson { Location = GeoJson.Point(GeoJson.Geographic(-74.0, 40.74)), Name = "10gen" , Type = "Office" });
@@ -1869,7 +1869,7 @@ namespace MongoDB.DriverUnitTests
         [Test]
         public void TestHashedIndex()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 4, 0, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 if (_collection.Exists()) { _collection.Drop(); }
                 _collection.Insert(new BsonDocument { { "x", "abc" } });
@@ -2343,7 +2343,7 @@ namespace MongoDB.DriverUnitTests
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            if (_server.BuildInfo.Version >= new Version(1, 7, 4, 0))
+            if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 _collection.RemoveAll();
                 _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
@@ -2451,7 +2451,7 @@ namespace MongoDB.DriverUnitTests
             // this is Example 1 on p. 87 of MongoDB: The Definitive Guide
             // by Kristina Chodorow and Michael Dirolf
 
-            if (_server.BuildInfo.Version >= new Version(1, 7, 4, 0))
+            if (_server.BuildInfo.Version >= new Version(1, 8, 0))
             {
                 _collection.RemoveAll();
                 _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
@@ -2713,8 +2713,8 @@ namespace MongoDB.DriverUnitTests
         public void TestGetStatsUsePowerOf2Sizes()
         {
             // SERVER-8409: only run this when talking to a non-mongos 2.2 server or >= 2.4.
-            if ((_server.BuildInfo.Version >= new Version(2, 2) && _server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
-                || _server.BuildInfo.Version >= new Version(2, 4))
+            if ((_server.BuildInfo.Version >= new Version(2, 2, 0) && _server.Primary.InstanceType != MongoServerInstanceType.ShardRouter)
+                || _server.BuildInfo.Version >= new Version(2, 4, 0))
             {
                 _collection.Drop();
                 _database.CreateCollection(_collection.Name); // collMod command only works if collection exists

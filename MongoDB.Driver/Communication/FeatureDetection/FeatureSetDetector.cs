@@ -30,34 +30,26 @@ namespace MongoDB.Driver.Communication.FeatureDetection
 
             // added in 2.4.0
             new FeatureSetDependency(
-                new ServerVersionDependency(new Version(2, 4, 0)),
+                new ServerVersionDependency(2, 4, 0),
                 FeatureId.TextSearchCommand),
 
-            // added in 2.5.2
+            // added in 2.6.0
             new FeatureSetDependency(
-                new ServerVersionDependency(2, 5, 2),
+                new ServerVersionDependency(2, 6, 0),
                 FeatureId.AggregateAllowDiskUse,
                 FeatureId.AggregateCursor,
-                FeatureId.AggregateOutputToCollection),
-
-            // added in 2.5.3
-            new FeatureSetDependency(
-                new ServerVersionDependency(2, 5, 3),
                 FeatureId.AggregateExplain,
-                FeatureId.MaxTime,
-                FeatureId.UserManagementCommands),
-
-            // added in 2.5.5
-            new FeatureSetDependency(
-                new ServerVersionDependency(2, 5, 5),
+                FeatureId.AggregateOutputToCollection,
                 FeatureId.CreateIndexCommand,
+                FeatureId.MaxTime,
                 FeatureId.TextSearchQuery,
+                FeatureId.UserManagementCommands,
                 FeatureId.WriteCommands),
 
-            // added in 2.5.5 but not on mongos
+            // added in 2.6.0 but not on mongos
             new FeatureSetDependency(
                 new AndDependency(
-                    new ServerVersionDependency(2, 5, 5),
+                    new ServerVersionDependency(2, 6, 0),
                     new NotDependency(new InstanceTypeDependency(MongoServerInstanceType.ShardRouter))),
                 FeatureId.ParallelScanCommand)
        };
