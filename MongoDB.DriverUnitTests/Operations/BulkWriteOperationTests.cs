@@ -800,25 +800,28 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true)]
         public void TestUpsertOneVeryLargeDocument(bool ordered)
         {
-            _collection.Drop();
-
-            var bulk = InitializeBulkOperation(_collection, ordered);
-            var bigString = new string('x', 16 * 1024 * 1024 - 30);
-            bulk.Find(Query.EQ("key", 1)).Upsert().Update(Update.Set("x", bigString));
-            var result = bulk.Execute();
-
-            var expectedResult = new ExpectedResult
+            if (_primary.BuildInfo.Version >= new Version(2, 6, 0))
             {
-                UpsertsCount = 1,
-                IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
-            };
-            CheckExpectedResult(expectedResult, result);
+                _collection.Drop();
 
-            var expectedDocuments = new BsonDocument[]
-            {
-                new BsonDocument { { "key", 1 }, { "x", bigString } }
-            };
-            Assert.That(_collection.FindAll().SetFields(Fields.Exclude("_id")), Is.EquivalentTo(expectedDocuments));
+                var bulk = InitializeBulkOperation(_collection, ordered);
+                var bigString = new string('x', 16 * 1024 * 1024 - 22);
+                bulk.Find(Query.EQ("_id", 1)).Upsert().Update(Update.Set("x", bigString)); // resulting document will be exactly 16MiB
+                var result = bulk.Execute();
+
+                var expectedResult = new ExpectedResult
+                {
+                    UpsertsCount = 1,
+                    IsModifiedCountAvailable = _primary.Supports(FeatureId.WriteCommands)
+                };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = new BsonDocument[]
+                {
+                    new BsonDocument { { "_id", 1 }, { "x", bigString } }
+                };
+                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
         }
 
         [Test]

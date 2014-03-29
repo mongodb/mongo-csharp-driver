@@ -106,7 +106,7 @@ namespace MongoDB.DriverUnitTests
         // private methods
         private bool AreFailPointsSupported()
         {
-            return _serverInstance.BuildInfo.Version >= new Version(2, 3, 0);
+            return _serverInstance.BuildInfo.Version >= new Version(2, 4, 0);
         }
 
         private bool IsThisFailPointSupported()

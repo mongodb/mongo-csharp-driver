@@ -248,7 +248,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereBTypeEqualsB()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
                 var query =
                     from b in _collection.AsQueryable<B>()

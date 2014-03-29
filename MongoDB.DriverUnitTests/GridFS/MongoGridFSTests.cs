@@ -185,7 +185,7 @@ namespace MongoDB.DriverUnitTests.GridFS
         public void TestDownloadTwoChunks()
         {
             _gridFS.Delete(Query.Null);
-            var contents = new string('x', 256 * 1024) + new string('y', 256 * 1024);
+            var contents = new string('x', 255 * 1024) + new string('y', 255 * 1024);
             var bytes = Encoding.UTF8.GetBytes(contents);
             var stream = new MemoryStream(bytes);
             var fileInfo = _gridFS.Upload(stream, "TwoChunks.txt");

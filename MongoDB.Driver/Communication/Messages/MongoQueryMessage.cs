@@ -78,6 +78,11 @@ namespace MongoDB.Driver.Internal
 
         internal override void WriteHeaderTo(BsonBuffer buffer)
         {
+            if ((_flags & QueryFlags.Exhaust) != 0)
+            {
+                throw new NotSupportedException("The Exhaust QueryFlag is not yet supported.");
+            }
+
             base.WriteHeaderTo(buffer);
             buffer.WriteInt32((int)_flags);
             buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);

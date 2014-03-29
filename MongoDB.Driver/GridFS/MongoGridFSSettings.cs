@@ -47,7 +47,7 @@ namespace MongoDB.Driver.GridFS
         {
             __defaults = new MongoGridFSSettings
             {
-                ChunkSize = 256 * 1024, // 256KiB
+                ChunkSize = 255 * 1024, // 255KiB
                 Root = "fs",
                 UpdateMD5 = true,
                 VerifyMD5 = true

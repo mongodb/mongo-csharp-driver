@@ -6456,7 +6456,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereTripleAnd()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
                 // the query is a bit odd in order to force the built query to be promoted to $and form
                 var query = from c in _collection.AsQueryable<C>()
@@ -7203,7 +7203,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereXModOneEquals0AndXModTwoEquals0()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
                 var query = from c in _collection.AsQueryable<C>()
                             where (c.X % 1 == 0) && (c.X % 2 == 0)
@@ -7229,7 +7229,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereXModOneEquals0AndXModTwoEquals0Not()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
                 var query = from c in _collection.AsQueryable<C>()
                             where !((c.X % 1 == 0) && (c.X % 2 == 0))
@@ -7255,7 +7255,7 @@ namespace MongoDB.DriverUnitTests.Linq
         [Test]
         public void TestWhereXModOneEquals0AndXModTwoEquals0NotNot()
         {
-            if (_server.BuildInfo.Version >= new Version(2, 0))
+            if (_server.BuildInfo.Version >= new Version(2, 0, 0))
             {
                 var query = from c in _collection.AsQueryable<C>()
                             where !!((c.X % 1 == 0) && (c.X % 2 == 0))

@@ -108,7 +108,7 @@ namespace MongoDB.DriverUnitTests
             Assert.AreEqual(0, buildInfo.Version.Major);
             Assert.AreEqual(0, buildInfo.Version.Minor);
             Assert.AreEqual(0, buildInfo.Version.Build);
-            Assert.AreEqual(0, buildInfo.Version.Revision);
+            Assert.AreEqual(-1, buildInfo.Version.Revision);
         }
     }
 }

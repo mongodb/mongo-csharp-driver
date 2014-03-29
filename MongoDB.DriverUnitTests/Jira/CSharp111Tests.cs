@@ -64,7 +64,7 @@ namespace MongoDB.DriverUnitTests.Jira.CSharp111
             var document = collection.FindOneAs<BsonDocument>();
             var json = document.ToJson();
             string expected;
-            if (server.BuildInfo.Version >= new Version(2, 5, 2))
+            if (server.BuildInfo.Version >= new Version(2, 6, 0))
             {
                 expected = "{ '_id' : ObjectId('#ID'), 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }] }";
             }
