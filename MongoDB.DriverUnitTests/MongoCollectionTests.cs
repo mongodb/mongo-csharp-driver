@@ -2178,10 +2178,12 @@ namespace MongoDB.DriverUnitTests
         [TestCase(1)]
         public void TestInsertBatchSplittingNearMaxWriteBatchCount(int maxBatchCountDelta)
         {
+            var count = _primary.MaxBatchCount + maxBatchCountDelta;
             _collection.Drop();
-            var documents = Enumerable.Range(0, _primary.MaxBatchCount + maxBatchCountDelta).Select(n => new BsonDocument("n", n));
+            var documents = Enumerable.Range(0, count).Select(n => new BsonDocument("n", n));
             var result = _collection.InsertBatch(documents);
             Assert.AreEqual(1, result.Count()); // it's either one OP_INSERT batch or one consolidated result if emulated
+            Assert.AreEqual(count, _collection.Count());
         }
 
         [Test]

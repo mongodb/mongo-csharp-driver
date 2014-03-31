@@ -115,6 +115,68 @@ namespace MongoDB.DriverUnitTests.Operations
             Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
         }
 
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void TestBatchSplittingDeletesNearMaxWriteBatchCount(int maxBatchCountDelta)
+        {
+            var count = _primary.MaxBatchCount + maxBatchCountDelta;
+            _collection.Drop();
+            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
+
+            var result = _collection.BulkWrite(new BulkWriteArgs
+            {
+                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new DeleteRequest(Query.EQ("n", n)))
+            });
+
+            Assert.AreEqual(count, result.DeletedCount);
+            Assert.AreEqual(0, _collection.Count());
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void TestBatchSplittingInsertsNearMaxWriteBatchCount(int maxBatchCountDelta)
+        {
+            var count = _primary.MaxBatchCount + maxBatchCountDelta;
+            _collection.Drop();
+
+            var result = _collection.BulkWrite(new BulkWriteArgs
+            {
+                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new InsertRequest(typeof(BsonDocument), new BsonDocument("n", n)))
+            });
+
+            Assert.AreEqual(count, result.InsertedCount);
+            Assert.AreEqual(count, _collection.Count());
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void TestBatchSplittingUpdatesNearMaxWriteBatchCount(int maxBatchCountDelta)
+        {
+            var count = _primary.MaxBatchCount + maxBatchCountDelta;
+            _collection.Drop();
+            _collection.InsertBatch(Enumerable.Range(0, count).Select(n => new BsonDocument("n", n)));
+
+            var result = _collection.BulkWrite(new BulkWriteArgs
+            {
+                Requests = Enumerable.Range(0, count).Select(n => (WriteRequest)new UpdateRequest(Query.EQ("n", n), Update.Set("n", -1)))
+            });
+
+            if (_primary.Supports(FeatureId.WriteCommands))
+            {
+                Assert.AreEqual(true, result.IsModifiedCountAvailable);
+                Assert.AreEqual(count, result.ModifiedCount);
+            }
+            else
+            {
+                Assert.AreEqual(false, result.IsModifiedCountAvailable);
+            }
+            Assert.AreEqual(count, _collection.Count());
+            Assert.AreEqual(count, _collection.Count(Query.EQ("n", -1)));
+        }
+
         [Test]
         [TestCase(false)]
         [TestCase(true)]
