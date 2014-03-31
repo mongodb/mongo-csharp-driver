@@ -204,8 +204,8 @@ namespace MongoDB.Driver
             {
                 var assignId = args.AssignId ?? (_settings.AssignIdOnInsert ? (Action<InsertRequest>)AssignId : null);
                 var checkElementNames = args.CheckElementNames ?? true;
-                var maxBatchCount = args.MaxBatchCount ?? connection.ServerInstance.MaxBatchCount;
-                var maxBatchLength = Math.Min(args.MaxBatchLength ?? int.MaxValue, connection.ServerInstance.MaxDocumentSize);
+                var maxBatchCount = args.MaxBatchCount ?? int.MaxValue;
+                var maxBatchLength = args.MaxBatchLength ?? int.MaxValue;
                 var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
                 var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
                 var writeConcern = args.WriteConcern ?? _settings.WriteConcern;
@@ -1521,9 +1521,7 @@ namespace MongoDB.Driver
                 var checkElementNames = options.CheckElementNames;
                 var isOrdered = ((options.Flags & InsertFlags.ContinueOnError) == 0);
                 var maxBatchCount = int.MaxValue;
-                var maxBatchLength = connection.ServerInstance.MaxMessageLength;
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+                var maxBatchLength = int.MaxValue;
                 var requests = documents.Cast<object>().Select(document =>
                 {
                     return new InsertRequest(nominalType, document);
@@ -1537,8 +1535,6 @@ namespace MongoDB.Driver
                     _database.Name,
                     maxBatchCount,
                     maxBatchLength,
-                    maxDocumentSize,
-                    maxWireDocumentSize,
                     isOrdered,
                     GetBinaryReaderSettings(),
                     requests,
@@ -1788,8 +1784,6 @@ namespace MongoDB.Driver
             {
                 var maxBatchCount = 1;
                 var maxBatchLength = connection.ServerInstance.MaxDocumentSize;
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
                 var isOrdered = true;
                 var requests = new[]
                 {
@@ -1802,8 +1796,6 @@ namespace MongoDB.Driver
                     _database.Name,
                     maxBatchCount,
                     maxBatchLength,
-                    maxDocumentSize,
-                    maxWireDocumentSize,
                     isOrdered,
                     GetBinaryReaderSettings(),
                     requests,
@@ -2024,8 +2016,6 @@ namespace MongoDB.Driver
                 var checkElementNames = options.CheckElementNames;
                 var maxBatchCount = 1;
                 var maxBatchLength = connection.ServerInstance.MaxDocumentSize;
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
                 var isOrdered = true;
                 var requests = new[]
                 {
@@ -2043,8 +2033,6 @@ namespace MongoDB.Driver
                     _database.Name,
                     maxBatchCount,
                     maxBatchLength,
-                    maxDocumentSize,
-                    maxWireDocumentSize,
                     isOrdered,
                     GetBinaryReaderSettings(),
                     requests,

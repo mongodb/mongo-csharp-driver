@@ -58,29 +58,25 @@ namespace MongoDB.Driver.Operations
         }
 
         // protected methods
-        protected override BatchSerializer CreateBatchSerializer()
+        protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new DeleteBatchSerializer(_args);
+            return new DeleteBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
         }
 
         // nested classes
         private class DeleteBatchSerializer : BatchSerializer
         {
-            // private fields
-            private readonly BulkDeleteOperationArgs _args;
-
             // constructors
-            public DeleteBatchSerializer(BulkDeleteOperationArgs args)
-                : base(args)
+            public DeleteBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
+                : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
-                _args = args;
             }
 
             // protected methods
             protected override void SerializeRequest(BsonBinaryWriter bsonWriter, WriteRequest request)
             {
                 var deleteRequest = (DeleteRequest)request;
-                bsonWriter.PushMaxDocumentSize(_args.MaxDocumentSize);
+                bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName("q");
                 BsonSerializer.Serialize(bsonWriter, deleteRequest.Query ?? new QueryDocument());

@@ -2062,16 +2062,17 @@ namespace MongoDB.DriverUnitTests
                 CheckExpectedResult(expectedResult, result);
 
                 var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
-                if (results.Length == 2)
-                {
-                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                }
-                else
+                if (_primary.Supports(FeatureId.WriteCommands))
                 {
                     // it the opcode was emulated there will just be one synthesized result
                     Assert.AreEqual(1, results.Length);
                     Assert.AreEqual(true, results[0].HasLastErrorMessage);
+                }
+                else
+                {
+                    Assert.AreEqual(2, results.Length);
+                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -2119,17 +2120,18 @@ namespace MongoDB.DriverUnitTests
                 CheckExpectedResult(expectedResult, result);
 
                 var results = ((IEnumerable<WriteConcernResult>)exception.Data["results"]).ToArray();
-                if (results.Length == 3)
-                {
-                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
-                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
-                    Assert.AreEqual(false, results[2].HasLastErrorMessage);
-                }
-                else
+                if (_primary.Supports(FeatureId.WriteCommands))
                 {
                     // it the opcode was emulated there will just be one synthesized result
                     Assert.AreEqual(1, results.Length);
                     Assert.AreEqual(true, results[0].HasLastErrorMessage);
+                }
+                else
+                {
+                    Assert.AreEqual(3, results.Length);
+                    Assert.AreEqual(false, results[0].HasLastErrorMessage);
+                    Assert.AreEqual(true, results[1].HasLastErrorMessage);
+                    Assert.AreEqual(false, results[2].HasLastErrorMessage);
                 }
 
                 Assert.AreEqual(1, collection.Count(Query.EQ("_id", 1)));
@@ -2169,6 +2171,17 @@ namespace MongoDB.DriverUnitTests
 
                 Assert.AreEqual(documentCount, collection.Count());
             }
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        public void TestInsertBatchSplittingNearMaxWriteBatchCount(int maxBatchCountDelta)
+        {
+            _collection.Drop();
+            var documents = Enumerable.Range(0, _primary.MaxBatchCount + maxBatchCountDelta).Select(n => new BsonDocument("n", n));
+            var result = _collection.InsertBatch(documents);
+            Assert.AreEqual(1, result.Count()); // it's either one OP_INSERT batch or one consolidated result if emulated
         }
 
         [Test]

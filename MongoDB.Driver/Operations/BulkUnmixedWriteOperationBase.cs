@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Operations
         }
 
         // protected methods
-        protected abstract BatchSerializer CreateBatchSerializer();
+        protected abstract BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize);
 
         protected virtual IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
         {
@@ -120,7 +120,12 @@ namespace MongoDB.Driver.Operations
 
         private BulkWriteBatchResult ExecuteBatch(MongoConnection connection, Batch<WriteRequest> batch, int originalIndex)
         {
-            var batchSerializer = CreateBatchSerializer();
+            var maxBatchCount = Math.Min(_args.MaxBatchCount, connection.ServerInstance.MaxBatchCount);
+            var maxBatchLength = Math.Min(_args.MaxBatchLength, connection.ServerInstance.MaxDocumentSize);
+            var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+            var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
+
+            var batchSerializer = CreateBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize);
             var writeCommand = CreateWriteCommand(batchSerializer, batch);
             var writeCommandOperation = CreateWriteCommandOperation(writeCommand);
             var writeCommandResult = writeCommandOperation.Execute(connection);
@@ -139,23 +144,50 @@ namespace MongoDB.Driver.Operations
         protected abstract class BatchSerializer : BsonBaseSerializer
         {
             // private fields
-            private readonly BulkWriteOperationArgs _args;
             private int _batchCount;
             private int _batchLength;
             private BatchProgress<WriteRequest> _batchProgress;
             private int _batchStartPosition;
             private int _lastRequestPosition;
+            private readonly int _maxBatchCount;
+            private readonly int _maxBatchLength;
+            private readonly int _maxDocumentSize;
+            private readonly int _maxWireDocumentSize;
 
             // constructors
-            public BatchSerializer(BulkWriteOperationArgs args)
+            public BatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
             {
-                _args = args;
+                _maxBatchCount = maxBatchCount;
+                _maxBatchLength = maxBatchLength;
+                _maxDocumentSize = maxDocumentSize;
+                _maxWireDocumentSize = maxWireDocumentSize;
             }
 
             // public properties
             public BatchProgress<WriteRequest> BatchProgress
             {
                 get { return _batchProgress; }
+            }
+
+            // protected properties
+            protected int MaxBatchCount
+            {
+                get { return _maxBatchCount; }
+            }
+
+            protected int MaxBatchLength
+            {
+                get { return _maxBatchLength; }
+            }
+
+            protected int MaxDocumentSize
+            {
+                get { return _maxDocumentSize; }
+            }
+
+            protected int MaxWireDocumentSize
+            {
+                get { return _maxWireDocumentSize; }
             }
 
             // public methods
@@ -174,12 +206,6 @@ namespace MongoDB.Driver.Operations
                     continuationBatch.ClearPending(); // so pending objects can be garbage collected sooner
                 }
 
-                var maxBatchLength = _args.MaxBatchLength;
-                if (maxBatchLength > _args.MaxDocumentSize)
-                {
-                    maxBatchLength = _args.MaxDocumentSize; // not MaxWireDocumentSize! leave room for overhead
-                }
-
                 // always go one document too far so that we can set IsDone as early as possible
                 var enumerator = batch.Enumerator;
                 while (enumerator.MoveNext())
@@ -187,7 +213,7 @@ namespace MongoDB.Driver.Operations
                     var request = enumerator.Current;
                     AddRequest(bsonBinaryWriter, request);
 
-                    if ((_batchCount > _args.MaxBatchCount || _batchLength > maxBatchLength) && _batchCount > 1)
+                    if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
                     {
                         var serializedRequest = RemoveOverflow(bsonBinaryWriter.Buffer);
                         var nextBatch = new ContinuationBatch<WriteRequest, IByteBuffer>(enumerator, request, serializedRequest);

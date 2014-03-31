@@ -225,8 +225,6 @@ namespace MongoDB.DriverUnitTests.Operations
                 collection.Database.Name,
                 1, // maxBatchCount
                 serverInstance.MaxMessageLength, // maxBatchLength
-                serverInstance.MaxDocumentSize,
-                serverInstance.MaxWireDocumentSize,
                 true, // isOrdered
                 BsonBinaryReaderSettings.Defaults,
                 deletes,

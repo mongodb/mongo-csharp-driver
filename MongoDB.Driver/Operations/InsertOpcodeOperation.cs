@@ -57,6 +57,10 @@ namespace MongoDB.Driver.Operations
 
             using (var enumerator = requests.GetEnumerator())
             {
+                var maxBatchCount = _args.MaxBatchCount; // OP_INSERT is not limited by the MaxBatchCount reported by the server
+                var maxBatchLength = Math.Min(_args.MaxBatchLength, connection.ServerInstance.MaxMessageLength);
+                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+
                 Batch<InsertRequest> nextBatch = new FirstBatch<InsertRequest>(enumerator);
                 while (nextBatch != null)
                 {
@@ -71,9 +75,9 @@ namespace MongoDB.Driver.Operations
                             _args.DatabaseName + "." + _args.CollectionName,
                             _args.CheckElementNames,
                             flags,
-                            _args.MaxBatchCount,
-                            _args.MaxBatchLength,
-                            _args.MaxDocumentSize,
+                            maxBatchCount,
+                            maxBatchLength,
+                            maxDocumentSize,
                             nextBatch);
                         message.WriteTo(buffer); // consumes as much of nextBatch as fits in one message
                         batchProgress = message.BatchProgress;

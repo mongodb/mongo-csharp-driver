@@ -64,9 +64,9 @@ namespace MongoDB.Driver.Operations
         }
 
         // protected methods
-        protected override BatchSerializer CreateBatchSerializer()
+        protected override BatchSerializer CreateBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize)
         {
-            return new InsertBatchSerializer(_args);
+            return new InsertBatchSerializer(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize, _args.CheckElementNames);
         }
 
         protected override IEnumerable<WriteRequest> DecorateRequests(IEnumerable<WriteRequest> requests)
@@ -85,15 +85,15 @@ namespace MongoDB.Driver.Operations
         private class InsertBatchSerializer : BatchSerializer
         {
             // private fields
-            private readonly BulkInsertOperationArgs _args;
             private IBsonSerializer _cachedSerializer;
             private Type _cachedSerializerType;
+            private readonly bool _checkElementNames;
 
             // constructors
-            public InsertBatchSerializer(BulkInsertOperationArgs args)
-                : base(args)
+            public InsertBatchSerializer(int maxBatchCount, int maxBatchLength, int maxDocumentSize, int maxWireDocumentSize, bool checkElementNames)
+                : base(maxBatchCount, maxBatchLength, maxDocumentSize, maxWireDocumentSize)
             {
-                _args = args;
+                _checkElementNames = checkElementNames;
             }
 
             // protected methods
@@ -127,8 +127,8 @@ namespace MongoDB.Driver.Operations
                 var savedCheckElementNames = bsonWriter.CheckElementNames;
                 try
                 {
-                    bsonWriter.PushMaxDocumentSize(_args.MaxDocumentSize);
-                    bsonWriter.CheckElementNames = _args.CheckElementNames;
+                    bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
+                    bsonWriter.CheckElementNames = _checkElementNames;
                     serializer.Serialize(bsonWriter, insertRequest.NominalType, document, serializationOptions);
                 }
                 finally

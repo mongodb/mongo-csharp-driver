@@ -42,8 +42,6 @@ namespace MongoDB.Driver.Operations
                 _args.DatabaseName,
                 1, // maxBatchCount
                 serverInstance.MaxMessageLength, // maxBatchLength
-                serverInstance.MaxDocumentSize,
-                serverInstance.MaxWireDocumentSize,
                 true, // isOrdered
                 _args.ReaderSettings,
                 deleteRequests,
