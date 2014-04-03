@@ -1,7 +1,5 @@
-C#/.NET Driver Version 1.9.0-rc1 Release Notes
+C#/.NET Driver Version 1.9.0 Release Notes
 ==============================================
-
-*This is a pre-release and is not recommended for production*.
 
 This is a major release which supports all MongoDB server versions since 2.0.
 
