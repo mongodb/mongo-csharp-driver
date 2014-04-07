@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.QueryPlans;
 using NUnit.Framework;
 
 namespace MongoDB.DriverUnitTests.Linq
@@ -42,6 +43,30 @@ namespace MongoDB.DriverUnitTests.Linq
             _server = Configuration.TestServer;
             _collection = Configuration.TestCollection;
         }
+
+		[Test]
+		public void TestTypedExplainFromLinqQueryDetectsBasicCursor()
+		{
+			SafeDropIndex(IndexKeys<C>.Ascending(c => c.X).Ascending(c => c.Y));
+			QueryPlan typedExplain = _collection.AsQueryable<C>()
+				.Where(c => c.X == 2 && c.Y == 1)
+				.Take(1)
+				.ExplainTyped();
+
+			Assert.AreEqual(CursorType.BasicCursor, typedExplain.CursorType);
+		}
+
+	    [Test]
+		public void TestTypedExplainFromLinqQueryDetectsIndexedCursor()
+		{
+			_collection.CreateIndex(IndexKeys<C>.Ascending(c => c.X).Ascending(c => c.Y));
+			QueryPlan typedExplain = _collection.AsQueryable<C>()
+				.Where(c => c.X == 2 && c.Y == 1)
+				.Take(1)
+				.ExplainTyped();
+
+			Assert.AreEqual(CursorType.BtreeCursor, typedExplain.CursorType);
+		}
 
         [Test]
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
@@ -80,5 +105,16 @@ namespace MongoDB.DriverUnitTests.Linq
         {
             Assert.Throws<NotSupportedException>(() => _collection.AsQueryable<C>().Take(0).Explain());
         }
+
+		private void SafeDropIndex(IndexKeysBuilder<C> indexKeysBuilder)
+		{
+			try
+			{
+				_collection.DropIndex(indexKeysBuilder);
+			}
+			catch
+			{
+			}
+		}
     }
 }
