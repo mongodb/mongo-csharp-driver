@@ -87,10 +87,13 @@ function RemoveDirectory($path) {
   }
 }
 
-function Reset-AssemblyInfo 
+function Reset-AssemblyInfo
 {
+param(
+  [string]$file = $(throw "file is a required parameter.")
+)
   try {
-    git checkout GlobalAssemblyInfo.cs
+    git checkout $file
   }
   catch {
     Write-Host "Unable to reset assembly info"

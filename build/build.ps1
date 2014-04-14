@@ -1,25 +1,26 @@
 Properties {
-    $base_version = "1.9.1"
+    $base_version = "3.0.0"
     $pre_release = "local"
     $build_number = Get-BuildNumber
     $config = "Release"
 
     $git_commit = Get-GitCommit
 
-    $base_dir = Split-Path $psake.build_script_file 
-    $src_dir = "$base_dir"
+    $base_dir = Resolve-Path (Split-Path "..\$psake.build_script_file")
+    $build_dir = "$base_dir\build"
+    $src_dir = "$base_dir\src"
     $tools_dir = "$base_dir\tools"
     $artifacts_dir = "$base_dir\artifacts"
     $bin_dir = "$artifacts_dir\bin\"
     $test_results_dir = "$artifacts_dir\test_results"
     $docs_dir = "$artifacts_dir\docs"
 
-    $sln_file = "$base_dir\CSharpDriver.sln"
-    $asm_file = "$src_dir\GlobalAssemblyInfo.cs"
+    $sln_file = "$src_dir\CSharpDriver.sln"
+    $asm_file = "$src_dir\MongoDB.Shared\GlobalAssemblyInfo.cs"
     $docs_file = "$base_dir\Docs\Api\CSharpDriverDocs.shfbproj"
     $installer_file = "$base_dir\Installer\CSharpDriverInstaller.wixproj"
-    $nuspec_file = "$base_dir\mongocsharpdriver.nuspec"
-    $nuspec_build_file = "$base_dir\mongocsharpdriverbuild.nuspec"
+    $nuspec_file = "$build_dir\mongocsharpdriver.nuspec"
+    $nuspec_build_file = "$build_dir\mongocsharpdriverbuild.nuspec"
     $license_file = "$base_dir\License.txt"
     $version_file = "$artifacts_dir\version.txt"
 
@@ -69,7 +70,7 @@ TaskSetup {
 
 Framework('4.0')
 
-Include tools\psake\psake-ext.ps1
+Include ..\tools\psake\psake-ext.ps1
 
 function BuildHasBeenRun {
     $build_exists = (Test-Path $bin_dir)
@@ -123,7 +124,7 @@ Task Build -Depends Clean, OutputVersion {
         Exec { msbuild "$sln_file" /t:Rebuild /p:Configuration=$config /p:TargetFrameworkVersion=v3.5 /v:quiet /p:OutDir=$bin_dir } 
     }
     finally {
-        Reset-AssemblyInfo
+        Reset-AssemblyInfo -file $asm_file
     }
 }
 
