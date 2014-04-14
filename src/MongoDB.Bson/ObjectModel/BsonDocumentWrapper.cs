@@ -259,31 +259,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Deserialize is an invalid operation for BsonDocumentWrapper.
-        /// </summary>
-        /// <param name="bsonReader">Not applicable.</param>
-        /// <param name="nominalType">Not applicable.</param>
-        /// <param name="options">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Serializes the wrapped object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type (overridden by the wrapped nominal type).</param>
-        /// <param name="options">The serialization options (can be null).</param>
-        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            BsonDocumentWrapperSerializer.Instance.Serialize(bsonWriter, nominalType, this, options);
-        }
-
         // protected methods
         /// <summary>
         /// Materializes the BsonDocument.

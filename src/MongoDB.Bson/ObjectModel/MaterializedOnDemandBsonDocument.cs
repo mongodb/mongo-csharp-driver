@@ -494,20 +494,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Gets the Id of the document.
-        /// </summary>
-        /// <param name="id">The Id of the document (the RawValue if it has one, otherwise the element Value).</param>
-        /// <param name="idNominalType">The nominal type of the Id.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
-        /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
-        [Obsolete("GetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] or document.GetValue(\"_id\") instead.")]
-        public override bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            EnsureIsMaterialized();
-            return base.GetDocumentId(out id, out idNominalType, out idGenerator);
-        }
-
-        /// <summary>
         /// Gets an element of this document.
         /// </summary>
         /// <param name="index">The zero based index of the element.</param>
@@ -692,17 +678,6 @@ namespace MongoDB.Bson
         {
             EnsureIsMaterialized();
             return base.Set(name, value);
-        }
-
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="id">The value of the Id.</param>
-        [Obsolete("SetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] = value or document.Set(\"_id\", value) instead.")]
-        public override void SetDocumentId(object id)
-        {
-            EnsureIsMaterialized();
-            base.SetDocumentId(id);
         }
 
         /// <summary>

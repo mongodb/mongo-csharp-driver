@@ -556,25 +556,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestGetDocumentId()
-        {
-#pragma warning disable 618
-            var expectedId = new BsonObjectId(ObjectId.GenerateNewId());
-            var wrapper = new BsonDocumentWrapper(new BsonDocument("_id", expectedId));
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-            object id;
-            Type idNominalType;
-            IIdGenerator idGenerator;
-            wrapper.GetDocumentId(out id, out idNominalType, out idGenerator);
-            Assert.AreEqual(true, wrapper.IsMaterialized);
-            Assert.IsInstanceOf<BsonObjectId>(id);
-            Assert.AreEqual(expectedId, id);
-            Assert.AreSame(typeof(BsonValue), idNominalType);
-            Assert.IsInstanceOf<BsonObjectIdGenerator>(idGenerator);
-#pragma warning restore
-        }
-
-        [Test]
         public void TestGetElement()
         {
             var wrapper = new BsonDocumentWrapper(new BsonDocument("x", 1));
@@ -822,20 +803,6 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(1, wrapper.ElementCount);
             Assert.AreEqual("x", wrapper.GetElement(0).Name);
             Assert.AreEqual(new BsonInt32(2), wrapper[0]);
-        }
-
-        [Test]
-        public void TestSetDocumentId()
-        {
-#pragma warning disable 618
-            var wrapper = new BsonDocumentWrapper(new BsonDocument("_id", 1));
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-            wrapper.SetDocumentId(new BsonInt32(2));
-            Assert.AreEqual(true, wrapper.IsMaterialized);
-            Assert.AreEqual(1, wrapper.ElementCount);
-            Assert.AreEqual("_id", wrapper.GetElement(0).Name);
-            Assert.AreEqual(new BsonInt32(2), wrapper[0]);
-#pragma warning restore
         }
 
         [Test]

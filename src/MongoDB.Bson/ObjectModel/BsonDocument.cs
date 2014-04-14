@@ -29,7 +29,7 @@ namespace MongoDB.Bson
     /// Represents a BSON document.
     /// </summary>
     [Serializable]
-    public class BsonDocument : BsonValue, IBsonSerializable, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
+    public class BsonDocument : BsonValue, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
@@ -815,33 +815,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Deserializes the document from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object (ignored, but should be BsonDocument).</param>
-        /// <param name="options">The serialization options (ignored).</param>
-        /// <returns>The document (which has now been initialized by deserialization), or null.</returns>
-        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public virtual object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            return BsonDocumentSerializer.Instance.Deserialize(bsonReader, nominalType, options);
-        }
-
-        /// <summary>
-        /// Gets the Id of the document.
-        /// </summary>
-        /// <param name="id">The Id of the document (the RawValue if it has one, otherwise the element Value).</param>
-        /// <param name="idNominalType">The nominal type of the Id.</param>
-        /// <param name="idGenerator">The IdGenerator for the Id (or null).</param>
-        /// <returns>True (a BsonDocument either has an Id member or one can be added).</returns>
-        [Obsolete("GetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] or document.GetValue(\"_id\") instead.")]
-        public virtual bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            var idProvider = (IBsonIdProvider)BsonDocumentSerializer.Instance;
-            return idProvider.GetDocumentId(this, out id, out idNominalType, out idGenerator);
-        }
-
-        /// <summary>
         /// Compares this document to another document.
         /// </summary>
         /// <param name="obj">The other document.</param>
@@ -1065,18 +1038,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Serializes this document to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominalType.</param>
-        /// <param name="options">The serialization options (can be null).</param>
-        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public virtual void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, this, options);
-        }
-
-        /// <summary>
         /// Sets the value of an element.
         /// </summary>
         /// <param name="index">The zero based index of the element whose value is to be set.</param>
@@ -1110,17 +1071,6 @@ namespace MongoDB.Bson
             }
             this[name] = value;
             return this;
-        }
-
-        /// <summary>
-        /// Sets the document Id.
-        /// </summary>
-        /// <param name="id">The value of the Id.</param>
-        [Obsolete("SetDocumentId was intended to be private and will become private in a future release. Use document[\"_id\"] = value or document.Set(\"_id\", value) instead.")]
-        public virtual void SetDocumentId(object id)
-        {
-            var idProvider = (IBsonIdProvider)BsonDocumentSerializer.Instance;
-            idProvider.SetDocumentId(this, id);
         }
 
         /// <summary>
