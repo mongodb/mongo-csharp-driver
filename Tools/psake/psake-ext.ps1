@@ -24,15 +24,6 @@ function Get-BuildNumber
   }
 }
 
-function Get-ShortenedVersion($version)
-{
-  if($version.EndsWith(".0")) {
-    return $version.SubString(0, $version.Length - 2)
-  }
-
-  return $version
-}
-
 function Generate-AssemblyInfo
 {
 param(

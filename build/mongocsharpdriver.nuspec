@@ -15,15 +15,21 @@
     <language>en-US</language>
   </metadata>
   <files>
-    <file src="artifacts\bin\MongoDB.Bson.dll" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Bson.pdb" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Bson.xml" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.dll" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.pdb" target="lib\net35" />
-    <file src="artifacts\bin\MongoDB.Driver.XML" target="lib\net35" />
+    <file src="artifacts\bin\net40\MongoDB.Bson.dll" target="lib\net40" />
+    <file src="artifacts\bin\net40\MongoDB.Bson.pdb" target="lib\net40" />
+    <file src="artifacts\bin\net40\MongoDB.Bson.xml" target="lib\net40" />
+    <file src="artifacts\bin\net40\MongoDB.Driver.dll" target="lib\net40" />
+    <file src="artifacts\bin\net40\MongoDB.Driver.pdb" target="lib\net40" />
+    <file src="artifacts\bin\net40\MongoDB.Driver.XML" target="lib\net40" />
+    <file src="artifacts\bin\net45\MongoDB.Bson.dll" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Bson.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Bson.xml" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.dll" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.pdb" target="lib\net45" />
+    <file src="artifacts\bin\net45\MongoDB.Driver.XML" target="lib\net45" />
     <file src="License.rtf" target ="" />
-    <file src="MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
-    <file src="MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
-    <file src="MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
+    <file src="src\MongoDB.Bson\**\*.cs" target="src\MongoDB.Bson" />
+    <file src="src\MongoDB.Driver\**\*.cs" target="src\MongoDB.Driver" />
+    <file src="src\MongoDB.Shared\**\*.cs" target="src\MongoDB.Shared" />
   </files>
 </package>

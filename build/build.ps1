@@ -11,7 +11,9 @@ Properties {
     $src_dir = "$base_dir\src"
     $tools_dir = "$base_dir\tools"
     $artifacts_dir = "$base_dir\artifacts"
-    $bin_dir = "$artifacts_dir\bin\"
+    $bin_dir = "$artifacts_dir\bin"
+    $40_bin_dir = "$bin_dir\net40\"
+    $45_bin_dir = "$bin_dir\net45\"
     $test_results_dir = "$artifacts_dir\test_results"
     $docs_dir = "$artifacts_dir\docs"
 
@@ -41,10 +43,8 @@ TaskSetup {
 
     $global:version = "$base_version.$build_number"
     $global:sem_version = $base_version
-    $global:short_version = Get-ShortenedVersion $sem_version
     if(-not [string]::IsNullOrEmpty($pre_release)) {
         $global:sem_version = "$sem_version-$($pre_release)"
-        $global:short_version = "$short_version-$($pre_release)"
 
         if(-not (IsReleaseBuild)) {
             # These should be + instead of -, but nuget doesn't allow that right now
@@ -54,17 +54,16 @@ TaskSetup {
             # Note: 0 + $build_number is to coerce the build_number into an integer.
             $bn = "{0:0000}" -f (0 + $build_number)
             $global:sem_version = "$sem_version-$bn"
-            $global:short_version = "$short_version-$bn"
         }
     }
 
     Write-Host "$config Version $sem_version($version)" -ForegroundColor Yellow
 
-    $global:release_notes_version = Get-ShortenedVersion $base_version
+    $global:release_notes_version = $base_version
     $global:installer_product_id = New-Object System.Guid($git_commit.Hash.SubString(0,32))
     $global:installer_upgrade_code = New-Object System.Guid($git_commit.Hash.SubString(1,32))
 
-    $global:chm_file = "$artifacts_dir\CSharpDriverDocs-$short_version.chm"
+    $global:chm_file = "$artifacts_dir\CSharpDriverDocs-$sem_version.chm"
     $global:release_notes_file = "$base_dir\Release Notes\Release Notes v$release_notes_version.md"
 }
 
@@ -73,7 +72,7 @@ Framework('4.0')
 Include ..\tools\psake\psake-ext.ps1
 
 function BuildHasBeenRun {
-    $build_exists = (Test-Path $bin_dir)
+    $build_exists = (Test-Path $40_bin_dir) -and (Test-Path $45_bin_dir)
     Assert $build_exists "Build task has not been run."
     $true
 }
@@ -119,9 +118,13 @@ Task Build -Depends Clean, OutputVersion {
             -config $config `
             -sem_version $sem_version `
 
-        mkdir -path $bin_dir | out-null
-        Write-Host "Building $sln_file for .NET 3.5" -ForegroundColor Green
-        Exec { msbuild "$sln_file" /t:Rebuild /p:Configuration=$config /p:TargetFrameworkVersion=v3.5 /v:quiet /p:OutDir=$bin_dir } 
+        mkdir -path $40_bin_dir | out-null
+        Write-Host "Building $sln_file for .NET 4.0" -ForegroundColor Green
+        Exec { msbuild "$sln_file" /t:Rebuild /p:Configuration=$config /p:TargetFrameworkVersion=v4.0 /v:quiet /p:OutDir=$40_bin_dir } 
+
+        mkdir -path $45_bin_dir | out-null
+        Write-Host "Building $sln_file for .NET 4.5" -ForegroundColor Green
+        Exec { msbuild "$sln_file" /t:Rebuild /p:Configuration=$config /p:TargetFrameworkVersion=v4.5 /v:quiet /p:OutDir=$45_bin_dir } 
     }
     finally {
         Reset-AssemblyInfo -file $asm_file
@@ -130,9 +133,14 @@ Task Build -Depends Clean, OutputVersion {
 
 Task Test -precondition { BuildHasBeenRun } {
     mkdir -path $test_results_dir | out-null
-    $test_assemblies = ls -rec $bin_dir/*Tests*.dll
-    Write-Host "Testing $test_assemblies for .NET 3.5" -ForegroundColor Green
-    Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\test-results.xml /framework=net-3.5 /nologo /noshadow }
+
+    $test_assemblies = ls -rec $40_bin_dir/*Tests*.dll
+    Write-Host "Testing $test_assemblies for .NET 4.0" -ForegroundColor Green
+    Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\net40-test-results.xml /framework=net-4.0 /nologo /noshadow }
+
+    $test_assemblies = ls -rec $45_bin_dir/*Tests*.dll
+    Write-Host "Testing $test_assemblies for .NET 4.5" -ForegroundColor Green
+    Exec { &$nunit_tool $test_assemblies /xml=$test_results_dir\net45-test-results.xml /framework=net-4.0 /nologo /noshadow }
 }
 
 Task Docs -precondition { BuildHasBeenRun } {
@@ -149,7 +157,7 @@ Task Docs -precondition { BuildHasBeenRun } {
 
     mv "$docs_dir\CSharpDriverDocs.chm" $chm_file
     mv "$docs_dir\Index.html" "$docs_dir\index.html"
-    Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$short_version-html.zip" "$docs_dir\*" }
+    Exec { &$zip_tool a "$artifacts_dir\CSharpDriverDocs-$sem_version-html.zip" "$docs_dir\*" }
     RemoveDirectory $docs_dir
 }
 
@@ -159,20 +167,30 @@ task Zip -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) }{
     RemoveDirectory $zip_dir
 
     mkdir -path $zip_dir | out-null
+
+    $items = @("$40_bin_dir\MongoDB.Bson.dll", `
+        "$40_bin_dir\MongoDB.Bson.pdb", `
+        "$40_bin_dir\MongoDB.Bson.xml", `
+        "$40_bin_dir\MongoDB.Driver.dll", `
+        "$40_bin_dir\MongoDB.Driver.pdb", `
+        "$40_bin_dir\MongoDB.Driver.xml")
+    mkdir -path "$zip_dir\net40" | out-null
+    cp $items "$zip_dir\net40"
     
-    $items = @("$bin_dir\MongoDB.Bson.dll", `
-        "$bin_dir\MongoDB.Bson.pdb", `
-        "$bin_dir\MongoDB.Bson.xml", `
-        "$bin_dir\MongoDB.Driver.dll", `
-        "$bin_dir\MongoDB.Driver.pdb", `
-        "$bin_dir\MongoDB.Driver.xml")
-    cp $items "$zip_dir"
+    $items = @("$45_bin_dir\MongoDB.Bson.dll", `
+        "$45_bin_dir\MongoDB.Bson.pdb", `
+        "$45_bin_dir\MongoDB.Bson.xml", `
+        "$45_bin_dir\MongoDB.Driver.dll", `
+        "$45_bin_dir\MongoDB.Driver.pdb", `
+        "$45_bin_dir\MongoDB.Driver.xml")
+    mkdir -path "$zip_dir\net45" | out-null
+    cp $items "$zip_dir\net45"
 
     cp $license_file $zip_dir
-    cp "Release Notes\Release Notes v$release_notes_version.md" "$zip_dir\Release Notes.txt"
+    cp $release_notes_file "$zip_dir\Release Notes.txt"
     cp $chm_file "$zip_dir\CSharpDriverDocs.chm"
 
-    Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$short_version.zip" "$zip_dir\*" }
+    Exec { &$zip_tool a "$artifacts_dir\CSharpDriver-$sem_version.zip" "$zip_dir\*" }
 
     rd $zip_dir -rec -force | out-null
 }
@@ -181,18 +199,16 @@ Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
     $release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
     $doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$short_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
+    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$45_bin_dir}
     
     rm -force $artifacts_dir\*.wixpdb
 }
 
 task NugetPack -precondition { (NotLocalPreRelease) -and (BuildHasBeenRun) -and (DocsHasBeenRun) } {
-
     $nf = $nuspec_file
     if($pre_release -eq "build") {
         $nf = $nuspec_build_file
     }
-
 
     Exec { &$nuget_tool pack $nf -o $artifacts_dir -Version $sem_version -Symbols -BasePath $base_dir }
 }
