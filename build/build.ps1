@@ -69,7 +69,7 @@ TaskSetup {
 
 Framework('4.0')
 
-Include ..\tools\psake\psake-ext.ps1
+Include psake-ext.ps1
 
 function BuildHasBeenRun {
     $build_exists = (Test-Path $40_bin_dir) -and (Test-Path $45_bin_dir)
