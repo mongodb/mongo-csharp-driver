@@ -59,7 +59,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <returns></returns>
-        [SecuritySafeCritical]
         public static SecurityContext Initialize(SecurityCredential credential, string servicePrincipalName, byte[] input, out byte[] output)
         {
             var context = new SecurityContext();
@@ -101,7 +100,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <param name="encryptedBytes">The encrypted bytes.</param>
         /// <param name="decryptedBytes">The decrypted bytes.</param>
         /// <returns>A result code.</returns>
-        [SecuritySafeCritical]
         public void DecryptMessage(int messageLength, byte[] encryptedBytes, out byte[] decryptedBytes)
         {
             decryptedBytes = null;
@@ -170,7 +168,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <param name="inBytes">The in bytes.</param>
         /// <param name="outBytes">The out bytes.</param>
         /// <returns>A result code.</returns>
-        [SecuritySafeCritical]
         public void EncryptMessage(byte[] inBytes, out byte[] outBytes)
         {
             outBytes = null;
@@ -269,7 +266,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <param name="servicePrincipalName">Name of the service principal.</param>
         /// <param name="inBytes">The in bytes.</param>
         /// <param name="outBytes">The out bytes.</param>
-        [SecuritySafeCritical]
         public void Initialize(string servicePrincipalName, byte[] inBytes, out byte[] outBytes)
         {
             outBytes = null;
@@ -378,14 +374,12 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <returns>
         /// true if the handle is released successfully; otherwise, in the event of a catastrophic failure, false. In this case, it generates a releaseHandleFailed MDA Managed Debugging Assistant.
         /// </returns>
-        [SecuritySafeCritical]
         protected override bool ReleaseHandle()
         {
             return Win32.DeleteSecurityContext(ref _sspiHandle) == 0;
         }
 
         // private methods
-        [SecuritySafeCritical]
         private static int GetMaxTokenSize()
         {
             uint count = 0;

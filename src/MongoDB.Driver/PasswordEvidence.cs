@@ -133,7 +133,6 @@ namespace MongoDB.Driver
             }
         }
 
-        [SecuritySafeCritical]
         private static void TransformFinalBlock(HashAlgorithm hash, SecureString secureString)
         {
             var bstr = Marshal.SecureStringToBSTR(secureString);

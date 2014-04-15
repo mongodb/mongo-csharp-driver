@@ -20,7 +20,6 @@ using System.Security;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Gsasl
 {
-    [SecurityCritical]
     internal static class Gsasl
     {
         // public constants

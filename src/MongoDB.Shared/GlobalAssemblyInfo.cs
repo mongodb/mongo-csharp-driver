@@ -22,4 +22,3 @@ using System.Security;
 [assembly: AssemblyInformationalVersion("unofficial")]
 [assembly: AssemblyFileVersion("0.0.0.0")]
 [assembly: AssemblyConfiguration("Debug")]
-[assembly: AllowPartiallyTrustedCallers()]

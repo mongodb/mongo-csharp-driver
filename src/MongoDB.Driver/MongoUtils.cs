@@ -67,7 +67,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="secureString">The secure string.</param>
         /// <returns>The CLR string.</returns>
-        [SecuritySafeCritical]
         internal static string ToInsecureString(SecureString secureString)
         {
             if (secureString == null || secureString.Length == 0)

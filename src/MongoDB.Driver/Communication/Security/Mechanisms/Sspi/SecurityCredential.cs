@@ -59,7 +59,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <param name="username">The username.</param>
         /// <param name="evidence">The evidence.</param>
         /// <returns>A security credential.</returns>
-        [SecuritySafeCritical]
         public static SecurityCredential Acquire(SspiPackage package, string username, MongoIdentityEvidence evidence)
         {
             long timestamp;
@@ -118,7 +117,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// <returns>
         /// true if the handle is released successfully; otherwise, in the event of a catastrophic failure, false. In this case, it generates a releaseHandleFailed MDA Managed Debugging Assistant.
         /// </returns>
-        [SecuritySafeCritical]
         protected override bool ReleaseHandle()
         {
             return Win32.FreeCredentialsHandle(ref _sspiHandle) == 0;

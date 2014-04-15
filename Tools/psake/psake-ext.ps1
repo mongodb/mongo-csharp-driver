@@ -59,8 +59,7 @@ using System.Security;
 [assembly: AssemblyVersion(""$version"")]
 [assembly: AssemblyInformationalVersion(""{version: '$version', semver: '$sem_version', commit: '$($commit.Hash)', commit_date: '$($commit.Date)'}"")]
 [assembly: AssemblyFileVersion(""$version"")]
-[assembly: AssemblyConfiguration(""$config"")]
-[assembly: AllowPartiallyTrustedCallers()]"
+[assembly: AssemblyConfiguration(""$config"")]"
 
   $dir = [System.IO.Path]::GetDirectoryName($file)
   if ([System.IO.Directory]::Exists($dir) -eq $false)

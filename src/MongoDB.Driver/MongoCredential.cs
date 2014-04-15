@@ -89,7 +89,6 @@ namespace MongoDB.Driver
         [Obsolete("Use Evidence instead.")]
         public string Password
         {
-            [SecuritySafeCritical]
             get
             {
                 var passwordEvidence = _evidence as PasswordEvidence;

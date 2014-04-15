@@ -20,7 +20,6 @@ using System.Security;
 
 namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
 {
-    [SecurityCritical]
     internal static class Win32
     {
         // public constants
