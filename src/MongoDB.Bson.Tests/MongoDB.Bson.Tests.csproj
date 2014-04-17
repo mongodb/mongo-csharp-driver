@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MongoDB.BsonUnitTests</RootNamespace>
-    <AssemblyName>MongoDB.BsonUnitTests</AssemblyName>
+    <AssemblyName>MongoDB.Bson.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>

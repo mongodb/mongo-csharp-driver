@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MongoDB.DriverUnitTests</RootNamespace>
-    <AssemblyName>MongoDB.DriverUnitTests</AssemblyName>
+    <AssemblyName>MongoDB.Driver.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
