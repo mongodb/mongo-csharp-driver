@@ -19,7 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.DefaultSerializer.Serializers
+namespace MongoDB.Bson.Tests.DefaultSerializer.Serializers
 {
     [TestFixture]
     public class KeyValuePairSerializerTests

@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.Attributes
+namespace MongoDB.Bson.Tests.Serialization.Attributes
 {
     [TestFixture]
     public class BsonAttributeTests

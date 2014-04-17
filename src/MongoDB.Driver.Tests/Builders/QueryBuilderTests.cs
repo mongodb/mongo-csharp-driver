@@ -22,7 +22,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Builders
+namespace MongoDB.Driver.Tests.Builders
 {
     [TestFixture]
     public class QueryBuilderTests

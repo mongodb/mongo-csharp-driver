@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp146
+namespace MongoDB.Bson.Tests.Jira.CSharp146
 {
     public class Doc
     {

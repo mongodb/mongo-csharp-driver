@@ -21,7 +21,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Builders
+namespace MongoDB.Driver.Tests.Builders
 {
     public class IndexKeysBuilderTypedTests
     {

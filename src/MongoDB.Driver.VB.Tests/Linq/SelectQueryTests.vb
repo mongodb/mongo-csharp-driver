@@ -16,6 +16,7 @@
 Imports System
 Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Linq.Expressions
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports NUnit.Framework
@@ -25,9 +26,9 @@ Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Builders
 Imports MongoDB.Driver.Linq
-Imports System.Linq.Expressions
+Imports MongoDB.Driver.Tests
 
-Namespace MongoDB.DriverUnitTests.Linq
+Namespace MongoDB.Driver.VB.Tests.Linq
     <TestFixture()> _
     Public Class SelectQueryTests
         Public Enum E

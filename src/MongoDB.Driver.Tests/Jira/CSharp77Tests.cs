@@ -18,7 +18,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp77
+namespace MongoDB.Driver.Tests.Jira.CSharp77
 {
     [TestFixture]
     public class CSharp77Tests

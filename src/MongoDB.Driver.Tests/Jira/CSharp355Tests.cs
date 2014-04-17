@@ -19,10 +19,9 @@ using System.IO;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.UnitTests;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp355
+namespace MongoDB.Driver.Tests.Jira.CSharp355
 {
     [TestFixture]
     public class CSharp355Tests

@@ -17,7 +17,7 @@ using System.Linq;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp346
+namespace MongoDB.Driver.Tests.Jira.CSharp346
 {
     [TestFixture]
     public class CSharp346Tests

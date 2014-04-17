@@ -19,7 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.GenericEnumerable
+namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
 {
     public class Address
     {

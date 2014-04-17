@@ -18,7 +18,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.GeoJsonObjectModel
+namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonMultiPolygonTests
     {

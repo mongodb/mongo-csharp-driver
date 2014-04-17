@@ -15,7 +15,7 @@
 
 using System;
 
-namespace MongoDB.UnitTests
+namespace MongoDB
 {
     internal static class TestEnvironment
     {

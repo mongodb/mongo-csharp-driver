@@ -22,7 +22,7 @@ using MongoDB.Driver.GridFS;
 using NUnit.Framework;
 using MongoDB.Driver.Builders;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp269
+namespace MongoDB.Driver.Tests.Jira.CSharp269
 {
     [TestFixture]
     public class CSharp269Tests

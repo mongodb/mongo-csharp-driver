@@ -18,7 +18,7 @@ using MongoDB.Driver.GeoJsonObjectModel;
 using NUnit.Framework;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.DriverUnitTests.GeoJsonObjectModel
+namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {
     public class GeoJsonFeatureCollectionTests
     {

@@ -9,7 +9,7 @@
     </SchemaVersion>
     <ProjectGuid>{19ED9AD5-A2CA-4F1B-9BE4-96450382F404}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>MongoDB.DriverUnitTests</RootNamespace>
+    <RootNamespace>MongoDB.Driver.VB.Tests</RootNamespace>
     <AssemblyName>MongoDB.Driver.VB.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
@@ -62,10 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
+    <Import Include="MongoDB.Driver.Tests" />
     <Import Include="System" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />
-    <Import Include="System.Data" />
     <Import Include="System.Diagnostics" />
     <Import Include="System.Linq" />
     <Import Include="System.Xml.Linq" />
@@ -121,8 +121,8 @@
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver.Tests\MongoDB.Driver.Tests.csproj">
-      <Project>{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}</Project>
-      <Name>MongoDB.DriverUnitTests</Name>
+      <Project>{fbbf0d71-107f-49c4-8858-b3a4dc24aa33}</Project>
+      <Name>MongoDB.Driver.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj">
       <Project>{AE5166CD-76B0-4911-BD80-CED9521F37A1}</Project>

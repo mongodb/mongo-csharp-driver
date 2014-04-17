@@ -24,7 +24,7 @@ Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 
-Namespace MongoDB.DriverUnitTests.Jira
+Namespace MongoDB.Driver.VB.Tests.Jira
 
     <TestFixture()>
     Public Class CSharp542

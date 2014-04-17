@@ -24,7 +24,7 @@ using MongoDB.Driver.Operations;
 using MongoDB.Driver.Support;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Operations
+namespace MongoDB.Driver.Tests.Operations
 {
     [TestFixture]
     public class BulkWriteBatchResultCombinerTests

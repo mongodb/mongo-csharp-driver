@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 using System;
 
-namespace MongoDB.BsonUnitTests.Jira
+namespace MongoDB.Bson.Tests.Jira
 {
     [TestFixture]
     public class CSharp476Tests

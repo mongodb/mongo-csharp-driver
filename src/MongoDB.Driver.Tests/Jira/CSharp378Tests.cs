@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp378
+namespace MongoDB.Driver.Tests.Jira.CSharp378
 {
     [TestFixture]
     public class CSharp378Tests

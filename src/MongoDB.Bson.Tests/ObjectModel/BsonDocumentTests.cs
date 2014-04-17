@@ -26,7 +26,7 @@ using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests
+namespace MongoDB.Bson.Tests
 {
     [TestFixture]
     public class BsonDocumentTests

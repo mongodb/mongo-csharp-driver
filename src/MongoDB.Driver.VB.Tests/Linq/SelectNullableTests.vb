@@ -24,7 +24,7 @@ Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 
-Namespace MongoDB.DriverUnitTests.Linq
+Namespace MongoDB.Driver.VB.Tests.Linq
     <TestFixture()> _
     Public Class SelectNullableTests
         Private Enum E
@@ -39,7 +39,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_Id
                 End Get
                 Set(ByVal value As ObjectId)
-                    m_Id = Value
+                    m_Id = value
                 End Set
             End Property
             Private m_Id As ObjectId
@@ -50,7 +50,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_E
                 End Get
                 Set(ByVal value As System.Nullable(Of E))
-                    m_E = Value
+                    m_E = value
                 End Set
             End Property
             Private m_E As System.Nullable(Of E)
@@ -60,7 +60,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_X
                 End Get
                 Set(ByVal value As System.Nullable(Of Integer))
-                    m_X = Value
+                    m_X = value
                 End Set
             End Property
             Private m_X As System.Nullable(Of Integer)
@@ -83,15 +83,15 @@ Namespace MongoDB.DriverUnitTests.Linq
             _collection.Insert(New C() With { _
                 .E = E.A _
             })
-			_collection.Insert(New C() With { _
-				.E = E.B _
-			})
-			_collection.Insert(New C() With { _
-				.X = Nothing _
-			})
-			_collection.Insert(New C() With { _
-				.X = 1 _
-			})
+            _collection.Insert(New C() With { _
+                .E = E.B _
+            })
+            _collection.Insert(New C() With { _
+                .X = Nothing _
+            })
+            _collection.Insert(New C() With { _
+                .X = 1 _
+            })
             _collection.Insert(New C() With { _
                 .X = 2 _
             })

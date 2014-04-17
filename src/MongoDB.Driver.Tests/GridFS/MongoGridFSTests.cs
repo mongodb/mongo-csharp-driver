@@ -24,7 +24,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.GridFS;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.GridFS
+namespace MongoDB.Driver.Tests.GridFS
 {
     [TestFixture]
     public class MongoGridFSTests

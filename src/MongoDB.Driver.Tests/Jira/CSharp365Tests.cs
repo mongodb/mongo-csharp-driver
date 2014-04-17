@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp365
+namespace MongoDB.Driver.Tests.Jira.CSharp365
 {
     [TestFixture]
     public class CSharp365Tests

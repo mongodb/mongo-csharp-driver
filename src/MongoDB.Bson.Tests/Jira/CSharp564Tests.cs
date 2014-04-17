@@ -17,7 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp564
+namespace MongoDB.Bson.Tests.Jira.CSharp564
 {
     [TestFixture]
     public class CSharp564Tests

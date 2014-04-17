@@ -21,7 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests
+namespace MongoDB.Bson.Tests
 {
     [TestFixture]
     public class LazyBsonDocumentTests

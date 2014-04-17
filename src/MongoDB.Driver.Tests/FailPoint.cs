@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Internal;
 
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     public static class FailPointName
     {

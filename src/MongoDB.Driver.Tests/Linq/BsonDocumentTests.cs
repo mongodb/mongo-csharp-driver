@@ -17,7 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Linq
+namespace MongoDB.Driver.Tests.Linq
 {
     [TestFixture]
     public class BsonDocumentTests

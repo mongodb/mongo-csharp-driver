@@ -64,9 +64,9 @@ Namespace My
     Friend Module MySettingsProperty
         
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.MongoDB.DriverUnitTests.My.MySettings
+        Friend ReadOnly Property Settings() As Global.MongoDB.Driver.VB.Tests.My.MySettings
             Get
-                Return Global.MongoDB.DriverUnitTests.My.MySettings.Default
+                Return Global.MongoDB.Driver.VB.Tests.My.MySettings.Default
             End Get
         End Property
     End Module

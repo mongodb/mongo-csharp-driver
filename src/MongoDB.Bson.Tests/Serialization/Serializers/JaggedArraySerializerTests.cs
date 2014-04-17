@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.ArraySerializer
+namespace MongoDB.Bson.Tests.Serialization.ArraySerializer
 {
     [TestFixture]
     public class ArrayArraySerializerTests

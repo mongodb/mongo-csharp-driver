@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Linq.Utils
+namespace MongoDB.Driver.Tests.Linq.Utils
 {
     [TestFixture]
     public class BsonSerializationInfoHelperTests

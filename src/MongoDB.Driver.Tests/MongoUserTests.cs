@@ -17,7 +17,7 @@ using MongoDB.Driver;
 using NUnit.Framework;
 
 #pragma warning disable 618
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     [TestFixture]
     public class MongoUserTests

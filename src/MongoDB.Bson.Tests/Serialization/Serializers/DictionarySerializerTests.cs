@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.DictionarySerializers
+namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 {
     [BsonDiscriminator("DictionarySerializers.C")] // "C" is an ambiguous discriminator when nominalType is System.Object
     public class C

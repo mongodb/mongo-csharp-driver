@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Jira
+namespace MongoDB.Bson.Tests.Jira
 {
     [TestFixture]
     public class CSharp460Tests

@@ -17,7 +17,7 @@ using System.Linq;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Communication.Security
+namespace MongoDB.Driver.Tests.Communication.Security
 {
     [TestFixture]
     [Explicit]

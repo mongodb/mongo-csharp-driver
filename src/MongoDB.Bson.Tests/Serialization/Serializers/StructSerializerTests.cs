@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-namespace MongoDB.BsonUnitTests.Serialization
+namespace MongoDB.Bson.Tests.Serialization
 {
     //[TestFixture]
     //public class StructSerializerTests {

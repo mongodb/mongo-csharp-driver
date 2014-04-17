@@ -17,7 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     /// <summary>
     /// A static class to handle online test configuration.

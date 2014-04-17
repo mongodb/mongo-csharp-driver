@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.IdGenerators;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization
+namespace MongoDB.Bson.Tests.Serialization
 {
     [TestFixture]
     public class TestIdGenerators

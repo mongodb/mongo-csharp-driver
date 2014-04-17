@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using MongoDB.Driver.Support;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Support
+namespace MongoDB.Driver.Tests.Support
 {
     [TestFixture]
     public class IndexMapTests

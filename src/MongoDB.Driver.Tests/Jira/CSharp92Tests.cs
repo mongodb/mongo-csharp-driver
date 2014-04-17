@@ -17,7 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp92
+namespace MongoDB.Driver.Tests.Jira.CSharp92
 {
     [TestFixture]
     public class CSharp92Tests

@@ -22,7 +22,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Samples
+namespace MongoDB.Driver.Tests.Samples
 {
     [TestFixture]
     public class MagicDiscriminatorTests

@@ -22,7 +22,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira
+namespace MongoDB.Driver.Tests.Jira
 {
     [TestFixture]
     public class CSharp900Tests

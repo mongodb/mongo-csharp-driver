@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     [TestFixture]
     public class CanCommandBeSentToSecondaryTests

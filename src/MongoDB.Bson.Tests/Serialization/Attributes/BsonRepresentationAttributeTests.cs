@@ -17,7 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.Attributes
+namespace MongoDB.Bson.Tests.Serialization.Attributes
 {
     [TestFixture]
     public class BsonRepresentationAttributeTests

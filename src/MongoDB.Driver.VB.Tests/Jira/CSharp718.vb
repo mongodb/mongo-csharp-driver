@@ -18,7 +18,7 @@ Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 Imports NUnit.Framework
 
-Namespace MongoDB.DriverUnitTests.Jira
+Namespace MongoDB.Driver.VB.Tests.Jira
 
     <TestFixture()>
     Public Class CSharp718
@@ -58,7 +58,7 @@ Namespace MongoDB.DriverUnitTests.Jira
 
         Private Sub TestSetup()
             _collection.RemoveAll()
-            _collection.Insert(New C() With { .Id = 1})
+            _collection.Insert(New C() With {.Id = 1})
             _collection.Insert(New C() With {.Id = 2, .Foo = Nothing})
             _collection.Insert(New C() With {.Id = 3, .Foo = {1}})
             _collection.Insert(New C() With {.Id = 4, .Foo = {1, 2}})

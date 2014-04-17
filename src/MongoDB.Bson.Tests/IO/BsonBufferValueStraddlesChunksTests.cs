@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.IO
+namespace MongoDB.Bson.Tests.IO
 {
     [TestFixture]
     public class BsonBufferValueStraddlesChunksTests

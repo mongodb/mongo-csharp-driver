@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization
+namespace MongoDB.Bson.Tests.Serialization
 {
     [TestFixture]
     public class LegacyBsonClassMapTests

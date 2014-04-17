@@ -21,7 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     [TestFixture]
     public class SslSettingsTests

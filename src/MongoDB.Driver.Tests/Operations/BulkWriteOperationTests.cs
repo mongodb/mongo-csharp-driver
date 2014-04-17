@@ -21,7 +21,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Operations
+namespace MongoDB.Driver.Tests.Operations
 {
     [TestFixture]
     public class BulkWriteOperationTests

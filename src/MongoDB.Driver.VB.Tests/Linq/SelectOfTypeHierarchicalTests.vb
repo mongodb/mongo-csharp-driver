@@ -24,8 +24,9 @@ Imports MongoDB.Bson.Serialization.Attributes
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Builders
 Imports MongoDB.Driver.Linq
+Imports MongoDB.Driver.Tests
 
-Namespace MongoDB.DriverUnitTests.Linq
+Namespace MongoDB.Driver.VB.Tests.Linq
     <TestFixture()> _
     Public Class SelectOfTypeHierarchicalTests
         <BsonDiscriminator(RootClass:=True)> _

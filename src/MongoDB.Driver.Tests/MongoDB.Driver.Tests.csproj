@@ -8,7 +8,7 @@
     <ProjectGuid>{FBBF0D71-107F-49C4-8858-B3A4DC24AA33}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MongoDB.DriverUnitTests</RootNamespace>
+    <RootNamespace>MongoDB.Driver.Tests</RootNamespace>
     <AssemblyName>MongoDB.Driver.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -19,7 +19,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.CommandResults
+namespace MongoDB.Driver.Tests.CommandResults
 {
     [TestFixture]
     public class GetLastErrorResultTests

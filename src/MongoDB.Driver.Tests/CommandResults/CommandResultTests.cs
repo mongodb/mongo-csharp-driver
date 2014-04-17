@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.CommandResults
+namespace MongoDB.Driver.Tests.CommandResults
 {
     [TestFixture]
     public class CommandResultTests

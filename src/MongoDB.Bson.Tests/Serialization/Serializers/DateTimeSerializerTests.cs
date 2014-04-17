@@ -21,7 +21,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions.DateTimeSerializationOptions
+namespace MongoDB.Bson.Tests.Serialization.Conventions.DateTimeSerializationOptions
 {
     [TestFixture]
     public class LocalTests

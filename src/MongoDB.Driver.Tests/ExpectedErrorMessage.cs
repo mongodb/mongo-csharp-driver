@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MongoDB.DriverUnitTests
+namespace MongoDB.Driver.Tests
 {
     /// <summary>
     /// A static class to hold expected error messages that differ between .NET and Mono.

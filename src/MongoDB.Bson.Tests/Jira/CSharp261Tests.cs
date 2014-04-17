@@ -17,7 +17,7 @@ using System;
 using MongoDB.Bson;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp261
+namespace MongoDB.Bson.Tests.Jira.CSharp261
 {
     [TestFixture]
     public class CSharp261Tests

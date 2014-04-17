@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Jira.CSharp122
+namespace MongoDB.Bson.Tests.Jira.CSharp122
 {
     public abstract class B
     {

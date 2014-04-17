@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Jira.CSharp231
+namespace MongoDB.Driver.Tests.Jira.CSharp231
 {
     [TestFixture]
     public class CSharp231Tests

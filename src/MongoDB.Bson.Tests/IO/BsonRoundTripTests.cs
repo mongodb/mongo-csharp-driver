@@ -17,7 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.IO
+namespace MongoDB.Bson.Tests.IO
 {
     // these tests use the BsonDocument object model to create a BSON document in memory
     // and then serialize it back and forth between byte arrays to make sure nothing is lost in serialization/deserialization

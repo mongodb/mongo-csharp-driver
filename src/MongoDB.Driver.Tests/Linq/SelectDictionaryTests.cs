@@ -24,7 +24,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Linq
+namespace MongoDB.Driver.Tests.Linq
 {
     [TestFixture]
     public class SelectDictionaryTests

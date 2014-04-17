@@ -8,7 +8,7 @@
     <ProjectGuid>{10A5FAC2-E26F-4726-B888-26D5B849F805}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MongoDB.BsonUnitTests</RootNamespace>
+    <RootNamespace>MongoDB.Bson.Tests</RootNamespace>
     <AssemblyName>MongoDB.Bson.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

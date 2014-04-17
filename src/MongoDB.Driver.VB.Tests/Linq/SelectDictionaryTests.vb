@@ -26,7 +26,7 @@ Imports MongoDB.Bson.Serialization.Options
 Imports MongoDB.Driver
 Imports MongoDB.Driver.Linq
 
-Namespace MongoDB.DriverUnitTests.Linq
+Namespace MongoDB.Driver.VB.Tests.Linq
     <TestFixture()> _
     Public Class SelectDictionaryTests
         Private Class C
@@ -35,7 +35,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_Id
                 End Get
                 Set(ByVal value As ObjectId)
-                    m_Id = Value
+                    m_Id = value
                 End Set
             End Property
             Private m_Id As ObjectId
@@ -46,7 +46,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_D
                 End Get
                 Set(ByVal value As IDictionary(Of String, Integer))
-                    m_D = Value
+                    m_D = value
                 End Set
             End Property
             Private m_D As IDictionary(Of String, Integer)
@@ -57,7 +57,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_E
                 End Get
                 Set(ByVal value As IDictionary(Of String, Integer))
-                    m_E = Value
+                    m_E = value
                 End Set
             End Property
             Private m_E As IDictionary(Of String, Integer)
@@ -68,7 +68,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_F
                 End Get
                 Set(ByVal value As IDictionary(Of String, Integer))
-                    m_F = Value
+                    m_F = value
                 End Set
             End Property
             Private m_F As IDictionary(Of String, Integer)
@@ -79,7 +79,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_G
                 End Get
                 Set(ByVal value As IDictionary(Of String, Integer))
-                    m_G = Value
+                    m_G = value
                 End Set
             End Property
             Private m_G As IDictionary(Of String, Integer)
@@ -90,7 +90,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_H
                 End Get
                 Set(ByVal value As IDictionary)
-                    m_H = Value
+                    m_H = value
                 End Set
             End Property
             Private m_H As IDictionary
@@ -101,7 +101,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_I
                 End Get
                 Set(ByVal value As IDictionary)
-                    m_I = Value
+                    m_I = value
                 End Set
             End Property
             Private m_I As IDictionary
@@ -112,7 +112,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_J
                 End Get
                 Set(ByVal value As IDictionary)
-                    m_J = Value
+                    m_J = value
                 End Set
             End Property
             Private m_J As IDictionary
@@ -123,7 +123,7 @@ Namespace MongoDB.DriverUnitTests.Linq
                     Return m_K
                 End Get
                 Set(ByVal value As IDictionary)
-                    m_K = Value
+                    m_K = value
                 End Set
             End Property
             Private m_K As IDictionary
@@ -157,36 +157,36 @@ Namespace MongoDB.DriverUnitTests.Linq
             }
 
             _collection.Drop()
-			_collection.Insert(New C() With { _
-				.D = Nothing, _
-				.E = Nothing, _
-				.F = Nothing, _
-				.G = Nothing, _
-				.H = Nothing, _
-				.I = Nothing, _
-				.J = Nothing, _
-				.K = Nothing _
-			})
-			_collection.Insert(New C() With { _
-				.D = de, _
-				.E = de, _
-				.F = de, _
-				.G = de, _
-				.H = he, _
-				.I = he, _
-				.J = he, _
-				.K = he _
-			})
-			_collection.Insert(New C() With { _
-				.D = dx, _
-				.E = dx, _
-				.F = dx, _
-				.G = dx, _
-				.H = hx, _
-				.I = hx, _
-				.J = hx, _
-				.K = hx _
-			})
+            _collection.Insert(New C() With { _
+                .D = Nothing, _
+                .E = Nothing, _
+                .F = Nothing, _
+                .G = Nothing, _
+                .H = Nothing, _
+                .I = Nothing, _
+                .J = Nothing, _
+                .K = Nothing _
+            })
+            _collection.Insert(New C() With { _
+                .D = de, _
+                .E = de, _
+                .F = de, _
+                .G = de, _
+                .H = he, _
+                .I = he, _
+                .J = he, _
+                .K = he _
+            })
+            _collection.Insert(New C() With { _
+                .D = dx, _
+                .E = dx, _
+                .F = dx, _
+                .G = dx, _
+                .H = hx, _
+                .I = hx, _
+                .J = hx, _
+                .K = hx _
+            })
             _collection.Insert(New C() With { _
                  .D = dy, _
                  .E = dy, _

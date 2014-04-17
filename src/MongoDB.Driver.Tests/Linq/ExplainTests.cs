@@ -21,7 +21,7 @@ using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 using NUnit.Framework;
 
-namespace MongoDB.DriverUnitTests.Linq
+namespace MongoDB.Driver.Tests.Linq
 {
     [TestFixture]
     public class ExplainTests

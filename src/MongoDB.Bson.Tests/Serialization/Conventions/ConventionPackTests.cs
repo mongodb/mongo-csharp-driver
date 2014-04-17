@@ -17,7 +17,7 @@ using System.Linq;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.Serialization.Conventions
+namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     [TestFixture]
     public class ConventionPackTests

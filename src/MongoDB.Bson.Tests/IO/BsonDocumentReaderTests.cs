@@ -19,7 +19,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests.IO
+namespace MongoDB.Bson.Tests.IO
 {
     [TestFixture]
     public class BsonDocumentReaderTests

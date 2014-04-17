@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using NUnit.Framework;
 
-namespace MongoDB.BsonUnitTests
+namespace MongoDB.Bson.Tests
 {
     [TestFixture]
     public class BsonElementTests
