@@ -45,7 +45,7 @@ namespace MongoDB.Bson.Tests.Jira
             }
             catch (Exception ex)
             {
-                var expected = "An error occurred while deserializing the N property of class MongoDB.BsonUnitTests.Jira.CSharp351Tests+C: Expected a nested document representing the serialized form of a MongoDB.BsonUnitTests.Jira.CSharp351Tests+N value, but found a value of type String instead.";
+                var expected = "An error occurred while deserializing the N property of class MongoDB.Bson.Tests.Jira.CSharp351Tests+C: Expected a nested document representing the serialized form of a MongoDB.Bson.Tests.Jira.CSharp351Tests+N value, but found a value of type String instead.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<FileFormatException>(ex.InnerException);
                 Assert.AreEqual(expected, ex.Message);

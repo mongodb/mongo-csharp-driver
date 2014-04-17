@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.Jira
             var conventions = new ConventionPack();
             conventions.Add(new EmptyGuidDefaultValueConvention());
             conventions.Add(new IgnoreIfDefaultConvention(true));
-            ConventionRegistry.Register("CSharp310", conventions, type => type.FullName.StartsWith("MongoDB.BsonUnitTests.Jira.CSharp310Tests", StringComparison.Ordinal));
+            ConventionRegistry.Register("CSharp310", conventions, type => type.FullName.StartsWith("MongoDB.Bson.Tests.Jira.CSharp310Tests", StringComparison.Ordinal));
         }
 
         [Test]

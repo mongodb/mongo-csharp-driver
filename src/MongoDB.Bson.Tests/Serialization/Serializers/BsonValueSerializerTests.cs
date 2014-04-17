@@ -492,7 +492,7 @@ namespace MongoDB.Bson.Tests.Serialization
             }
             catch (Exception ex)
             {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
+                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.Bson.Tests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
                 Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
@@ -521,7 +521,7 @@ namespace MongoDB.Bson.Tests.Serialization
             }
             catch (Exception ex)
             {
-                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.BsonUnitTests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
+                var expectedMessage = "An error occurred while deserializing the V property of class MongoDB.Bson.Tests.Serialization.BsonDocumentWrapperSerializerTests+TestClass";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<NotSupportedException>(ex.InnerException);
                 Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));

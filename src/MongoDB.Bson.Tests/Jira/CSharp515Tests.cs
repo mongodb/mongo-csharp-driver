@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-        private string _jsonTemplate = "{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.BsonUnitTests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], MongoDB.BsonUnitTests', '_v' : #V } }".Replace("'", "\"");
+        private string _jsonTemplate = "{ '_id' : 1, 'R' : #V, 'S' : #V, 'RS' : { '_t' : 'S`1', '_v' : #V }, 'OR' : { '_t' : 'System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]', '_v' : #V }, 'OS' : { '_t' : 'MongoDB.Bson.Tests.Jira.CSharp515.CSharp515Tests+S`1[System.Int32], MongoDB.Bson.Tests', '_v' : #V } }".Replace("'", "\"");
 
         [Test]
         public void TestNull()

@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 }
                 catch (Exception ex)
                 {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverUnitTests.Jira.CSharp112.CSharp112Tests+D: Truncation resulted in data loss.";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+D: Truncation resulted in data loss.";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<TruncationException>(ex.InnerException);
                     Assert.AreEqual(expectedMessage, ex.Message);
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 }
                 catch (Exception ex)
                 {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverUnitTests.Jira.CSharp112.CSharp112Tests+I";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+I";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<OverflowException>(ex.InnerException);
                     Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 }
                 catch (Exception ex)
                 {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverUnitTests.Jira.CSharp112.CSharp112Tests+I: Truncation resulted in data loss.";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+I: Truncation resulted in data loss.";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<TruncationException>(ex.InnerException);
                     Assert.AreEqual(expectedMessage, ex.Message);
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 }
                 catch (Exception ex)
                 {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverUnitTests.Jira.CSharp112.CSharp112Tests+L";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+L";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<OverflowException>(ex.InnerException);
                     Assert.AreEqual(expectedMessage, ex.Message.Substring(0, ex.Message.IndexOf(':')));
@@ -339,7 +339,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
                 }
                 catch (Exception ex)
                 {
-                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.DriverUnitTests.Jira.CSharp112.CSharp112Tests+L: Truncation resulted in data loss.";
+                    var expectedMessage = "An error occurred while deserializing the N field of class MongoDB.Driver.Tests.Jira.CSharp112.CSharp112Tests+L: Truncation resulted in data loss.";
                     Assert.IsInstanceOf<FileFormatException>(ex);
                     Assert.IsInstanceOf<TruncationException>(ex.InnerException);
                     Assert.AreEqual(expectedMessage, ex.Message);

@@ -19,9 +19,9 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MongoDB.BsonUnitTests")]
+[assembly: AssemblyTitle("MongoDB.Bson.Tests")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyProduct("MongoDB.BsonUnitTests")]
+[assembly: AssemblyProduct("MongoDB.Bson.Tests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("56b298fb-e0e4-4c10-b42a-4b6d238b163f")]

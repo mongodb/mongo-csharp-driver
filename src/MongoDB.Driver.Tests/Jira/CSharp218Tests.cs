@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
             }
             catch (Exception ex)
             {
-                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.DriverUnitTests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.DriverUnitTests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
+                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
                 Assert.IsInstanceOf<FileFormatException>(ex);
                 Assert.IsInstanceOf<BsonSerializationException>(ex.InnerException);
                 Assert.AreEqual(expectedMessage, ex.Message);

@@ -72,7 +72,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp637
             Assert.IsNotNull(memberMap);
             Assert.AreEqual(typeof(MyClass), memberMap.ClassMap.ClassType);
             Assert.AreEqual("bar", memberMap.ElementName);
-            Assert.AreEqual("MongoDB.BsonUnitTests.Jira.CSharp637.CSharp637Tests.IMyInterface.SomeField2", memberMap.MemberName);
+            Assert.AreEqual("MongoDB.Bson.Tests.Jira.CSharp637.CSharp637Tests.IMyInterface.SomeField2", memberMap.MemberName);
         }
     }
 }

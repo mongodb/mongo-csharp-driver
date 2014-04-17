@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
         public void TestBogusElement()
         {
             var document = new BsonDocument("bogus", 0);
-            var message = "Element 'bogus' does not match any field or property of class MongoDB.BsonUnitTests.Jira.CSharp270.C.";
+            var message = "Element 'bogus' does not match any field or property of class MongoDB.Bson.Tests.Jira.CSharp270.C.";
             var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
                 { "_id", ObjectId.GenerateNewId() },
                 { "property", 0 }
             };
-            var message = "Required element 'field' for field 'Field' of class MongoDB.BsonUnitTests.Jira.CSharp270.C is missing.";
+            var message = "Required element 'field' for field 'Field' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
             var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp270
                 { "_id", ObjectId.GenerateNewId() },
                 { "field", 0 }
             };
-            var message = "Required element 'property' for property 'Property' of class MongoDB.BsonUnitTests.Jira.CSharp270.C is missing.";
+            var message = "Required element 'property' for property 'Property' of class MongoDB.Bson.Tests.Jira.CSharp270.C is missing.";
             var ex = Assert.Throws<FileFormatException>(() => { BsonSerializer.Deserialize<C>(document); });
             Assert.AreEqual(message, ex.Message);
         }

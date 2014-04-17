@@ -46,14 +46,14 @@ namespace MongoDB.Bson.Tests.Jira
         [Test]
         public void TestDuplicateElementInDerivedClass()
         {
-            var message = "The property 'N' of class 'MongoDB.BsonUnitTests.Jira.D' cannot use element name 'N' because it already being used by field 'N' of class 'MongoDB.BsonUnitTests.Jira.C'.";
+            var message = "The property 'N' of class 'MongoDB.Bson.Tests.Jira.D' cannot use element name 'N' because it already being used by field 'N' of class 'MongoDB.Bson.Tests.Jira.C'.";
             Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(D)), message);
         }
 
         [Test]
         public void TestDuplicateElementInSameClass()
         {
-            var message = "The property 'N2' of class 'MongoDB.BsonUnitTests.Jira.E' cannot use element name 'n' because it already being used by field 'N1'.";
+            var message = "The property 'N2' of class 'MongoDB.Bson.Tests.Jira.E' cannot use element name 'n' because it already being used by field 'N1'.";
             Assert.Throws<BsonSerializationException>(() => BsonClassMap.LookupClassMap(typeof(E)), message);
         }
     }

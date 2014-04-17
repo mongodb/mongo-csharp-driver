@@ -127,7 +127,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Test]
-        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.BsonUnitTests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
+        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The field 'System.Int32 ReadOnlyField' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' is readonly. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
         public void TestSettingAReadOnlyField()
         {
             var instance = new TestClass();
@@ -238,7 +238,7 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Test]
-        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.BsonUnitTests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
+        [ExpectedException(typeof(BsonSerializationException), ExpectedMessage = "The property 'System.Int32 ReadOnlyProperty' of class 'MongoDB.Bson.Tests.Serialization.BsonMemberMapTests+TestClass' has no 'set' accessor. To avoid this exception, call IsReadOnly to ensure that setting a value is allowed.")]
         public void TestSettingAReadOnlyProperty()
         {
             var instance = new TestClass { Property = 10 };
