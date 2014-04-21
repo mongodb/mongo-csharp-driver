@@ -539,6 +539,13 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
+        public void TestMergeNull()
+        {
+            var document = new BsonDocument();
+            Assert.Throws<ArgumentNullException>(() => { document.Merge(null); });
+        }
+
+        [Test]
         public void TestNullableBoolean()
         {
             var document = new BsonDocument { { "v", true }, { "n", BsonNull.Value }, { "s", "" } };

@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAllBsonArray()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var query = Query.All("j", array);
             var selector = "{ \"$all\" : [2, 4, 6] }";
             Assert.AreEqual(PositiveTest("j", selector), query.ToJson());
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAllBsonArrayCastToIEnumerableBsonValue()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.All("j", enumerable);
             var selector = "{ \"$all\" : [2, 4, 6] }";
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAllIEnumerableBsonValue()
         {
-            var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var enumerable = new List<BsonValue> { 2, 4, 6 };
             var query = Query.All("j", enumerable);
             var selector = "{ \"$all\" : [2, 4, 6] }";
             Assert.AreEqual(PositiveTest("j", selector), query.ToJson());
@@ -343,7 +343,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestInBsonArray()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var query = Query.In("j", array);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             var negated = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestInBsonArrayCastToIEnumerableBsonValue()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.In("j", enumerable);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestInIEnumerableBsonValue()
         {
-            var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var enumerable = new List<BsonValue> { 2, 4, 6 };
             var query = Query.In("j", enumerable);
             var expected = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
             var negated = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
@@ -541,7 +541,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestNinBsonArray()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var query = Query.NotIn("j", array);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             var negated = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";
@@ -552,7 +552,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestNinBsonArrayCastToIEnumerableBsonValue()
         {
-            var array = new BsonArray { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var array = new BsonArray { 2, 4, 6 };
             var enumerable = (IEnumerable<BsonValue>)array;
             var query = Query.NotIn("j", enumerable);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
@@ -564,7 +564,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestNinIEnumerableBsonValue()
         {
-            var enumerable = new List<BsonValue> { 2, 4, null, 6 }; // null will be skipped due to functional construction semantics
+            var enumerable = new List<BsonValue> { 2, 4, 6 };
             var query = Query.NotIn("j", enumerable);
             var expected = "{ \"j\" : { \"$nin\" : [2, 4, 6] } }";
             var negated = "{ \"j\" : { \"$in\" : [2, 4, 6] } }";

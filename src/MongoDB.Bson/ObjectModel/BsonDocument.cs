@@ -623,13 +623,15 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
             
             if (condition)
             {
+                // don't check for null value unless condition is true
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
                 Add(new BsonElement(name, value));
             }
 
@@ -1017,16 +1019,19 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument Merge(BsonDocument document, bool overwriteExistingElements)
         {
-            if (document != null)
+            if (document == null)
             {
-                foreach (BsonElement element in document)
+                throw new ArgumentNullException("document");
+            }
+
+            foreach (BsonElement element in document)
+            {
+                if (overwriteExistingElements || !Contains(element.Name))
                 {
-                    if (overwriteExistingElements || !Contains(element.Name))
-                    {
-                        this[element.Name] = element.Value;
-                    }
+                    this[element.Name] = element.Value;
                 }
             }
+
             return this;
         }
 
