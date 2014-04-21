@@ -552,6 +552,10 @@ namespace MongoDB.Bson
 
             foreach (var key in keys)
             {
+                if (key == null)
+                {
+                    throw new ArgumentException("keys", "A key passed to BsonDocument.Add is null.");
+                }
                 if (key.GetType() != typeof(string))
                 {
                     throw new ArgumentOutOfRangeException("keys", "A key passed to BsonDocument.Add is not a string.");
@@ -683,6 +687,10 @@ namespace MongoDB.Bson
 
             foreach (DictionaryEntry entry in dictionary)
             {
+                if (entry.Key == null)
+                {
+                    throw new ArgumentException("keys", "A key passed to BsonDocument.AddRange is null.");
+                }
                 if (entry.Key.GetType() != typeof(string))
                 {
                     throw new ArgumentOutOfRangeException("dictionary", "One or more keys in the dictionary passed to BsonDocument.AddRange is not a string.");
