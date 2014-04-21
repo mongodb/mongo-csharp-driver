@@ -2206,7 +2206,10 @@ namespace MongoDB.Driver
                 { "name", indexName },
                 { "key", keysDocument }
             };
-            index.Merge(optionsDocument);
+            if (optionsDocument != null)
+            {
+                index.Merge(optionsDocument);
+            }
 
             return index;
         }

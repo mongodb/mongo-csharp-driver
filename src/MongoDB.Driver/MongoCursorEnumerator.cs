@@ -381,7 +381,10 @@ namespace MongoDB.Driver
                     { "$query", query },
                     { "$readPreference", formattedReadPreference, formattedReadPreference != null }, // only if sending query to a mongos
                 };
-                wrappedQuery.Merge(_cursor.Options);
+                if (_cursor.Options != null)
+                {
+                    wrappedQuery.Merge(_cursor.Options);
+                }
                 return wrappedQuery;
             }
         }

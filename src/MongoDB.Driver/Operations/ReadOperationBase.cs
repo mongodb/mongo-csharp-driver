@@ -73,7 +73,10 @@ namespace MongoDB.Driver.Operations
                     { "$query", queryDocument },
                     { "$readPreference", formattedReadPreference, formattedReadPreference != null }, // only if sending query to a mongos
                 };
-                wrappedQuery.Merge(options);
+                if (options != null)
+                {
+                    wrappedQuery.Merge(options);
+                }
                 return wrappedQuery;
             }
         }

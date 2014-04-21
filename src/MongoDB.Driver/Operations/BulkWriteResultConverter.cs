@@ -112,7 +112,10 @@ namespace MongoDB.Driver.Operations
                 { "updatedExisting", updatedExisting, isUpdate },
                 { "upserted", () => upsert.Id, isUpdate && upsert != null },
             };
-            getLastErrorResponse.Merge(details, false); // don't overwrite existing elements
+            if (details != null)
+            {
+                getLastErrorResponse.Merge(details, false); // don't overwrite existing elements
+            }
 
             return new WriteConcernResult(getLastErrorResponse);
         }
