@@ -124,25 +124,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Creates a new instance of the BsonString class.
-        /// </summary>
-        /// <param name="value">A string.</param>
-        /// <returns>A BsonString.</returns>
-        [Obsolete("Use new BsonString(string value) instead.")]
-        public static BsonString Create(string value)
-        {
-            if (value != null)
-            {
-                // TODO: are there any other commonly used strings worth checking for?
-                return value == "" ? __emptyInstance : new BsonString(value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // public methods
         /// <summary>
         /// Compares this BsonString to another BsonString.

@@ -1054,8 +1054,6 @@ namespace MongoDB.Bson
         }
 
         // public static methods
-        // TODO: implement more Create methods for .NET types (int, string, etc...)? Not sure... already have implicit conversions
-
         /// <summary>
         /// Creates a new instance of the BsonValue class.
         /// </summary>

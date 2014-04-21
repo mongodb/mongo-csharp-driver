@@ -92,17 +92,6 @@ namespace MongoDB.Bson
 
         // public static methods
         /// <summary>
-        /// Creates a new instance of the BsonInt64 class.
-        /// </summary>
-        /// <param name="value">A long.</param>
-        /// <returns>A BsonInt64.</returns>
-        [Obsolete("Use new BsonInt64(long value) instead.")]
-        public static BsonInt64 Create(long value)
-        {
-            return new BsonInt64(value);
-        }
-
-        /// <summary>
         /// Creates a new BsonInt64.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonInt64.</param>

@@ -198,49 +198,6 @@ namespace MongoDB.Bson
 
         // public static methods
         /// <summary>
-        /// Creates a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="value">An ObjectId.</param>
-        /// <returns>A BsonObjectId.</returns>
-        [Obsolete("Use new BsonObjectId(ObjectId value) instead.")]
-        public static BsonObjectId Create(ObjectId value)
-        {
-            return new BsonObjectId(value);
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="value">A byte array.</param>
-        /// <returns>A BsonObjectId.</returns>
-        [Obsolete("Use new BsonObjectId(byte[] value) instead.")]
-        public static BsonObjectId Create(byte[] value)
-        {
-            if (value != null)
-            {
-                return new BsonObjectId(value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="machine">The machine hash.</param>
-        /// <param name="pid">The pid.</param>
-        /// <param name="increment">The increment.</param>
-        /// <returns>A BsonObjectId.</returns>
-        [Obsolete("Use new BsonObjectId(int timestamp, int machine, short pid, int increment) instead.")]
-        public static BsonObjectId Create(int timestamp, int machine, short pid, int increment)
-        {
-            return new BsonObjectId(timestamp, machine, pid, increment);
-        }
-
-        /// <summary>
         /// Creates a new BsonObjectId.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonObjectId.</param>
@@ -250,24 +207,6 @@ namespace MongoDB.Bson
             if (value != null)
             {
                 return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonObjectId class.
-        /// </summary>
-        /// <param name="value">A string.</param>
-        /// <returns>A BsonObjectId.</returns>
-        [Obsolete("Use new BsonObjectId(string value) instead.")]
-        public static BsonObjectId Create(string value)
-        {
-            if (value != null)
-            {
-                return new BsonObjectId(value);
             }
             else
             {

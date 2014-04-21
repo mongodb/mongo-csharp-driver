@@ -138,17 +138,6 @@ namespace MongoDB.Bson
 
         // public static methods
         /// <summary>
-        /// Creates a new instance of the BsonInt32 class.
-        /// </summary>
-        /// <param name="value">An int.</param>
-        /// <returns>A BsonInt32.</returns>
-        [Obsolete("Use new BsonInt32(int value) instead.")]
-        public static BsonInt32 Create(int value)
-        {
-            return new BsonInt32(value);
-        }
-
-        /// <summary>
         /// Creates a new BsonInt32.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonInt32.</param>

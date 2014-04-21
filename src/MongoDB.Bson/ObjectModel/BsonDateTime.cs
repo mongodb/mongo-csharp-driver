@@ -129,28 +129,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Creates a new BsonDateTime.
         /// </summary>
-        /// <param name="value">A DateTime.</param>
-        /// <returns>A BsonDateTime.</returns>
-        [Obsolete("Use new BsonDateTime(DateTime value) instead.")]
-        public static BsonDateTime Create(DateTime value)
-        {
-            return new BsonDateTime(value);
-        }
-
-        /// <summary>
-        /// Creates a new BsonDateTime.
-        /// </summary>
-        /// <param name="millisecondsSinceEpoch">A DateTime.</param>
-        /// <returns>Milliseconds since Unix Epoch.</returns>
-        [Obsolete("Use new BsonDateTime(long millisecondsSinceEpoch) instead.")]
-        public static BsonDateTime Create(long millisecondsSinceEpoch)
-        {
-            return new BsonDateTime(millisecondsSinceEpoch);
-        }
-
-        /// <summary>
-        /// Creates a new BsonDateTime.
-        /// </summary>
         /// <param name="value">An object to be mapped to a BsonDateTime.</param>
         /// <returns>A BsonDateTime or null.</returns>
         public new static BsonDateTime Create(object value)

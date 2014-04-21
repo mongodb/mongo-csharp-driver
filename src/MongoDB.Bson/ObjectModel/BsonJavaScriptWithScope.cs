@@ -93,25 +93,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Creates a new instance of the BsonJavaScript class.
-        /// </summary>
-        /// <param name="code">A string containing JavaScript code.</param>
-        /// <param name="scope">A scope (a set of variable with values).</param>
-        /// <returns>A BsonJavaScript.</returns>
-        [Obsolete("Use new BsonJavaScriptWithScope(string code, BsonDocument scope) instead.")]
-        public static BsonJavaScriptWithScope Create(string code, BsonDocument scope)
-        {
-            if (code != null)
-            {
-                return new BsonJavaScriptWithScope(code, scope);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // public methods
         /// <summary>
         /// Creates a shallow clone of the BsonJavaScriptWithScope (see also DeepClone).

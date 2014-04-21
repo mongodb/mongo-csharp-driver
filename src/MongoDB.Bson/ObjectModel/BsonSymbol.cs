@@ -99,24 +99,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Creates a new instance of the BsonSymbol class.
-        /// </summary>
-        /// <param name="name">A string.</param>
-        /// <returns>A BsonSymbol.</returns>
-        [Obsolete("Use BsonSymbolTable.Lookup(string name) instead.")]
-        public static BsonSymbol Create(string name)
-        {
-            if (name != null)
-            {
-                return BsonSymbolTable.Lookup(name);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // public methods
         // note: a BsonSymbol is guaranteed to be unique because it must be looked up in BsonSymbolTable
         // therefore the implementations of Equals and GetHashCode are considerably more efficient

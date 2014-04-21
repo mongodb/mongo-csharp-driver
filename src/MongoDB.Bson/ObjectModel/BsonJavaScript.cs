@@ -100,24 +100,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Creates a new instance of the BsonJavaScript class.
-        /// </summary>
-        /// <param name="code">A string containing JavaScript code.</param>
-        /// <returns>A BsonJavaScript.</returns>
-        [Obsolete("Use new BsonJavaScript(string code) instead.")]
-        public static BsonJavaScript Create(string code)
-        {
-            if (code != null)
-            {
-                return new BsonJavaScript(code);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Creates a new BsonJavaScript.
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonJavaScript.</param>

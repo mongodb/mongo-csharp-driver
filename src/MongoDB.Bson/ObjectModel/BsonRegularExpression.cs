@@ -181,61 +181,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="regex">A Regex.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        [Obsolete("Use new BsonRegularExpression(Regex regex) instead.")]
-        public static BsonRegularExpression Create(Regex regex)
-        {
-            if (regex != null)
-            {
-                return new BsonRegularExpression(regex);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        [Obsolete("Use new BsonRegularExpression(string pattern) instead.")]
-        public static BsonRegularExpression Create(string pattern)
-        {
-            if (pattern != null)
-            {
-                return new BsonRegularExpression(pattern);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonRegularExpression class.
-        /// </summary>
-        /// <param name="pattern">A regular expression pattern.</param>
-        /// <param name="options">Regular expression options.</param>
-        /// <returns>A BsonRegularExpression.</returns>
-        [Obsolete("Use new BsonRegularExpression(string pattern, string options) instead.")]
-        public static BsonRegularExpression Create(string pattern, string options)
-        {
-            if (pattern != null)
-            {
-                return new BsonRegularExpression(pattern, options);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // public methods
         /// <summary>
         /// Compares this BsonRegularExpression to another BsonRegularExpression.

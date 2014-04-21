@@ -103,54 +103,6 @@ namespace MongoDB.Bson
             return !(lhs == rhs);
         }
 
-        // public static methods
-        /// <summary>
-        /// Creates a new instance of the BsonElement class.
-        /// </summary>
-        /// <param name="condition">Whether to create the BsonElement or return null.</param>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>A BsonElement or null.</returns>
-        [Obsolete("Use new BsonElement(string name, BsonValue value) instead.")]
-        public static BsonElement Create(bool condition, string name, BsonValue value)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (condition && value != null)
-            {
-                return new BsonElement(name, value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates a new instance of the BsonElement class.
-        /// </summary>
-        /// <param name="name">The name of the element.</param>
-        /// <param name="value">The value of the element.</param>
-        /// <returns>A BsonElement or null.</returns>
-        [Obsolete("Use new BsonElement(string name, BsonValue value) instead.")]
-        public static BsonElement Create(string name, BsonValue value)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException("name");
-            }
-            if (value != null)
-            {
-                return new BsonElement(name, value);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         // private static methods
         private static void ValidateElementName(string name)
         {

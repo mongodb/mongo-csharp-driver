@@ -115,17 +115,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Returns one of the two possible BsonBoolean values.
         /// </summary>
-        /// <param name="value">The bool value.</param>
-        /// <returns>The corresponding BsonBoolean value.</returns>
-        [Obsolete("Use implicit conversion to BsonBoolean or new BsonBoolean(bool value) instead.")]
-        public static BsonBoolean Create(bool value)
-        {
-            return value ? __trueInstance : __falseInstance;
-        }
-
-        /// <summary>
-        /// Returns one of the two possible BsonBoolean values.
-        /// </summary>
         /// <param name="value">An object to be mapped to a BsonBoolean.</param>
         /// <returns>A BsonBoolean or null.</returns>
         public new static BsonBoolean Create(object value)
