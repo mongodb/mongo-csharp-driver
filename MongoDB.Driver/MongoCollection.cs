@@ -2173,12 +2173,13 @@ namespace MongoDB.Driver
         // private methods
         private void AssignId(InsertRequest request)
         {
-            var serializer = request.Serializer ?? BsonSerializer.LookupSerializer(request.NominalType);
-            var idProvider = serializer as IBsonIdProvider;
-            if (idProvider != null)
+            var document = request.Document;
+            if (document != null)
             {
-                var document = request.Document;
-                if (document != null)
+                var actualType = document.GetType();
+                var serializer = request.Serializer ?? BsonSerializer.LookupSerializer(actualType);
+                var idProvider = serializer as IBsonIdProvider;
+                if (idProvider != null)
                 {
                     object id;
                     Type idNominalType;
