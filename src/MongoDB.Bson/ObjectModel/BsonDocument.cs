@@ -437,24 +437,27 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument Add(BsonElement element)
         {
-            if (element != null)
+            if (element == null)
             {
-                bool found;
-                int index;
-                if ((found = _indexes.TryGetValue(element.Name, out index)) && !_allowDuplicateNames)
+                throw new ArgumentNullException("element");
+            }
+
+            bool found;
+            int index;
+            if ((found = _indexes.TryGetValue(element.Name, out index)) && !_allowDuplicateNames)
+            {
+                var message = string.Format("Duplicate element name '{0}'.", element.Name);
+                throw new InvalidOperationException(message);
+            }
+            else
+            {
+                _elements.Add(element);
+                if (!found)
                 {
-                    var message = string.Format("Duplicate element name '{0}'.", element.Name);
-                    throw new InvalidOperationException(message);
-                }
-                else
-                {
-                    _elements.Add(element);
-                    if (!found)
-                    {
-                        _indexes.Add(element.Name, _elements.Count - 1); // index of the newly added element
-                    }
+                    _indexes.Add(element.Name, _elements.Count - 1); // index of the newly added element
                 }
             }
+
             return this;
         }
 
@@ -501,17 +504,20 @@ namespace MongoDB.Bson
         [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
         public virtual BsonDocument Add(IDictionary<string, object> dictionary, IEnumerable<string> keys)
         {
+            if (dictionary == null)
+            {
+                throw new ArgumentNullException("dictionary");
+            }
             if (keys == null)
             {
                 throw new ArgumentNullException("keys");
             }
-            if (dictionary != null)
+
+            foreach (var key in keys)
             {
-                foreach (var key in keys)
-                {
-                    Add(key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
-                }
+                Add(key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
             }
+
             return this;
         }
 
@@ -535,21 +541,24 @@ namespace MongoDB.Bson
         [Obsolete("Use AddRange(IEnumerable<BsonElement> elements) instead.")]
         public virtual BsonDocument Add(IDictionary dictionary, IEnumerable keys)
         {
+            if (dictionary == null)
+            {
+                throw new ArgumentNullException("dictionary");
+            }
             if (keys == null)
             {
                 throw new ArgumentNullException("keys");
             }
-            if (dictionary != null)
+
+            foreach (var key in keys)
             {
-                foreach (var key in keys)
+                if (key.GetType() != typeof(string))
                 {
-                    if (key.GetType() != typeof(string))
-                    {
-                        throw new ArgumentOutOfRangeException("keys", "A key passed to BsonDocument.Add is not a string.");
-                    }
-                    Add((string)key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
+                    throw new ArgumentOutOfRangeException("keys", "A key passed to BsonDocument.Add is not a string.");
                 }
+                Add((string)key, BsonTypeMapper.MapToBsonValue(dictionary[key]));
             }
+
             return this;
         }
 
@@ -587,10 +596,13 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            if (value != null)
+            if (value == null)
             {
-                Add(new BsonElement(name, value));
+                throw new ArgumentNullException("value");
             }
+
+            Add(new BsonElement(name, value));
+
             return this;
         }
 
@@ -607,10 +619,16 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            if (value != null && condition)
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            
+            if (condition)
             {
                 Add(new BsonElement(name, value));
             }
+
             return this;
         }
 
@@ -632,10 +650,12 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("valueFactory");
             }
+
             if (condition)
             {
                 Add(new BsonElement(name, valueFactory()));
             }
+
             return this;
         }
 
@@ -656,17 +676,20 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument AddRange(IDictionary dictionary)
         {
-            if (dictionary != null)
+            if (dictionary == null)
             {
-                foreach (DictionaryEntry entry in dictionary)
-                {
-                    if (entry.Key.GetType() != typeof(string))
-                    {
-                        throw new ArgumentOutOfRangeException("dictionary", "One or more keys in the dictionary passed to BsonDocument.AddRange is not a string.");
-                    }
-                    Add((string)entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
-                }
+                throw new ArgumentNullException("dictionary");
             }
+
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                if (entry.Key.GetType() != typeof(string))
+                {
+                    throw new ArgumentOutOfRangeException("dictionary", "One or more keys in the dictionary passed to BsonDocument.AddRange is not a string.");
+                }
+                Add((string)entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
+            }
+
             return this;
         }
 
@@ -677,13 +700,16 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument AddRange(IEnumerable<BsonElement> elements)
         {
-            if (elements != null)
+            if (elements == null)
             {
-                foreach (var element in elements)
-                {
-                    Add(element);
-                }
+                throw new ArgumentNullException("elements");
             }
+
+            foreach (var element in elements)
+            {
+                Add(element);
+            }
+
             return this;
         }
 
@@ -694,13 +720,16 @@ namespace MongoDB.Bson
         /// <returns>The document (so method calls can be chained).</returns>
         public virtual BsonDocument AddRange(IEnumerable<KeyValuePair<string, object>> dictionary)
         {
-            if (dictionary != null)
+            if (dictionary == null)
             {
-                foreach (var entry in dictionary)
-                {
-                    Add(entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
-                }
+                throw new ArgumentNullException("dictionary");
             }
+
+            foreach (var entry in dictionary)
+            {
+                Add(entry.Key, BsonTypeMapper.MapToBsonValue(entry.Value));
+            }
+
             return this;
         }
 
