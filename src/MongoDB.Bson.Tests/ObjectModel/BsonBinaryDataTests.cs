@@ -24,6 +24,13 @@ namespace MongoDB.Bson.Tests
     public class BsonBinaryDataTests
     {
         [Test]
+        public void TestCreateNull()
+        {
+            object obj = null;
+            Assert.Throws<ArgumentNullException>(() => { BsonBinaryData.Create(obj); });
+        }
+
+        [Test]
         public void TestGuidCSharpLegacy()
         {
             var guid = new Guid("01020304-0506-0708-090a-0b0c0d0e0f10");

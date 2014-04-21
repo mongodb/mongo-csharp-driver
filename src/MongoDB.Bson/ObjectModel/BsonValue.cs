@@ -1064,7 +1064,7 @@ namespace MongoDB.Bson
             // optimize away the call to MapToBsonValue for the most common cases
             if (value == null)
             {
-                return null; // not BsonNull.Value to be consistent with other Create methods
+                return BsonNull.Value;
             }
             else if (value is BsonValue)
             {

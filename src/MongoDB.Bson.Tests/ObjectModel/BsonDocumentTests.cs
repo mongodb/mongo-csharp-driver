@@ -362,8 +362,8 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestCreateNull()
         {
-            var document = BsonDocument.Create(null);
-            Assert.IsNull(document);
+            object obj = null;
+            Assert.Throws<ArgumentNullException>(() => { BsonDocument.Create(obj); });
         }
 
         [Test]

@@ -144,14 +144,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt32 or null.</returns>
         public new static BsonInt32 Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonInt32)BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonInt32)BsonTypeMapper.MapToBsonValue(value, BsonType.Int32);
         }
 
         // public methods

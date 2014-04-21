@@ -495,6 +495,13 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
+        public void TestCreateNull()
+        {
+            object obj = null;
+            Assert.AreSame(BsonNull.Value, BsonValue.Create(obj));
+        }
+
+        [Test]
         public void TestImplicitConversionFromBoolean()
         {
             BsonValue v = true;

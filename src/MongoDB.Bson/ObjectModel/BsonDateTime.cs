@@ -133,14 +133,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonDateTime or null.</returns>
         public new static BsonDateTime Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonDateTime)BsonTypeMapper.MapToBsonValue(value, BsonType.DateTime);
         }
 
         // public methods

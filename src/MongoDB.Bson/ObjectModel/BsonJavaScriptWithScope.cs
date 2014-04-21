@@ -83,14 +83,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScriptWithScope or null.</returns>
         public new static BsonJavaScriptWithScope Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonJavaScriptWithScope)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScriptWithScope);
         }
 
         // public methods

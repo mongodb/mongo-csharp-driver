@@ -89,14 +89,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol or null.</returns>
         public new static BsonSymbol Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonSymbol)BsonTypeMapper.MapToBsonValue(value, BsonType.Symbol);
         }
 
         // public methods

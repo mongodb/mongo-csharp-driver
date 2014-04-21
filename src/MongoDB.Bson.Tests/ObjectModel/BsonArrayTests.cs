@@ -242,16 +242,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateBooleanArrayNull()
-        {
-            bool[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
-        }
-
-        [Test]
         public void TestCreateBsonValueArray()
         {
             var values = new BsonValue[] { true, 1, null, 1.5 }; // embedded null is skipped by functional construction
@@ -263,16 +253,6 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(true, array[0].AsBoolean);
             Assert.AreEqual(1, array[1].AsInt32);
             Assert.AreEqual(1.5, array[2].AsDouble);
-        }
-
-        [Test]
-        public void TestCreateBsonValueArrayNull()
-        {
-            BsonValue[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
         }
 
         [Test]
@@ -290,16 +270,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateDateTimeArrayNull()
-        {
-            DateTime[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
-        }
-
-        [Test]
         public void TestCreateDoubleArray()
         {
             var values = new double[] { 1.5, 2.5 };
@@ -309,16 +279,6 @@ namespace MongoDB.Bson.Tests
             Assert.IsInstanceOf<BsonDouble>(array[1]);
             Assert.AreEqual(1.5, array[0].AsDouble);
             Assert.AreEqual(2.5, array[1].AsDouble);
-        }
-
-        [Test]
-        public void TestCreateDoubleArrayNull()
-        {
-            double[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
         }
 
         [Test]
@@ -334,16 +294,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateInt32ArrayNull()
-        {
-            int[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
-        }
-
-        [Test]
         public void TestCreateInt64Array()
         {
             var values = new long[] { 1, 2 };
@@ -356,13 +306,10 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateInt64ArrayNull()
+        public void TestCreateNull()
         {
-            long[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
+            object obj = null;
+            Assert.Throws<ArgumentNullException>(() => { BsonArray.Create(obj); });
         }
 
         [Test]
@@ -382,16 +329,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateObjectArrayNull()
-        {
-            object[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
-        }
-
-        [Test]
         public void TestCreateObjectIdArray()
         {
             var value1 = ObjectId.GenerateNewId();
@@ -403,16 +340,6 @@ namespace MongoDB.Bson.Tests
             Assert.IsInstanceOf<BsonObjectId>(array[1]);
             Assert.AreEqual(value1, array[0].AsObjectId);
             Assert.AreEqual(value2, array[1].AsObjectId);
-        }
-
-        [Test]
-        public void TestCreateObjectIdArrayNull()
-        {
-            ObjectId[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
         }
 
         [Test]
@@ -430,16 +357,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        public void TestCreateStringArrayNull()
-        {
-            string[] values = null;
-#pragma warning disable 618
-            var array = BsonArray.Create(values);
-#pragma warning restore
-            Assert.IsNull(array);
-        }
-
-        [Test]
         public void TestCreateFromObject()
         {
             var value = (object)new object[] { 1, 1.5, null }; // null will be mapped to BsonNull.Value
@@ -451,14 +368,6 @@ namespace MongoDB.Bson.Tests
             Assert.AreEqual(1, array[0].AsInt32);
             Assert.AreEqual(1.5, array[1].AsDouble);
             Assert.AreSame(BsonNull.Value, array[2]);
-        }
-
-        [Test]
-        public void TestCreateFromObjectNull()
-        {
-            object value = null;
-            var array = BsonArray.Create(value);
-            Assert.IsNull(array);
         }
 
         [Test]

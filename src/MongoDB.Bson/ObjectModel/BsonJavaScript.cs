@@ -106,14 +106,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonJavaScript or null.</returns>
         public new static BsonJavaScript Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonJavaScript)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScript);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonJavaScript)BsonTypeMapper.MapToBsonValue(value, BsonType.JavaScript);
         }
 
         // public methods

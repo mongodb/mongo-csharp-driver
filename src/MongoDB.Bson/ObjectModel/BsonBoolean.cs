@@ -119,14 +119,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonBoolean or null.</returns>
         public new static BsonBoolean Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonBoolean)BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonBoolean)BsonTypeMapper.MapToBsonValue(value, BsonType.Boolean);
         }
 
         // public methods

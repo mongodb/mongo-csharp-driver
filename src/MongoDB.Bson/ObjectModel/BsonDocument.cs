@@ -347,14 +347,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocument.</returns>
         public new static BsonDocument Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonDocument)BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonDocument)BsonTypeMapper.MapToBsonValue(value, BsonType.Document);
         }
 
         /// <summary>

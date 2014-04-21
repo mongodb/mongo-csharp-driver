@@ -101,6 +101,13 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
+        public void TestCreateNull()
+        {
+            object obj = null;
+            Assert.Throws<ArgumentNullException>(() => { BsonObjectId.Create(obj); });
+        }
+
+        [Test]
         public void TestGenerateNewId()
         {
 #pragma warning disable 618

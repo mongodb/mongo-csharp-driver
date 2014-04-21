@@ -171,14 +171,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonRegularExpression or null.</returns>
         public new static BsonRegularExpression Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonRegularExpression)BsonTypeMapper.MapToBsonValue(value, BsonType.RegularExpression);
         }
 
         // public methods

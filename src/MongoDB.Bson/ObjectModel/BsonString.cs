@@ -114,14 +114,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonString or null.</returns>
         public new static BsonString Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonString)BsonTypeMapper.MapToBsonValue(value, BsonType.String);
         }
 
         // public methods

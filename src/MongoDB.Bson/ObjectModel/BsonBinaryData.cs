@@ -216,14 +216,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonBinaryData or null.</returns>
         public new static BsonBinaryData Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonBinaryData)BsonTypeMapper.MapToBsonValue(value, BsonType.Binary);
         }
 
         // public methods

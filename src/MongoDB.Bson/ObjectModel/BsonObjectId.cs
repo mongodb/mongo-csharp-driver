@@ -204,14 +204,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonObjectId or null.</returns>
         public new static BsonObjectId Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonObjectId)BsonTypeMapper.MapToBsonValue(value, BsonType.ObjectId);
         }
 
         /// <summary>

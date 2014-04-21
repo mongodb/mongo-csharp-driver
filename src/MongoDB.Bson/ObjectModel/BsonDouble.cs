@@ -98,14 +98,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonDouble.</returns>
         public new static BsonDouble Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonDouble)BsonTypeMapper.MapToBsonValue(value, BsonType.Double);
         }
 
         // public methods

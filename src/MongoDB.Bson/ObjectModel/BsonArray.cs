@@ -234,14 +234,12 @@ namespace MongoDB.Bson
         /// <returns>A BsonArray or null.</returns>
         public new static BsonArray Create(object value)
         {
-            if (value != null)
+            if (value == null)
             {
-                return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
+                throw new ArgumentNullException("value");
             }
-            else
-            {
-                return null;
-            }
+
+            return (BsonArray)BsonTypeMapper.MapToBsonValue(value, BsonType.Array);
         }
 
         /// <summary>
