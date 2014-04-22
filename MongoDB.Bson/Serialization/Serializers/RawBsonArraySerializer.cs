@@ -24,6 +24,18 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class RawBsonArraySerializer : BsonBaseSerializer
     {
+        // private static fields
+        private static readonly RawBsonArraySerializer __instance = new RawBsonArraySerializer();
+
+        // public static properties
+        /// <summary>
+        /// Gets an instance of the RawBsonArraySerializer class.
+        /// </summary>
+        public static RawBsonArraySerializer Instance
+        {
+            get { return __instance; }
+        }
+
         // public methods
         /// <summary>
         /// Deserializes an object from a BsonReader.
