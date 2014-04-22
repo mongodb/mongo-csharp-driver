@@ -563,21 +563,6 @@ namespace MongoDB.Bson.Serialization
                     bsonReader.ReadNull();
                     return null;
                 }
-                else if (memberMap.MemberTypeIsBsonValue)
-                {
-                    if (bsonType == BsonType.Document && IsCSharpNullRepresentation(bsonReader))
-                    {
-                        // if IsCSharpNullRepresentation returns true it will have consumed the document representing C# null
-                        return null;
-                    }
-
-                    // handle BSON null for backward compatibility with existing data (new data would have _csharpnull)
-                    if (bsonType == BsonType.Null && (nominalType != typeof(BsonValue) && nominalType != typeof(BsonNull)))
-                    {
-                        bsonReader.ReadNull();
-                        return null;
-                    }
-                }
 
                 Type actualType;
                 if (bsonType == BsonType.Null)
@@ -600,33 +585,6 @@ namespace MongoDB.Bson.Serialization
                     memberMap.MemberName, (memberMap.MemberInfo.MemberType == MemberTypes.Field) ? "field" : "property", memberMap.ClassMap.ClassType.FullName, ex.Message);
                 throw new FileFormatException(message, ex);
             }
-        }
-
-        private bool IsCSharpNullRepresentation(BsonReader bsonReader)
-        {
-            var bookmark = bsonReader.GetBookmark();
-            bsonReader.ReadStartDocument();
-            var bsonType = bsonReader.ReadBsonType();
-            if (bsonType == BsonType.Boolean)
-            {
-                var name = bsonReader.ReadName();
-                if (name == "_csharpnull" || name == "$csharpnull")
-                {
-                    var value = bsonReader.ReadBoolean();
-                    if (value)
-                    {
-                        bsonType = bsonReader.ReadBsonType();
-                        if (bsonType == BsonType.EndOfDocument)
-                        {
-                            bsonReader.ReadEndDocument();
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            bsonReader.ReturnToBookmark(bookmark);
-            return false;
         }
 
         private void SerializeExtraElements(BsonWriter bsonWriter, object obj, BsonMemberMap extraElementsMemberMap)
@@ -678,12 +636,6 @@ namespace MongoDB.Bson.Serialization
             if (value == null && nominalType.IsInterface)
             {
                 bsonWriter.WriteNull();
-            }
-            else if (value == null && memberMap.MemberTypeIsBsonValue)
-            {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteBoolean("_csharpnull", true);
-                bsonWriter.WriteEndDocument();
             }
             else
             {
