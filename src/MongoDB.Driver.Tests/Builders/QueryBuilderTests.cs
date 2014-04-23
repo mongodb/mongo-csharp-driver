@@ -434,7 +434,18 @@ namespace MongoDB.Driver.Tests.Builders
             var query = Query.Near("loc", 1.1, 2.2);
             var selector = "{ '$near' : [1.1, 2.2] }";
             Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
-            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", new BsonArray { 1, 1 } } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", new BsonArray { 2, 2 } } });
+
+            query = Query.Near("loc", 0.0, 0.0);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
+            Assert.AreEqual(2, results[1]["_id"].ToInt32());
         }
 
         [Test]
@@ -443,7 +454,17 @@ namespace MongoDB.Driver.Tests.Builders
             var query = Query.Near("loc", 1.1, 2.2, 3.3);
             var expected = "{ 'loc' : { '$near' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
-            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", new BsonArray { 1, 1 } } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", new BsonArray { 2, 2 } } });
+
+            query = Query.Near("loc", 0.0, 0.0, 2.0);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
         }
 
         [Test]
@@ -452,7 +473,18 @@ namespace MongoDB.Driver.Tests.Builders
             var query = Query.Near("loc", 1.1, 2.2, 3.3, true);
             var expected = "{ 'loc' : { '$nearSphere' : [1.1, 2.2], '$maxDistance' : 3.3 } }".Replace("'", "\"");
             Assert.AreEqual(expected, query.ToJson());
-            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", new BsonArray { 1, 1 } } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", new BsonArray { 2, 2 } } });
+
+            var radiansPerDegree = 2 * Math.PI / 360.0;
+            query = Query.Near("loc", 0.0, 0.0, 2.0 * radiansPerDegree, true);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
         }
 
         [Test]
@@ -462,7 +494,18 @@ namespace MongoDB.Driver.Tests.Builders
             var query = Query.Near("loc", point);
             var selector = "{ '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } } }";
             Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
-            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatial("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", new BsonArray { 1, 1 } } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", new BsonArray { 2, 2 } } });
+
+            query = Query.Near("loc", 0.0, 0.0);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(2, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
+            Assert.AreEqual(2, results[1]["_id"].ToInt32());
         }
 
         [Test]
@@ -470,9 +513,21 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var point = GeoJson.Point(GeoJson.Geographic(40, 18));
             var query = Query.Near("loc", point, 42);
-            var selector = "{ '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
-            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
-            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
+            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+
+            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+            var metersPerDegree = circumferenceOfTheEarth / 360.0;
+            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
         }
 
         [Test]
@@ -480,9 +535,21 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var point = GeoJson.Point(GeoJson.Geographic(40, 18));
             var query = Query.Near("loc", point, 42, true);
-            var selector = "{ '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
-            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
-            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
+            var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, query.ToJson());
+
+            var collection = Configuration.TestCollection;
+            collection.Drop();
+            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+
+            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+            var metersPerDegree = circumferenceOfTheEarth / 360.0;
+            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree, true);
+            var results = collection.Find(query).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(1, results[0]["_id"].ToInt32());
         }
 
         [Test]
