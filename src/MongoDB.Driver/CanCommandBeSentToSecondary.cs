@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Internal;
 
@@ -30,7 +31,6 @@ namespace MongoDB.Driver
         private static Func<BsonDocument, bool> __delegate = DefaultImplementation;
         private static HashSet<string> __secondaryOkCommands = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
-            "aggregate",
             "collStats",
             "dbStats",
             "count",
@@ -77,6 +77,17 @@ namespace MongoDB.Driver
 
             if (__secondaryOkCommands.Contains(commandName))
             {
+                return true;
+            }
+
+            if (commandName.Equals("aggregate", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var pipeline = document["pipeline"].AsBsonArray;
+                if (pipeline.Any(s => s.AsBsonDocument.GetElement(0).Name == "$out"))
+                {
+                    return false;
+                }
+
                 return true;
             }
 

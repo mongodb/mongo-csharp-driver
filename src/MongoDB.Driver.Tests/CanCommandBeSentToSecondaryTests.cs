@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Tests
@@ -39,7 +40,22 @@ namespace MongoDB.Driver.Tests
             CanCommandBeSentToSecondary.Delegate = CanCommandBeSentToSecondary.DefaultImplementation; // reset Delegate
         }
 
-        [TestCase("aggregate", true)]
+        [Test]
+        public void TestCanSendAggregateWithReadOnlyPipelineToSecondary()
+        {
+            var pipeline = new BsonArray
+            {
+                new BsonDocument { { "$match", new BsonDocument("x", 1) } }
+            };
+            var command = new BsonDocument
+            {
+                { "aggregate", "collection" },
+                { "pipeline", pipeline }
+            };
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(command);
+            Assert.IsTrue(result);
+        }
+
         [TestCase("collStats", true)]
         [TestCase("dbStats", true)]
         [TestCase("count", true)]
@@ -74,6 +90,23 @@ namespace MongoDB.Driver.Tests
             var result = CanCommandBeSentToSecondary.DefaultImplementation(doc);
 
             Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void TestCannotSendAggregateWithWritePipelineToSecondary()
+        {
+            var pipeline = new BsonArray
+            {
+                new BsonDocument { { "$match", new BsonDocument("x", 1) } },
+                new BsonDocument { { "$out", "output" } }
+            };
+            var command = new BsonDocument
+            {
+                { "aggregate", "collection" },
+                { "pipeline", pipeline }
+            };
+            var result = CanCommandBeSentToSecondary.DefaultImplementation(command);
+            Assert.IsFalse(result);
         }
 
         [Test]
