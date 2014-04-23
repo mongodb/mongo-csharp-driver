@@ -470,9 +470,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var point = GeoJson.Point(GeoJson.Geographic(40, 18));
             var query = Query.Near("loc", point, 42);
-            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
-            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+            var selector = "{ '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]
@@ -480,9 +480,9 @@ namespace MongoDB.DriverUnitTests.Builders
         {
             var point = GeoJson.Point(GeoJson.Geographic(40, 18));
             var query = Query.Near("loc", point, 42, true);
-            var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] } }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
-            Assert.AreEqual(NegateArbitraryQuery(expected), Query.Not(query).ToJson());
+            var selector = "{ '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } }".Replace("'", "\"");
+            Assert.AreEqual(PositiveTest("loc", selector), query.ToJson());
+            Assert.AreEqual(NegativeTest("loc", selector), Query.Not(query).ToJson());
         }
 
         [Test]

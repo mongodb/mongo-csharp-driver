@@ -376,13 +376,13 @@ namespace MongoDB.Driver.Builders
                 throw new ArgumentNullException("point");
             }
 
-            var geoDoc = new BsonDocument("$geometry", BsonDocumentWrapper.Create(point));
             var op = spherical ? "$nearSphere" : "$near";
-            var condition = new BsonDocument(op, geoDoc);
+            var geometry = new BsonDocument("$geometry", BsonDocumentWrapper.Create(point));
             if (maxDistance != double.MaxValue)
             {
-                condition.Add("$maxDistance", maxDistance);
+                geometry.Add("$maxDistance", maxDistance);
             }
+            var condition = new BsonDocument(op, geometry);
 
             return new QueryDocument(name, condition);
         }
