@@ -179,6 +179,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return;
             }
 
+            var rawBsonDocument = value as RawBsonDocument;
+            if (rawBsonDocument != null)
+            {
+                RawBsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
+                return;
+            }
+
             var bsonDocument = (BsonDocument)value;
             var documentSerializationOptions = (options ?? DocumentSerializationOptions.Defaults) as DocumentSerializationOptions;
             if (documentSerializationOptions == null)

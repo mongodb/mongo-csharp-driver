@@ -113,6 +113,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("value");
             }
 
+            var rawBsonArray = value as RawBsonArray;
+            if (rawBsonArray != null)
+            {
+                RawBsonArraySerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
+                return;
+            }
+
             var array = (BsonArray)value;
             bsonWriter.WriteStartArray();
             for (int i = 0; i < array.Count; i++)
