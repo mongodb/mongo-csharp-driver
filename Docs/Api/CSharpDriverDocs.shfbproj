@@ -19,10 +19,10 @@
     <HtmlHelpName>CSharpDriverDocs</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\artifacts\bin\MongoDB.Bson.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\MongoDB.Bson.xml" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\MongoDB.Driver.dll" />
-      <DocumentationSource sourceFile="..\..\artifacts\bin\MongoDB.Driver.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Bson.xml" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net45\MongoDB.Driver.xml" />
     </DocumentationSources>
     <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <HelpTitle>MongoDB C# Driver API Documentation</HelpTitle>
