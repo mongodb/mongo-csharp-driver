@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
@@ -288,6 +289,12 @@ namespace MongoDB.Bson.Serialization
             }
             else
             {
+                // return special serializer for BsonValue members that handles the _csharpnull representation
+                if (_memberTypeIsBsonValue)
+                {
+                    return BsonValueCSharpNullSerializer.Instance;
+                }
+
                 // return a cached serializer when possible
                 if (actualType == _memberType)
                 {

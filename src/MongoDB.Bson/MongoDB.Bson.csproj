@@ -199,6 +199,7 @@
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonValueCSharpNullSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonDateTimeSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonDocumentBackedClassSerializer.cs" />
     <Compile Include="Serialization\Attributes\IBsonClassMapModifier.cs" />
