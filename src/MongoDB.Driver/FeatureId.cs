@@ -45,6 +45,10 @@ namespace MongoDB.Driver
         /// </summary>
         MaxTime,
         /// <summary>
+        /// The GeoJson data and query feature.
+        /// </summary>
+        GeoJson,
+        /// <summary>
         /// The parallel scan command.
         /// </summary>
         ParallelScanCommand,

@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Communication.FeatureDetection
             // added in 2.4.0
             new FeatureSetDependency(
                 new ServerVersionDependency(2, 4, 0),
+                FeatureId.GeoJson,
                 FeatureId.TextSearchCommand),
 
             // added in 2.6.0
