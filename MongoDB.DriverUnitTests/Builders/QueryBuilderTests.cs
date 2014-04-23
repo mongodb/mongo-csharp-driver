@@ -511,45 +511,51 @@ namespace MongoDB.DriverUnitTests.Builders
         [Test]
         public void TestNearWithGeoJsonWithMaxDistance()
         {
-            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
-            var query = Query.Near("loc", point, 42);
-            var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            if (_primary.Supports(FeatureId.GeoJson))
+            {
+                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+                var query = Query.Near("loc", point, 42);
+                var expected = "{ 'loc' : { '$near' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+                Assert.AreEqual(expected, query.ToJson());
 
-            var collection = Configuration.TestCollection;
-            collection.Drop();
-            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
-            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+                var collection = Configuration.TestCollection;
+                collection.Drop();
+                collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+                collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+                collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
 
-            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
-            var metersPerDegree = circumferenceOfTheEarth / 360.0;
-            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree);
-            var results = collection.Find(query).ToList();
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(1, results[0]["_id"].ToInt32());
+                var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+                var metersPerDegree = circumferenceOfTheEarth / 360.0;
+                query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree);
+                var results = collection.Find(query).ToList();
+                Assert.AreEqual(1, results.Count);
+                Assert.AreEqual(1, results[0]["_id"].ToInt32());
+            }
         }
 
         [Test]
         public void TestNearWithGeoJsonWithSpherical()
         {
-            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
-            var query = Query.Near("loc", point, 42, true);
-            var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
-            Assert.AreEqual(expected, query.ToJson());
+            if (_primary.Supports(FeatureId.GeoJson))
+            {
+                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
+                var query = Query.Near("loc", point, 42, true);
+                var expected = "{ 'loc' : { '$nearSphere' : { '$geometry' : { 'type' : 'Point', 'coordinates' : [40.0, 18.0] }, '$maxDistance' : 42.0 } } }".Replace("'", "\"");
+                Assert.AreEqual(expected, query.ToJson());
 
-            var collection = Configuration.TestCollection;
-            collection.Drop();
-            collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
-            collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
-            collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
+                var collection = Configuration.TestCollection;
+                collection.Drop();
+                collection.CreateIndex(IndexKeys.GeoSpatialSpherical("loc"));
+                collection.Insert(new BsonDocument { { "_id", 1 }, { "loc", GeoJson.Point(GeoJson.Geographic(1, 1)).ToBsonDocument() } });
+                collection.Insert(new BsonDocument { { "_id", 2 }, { "loc", GeoJson.Point(GeoJson.Geographic(2, 2)).ToBsonDocument() } });
 
-            var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
-            var metersPerDegree = circumferenceOfTheEarth / 360.0;
-            query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree, true);
-            var results = collection.Find(query).ToList();
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(1, results[0]["_id"].ToInt32());
+                var circumferenceOfTheEarth = 40075000; // meters at the equator, approx
+                var metersPerDegree = circumferenceOfTheEarth / 360.0;
+                query = Query.Near("loc", GeoJson.Point(GeoJson.Geographic(0, 0)), 2.0 * metersPerDegree, true);
+                var results = collection.Find(query).ToList();
+                Assert.AreEqual(1, results.Count);
+                Assert.AreEqual(1, results[0]["_id"].ToInt32());
+            }
         }
 
         [Test]
