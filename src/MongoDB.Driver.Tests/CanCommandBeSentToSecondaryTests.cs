@@ -48,9 +48,10 @@ namespace MongoDB.Driver.Tests
         [TestCase("geoSearch", true)]
         [TestCase("geoWalk", true)]
         [TestCase("group", true)]
+        [TestCase("parallelCollectionScan", true)]
         [TestCase("text", true)]
         [TestCase("foo", false)]
-        [TestCase("mapreduce", false)]
+        [TestCase("mapReduce", false)]
         public void TestCanSendCommandToSecondary(string command, bool expectedResult)
         {
             var doc = new BsonDocument(command, 1);
