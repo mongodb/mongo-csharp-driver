@@ -90,18 +90,22 @@ namespace MongoDB.Driver
                 return new WriteConcernException(errorMessage, writeConcernResult);
             }
 
+            bool wnoteAndJnoteAreErrors = writeConcernResult.ServerInstance.BuildInfo.Version >= new Version(2, 6, 0);
             string lastErrorMessage = null;
             if (writeConcernResult.HasLastErrorMessage)
             {
                 lastErrorMessage = writeConcernResult.LastErrorMessage;
             }
-            else if (writeConcernResult.Response.Contains("jnote"))
+            else if (wnoteAndJnoteAreErrors)
             {
-                lastErrorMessage = writeConcernResult.Response["jnote"].ToString();
-            }
-            else if (writeConcernResult.Response.Contains("wnote"))
-            {
-                lastErrorMessage = writeConcernResult.Response["wnote"].ToString();
+                if (writeConcernResult.Response.Contains("jnote"))
+                {
+                    lastErrorMessage = writeConcernResult.Response["jnote"].ToString();
+                }
+                else if (writeConcernResult.Response.Contains("wnote"))
+                {
+                    lastErrorMessage = writeConcernResult.Response["wnote"].ToString();
+                }
             }
 
             if (lastErrorMessage != null)

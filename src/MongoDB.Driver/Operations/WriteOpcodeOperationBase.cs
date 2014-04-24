@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Operations
             }
             var writeConcernResult = replyMessage.Documents[0];
             writeConcernResult.Command = sendMessageResult.GetLastErrorCommand;
+            writeConcernResult.ServerInstance = connection.ServerInstance;
 
             var mappedException = ExceptionMapper.Map(writeConcernResult);
             if (mappedException != null)

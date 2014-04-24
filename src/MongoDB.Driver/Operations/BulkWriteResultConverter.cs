@@ -28,9 +28,10 @@ namespace MongoDB.Driver.Operations
         }
 
         // public methods
-        public Exception ToWriteConcernException(BulkWriteException bulkWriteException)
+        public Exception ToWriteConcernException(MongoServerInstance serverInstance, BulkWriteException bulkWriteException)
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
+            writeConcernResult.ServerInstance = serverInstance;
 
             var exception = ExceptionMapper.Map(writeConcernResult.Response);
             if (exception == null)
