@@ -70,12 +70,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);
             var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
-            if (actualType == nominalType)
-            {
-                var message = string.Format("Unable to determine actual type of object to deserialize. NominalType is the interface {0}.", nominalType);
-                throw new FileFormatException(message);
-            }
-
             return Deserialize(bsonReader, nominalType, actualType, options);
         }
 
@@ -93,6 +87,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             Type actualType,
             IBsonSerializationOptions options)
         {
+            if (!nominalType.IsInterface)
+            {
+                var message = string.Format("Nominal type must be an interface, not {0}.", nominalType.FullName);
+                throw new ArgumentException(message, "nominalType");
+            }
+
+            if (actualType == nominalType)
+            {
+                var message = string.Format("Unable to determine actual type of object to deserialize. NominalType is the interface {0}.", nominalType);
+                throw new FileFormatException(message);
+            }
+
             var serializer = BsonSerializer.LookupSerializer(actualType);
             return serializer.Deserialize(bsonReader, nominalType, actualType, options);
         }
