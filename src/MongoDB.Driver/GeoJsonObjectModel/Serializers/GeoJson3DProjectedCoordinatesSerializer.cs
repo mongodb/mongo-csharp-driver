@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,24 +22,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJson3DProjectedCoordinates value.
     /// </summary>
-    public class GeoJson3DProjectedCoordinatesSerializer : BsonBaseSerializer
+    public class GeoJson3DProjectedCoordinatesSerializer : BsonBaseSerializer<GeoJson3DProjectedCoordinates>
     {
         // private static fields
-        private static readonly IBsonSerializer __doubleSerializer = new DoubleSerializer();
+        private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>
-        /// An object.
-        /// </returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJson3DProjectedCoordinates Deserialize(BsonDeserializationContext context)
         {
+            var bsonReader = context.Reader;
+
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -50,9 +45,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             else
             {
                 bsonReader.ReadStartArray();
-                var easting = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
-                var northing = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
-                var altitude = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var easting = context.DeserializeWithChildContext(__doubleSerializer);
+                var northing = context.DeserializeWithChildContext(__doubleSerializer);
+                var altitude = context.DeserializeWithChildContext(__doubleSerializer);
                 bsonReader.ReadEndArray();
 
                 return new GeoJson3DProjectedCoordinates(easting, northing, altitude);
@@ -60,26 +55,24 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJson3DProjectedCoordinates value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var coordinates = (GeoJson3DProjectedCoordinates)value;
-
                 bsonWriter.WriteStartArray();
-                bsonWriter.WriteDouble(coordinates.Easting);
-                bsonWriter.WriteDouble(coordinates.Northing);
-                bsonWriter.WriteDouble(coordinates.Altitude);
+                bsonWriter.WriteDouble(value.Easting);
+                bsonWriter.WriteDouble(value.Northing);
+                bsonWriter.WriteDouble(value.Altitude);
                 bsonWriter.WriteEndArray();
             }
         }

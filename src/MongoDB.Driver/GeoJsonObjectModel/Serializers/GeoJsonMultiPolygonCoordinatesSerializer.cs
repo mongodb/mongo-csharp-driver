@@ -25,24 +25,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonMultiPolygonCoordinates value.
     /// </summary>
-    public class GeoJsonMultiPolygonCoordinatesSerializer<TCoordinates> : BsonBaseSerializer where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonMultiPolygonCoordinatesSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private readonly IBsonSerializer _polygonCoordinatesSerializer = BsonSerializer.LookupSerializer(typeof(GeoJsonPolygonCoordinates<TCoordinates>));
+        private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _polygonCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>
-        /// An object.
-        /// </returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJsonMultiPolygonCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
         {
+            var bsonReader = context.Reader;
+
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -55,7 +52,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 bsonReader.ReadStartArray();
                 while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                 {
-                    var polygon = (GeoJsonPolygonCoordinates<TCoordinates>)_polygonCoordinatesSerializer.Deserialize(bsonReader, typeof(TCoordinates), null);
+                    var polygon = _polygonCoordinatesSerializer.Deserialize(context.CreateChild(_polygonCoordinatesSerializer.ValueType));
                     polygons.Add(polygon);
                 }
                 bsonReader.ReadEndArray();
@@ -65,14 +62,14 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJsonMultiPolygonCoordinates<TCoordinates> value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
@@ -84,7 +81,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 bsonWriter.WriteStartArray();
                 foreach (var polygon in multiPolygonCoordinates.Polygons)
                 {
-                    _polygonCoordinatesSerializer.Serialize(bsonWriter, typeof(TCoordinates), polygon, null);
+                    context.SerializeWithChildContext(_polygonCoordinatesSerializer, polygon);
                 }
                 bsonWriter.WriteEndArray();
             }

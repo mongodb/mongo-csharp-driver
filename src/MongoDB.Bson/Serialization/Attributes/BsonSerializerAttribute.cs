@@ -21,9 +21,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// Specifies the type of the serializer to use for a class.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
-#pragma warning disable 618 // obsoleted by IBsonMemberMapModifier
-    public class BsonSerializerAttribute : Attribute, IBsonMemberMapAttribute, IBsonMemberMapModifier
-#pragma warning restore 618
+    public class BsonSerializerAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields
         private Type _serializerType;

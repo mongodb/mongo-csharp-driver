@@ -29,7 +29,7 @@ namespace MongoDB.Bson.IO
 
         // private fields
         private bool _closeOutput = false;
-        private UTF8Encoding _encoding = new UTF8Encoding(false, true);
+        private UTF8Encoding _encoding = Utf8Helper.StrictUtf8Encoding;
         private bool _fixOldBinarySubTypeOnOutput = true;
         private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
 

@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.AreEqual(expected, query.ToJson());
         }
 
+        [Ignore("LINQ BsonDocumentBackedClass")]
         [Test]
         public void TestIndexerWithKnownMemberName()
         {
@@ -45,6 +46,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.AreEqual(expected, query.ToJson());
         }
 
+        [Ignore("LINQ BsonDocumentBackedClass")]
         [Test]
         public void TestIndexerWithEnum()
         {
@@ -154,10 +156,12 @@ namespace MongoDB.Driver.Tests.Linq
         {
             public TestDocumentClassSerializer()
             {
-                this.RegisterMember("Id", "_id", new ObjectIdSerializer(), typeof(ObjectId), null);
-                this.RegisterMember("Name", "name", new StringSerializer(), typeof(string), null);
-                this.RegisterMember("Colors", "colors", new EnumerableSerializer<int>(), typeof(IEnumerable<int>), new ArraySerializationOptions(new RepresentationSerializationOptions(BsonType.String)));
-                this.RegisterMember("Colors2", "colors2", new EnumerableSerializer<int>(), typeof(IEnumerable<int>), new ArraySerializationOptions(new RepresentationSerializationOptions(BsonType.String)));
+                var itemSerializer = new Int32Serializer(BsonType.String);
+                var listSerializer = new EnumerableInterfaceImplementerSerializer<List<int>>(itemSerializer);
+                this.RegisterMember("Id", "_id", new ObjectIdSerializer());
+                this.RegisterMember("Name", "name", new StringSerializer());
+                this.RegisterMember("Colors", "colors", listSerializer);
+                this.RegisterMember("Colors2", "colors2", listSerializer);
             }
 
             public override BsonSerializationInfo GetMemberSerializationInfo(string memberName)
@@ -172,16 +176,14 @@ namespace MongoDB.Driver.Tests.Linq
                     return new BsonSerializationInfo(
                         memberName,
                         BsonValueSerializer.Instance,
-                        typeof(BsonValue),
-                        BsonValueSerializer.Instance.GetDefaultSerializationOptions());
+                        typeof(BsonValue));
                 }
                 else if (ObjectId.TryParse(memberName, out objectId))
                 {
                     return new BsonSerializationInfo(
                         memberName,
                         BsonValueSerializer.Instance,
-                        typeof(BsonValue),
-                        BsonValueSerializer.Instance.GetDefaultSerializationOptions());
+                        typeof(BsonValue));
                 }
 
                 return base.GetMemberSerializationInfo(memberName);

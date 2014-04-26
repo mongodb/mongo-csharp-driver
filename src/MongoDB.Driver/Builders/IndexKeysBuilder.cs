@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 
@@ -126,6 +127,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for specifying the keys for an index.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(IndexKeysBuilder.Serializer))]
     public class IndexKeysBuilder : BuilderBase, IMongoIndexKeys
     {
         // private fields
@@ -258,16 +260,13 @@ namespace MongoDB.Driver.Builders
             return _document;
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        // nested class
+        new internal class Serializer : BsonBaseSerializer<IndexKeysBuilder>
         {
-            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
+            public override void Serialize(BsonSerializationContext context, IndexKeysBuilder value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+            }
         }
     }
 
@@ -405,6 +404,7 @@ namespace MongoDB.Driver.Builders
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
+    [BsonSerializer(typeof(IndexKeysBuilder<>.Serializer))]
     public class IndexKeysBuilder<TDocument> : BuilderBase, IMongoIndexKeys
     {
         // private fields
@@ -563,18 +563,6 @@ namespace MongoDB.Driver.Builders
             return _indexKeysBuilder.ToBsonDocument();
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            ((IBsonSerializable)_indexKeysBuilder).Serialize(bsonWriter, nominalType, options);
-        }
-
         // private methods
         private string GetElementName<TMember>(Expression<Func<TDocument, TMember>> memberExpression)
         {
@@ -584,6 +572,15 @@ namespace MongoDB.Driver.Builders
         private IEnumerable<string> GetElementNames<TMember>(IEnumerable<Expression<Func<TDocument, TMember>>> memberExpressions)
         {
             return memberExpressions.Select(x => GetElementName(x));
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<IndexKeysBuilder<TDocument>>
+        {
+            public override void Serialize(BsonSerializationContext context, IndexKeysBuilder<TDocument> value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._indexKeysBuilder.ToBsonDocument());
+            }
         }
     }
 }

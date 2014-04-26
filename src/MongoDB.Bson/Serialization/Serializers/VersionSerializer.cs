@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -23,54 +24,70 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Versions.
     /// </summary>
-    public class VersionSerializer : BsonBaseSerializer
+    public class VersionSerializer : BsonBaseSerializer<Version>, IRepresentationConfigurable<VersionSerializer>
     {
-        // private static fields
-        private static VersionSerializer __instance = new VersionSerializer();
+        // private fields
+        private readonly BsonType _representation;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the VersionSerializer class.
+        /// Initializes a new instance of the <see cref="VersionSerializer"/> class.
         /// </summary>
         public VersionSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.String))
+            : this(BsonType.String)
         {
         }
 
-        // public static properties
         /// <summary>
-        /// Gets an instance of the VersionSerializer class.
+        /// Initializes a new instance of the <see cref="VersionSerializer"/> class.
         /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static VersionSerializer Instance
+        /// <param name="representation">The representation.</param>
+        public VersionSerializer(BsonType representation)
         {
-            get { return __instance; }
+            switch (representation)
+            {
+                case BsonType.Document:
+                case BsonType.String:
+                    break;
+
+                default:
+                    var message = string.Format("{0} is not a valid representation for a VersionSerializer.", representation);
+                    throw new ArgumentException(message);
+            }
+
+            _representation = representation;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        /// <value>
+        /// The representation.
+        /// </value>
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override Version Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(Version));
+            var bsonReader = context.Reader;
+            string message;
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
-            string message;
             switch (bsonType)
             {
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
+
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     int major = -1, minor = -1, build = -1, revision = -1;
@@ -111,8 +128,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         return new Version(major, minor, build, revision);
                     }
+
                 case BsonType.String:
                     return new Version(bsonReader.ReadString());
+
                 default:
                     message = string.Format("Cannot deserialize Version from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -120,51 +139,69 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, Version value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var version = (Version)value;
-                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
-
-                switch (representationSerializationOptions.Representation)
+                switch (_representation)
                 {
                     case BsonType.Document:
                         bsonWriter.WriteStartDocument();
-                        bsonWriter.WriteInt32("Major", version.Major);
-                        bsonWriter.WriteInt32("Minor", version.Minor);
-                        if (version.Build != -1)
+                        bsonWriter.WriteInt32("Major", value.Major);
+                        bsonWriter.WriteInt32("Minor", value.Minor);
+                        if (value.Build != -1)
                         {
-                            bsonWriter.WriteInt32("Build", version.Build);
-                            if (version.Revision != -1)
+                            bsonWriter.WriteInt32("Build", value.Build);
+                            if (value.Revision != -1)
                             {
-                                bsonWriter.WriteInt32("Revision", version.Revision);
+                                bsonWriter.WriteInt32("Revision", value.Revision);
                             }
                         }
                         bsonWriter.WriteEndDocument();
                         break;
+
                     case BsonType.String:
-                        bsonWriter.WriteString(version.ToString());
+                        bsonWriter.WriteString(value.ToString());
                         break;
+
                     default:
-                        var message = string.Format("'{0}' is not a valid Version representation.", representationSerializationOptions.Representation);
+                        var message = string.Format("'{0}' is not a valid Version representation.", _representation);
                         throw new BsonSerializationException(message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public VersionSerializer WithRepresentation(BsonType representation)
+        {
+            if (representation == _representation)
+            {
+                return this;
+            }
+            else
+            {
+                return new VersionSerializer(representation);
+            }
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
+        {
+            return WithRepresentation(representation);
         }
     }
 }

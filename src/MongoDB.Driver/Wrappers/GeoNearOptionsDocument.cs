@@ -17,13 +17,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoGeoNearOptions is expected.
     /// </summary>
-    [Obsolete("Use GeoNearArgs instead.")]
+    [BsonSerializer(typeof(GeoNearOptionsDocument.Serializer))]
+    [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoNearOptionsDocument : BsonDocument, IMongoGeoNearOptions
     {
         // constructors
@@ -139,6 +143,11 @@ namespace MongoDB.Driver
         /// <param name="value">The value of the element to add to the document.</param>
         public GeoNearOptionsDocument(string name, BsonValue value)
             : base(name, value)
+        {
+        }
+
+        // nested classes
+        internal class Serializer : SerializeAsNominalTypeSerializer<GeoNearOptionsDocument, BsonDocument>
         {
         }
     }

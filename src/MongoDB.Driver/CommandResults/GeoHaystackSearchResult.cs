@@ -20,6 +20,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -229,7 +230,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(GeoHaystackSearchResult<>.Serializer))]
     public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult
     {
         // private fields
@@ -381,6 +382,22 @@ namespace MongoDB.Driver
             protected override object DocumentImplementation
             {
                 get { return Document; }
+            }
+        }
+
+        // nested classes
+        internal class Serializer : BsonBaseSerializer<GeoHaystackSearchResult<TDocument>>
+        {
+            private readonly IBsonSerializer<GeoHaystackSearchResult<TDocument>> _serializer = new CommandResultSerializer<GeoHaystackSearchResult<TDocument>>();
+
+            public override GeoHaystackSearchResult<TDocument> Deserialize(BsonDeserializationContext context)
+            {
+                return _serializer.Deserialize(context);
+            }
+
+            public override void Serialize(BsonSerializationContext context, GeoHaystackSearchResult<TDocument> value)
+            {
+                _serializer.Serialize(context, value);
             }
         }
     }

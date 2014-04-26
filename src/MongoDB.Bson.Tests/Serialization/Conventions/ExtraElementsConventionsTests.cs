@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
@@ -35,18 +36,22 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Test]
-        public void TestNamedExtraElementsMemberConvention()
+        public void TestNamedExtraElementsMemberConventionWithTestClassA()
         {
             var convention = new NamedExtraElementsMemberConvention("ExtraElements");
+            var classMap = new BsonClassMap<TestClassA>();
+            convention.Apply(classMap);
+            Assert.IsNotNull(classMap.ExtraElementsMemberMap);
+            Assert.AreEqual("ExtraElements", classMap.ExtraElementsMemberMap.MemberName);
+        }
 
-#pragma warning disable 618
-            var extraElementsMemberName = convention.FindExtraElementsMember(typeof(TestClassA));
-            Assert.IsNotNull(extraElementsMemberName);
-            Assert.AreEqual("ExtraElements", extraElementsMemberName);
-
-            extraElementsMemberName = convention.FindExtraElementsMember(typeof(TestClassB));
-            Assert.IsNull(extraElementsMemberName);
-#pragma warning restore 618
+        [Test]
+        public void TestNamedExtraElementsMemberConventionWithTestClassB()
+        {
+            var convention = new NamedExtraElementsMemberConvention("ExtraElements");
+            var classMap = new BsonClassMap<TestClassB>();
+            convention.Apply(classMap);
+            Assert.IsNull(classMap.ExtraElementsMemberMap);
         }
     }
 }

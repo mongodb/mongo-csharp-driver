@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using System.Xml;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -24,59 +25,103 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for UInt16s.
     /// </summary>
-    public class UInt16Serializer : BsonBaseSerializer
+    [CLSCompliant(false)]
+    public class UInt16Serializer : BsonBaseSerializer<ushort>, IRepresentationConfigurable<UInt16Serializer>, IRepresentationConverterConfigurable<UInt16Serializer>
     {
-        // private static fields
-        private static UInt16Serializer __instance = new UInt16Serializer();
+        // private fields
+        private readonly BsonType _representation;
+        private readonly RepresentationConverter _converter;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the UInt16Serializer class.
+        /// Initializes a new instance of the <see cref="UInt16Serializer"/> class.
         /// </summary>
         public UInt16Serializer()
-            : base(new RepresentationSerializationOptions(BsonType.Int32))
+            : this(BsonType.Int32)
         {
         }
 
-        // public static properties
         /// <summary>
-        /// Gets an instance of the UInt16Serializer class.
+        /// Initializes a new instance of the <see cref="UInt16Serializer"/> class.
         /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static UInt16Serializer Instance
+        /// <param name="representation">The representation.</param>
+        public UInt16Serializer(BsonType representation)
+            : this(representation, new RepresentationConverter(false, false))
         {
-            get { return __instance; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UInt16Serializer"/> class.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <param name="converter">The converter.</param>
+        public UInt16Serializer(BsonType representation, RepresentationConverter converter)
+        {
+            switch (representation)
+            {
+                case BsonType.Double:
+                case BsonType.Int32:
+                case BsonType.Int64:
+                case BsonType.String:
+                    break;
+
+                default:
+                    var message = string.Format("{0} is not a valid representation for a UInt16Serializer.", representation);
+                    throw new ArgumentException(message);
+            }
+
+            _representation = representation;
+            _converter = converter;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the converter.
+        /// </summary>
+        /// <value>
+        /// The converter.
+        /// </value>
+        public RepresentationConverter Converter
+        {
+            get { return _converter; }
+        }
+
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        /// <value>
+        /// The representation.
+        /// </value>
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override ushort Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(ushort));
-            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Double:
-                    return representationSerializationOptions.ToUInt16(bsonReader.ReadDouble());
+                    return _converter.ToUInt16(bsonReader.ReadDouble());
+
                 case BsonType.Int32:
-                    return representationSerializationOptions.ToUInt16(bsonReader.ReadInt32());
+                    return _converter.ToUInt16(bsonReader.ReadInt32());
+
                 case BsonType.Int64:
-                    return representationSerializationOptions.ToUInt16(bsonReader.ReadInt64());
+                    return _converter.ToUInt16(bsonReader.ReadInt64());
+
                 case BsonType.String:
                     return XmlConvert.ToUInt16(bsonReader.ReadString());
+
                 default:
                     var message = string.Format("Cannot deserialize uInt16 from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -84,39 +129,81 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, ushort value)
         {
-            var uint16Value = (ushort)value;
-            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
+            var bsonWriter = context.Writer;
 
-            switch (representationSerializationOptions.Representation)
+            switch (_representation)
             {
                 case BsonType.Double:
-                    bsonWriter.WriteDouble(representationSerializationOptions.ToDouble(uint16Value));
+                    bsonWriter.WriteDouble(_converter.ToDouble(value));
                     break;
+
                 case BsonType.Int32:
-                    bsonWriter.WriteInt32(representationSerializationOptions.ToInt32(uint16Value));
+                    bsonWriter.WriteInt32(_converter.ToInt32(value));
                     break;
+
                 case BsonType.Int64:
-                    bsonWriter.WriteInt64(representationSerializationOptions.ToInt64(uint16Value));
+                    bsonWriter.WriteInt64(_converter.ToInt64(value));
                     break;
+
                 case BsonType.String:
-                    bsonWriter.WriteString(XmlConvert.ToString(uint16Value));
+                    bsonWriter.WriteString(XmlConvert.ToString(value));
                     break;
+
                 default:
-                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", representationSerializationOptions.Representation);
+                    var message = string.Format("'{0}' is not a valid representation for type 'UInt16'", _representation);
                     throw new BsonSerializationException(message);
             }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified item serializer.
+        /// </summary>
+        /// <param name="converter">The converter.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public UInt16Serializer WithConverter(RepresentationConverter converter)
+        {
+            if (converter == _converter)
+            {
+                return this;
+            }
+            else
+            {
+                return new UInt16Serializer(_representation, converter);
+            }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public UInt16Serializer WithRepresentation(BsonType representation)
+        {
+            if (representation == _representation)
+            {
+                return this;
+            }
+            else
+            {
+                return new UInt16Serializer(representation, _converter);
+            }
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IRepresentationConverterConfigurable.WithConverter(RepresentationConverter converter)
+        {
+            return WithConverter(converter);
+        }
+
+        IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
+        {
+            return WithRepresentation(representation);
         }
     }
 }

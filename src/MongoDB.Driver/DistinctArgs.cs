@@ -27,7 +27,6 @@ namespace MongoDB.Driver
         private string _key;
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
-        private IBsonSerializationOptions _valueSerializationOptions;
         private IBsonSerializer _valueSerializer;
 
         // public properties
@@ -65,18 +64,6 @@ namespace MongoDB.Driver
         {
             get { return _query; }
             set { _query = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the value serialization options.
-        /// </summary>
-        /// <value>
-        /// The value serialization options.
-        /// </value>
-        public IBsonSerializationOptions ValueSerializationOptions
-        {
-            get { return _valueSerializationOptions; }
-            set { _valueSerializationOptions = value; }
         }
 
         /// <summary>

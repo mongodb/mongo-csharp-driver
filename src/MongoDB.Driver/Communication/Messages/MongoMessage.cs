@@ -51,23 +51,23 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal virtual void ReadHeaderFrom(BsonBuffer buffer)
+        internal virtual void ReadHeaderFrom(BsonStreamReader streamReader)
         {
-            _messageLength = buffer.ReadInt32();
-            _requestId = buffer.ReadInt32();
-            _responseTo = buffer.ReadInt32();
-            if ((MessageOpcode)buffer.ReadInt32() != _opcode)
+            _messageLength = streamReader.ReadInt32();
+            _requestId = streamReader.ReadInt32();
+            _responseTo = streamReader.ReadInt32();
+            if ((MessageOpcode)streamReader.ReadInt32() != _opcode)
             {
                 throw new FileFormatException("Message header opcode is not the expected one.");
             }
         }
 
-        internal virtual void WriteHeaderTo(BsonBuffer buffer)
+        internal virtual void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            buffer.WriteInt32(0); // messageLength will be backpatched later
-            buffer.WriteInt32(_requestId);
-            buffer.WriteInt32(0); // responseTo not used in requests sent by client
-            buffer.WriteInt32((int)_opcode);
+            streamWriter.WriteInt32(0); // messageLength will be backpatched later
+            streamWriter.WriteInt32(_requestId);
+            streamWriter.WriteInt32(0); // responseTo not used in requests sent by client
+            streamWriter.WriteInt32((int)_opcode);
         }
     }
 }

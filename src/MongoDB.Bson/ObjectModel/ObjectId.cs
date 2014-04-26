@@ -77,6 +77,19 @@ namespace MongoDB.Bson
         /// <summary>
         /// Initializes a new instance of the ObjectId class.
         /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="index">The index into the byte array where the ObjectId starts.</param>
+        internal ObjectId(byte[] bytes, int index)
+        {
+            _timestamp = (bytes[index] << 24) | (bytes[index + 1] << 16) | (bytes[index + 2] << 8) | bytes[index + 3];
+            _machine = (bytes[index + 4] << 16) | (bytes[index + 5] << 8) | bytes[index + 6];
+            _pid = (short)((bytes[index + 7] << 8) | bytes[index + 8]);
+            _increment = (bytes[index + 9] << 16) | (bytes[index + 10] << 8) | bytes[index + 11];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the ObjectId class.
+        /// </summary>
         /// <param name="timestamp">The timestamp (expressed as a DateTime).</param>
         /// <param name="machine">The machine hash.</param>
         /// <param name="pid">The PID.</param>
@@ -477,6 +490,23 @@ namespace MongoDB.Bson
         public override string ToString()
         {
             return BsonUtils.ToHexString(Pack(_timestamp, _machine, _pid, _increment));
+        }
+
+        // internal methods
+        internal void GetBytes(byte[] bytes, int index)
+        {
+            bytes[index] = (byte)(_timestamp >> 24);
+            bytes[1 + index] = (byte)(_timestamp >> 16);
+            bytes[2 + index] = (byte)(_timestamp >> 8);
+            bytes[3 + index] = (byte)(_timestamp);
+            bytes[4 + index] = (byte)(_machine >> 16);
+            bytes[5 + index] = (byte)(_machine >> 8);
+            bytes[6 + index] = (byte)(_machine);
+            bytes[7 + index] = (byte)(_pid >> 8);
+            bytes[8 + index] = (byte)(_pid);
+            bytes[9 + index] = (byte)(_increment >> 16);
+            bytes[10 + index] = (byte)(_increment >> 8);
+            bytes[11 + index] = (byte)(_increment);
         }
 
         // explicit IConvertible implementation

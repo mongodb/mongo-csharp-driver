@@ -22,11 +22,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Uris.
     /// </summary>
-    public class UriSerializer : BsonBaseSerializer
+    public class UriSerializer : BsonBaseSerializer<Uri>
     {
-        // private static fields
-        private static UriSerializer __instance = new UriSerializer();
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the UriSerializer class.
@@ -35,32 +32,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-        // public static properties
-        /// <summary>
-        /// Gets an instance of the UriSerializer class.
-        /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static UriSerializer Instance
-        {
-            get { return __instance; }
-        }
-
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override Uri Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(Uri));
+            var bsonReader = context.Reader;
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -68,8 +48,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
+
                 case BsonType.String:
                     return new Uri(bsonReader.ReadString(), UriKind.RelativeOrAbsolute);
+
                 default:
                     var message = string.Format("Cannot deserialize Uri from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -77,25 +59,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, Uri value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                bsonWriter.WriteString(((Uri)value).OriginalString);
+                bsonWriter.WriteString(value.OriginalString);
             }
         }
     }

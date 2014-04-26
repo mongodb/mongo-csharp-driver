@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using System.IO;
 using System.Threading;
 using MongoDB.Bson.IO;
 
@@ -45,25 +45,36 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal void BackpatchMessageLength(BsonBuffer buffer)
+        internal void BackpatchMessageLength(BsonStreamWriter streamWriter)
         {
-            MessageLength = buffer.Position - _messageStartPosition;
-            buffer.Backpatch(_messageStartPosition, MessageLength);
+            MessageLength = (int)streamWriter.Position - _messageStartPosition;
+            Backpatch(streamWriter.BaseStream, _messageStartPosition, MessageLength);
         }
 
-        internal abstract void WriteBodyTo(BsonBuffer buffer);
+        internal abstract void WriteBodyTo(BsonStreamWriter streamWriter);
 
-        internal override void WriteHeaderTo(BsonBuffer buffer)
+        internal override void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            _messageStartPosition = buffer.Position;
-            base.WriteHeaderTo(buffer);
+            _messageStartPosition = (int)streamWriter.Position;
+            base.WriteHeaderTo(streamWriter);
         }
 
-        internal void WriteTo(BsonBuffer buffer)
+        internal void WriteTo(Stream stream)
         {
-            WriteHeaderTo(buffer);
-            WriteBodyTo(buffer);
-            BackpatchMessageLength(buffer);
+            var streamWriter = new BsonStreamWriter(stream, WriterSettings.Encoding);
+            WriteHeaderTo(streamWriter);
+            WriteBodyTo(streamWriter);
+            BackpatchMessageLength(streamWriter);
+        }
+
+        // private methods
+        private void Backpatch(Stream stream, int position, int value)
+        {
+            var streamWriter = new BsonStreamWriter(stream, Utf8Helper.StrictUtf8Encoding);
+            var currentPosition = stream.Position;
+            stream.Position = position;
+            streamWriter.WriteInt32(value);
+            stream.Position = currentPosition;
         }
     }
 }

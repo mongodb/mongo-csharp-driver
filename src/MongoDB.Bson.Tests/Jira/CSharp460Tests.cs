@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.Jira
@@ -185,7 +186,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestKeyValuePair2()
         {
             var p = new KeyValuePair<string, int>("a", 42);
-            var json = p.ToJson(new KeyValuePairSerializationOptions { Representation = BsonType.Array });
+            var json = p.ToJson(serializer: new KeyValuePairSerializer<string, int>(BsonType.Array));
             var expected = ("[\"a\", 42]").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

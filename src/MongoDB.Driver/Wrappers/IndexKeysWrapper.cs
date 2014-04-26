@@ -13,11 +13,16 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoIndexKeys is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(IndexKeysWrapper.Serializer))]
     public class IndexKeysWrapper : BaseWrapper, IMongoIndexKeys
     {
         // constructors
@@ -45,6 +50,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new IndexKeysWrapper(keys);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<IndexKeysWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, IndexKeysWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

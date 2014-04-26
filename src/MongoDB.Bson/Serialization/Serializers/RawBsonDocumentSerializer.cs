@@ -22,36 +22,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for RawBsonDocuments.
     /// </summary>
-    public class RawBsonDocumentSerializer : BsonBaseSerializer
+    public class RawBsonDocumentSerializer : BsonBaseSerializer<RawBsonDocument>
     {
-        // private static fields
-        private static readonly RawBsonDocumentSerializer __instance = new RawBsonDocumentSerializer();
-
-        // public static properties
-        /// <summary>
-        /// Gets an instance of the RawBsonDocumentSerializer class.
-        /// </summary>
-        public static RawBsonDocumentSerializer Instance
-        {
-            get { return __instance; }
-        }
-
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override RawBsonDocument Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(RawBsonDocument));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -59,9 +40,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
+
                 case BsonType.Document:
                     var slice = bsonReader.ReadRawBsonDocument();
                     return new RawBsonDocument(slice);
+
                 default:
                     var message = string.Format("Cannot deserialize RawBsonDocument from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -69,26 +52,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, RawBsonDocument value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var rawBsonDocument = (RawBsonDocument)value;
-                var slice = rawBsonDocument.Slice;
+                var slice = value.Slice;
                 using (var clonedSlice = slice.GetSlice(0, slice.Length))
                 {
                     bsonWriter.WriteRawBsonDocument(clonedSlice);

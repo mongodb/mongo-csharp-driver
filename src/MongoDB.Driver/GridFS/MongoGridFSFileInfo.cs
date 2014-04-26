@@ -30,7 +30,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents information about a GridFS file (patterned after .NET's FileInfo class).
     /// </summary>
-    public class MongoGridFSFileInfo : IBsonSerializable, IEquatable<MongoGridFSFileInfo>
+    public class MongoGridFSFileInfo : IEquatable<MongoGridFSFileInfo>
     {
         // private fields
         // these fields are considered in Equals and GetHashCode
@@ -784,43 +784,39 @@ namespace MongoDB.Driver.GridFS
                 throw new InvalidOperationException(message);
             }
         }
+    }
 
-        // explicit interface implementations
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+    internal class MongoGridFSFileInfoSerializer : BsonBaseSerializer<MongoGridFSFileInfo>
+    {
+        // private fields
+        private readonly MongoServer _server;
+        private readonly MongoServerInstance _serverInstance;
+        private readonly string _databaseName;
+        private readonly MongoGridFSSettings _gridFSSettings;
+
+        // constructors
+        public MongoGridFSFileInfoSerializer(
+            MongoServer server,
+            MongoServerInstance serverInstance,
+            string databaseName,
+            MongoGridFSSettings gridFSSettings)
         {
-            var serializationOptions = (SerializationOptions)options;
-            var bsonInfo = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
-            var fileInfo = new MongoGridFSFileInfo(
-                serializationOptions.Server,
-                serializationOptions.ServerInstance,
-                serializationOptions.DatabaseName,
-                serializationOptions.GridFSSettings);
-            fileInfo.CacheFileInfo(bsonInfo);
-            return fileInfo;
+            _server = server;
+            _serverInstance = serverInstance;
+            _databaseName = databaseName;
+            _gridFSSettings = gridFSSettings;
         }
 
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        // public methods
+        public override MongoGridFSFileInfo Deserialize(BsonDeserializationContext context)
         {
-            throw new NotSupportedException();
-        }
-
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        void IBsonSerializable.SetDocumentId(object id)
-        {
-            throw new NotSupportedException();
-        }
-
-        // nested classes
-        internal class SerializationOptions : BsonBaseSerializationOptions
-        {
-            public MongoServer Server;
-            public MongoServerInstance ServerInstance;
-            public string DatabaseName;
-            public MongoGridFSSettings GridFSSettings;
+            var fileInfo = context.DeserializeWithChildContext(BsonDocumentSerializer.Instance);
+            return new MongoGridFSFileInfo(
+                _server,
+                _serverInstance,
+                _databaseName,
+                _gridFSSettings,
+                fileInfo);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     /// Represents the results of a validate collection command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<ValidateCollectionResult>))]
     public class ValidateCollectionResult : CommandResult
     {
         // private fields

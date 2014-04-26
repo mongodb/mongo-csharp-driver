@@ -53,9 +53,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var changedEnumMemberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
             convention.Apply(nonEnumMemberMap);
             convention.Apply(changedEnumMemberMap);
-            Assert.IsNull(nonEnumMemberMap.SerializationOptions);
-            Assert.IsNull(defaultEnumMemberMap.SerializationOptions);
-            Assert.AreEqual(value, ((RepresentationSerializationOptions)changedEnumMemberMap.SerializationOptions).Representation);
+            Assert.AreEqual(value, ((IRepresentationConfigurable)(changedEnumMemberMap.GetSerializer())).Representation);
         }
 
         [Test]
@@ -67,7 +65,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var memberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
             int64Convention.Apply(memberMap);
             strConvention.Apply(memberMap);
-            Assert.AreEqual(BsonType.String, ((RepresentationSerializationOptions)memberMap.SerializationOptions).Representation);
+            Assert.AreEqual(BsonType.String, ((IRepresentationConfigurable)(memberMap.GetSerializer())).Representation);
         }
 
         [Test]

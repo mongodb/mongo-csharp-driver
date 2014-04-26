@@ -1533,14 +1533,14 @@ namespace MongoDB.Driver.Builders
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="QueryBuilder{TDocument}"/> class.
         /// </summary>
         public QueryBuilder()
             : this(new BsonSerializationInfoHelper())
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="QueryBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="QueryBuilder{TDocument}"/> class.
         /// </summary>
         /// <param name="serializationInfoHelper">The serialization info helper.</param>
         internal QueryBuilder(BsonSerializationInfoHelper serializationInfoHelper)

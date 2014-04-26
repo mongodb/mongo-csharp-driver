@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 
@@ -109,6 +110,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for specifying which fields of a document the server should return.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(FieldsBuilder.Serializer))]
     public class FieldsBuilder : BuilderBase, IMongoFields
     {
         // private fields
@@ -210,16 +212,13 @@ namespace MongoDB.Driver.Builders
             return _document;
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<FieldsBuilder>
         {
-            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
+            public override void Serialize(BsonSerializationContext context, FieldsBuilder value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+            }
         }
     }
 
@@ -312,6 +311,7 @@ namespace MongoDB.Driver.Builders
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
+    [BsonSerializer(typeof(FieldsBuilder<>.Serializer))]
     public class FieldsBuilder<TDocument> : BuilderBase, IMongoFields
     {
         // private fields
@@ -420,18 +420,6 @@ namespace MongoDB.Driver.Builders
             return _fieldsBuilder.ToBsonDocument();
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            ((IBsonSerializable)_fieldsBuilder).Serialize(bsonWriter, nominalType, options);
-        }
-
         // private methods
         private IEnumerable<string> GetElementNames(IEnumerable<Expression<Func<TDocument, object>>> memberExpressions)
         {
@@ -439,6 +427,15 @@ namespace MongoDB.Driver.Builders
                 .Select(x => _serializationInfoHelper.GetSerializationInfo(x))
                 .Select(x => x.ElementName);
             return elementNames;
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<FieldsBuilder<TDocument>>
+        {
+            public override void Serialize(BsonSerializationContext context, FieldsBuilder<TDocument> value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._fieldsBuilder.ToBsonDocument());
+            }
         }
     }
 }

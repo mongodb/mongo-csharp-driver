@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Communication.Security
         {
             var readerSettings = new BsonBinaryReaderSettings();
             var writerSettings = new BsonBinaryWriterSettings();
-            var resultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+            var resultSerializer = BsonSerializer.LookupSerializer<CommandResult>();
 
             var commandOperation = new CommandOperation<CommandResult>(
                 databaseName,
@@ -130,7 +130,6 @@ namespace MongoDB.Driver.Communication.Security
                 QueryFlags.SlaveOk,
                 null, // options
                 null, // readPreference
-                null, // serializationOptions
                 resultSerializer);
 
             return commandOperation.Execute(connection);

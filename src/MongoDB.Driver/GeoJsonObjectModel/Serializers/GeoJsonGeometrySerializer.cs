@@ -13,13 +13,54 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 {
     /// <summary>
     /// Represents a serializer for a GeoJsonGeometry value.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonGeometrySerializer<TCoordinates> : GeoJsonObjectSerializer<TCoordinates> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonGeometrySerializer<TCoordinates> : BsonBaseSerializer<GeoJsonGeometry<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
+        // public methods
+        /// <summary>
+        /// Deserializes a value.
+        /// </summary>
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJsonGeometry<TCoordinates> Deserialize(BsonDeserializationContext context)
+        {
+            var helper = new Helper();
+            return (GeoJsonGeometry<TCoordinates>)helper.Deserialize(context);
+        }
+
+        /// <summary>
+        /// Serializes a value.
+        /// </summary>
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJsonGeometry<TCoordinates> value)
+        {
+            var helper = new Helper();
+            helper.Serialize(context, value);
+        }
+
+        // nested classes
+        internal class Helper : GeoJsonObjectSerializer<TCoordinates>.Helper
+        {
+            public Helper()
+                : base(typeof(GeoJsonGeometry<TCoordinates>), null, null)
+            {
+            }
+
+            protected Helper(Type objectType, string expectedDiscriminator, GeoJsonObjectArgs<TCoordinates> args)
+                : base(objectType, expectedDiscriminator, args)
+            {
+            }
+        }
     }
 }

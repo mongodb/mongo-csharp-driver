@@ -30,11 +30,6 @@ namespace MongoDB.Bson.Tests.Jira.CSharp728
         [Test]
         public void TestConventionProfileStillUsesDefaults()
         {
-#pragma warning disable 618 
-            var conventions = new ConventionProfile();
-            conventions.SetElementNameConvention(new CamelCaseElementNameConvention());
-            BsonClassMap.RegisterConventions(conventions, t => t == typeof(A));
-#pragma warning restore 618
             var classMap = new BsonClassMap<A>();
             classMap.AutoMap();
 

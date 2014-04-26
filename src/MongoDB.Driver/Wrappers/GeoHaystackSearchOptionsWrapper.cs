@@ -14,12 +14,16 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoHaystackSearchOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(GeoHaystackSearchOptionsWrapper.Serializer))]
     [Obsolete("Use GeoHaystackSearchArgs instead.")]
     public class GeoHaystackSearchOptionsWrapper : BaseWrapper, IMongoGeoHaystackSearchOptions
     {
@@ -48,6 +52,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new GeoHaystackSearchOptionsWrapper(options);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<GeoHaystackSearchOptionsWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, GeoHaystackSearchOptionsWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

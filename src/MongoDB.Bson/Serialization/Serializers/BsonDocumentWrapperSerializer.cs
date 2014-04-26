@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonDocumentWrappers.
     /// </summary>
-    public class BsonDocumentWrapperSerializer : BsonBaseSerializer
+    public class BsonDocumentWrapperSerializer : BsonBaseSerializer<BsonDocumentWrapper>
     {
         // private static fields
         private static BsonDocumentWrapperSerializer __instance = new BsonDocumentWrapperSerializer();
@@ -45,46 +45,20 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, BsonDocumentWrapper value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 throw new ArgumentNullException("value");
             }
 
-            var wrapper = (BsonDocumentWrapper)value;
-            var wrappedObject = wrapper.WrappedObject;
-            var wrappedActualType = (wrappedObject == null) ? wrapper.WrappedNominalType : wrappedObject.GetType();
-            var serializer = (wrappedActualType == wrapper.WrappedNominalType) ? wrapper.Serializer : BsonSerializer.LookupSerializer(wrappedActualType);
-
-            if (wrapper.IsUpdateDocument)
+            if (value.IsUpdateDocument)
             {
                 var savedCheckElementNames = bsonWriter.CheckElementNames;
                 var savedCheckUpdateDocument = bsonWriter.CheckUpdateDocument;
@@ -92,7 +66,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 {
                     bsonWriter.CheckElementNames = false;
                     bsonWriter.CheckUpdateDocument = true;
-                    serializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, wrapper.SerializationOptions);
+                    context.SerializeWithChildContext(value.Serializer, value.Wrapped);
                 }
                 finally
                 {
@@ -102,7 +76,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                serializer.Serialize(bsonWriter, wrapper.WrappedNominalType, wrapper.WrappedObject, wrapper.SerializationOptions);
+                context.SerializeWithChildContext(value.Serializer, value.Wrapped);
             }
         }
     }

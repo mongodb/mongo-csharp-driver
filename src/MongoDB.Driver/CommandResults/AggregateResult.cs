@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// Represents the results of a Aggregate command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<AggregateResult>))]
     public class AggregateResult : CommandResult
     {
         // private fields

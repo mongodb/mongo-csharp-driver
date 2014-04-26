@@ -22,15 +22,15 @@ namespace MongoDB.Bson.IO
         // private fields
         private BsonBinaryReaderContext _parentContext;
         private ContextType _contextType;
-        private int _startPosition;
-        private int _size;
+        private long _startPosition;
+        private long _size;
 
         // constructors
         internal BsonBinaryReaderContext(
             BsonBinaryReaderContext parentContext,
             ContextType contextType,
-            int startPosition, 
-            int size)
+            long startPosition,
+            long size)
         {
             _parentContext = parentContext;
             _contextType = contextType;
@@ -54,9 +54,9 @@ namespace MongoDB.Bson.IO
             return new BsonBinaryReaderContext(_parentContext, _contextType, _startPosition, _size);
         }
 
-        public BsonBinaryReaderContext PopContext(int position)
+        public BsonBinaryReaderContext PopContext(long position)
         {
-            int actualSize = position - _startPosition;
+            var actualSize = position - _startPosition;
             if (actualSize != _size)
             {
                 var message = string.Format("Expected size to be {0}, not {1}.", _size, actualSize);

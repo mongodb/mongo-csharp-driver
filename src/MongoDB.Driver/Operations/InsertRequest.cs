@@ -26,7 +26,6 @@ namespace MongoDB.Driver
         // private fields
         private object _document;
         private Type _nominalType;
-        private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
 
         // constructors
@@ -44,7 +43,7 @@ namespace MongoDB.Driver
         /// <param name="nominalType">Type nominal type.</param>
         /// <param name="document">The document.</param>
         public InsertRequest(Type nominalType, object document)
-            : this(nominalType, document, null, null)
+            : this(nominalType, document, null)
         {
         }
 
@@ -54,14 +53,12 @@ namespace MongoDB.Driver
         /// <param name="nominalType">Type nominal type.</param>
         /// <param name="document">The document.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        public InsertRequest(Type nominalType, object document, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        public InsertRequest(Type nominalType, object document, IBsonSerializer serializer)
             : base(WriteRequestType.Insert)
         {
             _nominalType = nominalType;
             _document = document;
             _serializer = serializer;
-            _serializationOptions = serializationOptions;
         }
 
         // public properties
@@ -87,18 +84,6 @@ namespace MongoDB.Driver
         {
             get { return _nominalType; }
             set { _nominalType = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the serialization options.
-        /// </summary>
-        /// <value>
-        /// The serialization options.
-        /// </value>
-        public IBsonSerializationOptions SerializationOptions
-        {
-            get { return _serializationOptions; }
-            set { _serializationOptions = value; }
         }
 
         /// <summary>

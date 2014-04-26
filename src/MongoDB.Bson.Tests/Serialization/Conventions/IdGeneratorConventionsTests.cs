@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using NUnit.Framework;
@@ -24,24 +25,36 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
     [TestFixture]
     public class IdGeneratorConventionsTests
     {
-        private class TestClass
+        private class TestClassA
         {
-            public Guid GuidId { get; set; }
             public ObjectId ObjectId { get; set; }
         }
 
+        private class TestClassB
+        {
+            public Guid GuidId { get; set; }
+        }
+
         [Test]
-        public void TestLookupIdGeneratorConvention()
+        public void TestLookupIdGeneratorConventionWithTestClassA()
         {
             var convention = new LookupIdGeneratorConvention();
+            var classMap = new BsonClassMap<TestClassA>();
+            classMap.MapIdMember(x => x.ObjectId);
+            convention.PostProcess(classMap);
+            Assert.IsNotNull(classMap.IdMemberMap.IdGenerator);
+            Assert.IsInstanceOf<ObjectIdGenerator>(classMap.IdMemberMap.IdGenerator);
+        }
 
-            var guidProperty = typeof(TestClass).GetProperty("GuidId");
-            var objectIdProperty = typeof(TestClass).GetProperty("ObjectId");
-
-#pragma warning disable 618
-            Assert.IsInstanceOf<GuidGenerator>(convention.GetIdGenerator(guidProperty));
-            Assert.IsInstanceOf<ObjectIdGenerator>(convention.GetIdGenerator(objectIdProperty));
-#pragma warning restore 618
+        [Test]
+        public void TestLookupIdGeneratorConventionWithTestClassB()
+        {
+            var convention = new LookupIdGeneratorConvention();
+            var classMap = new BsonClassMap<TestClassB>();
+            classMap.MapIdMember(x => x.GuidId);
+            convention.PostProcess(classMap);
+            Assert.IsNotNull(classMap.IdMemberMap.IdGenerator);
+            Assert.IsInstanceOf<GuidGenerator>(classMap.IdMemberMap.IdGenerator);
         }
     }
 }

@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,24 +22,21 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJson3DCoordinates value.
     /// </summary>
-    public class GeoJson3DCoordinatesSerializer : BsonBaseSerializer
+    public class GeoJson3DCoordinatesSerializer : BsonBaseSerializer<GeoJson3DCoordinates>
     {
         // private static fields
-        private static readonly IBsonSerializer __doubleSerializer = new DoubleSerializer();
+        private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>
-        /// An object.
-        /// </returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJson3DCoordinates Deserialize(BsonDeserializationContext context)
         {
+            var bsonReader = context.Reader;
+
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -50,9 +45,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             else
             {
                 bsonReader.ReadStartArray();
-                var x = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
-                var y = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
-                var z = (double)__doubleSerializer.Deserialize(bsonReader, typeof(double), null);
+                var x = context.DeserializeWithChildContext(__doubleSerializer);
+                var y = context.DeserializeWithChildContext(__doubleSerializer);
+                var z = context.DeserializeWithChildContext(__doubleSerializer);
                 bsonReader.ReadEndArray();
 
                 return new GeoJson3DCoordinates(x, y, z);
@@ -60,26 +55,24 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJson3DCoordinates value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var coordinates = (GeoJson3DCoordinates)value;
-
                 bsonWriter.WriteStartArray();
-                bsonWriter.WriteDouble(coordinates.X);
-                bsonWriter.WriteDouble(coordinates.Y);
-                bsonWriter.WriteDouble(coordinates.Z);
+                bsonWriter.WriteDouble(value.X);
+                bsonWriter.WriteDouble(value.Y);
+                bsonWriter.WriteDouble(value.Z);
                 bsonWriter.WriteEndArray();
             }
         }

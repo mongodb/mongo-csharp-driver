@@ -244,8 +244,7 @@ namespace MongoDB.Driver.Internal
 
         internal MongoReplyMessage<TDocument> ReceiveMessage<TDocument>(
             BsonBinaryReaderSettings readerSettings,
-            IBsonSerializer serializer,
-            IBsonSerializationOptions serializationOptions)
+            IBsonSerializer<TDocument> serializer)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -260,12 +259,11 @@ namespace MongoDB.Driver.Internal
                         networkStream.ReadTimeout = readTimeout;
                     }
 
-                    using (var byteBuffer = ByteBufferFactory.LoadFrom(networkStream))
-                    using (var bsonBuffer = new BsonBuffer(byteBuffer, true))
+                    using (var byteBuffer = ByteBufferFactory.LoadLengthPrefixedDataFrom(networkStream))
+                    using (var stream = new ByteBufferStream(byteBuffer, ownsByteBuffer: true))
                     {
-                        byteBuffer.MakeReadOnly();
-                        var reply = new MongoReplyMessage<TDocument>(readerSettings, serializer, serializationOptions);
-                        reply.ReadFrom(bsonBuffer);
+                        var reply = new MongoReplyMessage<TDocument>(readerSettings, serializer);
+                        reply.ReadFrom(stream);
                         return reply;
                     }
                 }
@@ -277,7 +275,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal void SendMessage(BsonBuffer buffer, int requestId)
+        internal void SendMessage(Stream stream, int requestId)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -293,7 +291,8 @@ namespace MongoDB.Driver.Internal
                     {
                         networkStream.WriteTimeout = writeTimeout;
                     }
-                    buffer.WriteTo(networkStream);
+                    stream.Position = 0;
+                    stream.CopyTo(networkStream);
                     _messageCounter++;
                 }
                 catch (Exception ex)
@@ -306,10 +305,10 @@ namespace MongoDB.Driver.Internal
 
         internal void SendMessage(MongoRequestMessage message)
         {
-            using (var buffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
+            using (var stream = new MemoryStream())
             {
-                message.WriteTo(buffer);
-                SendMessage(buffer, message.RequestId);
+                message.WriteTo(stream);
+                SendMessage(stream, message.RequestId);
             }
         }
 

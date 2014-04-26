@@ -289,6 +289,7 @@ namespace MongoDB.Driver.GridFS
         /// <summary>
         /// Creates or opens a GridFS file for writing UTF-8 encoded text.
         /// </summary>
+        /// <param name="remoteFileName">The remote file name.</param>
         /// <returns>A stream writer.</returns>
         public StreamWriter CreateText(string remoteFileName)
         {
@@ -644,14 +645,12 @@ namespace MongoDB.Driver.GridFS
                 var serverInstance = _server.RequestConnection.ServerInstance;
                 var database = GetDatabase();
                 var filesCollection = GetFilesCollection(database);
-                var serializationOptions = new MongoGridFSFileInfo.SerializationOptions
-                {
-                    Server = _server,
-                    ServerInstance = serverInstance,
-                    DatabaseName = _databaseName,
-                    GridFSSettings = _settings
-                };
-                return filesCollection.FindAs<MongoGridFSFileInfo>(query).SetSerializationOptions(serializationOptions);
+                var serializer = new MongoGridFSFileInfoSerializer(
+                    _server,
+                    serverInstance,
+                    _databaseName,
+                    _settings);
+                return filesCollection.FindAs<MongoGridFSFileInfo>(query).SetSerializer(serializer);
             }
         }
 

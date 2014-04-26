@@ -19,63 +19,60 @@ using System.IO;
 namespace MongoDB.Bson.IO
 {
     /// <summary>
-    /// A BSON buffer that is backed by a byte array.
+    /// An IByteBuffer that is backed by a contiguous byte array.
     /// </summary>
     public class ByteArrayBuffer : IByteBuffer
     {
         // private fields
         private bool _disposed;
         private byte[] _bytes;
-        private int _sliceOffset;
-        private int _capacity;
+        private int _origin;
         private int _length;
-        private int _position;
         private bool _isReadOnly;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ByteArrayBuffer"/> class.
         /// </summary>
-        /// <param name="bytes">The backing bytes.</param>
-        /// <param name="sliceOffset">The offset where the slice begins.</param>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="origin">The origin of the slice.</param>
         /// <param name="length">The length of the slice.</param>
         /// <param name="isReadOnly">Whether the buffer is read only.</param>
         /// <exception cref="System.ArgumentNullException">bytes</exception>
-        public ByteArrayBuffer(byte[] bytes, int sliceOffset, int length, bool isReadOnly)
+        public ByteArrayBuffer(byte[] bytes, int origin, int length, bool isReadOnly)
         {
             if (bytes == null)
             {
                 throw new ArgumentNullException("bytes");
             }
+            if (origin < 0 || origin > bytes.Length)
+            {
+                throw new ArgumentOutOfRangeException("origin", "Origin is outside the bytes.");
+            }
+            if (origin + length > bytes.Length)
+            {
+                throw new ArgumentException("Length extends past the end of the bytes.", "length");
+            }
 
             _bytes = bytes;
-            _sliceOffset = sliceOffset;
-            _capacity = isReadOnly ? length : bytes.Length - _sliceOffset;
+            _origin = origin;
             _length = length;
             _isReadOnly = isReadOnly;
-            _position = 0;
         }
 
         // public properties
         /// <summary>
-        /// Gets or sets the capacity.
+        /// Gets the capacity.
         /// </summary>
         /// <value>
         /// The capacity.
         /// </value>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.NotSupportedException">The capacity of a ByteArrayBuffer cannot be changed.</exception>
         public int Capacity
         {
             get
             {
                 ThrowIfDisposed();
-                return _capacity;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                throw new NotSupportedException("The capacity of a ByteArrayBuffer cannot be changed.");
+                return _isReadOnly ? _length : _bytes.Length - _origin;
             }
         }
 
@@ -101,9 +98,7 @@ namespace MongoDB.Bson.IO
         /// <value>
         /// The length.
         /// </value>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">The length of a read only buffer cannot be changed.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Length</exception>
+        /// <exception cref="System.ArgumentException">Length is negative.;value</exception>
         public int Length
         {
             get
@@ -114,46 +109,17 @@ namespace MongoDB.Bson.IO
             set
             {
                 ThrowIfDisposed();
+                if (value < 0)
+                {
+                    throw new ArgumentException("Length is negative.", "value");
+                }
+                if (_origin + value > _bytes.Length)
+                {
+                    throw new ArgumentException("Length extends beyond the end of the buffer.", "value");
+                }
                 EnsureIsWritable();
-                if (value < 0 || value > _capacity)
-                {
-                    throw new ArgumentOutOfRangeException("length");
-                }
-                _length = value;
-                if (_position > _length)
-                {
-                    _position = _length;
-                }
-            }
-        }
 
-        /// <summary>
-        /// Gets or sets the position.
-        /// </summary>
-        /// <value>
-        /// The position.
-        /// </value>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Position</exception>
-        public int Position
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return _position;
-            }
-            set
-            {
-                ThrowIfDisposed();
-                if (value < 0 || value > _capacity)
-                {
-                    throw new ArgumentOutOfRangeException("Position");
-                }
-                _position = value;
-                if (_length < _position)
-                {
-                    _length = _position;
-                }
+                _length = value;
             }
         }
 
@@ -170,28 +136,55 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Gets the slice offset.
+        /// Gets the origin.
         /// </summary>
         /// <value>
-        /// The slice offset.
+        /// The origin.
         /// </value>
-        protected int SliceOffset
+        protected int Origin
         {
-            get { return _sliceOffset; }
+            get { return _origin; }
         }
 
         // public methods
         /// <summary>
-        /// Clears this instance.
+        /// Accesses the backing bytes.
         /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
-        public virtual void Clear()
+        /// <param name="position">The position.</param>
+        /// <returns></returns>
+        public ArraySegment<byte> AccessBackingBytes(int position)
         {
             ThrowIfDisposed();
-            EnsureIsWritable();
-            _position = 0;
-            _length = 0;
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+
+            return new ArraySegment<byte>(_bytes, _origin + position, _length - position);
+        }
+
+        /// <summary>
+        /// Clears the specified bytes.
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="count">The count.</param>
+        public void Clear(int position, int count)
+        {
+            ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+
+            Array.Clear(_bytes, _origin + position, count);
         }
 
         /// <summary>
@@ -204,17 +197,28 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Finds the next null byte.
+        /// Expands the buffer to at least the specified minimum length. Depending on the buffer's growth strategy
+        /// it may choose to expand to a larger length.
         /// </summary>
-        /// <returns>
-        /// The position of the next null byte.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public int FindNullByte()
+        /// <param name="capacity">The minimum length.</param>
+        /// <exception cref="System.ArgumentException">Minimum length is negative.;minimumLength</exception>
+        public void EnsureCapacity(int capacity)
         {
-            ThrowIfDisposed();
-            var index = Array.IndexOf<byte>(_bytes, 0, _sliceOffset + _position, _length - _position);
-            return (index == -1) ? -1 : index - _sliceOffset;
+            if (capacity < 0)
+            {
+                throw new ArgumentException("Capacity is negative.", "capacity");
+            }
+
+            capacity += _origin;
+            if (capacity > _bytes.Length)
+            {
+                var powerOf2 = 32;
+                while (powerOf2 < capacity)
+                {
+                    powerOf2 <<= 1;
+                }
+                SetCapacity(powerOf2);
+            }
         }
 
         /// <summary>
@@ -235,56 +239,67 @@ namespace MongoDB.Bson.IO
         public virtual IByteBuffer GetSlice(int position, int length)
         {
             ThrowIfDisposed();
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (length < 0)
+            {
+                throw new ArgumentException("Length is negative.", "count");
+            }
+            if (position + length > _length)
+            {
+                throw new ArgumentException("Length extends past the end of the buffer.", "count");
+            }
             EnsureIsReadOnly();
-            if (position < 0 || position >= _length)
-            {
-                throw new ArgumentOutOfRangeException("position");
-            }
-            if (length <= 0 || length > _length - position)
-            {
-                throw new ArgumentOutOfRangeException("length");
-            }
 
-            return new ByteArrayBuffer(_bytes, _sliceOffset + position, length, true);
+            return new ByteArrayBuffer(_bytes, _origin + position, length, isReadOnly: true);
         }
 
         /// <summary>
         /// Loads the buffer from a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
+        /// <param name="position">The position.</param>
         /// <param name="count">The count.</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
         /// <exception cref="System.ArgumentNullException">stream</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">count</exception>
-        public void LoadFrom(Stream stream, int count)
+        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <exception cref="System.ArgumentException">
+        /// Count is negative.;count
+        /// or
+        /// Count extends past the end of the buffer.;count
+        /// </exception>
+        /// <exception cref="System.IO.EndOfStreamException"></exception>
+        public void LoadFrom(Stream stream, int position, int count)
         {
             ThrowIfDisposed();
-            EnsureIsWritable();
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
-            if (count > _capacity - _position)
+            if (position < 0 || position > _length)
             {
-                throw new ArgumentOutOfRangeException("count");
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
             }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            EnsureIsWritable();
 
-            EnsureSpaceAvailable(count);
-            var position = _position; // don't advance position
             while (count > 0)
             {
-                var bytesRead = stream.Read(_bytes, _sliceOffset + position, count);
+                var bytesRead = stream.Read(_bytes, _origin + position, count);
                 if (bytesRead == 0)
                 {
                     throw new EndOfStreamException();
                 }
                 position += bytesRead;
                 count -= bytesRead;
-            }
-            if (_length < position)
-            {
-                _length = position;
             }
         }
 
@@ -299,155 +314,141 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Read directly from the backing bytes. The returned ArraySegment points directly to the backing bytes for
-        /// the current position and you can read the bytes directly from there. If the backing bytes happen to span
-        /// a chunk boundary shortly after the current position there might not be enough bytes left in the current
-        /// chunk in which case the returned ArraySegment will have a Count of zero and you should call ReadBytes instead.
-        /// 
-        /// When ReadBackingBytes returns the position will have been advanced by count bytes *if and only if* there
-        /// were count bytes left in the current chunk.
-        /// </summary>
-        /// <param name="count">The number of bytes you need to read.</param>
-        /// <returns>
-        /// An ArraySegment pointing directly to the backing bytes for the current position.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public ArraySegment<byte> ReadBackingBytes(int count)
-        {
-            ThrowIfDisposed();
-            EnsureDataAvailable(count);
-            var offset = _sliceOffset + _position;
-            _position += count;
-            return new ArraySegment<byte>(_bytes, offset, count);
-        }
-
-        /// <summary>
         /// Reads a byte.
         /// </summary>
+        /// <param name="position">The position.</param>
         /// <returns>
         /// A byte.
         /// </returns>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public byte ReadByte()
+        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        public byte ReadByte(int position)
         {
             ThrowIfDisposed();
-            EnsureDataAvailable(1);
-            return _bytes[_sliceOffset + _position++];
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+
+            return _bytes[_origin + position];
         }
 
         /// <summary>
         /// Reads bytes.
         /// </summary>
+        /// <param name="position">The position.</param>
         /// <param name="destination">The destination.</param>
-        /// <param name="destinationOffset">The destination offset.</param>
+        /// <param name="offset">The destination offset.</param>
         /// <param name="count">The count.</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public void ReadBytes(byte[] destination, int destinationOffset, int count)
+        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        /// <exception cref="System.ArgumentNullException">destination</exception>
+        /// <exception cref="System.ArgumentException">
+        /// Offset is negative.;offset
+        /// or
+        /// Count is negative.;count
+        /// or
+        /// Count extends past the end of the buffer.;count
+        /// or
+        /// Count extends past the end of the destination.;count
+        /// </exception>
+        public void ReadBytes(int position, byte[] destination, int offset, int count)
         {
             ThrowIfDisposed();
-            EnsureDataAvailable(count);
-            Buffer.BlockCopy(_bytes, _sliceOffset + _position, destination, destinationOffset, count);
-            _position += count;
-        }
+            if (position < 0 || position > _length)
+            {
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (offset < 0)
+            {
+                throw new ArgumentException("Offset is negative.", "offset");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            if (offset + count > destination.Length)
+            {
+                throw new ArgumentException("Count extends past the end of the destination.", "count");
+            }
 
-        /// <summary>
-        /// Reads bytes.
-        /// </summary>
-        /// <param name="count">The count.</param>
-        /// <returns>
-        /// The bytes.
-        /// </returns>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        public byte[] ReadBytes(int count)
-        {
-            ThrowIfDisposed();
-
-            var destination = new byte[count];
-            ReadBytes(destination, 0, count);
-
-            return destination;
-        }
-
-        /// <summary>
-        /// Write directly to the backing bytes. The returned ArraySegment points directly to the backing bytes for
-        /// the current position and you can write the bytes directly to there. If the backing bytes happen to span
-        /// a chunk boundary shortly after the current position there might not be enough bytes left in the current
-        /// chunk in which case the returned ArraySegment will have a Count of zero and you should call WriteBytes instead.
-        /// 
-        /// When WriteBackingBytes returns the position has not been advanced. After you have written up to count
-        /// bytes directly to the backing bytes advance the position by the number of bytes actually written.
-        /// </summary>
-        /// <param name="count">The count.</param>
-        /// <returns>
-        /// An ArraySegment pointing directly to the backing bytes for the current position.
-        /// </returns>
-        public ArraySegment<byte> WriteBackingBytes(int count)
-        {
-            ThrowIfDisposed();
-            EnsureSpaceAvailable(count);
-            var offset = _sliceOffset + _position;
-            return new ArraySegment<byte>(_bytes, offset, count);
+            Buffer.BlockCopy(_bytes, _origin + position, destination, offset, count);
         }
 
         /// <summary>
         /// Writes a byte.
         /// </summary>
-        /// <param name="source">The byte.</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
-        public void WriteByte(byte source)
+        /// <param name="position">The position.</param>
+        /// <param name="value">The value.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">position;Position is outside of the buffer.</exception>
+        public void WriteByte(int position, byte value)
         {
             ThrowIfDisposed();
-            EnsureIsWritable();
-            EnsureSpaceAvailable(1);
-            _bytes[_sliceOffset + _position++] = source;
-            if (_length < _position)
+            if (position < 0 || position > _length)
             {
-                _length = _position;
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
             }
+            EnsureIsWritable();
+
+            _bytes[_origin + position] = value;
         }
 
         /// <summary>
         /// Writes bytes.
         /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
-        public void WriteBytes(byte[] bytes)
+        /// <param name="position">The position.</param>
+        /// <param name="source">The bytes (in the form of a byte array).</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// position;Position is outside of the buffer.
+        /// or
+        /// offset;Offset is outside of the source.
+        /// </exception>
+        /// <exception cref="System.ArgumentNullException">source</exception>
+        /// <exception cref="System.ArgumentException">
+        /// Count is negative.;count
+        /// or
+        /// Count extends past the end of the buffer.;count
+        /// or
+        /// Count extends past the end of the source.;count
+        /// </exception>
+        public void WriteBytes(int position, byte[] source, int offset, int count)
         {
             ThrowIfDisposed();
-            EnsureIsWritable();
-            var count = bytes.Length;
-            EnsureSpaceAvailable(count);
-            Buffer.BlockCopy(bytes, 0, _bytes, _sliceOffset + _position, count);
-            _position += count;
-            if (_length < _position)
+            if (position < 0 || position > _length)
             {
-                _length = _position;
+                throw new ArgumentOutOfRangeException("position", "Position is outside of the buffer.");
             }
-        }
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (offset < 0 || offset > source.Length)
+            {
+                throw new ArgumentOutOfRangeException("offset", "Offset is outside of the source.");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentException("Count is negative.", "count");
+            }
+            if (position + count > _length)
+            {
+                throw new ArgumentException("Count extends past the end of the buffer.", "count");
+            }
+            if (offset + count > source.Length)
+            {
+                throw new ArgumentException("Count extends past the end of the source.", "count");
+            }
+            EnsureIsWritable();
 
-        /// <summary>
-        /// Writes bytes.
-        /// </summary>
-        /// <param name="source">The bytes (in the form of an IByteBuffer).</param>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
-        public void WriteBytes(IByteBuffer source)
-        {
-            ThrowIfDisposed();
-            EnsureIsWritable();
-            var count = source.Length;
-            EnsureSpaceAvailable(count);
-            var savedPosition = source.Position;
-            source.Position = 0;
-            source.ReadBytes(_bytes, _sliceOffset + _position, count);
-            _position += count;
-            if (_length < _position)
-            {
-                _length = _position;
-            }
-            source.Position = savedPosition;
+            Buffer.BlockCopy(source, offset, _bytes, _origin + position, count);
         }
 
         /// <summary>
@@ -458,7 +459,12 @@ namespace MongoDB.Bson.IO
         public void WriteTo(Stream stream)
         {
             ThrowIfDisposed();
-            stream.Write(_bytes, _sliceOffset, _length);
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+
+            stream.Write(_bytes, _origin, _length);
         }
 
         // protected methods
@@ -473,19 +479,6 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
-        /// Ensures the buffer is writable.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer is not writable.</exception>
-        protected void EnsureIsWritable()
-        {
-            if (_isReadOnly)
-            {
-                var message = string.Format("{0} is not writable.", GetType().Name);
-                throw new InvalidOperationException(message);
-            }
-        }
-
-        /// <summary>
         /// Ensures the buffer is read only.
         /// </summary>
         /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer is not read only.</exception>
@@ -494,6 +487,19 @@ namespace MongoDB.Bson.IO
             if (!_isReadOnly)
             {
                 var message = string.Format("{0} is not read only.", GetType().Name);
+                throw new InvalidOperationException(message);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the buffer is writable.
+        /// </summary>
+        /// <exception cref="System.ObjectDisposedException">ByteArrayBuffer is not writable.</exception>
+        protected void EnsureIsWritable()
+        {
+            if (_isReadOnly)
+            {
+                var message = string.Format("{0} is not writable.", GetType().Name);
                 throw new InvalidOperationException(message);
             }
         }
@@ -511,28 +517,12 @@ namespace MongoDB.Bson.IO
         }
 
         // private methods
-        private void EnsureDataAvailable(int needed)
+        private void SetCapacity(int capacity)
         {
-            if (needed > _length - _position)
-            {
-                var available = _length - _position;
-                var message = string.Format(
-                    "Not enough input bytes available. Needed {0}, but only {1} are available (at position {2}).",
-                    needed, available, _position);
-                throw new EndOfStreamException(message);
-            }
-        }
-
-        private void EnsureSpaceAvailable(int needed)
-        {
-            if (needed > _capacity - _length)
-            {
-                var available = _capacity - _length;
-                var message = string.Format(
-                    "Not enough space available. Needed {0}, but only {1} are available (at position {2}).",
-                    needed, available, _position);
-                throw new EndOfStreamException(message);
-            }
+            var oldBytes = _bytes;
+            _bytes = new byte[capacity];
+            var bytesToCopy = capacity < oldBytes.Length ? capacity : oldBytes.Length;
+            Buffer.BlockCopy(oldBytes, 0, _bytes, 0, bytesToCopy);
         }
     }
 }

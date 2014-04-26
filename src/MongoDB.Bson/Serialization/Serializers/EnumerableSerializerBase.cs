@@ -18,6 +18,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -25,34 +27,54 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a base serializer for enumerable values.
     /// </summary>
-    public abstract class EnumerableSerializerBase : BsonBaseSerializer, IBsonArraySerializer
+    public abstract class EnumerableSerializerBase<TValue> : BsonBaseSerializer<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
     {
+        // private fields
+        private readonly IBsonSerializer _itemSerializer;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the EnumerableSerializerBase class.
+        /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
         /// </summary>
-        public EnumerableSerializerBase(IBsonSerializationOptions defaultSerializationOptions)
-            : base(defaultSerializationOptions)
+        protected EnumerableSerializerBase()
+            : this(BsonSerializer.LookupSerializer(typeof(object)))
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        protected EnumerableSerializerBase(IBsonSerializer itemSerializer)
+        {
+            if (itemSerializer == null)
+            {
+                throw new ArgumentNullException("itemSerializer");
+            }
+
+            _itemSerializer = itemSerializer;
+        }
+
+        /// <summary>
+        /// Gets the item serializer.
+        /// </summary>
+        /// <value>
+        /// The item serializer.
+        /// </value>
+        public IBsonSerializer ItemSerializer
+        {
+            get { return _itemSerializer; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override TValue Deserialize(BsonDeserializationContext context)
         {
-            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -62,43 +84,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return null;
 
                 case BsonType.Array:
-                    var instance = CreateInstance(actualType);
-                    var itemDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
-                    Type lastItemType = null;
-                    IBsonSerializer lastItemSerializer = null;
-
                     bsonReader.ReadStartArray();
+                    var accumulator = CreateAccumulator();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var itemType = itemDiscriminatorConvention.GetActualType(bsonReader, typeof(object));
-                        IBsonSerializer itemSerializer;
-                        if (itemType == lastItemType)
-                        {
-                            itemSerializer = lastItemSerializer;
-                        }
-                        else
-                        {
-                            itemSerializer = BsonSerializer.LookupSerializer(itemType);
-                            lastItemType = itemType;
-                            lastItemSerializer = itemSerializer;
-                        }
-                        var item = itemSerializer.Deserialize(bsonReader, typeof(object), itemType, itemSerializationOptions);
-                        AddItem(instance, item);
+                        var item = context.DeserializeWithChildContext(_itemSerializer);
+                        AddItem(accumulator, item);
                     }
                     bsonReader.ReadEndArray();
-
-                    return FinalizeResult(instance, actualType);
-
-                case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    return FinalizeResult(accumulator);
 
                 default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", nominalType.FullName, bsonType);
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TValue).FullName, bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -110,64 +107,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(object));
-            var nominalType = typeof(object);
-            IBsonSerializationOptions serializationOptions = null;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            return new BsonSerializationInfo(elementName, _itemSerializer, _itemSerializer.ValueType);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, TValue value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var actualType = value.GetType();
-                var discriminator = GetDiscriminator(nominalType, actualType);
-                if (discriminator != null)
-                {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", discriminator);
-                    bsonWriter.WriteName("_v");
-                    Serialize(bsonWriter, actualType, value, options);
-                    bsonWriter.WriteEndDocument();
-                    return;
-                }
-
-                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
-                Type lastItemType = null;
-                IBsonSerializer lastItemSerializer = null;
-
                 bsonWriter.WriteStartArray();
                 foreach (var item in EnumerateItemsInSerializationOrder(value))
                 {
-                    var itemType = (item == null) ? typeof(object) : item.GetType();
-                    IBsonSerializer itemSerializer;
-                    if (itemType == lastItemType)
-                    {
-                        itemSerializer = lastItemSerializer;
-                    }
-                    else
-                    {
-                        itemSerializer = BsonSerializer.LookupSerializer(itemType);
-                        lastItemType = itemType;
-                        lastItemSerializer = itemSerializer;
-                    }
-                    itemSerializer.Serialize(bsonWriter, typeof(object), item, itemSerializationOptions);
+                    context.SerializeWithChildContext(_itemSerializer, item);
                 }
                 bsonWriter.WriteEndArray();
             }
@@ -177,83 +138,86 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Adds the item.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <param name="item">The item.</param>
-        protected abstract void AddItem(object instance, object item);
+        protected abstract void AddItem(object accumulator, object item);
 
         /// <summary>
-        /// Creates the instance.
+        /// Creates the accumulator.
         /// </summary>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The instance.</returns>
-        protected abstract object CreateInstance(Type actualType);
+        /// <returns>The accumulator.</returns>
+        protected abstract object CreateAccumulator();
 
         /// <summary>
-        /// Enumerates the items.
+        /// Enumerates the items in serialization order.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="value">The value.</param>
         /// <returns>The items.</returns>
-        protected abstract IEnumerable EnumerateItemsInSerializationOrder(object instance);
+        protected abstract IEnumerable EnumerateItemsInSerializationOrder(TValue value);
 
         /// <summary>
         /// Finalizes the result.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The result.</returns>
-        protected abstract object FinalizeResult(object instance, Type actualType);
-
-        /// <summary>
-        /// Gets the discriminator.
-        /// </summary>
-        /// <param name="nominalType">Type nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The discriminator (or null if no discriminator is needed).</returns>
-        protected virtual string GetDiscriminator(Type nominalType, Type actualType)
-        {
-            if (nominalType == typeof(object))
-            {
-                return TypeNameDiscriminator.GetDiscriminator(actualType);
-            }
-
-            return null;
-        }
+        /// <param name="accumulator">The accumulator.</param>
+        /// <returns>The final result.</returns>
+        protected abstract TValue FinalizeResult(object accumulator);
     }
 
     /// <summary>
     /// Represents a serializer for enumerable values.
     /// </summary>
-    /// <typeparam name="T">The type of the elements.</typeparam>
-    public abstract class EnumerableSerializerBase<T> : BsonBaseSerializer, IBsonArraySerializer
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TItem">The type of the items.</typeparam>
+    public abstract class EnumerableSerializerBase<TValue, TItem> : BsonBaseSerializer<TValue>, IBsonArraySerializer where TValue : class, IEnumerable<TItem>
     {
+        // private fields
+        private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
+        private readonly IBsonSerializer<TItem> _itemSerializer;
+
         // constructors
         /// <summary>
-        /// Initializes a new instance of the EnumerableSerializer class.
+        /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
         /// </summary>
-        public EnumerableSerializerBase(IBsonSerializationOptions defaultSerializationOptions)
-            : base(defaultSerializationOptions)
+        protected EnumerableSerializerBase()
+            : this(BsonSerializer.LookupSerializer<TItem>())
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        protected EnumerableSerializerBase(IBsonSerializer<TItem> itemSerializer)
+        {
+            if (itemSerializer == null)
+            {
+                throw new ArgumentNullException("itemSerializer");
+            }
+
+            _itemSerializer = itemSerializer;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the item serializer.
+        /// </summary>
+        /// <value>
+        /// The item serializer.
+        /// </value>
+        public IBsonSerializer<TItem> ItemSerializer
+        {
+            get { return _itemSerializer; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override TValue Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType);
-
-            var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-            var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -263,61 +227,21 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return null;
 
                 case BsonType.Array:
-                    var instance = CreateInstance(actualType);
-                    var itemNominalType = typeof(T);
-                    var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
-
                     bsonReader.ReadStartArray();
-                    if (itemNominalType.IsValueType)
+                    var accumulator = CreateAccumulator();
+                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                        {
-                            var item = (T)itemNominalTypeSerializer.Deserialize(bsonReader, itemNominalType, itemNominalType, itemSerializationOptions);
-                            AddItem(instance, item);
-                        }
-                    }
-                    else
-                    {
-                        var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(T));
-                        Type lastItemType = null;
-                        IBsonSerializer lastItemSerializer = null;
-
-                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                        {
-                            var itemType = discriminatorConvention.GetActualType(bsonReader, typeof(T));
-                            IBsonSerializer itemSerializer;
-                            if (itemType == itemNominalType)
-                            {
-                                itemSerializer = itemNominalTypeSerializer;
-                            }
-                            else if (itemType == lastItemType)
-                            {
-                                itemSerializer = lastItemSerializer;
-                            }
-                            else
-                            {
-                                itemSerializer = BsonSerializer.LookupSerializer(itemType);
-                                lastItemType = itemType;
-                                lastItemSerializer = itemSerializer;
-                            }
-                            var item = (T)itemSerializer.Deserialize(bsonReader, itemNominalType, itemType, itemSerializationOptions);
-                            AddItem(instance, item);
-                        }
+                        var item = context.DeserializeWithChildContext(_itemSerializer);
+                        AddItem(accumulator, item);
                     }
                     bsonReader.ReadEndArray();
-
-                    return FinalizeResult(instance, actualType);
+                    return FinalizeResult(accumulator);
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadString("_t"); // skip over discriminator
-                    bsonReader.ReadName("_v");
-                    var value = Deserialize(bsonReader, actualType, actualType, options);
-                    bsonReader.ReadEndDocument();
-                    return value;
+                    return DeserializeDiscriminatedWrapper(context, _discriminatorConvention);
 
                 default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", actualType.FullName, bsonType);
+                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TValue).FullName, bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -329,25 +253,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         public BsonSerializationInfo GetItemSerializationInfo()
         {
             string elementName = null;
-            var serializer = BsonSerializer.LookupSerializer(typeof(T));
-            var nominalType = typeof(T);
-            IBsonSerializationOptions serializationOptions = null;
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            return new BsonSerializationInfo(elementName, _itemSerializer, _itemSerializer.ValueType);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, TValue value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
@@ -355,57 +272,19 @@ namespace MongoDB.Bson.Serialization.Serializers
             else
             {
                 var actualType = value.GetType();
-                var discriminator = GetDiscriminator(nominalType, actualType);
-                if (discriminator != null)
+                if (actualType == context.NominalType)
                 {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("_t", discriminator);
-                    bsonWriter.WriteName("_v");
-                    Serialize(bsonWriter, actualType, value, options);
-                    bsonWriter.WriteEndDocument();
-                    return;
-                }
-
-                var arraySerializationOptions = EnsureSerializationOptions<ArraySerializationOptions>(options);
-                var itemSerializationOptions = arraySerializationOptions.ItemSerializationOptions;
-                var itemNominalType = typeof(T);
-                var itemNominalTypeSerializer = BsonSerializer.LookupSerializer(itemNominalType);
-
-                bsonWriter.WriteStartArray();
-                if (itemNominalType.IsValueType)
-                {
+                    bsonWriter.WriteStartArray();
                     foreach (var item in EnumerateItemsInSerializationOrder(value))
                     {
-                        itemNominalTypeSerializer.Serialize(bsonWriter, itemNominalType, item, itemSerializationOptions);
+                        context.SerializeWithChildContext(_itemSerializer, item);
                     }
+                    bsonWriter.WriteEndArray();
                 }
                 else
                 {
-                    Type lastItemType = null;
-                    IBsonSerializer lastItemSerializer = null;
-
-                    foreach (var item in EnumerateItemsInSerializationOrder(value))
-                    {
-                        var itemType = (item == null) ? itemNominalType : item.GetType();
-                        IBsonSerializer itemSerializer;
-                        if (itemType == itemNominalType)
-                        {
-                            itemSerializer = itemNominalTypeSerializer;
-                        }
-                        else if (itemType == lastItemType)
-                        {
-                            itemSerializer = lastItemSerializer;
-                        }
-                        else
-                        {
-                            itemSerializer = BsonSerializer.LookupSerializer(itemType);
-                            lastItemType = itemType;
-                            lastItemSerializer = itemSerializer;
-                        }
-                        itemSerializer.Serialize(bsonWriter, itemNominalType, item, itemSerializationOptions);
-                    }
+                    SerializeDiscriminatedWrapper(context, value, _discriminatorConvention);
                 }
-                bsonWriter.WriteEndArray();
             }
         }
 
@@ -413,56 +292,29 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Adds the item.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <param name="item">The item.</param>
-        protected abstract void AddItem(object instance, T item);
+        protected abstract void AddItem(object accumulator, TItem item);
 
         /// <summary>
-        /// Creates the instance.
+        /// Creates the accumulator.
         /// </summary>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The instance.</returns>
-        protected abstract object CreateInstance(Type actualType);
+        /// <returns>The accumulator.</returns>
+        protected abstract object CreateAccumulator();
 
         /// <summary>
-        /// Enumerates the items.
+        /// Enumerates the items in serialization order.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="value">The value.</param>
         /// <returns>The items.</returns>
-        protected abstract IEnumerable<T> EnumerateItemsInSerializationOrder(object instance);
+        protected abstract IEnumerable<TItem> EnumerateItemsInSerializationOrder(TValue value);
 
         /// <summary>
         /// Finalizes the result.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="actualType">The actual type.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <returns>The result.</returns>
-        protected abstract object FinalizeResult(object instance, Type actualType);
-
-        /// <summary>
-        /// Gets the discriminator.
-        /// </summary>
-        /// <param name="nominalType">Type nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The discriminator (or null if no discriminator is needed).</returns>
-        protected virtual string GetDiscriminator(Type nominalType, Type actualType)
-        {
-            if (nominalType == typeof(object))
-            {
-                return TypeNameDiscriminator.GetDiscriminator(actualType);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Verifies the types.
-        /// </summary>
-        /// <param name="nominalType">Type nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        protected virtual void VerifyTypes(Type nominalType, Type actualType)
-        {
-        }
+        protected abstract TValue FinalizeResult(object accumulator);
     }
 }
 

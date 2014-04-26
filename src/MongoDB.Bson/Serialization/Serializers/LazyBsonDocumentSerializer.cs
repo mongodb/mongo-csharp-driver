@@ -22,24 +22,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for LazyBsonDocuments.
     /// </summary>
-    public class LazyBsonDocumentSerializer : BsonBaseSerializer
+    public class LazyBsonDocumentSerializer : BsonBaseSerializer<LazyBsonDocument>
     {
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override LazyBsonDocument Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(LazyBsonDocument));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -47,9 +40,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Null:
                     bsonReader.ReadNull();
                     return null;
+
                 case BsonType.Document:
                     var slice = bsonReader.ReadRawBsonDocument();
                     return new LazyBsonDocument(slice);
+
                 default:
                     var message = string.Format("Cannot deserialize LazyBsonDocument from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -57,29 +52,24 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, LazyBsonDocument value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var lazyBsonDocument = (LazyBsonDocument)value;
-                var slice = lazyBsonDocument.Slice;
+                var slice = value.Slice;
                 if (slice == null)
                 {
-                    BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), lazyBsonDocument, options);
+                    context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value);
                 }
                 else
                 {

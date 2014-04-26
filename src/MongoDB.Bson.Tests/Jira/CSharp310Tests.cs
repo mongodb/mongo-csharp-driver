@@ -65,9 +65,9 @@ namespace MongoDB.Bson.Tests.Jira
             var expected = "{ '_id' : 1 }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
-            var bson = c.ToBson<object>();
+            var bson = c.ToBson<C>();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<object>()));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson<C>()));
         }
     }
 }

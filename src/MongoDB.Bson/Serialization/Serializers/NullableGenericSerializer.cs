@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -22,36 +23,41 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for nullable values.
     /// </summary>
     /// <typeparam name="T">The underlying type.</typeparam>
-    public class NullableSerializer<T> : BsonBaseSerializer where T : struct
+    public class NullableSerializer<T> :
+        BsonBaseSerializer<Nullable<T>>,
+        IChildSerializerConfigurable
+            where T : struct
     {
         // private fields
-        private IBsonSerializer _serializer;
+        private IBsonSerializer<T> _serializer;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the NullableSerializer class.
+        /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
         /// </summary>
         public NullableSerializer()
+            : this(BsonSerializer.LookupSerializer<T>())
         {
-            _serializer = BsonSerializer.LookupSerializer(typeof(T));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NullableSerializer{T}"/> class.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        public NullableSerializer(IBsonSerializer<T> serializer)
+        {
+            _serializer = serializer;
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-           BsonReader bsonReader,
-           Type nominalType,
-           Type actualType,
-           IBsonSerializationOptions options)
+        public override T? Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(Nullable<T>));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -61,40 +67,57 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return _serializer.Deserialize(bsonReader, typeof(T), options);
+                return context.DeserializeWithChildContext(_serializer);
             }
         }
 
         /// <summary>
-        /// Gets the default serialization options for this serializer.
+        /// Serializes a value.
         /// </summary>
-        /// <returns>The default serialization options for this serializer.</returns>
-        public override IBsonSerializationOptions GetDefaultSerializationOptions()
-        {
-            return _serializer.GetDefaultSerializationOptions();
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-           BsonWriter bsonWriter,
-           Type nominalType,
-           object value,
-           IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, T? value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                _serializer.Serialize(bsonWriter, typeof(T), value, options);
+                context.SerializeWithChildContext(_serializer, value.Value);
             }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified serializer.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>
+        /// The reconfigured serializer.
+        /// </returns>
+        public NullableSerializer<T> WithSerializer(IBsonSerializer<T> serializer)
+        {
+            if (serializer == _serializer)
+            {
+                return this;
+            }
+            else
+            {
+                return new NullableSerializer<T>(serializer);
+            }
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IChildSerializerConfigurable.ChildSerializer
+        {
+            get { return _serializer; }
+        }
+
+        IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
+        {
+            return WithSerializer((IBsonSerializer<T>)childSerializer);
         }
     }
 }

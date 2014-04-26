@@ -13,11 +13,16 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoScope is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(ScopeWrapper.Serializer))]
     public class ScopeWrapper : BaseWrapper, IMongoScope
     {
         // constructors
@@ -45,6 +50,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new ScopeWrapper(scope);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<ScopeWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, ScopeWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

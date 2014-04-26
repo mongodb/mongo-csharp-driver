@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Operations
         private CommandDocument CreateWriteCommand(BatchSerializer batchSerializer, Batch<WriteRequest> batch)
         {
             var wrappedActualType = batch.GetType();
-            var batchWrapper = new BsonDocumentWrapper(wrappedActualType, batch, batchSerializer, null, false);
+            var batchWrapper = new BsonDocumentWrapper(batch, batchSerializer, false);
 
             var writeConcern = _args.WriteConcern.ToBsonDocument();
             if (writeConcern.ElementCount == 0)
@@ -114,8 +115,7 @@ namespace MongoDB.Driver.Operations
                 QueryFlags.None,
                 null, // options
                 ReadPreference.Primary,
-                null, // serializationOptions
-                BsonSerializer.LookupSerializer(typeof(CommandResult))); // resultSerializer
+                BsonSerializer.LookupSerializer<CommandResult>()); // resultSerializer
         }
 
         private BulkWriteBatchResult ExecuteBatch(MongoConnection connection, Batch<WriteRequest> batch, int originalIndex)
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Operations
         }
 
         // nested classes
-        protected abstract class BatchSerializer : BsonBaseSerializer
+        protected abstract class BatchSerializer : BsonBaseSerializer<Batch<WriteRequest>>
         {
             // private fields
             private int _batchCount;
@@ -191,17 +191,17 @@ namespace MongoDB.Driver.Operations
             }
 
             // public methods
-            public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+            public override void Serialize(BsonSerializationContext context, Batch<WriteRequest> batch)
             {
-                var batch = (Batch<WriteRequest>)value;
-                var bsonBinaryWriter = (BsonBinaryWriter)bsonWriter;
-                _batchStartPosition = bsonBinaryWriter.Buffer.Position;
+                var bsonWriter = (BsonBinaryWriter)context.Writer;
+
+                _batchStartPosition = (int)bsonWriter.Stream.Position;
                 var processedRequests = new List<WriteRequest>();
 
                 var continuationBatch = batch as ContinuationBatch<WriteRequest, IByteBuffer>;
                 if (continuationBatch != null)
                 {
-                    AddOverfow(bsonBinaryWriter, continuationBatch.PendingState);
+                    AddOverfow(bsonWriter, continuationBatch.PendingState);
                     processedRequests.Add(continuationBatch.PendingItem);
                     continuationBatch.ClearPending(); // so pending objects can be garbage collected sooner
                 }
@@ -211,11 +211,11 @@ namespace MongoDB.Driver.Operations
                 while (enumerator.MoveNext())
                 {
                     var request = enumerator.Current;
-                    AddRequest(bsonBinaryWriter, request);
+                    AddRequest(bsonWriter, request);
 
                     if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
                     {
-                        var serializedRequest = RemoveOverflow(bsonBinaryWriter.Buffer);
+                        var serializedRequest = RemoveOverflow(bsonWriter.Stream);
                         var nextBatch = new ContinuationBatch<WriteRequest, IByteBuffer>(enumerator, request, serializedRequest);
                         _batchProgress = new BatchProgress<WriteRequest>(_batchCount, _batchLength, processedRequests, nextBatch);
                         return;
@@ -228,41 +228,42 @@ namespace MongoDB.Driver.Operations
             }
 
             // protected methods
-            protected abstract void SerializeRequest(BsonBinaryWriter bsonWriter, WriteRequest request);
+            protected abstract void SerializeRequest(BsonBinaryWriter bsonBinaryWriter, WriteRequest request);
 
             // private methods
             private void AddOverfow(BsonBinaryWriter bsonBinaryWriter, IByteBuffer overflow)
             {
-                _lastRequestPosition = bsonBinaryWriter.Buffer.Position;
+                _lastRequestPosition = (int)bsonBinaryWriter.Stream.Position;
                 bsonBinaryWriter.WriteRawBsonDocument(overflow);
                 _batchCount++;
-                _batchLength = bsonBinaryWriter.Buffer.Position - _batchStartPosition;
+                _batchLength = (int)bsonBinaryWriter.Stream.Position - _batchStartPosition;
             }
 
             private void AddRequest(BsonBinaryWriter bsonBinaryWriter, WriteRequest request)
             {
-                _lastRequestPosition = bsonBinaryWriter.Buffer.Position;
+                _lastRequestPosition = (int)bsonBinaryWriter.Stream.Position;
                 SerializeRequest(bsonBinaryWriter, request);
                 _batchCount++;
-                _batchLength = bsonBinaryWriter.Buffer.Position - _batchStartPosition;
+                _batchLength = (int)bsonBinaryWriter.Stream.Position - _batchStartPosition;
             }
 
-            private IByteBuffer RemoveOverflow(BsonBuffer buffer)
+            private IByteBuffer RemoveOverflow(Stream stream)
             {
-                var lastRequestLength = buffer.Position - _lastRequestPosition;
-                buffer.Position = _lastRequestPosition;
-                var lastArrayItem = buffer.ReadBytes(lastRequestLength);
+                var streamReader = new BsonStreamReader(stream, Utf8Helper.StrictUtf8Encoding);
+                var lastRequestLength = (int)stream.Position - _lastRequestPosition;
+                stream.Position = _lastRequestPosition;
+                var lastArrayItem = streamReader.ReadBytes(lastRequestLength);
                 if ((BsonType)lastArrayItem[0] != BsonType.Document)
                 {
                     throw new MongoInternalException("Expected overflow item to be a BsonDocument.");
                 }
                 var sliceOffset = Array.IndexOf<byte>(lastArrayItem, 0) + 1; // skip over type and array index
                 var overflow = new ByteArrayBuffer(lastArrayItem, sliceOffset, lastArrayItem.Length - sliceOffset, true);
-                buffer.Position = _lastRequestPosition;
-                buffer.Length = _lastRequestPosition;
+                stream.Position = _lastRequestPosition;
+                stream.SetLength(_lastRequestPosition);
 
                 _batchCount--;
-                _batchLength = buffer.Position - _batchStartPosition;
+                _batchLength = (int)stream.Position - _batchStartPosition;
 
                 return overflow;
             }

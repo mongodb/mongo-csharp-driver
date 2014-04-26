@@ -276,19 +276,23 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         {
             var list = new List<object>();
             var obj = new T { L = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(configurator: c => c.IsDynamicType = t => false);
             var rep = "[]";
             var expected = "{ 'L' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Generic.Queue`1[System.Object]', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Generic.Stack`1[System.Object]', '_v' : #R }, 'H' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Object]', '_v' : #R }, 'LL' : { '_t' : 'System.Collections.Generic.LinkedList`1[System.Object]', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var bson = obj.ToBson(configurator: c => c.IsDynamicType = t => false);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson, configurator: c => 
+            {
+                c.DynamicArraySerializer = null;
+                c.DynamicDocumentSerializer = null;
+            });
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
             Assert.IsInstanceOf<HashSet<object>>(rehydrated.H);
             Assert.IsInstanceOf<LinkedList<object>>(rehydrated.LL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson(configurator: c => c.IsDynamicType = t => false)));
         }
 
         [Test]
@@ -296,19 +300,23 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         {
             var list = new List<object>(new object[] { 1 });
             var obj = new T { L = list, Q = new Queue<object>(list), S = new Stack<object>(list), H = new HashSet<object>(list), LL = new LinkedList<object>(list) };
-            var json = obj.ToJson();
+            var json = obj.ToJson(configurator: c => c.IsDynamicType = t => false);
             var rep = "[1]";
             var expected = "{ 'L' : { '_t' : 'System.Collections.Generic.List`1[System.Object]', '_v' : #R }, 'Q' : { '_t' : 'System.Collections.Generic.Queue`1[System.Object]', '_v' : #R }, 'S' : { '_t' : 'System.Collections.Generic.Stack`1[System.Object]', '_v' : #R }, 'H' : { '_t' : 'System.Collections.Generic.HashSet`1[System.Object]', '_v' : #R }, 'LL' : { '_t' : 'System.Collections.Generic.LinkedList`1[System.Object]', '_v' : #R } }".Replace("#R", rep).Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
+            var bson = obj.ToBson(configurator: c => c.IsDynamicType = t => false);
+            var rehydrated = BsonSerializer.Deserialize<T>(bson, configurator: c =>
+            {
+                c.DynamicArraySerializer = null;
+                c.DynamicDocumentSerializer = null;
+            });
             Assert.IsInstanceOf<List<object>>(rehydrated.L);
             Assert.IsInstanceOf<Queue<object>>(rehydrated.Q);
             Assert.IsInstanceOf<Stack<object>>(rehydrated.S);
             Assert.IsInstanceOf<HashSet<object>>(rehydrated.H);
             Assert.IsInstanceOf<LinkedList<object>>(rehydrated.LL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson(configurator: c => c.IsDynamicType = t => false)));
         }
     }
 

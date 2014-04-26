@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Driver.Linq.Utils
 {
@@ -113,19 +112,7 @@ namespace MongoDB.Driver.Linq.Utils
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,
-                itemSerializationInfo.NominalType,
-                itemSerializationInfo.SerializationOptions);
-
-            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
-            if (arrayOptions != null)
-            {
-                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
-                itemSerializationInfo = new BsonSerializationInfo(
-                    itemSerializationInfo.ElementName,
-                    itemSerializationInfo.Serializer,
-                    itemSerializationInfo.NominalType,
-                    itemSerializationOptions);
-            }
+                itemSerializationInfo.NominalType);
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
@@ -254,22 +241,11 @@ namespace MongoDB.Driver.Linq.Utils
                 if (arraySerializer != null)
                 {
                     var itemSerializationInfo = arraySerializer.GetItemSerializationInfo();
-                    var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
-                    if (arrayOptions != null)
-                    {
-                        var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
-                        itemSerializationInfo = new BsonSerializationInfo(
-                            itemSerializationInfo.ElementName,
-                            itemSerializationInfo.Serializer,
-                            itemSerializationInfo.NominalType,
-                            itemSerializationOptions);
-                    }
 
                     itemSerializationInfo = new BsonSerializationInfo(
                         indexName,
                         itemSerializationInfo.Serializer,
-                        itemSerializationInfo.NominalType,
-                        itemSerializationInfo.SerializationOptions);
+                        itemSerializationInfo.NominalType);
 
                     return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
                 }
@@ -309,19 +285,7 @@ namespace MongoDB.Driver.Linq.Utils
             itemSerializationInfo = new BsonSerializationInfo(
                 index.ToString(),
                 itemSerializationInfo.Serializer,
-                itemSerializationInfo.NominalType,
-                itemSerializationInfo.SerializationOptions);
-
-            var arrayOptions = serializationInfo.SerializationOptions as ArraySerializationOptions;
-            if (arrayOptions != null)
-            {
-                var itemSerializationOptions = arrayOptions.ItemSerializationOptions;
-                itemSerializationInfo = new BsonSerializationInfo(
-                    itemSerializationInfo.ElementName,
-                    itemSerializationInfo.Serializer,
-                    itemSerializationInfo.NominalType,
-                    itemSerializationOptions);
-            }
+                itemSerializationInfo.NominalType);
 
             return CombineSerializationInfo(serializationInfo, itemSerializationInfo);
         }
@@ -345,8 +309,7 @@ namespace MongoDB.Driver.Linq.Utils
             return new BsonSerializationInfo(
                 elementName,
                 newInfo.Serializer,
-                newInfo.NominalType,
-                newInfo.SerializationOptions);
+                newInfo.NominalType);
         }
 
         private static BsonSerializationInfo CreateSerializationInfo(Expression node, IBsonSerializer serializer)
@@ -354,8 +317,7 @@ namespace MongoDB.Driver.Linq.Utils
             return new BsonSerializationInfo(
                 null,
                 serializer,
-                node.Type,
-                serializer.GetDefaultSerializationOptions());
+                node.Type);
         }
     }
 }

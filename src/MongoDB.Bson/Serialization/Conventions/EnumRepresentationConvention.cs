@@ -53,7 +53,13 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             if (memberMap.MemberType.IsEnum)
             {
-                memberMap.SetSerializationOptions(new RepresentationSerializationOptions(_representation));
+                var serializer = memberMap.GetSerializer();
+                var representationConfigurableSerializer = serializer as IRepresentationConfigurable;
+                if (representationConfigurableSerializer != null)
+                {
+                    var reconfiguredSerializer = representationConfigurableSerializer.WithRepresentation(_representation);
+                    memberMap.SetSerializer(reconfiguredSerializer);
+                }
             }
         }
     }

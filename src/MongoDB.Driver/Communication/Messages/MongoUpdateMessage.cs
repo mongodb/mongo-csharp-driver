@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Text;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
@@ -51,9 +49,9 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal override void WriteBodyTo(BsonBuffer buffer)
+        internal override void WriteBodyTo(BsonStreamWriter streamWriter)
         {
-            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
+            using (var bsonWriter = new BsonBinaryWriter(streamWriter.BaseStream, WriterSettings))
             {
                 bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 if (_query == null)
@@ -63,20 +61,20 @@ namespace MongoDB.Driver.Internal
                 }
                 else
                 {
-                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, c => c.SerializeIdFirst = true);
                 }
                 bsonWriter.CheckUpdateDocument = _checkUpdateDocument;
-                BsonSerializer.Serialize(bsonWriter, _update.GetType(), _update, DocumentSerializationOptions.SerializeIdFirstInstance);
+                BsonSerializer.Serialize(bsonWriter, _update.GetType(), _update, c => c.SerializeIdFirst = true);
                 bsonWriter.PopMaxDocumentSize();
             }
         }
 
-        internal override void WriteHeaderTo(BsonBuffer buffer)
+        internal override void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            base.WriteHeaderTo(buffer);
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32((int)_flags);
+            base.WriteHeaderTo(streamWriter);
+            streamWriter.WriteInt32(0); // reserved
+            streamWriter.WriteCString(_collectionFullName);
+            streamWriter.WriteInt32((int)_flags);
         }
     }
 }

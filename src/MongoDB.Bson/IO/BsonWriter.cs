@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -115,37 +116,6 @@ namespace MongoDB.Bson.IO
 
         // public static methods
         /// <summary>
-        /// Creates a BsonWriter to a BsonBuffer.
-        /// </summary>
-        /// <param name="settings">Optional BsonBinaryWriterSettings.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(BsonBinaryWriterSettings settings)
-        {
-            return new BsonBinaryWriter(null, null, settings);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">A BsonBuffer.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(BsonBuffer buffer)
-        {
-            return new BsonBinaryWriter(null, buffer, BsonBinaryWriterSettings.Defaults);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">A BsonBuffer.</param>
-        /// <param name="settings">Optional BsonBinaryWriterSettings.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(BsonBuffer buffer, BsonBinaryWriterSettings settings)
-        {
-            return new BsonBinaryWriter(null, buffer, settings);
-        }
-
-        /// <summary>
         /// Creates a BsonWriter to a BsonDocument.
         /// </summary>
         /// <param name="document">A BsonDocument.</param>
@@ -184,7 +154,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonWriter.</returns>
         public static BsonWriter Create(Stream stream, BsonBinaryWriterSettings settings)
         {
-            return new BsonBinaryWriter(stream, null, settings);
+            return new BsonBinaryWriter(stream, settings);
         }
 
         /// <summary>
@@ -581,32 +551,33 @@ namespace MongoDB.Bson.IO
         /// <param name="slice">The byte buffer containing the raw BSON array.</param>
         public virtual void WriteRawBsonArray(IByteBuffer slice)
         {
-            // overridden in BsonBinaryWriter
+            // overridden in BsonBinaryWriter to write the raw bytes to the stream
+            // for all other streams, deserialize the raw bytes and serialize the resulting array instead
 
-            using (var bsonBuffer = new BsonBuffer())
+            var documentLength = slice.Length + 8;
+            using (var memoryStream = new MemoryStream(documentLength))
             {
-                BsonArray array;
-
                 // wrap the array in a fake document so we can deserialize it
-                var arrayLength = slice.Length;
-                var documentLength = arrayLength + 8;
-                bsonBuffer.WriteInt32(documentLength);
-                bsonBuffer.WriteByte((byte)BsonType.Array);
-                bsonBuffer.WriteByte((byte)'x');
-                bsonBuffer.WriteByte((byte)0);
-                bsonBuffer.ByteBuffer.WriteBytes(slice);
-                bsonBuffer.WriteByte((byte)0);
+                var streamWriter = new BsonStreamWriter(memoryStream, Utf8Helper.StrictUtf8Encoding);
+                streamWriter.WriteInt32(documentLength);
+                streamWriter.WriteBsonType(BsonType.Array);
+                streamWriter.WriteByte((byte)'x');
+                streamWriter.WriteByte(0);
+                slice.WriteTo(streamWriter.BaseStream);
+                streamWriter.WriteByte(0);
 
-                bsonBuffer.Position = 0;
-                using (var bsonReader = new BsonBinaryReader(bsonBuffer, true, BsonBinaryReaderSettings.Defaults))
+                memoryStream.Position = 0;
+                using (var bsonReader = new BsonBinaryReader(memoryStream, BsonBinaryReaderSettings.Defaults))
                 {
+                    var deserializationContext = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
                     bsonReader.ReadStartDocument();
                     bsonReader.ReadName("x");
-                    array = (BsonArray)BsonArraySerializer.Instance.Deserialize(bsonReader, typeof(BsonArray), null);
+                    var array = deserializationContext.DeserializeWithChildContext(BsonArraySerializer.Instance);
                     bsonReader.ReadEndDocument();
-                }
 
-                BsonArraySerializer.Instance.Serialize(this, typeof(BsonArray), array, null);
+                    var serializationContext = BsonSerializationContext.CreateRoot<BsonArray>(this);
+                    BsonArraySerializer.Instance.Serialize(serializationContext, array);
+                }
             }
         }
 
@@ -627,11 +598,17 @@ namespace MongoDB.Bson.IO
         /// <param name="slice">The byte buffer containing the raw BSON document.</param>
         public virtual void WriteRawBsonDocument(IByteBuffer slice)
         {
-            // overridden in BsonBinaryWriter
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(slice, false), true, BsonBinaryReaderSettings.Defaults))
+            // overridden in BsonBinaryWriter to write the raw bytes to the stream
+            // for all other streams, deserialize the raw bytes and serialize the resulting document instead
+
+            using (var stream = new ByteBufferStream(slice, ownsByteBuffer: false))
+            using (var bsonReader = new BsonBinaryReader(stream, BsonBinaryReaderSettings.Defaults))
             {
-                var document = BsonSerializer.Deserialize<BsonDocument>(bsonReader);
-                BsonDocumentSerializer.Instance.Serialize(this, typeof(BsonDocument), document, null);
+                var deserializationContext = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
+                var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
+
+                var serializationContext = BsonSerializationContext.CreateRoot<BsonDocument>(this);
+                BsonDocumentSerializer.Instance.Serialize(serializationContext, document);
             }
         }
 

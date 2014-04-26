@@ -20,6 +20,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -271,7 +272,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(GeoNearResult<>.Serializer))]
     public class GeoNearResult<TDocument> : GeoNearResult
     {
         // private fields
@@ -423,6 +424,24 @@ namespace MongoDB.Driver
             protected override object DocumentImplementation
             {
                 get { return Document; }
+            }
+        }
+
+        // nested classes
+        internal class Serializer : BsonBaseSerializer<GeoNearResult<TDocument>>
+        {
+            // private fields
+            private readonly IBsonSerializer<GeoNearResult<TDocument>> _serializer = new CommandResultSerializer<GeoNearResult<TDocument>>();
+
+            // public methods
+            public override GeoNearResult<TDocument> Deserialize(BsonDeserializationContext context)
+            {
+                return _serializer.Deserialize(context);
+            }
+
+            public override void Serialize(BsonSerializationContext context, GeoNearResult<TDocument> value)
+            {
+                _serializer.Serialize(context, value);
             }
         }
     }

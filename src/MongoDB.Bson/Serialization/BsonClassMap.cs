@@ -38,23 +38,24 @@ namespace MongoDB.Bson.Serialization
         private static int __freezeNestingLevel = 0;
 
         // private fields
-        private bool _frozen; // once a class map has been frozen no further changes are allowed
-        private BsonClassMap _baseClassMap; // null for class object and interfaces
-        private Type _classType;
-        private volatile IDiscriminatorConvention _cachedDiscriminatorConvention;
+        private readonly Type _classType;
         private readonly List<BsonCreatorMap> _creatorMaps;
-        private Func<object> _creator;
-        private IConventionPack _conventionPack;
-        private string _discriminator;
-        private bool _discriminatorIsRequired;
-        private bool _hasRootClass;
-        private bool _isRootClass;
-        private bool _isAnonymous;
-        private BsonMemberMap _idMemberMap;
+        private readonly IConventionPack _conventionPack;
+        private readonly bool _isAnonymous;
         private readonly List<BsonMemberMap> _allMemberMaps; // includes inherited member maps
         private readonly ReadOnlyCollection<BsonMemberMap> _allMemberMapsReadonly;
         private readonly List<BsonMemberMap> _declaredMemberMaps; // only the members declared in this class
         private readonly BsonTrie<int> _elementTrie;
+
+        private bool _frozen; // once a class map has been frozen no further changes are allowed
+        private BsonClassMap _baseClassMap; // null for class object and interfaces
+        private volatile IDiscriminatorConvention _discriminatorConvention;
+        private Func<object> _creator;
+        private string _discriminator;
+        private bool _discriminatorIsRequired;
+        private bool _hasRootClass;
+        private bool _isRootClass;
+        private BsonMemberMap _idMemberMap;
         private bool _ignoreExtraElements;
         private bool _ignoreExtraElementsIsInherited;
         private BsonMemberMap _extraElementsMemberMap;
@@ -119,24 +120,6 @@ namespace MongoDB.Bson.Serialization
         public IConventionPack ConventionPack
         {
             get { return _conventionPack; }
-        }
-
-        /// <summary>
-        /// Gets the conventions used with this class.
-        /// </summary>
-        [Obsolete("Use ConventionPack instead.")]
-        public ConventionProfile Conventions
-        {
-            get 
-            {
-                var profile = _conventionPack as ConventionProfile;
-                if (profile != null)
-                {
-                    return profile;
-                }
-
-                throw new NotSupportedException("This class map was setup using an IConventionPack, part of the new conventions api. Use the ConventionPack property for access to the conventions.");
-            }
         }
 
         /// <summary>
@@ -368,25 +351,6 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Looks up the conventions profile for a type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <returns>The conventions profile for that type.</returns>
-        [Obsolete("Use ConventionRegistry.Lookup instead.")]
-        public static ConventionProfile LookupConventions(Type type)
-        {
-            var pack = ConventionRegistry.Lookup(type);
-            var profile = pack as ConventionProfile;
-            if (profile != null)
-            {
-                return profile;
-            }
-
-            var message = string.Format("Type {0} was setup using an IConventionPack, part of the new conventions api. Use the ConventionPack property for access to the conventions.", type);
-            throw new NotSupportedException(message);
-        }
-
-        /// <summary>
         /// Creates and registers a class map.
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
@@ -431,17 +395,6 @@ namespace MongoDB.Bson.Serialization
             {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
-        }
-
-        /// <summary>
-        /// Registers a conventions profile.
-        /// </summary>
-        /// <param name="conventions">The conventions profile.</param>
-        /// <param name="filter">The filter function that determines which types this profile applies to.</param>
-        [Obsolete("Use ConventionRegistry.Register instead.")]
-        public static void RegisterConventions(ConventionProfile conventions, Func<Type, bool> filter)
-        {
-            ConventionRegistry.Register("conventions", conventions, filter);
         }
 
         // public methods
@@ -1192,12 +1145,12 @@ namespace MongoDB.Bson.Serialization
         internal IDiscriminatorConvention GetDiscriminatorConvention()
         {
             // return a cached discriminator convention when possible
-            var discriminatorConvention = _cachedDiscriminatorConvention;
+            var discriminatorConvention = _discriminatorConvention;
             if (discriminatorConvention == null)
             {
                 // it's possible but harmless for multiple threads to do the initial lookup at the same time
                 discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(_classType);
-                _cachedDiscriminatorConvention = discriminatorConvention;
+                _discriminatorConvention = discriminatorConvention;
             }
             return discriminatorConvention;
         }
@@ -1373,6 +1326,15 @@ namespace MongoDB.Bson.Serialization
         }
 
         // public methods
+        /// <summary>
+        /// Creates an instance.
+        /// </summary>
+        /// <returns>An instance.</returns>
+        public new TClass CreateInstance()
+        {
+            return (TClass)base.CreateInstance();
+        }
+
         /// <summary>
         /// Gets a member map.
         /// </summary>

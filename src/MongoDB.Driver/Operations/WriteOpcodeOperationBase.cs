@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -42,8 +43,8 @@ namespace MongoDB.Driver.Operations
 
         protected WriteConcernResult ReadWriteConcernResult(MongoConnection connection, SendMessageWithWriteConcernResult sendMessageResult)
         {
-            var writeConcernResultSerializer = BsonSerializer.LookupSerializer(typeof(WriteConcernResult));
-            var replyMessage = connection.ReceiveMessage<WriteConcernResult>(ReaderSettings, writeConcernResultSerializer, null);
+            var writeConcernResultSerializer = BsonSerializer.LookupSerializer<WriteConcernResult>();
+            var replyMessage = connection.ReceiveMessage<WriteConcernResult>(ReaderSettings, writeConcernResultSerializer);
             if (replyMessage.NumberReturned == 0)
             {
                 throw new MongoCommandException("Command 'getLastError' failed. No response returned");
@@ -62,7 +63,7 @@ namespace MongoDB.Driver.Operations
 
         protected SendMessageWithWriteConcernResult SendMessageWithWriteConcern(
             MongoConnection connection,
-            BsonBuffer buffer,
+            Stream stream,
             int requestId,
             BsonBinaryReaderSettings readerSettings,
             BsonBinaryWriterSettings writerSettings,
@@ -90,13 +91,13 @@ namespace MongoDB.Driver.Operations
 
                 // piggy back on network transmission for message
                 var getLastErrorMessage = new MongoQueryMessage(writerSettings, DatabaseName + ".$cmd", QueryFlags.None, maxDocumentSize, 0, 1, getLastErrorCommand, null);
-                getLastErrorMessage.WriteTo(buffer);
+                getLastErrorMessage.WriteTo(stream);
 
                 result.GetLastErrorCommand = getLastErrorCommand;
                 result.GetLastErrorRequestId = getLastErrorMessage.RequestId;
             }
 
-            connection.SendMessage(buffer, requestId);
+            connection.SendMessage(stream, requestId);
 
             return result;
         }

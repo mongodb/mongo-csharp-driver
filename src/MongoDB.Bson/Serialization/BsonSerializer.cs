@@ -84,10 +84,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="document">The BsonDocument.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(BsonDocument document)
+        public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(document, typeof(TNominalType));
+            using (var bsonReader = BsonReader.Create(document))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
@@ -95,21 +99,28 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="buffer">The JsonBuffer.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(JsonBuffer buffer)
+        public static TNominalType Deserialize<TNominalType>(JsonBuffer buffer, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(buffer, typeof(TNominalType));
+            using (var bsonReader = BsonReader.Create(buffer))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bsonReader">The BsonReader.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(BsonReader bsonReader)
+        public static TNominalType Deserialize<TNominalType>(BsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(bsonReader, typeof(TNominalType));
+            var serializer = LookupSerializer<TNominalType>();
+            var context = BsonDeserializationContext.CreateRoot<TNominalType>(bsonReader, configurator);
+            return serializer.Deserialize(context);
         }
 
         /// <summary>
@@ -117,10 +128,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bytes">The BSON byte array.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(byte[] bytes)
+        public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(bytes, typeof(TNominalType));
+            using (var memoryStream = new MemoryStream(bytes))
+            {
+                return Deserialize<TNominalType>(memoryStream, configurator);
+            }
         }
 
         /// <summary>
@@ -128,10 +143,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="stream">The BSON Stream.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(Stream stream)
+        public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(stream, typeof(TNominalType));
+            using (var bsonReader = BsonReader.Create(stream))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
@@ -139,10 +158,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="json">The JSON string.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(string json)
+        public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(json, typeof(TNominalType));
+            using (var bsonReader = BsonReader.Create(json))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
@@ -150,10 +173,14 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="textReader">The JSON TextReader.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static TNominalType Deserialize<TNominalType>(TextReader textReader)
+        public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return (TNominalType)Deserialize(textReader, typeof(TNominalType));
+            using (var bsonReader = BsonReader.Create(textReader))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
@@ -161,12 +188,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="document">The BsonDocument.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>A TNominalType.</returns>
-        public static object Deserialize(BsonDocument document, Type nominalType)
+        public static object Deserialize(BsonDocument document, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = BsonReader.Create(document))
             {
-                return Deserialize(bsonReader, nominalType);
+                return Deserialize(bsonReader, nominalType, configurator);
             }
         }
 
@@ -175,53 +203,28 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="buffer">The JsonBuffer.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(JsonBuffer buffer, Type nominalType)
+        public static object Deserialize(JsonBuffer buffer, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = BsonReader.Create(buffer))
             {
-                return Deserialize(bsonReader, nominalType);
+                return Deserialize(bsonReader, nominalType, configurator);
             }
         }
 
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(BsonReader bsonReader, Type nominalType)
+        public static object Deserialize(BsonReader bsonReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            return Deserialize(bsonReader, nominalType, null);
-        }
-
-        /// <summary>
-        /// Deserializes an object from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public static object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            // if nominalType is an interface find out the actualType and use it instead
-            if (nominalType.IsInterface)
-            {
-                var discriminatorConvention = LookupDiscriminatorConvention(nominalType);
-                var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
-                if (actualType == nominalType)
-                {
-                    var message = string.Format("Unable to determine actual type of object to deserialize. NominalType is the interface {0}.", nominalType);
-                    throw new FileFormatException(message);
-                }
-                var serializer = LookupSerializer(actualType);
-                return serializer.Deserialize(bsonReader, actualType, options);
-            }
-            else
-            {
-                var serializer = LookupSerializer(nominalType);
-                return serializer.Deserialize(bsonReader, nominalType, options);
-            }
+            var serializer = LookupSerializer(nominalType);
+            var context = BsonDeserializationContext.CreateRoot(bsonReader, nominalType, configurator);
+            return serializer.Deserialize(context);
         }
 
         /// <summary>
@@ -229,12 +232,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(byte[] bytes, Type nominalType)
+        public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var memoryStream = new MemoryStream(bytes))
             {
-                return Deserialize(memoryStream, nominalType);
+                return Deserialize(memoryStream, nominalType, configurator);
             }
         }
 
@@ -243,12 +247,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(Stream stream, Type nominalType)
+        public static object Deserialize(Stream stream, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = BsonReader.Create(stream))
             {
-                return Deserialize(bsonReader, nominalType);
+                return Deserialize(bsonReader, nominalType, configurator);
             }
         }
 
@@ -257,12 +262,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="json">The JSON string.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(string json, Type nominalType)
+        public static object Deserialize(string json, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = BsonReader.Create(json))
             {
-                return Deserialize(bsonReader, nominalType);
+                return Deserialize(bsonReader, nominalType, configurator);
             }
         }
 
@@ -271,12 +277,13 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
+        /// <param name="configurator">The configurator.</param>
         /// <returns>An object.</returns>
-        public static object Deserialize(TextReader textReader, Type nominalType)
+        public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
             using (var bsonReader = BsonReader.Create(textReader))
             {
-                return Deserialize(bsonReader, nominalType);
+                return Deserialize(bsonReader, nominalType, configurator);
             }
         }
 
@@ -385,33 +392,29 @@ namespace MongoDB.Bson.Serialization
                 IDiscriminatorConvention convention;
                 if (!__discriminatorConventions.TryGetValue(type, out convention))
                 {
-                    // if there is no convention registered for object register the default one
-                    if (!__discriminatorConventions.ContainsKey(typeof(object)))
+                    if (type == typeof(object))
                     {
-                        var defaultDiscriminatorConvention = StandardDiscriminatorConvention.Hierarchical;
-                        __discriminatorConventions.Add(typeof(object), defaultDiscriminatorConvention);
-                        if (type == typeof(object))
-                        {
-                            return defaultDiscriminatorConvention;
-                        }
+                        // if there is no convention registered for object register the default one
+                        convention = new ObjectDiscriminatorConvention("_t");
+                        RegisterDiscriminatorConvention(typeof(object), convention);
                     }
-
-                    if (type.IsInterface)
+                    else if (type.IsInterface)
                     {
                         // TODO: should convention for interfaces be inherited from parent interfaces?
-                        convention = __discriminatorConventions[typeof(object)];
-                        __discriminatorConventions[type] = convention;
+                        convention = LookupDiscriminatorConvention(typeof(object));
+                        RegisterDiscriminatorConvention(type, convention);
                     }
                     else
                     {
-                        // inherit the discriminator convention from the closest parent that has one
+                        // inherit the discriminator convention from the closest parent (that isn't object) that has one
+                        // otherwise default to the standard hierarchical convention
                         Type parentType = type.BaseType;
                         while (convention == null)
                         {
-                            if (parentType == null)
+                            if (parentType == typeof(object))
                             {
-                                var message = string.Format("No discriminator convention found for type {0}.", type.FullName);
-                                throw new BsonSerializationException(message);
+                                convention = StandardDiscriminatorConvention.Hierarchical;
+                                break;
                             }
                             if (__discriminatorConventions.TryGetValue(parentType, out convention))
                             {
@@ -429,6 +432,7 @@ namespace MongoDB.Bson.Serialization
                         }
                     }
                 }
+
                 return convention;
             }
             finally
@@ -513,6 +517,16 @@ namespace MongoDB.Bson.Serialization
             {
                 __configLock.ExitWriteLock();
             }
+        }
+
+        /// <summary>
+        /// Looks up a serializer for a Type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>A serializer for type T.</returns>
+        public static IBsonSerializer<T> LookupSerializer<T>()
+        {
+            return (IBsonSerializer<T>)LookupSerializer(typeof(T));
         }
 
         /// <summary>
@@ -723,6 +737,16 @@ namespace MongoDB.Bson.Serialization
         /// <summary>
         /// Registers a serializer for a type.
         /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        public static void RegisterSerializer<T>(IBsonSerializer<T> serializer)
+        {
+            RegisterSerializer(typeof(T), serializer);
+        }
+
+        /// <summary>
+        /// Registers a serializer for a type.
+        /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="serializer">The serializer.</param>
         public static void RegisterSerializer(Type type, IBsonSerializer serializer)
@@ -751,58 +775,38 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
         /// <param name="bsonWriter">The BsonWriter.</param>
         /// <param name="value">The object.</param>
-        public static void Serialize<TNominalType>(BsonWriter bsonWriter, TNominalType value)
-        {
-            Serialize(bsonWriter, value, null);
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
         public static void Serialize<TNominalType>(
             BsonWriter bsonWriter,
             TNominalType value,
-            IBsonSerializationOptions options)
+            Action<BsonSerializationContext.Builder> configurator = null)
         {
-            Serialize(bsonWriter, typeof(TNominalType), value, options);
+            var serializer = LookupSerializer<TNominalType>();
+            var context = BsonSerializationContext.CreateRoot<TNominalType>(bsonWriter, configurator);
+            serializer.Serialize(context, value);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
         /// <param name="bsonWriter">The BsonWriter.</param>
         /// <param name="nominalType">The nominal type of the object.</param>
         /// <param name="value">The object.</param>
-        public static void Serialize(BsonWriter bsonWriter, Type nominalType, object value)
-        {
-            Serialize(bsonWriter, nominalType, value, null);
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
         public static void Serialize(
             BsonWriter bsonWriter,
             Type nominalType,
             object value,
-            IBsonSerializationOptions options)
+            Action<BsonSerializationContext.Builder> configurator = null)
         {
-            var actualType = (value == null) ? nominalType : value.GetType();
-            var serializer = LookupSerializer(actualType);
-            serializer.Serialize(bsonWriter, nominalType, value, options);
+            var serializer = LookupSerializer(nominalType);
+            var context = BsonSerializationContext.CreateRoot(bsonWriter, nominalType, configurator);
+            serializer.Serialize(context, value);
         }
 
         // internal static methods

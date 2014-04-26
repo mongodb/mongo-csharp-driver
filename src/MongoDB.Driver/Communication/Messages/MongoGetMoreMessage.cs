@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Text;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Internal
@@ -28,7 +26,7 @@ namespace MongoDB.Driver.Internal
 
         // constructors
         internal MongoGetMoreMessage(string collectionFullName, int numberToReturn, long cursorId)
-            : base(MessageOpcode.GetMore, null)
+            : base(MessageOpcode.GetMore, BsonBinaryWriterSettings.Defaults)
         {
             _collectionFullName = collectionFullName;
             _numberToReturn = numberToReturn;
@@ -36,17 +34,17 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal override void WriteBodyTo(BsonBuffer buffer)
+        internal override void WriteBodyTo(BsonStreamWriter streamWriter)
         {
-            buffer.WriteInt64(_cursorId);
+            streamWriter.WriteInt64(_cursorId);
         }
 
-        internal override void WriteHeaderTo(BsonBuffer buffer)
+        internal override void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            base.WriteHeaderTo(buffer);
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32(_numberToReturn);
+            base.WriteHeaderTo(streamWriter);
+            streamWriter.WriteInt32(0); // reserved
+            streamWriter.WriteCString(_collectionFullName);
+            streamWriter.WriteInt32(_numberToReturn);
         }
     }
 }

@@ -24,21 +24,18 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonLinkedCoordinateReferenceSystem value.
     /// </summary>
-    public class GeoJsonLinkedCoordinateReferenceSystemSerializer : GeoJsonCoordinateReferenceSystemSerializer
+    public class GeoJsonLinkedCoordinateReferenceSystemSerializer : BsonBaseSerializer<GeoJsonLinkedCoordinateReferenceSystem>
     {
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>
-        /// An object.
-        /// </returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJsonLinkedCoordinateReferenceSystem Deserialize(BsonDeserializationContext context)
         {
+            var bsonReader = context.Reader;
+
             if (bsonReader.GetCurrentBsonType() == BsonType.Null)
             {
                 bsonReader.ReadNull();
@@ -47,7 +44,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             else
             {
                 bsonReader.ReadStartDocument();
-                DeserializeType(bsonReader, "link");
+                var type = bsonReader.ReadString("type");
+                if (type != "link")
+                {
+                    var message = string.Format("Expected type to be 'link'.");
+                    throw new FormatException(message);
+                }
                 bsonReader.ReadName("properties");
                 bsonReader.ReadStartDocument();
                 var href = bsonReader.ReadString("href");
@@ -64,29 +66,27 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJsonLinkedCoordinateReferenceSystem value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var crs = (GeoJsonLinkedCoordinateReferenceSystem)value;
-
                 bsonWriter.WriteStartDocument();
-                SerializeType(bsonWriter, crs.Type);
+                bsonWriter.WriteString("type", "link");
                 bsonWriter.WriteStartDocument("properties");
-                bsonWriter.WriteString("href", crs.HRef);
-                if (crs.HRefType != null)
+                bsonWriter.WriteString("href", value.HRef);
+                if (value.HRefType != null)
                 {
-                    bsonWriter.WriteString("type", crs.HRefType);
+                    bsonWriter.WriteString("type", value.HRefType);
                 }
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();

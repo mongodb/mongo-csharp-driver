@@ -13,11 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
-using System.Text;
 
 namespace MongoDB.Driver.Internal
 {
@@ -45,9 +42,9 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal override void WriteBodyTo(BsonBuffer buffer)
+        internal override void WriteBodyTo(BsonStreamWriter streamWriter)
         {
-            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
+            using (var bsonWriter = new BsonBinaryWriter(streamWriter.BaseStream, WriterSettings))
             {
                 bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 if (_query == null)
@@ -57,18 +54,18 @@ namespace MongoDB.Driver.Internal
                 }
                 else
                 {
-                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, DocumentSerializationOptions.SerializeIdFirstInstance);
+                    BsonSerializer.Serialize(bsonWriter, _query.GetType(), _query, b => b.SerializeIdFirst = true);
                 }
                 bsonWriter.PopMaxDocumentSize();
             }
         }
 
-        internal override void WriteHeaderTo(BsonBuffer buffer)
+        internal override void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            base.WriteHeaderTo(buffer);
-            buffer.WriteInt32(0); // reserved
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
-            buffer.WriteInt32((int)_flags);
+            base.WriteHeaderTo(streamWriter);
+            streamWriter.WriteInt32(0); // reserved
+            streamWriter.WriteCString(_collectionFullName);
+            streamWriter.WriteInt32((int)_flags);
         }
     }
 }

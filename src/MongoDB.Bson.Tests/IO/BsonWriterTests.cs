@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using MongoDB.Bson.IO;
 using NUnit.Framework;
 
@@ -25,7 +26,8 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void TestWriteNameThrowsWhenValueContainsNulls()
         {
-            using (var bsonWriter = BsonWriter.Create(BsonBinaryWriterSettings.Defaults))
+            using (var stream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
             {
                 Assert.Throws<ArgumentException>(() => { bsonWriter.WriteName("a\0b"); });
             }
@@ -34,7 +36,8 @@ namespace MongoDB.Bson.Tests.IO
         [Test]
         public void TestWriteNameThrowsWhenValueIsNull()
         {
-            using (var bsonWriter = BsonWriter.Create(BsonBinaryWriterSettings.Defaults))
+            using (var stream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
             {
                 Assert.Throws<ArgumentNullException>(() => { bsonWriter.WriteName(null); });
             }

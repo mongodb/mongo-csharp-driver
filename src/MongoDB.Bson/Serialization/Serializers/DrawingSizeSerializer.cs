@@ -22,11 +22,8 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for System.Drawing.Size.
     /// </summary>
-    public class DrawingSizeSerializer : BsonBaseSerializer
+    public class DrawingSizeSerializer : BsonBaseSerializer<System.Drawing.Size>
     {
-        // private static fields
-        private static DrawingSizeSerializer __instance = new DrawingSizeSerializer();
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the DrawingSizeSerializer class.
@@ -35,32 +32,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
-        // public static properties
-        /// <summary>
-        /// Gets an instance of the DrawingSizeSerializer class.
-        /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static DrawingSizeSerializer Instance
-        {
-            get { return __instance; }
-        }
-
         // public methods
         /// <summary>
-        /// Deserializes an object of type System.Drawing.Size from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override System.Drawing.Size Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(System.Drawing.Size));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -71,8 +51,9 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var height = bsonReader.ReadInt32("Height");
                     bsonReader.ReadEndDocument();
                     return new System.Drawing.Size(width, height);
+
                 default:
-                    var message = string.Format("Cannot deserialize Size from BsonType {0}.", bsonType);
+                    var message = string.Format("Cannot deserialize System.Drawing.Size from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
             }
         }
@@ -80,20 +61,15 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Serializes an object of type System.Drawing.Size  to a BsonWriter.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, System.Drawing.Size value)
         {
-            var size = (System.Drawing.Size)value;
+            var bsonWriter = context.Writer;
+
             bsonWriter.WriteStartDocument();
-            bsonWriter.WriteInt32("Width", size.Width);
-            bsonWriter.WriteInt32("Height", size.Height);
+            bsonWriter.WriteInt32("Width", value.Width);
+            bsonWriter.WriteInt32("Height", value.Height);
             bsonWriter.WriteEndDocument();
         }
     }

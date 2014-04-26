@@ -14,12 +14,16 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoUpdate is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(UpdateWrapper.Serializer))]
     public class UpdateWrapper : BaseWrapper, IMongoUpdate
     {
         // constructors
@@ -68,6 +72,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new UpdateWrapper(nominalType, update);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<UpdateWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, UpdateWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

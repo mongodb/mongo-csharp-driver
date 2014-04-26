@@ -13,11 +13,16 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoCollectionOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(CollectionOptionsWrapper.Serializer))]
     public class CollectionOptionsWrapper : BaseWrapper, IMongoCollectionOptions
     {
         // constructors
@@ -45,6 +50,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new CollectionOptionsWrapper(options);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<CollectionOptionsWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, CollectionOptionsWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

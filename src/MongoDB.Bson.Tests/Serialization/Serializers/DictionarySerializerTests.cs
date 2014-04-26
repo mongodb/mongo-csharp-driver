@@ -717,14 +717,12 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
 
         private class C
         {
-            [BsonRepresentation(BsonType.String)]
             public Hashtable Hashtable;
         }
 
         // required for deterministic tests
         private class D
         {
-            [BsonRepresentation(BsonType.String)]
             public SortedList Hashtable;
         }
 
@@ -759,7 +757,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         {
             C c = new C { Hashtable = new Hashtable { { "a", E.A } } };
             var json = c.ToJson();
-            var expected = ("{ 'Hashtable' : { \"a\" : \"A\" } }").Replace("'", "\"");
+            var expected = ("{ 'Hashtable' : { \"a\" : 1 } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = c.ToBson();
@@ -772,7 +770,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         {
             D d = new D { Hashtable = new SortedList { { "a", E.A }, { "b", E.B } } };
             var json = d.ToJson();
-            var expected = ("{ 'Hashtable' : { \"a\" : \"A\", \"b\" : \"B\" } }").Replace("'", "\"");
+            var expected = ("{ 'Hashtable' : { \"a\" : 1, \"b\" : 2 } }").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
             var bson = d.ToBson();

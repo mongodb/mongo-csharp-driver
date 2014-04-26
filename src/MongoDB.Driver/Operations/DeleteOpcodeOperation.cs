@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Internal;
@@ -42,30 +43,30 @@ namespace MongoDB.Driver.Operations
                 return emulator.Execute(connection);
             }
 
-            SendMessageWithWriteConcernResult sendMessageResult;
-            using (var buffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
+            var requests = _args.Requests.ToArray();
+            if (requests.Length != 1)
             {
-                var requests = _args.Requests.ToArray();
-                if (requests.Length != 1)
-                {
-                    throw new NotSupportedException("Delete Opcode only supports a single delete request.");
-                }
-                var deleteRequest = (DeleteRequest)requests[0];
+                throw new NotSupportedException("Delete Opcode only supports a single delete request.");
+            }
+            var deleteRequest = (DeleteRequest)requests[0];
 
-                RemoveFlags flags;
-                switch (deleteRequest.Limit)
-                {
-                    case 0: flags = RemoveFlags.None; break;
-                    case 1: flags = RemoveFlags.Single; break;
-                    default: throw new NotSupportedException("Delete Opcode only supports limit values of 0 and 1.");
-                }
+            RemoveFlags flags;
+            switch (deleteRequest.Limit)
+            {
+                case 0: flags = RemoveFlags.None; break;
+                case 1: flags = RemoveFlags.Single; break;
+                default: throw new NotSupportedException("Delete Opcode only supports limit values of 0 and 1.");
+            }
 
+            SendMessageWithWriteConcernResult sendMessageResult;
+            using (var stream = new MemoryStream())
+            {
                 var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
 
                 var message = new MongoDeleteMessage(WriterSettings, CollectionFullName, flags, maxDocumentSize, deleteRequest.Query);
-                message.WriteTo(buffer);
+                message.WriteTo(stream);
 
-                sendMessageResult = SendMessageWithWriteConcern(connection, buffer, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
+                sendMessageResult = SendMessageWithWriteConcern(connection, stream, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
             }
 
             return WriteConcern.Enabled ? ReadWriteConcernResult(connection, sendMessageResult) : null;

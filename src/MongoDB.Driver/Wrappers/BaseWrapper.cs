@@ -16,91 +16,62 @@
 using System;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Abstract base class for wrapper classes.
     /// </summary>
-    public abstract class BaseWrapper : IBsonSerializable
+    [BsonSerializer(typeof(BaseWrapper.Serializer))]
+    public abstract class BaseWrapper
     {
         // private fields
         private Type _nominalType;
-        private object _obj;
+        private object _wrapped;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the BaseWrapper class.
         /// </summary>
-        /// <param name="obj">The wrapped object.</param>
-        protected BaseWrapper(object obj)
+        /// <param name="wrapped">The wrapped object.</param>
+        protected BaseWrapper(object wrapped)
         {
-            _nominalType = obj.GetType();
-            _obj = obj;
+            _nominalType = wrapped.GetType();
+            _wrapped = wrapped;
         }
 
         /// <summary>
         /// Initializes a new instance of the BaseWrapper class.
         /// </summary>
         /// <param name="nominalType">The nominal type of the wrapped object.</param>
-        /// <param name="obj">The wrapped object.</param>
-        protected BaseWrapper(Type nominalType, object obj)
+        /// <param name="wrapped">The wrapped object.</param>
+        protected BaseWrapper(Type nominalType, object wrapped)
         {
             _nominalType = nominalType;
-            _obj = obj;
+            _wrapped = wrapped;
         }
 
-        // public methods
+        // protected methods
         /// <summary>
-        /// Deserialize is an invalid operation for wrapper classes.
+        /// Serializes the wrapped value.
         /// </summary>
-        /// <param name="bsonReader">Not applicable.</param>
-        /// <param name="nominalType">Not applicable.</param>
-        /// <param name="options">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        [Obsolete("Deserialize was intended to be private and will become private in a future release.")]
-        public object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        /// <param name="context">The context.</param>
+        protected void SerializeWrappedObject(BsonSerializationContext context)
         {
-            var message = string.Format("Deserialize method cannot be called on a {0}.", this.GetType().Name);
-            throw new NotSupportedException(message);
+            var serializer = BsonSerializer.LookupSerializer(_nominalType);
+            var childContext = context.CreateChild(_nominalType);
+            serializer.Serialize(childContext, _wrapped);
         }
 
-        /// <summary>
-        /// GetDocumentId is an invalid operation for wrapper classes.
-        /// </summary>
-        /// <param name="id">Not applicable.</param>
-        /// <param name="idNominalType">Not applicable.</param>
-        /// <param name="idGenerator">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        [Obsolete("GetDocumentId was intended to be private and will become private in a future release.")]
-        public bool GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
+        // nested classes
+        internal class Serializer : BsonBaseSerializer<BaseWrapper>
         {
-            var message = string.Format("GetDocumentId method cannot be called on a {0}.", this.GetType().Name);
-            throw new NotSupportedException(message);
-        }
-
-        /// <summary>
-        /// Serializes a wrapped object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type (ignored).</param>
-        /// <param name="options">The serialization options.</param>
-        [Obsolete("Serialize was intended to be private and will become private in a future release.")]
-        public void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            BsonSerializer.Serialize(bsonWriter, _nominalType, _obj, options); // use wrapped nominalType
-        }
-
-        /// <summary>
-        /// SetDocumentId is an invalid operation for wrapper classes.
-        /// </summary>
-        /// <param name="id">Not applicable.</param>
-        /// <returns>Not applicable.</returns>
-        [Obsolete("SetDocumentId was intended to be private and will become private in a future release.")]
-        public void SetDocumentId(object id)
-        {
-            var message = string.Format("SetDocumentId method cannot be called on a {0}.", this.GetType().Name);
-            throw new NotSupportedException(message);
+            public override void Serialize(BsonSerializationContext context, BaseWrapper value)
+            {
+                value.SerializeWrappedObject(context);
+            }
         }
     }
 }

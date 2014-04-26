@@ -497,38 +497,38 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileInfoSerializer()
         {
-            RegisterMember("Abbreviated", "abbreviated", new StringSerializer(), typeof(string), null);
-            RegisterMember("Client", "client", new StringSerializer(), typeof(string), null);
-            RegisterMember("Command", "command", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("CursorId", "cursorid", new Int64Serializer(), typeof(long), null);
-            RegisterMember("Duration", "millis", new TimeSpanSerializer(), typeof(TimeSpan), new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Milliseconds));
-            RegisterMember("Error", "err", new StringSerializer(), typeof(string), null);
-            RegisterMember("Exception", "exception", new StringSerializer(), typeof(string), null);
-            RegisterMember("ExceptionCode", "exceptionCode", new Int32Serializer(), typeof(int), null);
-            RegisterMember("Exhaust", "exhaust", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("FastMod", "fastmod", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("FastModInsert", "fastmodinsert", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("IdHack", "idhack", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("Info", "info", new StringSerializer(), typeof(string), null);
-            RegisterMember("KeyUpdates", "keyUpdates", new Int32Serializer(), typeof(int), null);
-            RegisterMember("LockStatistics", "lockStats", new SystemProfileLockStatisticsSerializer(), typeof(SystemProfileLockStatistics), null);
-            RegisterMember("Moved", "moved", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("Namespace", "ns", new StringSerializer(), typeof(string), null);
-            RegisterMember("NumberMoved", "nmoved", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberReturned", "nreturned", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberScanned", "nscanned", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberToReturn", "ntoreturn", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberToSkip", "ntoskip", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberUpdated", "nupdated", new Int32Serializer(), typeof(int), null);
-            RegisterMember("NumberOfYields", "numYield", new Int32Serializer(), typeof(int), null);
-            RegisterMember("Op", "op", new StringSerializer(), typeof(string), null);
-            RegisterMember("Query", "query", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("ResponseLength", "responseLength", new Int32Serializer(), typeof(int), null);
-            RegisterMember("ScanAndOrder", "scanAndOrder", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("Timestamp", "ts", new DateTimeSerializer(), typeof(DateTime), null);
-            RegisterMember("UpdateObject", "updateobj", BsonDocumentSerializer.Instance, typeof(BsonDocument), null);
-            RegisterMember("Upsert", "upsert", new BooleanSerializer(), typeof(bool), null);
-            RegisterMember("User", "user", new StringSerializer(), typeof(string), null);
+            RegisterMember("Abbreviated", "abbreviated", new StringSerializer());
+            RegisterMember("Client", "client", new StringSerializer());
+            RegisterMember("Command", "command", BsonDocumentSerializer.Instance);
+            RegisterMember("CursorId", "cursorid", new Int64Serializer());
+            RegisterMember("Duration", "millis", new TimeSpanSerializer(BsonType.Double, TimeSpanUnits.Milliseconds));
+            RegisterMember("Error", "err", new StringSerializer());
+            RegisterMember("Exception", "exception", new StringSerializer());
+            RegisterMember("ExceptionCode", "exceptionCode", new Int32Serializer());
+            RegisterMember("Exhaust", "exhaust", new BooleanSerializer());
+            RegisterMember("FastMod", "fastmod", new BooleanSerializer());
+            RegisterMember("FastModInsert", "fastmodinsert", new BooleanSerializer());
+            RegisterMember("IdHack", "idhack", new BooleanSerializer());
+            RegisterMember("Info", "info", new StringSerializer());
+            RegisterMember("KeyUpdates", "keyUpdates", new Int32Serializer());
+            RegisterMember("LockStatistics", "lockStats", new SystemProfileLockStatisticsSerializer());
+            RegisterMember("Moved", "moved", new BooleanSerializer());
+            RegisterMember("Namespace", "ns", new StringSerializer());
+            RegisterMember("NumberMoved", "nmoved", new Int32Serializer());
+            RegisterMember("NumberReturned", "nreturned", new Int32Serializer());
+            RegisterMember("NumberScanned", "nscanned", new Int32Serializer());
+            RegisterMember("NumberToReturn", "ntoreturn", new Int32Serializer());
+            RegisterMember("NumberToSkip", "ntoskip", new Int32Serializer());
+            RegisterMember("NumberUpdated", "nupdated", new Int32Serializer());
+            RegisterMember("NumberOfYields", "numYield", new Int32Serializer());
+            RegisterMember("Op", "op", new StringSerializer());
+            RegisterMember("Query", "query", BsonDocumentSerializer.Instance);
+            RegisterMember("ResponseLength", "responseLength", new Int32Serializer());
+            RegisterMember("ScanAndOrder", "scanAndOrder", new BooleanSerializer());
+            RegisterMember("Timestamp", "ts", new DateTimeSerializer());
+            RegisterMember("UpdateObject", "updateobj", BsonDocumentSerializer.Instance);
+            RegisterMember("Upsert", "upsert", new BooleanSerializer());
+            RegisterMember("User", "user", new StringSerializer());
         }
 
         // public static properties
@@ -567,8 +567,8 @@ namespace MongoDB.Driver
         /// </summary>
         public SystemProfileLockStatisticsSerializer()
         {
-            RegisterMember("TimeAcquiring", "timeAcquiringMicros", new SystemProfileReadWriteLockStatisticsSerializer(), typeof(SystemProfileReadWriteLockStatistics), null);
-            RegisterMember("TimeLocked", "timeLockedMicros", new SystemProfileReadWriteLockStatisticsSerializer(), typeof(SystemProfileReadWriteLockStatistics), null);
+            RegisterMember("TimeAcquiring", "timeAcquiringMicros", new SystemProfileReadWriteLockStatisticsSerializer());
+            RegisterMember("TimeLocked", "timeLockedMicros", new SystemProfileReadWriteLockStatisticsSerializer());
         }
 
         // public static properties
@@ -606,12 +606,12 @@ namespace MongoDB.Driver
         /// Initializes a new instance of the <see cref="SystemProfileReadWriteLockStatisticsSerializer"/> class.
         /// </summary>
         public SystemProfileReadWriteLockStatisticsSerializer()
-        { 
-            var timeSpanSerializationOptions = new TimeSpanSerializationOptions(BsonType.Double, TimeSpanUnits.Microseconds);
-            RegisterMember("DatabaseReadLock", "r", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("GlobalReadLock", "R", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("DatabaseWriteLock", "w", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
-            RegisterMember("GlobalWriteLock", "W", new TimeSpanSerializer(), typeof(TimeSpan), timeSpanSerializationOptions);
+        {
+            var timeSpanSerializer = new TimeSpanSerializer(BsonType.Double, TimeSpanUnits.Microseconds);
+            RegisterMember("DatabaseReadLock", "r", timeSpanSerializer);
+            RegisterMember("GlobalReadLock", "R", timeSpanSerializer);
+            RegisterMember("DatabaseWriteLock", "w", timeSpanSerializer);
+            RegisterMember("GlobalWriteLock", "W", timeSpanSerializer);
         }
 
         // public static properties

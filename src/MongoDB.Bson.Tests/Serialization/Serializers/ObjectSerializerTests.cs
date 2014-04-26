@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Dynamic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -174,6 +175,35 @@ namespace MongoDB.Bson.Tests.Serialization
             var bson = c.ToBson();
             var rehydrated = BsonSerializer.Deserialize<C>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Test]
+        public void TestUsesDiscriminatorWhenTypeIsNotABsonPrimitive()
+        {
+            var c = new C { Obj = new ExpandoObject() };
+            var json = c.ToJson(configurator: config => config.IsDynamicType = t => false);
+            var expected = "{ 'Obj' : { '_t' : 'System.Dynamic.ExpandoObject', '_v' : { } } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson(configurator: config => config.IsDynamicType = t => false);
+            var rehydrated = BsonSerializer.Deserialize<C>(bson);
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson(configurator: config => config.IsDynamicType = t => false)));
+        }
+
+        [Test]
+        public void TestDoesNotUseDiscriminatorForDynamicTypes()
+        {
+            // explicitly setting the IsDynamicType and DynamicDocumentSerializer properties
+            // in case we change the dynamic defaults in BsonDefaults.
+
+            var c = new C { Obj = new ExpandoObject() };
+            var json = c.ToJson(configurator: b => b.IsDynamicType = t => t == typeof(ExpandoObject));
+            var expected = "{ 'Obj' : { } }".Replace("'", "\"");
+            Assert.AreEqual(expected, json);
+
+            var bson = c.ToBson(configurator: b => b.IsDynamicType = t => t == typeof(ExpandoObject));
+            var rehydrated = BsonSerializer.Deserialize<C>(bson, b => b.DynamicDocumentSerializer = BsonSerializer.LookupSerializer<ExpandoObject>());
+            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson(configurator: b => b.IsDynamicType = t => t == typeof(ExpandoObject))));
         }
     }
 }

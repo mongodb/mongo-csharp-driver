@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp613
             public short S;
         }
 
+        [Ignore("LINQ Convert")]
         [Test]
         public void TestShortToIntImplicitConversion()
         {

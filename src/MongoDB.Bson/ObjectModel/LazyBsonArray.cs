@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -169,11 +170,12 @@ namespace MongoDB.Bson
         private IEnumerable<BsonValue> MaterializeThisLevel()
         {
             var values = new List<BsonValue>();
-            var readerSettings = _readerSettings.Clone();
-            readerSettings.MaxDocumentSize = _slice.Length;
 
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, readerSettings))
+            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
+                var context = BsonDeserializationContext.CreateRoot<LazyBsonArray>(bsonReader);
+
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
                 while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
@@ -184,7 +186,7 @@ namespace MongoDB.Bson
                     {
                         case BsonType.Array: value = DeserializeLazyBsonArray(bsonReader); break;
                         case BsonType.Document: value = DeserializeLazyBsonDocument(bsonReader); break;
-                        default: value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null); break;
+                        default: value = context.DeserializeWithChildContext(BsonValueSerializer.Instance); break;
                     }
                     values.Add(value);
                 }

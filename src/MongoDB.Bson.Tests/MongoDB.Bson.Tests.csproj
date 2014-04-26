@@ -55,6 +55,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework, Version=2.5.9.10348, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Tools\NUnit\nunit.framework.dll</HintPath>
@@ -81,6 +82,9 @@
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MongoDB.Shared\SkipOnMonoAttribute.cs">
+      <Link>SkipOnMonoAttribute.cs</Link>
     </Compile>
     <Compile Include="BsonExtensionMethodsTests.cs" />
     <Compile Include="BsonUtilsTests.cs" />
@@ -111,6 +115,7 @@
     <Compile Include="Serialization\Conventions\DelegateMemberMapConventionTests.cs" />
     <Compile Include="Serialization\Conventions\DelegatePostProcessingConventionTests.cs" />
     <Compile Include="Serialization\Conventions\ElementNameConventionsTests.cs" />
+    <Compile Include="Serialization\Conventions\EnumRepresentationConventionTests.cs" />
     <Compile Include="Serialization\Conventions\ExtraElementsConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\IdMemberConventionsTests.cs" />
@@ -121,16 +126,15 @@
     <Compile Include="Serialization\Conventions\MemberNameElementNameConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\NamedExtraElementsConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\NamedIdConventionsTests.cs" />
-    <Compile Include="Serialization\Conventions\PropertyFinderConventionsTests.cs" />
     <Compile Include="Serialization\Conventions\ReadWriteMemberFinderConventionsTests.cs" />
-    <Compile Include="Serialization\Conventions\EnumRepresentationConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StandardDiscriminatorConventionTests.cs" />
     <Compile Include="Serialization\Conventions\StringObjectIdGeneratorConventionsTests.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
-    <Compile Include="Serialization\LegacyBsonClassMapTests.cs" />
-    <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
+    <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
     <Compile Include="Serialization\Options\RepresentationSerializationOptionsTests.cs" />
+    <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
+    <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonArraySerializerTests.cs" />
     <Compile Include="Serialization\Serializers\LazyBsonDocumentSerializerTests.cs" />

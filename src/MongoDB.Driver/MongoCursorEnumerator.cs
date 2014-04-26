@@ -305,7 +305,7 @@ namespace MongoDB.Driver
         {
             var readerSettings = _cursor.Collection.GetReaderSettings(connection);
             connection.SendMessage(message);
-            var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.Serializer, _cursor.SerializationOptions);
+            var reply = connection.ReceiveMessage<TDocument>(readerSettings, _cursor.Serializer);
             _responseFlags = reply.ResponseFlags;
             _openCursorId = reply.CursorId;
             return reply;

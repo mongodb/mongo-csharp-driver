@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonArrays.
     /// </summary>
-    public class BsonArraySerializer : BsonBaseSerializer, IBsonArraySerializer
+    public class BsonArraySerializer : BsonBaseSerializer<BsonArray>, IBsonArraySerializer
     {
         // private static fields
         private static BsonArraySerializer __instance = new BsonArraySerializer();
@@ -46,20 +46,13 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override BsonArray Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(BsonArray));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
@@ -69,11 +62,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     var array = new BsonArray();
                     while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
                     {
-                        var value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
-                        array.Add(value);
+                        var item = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                        array.Add(item);
                     }
                     bsonReader.ReadEndArray();
                     return array;
+
                 default:
                     var message = string.Format("Cannot deserialize BsonArray from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -91,40 +85,27 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new BsonSerializationInfo(
                 null,
                 BsonValueSerializer.Instance,
-                typeof(BsonValue),
-                BsonValueSerializer.Instance.GetDefaultSerializationOptions());
+                typeof(BsonValue));
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, BsonArray value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 throw new ArgumentNullException("value");
             }
 
-            var rawBsonArray = value as RawBsonArray;
-            if (rawBsonArray != null)
-            {
-                RawBsonArraySerializer.Instance.Serialize(bsonWriter, nominalType, value, options);
-                return;
-            }
-
-            var array = (BsonArray)value;
             bsonWriter.WriteStartArray();
-            for (int i = 0; i < array.Count; i++)
+            for (int i = 0; i < value.Count; i++)
             {
-                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), array[i], null);
+                context.SerializeWithChildContext(BsonValueSerializer.Instance, value[i]);
             }
             bsonWriter.WriteEndArray();
         }

@@ -20,29 +20,6 @@ using MongoDB.Bson.Serialization.Serializers;
 namespace MongoDB.Bson.Serialization.Options
 {
     /// <summary>
-    /// Represents the representation to use for dictionaries.
-    /// </summary>
-    public enum DictionaryRepresentation
-    {
-        /// <summary>
-        /// Represent the dictionary as a document if the keys are strings and valid element names, otherwise as an array of arrays.
-        /// </summary>
-        Dynamic,
-        /// <summary>
-        /// Represent the dictionary as a Document.
-        /// </summary>
-        Document,
-        /// <summary>
-        /// Represent the dictionary as an array of arrays.
-        /// </summary>
-        ArrayOfArrays,
-        /// <summary>
-        /// Represent the dictionary as an array of documents.
-        /// </summary>
-        ArrayOfDocuments
-    }
-
-    /// <summary>
     /// Represents serialization options for a Dictionary value.
     /// </summary>
     public class DictionarySerializationOptions : BsonBaseSerializationOptions
@@ -192,78 +169,6 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
         // public methods
-        /// <summary>
-        /// Apply an attribute to these serialization options and modify the options accordingly.
-        /// </summary>
-        /// <param name="serializer">The serializer that these serialization options are for.</param>
-        /// <param name="attribute">The serialization options attribute.</param>
-        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
-        {
-            EnsureNotFrozen();
-
-            var dictionaryOptionsAttribute = attribute as BsonDictionaryOptionsAttribute;
-            if (dictionaryOptionsAttribute != null)
-            {
-                _representation = dictionaryOptionsAttribute.Representation;
-                return;
-            }
-
-            // for backward compatibility reasons representations Array and Document apply to the Dictionary and not the values
-            var representationAttribute = attribute as BsonRepresentationAttribute;
-            if (representationAttribute != null)
-            {
-                switch (representationAttribute.Representation)
-                {
-                    case BsonType.Array:
-                        _representation = DictionaryRepresentation.ArrayOfArrays;
-                        return;
-                    case BsonType.Document:
-                        _representation = DictionaryRepresentation.Document;
-                        return;
-                }
-            }
-
-            // any other attributes are applied to the values
-            var valueType = typeof(object);
-            if (serializer.GetType().IsGenericType)
-            {
-                valueType = serializer.GetType().GetGenericArguments()[1]; // TValue
-            }
-            var valueSerializer = BsonSerializer.LookupSerializer(valueType);
-
-            var valueSerializationOptions = _keyValuePairSerializationOptions.ValueSerializationOptions;
-            if (valueSerializationOptions == null)
-            {
-                var valueDefaultSerializationOptions = valueSerializer.GetDefaultSerializationOptions();
-
-                // special case for legacy dictionaries: allow BsonRepresentation on object
-                if (valueDefaultSerializationOptions == null && 
-                    serializer.GetType() == typeof(DictionarySerializer) && 
-                    attribute.GetType() == typeof(BsonRepresentationAttribute))
-                {
-                    valueDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
-                }
-
-                if (valueDefaultSerializationOptions == null)
-                {
-                    var message = string.Format(
-                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1} and the value serializer is of type {2}.",
-                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
-                        BsonUtils.GetFriendlyTypeName(serializer.GetType()),
-                        BsonUtils.GetFriendlyTypeName(valueSerializer.GetType()));
-                    throw new NotSupportedException(message);
-                }
-
-                valueSerializationOptions = valueDefaultSerializationOptions.Clone();
-            }
-
-            valueSerializationOptions.ApplyAttribute(valueSerializer, attribute);
-            _keyValuePairSerializationOptions = new KeyValuePairSerializationOptions(
-                _keyValuePairSerializationOptions.Representation,
-                _keyValuePairSerializationOptions.KeySerializationOptions,
-                valueSerializationOptions);
-        }
-
         /// <summary>
         /// Clones the serialization options.
         /// </summary>

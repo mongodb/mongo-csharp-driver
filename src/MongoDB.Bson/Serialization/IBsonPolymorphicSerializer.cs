@@ -14,19 +14,21 @@
 */
 
 using System;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization
 {
     /// <summary>
-    /// Represents an attribute used to modify a member map.
+    /// An interface implemented by a polymorphic serializer.
     /// </summary>
-    [Obsolete("Use IBsonMemberMapAttribute instead.")]
-    public interface IBsonMemberMapModifier
+    public interface IBsonPolymorphicSerializer
     {
         /// <summary>
-        /// Applies the attribute to the member map.
+        /// Gets a value indicating whether this serializer's discriminator is compatible with the object serializer.
         /// </summary>
-        /// <param name="memberMap">The member map.</param>
-        void Apply(BsonMemberMap memberMap);
+        /// <value>
+        /// <c>true</c> if this serializer's discriminator is compatible with the object serializer; otherwise, <c>false</c>.
+        /// </value>
+        bool IsDiscriminatorCompatibleWithObjectSerializer { get; }
     }
 }

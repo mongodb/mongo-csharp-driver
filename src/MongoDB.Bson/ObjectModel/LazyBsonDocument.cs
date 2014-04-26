@@ -181,10 +181,12 @@ namespace MongoDB.Bson
         private IEnumerable<BsonElement> MaterializeThisLevel()
         {
             var elements = new List<BsonElement>();
-            var readerSettings = _readerSettings.Clone();
-            readerSettings.MaxDocumentSize = _slice.Length;
-            using (var bsonReader = new BsonBinaryReader(new BsonBuffer(CloneSlice(), true), true, readerSettings))
+
+            using (var stream = new ByteBufferStream(_slice, ownsByteBuffer: false))
+            using (var bsonReader = new BsonBinaryReader(stream, _readerSettings))
             {
+                var context = BsonDeserializationContext.CreateRoot<LazyBsonDocument>(bsonReader);
+
                 bsonReader.ReadStartDocument();
                 BsonType bsonType;
                 while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
@@ -195,7 +197,7 @@ namespace MongoDB.Bson
                     {
                         case BsonType.Array: value = DeserializeLazyBsonArray(bsonReader); break;
                         case BsonType.Document: value = DeserializeLazyBsonDocument(bsonReader); break;
-                        default: value = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null); break;
+                        default: value = context.DeserializeWithChildContext(BsonValueSerializer.Instance); break;
                     }
                     elements.Add(new BsonElement(name, value));
                 }

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Internal;
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Operations
             }
 
             SendMessageWithWriteConcernResult sendMessageResult;
-            using (var buffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
+            using (var stream = new MemoryStream())
             {
                 var requests = _args.Requests.ToList();
                 if (requests.Count != 1)
@@ -60,9 +61,9 @@ namespace MongoDB.Driver.Operations
                 var query = updateRequest.Query ?? new QueryDocument();
 
                 var message = new MongoUpdateMessage(WriterSettings, CollectionFullName, _args.CheckElementNames, flags, maxDocumentSize, query, updateRequest.Update);
-                message.WriteTo(buffer);
+                message.WriteTo(stream);
 
-                sendMessageResult =  SendMessageWithWriteConcern(connection, buffer, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
+                sendMessageResult = SendMessageWithWriteConcern(connection, stream, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
             }
 
             return WriteConcern.Enabled ? ReadWriteConcernResult(connection, sendMessageResult) : null;

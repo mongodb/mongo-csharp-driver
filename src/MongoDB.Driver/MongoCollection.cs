@@ -346,9 +346,9 @@ namespace MongoDB.Driver
                 { "query", () => BsonDocumentWrapper.Create(args.Query), args.Query != null }, // optional
                 { "maxTimeMS", () => args.MaxTime.Value.TotalMilliseconds, args.MaxTime.HasValue } // optional
             };
-            var valueSerializer = args.ValueSerializer ?? BsonSerializer.LookupSerializer(typeof(TValue));
-            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer, args.ValueSerializationOptions);
-            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer, null);
+            var valueSerializer = (IBsonSerializer<TValue>)args.ValueSerializer ?? BsonSerializer.LookupSerializer<TValue>();
+            var resultSerializer = new DistinctCommandResultSerializer<TValue>(valueSerializer);
+            var result = RunCommandAs<DistinctCommandResult<TValue>>(command, resultSerializer);
             return result.Values;
         }
 
@@ -719,7 +719,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query)
         {
             var serializer = BsonSerializer.LookupSerializer(typeof(TDocument));
-            return FindAs<TDocument>(query, serializer, null);
+            return FindAs<TDocument>(query, serializer);
         }
 
         /// <summary>
@@ -731,7 +731,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor FindAs(Type documentType, IMongoQuery query)
         {
             var serializer = BsonSerializer.LookupSerializer(documentType);
-            return FindAs(documentType, query, serializer, null);
+            return FindAs(documentType, query, serializer);
         }
 
         /// <summary>
@@ -758,7 +758,7 @@ namespace MongoDB.Driver
             var query = args.Query ?? new QueryDocument();
             var readPreference = args.ReadPreference ?? _settings.ReadPreference;
             var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
-            var cursor = new MongoCursor<TDocument>(this, query, readPreference, serializer, args.SerializationOptions);
+            var cursor = new MongoCursor<TDocument>(this, query, readPreference, serializer);
             if (args.Fields != null)
             {
                 cursor.SetFields(args.Fields);
@@ -1681,14 +1681,13 @@ namespace MongoDB.Driver
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public ReadOnlyCollection<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs args)
+        public ReadOnlyCollection<IEnumerator<TDocument>> ParallelScanAs<TDocument>(ParallelScanArgs<TDocument> args)
         {
             var readPreference = args.ReadPreference ?? _settings.ReadPreference ?? ReadPreference.Primary;
             var connection = _server.AcquireConnection(readPreference);
             try
             {
-                var serializer = args.Serializer ?? BsonSerializer.LookupSerializer(typeof(TDocument));
-                var serializationOptions = args.SerializationOptions;
+                var serializer = args.Serializer ?? BsonSerializer.LookupSerializer<TDocument>();
 
                 var operation = new ParallelScanOperation<TDocument>(
                     _database.Name,
@@ -1696,7 +1695,6 @@ namespace MongoDB.Driver
                     args.NumberOfCursors,
                     args.BatchSize,
                     serializer,    
-                    serializationOptions,
                     readPreference,
                     GetBinaryReaderSettings(),
                     GetBinaryWriterSettings());
@@ -1716,7 +1714,25 @@ namespace MongoDB.Driver
         /// <returns>Multiple enumerators, one for each cursor.</returns>
         public ReadOnlyCollection<IEnumerator> ParallelScanAs(Type documentType, ParallelScanArgs args)
         {
-            var methodDefinition = GetType().GetMethod("ParallelScanAs", new Type[] { typeof(ParallelScanArgs) });
+            var parallelScanArgsDefinition = typeof(ParallelScanArgs<>);
+            var parallelScanArgsType = parallelScanArgsDefinition.MakeGenericType(documentType);
+            if (args.GetType() == typeof(ParallelScanArgs))
+            {
+                var genericArgs = (ParallelScanArgs)Activator.CreateInstance(parallelScanArgsType);
+                genericArgs.BatchSize = args.BatchSize;
+                genericArgs.NumberOfCursors = args.NumberOfCursors;
+                genericArgs.ReadPreference = args.ReadPreference;
+                genericArgs.Serializer = args.Serializer;
+                args = genericArgs;
+            } else if (args.GetType() != parallelScanArgsType)
+            {
+                var message = string.Format("Invalid args type. Expected '{0}', was '{1}'.",
+                    BsonUtils.GetFriendlyTypeName(parallelScanArgsType),
+                    BsonUtils.GetFriendlyTypeName(args.GetType()));
+                throw new ArgumentException(message, "args");
+            }
+
+            var methodDefinition = GetType().GetMethods().Where(m => m.Name == "ParallelScanAs" && m.IsGenericMethodDefinition).Single();
             var methodInfo = methodDefinition.MakeGenericMethod(documentType);
             try
             {
@@ -1926,12 +1942,12 @@ namespace MongoDB.Driver
 
             // since we can't determine for sure whether it's a new document or not upsert it
             // the only safe way to get the serialized _id value needed for the query is to serialize the entire document
-
             var bsonDocument = new BsonDocument();
             var writerSettings = new BsonDocumentWriterSettings { GuidRepresentation = _settings.GuidRepresentation };
             using (var bsonWriter = new BsonDocumentWriter(bsonDocument, writerSettings))
             {
-                serializer.Serialize(bsonWriter, nominalType, document, null);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, nominalType);
+                serializer.Serialize(context, document);
             }
 
             BsonValue idBsonValue;
@@ -2239,24 +2255,24 @@ namespace MongoDB.Driver
             return result;
         }
 
-        private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        private MongoCursor FindAs(Type documentType, IMongoQuery query, IBsonSerializer serializer)
         {
-            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer, serializationOptions);
+            return MongoCursor.Create(documentType, this, query, _settings.ReadPreference, serializer);
         }
 
-        private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        private MongoCursor<TDocument> FindAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
-            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer, serializationOptions);
+            return new MongoCursor<TDocument>(this, query, _settings.ReadPreference, serializer);
         }
 
-        private CommandResult FindOneAs(Type documentType, IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        private CommandResult FindOneAs(Type documentType, IMongoQuery query, IBsonSerializer serializer)
         {
-            return FindAs(documentType, query, serializer, serializationOptions).SetLimit(1).Cast<CommandResult>().FirstOrDefault();
+            return FindAs(documentType, query, serializer).SetLimit(1).Cast<CommandResult>().FirstOrDefault();
         }
 
-        private TDocument FindOneAs<TDocument>(IMongoQuery query, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        private TDocument FindOneAs<TDocument>(IMongoQuery query, IBsonSerializer serializer)
         {
-            return FindAs<TDocument>(query, serializer, serializationOptions).SetLimit(1).FirstOrDefault();
+            return FindAs<TDocument>(query, serializer).SetLimit(1).FirstOrDefault();
         }
 
         private BsonBinaryReaderSettings GetBinaryReaderSettings()
@@ -2423,14 +2439,13 @@ namespace MongoDB.Driver
 
         private TCommandResult RunCommandAs<TCommandResult>(IMongoCommand command) where TCommandResult : CommandResult
         {
-            var resultSerializer = BsonSerializer.LookupSerializer(typeof(TCommandResult));
-            return RunCommandAs<TCommandResult>(command, resultSerializer, null);
+            var resultSerializer = BsonSerializer.LookupSerializer<TCommandResult>();
+            return RunCommandAs<TCommandResult>(command, resultSerializer);
         }
 
         private TCommandResult RunCommandAs<TCommandResult>(
             IMongoCommand command,
-            IBsonSerializer resultSerializer,
-            IBsonSerializationOptions resultSerializationOptions) where TCommandResult : CommandResult
+            IBsonSerializer<TCommandResult> resultSerializer) where TCommandResult : CommandResult
         {
             var readPreference = _settings.ReadPreference;
             if (readPreference != ReadPreference.Primary)
@@ -2454,7 +2469,6 @@ namespace MongoDB.Driver
                 flags,
                 null, // options
                 readPreference,
-                resultSerializationOptions,
                 resultSerializer);
 
             var connection = _server.AcquireConnection(readPreference);
@@ -2695,7 +2709,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>Multiple enumerators, one for each cursor.</returns>
-        public virtual ReadOnlyCollection<IEnumerator<TDefaultDocument>> ParallelScan(ParallelScanArgs args)
+        public virtual ReadOnlyCollection<IEnumerator<TDefaultDocument>> ParallelScan(ParallelScanArgs<TDefaultDocument> args)
         {
             return ParallelScanAs<TDefaultDocument>(args);
         }

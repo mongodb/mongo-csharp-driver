@@ -17,6 +17,8 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Builders
 {
@@ -24,7 +26,8 @@ namespace MongoDB.Driver.Builders
     /// Abstract base class for the builders.
     /// </summary>
     [Serializable]
-    public abstract class BuilderBase : IBsonSerializable, IConvertibleToBsonDocument
+    [BsonSerializer(typeof(BuilderBase.Serializer))]
+    public abstract class BuilderBase : IConvertibleToBsonDocument
     {
         // constructors
         /// <summary>
@@ -50,42 +53,19 @@ namespace MongoDB.Driver.Builders
             return this.ToJson(); // "this." required to access extension method
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected abstract void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            IBsonSerializationOptions options);
-
         // explicit interface implementations
-        object IBsonSerializable.Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException();
-        }
-
-        bool IBsonSerializable.GetDocumentId(out object id, out Type idNominalType, out IIdGenerator idGenerator)
-        {
-            throw new NotSupportedException();
-        }
-
-        void IBsonSerializable.Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            Serialize(bsonWriter, nominalType, options);
-        }
-
-        void IBsonSerializable.SetDocumentId(object id)
-        {
-            throw new NotSupportedException();
-        }
-
         BsonDocument IConvertibleToBsonDocument.ToBsonDocument()
         {
             return ToBsonDocument();
+        }
+
+        // nested classes
+        internal class Serializer : BsonBaseSerializer<BuilderBase>
+        {
+            public override void Serialize(BsonSerializationContext context, BuilderBase value)
+            {
+                SerializeActualType(context, value);
+            }
         }
     }
 }

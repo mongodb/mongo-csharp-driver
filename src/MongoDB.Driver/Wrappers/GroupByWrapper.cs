@@ -13,11 +13,16 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGroupBy is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(GroupByWrapper.Serializer))]
     public class GroupByWrapper : BaseWrapper, IMongoGroupBy
     {
         // constructors
@@ -45,6 +50,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new GroupByWrapper(groupBy);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<GroupByWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, GroupByWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

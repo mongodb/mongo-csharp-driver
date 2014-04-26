@@ -15,162 +15,189 @@
 
 using System;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
-    /// Represents a base implementation for the many implementations of IBsonSerializer.
+    /// Represents an abstract base class for implementers of <see cref="IBsonSerializer{TValue}"/>.
     /// </summary>
-    public abstract class BsonBaseSerializer : IBsonSerializer
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    public abstract class BsonBaseSerializer<TValue> : IBsonSerializer<TValue>
     {
-        // private fields
-        private IBsonSerializationOptions _defaultSerializationOptions;
-
-        // constructors
-        /// <summary>
-        /// Initializes a new instance of the BsonBaseSerializer class.
-        /// </summary>
-        protected BsonBaseSerializer()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonBaseSerializer class.
-        /// </summary>
-        /// <param name="defaultSerializationOptions">The default serialization options for this serializer.</param>
-        protected BsonBaseSerializer(IBsonSerializationOptions defaultSerializationOptions)
-        {
-            if (defaultSerializationOptions != null)
-            {
-                _defaultSerializationOptions = defaultSerializationOptions.Clone().Freeze();
-            }
-        }
-
         // public properties
         /// <summary>
-        /// Gets the default serialization options.
+        /// Gets the type of the values.
         /// </summary>
-        public IBsonSerializationOptions DefaultSerializationOptions
+        /// <value>
+        /// The type of the values.
+        /// </value>
+        public Type ValueType
         {
-            get { return _defaultSerializationOptions; }
+            get { return typeof(TValue); }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public virtual object Deserialize(BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options)
+        public virtual TValue Deserialize(BsonDeserializationContext context)
         {
-            // override this method to determine actualType if your serializer handles polymorphic data types
-            return Deserialize(bsonReader, nominalType, nominalType, options);
+            var message = string.Format(
+                "A serializer of type '{0}' does not support the Deserialize method.",
+                BsonUtils.GetFriendlyTypeName(this.GetType()));
+            throw new NotSupportedException(message);
         }
 
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public virtual object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
-        {
-            throw new NotSupportedException("Subclass must implement Deserialize.");
-        }
-
-        /// <summary>
-        /// Gets the default serialization options for this serializer.
-        /// </summary>
-        /// <returns>The default serialization options for this serializer.</returns>
-        public virtual IBsonSerializationOptions GetDefaultSerializationOptions()
-        {
-            return _defaultSerializationOptions;
-        }
-
-        /// <summary>
-        /// Serializes an object to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public virtual void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public virtual void Serialize(BsonSerializationContext context, TValue value)
         {
-            throw new NotSupportedException("Subclass must implement Serialize.");
+            if (value != null)
+            {
+                var actualType = value.GetType();
+                if (actualType != typeof(TValue) && !context.SerializeAsNominalType)
+                {
+                    var serializer = BsonSerializer.LookupSerializer(actualType);
+                    serializer.Serialize(context, value);
+                    return;
+                }
+            }
+
+            var message = string.Format(
+                "A serializer of type '{0}' does not support the Serialize method.", 
+                BsonUtils.GetFriendlyTypeName(this.GetType()));
+            throw new NotSupportedException(message);
         }
 
         // protected methods
         /// <summary>
-        /// Ensures that the serializer has serialization options of the right type (replacing null with the default serialization options if necessary).
+        /// Casts the value to TValue.
         /// </summary>
-        /// <typeparam name="TSerializationOptions">The required serialization options type.</typeparam>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>The serialization options (or the defaults if null) cast to the required type.</returns>
-        protected TSerializationOptions EnsureSerializationOptions<TSerializationOptions>(IBsonSerializationOptions options) where TSerializationOptions : class, IBsonSerializationOptions
+        /// <param name="value">The value.</param>
+        /// <returns>The value cast to type TValue.</returns>
+        protected virtual TValue CastValue(object value)
         {
-            if (options == null)
+            try
             {
-                options = _defaultSerializationOptions;
+                return (TValue)value;
             }
-            if (options == null)
+            catch (InvalidCastException)
             {
+                var actualType = value.GetType();
                 var message = string.Format(
-                    "Serializer {0} expected serialization options of type {1}, but none were provided.",
-                    BsonUtils.GetFriendlyTypeName(this.GetType()),
-                    BsonUtils.GetFriendlyTypeName(typeof(TSerializationOptions)));
-                throw new BsonSerializationException(message);
+                    "A serializer of type '{0}' expects values of type '{1}', not of type '{2}'.", 
+                    BsonUtils.GetFriendlyTypeName(this.GetType()), 
+                    BsonUtils.GetFriendlyTypeName(typeof(TValue)), 
+                    BsonUtils.GetFriendlyTypeName(actualType));
+                throw new NotSupportedException(message);
             }
-
-            var typedOptions = options as TSerializationOptions;
-            if (typedOptions == null)
-            {
-                var message = string.Format(
-                    "Serializer {0} expected serialization options of type {1}, not {2}.",
-                    BsonUtils.GetFriendlyTypeName(this.GetType()),
-                    BsonUtils.GetFriendlyTypeName(typeof(TSerializationOptions)),
-                    BsonUtils.GetFriendlyTypeName(options.GetType()));
-                throw new BsonSerializationException(message);
-            }
-
-            return typedOptions;
         }
 
         /// <summary>
-        /// Verifies the nominal and actual types against the expected type.
+        /// Deserializes the discriminated wrapper.
         /// </summary>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="actualType">The actual type.</param>
-        /// <param name="expectedType">The expected type.</param>
-        protected void VerifyTypes(Type nominalType, Type actualType, Type expectedType)
+        /// <param name="context">The context.</param>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        /// <returns>A TValue.</returns>
+        /// <exception cref="System.FormatException">
+        /// </exception>
+        protected TValue DeserializeDiscriminatedWrapper(BsonDeserializationContext context, IDiscriminatorConvention discriminatorConvention)
         {
-            if (actualType != expectedType)
+            var bsonReader = context.Reader;
+            var nominalType = context.NominalType;
+            var actualType = discriminatorConvention.GetActualType(bsonReader, nominalType);
+
+            bsonReader.ReadStartDocument();
+
+            var firstElementName = bsonReader.ReadName();
+            if (firstElementName != discriminatorConvention.ElementName)
             {
-                var message = string.Format(
-                    "{0} can only be used with type {1}, not with type {2}.",
-                    this.GetType().FullName, expectedType.FullName, actualType.FullName);
-                throw new BsonSerializationException(message);
+                var message = string.Format("Expected the first field of a discriminated wrapper to be '{0}', not: '{1}'.", discriminatorConvention.ElementName, firstElementName);
+                throw new FormatException(message);
+            }
+            bsonReader.SkipValue();
+
+            var secondElementName = bsonReader.ReadName();
+            if (secondElementName != "_v")
+            {
+                var message = string.Format("Expected the second field of a discriminated wrapper to be '_v', not: '{0}'.", firstElementName);
+                throw new FormatException(message);
             }
 
-            // Type.IsAssignableFrom is extremely expensive, always perform a direct type check before calling Type.IsAssignableFrom
-            if (actualType != nominalType && !nominalType.IsAssignableFrom(actualType))
+            var unwrappedSerializer = BsonSerializer.LookupSerializer(actualType);
+            var unwrappedContext = context.CreateChild(actualType);
+            var value = unwrappedSerializer.Deserialize(unwrappedContext);
+
+            if (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var message = string.Format(
-                    "{0} can only be used with a nominal type that is assignable from the actual type {1}, but nominal type {2} is not.",
-                    this.GetType().FullName, actualType.FullName, nominalType.FullName);
-                throw new BsonSerializationException(message);
+                var message = string.Format("Expected a discriminated wrapper to be a document with exactly two fields, '{0}' and '_v'.", discriminatorConvention.ElementName);
+                throw new FormatException(message);
             }
+
+            bsonReader.ReadEndDocument();
+
+            return (TValue)value;
+        }
+
+        /// <summary>
+        /// Serializes the actual type.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="value">The value.</param>
+        protected void SerializeActualType(BsonSerializationContext context, object value)
+        {
+            if (value == null)
+            {
+                context.Writer.WriteNull();
+            }
+            else
+            {
+                var actualType = value.GetType();
+                var serializer = BsonSerializer.LookupSerializer(actualType);
+                serializer.Serialize(context, value);
+            }
+        }
+
+        /// <summary>
+        /// Serializes the discriminated wrapper.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        protected void SerializeDiscriminatedWrapper(BsonSerializationContext context, TValue value, IDiscriminatorConvention discriminatorConvention)
+        {
+            var bsonWriter = context.Writer;
+            var nominalType = context.NominalType;
+            var actualType = value.GetType();
+            var discriminator = discriminatorConvention.GetDiscriminator(nominalType, actualType);
+            var wrappedContext = context.CreateChild(actualType);
+
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteName(discriminatorConvention.ElementName);
+            context.SerializeWithChildContext(BsonValueSerializer.Instance, discriminator);
+            bsonWriter.WriteName("_v");
+            Serialize(wrappedContext, value); 
+            bsonWriter.WriteEndDocument();
+        }
+
+        // explicit interface implementations
+        object IBsonSerializer.Deserialize(BsonDeserializationContext context)
+        {
+            return Deserialize(context);
+        }
+
+        void IBsonSerializer.Serialize(BsonSerializationContext context, object value)
+        {
+            var typedValue = CastValue(value);
+            Serialize(context, typedValue);
         }
     }
 }

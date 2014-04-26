@@ -35,14 +35,13 @@ namespace MongoDB.Bson.Tests
             public int X { get; set; }
         }
 
-        private class CSerializer : BsonBaseSerializer
+        private class CSerializer : BsonBaseSerializer<C>
         {
-            public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+            public override void Serialize(BsonSerializationContext context, C value)
             {
-                var c = (C)value;
+                var bsonWriter = context.Writer;
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("nominalType", nominalType.Name);
-                bsonWriter.WriteInt32("X", c.X);
+                bsonWriter.WriteInt32("X", value.X);
                 bsonWriter.WriteEndDocument();
             }
         }
@@ -197,10 +196,8 @@ namespace MongoDB.Bson.Tests
             var clonedWrapper = (BsonDocumentWrapper)wrapper.Clone();
             Assert.AreEqual(false, wrapper.IsMaterialized);
             Assert.AreEqual(false, clonedWrapper.IsMaterialized);
-            Assert.AreSame(wrapper.WrappedNominalType, clonedWrapper.WrappedNominalType);
-            Assert.AreSame(wrapper.WrappedObject, clonedWrapper.WrappedObject);
+            Assert.AreSame(wrapper.Wrapped, clonedWrapper.Wrapped);
             Assert.AreSame(wrapper.Serializer, clonedWrapper.Serializer);
-            Assert.AreSame(wrapper.SerializationOptions, clonedWrapper.SerializationOptions);
             Assert.AreEqual(wrapper.IsUpdateDocument, clonedWrapper.IsUpdateDocument);
             Assert.AreEqual(wrapper, clonedWrapper);
             Assert.AreEqual(true, wrapper.IsMaterialized);
@@ -243,95 +240,59 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = new BsonDocumentWrapper(c);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(UndiscriminatedActualTypeSerializer.Instance, wrapper.Serializer);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = new BsonDocumentWrapper(null);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(object)), wrapper.Serializer);
-            Assert.AreSame(typeof(object), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(UndiscriminatedActualTypeSerializer.Instance, wrapper.Serializer);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
         }
 
         [Test]
-        public void TestConstructorWithNominalTypeAndObject()
-        {
-            var c = CreateC();
-
-            var wrapper = new BsonDocumentWrapper(typeof(C), c);
-            Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-
-            wrapper = new BsonDocumentWrapper(typeof(C), null);
-            Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-
-            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(null, c));
-        }
-
-        [Test]
-        public void TestConstructorWithNominalTypeAndObjectAndIsUpdateDocument()
-        {
-            var c = CreateC();
-
-            var wrapper = new BsonDocumentWrapper(typeof(C), c, true);
-            Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-
-            wrapper = new BsonDocumentWrapper(typeof(C), null, true);
-            Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
-            Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
-            Assert.AreEqual(false, wrapper.IsMaterialized);
-
-            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(null, c, true));
-        }
-
-        [Test]
-        public void TestConstructorWithNominalTypeAndObjectAndSerializerAndIsUpdateDocument()
+        public void TestConstructorWithObjectAndSerializer()
         {
             var c = CreateC();
             var serializer = new CSerializer();
-            var serializationOptions = DocumentSerializationOptions.SerializeIdFirstInstance;
 
-            var wrapper = new BsonDocumentWrapper(typeof(C), c, serializer, serializationOptions, true);
-            Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(serializationOptions, wrapper.SerializationOptions);
+            var wrapper = new BsonDocumentWrapper(c, serializer);
+            Assert.AreEqual(false, wrapper.IsUpdateDocument);
             Assert.AreSame(serializer, wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
-            wrapper = new BsonDocumentWrapper(typeof(C), null, serializer, serializationOptions, true);
-            Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(serializationOptions, wrapper.SerializationOptions);
+            wrapper = new BsonDocumentWrapper(null, serializer);
+            Assert.AreEqual(false, wrapper.IsUpdateDocument);
             Assert.AreSame(serializer, wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
-            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(null, c, serializer, serializationOptions, true));
-            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(typeof(C), c, null, serializationOptions, true));
-            Assert.DoesNotThrow(() => new BsonDocumentWrapper(typeof(C), c, serializer, null, true));
+            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(c, null));
+            Assert.DoesNotThrow(() => new BsonDocumentWrapper(c, serializer));
+        }
+
+        [Test]
+        public void TestConstructorWithObjectAndSerializerAndIsUpdateDocument()
+        {
+            var c = CreateC();
+            var serializer = new CSerializer();
+
+            var wrapper = new BsonDocumentWrapper(c, serializer, true);
+            Assert.AreEqual(true, wrapper.IsUpdateDocument);
+            Assert.AreSame(serializer, wrapper.Serializer);
+            Assert.AreSame(c, wrapper.Wrapped);
+            Assert.AreEqual(false, wrapper.IsMaterialized);
+
+            wrapper = new BsonDocumentWrapper(null, serializer, true);
+            Assert.AreEqual(true, wrapper.IsUpdateDocument);
+            Assert.AreSame(serializer, wrapper.Serializer);
+            Assert.AreSame(null, wrapper.Wrapped);
+            Assert.AreEqual(false, wrapper.IsMaterialized);
+
+            Assert.Throws<ArgumentNullException>(() => new BsonDocumentWrapper(c, null, true));
+            Assert.DoesNotThrow(() => new BsonDocumentWrapper(c, serializer, true));
         }
 
         [Test]
@@ -361,18 +322,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = BsonDocumentWrapper.Create<C>(c);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = BsonDocumentWrapper.Create<C>(null);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
         }
 
@@ -383,18 +340,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = BsonDocumentWrapper.Create<C>(c, true);
             Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = BsonDocumentWrapper.Create<C>(null, true);
             Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
         }
 
@@ -405,18 +358,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = BsonDocumentWrapper.Create(typeof(C), c);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = BsonDocumentWrapper.Create(typeof(C), null);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             Assert.Throws<ArgumentNullException>(() => BsonDocumentWrapper.Create(null, c));
@@ -429,18 +378,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = BsonDocumentWrapper.Create(typeof(C), c, true);
             Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(c, wrapper.WrappedObject);
+            Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = BsonDocumentWrapper.Create(typeof(C), null, true);
             Assert.AreEqual(true, wrapper.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
-            Assert.AreSame(typeof(C), wrapper.WrappedNominalType);
-            Assert.AreSame(null, wrapper.WrappedObject);
+            Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             Assert.Throws<ArgumentNullException>(() => BsonDocumentWrapper.Create(null, c, true));
@@ -456,18 +401,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper1 = wrappers[0];
             Assert.AreEqual(false, wrapper1.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper1.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper1.Serializer);
-            Assert.AreSame(typeof(C), wrapper1.WrappedNominalType);
-            Assert.AreSame(c, wrapper1.WrappedObject);
+            Assert.AreSame(c, wrapper1.Wrapped);
             Assert.AreEqual(false, wrapper1.IsMaterialized);
 
             var wrapper2 = wrappers[1];
             Assert.AreEqual(false, wrapper2.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper2.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper2.Serializer);
-            Assert.AreSame(typeof(C), wrapper2.WrappedNominalType);
-            Assert.AreSame(null, wrapper2.WrappedObject);
+            Assert.AreSame(null, wrapper2.Wrapped);
             Assert.AreEqual(false, wrapper2.IsMaterialized);
 
             Assert.Throws<ArgumentNullException>(() => BsonDocumentWrapper.CreateMultiple<C>(null));
@@ -483,18 +424,14 @@ namespace MongoDB.Bson.Tests
 
             var wrapper1 = wrappers[0];
             Assert.AreEqual(false, wrapper1.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper1.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper1.Serializer);
-            Assert.AreSame(typeof(C), wrapper1.WrappedNominalType);
-            Assert.AreSame(c, wrapper1.WrappedObject);
+            Assert.AreSame(c, wrapper1.Wrapped);
             Assert.AreEqual(false, wrapper1.IsMaterialized);
 
             var wrapper2 = wrappers[1];
             Assert.AreEqual(false, wrapper2.IsUpdateDocument);
-            Assert.AreEqual(null, wrapper2.SerializationOptions);
             Assert.AreSame(BsonSerializer.LookupSerializer(typeof(C)), wrapper2.Serializer);
-            Assert.AreSame(typeof(C), wrapper2.WrappedNominalType);
-            Assert.AreSame(null, wrapper2.WrappedObject);
+            Assert.AreSame(null, wrapper2.Wrapped);
             Assert.AreEqual(false, wrapper2.IsMaterialized);
 
             Assert.Throws<ArgumentNullException>(() => BsonDocumentWrapper.CreateMultiple(null, new[] { c, null }));
@@ -915,7 +852,7 @@ namespace MongoDB.Bson.Tests
         private BsonDocumentWrapper CreateWrapper()
         {
             var c = CreateC();
-            return new BsonDocumentWrapper(typeof(C), c);
+            return new BsonDocumentWrapper(c);
         }
     }
 }

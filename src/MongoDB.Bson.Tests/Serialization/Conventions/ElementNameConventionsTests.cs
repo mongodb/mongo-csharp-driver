@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
@@ -33,24 +34,30 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         public void TestMemberNameElementNameConvention()
         {
             var convention = new MemberNameElementNameConvention();
-#pragma warning disable 618
-            Assert.AreEqual("FirstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
-            Assert.AreEqual("Age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
-            Assert.AreEqual("_DumbName", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
-            Assert.AreEqual("lowerCase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
-#pragma warning restore 618
+            var classMap = new BsonClassMap<TestClass>();
+            convention.Apply(classMap.MapMember(x => x.FirstName));
+            convention.Apply(classMap.MapMember(x => x.Age));
+            convention.Apply(classMap.MapMember(x => x._DumbName));
+            convention.Apply(classMap.MapMember(x => x.lowerCase));
+            Assert.AreEqual("FirstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
+            Assert.AreEqual("Age", classMap.GetMemberMap(x => x.Age).ElementName);
+            Assert.AreEqual("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
+            Assert.AreEqual("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
         }
 
         [Test]
         public void TestCamelCaseElementNameConvention()
         {
             var convention = new CamelCaseElementNameConvention();
-#pragma warning disable 618
-            Assert.AreEqual("firstName", convention.GetElementName(typeof(TestClass).GetProperty("FirstName")));
-            Assert.AreEqual("age", convention.GetElementName(typeof(TestClass).GetProperty("Age")));
-            Assert.AreEqual("_DumbName", convention.GetElementName(typeof(TestClass).GetProperty("_DumbName")));
-            Assert.AreEqual("lowerCase", convention.GetElementName(typeof(TestClass).GetProperty("lowerCase")));
-#pragma warning restore 618
+            var classMap = new BsonClassMap<TestClass>();
+            convention.Apply(classMap.MapMember(x => x.FirstName));
+            convention.Apply(classMap.MapMember(x => x.Age));
+            convention.Apply(classMap.MapMember(x => x._DumbName));
+            convention.Apply(classMap.MapMember(x => x.lowerCase));
+            Assert.AreEqual("firstName", classMap.GetMemberMap(x => x.FirstName).ElementName);
+            Assert.AreEqual("age", classMap.GetMemberMap(x => x.Age).ElementName);
+            Assert.AreEqual("_DumbName", classMap.GetMemberMap(x => x._DumbName).ElementName);
+            Assert.AreEqual("lowerCase", classMap.GetMemberMap(x => x.lowerCase).ElementName);
         }
     }
 }

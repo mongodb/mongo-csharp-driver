@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
@@ -69,14 +69,14 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal override void WriteBodyTo(BsonBuffer buffer)
+        internal override void WriteBodyTo(BsonStreamWriter streamWriter)
         {
             var processedRequests = new List<InsertRequest>();
 
             var continuationBatch = _batch as ContinuationBatch<InsertRequest, byte[]>;
             if (continuationBatch != null)
             {
-                AddOverflow(buffer, continuationBatch.PendingState);
+                AddOverflow(streamWriter, continuationBatch.PendingState);
                 processedRequests.Add(continuationBatch.PendingItem);
                 continuationBatch.ClearPending(); // so pending objects can be garbage collected sooner
             }
@@ -86,11 +86,11 @@ namespace MongoDB.Driver.Internal
             while (enumerator.MoveNext())
             {
                 var request = enumerator.Current;
-                AddRequest(buffer, request);
+                AddRequest(streamWriter, request);
 
                 if ((_batchCount > _maxBatchCount || _batchLength > _maxBatchLength) && _batchCount > 1)
                 {
-                    var serializedDocument = RemoveLastDocument(buffer);
+                    var serializedDocument = RemoveLastDocument(streamWriter.BaseStream);
                     var nextBatch = new ContinuationBatch<InsertRequest, byte[]>(enumerator, request, serializedDocument);
                     _batchProgress = new BatchProgress<InsertRequest>(_batchCount, _batchLength, processedRequests, nextBatch);
                     return;
@@ -102,24 +102,24 @@ namespace MongoDB.Driver.Internal
             _batchProgress = new BatchProgress<InsertRequest>(_batchCount, _batchLength, processedRequests, null);
         }
 
-        internal override void WriteHeaderTo(BsonBuffer buffer)
+        internal override void WriteHeaderTo(BsonStreamWriter streamWriter)
         {
-            _batchStartPosition = buffer.Position;
-            base.WriteHeaderTo(buffer);
-            buffer.WriteInt32((int)_flags);
-            buffer.WriteCString(new UTF8Encoding(false, true), _collectionFullName);
+            _batchStartPosition = (int)streamWriter.Position;
+            base.WriteHeaderTo(streamWriter);
+            streamWriter.WriteInt32((int)_flags);
+            streamWriter.WriteCString(_collectionFullName);
         }
 
         // private methods
-        private void AddOverflow(BsonBuffer buffer, byte[] serializedDocument)
+        private void AddOverflow(BsonStreamWriter streamWriter, byte[] serializedDocument)
         {
-            buffer.WriteBytes(serializedDocument);
+            streamWriter.WriteBytes(serializedDocument);
 
             _batchCount++;
-            _batchLength = buffer.Position - _batchStartPosition;
+            _batchLength = (int)streamWriter.Position - _batchStartPosition;
         }
 
-        private void AddRequest(BsonBuffer buffer, InsertRequest request)
+        private void AddRequest(BsonStreamWriter streamWriter, InsertRequest request)
         {
             var document = request.Document;
             if (document == null)
@@ -138,31 +138,32 @@ namespace MongoDB.Driver.Internal
                 }
                 serializer = _cachedSerializer;
             }
-            var serializationOptions = request.SerializationOptions ?? DocumentSerializationOptions.SerializeIdFirstInstance;
 
-            _lastDocumentStartPosition = buffer.Position;
-            using (var bsonWriter = new BsonBinaryWriter(buffer, false, WriterSettings))
+            _lastDocumentStartPosition = (int)streamWriter.Position;
+            using (var bsonWriter = new BsonBinaryWriter(streamWriter.BaseStream, WriterSettings))
             {
                 bsonWriter.PushMaxDocumentSize(_maxDocumentSize);
                 bsonWriter.CheckElementNames = _checkElementNames;
-                serializer.Serialize(bsonWriter, request.NominalType, document, serializationOptions);
+                var context = BsonSerializationContext.CreateRoot(bsonWriter, request.NominalType, c => c.SerializeIdFirst = true);
+                serializer.Serialize(context, document);
                 bsonWriter.PopMaxDocumentSize();
             }
 
             _batchCount++;
-            _batchLength = buffer.Position - _batchStartPosition;
+            _batchLength = (int)streamWriter.Position - _batchStartPosition;
         }
 
-        private byte[] RemoveLastDocument(BsonBuffer buffer)
+        private byte[] RemoveLastDocument(Stream stream)
         {
-            var lastDocumentLength = buffer.Position - _lastDocumentStartPosition;
-            buffer.Position = _lastDocumentStartPosition;
-            var lastDocument = buffer.ReadBytes(lastDocumentLength);
-            buffer.Position = _lastDocumentStartPosition;
-            buffer.Length = _lastDocumentStartPosition;
+            var streamReader = new BsonStreamReader(stream, WriterSettings.Encoding);
+            var lastDocumentLength = (int)streamReader.Position - _lastDocumentStartPosition;
+            streamReader.Position = _lastDocumentStartPosition;
+            var lastDocument = streamReader.ReadBytes(lastDocumentLength);
+            streamReader.Position = _lastDocumentStartPosition;
+            streamReader.BaseStream.SetLength(_lastDocumentStartPosition);
 
             _batchCount -= 1;
-            _batchLength = buffer.Position - _batchStartPosition;
+            _batchLength = (int)streamReader.Position - _batchStartPosition;
 
             return lastDocument;
         }

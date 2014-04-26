@@ -16,6 +16,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.IO
@@ -95,27 +97,6 @@ namespace MongoDB.Bson.IO
 
         // public static methods
         /// <summary>
-        /// Creates a BsonReader for a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">The BsonBuffer.</param>
-        /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(BsonBuffer buffer)
-        {
-            return Create(buffer, BsonBinaryReaderSettings.Defaults);
-        }
-
-        /// <summary>
-        /// Creates a BsonReader for a BsonBuffer.
-        /// </summary>
-        /// <param name="buffer">The BsonBuffer.</param>
-        /// <param name="settings">Optional reader settings.</param>
-        /// <returns>A BsonReader.</returns>
-        public static BsonReader Create(BsonBuffer buffer, BsonBinaryReaderSettings settings)
-        {
-            return new BsonBinaryReader(buffer, false, settings);
-        }
-
-        /// <summary>
         /// Creates a BsonReader for a BsonDocument.
         /// </summary>
         /// <param name="document">The BsonDocument.</param>
@@ -175,9 +156,7 @@ namespace MongoDB.Bson.IO
         /// <returns>A BsonReader.</returns>
         public static BsonReader Create(Stream stream, BsonBinaryReaderSettings settings)
         {
-            var byteBuffer = ByteBufferFactory.LoadFrom(stream);
-            byteBuffer.MakeReadOnly();
-            return new BsonBinaryReader(new BsonBuffer(byteBuffer, true), true, settings);
+            return new BsonBinaryReader(stream, settings);
         }
 
         /// <summary>
@@ -674,21 +653,25 @@ namespace MongoDB.Bson.IO
         /// <returns>The raw BSON array.</returns>
         public virtual IByteBuffer ReadRawBsonArray()
         {
-            // overridden in BsonBinaryReader
-            var array = BsonArraySerializer.Instance.Deserialize(this, typeof(BsonArray), null);
-            using (var bsonWriter = new BsonBinaryWriter(new BsonBuffer(), true, BsonBinaryWriterSettings.Defaults))
+            // overridden in BsonBinaryReader to read the raw bytes from the stream
+            // for all other streams, deserialize the array and reserialize it using a BsonBinaryWriter to get the raw bytes
+
+            var deserializationContext = BsonDeserializationContext.CreateRoot<BsonArray>(this);
+            var array = BsonArraySerializer.Instance.Deserialize(deserializationContext);
+
+            using (var memoryStream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(memoryStream, BsonBinaryWriterSettings.Defaults))
             {
+                var serializationContext = BsonSerializationContext.CreateRoot<BsonDocument>(bsonWriter);
                 bsonWriter.WriteStartDocument();
-                var startPosition = bsonWriter.Buffer.Position + 3; // just past BsonType, "x" and null byte
+                var startPosition = memoryStream.Position + 3; // just past BsonType, "x" and null byte
                 bsonWriter.WriteName("x");
-                BsonArraySerializer.Instance.Serialize(bsonWriter, typeof(BsonArray), array, null);
-                var endPosition = bsonWriter.Buffer.Position;
+                serializationContext.SerializeWithChildContext(BsonArraySerializer.Instance, array);
+                var endPosition = memoryStream.Position;
                 bsonWriter.WriteEndDocument();
 
-                var length = (int)(endPosition - startPosition);
-                bsonWriter.Buffer.Position = startPosition;
-                var bytes = bsonWriter.Buffer.ReadBytes(length);
-                return new ByteArrayBuffer(bytes, 0, length, true);
+                var bytes = memoryStream.ToArray();
+                return new ByteArrayBuffer(bytes, (int)startPosition, (int)(endPosition - startPosition), true);
             }
         }
 
@@ -711,8 +694,11 @@ namespace MongoDB.Bson.IO
         /// <returns>The raw BSON document.</returns>
         public virtual IByteBuffer ReadRawBsonDocument()
         {
-            // overridden in BsonBinaryReader
-            var document = BsonDocumentSerializer.Instance.Deserialize(this, typeof(BsonDocument), null);
+            // overridden in BsonBinaryReader to read the raw bytes from the stream
+            // for all other streams, deserialize the document and use ToBson to get the raw bytes
+
+            var deserializationContext = BsonDeserializationContext.CreateRoot<BsonDocument>(this);
+            var document = BsonDocumentSerializer.Instance.Deserialize(deserializationContext);
             var bytes = document.ToBson();
             return new ByteArrayBuffer(bytes, 0, bytes.Length, true);
         }

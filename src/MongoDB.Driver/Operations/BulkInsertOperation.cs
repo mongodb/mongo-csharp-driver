@@ -122,14 +122,14 @@ namespace MongoDB.Driver.Operations
                     }
                     serializer = _cachedSerializer;
                 }
-                var serializationOptions = insertRequest.SerializationOptions ?? DocumentSerializationOptions.SerializeIdFirstInstance;
 
                 var savedCheckElementNames = bsonWriter.CheckElementNames;
                 try
                 {
                     bsonWriter.PushMaxDocumentSize(MaxDocumentSize);
                     bsonWriter.CheckElementNames = _checkElementNames;
-                    serializer.Serialize(bsonWriter, insertRequest.NominalType, document, serializationOptions);
+                    var context = BsonSerializationContext.CreateRoot(bsonWriter, insertRequest.NominalType, c => c.SerializeIdFirst = true);
+                    serializer.Serialize(context, document);
                 }
                 finally
                 {

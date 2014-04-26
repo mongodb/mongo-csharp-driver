@@ -20,7 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 using MongoDB.Driver.Wrappers;
@@ -710,6 +710,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for creating update modifiers.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(UpdateBuilder.Serializer))]
     public class UpdateBuilder : BuilderBase, IMongoUpdate
     {
         // private fields
@@ -1723,18 +1724,6 @@ namespace MongoDB.Driver.Builders
             return this;
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
-        }
-
         // private methods
         private void BitwiseOperation(string name, string operation, BsonValue value)
         {
@@ -1781,6 +1770,15 @@ namespace MongoDB.Driver.Builders
             var mulDocument = mulElement.Value.AsBsonDocument;
 
             mulDocument.Add(name, value);
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<UpdateBuilder>
+        {
+            public override void Serialize(BsonSerializationContext context, UpdateBuilder value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+            }
         }
     }
 
@@ -2262,6 +2260,7 @@ namespace MongoDB.Driver.Builders
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     [Serializable]
+    [BsonSerializer(typeof(UpdateBuilder<>.Serializer))]
     public class UpdateBuilder<TDocument> : BuilderBase, IMongoUpdate
     {
         // private fields
@@ -2475,12 +2474,8 @@ namespace MongoDB.Driver.Builders
             }
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            var options = serializationInfo.SerializationOptions as DateTimeSerializationOptions;
-            BsonType externalRepresentation = BsonType.DateTime;
-            if (options != null)
-            {
-                externalRepresentation = options.Representation;
-            }
+            var dateTimeSerializer = serializationInfo.Serializer as DateTimeSerializer;
+            var externalRepresentation = dateTimeSerializer.Representation;
 
             switch (externalRepresentation)
             {
@@ -2488,7 +2483,7 @@ namespace MongoDB.Driver.Builders
                     _updateBuilder.CurrentDate(serializationInfo.ElementName, UpdateCurrentDateType.Date);
                     break;
                 default:
-                    throw new NotSupportedException(string.Format("Cannot use $currentDate with a Representation of {0}.", options.Representation));
+                    throw new NotSupportedException(string.Format("Cannot use $currentDate with a Representation of {0}.", externalRepresentation));
             }
 
             return this;
@@ -3010,18 +3005,6 @@ namespace MongoDB.Driver.Builders
             return this;
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
-        {
-            ((IBsonSerializable)_updateBuilder).Serialize(bsonWriter, nominalType, options);
-        }
-
         // private methods
         private UpdateBuilder<TDocument> BitwiseAnd(BsonSerializationInfo serializationInfo, BsonValue serializedValue)
         {
@@ -3110,6 +3093,15 @@ namespace MongoDB.Driver.Builders
             }
 
             return this;
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<UpdateBuilder<TDocument>>
+        {
+            public override void Serialize(BsonSerializationContext context, UpdateBuilder<TDocument> value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._updateBuilder.ToBsonDocument());
+            }
         }
     }
 }

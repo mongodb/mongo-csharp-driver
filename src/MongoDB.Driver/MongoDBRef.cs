@@ -190,24 +190,17 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for MongoDBRefs.
     /// </summary>
-    public class MongoDBRefSerializer : BsonBaseSerializer, IBsonDocumentSerializer
+    public class MongoDBRefSerializer : BsonBaseSerializer<MongoDBRef>, IBsonDocumentSerializer
     {
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override MongoDBRef Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(MongoDBRef));
+            var bsonReader = context.Reader;
 
             if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
             {
@@ -231,7 +224,7 @@ namespace MongoDB.Driver
                             collectionName = bsonReader.ReadString();
                             break;
                         case "$id":
-                            id = (BsonValue)BsonValueSerializer.Instance.Deserialize(bsonReader, typeof(BsonValue), null);
+                            id = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
                             break;
                         case "$db":
                             databaseName = bsonReader.ReadString();
@@ -257,7 +250,6 @@ namespace MongoDB.Driver
             string elementName;
             IBsonSerializer serializer;
             Type nominalType;
-            IBsonSerializationOptions serializationOptions = null;
 
             switch (memberName)
             {
@@ -281,37 +273,31 @@ namespace MongoDB.Driver
                     throw new ArgumentOutOfRangeException("memberName", message);
             }
 
-            return new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            return new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, MongoDBRef value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var dbRef = (MongoDBRef)value;
-
                 bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("$ref", dbRef.CollectionName);
+                bsonWriter.WriteString("$ref", value.CollectionName);
                 bsonWriter.WriteName("$id");
-                BsonValueSerializer.Instance.Serialize(bsonWriter, typeof(BsonValue), dbRef.Id, null);
-                if (dbRef.DatabaseName != null)
+                context.SerializeWithChildContext(BsonValueSerializer.Instance, value.Id);
+                if (value.DatabaseName != null)
                 {
-                    bsonWriter.WriteString("$db", dbRef.DatabaseName);
+                    bsonWriter.WriteString("$db", value.DatabaseName);
                 }
                 bsonWriter.WriteEndDocument();
             }

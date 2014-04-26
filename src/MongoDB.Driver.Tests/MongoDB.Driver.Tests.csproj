@@ -214,7 +214,6 @@
     <Compile Include="Jira\CSharp325Tests.cs" />
     <Compile Include="Jira\CSharp330Tests.cs" />
     <Compile Include="Jira\CSharp346Tests.cs" />
-    <Compile Include="Jira\CSharp355Tests.cs" />
     <Compile Include="Jira\CSharp358Tests.cs" />
     <Compile Include="Jira\CSharp361Tests.cs" />
     <Compile Include="Jira\CSharp365Tests.cs" />

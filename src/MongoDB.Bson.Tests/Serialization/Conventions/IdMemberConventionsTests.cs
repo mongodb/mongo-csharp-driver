@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using NUnit.Framework;
 
@@ -45,26 +46,42 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         }
 
         [Test]
-        public void TestNamedIdMemberConvention()
+        public void TestNamedIdMemberConventionWithTestClassA()
         {
             var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var classMap = new BsonClassMap<TestClassA>();
+            convention.Apply(classMap);
+            Assert.IsNotNull(classMap.IdMemberMap);
+            Assert.AreEqual("Id", classMap.IdMemberMap.MemberName);
+        }
 
-#pragma warning disable 618
-            var idMemberName = convention.FindIdMember(typeof(TestClassA));
-            Assert.IsNotNull(idMemberName);
-            Assert.AreEqual("Id", idMemberName);
+        [Test]
+        public void TestNamedIdMemberConventionWithTestClassB()
+        {
+            var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var classMap = new BsonClassMap<TestClassB>();
+            convention.Apply(classMap);
+            Assert.IsNull(classMap.IdMemberMap);
+        }
 
-            idMemberName = convention.FindIdMember(typeof(TestClassB));
-            Assert.IsNull(idMemberName);
+        [Test]
+        public void TestNamedIdMemberConventionWithTestClassC()
+        {
+            var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var classMap = new BsonClassMap<TestClassC>();
+            convention.Apply(classMap);
+            Assert.IsNotNull(classMap.IdMemberMap);
+            Assert.AreEqual("id", classMap.IdMemberMap.MemberName);
+        }
 
-            idMemberName = convention.FindIdMember(typeof(TestClassC));
-            Assert.IsNotNull(idMemberName);
-            Assert.AreEqual("id", idMemberName);
-
-            idMemberName = convention.FindIdMember(typeof(TestClassD));
-            Assert.IsNotNull(idMemberName);
-            Assert.AreEqual("_id", idMemberName);
-#pragma warning restore 618
+        [Test]
+        public void TestNamedIdMemberConventionWithTestClassD()
+        {
+            var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var classMap = new BsonClassMap<TestClassD>();
+            convention.Apply(classMap);
+            Assert.IsNotNull(classMap.IdMemberMap);
+            Assert.AreEqual("_id", classMap.IdMemberMap.MemberName);
         }
     }
 }

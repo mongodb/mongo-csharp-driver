@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Internal;
@@ -67,7 +68,7 @@ namespace MongoDB.Driver.Operations
                     // release buffer as soon as possible
                     BatchProgress<InsertRequest> batchProgress;
                     SendMessageWithWriteConcernResult sendBatchResult;
-                    using (var buffer = new BsonBuffer(new MultiChunkBuffer(BsonChunkPool.Default), true))
+                    using (var stream = new MemoryStream())
                     {
                         var flags = _continueOnError ? InsertFlags.ContinueOnError : InsertFlags.None;
                         var message = new MongoInsertMessage(
@@ -79,10 +80,10 @@ namespace MongoDB.Driver.Operations
                             maxBatchLength,
                             maxDocumentSize,
                             nextBatch);
-                        message.WriteTo(buffer); // consumes as much of nextBatch as fits in one message
+                        message.WriteTo(stream); // consumes as much of nextBatch as fits in one message
                         batchProgress = message.BatchProgress;
 
-                        sendBatchResult = SendBatch(connection, buffer, message.RequestId, batchProgress.IsLast);
+                        sendBatchResult = SendBatch(connection, stream, message.RequestId, batchProgress.IsLast);
                     }
 
                     // note: getLastError is sent even when WriteConcern is not enabled if ContinueOnError is false
@@ -132,14 +133,14 @@ namespace MongoDB.Driver.Operations
         }
 
         // private methods
-        private SendMessageWithWriteConcernResult SendBatch(MongoConnection connection, BsonBuffer buffer, int requestId, bool isLast)
+        private SendMessageWithWriteConcernResult SendBatch(MongoConnection connection, Stream stream, int requestId, bool isLast)
         {
             var writeConcern = WriteConcern;
             if (!writeConcern.Enabled && !_continueOnError && !isLast)
             {
                 writeConcern = WriteConcern.Acknowledged;
             }
-            return SendMessageWithWriteConcern(connection, buffer, requestId, ReaderSettings, WriterSettings, writeConcern);
+            return SendMessageWithWriteConcern(connection, stream, requestId, ReaderSettings, WriterSettings, writeConcern);
         }
     }
 }

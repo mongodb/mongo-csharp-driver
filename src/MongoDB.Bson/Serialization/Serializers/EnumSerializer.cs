@@ -17,6 +17,7 @@ using System;
 using System.IO;
 using System.Linq;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -24,79 +25,97 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for enums.
     /// </summary>
-    public class EnumSerializer : BsonBaseSerializer
+    public class EnumSerializer<TEnum> : BsonBaseSerializer<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>>
     {
-        // private static fields
-        private static EnumSerializer __instance = new EnumSerializer();
+        // private fields
+        private readonly BsonType _representation;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the EnumSerializer class.
+        /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
         /// </summary>
         public EnumSerializer()
-            : base(new RepresentationSerializationOptions((BsonType)0)) // 0 means use underlying type
+            : this((BsonType)0) // 0 means use underlying type
         {
         }
 
-        // public static properties
         /// <summary>
-        /// Gets an instance of the EnumSerializer class.
+        /// Initializes a new instance of the <see cref="EnumSerializer{TEnum}"/> class.
         /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static EnumSerializer Instance
+        /// <param name="representation">The representation.</param>
+        public EnumSerializer(BsonType representation)
         {
-            get { return __instance; }
+            switch (representation)
+            {
+                case 0:
+                case BsonType.Int32:
+                case BsonType.Int64:
+                case BsonType.String:
+                    break;
+
+                default:
+                    var message = string.Format("{0} is not a valid representation for an EnumSerializer.", representation);
+                    throw new ArgumentException(message);
+            }
+
+            // don't know of a way to enforce this at compile time
+            if (!typeof(TEnum).IsEnum)
+            {
+                var message = string.Format("{0} is not an enum type.", typeof(TEnum).FullName);
+                throw new BsonSerializationException(message);
+            }
+
+            _representation = representation;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        /// <value>
+        /// The representation.
+        /// </value>
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, // ignored
-            IBsonSerializationOptions options)
+        public override TEnum Deserialize(BsonDeserializationContext context)
         {
-            VerifyDeserializeType(nominalType);
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Int32: return Enum.ToObject(nominalType, bsonReader.ReadInt32());
-                case BsonType.Int64: return Enum.ToObject(nominalType, bsonReader.ReadInt64());
-                case BsonType.Double: return Enum.ToObject(nominalType, (long)bsonReader.ReadDouble());
-                case BsonType.String: return Enum.Parse(nominalType, bsonReader.ReadString());
+                case BsonType.Int32: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt32());
+                case BsonType.Int64: return (TEnum)Enum.ToObject(typeof(TEnum), bsonReader.ReadInt64());
+                case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
+                case BsonType.String: return (TEnum)Enum.Parse(typeof(TEnum), bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize {0} from BsonType {1}.", nominalType.FullName, bsonType);
+                    var message = string.Format("Cannot deserialize {0} enum from BsonType {1}.", typeof(TEnum).FullName, bsonType);
                     throw new FileFormatException(message);
             }
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value, 
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, TEnum value)
         {
-            var actualType = value.GetType();
-            VerifySerializeTypes(nominalType, actualType);
+            var bsonWriter = context.Writer;
 
-            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
-
-            switch (representationSerializationOptions.Representation)
+            switch (_representation)
             {
                 case 0:
-                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(actualType));
+                    var underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
                     if (underlyingTypeCode == TypeCode.Int64 || underlyingTypeCode == TypeCode.UInt64)
                     {
                         goto case BsonType.Int64;
@@ -105,48 +124,45 @@ namespace MongoDB.Bson.Serialization.Serializers
                     {
                         goto case BsonType.Int32;
                     }
+
                 case BsonType.Int32:
                     bsonWriter.WriteInt32(Convert.ToInt32(value));
                     break;
+
                 case BsonType.Int64:
                     bsonWriter.WriteInt64(Convert.ToInt64(value));
                     break;
+
                 case BsonType.String:
                     bsonWriter.WriteString(value.ToString());
                     break;
+
                 default:
                     throw new BsonInternalException("Unexpected EnumRepresentation.");
             }
         }
 
-        // private methods
-        private void VerifyDeserializeType(Type nominalType)
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public EnumSerializer<TEnum> WithRepresentation(BsonType representation)
         {
-            if (!nominalType.IsEnum)
+            if (representation == _representation)
             {
-                var message = string.Format("EnumSerializer.Deserialize cannot be used with nominal type {0}.", nominalType.FullName);
-                throw new BsonSerializationException(message);
+                return this;
+            }
+            else
+            {
+                return new EnumSerializer<TEnum>(representation);
             }
         }
 
-        private void VerifySerializeTypes(Type nominalType, Type actualType)
+        // explicit interface implementations
+        IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
         {
-            // problem is that the actual type of a nullable type that is not null will appear as the non-nullable type
-            // we want to allow both Enum and Nullable<Enum> here 
-            bool isNullableOfActual = (nominalType.IsGenericType &&
-                nominalType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                nominalType.GetGenericArguments().Single() == actualType);
-            if (nominalType != typeof(object) && nominalType != actualType && !isNullableOfActual)
-            {
-                var message = string.Format("EnumSerializer.Serialize cannot be used with nominal type {0}.", nominalType.FullName);
-                throw new BsonSerializationException(message);
-            }
-
-            if (!actualType.IsEnum)
-            {
-                var message = string.Format("EnumSerializer.Serialize cannot be used with actual type {0}.", actualType.FullName);
-                throw new BsonSerializationException(message);
-            }
+            return WithRepresentation(representation);
         }
     }
 }

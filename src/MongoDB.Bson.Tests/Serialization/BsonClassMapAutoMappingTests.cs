@@ -36,46 +36,5 @@ namespace MongoDB.Bson.Tests.Serialization
             [BsonRepresentation(BsonType.ObjectId)]
             public ObjectId Match { get; set; }
         }
-
-        [Test]
-        public void TestMappingUsesMemberSerializationOptionsConvention()
-        {
-            var pack = new ConventionPack();
-            pack.Add(new MemberSerializationOptionsConvention(typeof(ObjectId), new RepresentationSerializationOptions(BsonType.JavaScriptWithScope)));
-            ConventionRegistry.Register("test", pack, t => t == typeof(A));
-
-            var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
-
-            var options = classMap.GetMemberMap("Match").SerializationOptions;
-            Assert.IsInstanceOf<RepresentationSerializationOptions>(options);
-            Assert.AreEqual(BsonType.JavaScriptWithScope, ((RepresentationSerializationOptions)options).Representation);
-        }
-
-        [Test]
-        public void TestMappingUsesMemberSerializationOptionsConventionDoesNotMatchWrongProperty()
-        {
-            var pack = new ConventionPack();
-            pack.Add(new MemberSerializationOptionsConvention(typeof(ObjectId), new RepresentationSerializationOptions(BsonType.JavaScriptWithScope)));
-            ConventionRegistry.Register("test", pack, t => t == typeof(A));
-
-            var classMap = new BsonClassMap<A>(cm => cm.AutoMap());
-
-            var options = classMap.GetMemberMap("NoMatch").SerializationOptions;
-            Assert.IsNull(options);
-        }
-
-        [Test]
-        public void TestMappingUsesMemberSerializationOptionsConventionDoesNotOverrideAttribute()
-        {
-            var pack = new ConventionPack();
-            pack.Add(new MemberSerializationOptionsConvention(typeof(ObjectId), new RepresentationSerializationOptions(BsonType.JavaScriptWithScope)));
-            ConventionRegistry.Register("test", pack, t => t == typeof(B));
-
-            var classMap = new BsonClassMap<B>(cm => cm.AutoMap());
-
-            var options = classMap.GetMemberMap("Match").SerializationOptions;
-            Assert.IsInstanceOf<RepresentationSerializationOptions>(options);
-            Assert.AreEqual(BsonType.ObjectId, ((RepresentationSerializationOptions)options).Representation);
-        }
     }
 }

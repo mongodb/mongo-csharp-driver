@@ -31,8 +31,7 @@ namespace MongoDB.Driver.Operations
         private readonly IConnectionProvider _connectionProvider;
         private readonly int _limit;
         private readonly BsonBinaryReaderSettings _readerSettings;
-        private readonly IBsonSerializationOptions _serializationOptions;
-        private readonly IBsonSerializer _serializer;
+        private readonly IBsonSerializer<TDocument> _serializer;
 
         private long _count = 0;
         private List<TDocument> _currentBatch;
@@ -50,8 +49,7 @@ namespace MongoDB.Driver.Operations
             int batchSize,
             int limit,
             BsonBinaryReaderSettings readerSettings,
-            IBsonSerializer serializer,
-            IBsonSerializationOptions serializationOptions)
+            IBsonSerializer<TDocument> serializer)
         {
             _connectionProvider = connectionProvider;
             _collectionFullName = collectionFullName;
@@ -61,7 +59,6 @@ namespace MongoDB.Driver.Operations
             _limit = Math.Abs(limit);
             _readerSettings = readerSettings;
             _serializer = serializer;
-            _serializationOptions = serializationOptions;
         }
 
         // public properties
@@ -168,7 +165,7 @@ namespace MongoDB.Driver.Operations
 
                 var getMoreMessage = new MongoGetMoreMessage(_collectionFullName, numberToReturn, _cursorId);
                 connection.SendMessage(getMoreMessage);
-                return connection.ReceiveMessage<TDocument>(_readerSettings, _serializer, _serializationOptions);
+                return connection.ReceiveMessage<TDocument>(_readerSettings, _serializer);
             }
             finally
             {

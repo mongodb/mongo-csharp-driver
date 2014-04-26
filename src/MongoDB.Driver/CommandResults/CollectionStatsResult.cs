@@ -57,7 +57,7 @@ namespace MongoDB.Driver
     /// Represents the results of the collection stats command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<CollectionStatsResult>))]
     public class CollectionStatsResult : CommandResult
     {
         // private fields

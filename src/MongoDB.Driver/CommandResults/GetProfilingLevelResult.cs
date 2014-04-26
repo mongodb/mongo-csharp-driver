@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// Represents the results of a GetProfilingLevel command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<GetProfilingLevelResult>))]
     public class GetProfilingLevelResult : CommandResult
     {
         // constructors

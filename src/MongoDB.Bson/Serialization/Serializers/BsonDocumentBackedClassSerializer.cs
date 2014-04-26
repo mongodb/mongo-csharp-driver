@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization
     /// Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).
     /// </summary>
     /// <typeparam name="TClass">The subclass of BsonDocumentBackedClass.</typeparam>
-    public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer, IBsonDocumentSerializer
+    public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer<TClass>, IBsonDocumentSerializer
         where TClass : BsonDocumentBackedClass
     {
         // private fields
@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Serialization
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BsonDocumentBackedClassSerializer&lt;TClass&gt;"/> class.
+        /// Initializes a new instance of the <see cref="BsonDocumentBackedClassSerializer{TClass}"/> class.
         /// </summary>
         protected BsonDocumentBackedClassSerializer()
         {
@@ -41,18 +41,13 @@ namespace MongoDB.Bson.Serialization
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        public override TClass Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(TClass));
-
-            var backingDocument = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), typeof(BsonDocument), options);
+            var backingDocument = BsonDocumentSerializer.Instance.Deserialize(context);
             return CreateInstance(backingDocument);
         }
 
@@ -76,14 +71,14 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, TClass value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
@@ -91,7 +86,7 @@ namespace MongoDB.Bson.Serialization
             else
             {
                 var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
-                BsonDocumentSerializer.Instance.Serialize(bsonWriter, typeof(BsonDocument), backingDocument, options);
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, backingDocument);
             }
         }
 
@@ -102,9 +97,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="memberName">The member name.</param>
         /// <param name="elementName">The element name.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="serializationOptions">The serialization options.</param>
-        protected void RegisterMember(string memberName, string elementName, IBsonSerializer serializer, Type nominalType, IBsonSerializationOptions serializationOptions)
+        protected void RegisterMember(string memberName, string elementName, IBsonSerializer serializer)
         {
             if (memberName == null)
             {
@@ -118,12 +111,8 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializer");
             }
-            if (nominalType == null)
-            {
-                throw new ArgumentNullException("nominalType");
-            }
 
-            var info = new BsonSerializationInfo(elementName, serializer, nominalType, serializationOptions);
+            var info = new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
             _memberSerializationInfo.Add(memberName, info);
         }
 

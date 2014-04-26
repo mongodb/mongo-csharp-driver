@@ -30,7 +30,6 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private IMongoQuery _query;
         private ReadPreference _readPreference;
-        private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
         private int? _skip;
         private IMongoSortBy _sortBy;
@@ -94,18 +93,6 @@ namespace MongoDB.Driver
         {
             get { return _readPreference; }
             set { _readPreference = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the serialization options.
-        /// </summary>
-        /// <value>
-        /// The serialization options.
-        /// </value>
-        public IBsonSerializationOptions SerializationOptions
-        {
-            get { return _serializationOptions; }
-            set { _serializationOptions = value; }
         }
 
         /// <summary>

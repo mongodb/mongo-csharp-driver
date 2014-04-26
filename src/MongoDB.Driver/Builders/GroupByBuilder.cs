@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Utils;
 
@@ -55,6 +56,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
     [Serializable]
+    [BsonSerializer(typeof(GroupByBuilder.Serializer))]
     public class GroupByBuilder : BuilderBase, IMongoGroupBy
     {
         // private fields
@@ -104,16 +106,13 @@ namespace MongoDB.Driver.Builders
             return _document;
         }
 
-        // explicit interface implementations
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<GroupByBuilder>
         {
-            BsonDocumentSerializer.Instance.Serialize(bsonWriter, nominalType, _document, options);
+            public override void Serialize(BsonSerializationContext context, GroupByBuilder value)
+            {
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, value._document);
+            }
         }
     }
 
@@ -139,6 +138,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for specifying what the GroupBy command should group by.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
+    [BsonSerializer(typeof(GroupByBuilder<>.Serializer))]
     public class GroupByBuilder<TDocument> : BuilderBase, IMongoGroupBy
     {
         // private fields
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Builders
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GroupByBuilder&lt;TDocument&gt;"/> class.
+        /// Initializes a new instance of the <see cref="GroupByBuilder{TDocument}"/> class.
         /// </summary>
         public GroupByBuilder()
         {
@@ -180,16 +180,13 @@ namespace MongoDB.Driver.Builders
             return _groupByBuilder.ToBsonDocument();
         }
 
-        // protected methods
-        /// <summary>
-        /// Serializes the result of the builder to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="options">The serialization options.</param>
-        protected override void Serialize(BsonWriter bsonWriter, Type nominalType, IBsonSerializationOptions options)
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<GroupByBuilder<TDocument>>
         {
-            ((IBsonSerializable)_groupByBuilder).Serialize(bsonWriter, nominalType, options);
+            public override void Serialize(BsonSerializationContext context, GroupByBuilder<TDocument> value)
+            {
+                BsonDocumentSerializer.Instance.Serialize(context, value._groupByBuilder.ToBsonDocument());
+            }
         }
     }
 }

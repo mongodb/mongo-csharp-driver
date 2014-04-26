@@ -17,12 +17,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a BSON document that can be used where an IMongoCommand is expected.
     /// </summary>
+    [BsonSerializer(typeof(CommandDocument.Serializer))]
     public class CommandDocument : QueryDocument, IMongoCommand
     {
         // constructors
@@ -138,6 +142,11 @@ namespace MongoDB.Driver
         /// <param name="value">The value of the element to add to the document.</param>
         public CommandDocument(string name, BsonValue value)
             : base(name, value)
+        {
+        }
+
+        // nested classes
+        new internal class Serializer : SerializeAsNominalTypeSerializer<CommandDocument, BsonDocument>
         {
         }
     }

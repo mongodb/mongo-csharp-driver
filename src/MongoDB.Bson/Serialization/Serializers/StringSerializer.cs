@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -23,47 +24,62 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Strings.
     /// </summary>
-    public class StringSerializer : BsonBaseSerializer
+    public class StringSerializer : BsonBaseSerializer<string>, IRepresentationConfigurable<StringSerializer>
     {
-        // private static fields
-        private static StringSerializer __instance = new StringSerializer();
+        // private fields
+        private readonly BsonType _representation;
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the StringSerializer class.
+        /// Initializes a new instance of the <see cref="StringSerializer"/> class.
         /// </summary>
         public StringSerializer()
-            : base(new RepresentationSerializationOptions(BsonType.String))
+            : this(BsonType.String)
         {
         }
 
-        // public static properties
         /// <summary>
-        /// Gets an instance of the StringSerializer class.
+        /// Initializes a new instance of the <see cref="StringSerializer"/> class.
         /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static StringSerializer Instance
+        /// <param name="representation">The representation.</param>
+        public StringSerializer(BsonType representation)
         {
-            get { return __instance; }
+            switch (representation)
+            {
+                case BsonType.ObjectId:
+                case BsonType.String:
+                case BsonType.Symbol:
+                    break;
+
+                default:
+                    var message = string.Format("{0} is not a valid representation for a StringSerializer.", representation);
+                    throw new ArgumentException(message);
+            }
+
+            _representation = representation;
+        }
+
+        // public properties
+        /// <summary>
+        /// Gets the representation.
+        /// </summary>
+        /// <value>
+        /// The representation.
+        /// </value>
+        public BsonType Representation
+        {
+            get { return _representation; }
         }
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override string Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(string));
-            var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             if (bsonType == BsonType.Null)
@@ -76,7 +92,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 switch (bsonType)
                 {
                     case BsonType.ObjectId:
-                        if (representationSerializationOptions.Representation == BsonType.ObjectId)
+                        if (_representation == BsonType.ObjectId)
                         {
                             return bsonReader.ReadObjectId().ToString();
                         }
@@ -84,10 +100,13 @@ namespace MongoDB.Bson.Serialization.Serializers
                         {
                             goto default;
                         }
+
                     case BsonType.String:
                         return bsonReader.ReadString();
+
                     case BsonType.Symbol:
                         return bsonReader.ReadSymbol();
+
                     default:
                         var message = string.Format("Cannot deserialize string from BsonType {0}.", bsonType);
                         throw new FileFormatException(message);
@@ -96,43 +115,62 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, string value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 bsonWriter.WriteNull();
             }
             else
             {
-                var stringValue = (string)value;
-                var representationSerializationOptions = EnsureSerializationOptions<RepresentationSerializationOptions>(options);
-
-                switch (representationSerializationOptions.Representation)
+                switch (_representation)
                 {
                     case BsonType.ObjectId:
-                        bsonWriter.WriteObjectId(ObjectId.Parse(stringValue));
+                        bsonWriter.WriteObjectId(ObjectId.Parse(value));
                         break;
+
                     case BsonType.String:
-                        bsonWriter.WriteString(stringValue);
+                        bsonWriter.WriteString(value);
                         break;
+
                     case BsonType.Symbol:
-                        bsonWriter.WriteSymbol(stringValue);
+                        bsonWriter.WriteSymbol(value);
                         break;
+
                     default:
-                        var message = string.Format("'{0}' is not a valid String representation.", representationSerializationOptions.Representation);
+                        var message = string.Format("'{0}' is not a valid String representation.", _representation);
                         throw new BsonSerializationException(message);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified representation.
+        /// </summary>
+        /// <param name="representation">The representation.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public StringSerializer WithRepresentation(BsonType representation)
+        {
+            if (representation == _representation)
+            {
+                return this;
+            }
+            else
+            {
+                return new StringSerializer(representation);
+            }
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IRepresentationConfigurable.WithRepresentation(BsonType representation)
+        {
+            return WithRepresentation(representation);
         }
     }
 }

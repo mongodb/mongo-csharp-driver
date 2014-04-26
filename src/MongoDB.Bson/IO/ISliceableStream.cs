@@ -13,21 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-
-namespace MongoDB.Bson.Serialization.Conventions
+namespace MongoDB.Bson.IO
 {
-    /// <summary>
-    /// Represents an extra elements member convention.
-    /// </summary>
-    [Obsolete("Use IClassMapConvention instead.")]
-    public interface IExtraElementsMemberConvention
+    internal interface ISliceableStream
     {
-        /// <summary>
-        /// Finds the extra elements member of a class.
-        /// </summary>
-        /// <param name="type">The class.</param>
-        /// <returns>The extra elements member.</returns>
-        string FindExtraElementsMember(Type type);
+        IByteBuffer GetSlice(int position, int length);
     }
 }

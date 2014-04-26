@@ -25,12 +25,12 @@ namespace MongoDB.Bson.IO
     {
         // properties
         /// <summary>
-        /// Gets or sets the capacity.
+        /// Gets the capacity.
         /// </summary>
         /// <value>
         /// The capacity.
         /// </value>
-        int Capacity { get; set; }
+        int Capacity { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is read only.
@@ -48,25 +48,31 @@ namespace MongoDB.Bson.IO
         /// </value>
         int Length { get; set; }
 
-        /// <summary>
-        /// Gets or sets the position.
-        /// </summary>
-        /// <value>
-        /// The position.
-        /// </value>
-        int Position { get; set; }
-
         // methods
         /// <summary>
-        /// Clears this instance.
+        /// Access the backing bytes directly. The returned ArraySegment will point to the desired position and contain
+        /// as many bytes as possible up to the next chunk boundary (if any). If the returned ArraySegment does not
+        /// contain enough bytes for your needs you will have to call ReadBytes instead.
         /// </summary>
-        void Clear();
+        /// <param name="position">The position.</param>
+        /// <returns>
+        /// An ArraySegment pointing directly to the backing bytes for the position.
+        /// </returns>
+        ArraySegment<byte> AccessBackingBytes(int position);
 
         /// <summary>
-        /// Finds the next null byte.
+        /// Clears the specified bytes.
         /// </summary>
-        /// <returns>The position of the next null byte.</returns>
-        int FindNullByte();
+        /// <param name="position">The position.</param>
+        /// <param name="count">The count.</param>
+        void Clear(int position, int count);
+
+        /// <summary>
+        /// Ensure that the buffer has at least the requested capacity. Depending on the buffer allocation strategy
+        /// calling this method may result in a higher capacity than requested (but never lower).
+        /// </summary>
+        /// <param name="capacity">The minimum length.</param>
+        void EnsureCapacity(int capacity);
 
         /// <summary>
         /// Gets a slice of this buffer.
@@ -80,8 +86,9 @@ namespace MongoDB.Bson.IO
         /// Loads the buffer from a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
+        /// <param name="position">The position.</param>
         /// <param name="count">The count.</param>
-        void LoadFrom(Stream stream, int count);
+        void LoadFrom(Stream stream, int position, int count);
 
         /// <summary>
         /// Makes this buffer read only.
@@ -89,72 +96,39 @@ namespace MongoDB.Bson.IO
         void MakeReadOnly();
 
         /// <summary>
-        /// Read directly from the backing bytes. The returned ArraySegment points directly to the backing bytes for
-        /// the current position and you can read the bytes directly from there. If the backing bytes happen to span
-        /// a chunk boundary shortly after the current position there might not be enough bytes left in the current
-        /// chunk in which case the returned ArraySegment will have a Count of zero and you should call ReadBytes instead.
-        /// 
-        /// When ReadBackingBytes returns the position will have been advanced by count bytes *if and only if* there
-        /// were count bytes left in the current chunk.
-        /// </summary>
-        /// <param name="count">The number of bytes you need to read.</param>
-        /// <returns>An ArraySegment pointing directly to the backing bytes for the current position.</returns>
-        ArraySegment<byte> ReadBackingBytes(int count);
-
-        /// <summary>
         /// Reads a byte.
         /// </summary>
+        /// <param name="position">The position.</param>
         /// <returns>A byte.</returns>
-        byte ReadByte();
+        byte ReadByte(int position);
 
         /// <summary>
         /// Reads bytes.
         /// </summary>
+        /// <param name="position">The position.</param>
         /// <param name="destination">The destination.</param>
-        /// <param name="destinationOffset">The destination offset.</param>
+        /// <param name="offset">The destination offset.</param>
         /// <param name="count">The count.</param>
-        void ReadBytes(byte[] destination, int destinationOffset, int count);
+        void ReadBytes(int position, byte[] destination, int offset, int count);
 
-        /// <summary>
-        /// Reads bytes.
-        /// </summary>
-        /// <param name="count">The count.</param>
-        /// <returns>The bytes.</returns>
-        byte[] ReadBytes(int count);
-
-        /// <summary>
-        /// Write directly to the backing bytes. The returned ArraySegment points directly to the backing bytes for
-        /// the current position and you can write the bytes directly to there. If the backing bytes happen to span
-        /// a chunk boundary shortly after the current position there might not be enough bytes left in the current
-        /// chunk in which case the returned ArraySegment will have a Count of zero and you should call WriteBytes instead.
-        /// 
-        /// When WriteBackingBytes returns the position has not been advanced. After you have written up to count
-        /// bytes directly to the backing bytes advance the position by the number of bytes actually written.
-        /// </summary>
-        /// <param name="count">The count.</param>
-        /// <returns>An ArraySegment pointing directly to the backing bytes for the current position.</returns>
-        ArraySegment<byte> WriteBackingBytes(int count);
-        
         /// <summary>
         /// Writes a byte.
         /// </summary>
-        /// <param name="source">The byte.</param>
-        void WriteByte(byte source);
+        /// <param name="position">The position.</param>
+        /// <param name="value">The value.</param>
+        void WriteByte(int position, byte value);
 
         /// <summary>
         /// Writes bytes.
         /// </summary>
+        /// <param name="position">The position.</param>
         /// <param name="source">The bytes (in the form of a byte array).</param>
-        void WriteBytes(byte[] source);
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        void WriteBytes(int position, byte[] source, int offset, int count);
 
         /// <summary>
-        /// Writes bytes.
-        /// </summary>
-        /// <param name="source">The bytes (in the form of an IByteBuffer).</param>
-        void WriteBytes(IByteBuffer source);
-
-        /// <summary>
-        /// Writes Length bytes from this buffer starting at Position 0 to a stream.
+        /// Writes the contents of this buffer to a stream.
         /// </summary>
         /// <param name="stream">The stream.</param>
         void WriteTo(Stream stream);

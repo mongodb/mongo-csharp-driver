@@ -14,10 +14,10 @@
 */
 
 using System.Collections.Generic;
+using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.Internal
@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Internal
     {
         // private fields
         private readonly BsonBinaryReaderSettings _readerSettings;
-        private readonly IBsonSerializer _serializer;
-        private readonly IBsonSerializationOptions _serializationOptions;
+        private readonly IBsonSerializer<TDocument> _serializer;
         private ResponseFlags _responseFlags;
         private long _cursorId;
         private int _startingFrom;
@@ -35,12 +34,11 @@ namespace MongoDB.Driver.Internal
         private List<TDocument> _documents;
 
         // constructors
-        internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings, IBsonSerializer serializer, IBsonSerializationOptions serializationOptions)
+        internal MongoReplyMessage(BsonBinaryReaderSettings readerSettings, IBsonSerializer<TDocument> serializer)
             : base(MessageOpcode.Reply)
         {
             _readerSettings = readerSettings;
             _serializer = serializer;
-            _serializationOptions = serializationOptions;
         }
 
         // internal properties
@@ -70,53 +68,36 @@ namespace MongoDB.Driver.Internal
         }
 
         // internal methods
-        internal void ReadBodyFrom(BsonBuffer buffer)
+        internal void ReadBodyFrom(BsonStreamReader streamReader)
         {
-            var serializationOptions = _serializationOptions;
-            if (serializationOptions == null && typeof(TDocument) == typeof(BsonDocument))
-            {
-                serializationOptions = DocumentSerializationOptions.AllowDuplicateNamesInstance;
-            }
+            var allowDuplicateElementNames = typeof(TDocument) == typeof(BsonDocument);
 
             _documents = new List<TDocument>(_numberReturned);
             for (int i = 0; i < _numberReturned; i++)
             {
-                BsonBuffer sliceBuffer;
-                if (buffer.ByteBuffer is MultiChunkBuffer)
+                using (var bsonReader = new BsonBinaryReader(streamReader.BaseStream, _readerSettings))
                 {
-                    // we can use slightly faster SingleChunkBuffers for all documents that don't span chunk boundaries
-                    var position = buffer.Position;
-                    var length = buffer.ReadInt32();
-                    var slice = buffer.ByteBuffer.GetSlice(position, length);
-                    buffer.Position = position + length;
-                    sliceBuffer = new BsonBuffer(slice, true);
-                }
-                else
-                {
-                    sliceBuffer = new BsonBuffer(buffer.ByteBuffer, false);
-                }
-
-                using (var bsonReader = new BsonBinaryReader(sliceBuffer, true, _readerSettings))
-                {
-                    var document = (TDocument)_serializer.Deserialize(bsonReader, typeof(TDocument), serializationOptions);
+                    var context = BsonDeserializationContext.CreateRoot<TDocument>(bsonReader, b => b.AllowDuplicateElementNames = allowDuplicateElementNames);
+                    var document = _serializer.Deserialize(context);
                     _documents.Add(document);
                 }
             }
         }
 
-        internal void ReadFrom(BsonBuffer buffer)
+        internal void ReadFrom(Stream stream)
         {
-            ReadHeaderFrom(buffer);
-            ReadBodyFrom(buffer);
+            var streamReader = new BsonStreamReader(stream, Utf8Helper.StrictUtf8Encoding);
+            ReadHeaderFrom(streamReader);
+            ReadBodyFrom(streamReader);
         }
 
-        internal override void ReadHeaderFrom(BsonBuffer buffer)
+        internal override void ReadHeaderFrom(BsonStreamReader streamReader)
         {
-            base.ReadHeaderFrom(buffer);
-            _responseFlags = (ResponseFlags)buffer.ReadInt32();
-            _cursorId = buffer.ReadInt64();
-            _startingFrom = buffer.ReadInt32();
-            _numberReturned = buffer.ReadInt32();
+            base.ReadHeaderFrom(streamReader);
+            _responseFlags = (ResponseFlags)streamReader.ReadInt32();
+            _cursorId = streamReader.ReadInt64();
+            _startingFrom = streamReader.ReadInt32();
+            _numberReturned = streamReader.ReadInt32();
 
             if ((_responseFlags & ResponseFlags.CursorNotFound) != 0)
             {
@@ -125,9 +106,10 @@ namespace MongoDB.Driver.Internal
             if ((_responseFlags & ResponseFlags.QueryFailure) != 0)
             {
                 BsonDocument document;
-                using (BsonReader bsonReader = new BsonBinaryReader(buffer, false, _readerSettings))
+                using (BsonReader bsonReader = new BsonBinaryReader(streamReader.BaseStream, _readerSettings))
                 {
-                    document = (BsonDocument)BsonDocumentSerializer.Instance.Deserialize(bsonReader, typeof(BsonDocument), null);
+                    var context = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader, b => b.AllowDuplicateElementNames = true);
+                    document = BsonDocumentSerializer.Instance.Deserialize(context);
                 }
 
                 var mappedException = ExceptionMapper.Map(document);

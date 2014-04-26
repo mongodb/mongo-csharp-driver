@@ -34,7 +34,9 @@ namespace MongoDB.Bson.Serialization
                 !typeof(Enum).IsAssignableFrom(type))
             {
                 var classMap = BsonClassMap.LookupClassMap(type);
-                return new BsonClassMapSerializer(classMap);
+                var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);
+                var classMapSerializerType = classMapSerializerDefinition.MakeGenericType(type);
+                return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, classMap);
             }
 
             return null;

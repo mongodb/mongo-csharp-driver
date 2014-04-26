@@ -122,21 +122,6 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public methods
         /// <summary>
-        /// Apply an attribute to these serialization options and modify the options accordingly.
-        /// </summary>
-        /// <param name="serializer">The serializer that these serialization options are for.</param>
-        /// <param name="attribute">The serialization options attribute.</param>
-        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
-        {
-            EnsureNotFrozen();
-            var representationAttribute = attribute as BsonRepresentationAttribute;
-            if (representationAttribute != null)
-            {
-                _representation = representationAttribute.Representation;
-            }
-        }
-
-        /// <summary>
         /// Clones the serialization options.
         /// </summary>
         /// <returns>A cloned copy of the serialization options.</returns>

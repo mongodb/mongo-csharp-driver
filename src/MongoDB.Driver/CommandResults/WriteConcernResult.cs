@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// Represents the results of an operation performed with WriteConcern enabled.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<WriteConcernResult>))]
 #pragma warning disable 618
     public class WriteConcernResult : SafeModeResult
 #pragma warning restore

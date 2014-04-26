@@ -60,52 +60,6 @@ namespace MongoDB.Bson.Serialization.Options
 
         // public methods
         /// <summary>
-        /// Apply an attribute to these serialization options and modify the options accordingly.
-        /// </summary>
-        /// <param name="serializer">The serializer that these serialization options are for.</param>
-        /// <param name="attribute">The serialization options attribute.</param>
-        public override void ApplyAttribute(IBsonSerializer serializer, Attribute attribute)
-        {
-            EnsureNotFrozen();
-            var arraySerializer = serializer as IBsonArraySerializer;
-            if (arraySerializer == null)
-            {
-                var message = string.Format(
-                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1}.",
-                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
-                        BsonUtils.GetFriendlyTypeName(serializer.GetType()));
-                throw new NotSupportedException(message);
-            }
-
-            var itemSerializer = arraySerializer.GetItemSerializationInfo().Serializer;
-            if (_itemSerializationOptions == null)
-            {
-                var itemDefaultSerializationOptions = itemSerializer.GetDefaultSerializationOptions();
-
-                // special case for legacy collections: allow BsonRepresentation on object
-                if (itemDefaultSerializationOptions == null &&
-                    (serializer.GetType() == typeof(EnumerableSerializer) || serializer.GetType() == typeof(QueueSerializer) || serializer.GetType() == typeof(StackSerializer)) &&
-                    attribute.GetType() == typeof(BsonRepresentationAttribute))
-                {
-                    itemDefaultSerializationOptions = new RepresentationSerializationOptions(BsonType.Null); // will be modified later by ApplyAttribute
-                }
-
-                if (itemDefaultSerializationOptions == null)
-                {
-                    var message = string.Format(
-                        "A serialization options attribute of type {0} cannot be used when the serializer is of type {1} and the item serializer is of type {2}.",
-                        BsonUtils.GetFriendlyTypeName(attribute.GetType()),
-                        BsonUtils.GetFriendlyTypeName(serializer.GetType()),
-                        BsonUtils.GetFriendlyTypeName(itemSerializer.GetType()));
-                    throw new NotSupportedException(message);
-                }
-
-                _itemSerializationOptions = itemDefaultSerializationOptions.Clone();
-            }
-            _itemSerializationOptions.ApplyAttribute(itemSerializer, attribute);
-        }
-
-        /// <summary>
         /// Clones the serialization options.
         /// </summary>
         /// <returns>A cloned copy of the serialization options.</returns>

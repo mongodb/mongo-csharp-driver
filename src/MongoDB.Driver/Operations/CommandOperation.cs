@@ -26,8 +26,7 @@ namespace MongoDB.Driver.Operations
         private readonly QueryFlags _flags;
         private readonly BsonDocument _options;
         private readonly ReadPreference _readPreference;
-        private readonly IBsonSerializationOptions _serializationOptions;
-        private readonly IBsonSerializer _serializer;
+        private readonly IBsonSerializer<TCommandResult> _serializer;
 
         public CommandOperation(
             string databaseName,
@@ -37,15 +36,13 @@ namespace MongoDB.Driver.Operations
             QueryFlags flags,
             BsonDocument options,
             ReadPreference readPreference,
-            IBsonSerializationOptions serializationOptions,
-            IBsonSerializer serializer)
+            IBsonSerializer<TCommandResult> serializer)
             : base(databaseName, "$cmd", readerSettings, writerSettings)
         {
             _command = command;
             _flags = flags;
             _options = options;
             _readPreference = readPreference;
-            _serializationOptions = serializationOptions;
             _serializer = serializer;
         }
 
@@ -58,7 +55,7 @@ namespace MongoDB.Driver.Operations
             var queryMessage = new MongoQueryMessage(WriterSettings, CollectionFullName, _flags, maxWireDocumentSize, 0, -1, wrappedQuery, null);
             connection.SendMessage(queryMessage);
 
-            var reply = connection.ReceiveMessage<TCommandResult>(ReaderSettings, _serializer, _serializationOptions);
+            var reply = connection.ReceiveMessage<TCommandResult>(ReaderSettings, _serializer);
             if (reply.NumberReturned == 0)
             {
                 var commandDocument = _command.ToBsonDocument();

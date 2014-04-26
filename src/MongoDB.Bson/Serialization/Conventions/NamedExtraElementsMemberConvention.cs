@@ -21,11 +21,9 @@ using System.Reflection;
 namespace MongoDB.Bson.Serialization.Conventions
 {
     /// <summary>
-    /// A convention that finds the extra elements member by name (and that is also of type BsonDocument or an IDictionary&lt;string, object&gt;).
+    /// A convention that finds the extra elements member by name (and that is also of type <see cref="BsonDocument"/> or <see cref="IDictionary{String, Object}"/>).
     /// </summary>
-#pragma warning disable 618 // about obsolete IExtraElementsMemberConvention
-    public class NamedExtraElementsMemberConvention : ConventionBase, IClassMapConvention, IExtraElementsMemberConvention
-#pragma warning restore 618
+    public class NamedExtraElementsMemberConvention : ConventionBase, IClassMapConvention
     {
         // private fields
         private readonly IEnumerable<string> _names;
@@ -86,16 +84,6 @@ namespace MongoDB.Bson.Serialization.Conventions
             _bindingFlags = bindingFlags | BindingFlags.DeclaredOnly;
         }
 
-        // public properties
-        /// <summary>
-        /// Gets the name of the convention.
-        /// </summary>
-        [Obsolete("There is no alternative.")]
-        public new string Name
-        {
-            get { return _names.First(); }
-        }
-
         // public methods
         /// <summary>
         /// Applies a modification to the class map.
@@ -131,18 +119,6 @@ namespace MongoDB.Bson.Serialization.Conventions
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Finds the extra elements member of a class.
-        /// </summary>
-        /// <param name="type">The class.</param>
-        /// <returns>The extra elements member.</returns>
-        [Obsolete("Use Apply instead.")]
-        public string FindExtraElementsMember(Type type)
-        {
-            var memberInfo = type.GetMember(_names.First()).SingleOrDefault(x => x.MemberType == MemberTypes.Field || x.MemberType == MemberTypes.Property);
-            return (memberInfo != null) ? _names.First() : null;
         }
     }
 }

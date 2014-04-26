@@ -26,7 +26,6 @@ namespace MongoDB.Driver
         private int? _batchSize;
         private int _numberOfCursors = 1;
         private ReadPreference _readPreference;
-        private IBsonSerializationOptions _serializationOptions;
         private IBsonSerializer _serializer;
 
         // public properties
@@ -67,18 +66,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the serialization options.
-        /// </summary>
-        /// <value>
-        /// The serialization options.
-        /// </value>
-        public IBsonSerializationOptions SerializationOptions
-        {
-            get { return _serializationOptions; }
-            set { _serializationOptions = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the serializer.
         /// </summary>
         /// <value>
@@ -88,6 +75,25 @@ namespace MongoDB.Driver
         {
             get { return _serializer; }
             set { _serializer = value; }
+        }
+    }
+
+    /// <summary>
+    /// Represents arguments for the ParallelScan command helper method.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public class ParallelScanArgs<TDocument> : ParallelScanArgs
+    {
+        /// <summary>
+        /// Gets or sets the serializer.
+        /// </summary>
+        /// <value>
+        /// The serializer.
+        /// </value>
+        public new IBsonSerializer<TDocument> Serializer
+        {
+            get { return (IBsonSerializer<TDocument>)base.Serializer; }
+            set { base.Serializer = value; }
         }
     }
 }

@@ -14,12 +14,17 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoGeoNearOptions is expected (the wrapped object is expected to serialize properly).
     /// </summary>
     [Obsolete("Use GeoNearArgs instead.")]
+    [BsonSerializer(typeof(GeoNearOptionsWrapper.Serializer))]
     public class GeoNearOptionsWrapper : BaseWrapper, IMongoGeoNearOptions
     {
         // constructors
@@ -47,6 +52,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new GeoNearOptionsWrapper(options);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<GeoNearOptionsWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, GeoNearOptionsWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

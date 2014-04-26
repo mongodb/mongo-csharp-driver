@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// Represents the results of a GetLastError command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<GetLastErrorResult>))]
     public class GetLastErrorResult : CommandResult
     {
         // constructors

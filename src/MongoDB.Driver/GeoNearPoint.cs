@@ -15,6 +15,7 @@
 
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
 using MongoDB.Driver.GeoJsonObjectModel.Serializers;
 
@@ -156,7 +157,8 @@ namespace MongoDB.Driver
                 var document = new BsonDocument();
                 using (var writer = new BsonDocumentWriter(document, BsonDocumentWriterSettings.Defaults))
                 {
-                    new GeoJsonPointSerializer<TCoordinates>().Serialize(writer, typeof(GeoJsonPoint<TCoordinates>), _value, null);
+                    var context = BsonSerializationContext.CreateRoot<GeoJsonPointSerializer<TCoordinates>>(writer);
+                    new GeoJsonPointSerializer<TCoordinates>().Serialize(context, _value);
                 }
                 return document;
             }

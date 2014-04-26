@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 {
@@ -25,103 +26,41 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// Represents a serializer for a GeoJsonGeometryCollection value.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonGeometryCollectionSerializer<TCoordinates> : GeoJsonGeometrySerializer<TCoordinates> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonGeometryCollectionSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonGeometryCollection<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // private fields
-        private readonly IBsonSerializer _geometrySerializer = BsonSerializer.LookupSerializer(typeof(GeoJsonGeometry<TCoordinates>));
-
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
-        /// <returns>
-        /// An object.
-        /// </returns>
-        public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        public override GeoJsonGeometryCollection<TCoordinates> Deserialize(BsonDeserializationContext context)
         {
-            return DeserializeGeoJsonObject(bsonReader, new GeometryCollectionData());
+            var helper = new Helper();
+            return (GeoJsonGeometryCollection<TCoordinates>)helper.Deserialize(context);
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
-        /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+        /// <param name="context">The serialization context.</param>
+        /// <param name="value">The value.</param>
+        public override void Serialize(BsonSerializationContext context, GeoJsonGeometryCollection<TCoordinates> value)
         {
-            SerializeGeoJsonObject(bsonWriter, (GeoJsonObject<TCoordinates>)value);
-        }
-
-        // protected methods
-        /// <summary>
-        /// Deserializes a field.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="data">The data.</param>
-        protected override void DeserializeField(BsonReader bsonReader, string name, ObjectData data)
-        {
-            var geometryCollectionData = (GeometryCollectionData)data;
-            switch (name)
-            {
-                case "geometries": geometryCollectionData.Geometries = DeserializeGeometries(bsonReader); break;
-                default: base.DeserializeField(bsonReader, name, data); break;
-            }
-        }
-
-        /// <summary>
-        /// Serializes the fields.
-        /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="obj">The GeoJson object.</param>
-        protected override void SerializeFields(BsonWriter bsonWriter, GeoJsonObject<TCoordinates> obj)
-        {
-            var geometryCollection = (GeoJsonGeometryCollection<TCoordinates>)obj;
-            SerializeGeometries(bsonWriter, geometryCollection.Geometries);
-        }
-
-        // private methods
-        private List<GeoJsonGeometry<TCoordinates>> DeserializeGeometries(BsonReader bsonReader)
-        {
-            var geometries = new List<GeoJsonGeometry<TCoordinates>>();
-
-            bsonReader.ReadStartArray();
-            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-            {
-                var geometry = (GeoJsonGeometry<TCoordinates>)_geometrySerializer.Deserialize(bsonReader, typeof(GeoJsonGeometry<TCoordinates>), null);
-                geometries.Add(geometry);
-            }
-            bsonReader.ReadEndArray();
-
-            return geometries;
-        }
-
-        private void SerializeGeometries(BsonWriter bsonWriter, IEnumerable<GeoJsonGeometry<TCoordinates>> geometries)
-        {
-            bsonWriter.WriteName("geometries");
-            bsonWriter.WriteStartArray();
-            foreach (var geometry in geometries)
-            {
-                _geometrySerializer.Serialize(bsonWriter, typeof(GeoJsonGeometry<TCoordinates>), geometry, null);
-            }
-            bsonWriter.WriteEndArray();
+            var helper = new Helper();
+            helper.Serialize(context, value);
         }
 
         // nested classes
-        private class GeometryCollectionData : ObjectData
+        internal class Helper : GeoJsonGeometrySerializer<TCoordinates>.Helper
         {
             // private fields
+            private readonly IBsonSerializer<GeoJsonGeometry<TCoordinates>> _geometrySerializer = BsonSerializer.LookupSerializer<GeoJsonGeometry<TCoordinates>>();
             private List<GeoJsonGeometry<TCoordinates>> _geometries;
 
             // constructors
-            public GeometryCollectionData()
-                : base("GeometryCollection")
+            public Helper()
+                : base(typeof(GeoJsonGeometryCollection<TCoordinates>), "GeometryCollection", new GeoJsonObjectArgs<TCoordinates>())
             {
             }
 
@@ -132,10 +71,66 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 set { _geometries = value; }
             }
 
-            // public methods
-            public override object CreateInstance()
+            protected override GeoJsonObject<TCoordinates> CreateObject()
             {
                 return new GeoJsonGeometryCollection<TCoordinates>(Args, _geometries);
+            }
+
+            // protected methods
+            /// <summary>
+            /// Deserializes a field.
+            /// </summary>
+            /// <param name="context">The context.</param>
+            /// <param name="name">The name.</param>
+            protected override void DeserializeField(BsonDeserializationContext context, string name)
+            {
+                switch (name)
+                {
+                    case "geometries": _geometries = DeserializeGeometries(context); break;
+                    default: base.DeserializeField(context, name); break;
+                }
+            }
+
+            /// <summary>
+            /// Serializes the fields.
+            /// </summary>
+            /// <param name="context">The context.</param>
+            /// <param name="obj">The GeoJson object.</param>
+            protected override void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
+            {
+                base.SerializeFields(context, obj);
+                var geometryCollection = (GeoJsonGeometryCollection<TCoordinates>)obj;
+                SerializeGeometries(context, geometryCollection.Geometries);
+            }
+
+            // private methods
+            private List<GeoJsonGeometry<TCoordinates>> DeserializeGeometries(BsonDeserializationContext context)
+            {
+                var bsonReader = context.Reader;
+
+                bsonReader.ReadStartArray();
+                var geometries = new List<GeoJsonGeometry<TCoordinates>>();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
+                    var geometry = context.DeserializeWithChildContext(_geometrySerializer);
+                    geometries.Add(geometry);
+                }
+                bsonReader.ReadEndArray();
+
+                return geometries;
+            }
+
+            private void SerializeGeometries(BsonSerializationContext context, IEnumerable<GeoJsonGeometry<TCoordinates>> geometries)
+            {
+                var bsonWriter = context.Writer;
+
+                bsonWriter.WriteName("geometries");
+                bsonWriter.WriteStartArray();
+                foreach (var geometry in geometries)
+                {
+                    context.SerializeWithChildContext(_geometrySerializer, geometry);
+                }
+                bsonWriter.WriteEndArray();
             }
         }
     }

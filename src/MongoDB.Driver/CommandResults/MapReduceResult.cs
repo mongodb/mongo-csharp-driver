@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a map/reduce command.
     /// </summary>
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<MapReduceResult>))]
     public class MapReduceResult : CommandResult
     {
         // private fields

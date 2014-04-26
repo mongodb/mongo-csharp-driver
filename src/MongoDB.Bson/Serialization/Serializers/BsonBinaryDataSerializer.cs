@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for BsonBinaryDatas.
     /// </summary>
-    public class BsonBinaryDataSerializer : BsonBaseSerializer
+    public class BsonBinaryDataSerializer : BsonBaseSerializer<BsonBinaryData>
     {
         // private static fields
         private static BsonBinaryDataSerializer __instance = new BsonBinaryDataSerializer();
@@ -46,26 +46,20 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public methods
         /// <summary>
-        /// Deserializes an object from a BsonReader.
+        /// Deserializes a value.
         /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <param name="nominalType">The nominal type of the object.</param>
-        /// <param name="actualType">The actual type of the object.</param>
-        /// <param name="options">The serialization options.</param>
+        /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override object Deserialize(
-            BsonReader bsonReader,
-            Type nominalType,
-            Type actualType,
-            IBsonSerializationOptions options)
+        public override BsonBinaryData Deserialize(BsonDeserializationContext context)
         {
-            VerifyTypes(nominalType, actualType, typeof(BsonBinaryData));
+            var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Binary:
                     return bsonReader.ReadBinaryData();
+
                 default:
                     var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
                     throw new FileFormatException(message);
@@ -73,33 +67,27 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <summary>
-        /// Serializes an object to a BsonWriter.
+        /// Serializes a value.
         /// </summary>
-        /// <param name="bsonWriter">The BsonWriter.</param>
-        /// <param name="nominalType">The nominal type.</param>
+        /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        /// <param name="options">The serialization options.</param>
-        public override void Serialize(
-            BsonWriter bsonWriter,
-            Type nominalType,
-            object value,
-            IBsonSerializationOptions options)
+        public override void Serialize(BsonSerializationContext context, BsonBinaryData value)
         {
+            var bsonWriter = context.Writer;
+
             if (value == null)
             {
                 throw new ArgumentNullException("value");
             }
 
-            var binaryData = (BsonBinaryData)value;
-
-            var subType = binaryData.SubType;
+            var subType = value.SubType;
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
             {
                 var writerGuidRepresentation = bsonWriter.Settings.GuidRepresentation;
                 if (writerGuidRepresentation != GuidRepresentation.Unspecified)
                 {
-                    var bytes = binaryData.Bytes;
-                    var guidRepresentation = binaryData.GuidRepresentation;
+                    var bytes = value.Bytes;
+                    var guidRepresentation = value.GuidRepresentation;
 
                     if (guidRepresentation == GuidRepresentation.Unspecified)
                     {
@@ -114,12 +102,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                         bytes = GuidConverter.ToBytes(guid, writerGuidRepresentation);
                         subType = (writerGuidRepresentation == GuidRepresentation.Standard) ? BsonBinarySubType.UuidStandard : BsonBinarySubType.UuidLegacy;
                         guidRepresentation = writerGuidRepresentation;
-                        binaryData = new BsonBinaryData(bytes, subType, guidRepresentation);
+                        value = new BsonBinaryData(bytes, subType, guidRepresentation);
                     }
                 }
             }
 
-            bsonWriter.WriteBinaryData(binaryData);
+            bsonWriter.WriteBinaryData(value);
         }
     }
 }

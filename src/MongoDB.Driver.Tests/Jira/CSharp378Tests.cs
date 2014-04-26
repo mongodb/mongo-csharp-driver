@@ -40,16 +40,18 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
             public int X;
         }
 
-        public class MyIdSerializer : BsonBaseSerializer
+        public class MyIdSerializer : BsonBaseSerializer<string>
         {
-            public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+            public override string Deserialize(BsonDeserializationContext context)
             {
+                var bsonReader = context.Reader;
                 return bsonReader.ReadObjectId().ToString();
             }
 
-            public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+            public override void Serialize(BsonSerializationContext context, string value)
             {
-                bsonWriter.WriteObjectId(ObjectId.Parse((string)value));
+                var bsonWriter = context.Writer;
+                bsonWriter.WriteObjectId(ObjectId.Parse(value));
             }
         }
 

@@ -25,36 +25,36 @@ namespace MongoDB.Bson.IO
     public static class ByteBufferFactory
     {
         /// <summary>
-        /// Creates a buffer of the specified fixed capacity. Depending on the required capacity, either a SingleChunkBuffer or a MultiChunkBuffer will be created.
+        /// Creates a buffer of the specified length. Depending on the length, either a SingleChunkBuffer or a MultiChunkBuffer will be created.
         /// </summary>
         /// <param name="chunkPool">The chunk pool.</param>
-        /// <param name="fixedCapacity">The required capacity.</param>
+        /// <param name="length">The length.</param>
         /// <returns>A buffer.</returns>
-        public static IByteBuffer Create(BsonChunkPool chunkPool, int fixedCapacity)
+        public static IByteBuffer Create(BsonChunkPool chunkPool, int length)
         {
             if (chunkPool == null)
             {
                 throw new ArgumentNullException("pool");
             }
-            if (fixedCapacity <= 0)
+            if (length <= 0)
             {
-                throw new ArgumentOutOfRangeException("capacity");
+                throw new ArgumentOutOfRangeException("length");
             }
 
-            if (fixedCapacity < chunkPool.ChunkSize)
+            if (length < chunkPool.ChunkSize)
             {
                 var chunk = chunkPool.AcquireChunk();
-                return new SingleChunkBuffer(chunk, 0, 0, false);
+                return new SingleChunkBuffer(chunk, 0, length, false);
             }
             else
             {
-                var chunksNeeded = ((fixedCapacity - 1) / chunkPool.ChunkSize) + 1;
+                var chunksNeeded = ((length - 1) / chunkPool.ChunkSize) + 1;
                 var chunks = new List<BsonChunk>(chunksNeeded);
                 for (int i = 0; i < chunksNeeded; i++)
                 {
                     chunks.Add(chunkPool.AcquireChunk());
                 }
-                return new MultiChunkBuffer(chunks, 0, 0, false);
+                return new MultiChunkBuffer(chunks, 0, length, false);
             }
         }
 
@@ -65,34 +65,23 @@ namespace MongoDB.Bson.IO
         /// <param name="stream">The stream.</param>
         /// <returns>A buffer.</returns>
         /// <exception cref="System.ArgumentNullException">stream</exception>
-        public static IByteBuffer LoadFrom(Stream stream)
+        public static IByteBuffer LoadLengthPrefixedDataFrom(Stream stream)
         {
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
 
-            var lengthBytes = new byte[4];
-            var offset = 0;
-            var count = 4;
-            while (count > 0)
-            {
-                var bytesRead = stream.Read(lengthBytes, offset, count);
-                if (bytesRead == 0)
-                {
-                    throw new EndOfStreamException();
-                }
-                offset += bytesRead;
-                count -= bytesRead;
-            }
-            var length = BitConverter.ToInt32(lengthBytes, 0);
+            var streamReader = new BsonStreamReader(stream, Utf8Helper.StrictUtf8Encoding);
+            var length = streamReader.ReadInt32();
 
-            var buffer = Create(BsonChunkPool.Default, length);
-            buffer.WriteBytes(lengthBytes);
-            buffer.LoadFrom(stream, length - 4);
-            buffer.Position = 0;
+            var byteBuffer = Create(BsonChunkPool.Default, length);
+            byteBuffer.Length = length;
+            byteBuffer.WriteBytes(0, BitConverter.GetBytes(length), 0, 4);
+            byteBuffer.LoadFrom(stream, 4, length - 4);
+            byteBuffer.MakeReadOnly();
 
-            return buffer;
+            return byteBuffer;
         }
     }
 }

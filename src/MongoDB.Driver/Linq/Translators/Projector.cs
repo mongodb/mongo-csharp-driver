@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="IdentityProjector&lt;T&gt;"/> class.
+        /// Initializes a new instance of the <see cref="IdentityProjector{T}"/> class.
         /// </summary>
         /// <param name="cursor">The cursor.</param>
         public IdentityProjector(MongoCursor cursor)

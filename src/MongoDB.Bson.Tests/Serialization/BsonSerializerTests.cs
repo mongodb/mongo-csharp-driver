@@ -48,17 +48,16 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class Employee
         {
-            private class DateOfBirthSerializer : BsonBaseSerializer
+            private class DateOfBirthSerializer : BsonBaseSerializer<DateTime>
             {
-                public override object Deserialize(BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+                public override DateTime Deserialize(BsonDeserializationContext context)
                 {
-                    return XmlConvert.ToDateTime(bsonReader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
+                    return XmlConvert.ToDateTime(context.Reader.ReadString(), XmlDateTimeSerializationMode.RoundtripKind);
                 }
 
-                public override void Serialize(BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options)
+                public override void Serialize(BsonSerializationContext context, DateTime value)
                 {
-                    var dateTime = (DateTime)value;
-                    bsonWriter.WriteString(dateTime.ToString("yyyy-MM-dd"));
+                    context.Writer.WriteString(value.ToString("yyyy-MM-dd"));
                 }
             }
 

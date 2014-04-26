@@ -13,11 +13,16 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver.Wrappers
 {
     /// <summary>
     /// Represents a wrapped object that can be used where an IMongoQuery is expected (the wrapped object is expected to serialize properly).
     /// </summary>
+    [BsonSerializer(typeof(QueryWrapper.Serializer))]
     public class QueryWrapper : BaseWrapper, IMongoQuery
     {
         // constructors
@@ -45,6 +50,15 @@ namespace MongoDB.Driver.Wrappers
             else
             {
                 return new QueryWrapper(query);
+            }
+        }
+
+        // nested classes
+        new internal class Serializer : BsonBaseSerializer<QueryWrapper>
+        {
+            public override void Serialize(BsonSerializationContext context, QueryWrapper value)
+            {
+                value.SerializeWrappedObject(context);
             }
         }
     }

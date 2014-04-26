@@ -32,8 +32,7 @@ namespace MongoDB.Driver.Operations
         private readonly int _numberOfCursors;
         private readonly BsonBinaryReaderSettings _readerSettings;
         private readonly ReadPreference _readPreference;
-        private readonly IBsonSerializationOptions _serializationOptions;
-        private readonly IBsonSerializer _serializer;
+        private readonly IBsonSerializer<TDocument> _serializer;
         private readonly BsonBinaryWriterSettings _writerSettings;
 
         // constructors
@@ -42,8 +41,7 @@ namespace MongoDB.Driver.Operations
             string collectionName,
             int numberOfCursors,
             int? batchSize,
-            IBsonSerializer serializer,
-            IBsonSerializationOptions serializationOptions,
+            IBsonSerializer<TDocument> serializer,
             ReadPreference readPreference,
             BsonBinaryReaderSettings readerSettings,
             BsonBinaryWriterSettings writerSettings)
@@ -53,7 +51,6 @@ namespace MongoDB.Driver.Operations
             _numberOfCursors = numberOfCursors;
             _batchSize = batchSize;
             _serializer = serializer;
-            _serializationOptions = serializationOptions;
             _readPreference = readPreference;
             _readerSettings = readerSettings;
             _writerSettings = writerSettings;
@@ -68,7 +65,7 @@ namespace MongoDB.Driver.Operations
                 { "numCursors", _numberOfCursors }
             };
             var options = new BsonDocument();
-            var commandResultSerializer = BsonSerializer.LookupSerializer(typeof(CommandResult));
+            var commandResultSerializer = BsonSerializer.LookupSerializer<CommandResult>();
 
             var operation = new CommandOperation<CommandResult>(
                 _databaseName,
@@ -78,7 +75,6 @@ namespace MongoDB.Driver.Operations
                 QueryFlags.None,
                 options,
                 _readPreference,
-                null, // serializationOptions
                 commandResultSerializer);
 
             var result = operation.Execute(connection);
@@ -96,7 +92,7 @@ namespace MongoDB.Driver.Operations
                 {
                     using (var reader = BsonReader.Create(v.AsBsonDocument))
                     {
-                        return (TDocument)_serializer.Deserialize(reader, typeof(TDocument), _serializationOptions);
+                        return _serializer.Deserialize(BsonDeserializationContext.CreateRoot<TDocument>(reader));
                     }
                 });
                 var cursorId = cursor["id"].ToInt64();
@@ -109,8 +105,7 @@ namespace MongoDB.Driver.Operations
                     _batchSize ?? 0,
                     0, // limit
                     _readerSettings,
-                    _serializer,
-                    _serializationOptions);
+                    _serializer);
                 enumerators.Add(enumerator);
             }
 

@@ -30,6 +30,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp170
         }
 
         [Test]
+        [SkipOnMono("ObservableCollection in Mono 2.10.8 throws a NotImplementedException in the constructor.")]
         public void TestDeserializeDouble()
         {
             var obj = new C

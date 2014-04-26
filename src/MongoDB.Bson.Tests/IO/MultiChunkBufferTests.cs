@@ -25,10 +25,9 @@ namespace MongoDB.Bson.Tests.IO
         public void TestGetSingleChunkSlice()
         {
             var chunkSize = BsonChunkPool.Default.ChunkSize;
-            var capacity = chunkSize * 3;
-            using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, capacity))
+            var length = chunkSize * 3;
+            using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, length))
             {
-                buffer.Length = capacity;
                 buffer.MakeReadOnly();
                 var slice = buffer.GetSlice(chunkSize, 1);
                 Assert.IsInstanceOf<SingleChunkBuffer>(slice);
@@ -39,10 +38,9 @@ namespace MongoDB.Bson.Tests.IO
         public void TestGetMultipleChunkSlice()
         {
             var chunkSize = BsonChunkPool.Default.ChunkSize;
-            var capacity = chunkSize * 3;
-            using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, capacity))
+            var length = chunkSize * 3;
+            using (var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, length))
             {
-                buffer.Length = capacity;
                 buffer.MakeReadOnly();
                 var slice = buffer.GetSlice(chunkSize, chunkSize + 1);
                 Assert.IsInstanceOf<MultiChunkBuffer>(slice);

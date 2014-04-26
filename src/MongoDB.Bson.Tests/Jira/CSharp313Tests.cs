@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.Jira
@@ -26,7 +27,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             new BsonBinaryData(new byte[] { 1, 2, 3 }),
             true,
-            DateTime.UtcNow,
+            new DateTime(2013, 8, 17, 23, 30, 0, DateTimeKind.Utc),
             1.2,
             1,
             1L,
@@ -44,13 +45,41 @@ namespace MongoDB.Bson.Tests.Jira
             BsonUndefined.Value
         };
 
+        public class C
+        {
+            public object ScalarValue { get; set; }
+        }
+
         [Test]
         public void TestStringToBson()
         {
+            // these scalar values used to fail to be serialized
+            // but the new ObjectSerializer can round trip them either at the top level or as properties
             foreach (var scalarValue in __scalarValues)
             {
-                Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBson(); });
-                Assert.Throws<InvalidOperationException>(() => { var bson = scalarValue.ToBsonDocument(); });
+                var json = scalarValue.ToJson();
+                var rehydrated = BsonSerializer.Deserialize<object>(json);
+                Assert.AreEqual(scalarValue, rehydrated);
+
+                var bson = scalarValue.ToBson();
+                rehydrated = BsonSerializer.Deserialize<object>(bson);
+                Assert.AreEqual(scalarValue, rehydrated);
+
+                var document = scalarValue.ToBsonDocument();
+                rehydrated = BsonSerializer.Deserialize<object>(document);
+                Assert.AreEqual(scalarValue, rehydrated);
+
+                json = new C { ScalarValue = scalarValue }.ToJson();
+                var c = BsonSerializer.Deserialize<C>(json);
+                Assert.AreEqual(scalarValue, c.ScalarValue);
+
+                bson = new C { ScalarValue = scalarValue }.ToBson();
+                c = BsonSerializer.Deserialize<C>(bson);
+                Assert.AreEqual(scalarValue, c.ScalarValue);
+
+                document = new C { ScalarValue = scalarValue }.ToBsonDocument();
+                c = BsonSerializer.Deserialize<C>(document);
+                Assert.AreEqual(scalarValue, c.ScalarValue);
             }
         }
     }

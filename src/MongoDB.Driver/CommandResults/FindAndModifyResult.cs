@@ -24,7 +24,7 @@ namespace MongoDB.Driver
     /// Represents the result of a FindAndModify command.
     /// </summary>
     [Serializable]
-    [BsonSerializer(typeof(CommandResultSerializer))]
+    [BsonSerializer(typeof(CommandResultSerializer<FindAndModifyResult>))]
     public class FindAndModifyResult : CommandResult
     {
         // constructors

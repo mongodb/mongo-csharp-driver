@@ -17,6 +17,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.Serialization.Conventions
@@ -70,7 +71,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
             {
-                cm.MapIdMember(x => x.String).SetRepresentation(BsonType.ObjectId);
+                cm.MapIdMember(x => x.String).SetSerializer(new StringSerializer(BsonType.ObjectId));
             });
 
             _subject.PostProcess(classMap);

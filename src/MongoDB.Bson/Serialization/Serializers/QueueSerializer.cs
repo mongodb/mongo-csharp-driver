@@ -16,6 +16,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -23,47 +24,62 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Queues.
     /// </summary>
-    public class QueueSerializer : EnumerableSerializerBase, IBsonArraySerializer
+    public class QueueSerializer :
+        EnumerableSerializerBase<Queue>,
+        IChildSerializerConfigurable,
+        IBsonArraySerializer
     {
-        // private static fields
-        private static QueueSerializer __instance = new QueueSerializer();
-
         // constructors
         /// <summary>
-        /// Initializes a new instance of the QueueSerializer class.
+        /// Initializes a new instance of the <see cref="QueueSerializer"/> class.
         /// </summary>
         public QueueSerializer()
-            : base(new ArraySerializationOptions())
         {
         }
 
-        // public static properties
         /// <summary>
-        /// Gets an instance of the QueueSerializer class.
+        /// Initializes a new instance of the <see cref="QueueSerializer"/> class.
         /// </summary>
-        [Obsolete("Use constructor instead.")]
-        public static QueueSerializer Instance
+        /// <param name="itemSerializer">The item serializer.</param>
+        public QueueSerializer(IBsonSerializer itemSerializer)
+            : base(itemSerializer)
         {
-            get { return __instance; }
+        }
+
+        // public methods
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified item serializer.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public QueueSerializer WithItemSerializer(IBsonSerializer itemSerializer)
+        {
+            if (itemSerializer == ItemSerializer)
+            {
+                return this;
+            }
+            else
+            {
+                return new QueueSerializer(itemSerializer);
+            }
         }
 
         // protected methods
         /// <summary>
         /// Adds the item.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <param name="item">The item.</param>
-        protected override void AddItem(object instance, object item)
+        protected override void AddItem(object accumulator, object item)
         {
-            ((Queue)instance).Enqueue(item);
+            ((Queue)accumulator).Enqueue(item);
         }
 
         /// <summary>
-        /// Creates the instance.
+        /// Creates the accumulator.
         /// </summary>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The instance.</returns>
-        protected override object CreateInstance(Type actualType)
+        /// <returns>The accumulator.</returns>
+        protected override object CreateAccumulator()
         {
             return new Queue();
         }
@@ -71,80 +87,128 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Enumerates the items.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="value">The value.</param>
         /// <returns>The items.</returns>
-        protected override IEnumerable EnumerateItemsInSerializationOrder(object instance)
+        protected override IEnumerable EnumerateItemsInSerializationOrder(Queue value)
         {
-            return (IEnumerable)instance;
+            return value;
         }
 
         /// <summary>
         /// Finalizes the result.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="actualType">The actual type.</param>
+        /// <param name="accumulator">The instance.</param>
         /// <returns>The result.</returns>
-        protected override object FinalizeResult(object instance, Type actualType)
+        protected override Queue FinalizeResult(object accumulator)
         {
-            return instance;
+            return (Queue)accumulator;
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IChildSerializerConfigurable.ChildSerializer
+        {
+            get { return ItemSerializer; }
+        }
+
+        IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
+        {
+            return WithItemSerializer(childSerializer);
         }
     }
 
     /// <summary>
     /// Represents a serializer for Queues.
     /// </summary>
-    /// <typeparam name="T">The type of the elements.</typeparam>
-    public class QueueSerializer<T> : EnumerableSerializerBase<T>, IBsonArraySerializer
+    /// <typeparam name="TItem">The type of the elements.</typeparam>
+    public class QueueSerializer<TItem> :
+        EnumerableSerializerBase<Queue<TItem>, TItem>,
+        IChildSerializerConfigurable,
+        IBsonArraySerializer
     {
         // constructors
         /// <summary>
-        /// Initializes a new instance of the QueueSerializer class.
+        /// Initializes a new instance of the <see cref="QueueSerializer{TItem}"/> class.
         /// </summary>
         public QueueSerializer()
-            : base(new ArraySerializationOptions())
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueueSerializer{TItem}"/> class.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        public QueueSerializer(IBsonSerializer<TItem> itemSerializer)
+            : base(itemSerializer)
+        {
+        }
+
+        // public methods
+        /// <summary>
+        /// Returns a serializer that has been reconfigured with the specified item serializer.
+        /// </summary>
+        /// <param name="itemSerializer">The item serializer.</param>
+        /// <returns>The reconfigured serializer.</returns>
+        public QueueSerializer<TItem> WithItemSerializer(IBsonSerializer<TItem> itemSerializer)
+        {
+            if (itemSerializer == ItemSerializer)
+            {
+                return this;
+            }
+            else
+            {
+                return new QueueSerializer<TItem>(itemSerializer);
+            }
         }
 
         // protected methods
         /// <summary>
         /// Adds the item.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <param name="item">The item.</param>
-        protected override void AddItem(object instance, T item)
+        protected override void AddItem(object accumulator, TItem item)
         {
-            ((Queue<T>)instance).Enqueue(item);
+            ((Queue<TItem>)accumulator).Enqueue(item);
         }
 
         /// <summary>
-        /// Creates the instance.
+        /// Creates the accumulator.
         /// </summary>
-        /// <param name="actualType">The actual type.</param>
-        /// <returns>The instance.</returns>
-        protected override object CreateInstance(Type actualType)
+        /// <returns>The accumulator.</returns>
+        protected override object CreateAccumulator()
         {
-            return new Queue<T>();
+            return new Queue<TItem>();
         }
 
         /// <summary>
-        /// Enumerates the items.
+        /// Enumerates the items in serialization order.
         /// </summary>
-        /// <param name="instance">The instance.</param>
+        /// <param name="value">The value.</param>
         /// <returns>The items.</returns>
-        protected override IEnumerable<T> EnumerateItemsInSerializationOrder(object instance)
+        protected override IEnumerable<TItem> EnumerateItemsInSerializationOrder(Queue<TItem> value)
         {
-            return (IEnumerable<T>)instance;
+            return value;
         }
 
         /// <summary>
         /// Finalizes the result.
         /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="actualType">The actual type.</param>
+        /// <param name="accumulator">The accumulator.</param>
         /// <returns>The result.</returns>
-        protected override object FinalizeResult(object instance, Type actualType)
+        protected override Queue<TItem> FinalizeResult(object accumulator)
         {
-            return instance;
+            return (Queue<TItem>)accumulator;
+        }
+
+        // explicit interface implementations
+        IBsonSerializer IChildSerializerConfigurable.ChildSerializer
+        {
+            get { return ItemSerializer; }
+        }
+
+        IBsonSerializer IChildSerializerConfigurable.WithChildSerializer(IBsonSerializer childSerializer)
+        {
+            return WithItemSerializer((IBsonSerializer<TItem>)childSerializer);
         }
     }
 }

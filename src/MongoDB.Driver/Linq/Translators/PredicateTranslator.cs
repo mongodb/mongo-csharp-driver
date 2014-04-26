@@ -501,18 +501,25 @@ namespace MongoDB.Driver.Linq
 
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(methodCallExpression.Object);
             var serializer = serializationInfo.Serializer;
-            var dictionarySerializationOptions = (DictionarySerializationOptions)(serializationInfo.SerializationOptions ?? serializer.GetDefaultSerializationOptions());
 
-            var keyActualType = (key != null) ? key.GetType() : keyNominalType;
-            var keySerializer = BsonSerializer.LookupSerializer(keyActualType);
+            var dictionarySerializer = serializer as IBsonDictionarySerializer;
+            if (dictionarySerializer == null)
+            {
+                var message = string.Format(
+                    "{0} in a LINQ query is only supported for members that are serialized using a serializer that implements IBsonDictionarySerializer.",
+                    methodCallExpression.Method.Name); // could be Contains (for IDictionary) or ContainsKey (for IDictionary<TKey, TValue>)
+                throw new NotSupportedException(message);
+            }
+
+            var keySerializer = dictionarySerializer.KeySerializer;
             var keySerializationInfo = new BsonSerializationInfo(
                 null, // elementName
                 keySerializer,
-                keyNominalType,
-                dictionarySerializationOptions.KeyValuePairSerializationOptions.KeySerializationOptions);
+                keySerializer.ValueType);
             var serializedKey = _serializationInfoHelper.SerializeValue(keySerializationInfo, key);
 
-            switch (dictionarySerializationOptions.Representation)
+            var dictionaryRepresentation = dictionarySerializer.DictionaryRepresentation;
+            switch (dictionaryRepresentation)
             {
                 case DictionaryRepresentation.ArrayOfDocuments:
                     return Query.EQ(serializationInfo.ElementName + ".k", serializedKey);
@@ -522,7 +529,7 @@ namespace MongoDB.Driver.Linq
                     var message = string.Format(
                         "{0} in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not {1}.",
                         methodCallExpression.Method.Name, // could be Contains (for IDictionary) or ContainsKey (for IDictionary<TKey, TValue>)
-                        dictionarySerializationOptions.Representation);
+                        dictionaryRepresentation);
                     throw new NotSupportedException(message);
             }
         }

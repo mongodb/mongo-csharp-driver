@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     public class SingleChunkBuffer : ByteArrayBuffer
     {
         // private fields
-        private BsonChunk _chunk;
+        private readonly BsonChunk _chunk;
 
         // constructors
         /// <summary>
@@ -69,22 +69,10 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            return new SingleChunkBuffer(_chunk, SliceOffset + position, length, true);
+            return new SingleChunkBuffer(_chunk, Origin + position, length, true);
         }
 
         // protected methods
-        /// <summary>
-        /// Clears this instance.
-        /// </summary>
-        /// <exception cref="System.ObjectDisposedException">SingleChunkBuffer</exception>
-        /// <exception cref="System.InvalidOperationException">Write operations are not allowed for read only buffers.</exception>
-        public override void Clear()
-        {
-            ThrowIfDisposed();
-            EnsureIsWritable();
-            Length = 0;
-        }
-
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
@@ -98,7 +86,6 @@ namespace MongoDB.Bson.IO
                     if (_chunk != null)
                     {
                         _chunk.DecrementReferenceCount();
-                        _chunk = null;
                     }
                 }
             }
