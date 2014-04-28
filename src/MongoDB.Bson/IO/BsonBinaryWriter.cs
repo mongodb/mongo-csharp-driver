@@ -679,14 +679,11 @@ namespace MongoDB.Bson.IO
         {
             if (disposing)
             {
-                if (_settings.CloseOutput)
+                try
                 {
-                    try
-                    {
-                        Close();
-                    }
-                    catch { } // ignore exceptions
+                    Close();
                 }
+                catch { } // ignore exceptions
             }
             base.Dispose(disposing);
         }

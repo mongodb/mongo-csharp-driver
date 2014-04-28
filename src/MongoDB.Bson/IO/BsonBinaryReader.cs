@@ -60,16 +60,12 @@ namespace MongoDB.Bson.IO
 
         // public methods
         /// <summary>
-        /// Closes the reader. Also closes the underlying stream.
+        /// Closes the reader.
         /// </summary>
         public override void Close()
         {
             // Close can be called on Disposed objects
-            if (State != BsonReaderState.Closed)
-            {
-                _streamReader.BaseStream.Close();
-                State = BsonReaderState.Closed;
-            }
+            State = BsonReaderState.Closed;
         }
 
         /// <summary>
@@ -643,14 +639,11 @@ namespace MongoDB.Bson.IO
             // don't Dispose the _stream because we don't own it
             if (disposing)
             {
-                if (_settings.CloseInput)
+                try
                 {
-                    try
-                    {
-                        Close();
-                    }
-                    catch { } // ignore exceptions
+                    Close();
                 }
+                catch { } // ignore exceptions
             }
             base.Dispose(disposing);
         }

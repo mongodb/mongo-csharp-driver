@@ -28,7 +28,6 @@ namespace MongoDB.Bson.IO
         private static JsonWriterSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private bool _closeOutput = false;
         private Encoding _encoding = Encoding.UTF8;
         private bool _indent = false;
         private string _indentChars = "  ";
@@ -42,38 +41,6 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public JsonWriterSettings()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the JsonWriterSettings class.
-        /// </summary>
-        /// <param name="closeOutput">Whether to close the output when the writer is closed.</param>
-        /// <param name="encoding">The output Encoding.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <param name="indent">Whether to indent the output.</param>
-        /// <param name="indentChars">The indentation characters.</param>
-        /// <param name="newLineChars">The new line characters.</param>
-        /// <param name="outputMode">The output mode.</param>
-        /// <param name="shellVersion">The version of the shell to target.</param>
-        [Obsolete("Use the no-argument constructor instead and set the properties.")]
-        public JsonWriterSettings(
-            bool closeOutput,
-            Encoding encoding,
-            GuidRepresentation guidRepresentation,
-            bool indent,
-            string indentChars,
-            string newLineChars,
-            JsonOutputMode outputMode,
-            Version shellVersion)
-            : base(guidRepresentation)
-        {
-            _closeOutput = closeOutput;
-            _encoding = encoding;
-            _indent = indent;
-            _indentChars = indentChars;
-            _newLineChars = newLineChars;
-            _outputMode = outputMode;
-            _shellVersion = shellVersion;
         }
 
         // public static properties
@@ -94,19 +61,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to close the output when the writer is closed.
-        /// </summary>
-        public bool CloseOutput
-        {
-            get { return _closeOutput; }
-            set
-            {
-                if (IsFrozen) { throw new InvalidOperationException("JsonWriterSettings is frozen."); }
-                _closeOutput = value;
-            }
-        }
-
         /// <summary>
         /// Gets or sets the output Encoding.
         /// </summary>
@@ -205,7 +159,6 @@ namespace MongoDB.Bson.IO
         {
             var clone = new JsonWriterSettings
             {
-                CloseOutput = _closeOutput,
 #pragma warning disable 618
                 Encoding = _encoding,
 #pragma warning restore

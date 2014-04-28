@@ -54,10 +54,7 @@ namespace MongoDB.Bson.IO
         public override void Close()
         {
             // Close can be called on Disposed objects
-            if (State != BsonReaderState.Closed)
-            {
-                State = BsonReaderState.Closed;
-            }
+            State = BsonReaderState.Closed;
         }
 
         /// <summary>

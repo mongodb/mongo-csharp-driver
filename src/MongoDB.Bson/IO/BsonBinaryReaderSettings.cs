@@ -28,7 +28,6 @@ namespace MongoDB.Bson.IO
         private static BsonBinaryReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private bool _closeInput = false;
         private UTF8Encoding _encoding = Utf8Helper.StrictUtf8Encoding;
         private bool _fixOldBinarySubTypeOnInput = true;
         private bool _fixOldDateTimeMaxValueOnInput = true;
@@ -40,29 +39,6 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonBinaryReaderSettings()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonBinaryReaderSettings class.
-        /// </summary>
-        /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
-        /// <param name="fixOldBinarySubTypeOnInput">Whether to fix occurrences of the old binary subtype on input.</param>
-        /// <param name="fixOldDateTimeMaxValueOnInput">Whether to fix occurrences of the old representation of DateTime.MaxValue on input.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <param name="maxDocumentSize">The max document size.</param>
-        [Obsolete("Use the no-argument constructor instead and set the properties.")]
-        public BsonBinaryReaderSettings(
-            bool closeInput,
-            bool fixOldBinarySubTypeOnInput,
-            bool fixOldDateTimeMaxValueOnInput,
-            GuidRepresentation guidRepresentation,
-            int maxDocumentSize)
-            : base(guidRepresentation)
-        {
-            _closeInput = closeInput;
-            _fixOldBinarySubTypeOnInput = fixOldBinarySubTypeOnInput;
-            _fixOldDateTimeMaxValueOnInput = fixOldDateTimeMaxValueOnInput;
-            _maxDocumentSize = maxDocumentSize;
         }
 
         // public static properties
@@ -83,19 +59,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to close the input stream when the reader is closed.
-        /// </summary>
-        public bool CloseInput
-        {
-            get { return _closeInput; }
-            set
-            {
-                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryReaderSettings is frozen."); }
-                _closeInput = value;
-            }
-        }
-
         /// <summary>
         /// Gets or sets the Encoding.
         /// </summary>
@@ -171,7 +134,6 @@ namespace MongoDB.Bson.IO
         {
             var clone = new BsonBinaryReaderSettings
             {
-                CloseInput = _closeInput,
                 Encoding = _encoding,
                 FixOldBinarySubTypeOnInput = _fixOldBinarySubTypeOnInput,
                 FixOldDateTimeMaxValueOnInput = _fixOldDateTimeMaxValueOnInput,

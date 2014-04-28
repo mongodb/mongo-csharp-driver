@@ -60,10 +60,6 @@ namespace MongoDB.Bson.IO
             if (State != BsonWriterState.Closed)
             {
                 Flush();
-                if (_jsonWriterSettings.CloseOutput)
-                {
-                    _textWriter.Close();
-                }
                 _context = null;
                 State = BsonWriterState.Closed;
             }
@@ -680,7 +676,11 @@ namespace MongoDB.Bson.IO
         {
             if (disposing)
             {
-                Close();
+                try
+                {
+                    Close();
+                }
+                catch { } // ignore exceptions
                 _textWriter.Dispose();
             }
             base.Dispose(disposing);

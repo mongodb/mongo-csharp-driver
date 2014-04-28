@@ -28,7 +28,6 @@ namespace MongoDB.Bson.IO
         private static BsonBinaryWriterSettings __defaults = null; // delay creation to pick up the latest default values
 
         // private fields
-        private bool _closeOutput = false;
         private UTF8Encoding _encoding = Utf8Helper.StrictUtf8Encoding;
         private bool _fixOldBinarySubTypeOnOutput = true;
         private int _maxDocumentSize = BsonDefaults.MaxDocumentSize;
@@ -39,26 +38,6 @@ namespace MongoDB.Bson.IO
         /// </summary>
         public BsonBinaryWriterSettings()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonBinaryWriterSettings class.
-        /// </summary>
-        /// <param name="closeOutput">Whether to close the output stream when the writer is closed.</param>
-        /// <param name="fixOldBinarySubTypeOnOutput">Whether to fix old binary data subtype on output.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        /// <param name="maxDocumentSize">The max document size.</param>
-        [Obsolete("Use the no-argument constructor instead and set the properties.")]
-        public BsonBinaryWriterSettings(
-            bool closeOutput,
-            bool fixOldBinarySubTypeOnOutput,
-            GuidRepresentation guidRepresentation,
-            int maxDocumentSize)
-            : base(guidRepresentation)
-        {
-            _closeOutput = closeOutput;
-            _fixOldBinarySubTypeOnOutput = fixOldBinarySubTypeOnOutput;
-            _maxDocumentSize = maxDocumentSize;
         }
 
         // public static properties
@@ -79,19 +58,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to close the output when the writer is closed.
-        /// </summary>
-        public bool CloseOutput
-        {
-            get { return _closeOutput; }
-            set
-            {
-                if (IsFrozen) { throw new InvalidOperationException("BsonBinaryWriterSettings is frozen."); }
-                _closeOutput = value;
-            }
-        }
-
         /// <summary>
         /// Gets or sets the Encoding.
         /// </summary>
@@ -154,7 +120,6 @@ namespace MongoDB.Bson.IO
         {
             var clone = new BsonBinaryWriterSettings
             {
-                CloseOutput = _closeOutput,
                 Encoding = _encoding,
                 FixOldBinarySubTypeOnOutput = _fixOldBinarySubTypeOnOutput,
                 GuidRepresentation = GuidRepresentation,

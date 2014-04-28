@@ -26,27 +26,12 @@ namespace MongoDB.Bson.IO
         // private static fields
         private static JsonReaderSettings __defaults = null; // delay creation to pick up the latest default values
 
-        // private fields
-        private bool _closeInput = false;
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the JsonReaderSettings class.
         /// </summary>
         public JsonReaderSettings()
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the JsonReaderSettings class.
-        /// </summary>
-        /// <param name="closeInput">Whether to close the input stream when the reader is closed.</param>
-        /// <param name="guidRepresentation">The representation for Guids.</param>
-        [Obsolete("Use the no-argument constructor instead and set the properties.")]
-        public JsonReaderSettings(bool closeInput, GuidRepresentation guidRepresentation)
-            : base(guidRepresentation)
-        {
-            _closeInput = closeInput;
         }
 
         // public static properties
@@ -67,19 +52,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public properties
-        /// <summary>
-        /// Gets or sets whether to close the input stream when the reader is closed.
-        /// </summary>
-        public bool CloseInput
-        {
-            get { return _closeInput; }
-            set
-            {
-                if (IsFrozen) { throw new InvalidOperationException("JsonReaderSettings is frozen."); }
-                _closeInput = value;
-            }
-        }
-
         // public methods
         /// <summary>
         /// Creates a clone of the settings.
@@ -99,7 +71,6 @@ namespace MongoDB.Bson.IO
         {
             var clone = new JsonReaderSettings
             {
-                CloseInput = _closeInput,
                 GuidRepresentation = GuidRepresentation
             };
             return clone;
