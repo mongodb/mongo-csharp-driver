@@ -224,6 +224,21 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
+        public void TestDateTimeStrictIso8601()
+        {
+            var json = "{ \"$date\" : \"1970-01-01T00:00:00Z\" }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.DateTime, _bsonReader.ReadBsonType());
+                Assert.AreEqual(0, _bsonReader.ReadDateTime());
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+            var expected = "{ \"$date\" : 0 }"; // it's still not ISO8601 on the way out
+            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            Assert.AreEqual(expected, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson(jsonSettings));
+        }
+
+        [Test]
         public void TestDateTimeTengen()
         {
             var json = "new Date(0)";

@@ -923,13 +923,30 @@ namespace MongoDB.Bson.IO
         {
             VerifyToken(":");
             var valueToken = PopToken();
-            if (valueToken.Type != JsonTokenType.Int32 && valueToken.Type != JsonTokenType.Int64)
+
+            long millisecondsSinceEpoch;
+            if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
             {
-                var message = string.Format("JSON reader expected an integer but found '{0}'.", valueToken.Lexeme);
+                millisecondsSinceEpoch = valueToken.Int64Value;
+            }
+            else if (valueToken.Type == JsonTokenType.String)
+            {
+                DateTime dateTime;
+                if (!DateTime.TryParse(valueToken.StringValue, out dateTime))
+                {
+                    var message = string.Format("Invalid $date string: '{0}'.", valueToken.StringValue);
+                    throw new FileFormatException(message);
+                }
+                millisecondsSinceEpoch = BsonUtils.ToMillisecondsSinceEpoch(dateTime);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer or an ISO 8601 string for $date but found a '{0}'.", valueToken.Lexeme);
                 throw new FileFormatException(message);
             }
+
             VerifyToken("}");
-            return new BsonDateTime(valueToken.Int64Value);
+            return new BsonDateTime(millisecondsSinceEpoch);
         }
 
         private BsonValue ParseDateTimeConstructor(bool withNew)
