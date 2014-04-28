@@ -17,8 +17,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Drawing;
 using System.Dynamic;
 using System.Globalization;
 using System.Net;
@@ -123,7 +121,7 @@ namespace MongoDB.Bson.Serialization
             Type serializerType;
             if (__serializers.TryGetValue(type, out serializerType))
             {
-                return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                return CreateSerializer(serializerType);
             }
 
             if (type.IsGenericType)
@@ -132,8 +130,7 @@ namespace MongoDB.Bson.Serialization
                 Type genericSerializerDefinition;
                 if (__genericSerializerDefinitions.TryGetValue(genericTypeDefinition, out genericSerializerDefinition))
                 {
-                    var genericSerializerType = genericSerializerDefinition.MakeGenericType(type.GetGenericArguments());
-                    return (IBsonSerializer)Activator.CreateInstance(genericSerializerType);
+                    return CreateGenericSerializer(genericSerializerDefinition, type.GetGenericArguments());
                 }
             }
 
@@ -144,16 +141,13 @@ namespace MongoDB.Bson.Serialization
                 {
                     case 1:
                         var arraySerializerDefinition = typeof(ArraySerializer<>);
-                        var arraySerializerType = arraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer)Activator.CreateInstance(arraySerializerType);
+                        return CreateGenericSerializer(arraySerializerDefinition, elementType);
                     case 2:
                         var twoDimensionalArraySerializerDefinition = typeof(TwoDimensionalArraySerializer<>);
-                        var twoDimensionalArraySerializerType = twoDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer)Activator.CreateInstance(twoDimensionalArraySerializerType);
+                        return CreateGenericSerializer(twoDimensionalArraySerializerDefinition, elementType);
                     case 3:
                         var threeDimensionalArraySerializerDefinition = typeof(ThreeDimensionalArraySerializer<>);
-                        var threeDimensionalArraySerializerType = threeDimensionalArraySerializerDefinition.MakeGenericType(elementType);
-                        return (IBsonSerializer)Activator.CreateInstance(threeDimensionalArraySerializerType);
+                        return CreateGenericSerializer(threeDimensionalArraySerializerDefinition, elementType);
                     default:
                         var message = string.Format("No serializer found for array for rank {0}.", type.GetArrayRank());
                         throw new BsonSerializationException(message);
@@ -163,8 +157,7 @@ namespace MongoDB.Bson.Serialization
             if (type.IsEnum)
             {
                 var enumSerializerDefinition = typeof(EnumSerializer<>);
-                var enumSerializerType = enumSerializerDefinition.MakeGenericType(type);
-                return (IBsonSerializer)Activator.CreateInstance(enumSerializerType);
+                return CreateGenericSerializer(enumSerializerDefinition, type);
             }
 
             // classes that implement IDictionary or IEnumerable are serialized using either DictionarySerializer or EnumerableSerializer
@@ -179,14 +172,24 @@ namespace MongoDB.Bson.Serialization
             if (type.IsInterface)
             {
                 var discriminatedInterfaceSerializerDefinition = typeof(DiscriminatedInterfaceSerializer<>);
-                var discriminatedInterfaceSerializerType = discriminatedInterfaceSerializerDefinition.MakeGenericType(new[] { type });
-                return (IBsonSerializer)Activator.CreateInstance(discriminatedInterfaceSerializerType);
+                return CreateGenericSerializer(discriminatedInterfaceSerializerDefinition, type);
             }
 
             return null;
         }
 
         // private methods
+        private IBsonSerializer CreateGenericSerializer(Type serializerDefinition, params Type[] typeArguments)
+        {
+            var serializerType = serializerDefinition.MakeGenericType(typeArguments);
+            return CreateSerializer(serializerType);
+        }
+
+        private IBsonSerializer CreateSerializer(Type serializerType)
+        {
+            return (IBsonSerializer)Activator.CreateInstance(serializerType);
+        }
+
         private IBsonSerializer GetCollectionSerializer(Type type)
         {
             Type implementedGenericDictionaryInterface = null;
@@ -237,14 +240,12 @@ namespace MongoDB.Bson.Serialization
                     var dictionaryDefinition = typeof(Dictionary<,>);
                     var dictionaryType = dictionaryDefinition.MakeGenericType(keyType, valueType);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, dictionaryType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, dictionaryType);
                 }
                 else
                 {
                     var serializerDefinition = typeof(DictionaryInterfaceImplementerSerializer<,,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, keyType, valueType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, keyType, valueType);
                 }
             }
             else if (implementedDictionaryInterface != null)
@@ -253,14 +254,12 @@ namespace MongoDB.Bson.Serialization
                 {
                     var dictionaryType = typeof(Hashtable);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, dictionaryType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, dictionaryType);
                 }
                 else
                 {
                     var serializerDefinition = typeof(DictionaryInterfaceImplementerSerializer<>);
-                    var serializerType = serializerDefinition.MakeGenericType(type);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type);
                 }
             }
             else if (implementedGenericEnumerableInterface != null)
@@ -271,28 +270,24 @@ namespace MongoDB.Bson.Serialization
                 if (type == readOnlyCollectionType)
                 {
                     var serializerDefinition = typeof(ReadOnlyCollectionSerializer<>);
-                    var serializerType = serializerDefinition.MakeGenericType(itemType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, itemType);
                 }
                 else if (readOnlyCollectionType.IsAssignableFrom(type))
                 {
                     var serializerDefinition = typeof(ReadOnlyCollectionSubclassSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, itemType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, itemType);
                 }
                 else if (type.IsInterface)
                 {
                     var listDefinition = typeof(List<>);
                     var listType = listDefinition.MakeGenericType(itemType);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, listType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, listType);
                 }
                 else
                 {
                     var serializerDefinition = typeof(EnumerableInterfaceImplementerSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, itemType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, itemType);
                 }
             }
             else if (implementedEnumerableInterface != null)
@@ -301,14 +296,12 @@ namespace MongoDB.Bson.Serialization
                 {
                     var listType = typeof(ArrayList);
                     var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    var serializerType = serializerDefinition.MakeGenericType(type, listType);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type, listType);
                 }
                 else
                 {
                     var serializerDefinition = typeof(EnumerableInterfaceImplementerSerializer<>);
-                    var serializerType = serializerDefinition.MakeGenericType(type);
-                    return (IBsonSerializer)Activator.CreateInstance(serializerType);
+                    return CreateGenericSerializer(serializerDefinition, type);
                 }
             }
 

@@ -17,8 +17,6 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -261,10 +259,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         public void Freeze()
         {
-            if (!_frozen)
-            {
-                _frozen = true;
-            }
+            _frozen = true;
         }
 
         /// <summary>
@@ -456,16 +451,6 @@ namespace MongoDB.Bson.Serialization
             if (_frozen) { ThrowFrozenException(); }
             _order = order;
             return this;
-        }
-
-        /// <summary>
-        /// Sets the external representation.
-        /// </summary>
-        /// <param name="representation">The external representation.</param>
-        /// <returns>The member map.</returns>
-        public BsonMemberMap SetRepresentation(BsonType representation)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

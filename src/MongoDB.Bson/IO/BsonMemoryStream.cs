@@ -29,7 +29,6 @@ namespace MongoDB.Bson.IO
         private byte[] _buffer;
         private int _capacity;
         private bool _expandable;
-        private bool _exposable;
         private bool _isOpen;
         private int _length;
         private int _origin;
@@ -90,7 +89,6 @@ namespace MongoDB.Bson.IO
             _buffer = buffer;
             _capacity = length;
             _expandable = false;
-            _exposable = false;
             _isOpen = true;
             _length = length;
             _origin = 0;
@@ -163,7 +161,6 @@ namespace MongoDB.Bson.IO
             _buffer = new byte[capacity];
             _capacity = capacity;
             _expandable = true;
-            _exposable = true;
             _isOpen = true;
             _length = 0;
             _origin = 0;
@@ -311,20 +308,6 @@ namespace MongoDB.Bson.IO
         public override void Flush()
         {
             // nothing to do
-        }
-
-        /// <summary>
-        /// Gets the buffer.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.UnauthorizedAccessException">Buffer is not publicly visible.</exception>
-        public byte[] GetBuffer()
-        {
-            if (!_exposable)
-            {
-                throw new UnauthorizedAccessException("Buffer is not publicly visible.");
-            }
-            return _buffer;
         }
 
         /// <summary>
