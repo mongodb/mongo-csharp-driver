@@ -90,25 +90,12 @@ namespace MongoDB.Driver
                 return new WriteConcernException(errorMessage, writeConcernResult);
             }
 
-            string lastErrorMessage = null;
             if (writeConcernResult.HasLastErrorMessage)
-            {
-                lastErrorMessage = writeConcernResult.LastErrorMessage;
-            }
-            else if (writeConcernResult.Response.Contains("jnote"))
-            {
-                lastErrorMessage = writeConcernResult.Response["jnote"].ToString();
-            }
-            else if (writeConcernResult.Response.Contains("wnote"))
-            {
-                lastErrorMessage = writeConcernResult.Response["wnote"].ToString();
-            }
-
-            if (lastErrorMessage != null)
             {
                 var errorMessage = string.Format(
                     "WriteConcern detected an error '{0}'. (Response was {1}).",
-                    lastErrorMessage, writeConcernResult.Response.ToJson());
+                    writeConcernResult.LastErrorMessage, 
+                    writeConcernResult.Response.ToJson());
                 return new WriteConcernException(errorMessage, writeConcernResult);
             }
 
