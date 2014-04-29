@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
@@ -23,14 +22,6 @@ namespace MongoDB.Driver.Tests.Exceptions
     [TestFixture]
     public class ExceptionMapperTests
     {
-        private MongoServerInstance _primary;
-
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            _primary = Configuration.TestServer.Primary;
-        }
-
         [Test]
         public void TestDoesNotThrowExceptionWhenEverythingIsKosherWithAWriteConcernResult()
         {
@@ -42,7 +33,6 @@ namespace MongoDB.Driver.Tests.Exceptions
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNull(ex);
@@ -74,7 +64,6 @@ namespace MongoDB.Driver.Tests.Exceptions
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
@@ -109,7 +98,6 @@ namespace MongoDB.Driver.Tests.Exceptions
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
@@ -129,7 +117,6 @@ namespace MongoDB.Driver.Tests.Exceptions
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
@@ -149,67 +136,10 @@ namespace MongoDB.Driver.Tests.Exceptions
             };
 
             var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
             var ex = ExceptionMapper.Map(writeConcernResult);
 
             Assert.IsNotNull(ex);
             Assert.IsInstanceOf<WriteConcernException>(ex);
-        }
-
-        [Test]
-        public void TestThrowsWriteConcernExceptionWhenOkButHasWNoteOnPre26Servers()
-        {
-            var response = new BsonDocument
-                {
-                    { "err", BsonNull.Value },
-                    { "code", 20 },
-                    { "n", 0 },
-                    { "connectionId", 1 },
-                    { "ok", 1 },
-                    { "wnote", "oops" }
-                };
-
-            var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
-            var ex = ExceptionMapper.Map(writeConcernResult);
-
-            if (_primary.BuildInfo.Version < new Version(2, 6, 0))
-            {
-                Assert.IsNull(ex);
-            }
-            else
-            {
-                Assert.IsNotNull(ex);
-                Assert.IsInstanceOf<WriteConcernException>(ex);
-            }
-        }
-
-        [Test]
-        public void TestThrowsWriteConcernExceptionWhenOkButHasJNoteOnPre26Servers()
-        {
-            var response = new BsonDocument
-                {
-                    { "err", BsonNull.Value },
-                    { "code", 20 },
-                    { "n", 0 },
-                    { "connectionId", 1 },
-                    { "ok", 1 },
-                    { "jnote", "oops" }
-                };
-
-            var writeConcernResult = new WriteConcernResult(response);
-            writeConcernResult.ServerInstance = _primary;
-            var ex = ExceptionMapper.Map(writeConcernResult);
-
-            if (_primary.BuildInfo.Version < new Version(2, 6, 0))
-            {
-                Assert.IsNull(ex);
-            }
-            else
-            {
-                Assert.IsNotNull(ex);
-                Assert.IsInstanceOf<WriteConcernException>(ex);
-            }
         }
 
         [Test]
