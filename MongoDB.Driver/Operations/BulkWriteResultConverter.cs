@@ -28,10 +28,9 @@ namespace MongoDB.Driver.Operations
         }
 
         // public methods
-        public Exception ToWriteConcernException(MongoServerInstance serverInstance, BulkWriteException bulkWriteException)
+        public Exception ToWriteConcernException(BulkWriteException bulkWriteException)
         {
             var writeConcernResult = ToWriteConcernResult(bulkWriteException.Result, bulkWriteException);
-            writeConcernResult.ServerInstance = serverInstance;
 
             var exception = ExceptionMapper.Map(writeConcernResult.Response);
             if (exception == null)
@@ -114,6 +113,7 @@ namespace MongoDB.Driver.Operations
                 { "upserted", () => upsert.Id, isUpdate && upsert != null },
             };
             getLastErrorResponse.Merge(details, false); // don't overwrite existing elements
+
             return new WriteConcernResult(getLastErrorResponse);
         }
     }

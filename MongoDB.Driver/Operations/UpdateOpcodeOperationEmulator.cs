@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Operations
             var converter = new BulkWriteResultConverter();
             if (bulkWriteException != null)
             {
-                throw converter.ToWriteConcernException(serverInstance, bulkWriteException);
+                throw converter.ToWriteConcernException(bulkWriteException);
             }
             else
             {
