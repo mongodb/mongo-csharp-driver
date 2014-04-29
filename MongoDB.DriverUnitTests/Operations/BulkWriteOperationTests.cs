@@ -196,18 +196,21 @@ namespace MongoDB.DriverUnitTests.Operations
         [TestCase(true, 1)]
         public void TestExecuteWithExplicitWriteConcern(bool ordered, int w)
         {
-            _collection.Drop();
+            using (_server.RequestStart(null))
+            {
+                _collection.Drop();
 
-            var document = new BsonDocument("_id", 1);
-            var bulk = InitializeBulkOperation(_collection, ordered);
-            bulk.Insert(document);
-            var result = bulk.Execute(new WriteConcern { W = w });
+                var document = new BsonDocument("_id", 1);
+                var bulk = InitializeBulkOperation(_collection, ordered);
+                bulk.Insert(document);
+                var result = bulk.Execute(new WriteConcern { W = w });
 
-            var expectedResult = new ExpectedResult { IsAcknowledged = w > 0, InsertedCount = 1 };
-            CheckExpectedResult(expectedResult, result);
+                var expectedResult = new ExpectedResult { IsAcknowledged = w > 0, InsertedCount = 1 };
+                CheckExpectedResult(expectedResult, result);
 
-            var expectedDocuments = new[] { document };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                var expectedDocuments = new[] { document };
+                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
         }
 
         [Test]
