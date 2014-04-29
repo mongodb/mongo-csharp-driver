@@ -1143,24 +1143,28 @@ namespace MongoDB.Driver.Tests.Operations
         [TestCase(true)]
         public void TestW0DoesNotReportErrors(bool ordered)
         {
-            _collection.Drop();
-
-            var documents = new[]
+            // use a request so we can read our own writes even with older servers
+            using (_server.RequestStart(null))
             {
-                new BsonDocument("_id", 1),
-                new BsonDocument("_id", 1)
-            };
+                _collection.Drop();
 
-            var bulk = InitializeBulkOperation(_collection, ordered);
-            bulk.Insert(documents[0]);
-            bulk.Insert(documents[1]);
-            var result = bulk.Execute(WriteConcern.Unacknowledged);
+                var documents = new[]
+                {
+                    new BsonDocument("_id", 1),
+                    new BsonDocument("_id", 1)
+                };
 
-            var expectedResult = new ExpectedResult { IsAcknowledged = false, RequestCount = 2 };
-            CheckExpectedResult(expectedResult, result);
+                var bulk = InitializeBulkOperation(_collection, ordered);
+                bulk.Insert(documents[0]);
+                bulk.Insert(documents[1]);
+                var result = bulk.Execute(WriteConcern.Unacknowledged);
 
-            var expectedDocuments = new[] { documents[0] };
-            Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+                var expectedResult = new ExpectedResult { IsAcknowledged = false, RequestCount = 2 };
+                CheckExpectedResult(expectedResult, result);
+
+                var expectedDocuments = new[] { documents[0] };
+                Assert.That(_collection.FindAll(), Is.EquivalentTo(expectedDocuments));
+            }
         }
 
         [Test]
