@@ -130,7 +130,6 @@ namespace MongoDB.Driver.Tests.Jira
         public class C
         {
             public int _id;
-            [BsonDictionaryOptions(Representation = DictionaryRepresentation.Dynamic)]
             public Dictionary<object, object> d;
         }
 
@@ -138,10 +137,7 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
-            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
         }
     }
 
@@ -211,7 +207,6 @@ namespace MongoDB.Driver.Tests.Jira
         public class C
         {
             public int _id;
-            [BsonDictionaryOptions(Representation = DictionaryRepresentation.Dynamic)]
             public Dictionary<string, object> d;
         }
 
@@ -219,10 +214,7 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
-            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
         }
     }
 
@@ -292,7 +284,6 @@ namespace MongoDB.Driver.Tests.Jira
         public class C
         {
             public int _id;
-            [BsonDictionaryOptions(Representation = DictionaryRepresentation.Dynamic)]
             public Hashtable d;
         }
 
@@ -300,10 +291,7 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
-            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : [['', 2]] }");
-            Assert.AreEqual(1, rehydrated._id);
-            Assert.AreEqual(1, rehydrated.d.Count);
-            Assert.AreEqual(2, rehydrated.d[""]);
+            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
         }
     }
 }

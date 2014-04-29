@@ -15,8 +15,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
 
@@ -35,7 +37,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp624
         [Test]
         [TestCase("x")]
         [TestCase("x$")]
-        public void TestDocumentRepresentation(string key)
+        public void TestValidKeys(string key)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
             var json = c.ToJson();
@@ -61,22 +63,16 @@ namespace MongoDB.Bson.Tests.Jira.CSharp624
         [TestCase("x.")]
         [TestCase(".y")]
         [TestCase("x.y")]
-        public void TestArrayOfArraysRepresentation(string key)
+        public void TestInvalidKeys(string key)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
-            var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'D' : [['#', 2]], 'G' : [['#', 3]] }".Replace("#", key).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
 
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(1, rehydrated.Id);
-            Assert.AreEqual(1, rehydrated.D.Count);
-            Assert.AreEqual(key, rehydrated.D.Keys.Cast<object>().First());
-            Assert.AreEqual(2, rehydrated.D[key]);
-            Assert.AreEqual(1, rehydrated.G.Count);
-            Assert.AreEqual(key, rehydrated.G.Keys.First());
-            Assert.AreEqual(3, rehydrated.G[key]);
+            using (var stream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
+            {
+                bsonWriter.CheckElementNames = true;
+                Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, c));
+            }
         }
 
         [Test]
@@ -85,19 +81,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp624
         public void TestKeyIsNotAString(object key, string keyAsString)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
-            var json = c.ToJson();
-            var expected = "{ '_id' : 1, 'D' : [[#, 2]], 'G' : [[#, 3]] }".Replace("#", keyAsString).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = c.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<C>(bson);
-            Assert.AreEqual(1, rehydrated.Id);
-            Assert.AreEqual(1, rehydrated.D.Count);
-            Assert.AreEqual(key, rehydrated.D.Keys.Cast<object>().First());
-            Assert.AreEqual(2, rehydrated.D[key]);
-            Assert.AreEqual(1, rehydrated.G.Count);
-            Assert.AreEqual(key, rehydrated.G.Keys.First());
-            Assert.AreEqual(3, rehydrated.G[key]);
+            Assert.Throws<BsonSerializationException>(() => c.ToBson());
         }
     }
 }

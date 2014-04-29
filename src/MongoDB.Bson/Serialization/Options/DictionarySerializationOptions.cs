@@ -26,13 +26,12 @@ namespace MongoDB.Bson.Serialization.Options
     {
         // private static fields
         private static DictionarySerializationOptions __defaults = new DictionarySerializationOptions();
-        private static DictionarySerializationOptions __dynamic = new DictionarySerializationOptions(DictionaryRepresentation.Dynamic);
         private static DictionarySerializationOptions __document = new DictionarySerializationOptions(DictionaryRepresentation.Document);
         private static DictionarySerializationOptions __arrayOfArrays = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfArrays);
         private static DictionarySerializationOptions __arrayOfDocuments = new DictionarySerializationOptions(DictionaryRepresentation.ArrayOfDocuments);
 
         // private fields
-        private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
+        private DictionaryRepresentation _representation = DictionaryRepresentation.Document;
         private KeyValuePairSerializationOptions _keyValuePairSerializationOptions;
 
         // constructors
@@ -108,14 +107,6 @@ namespace MongoDB.Bson.Serialization.Options
         public static DictionarySerializationOptions Document
         {
             get { return __document; }
-        }
-
-        /// <summary>
-        /// Gets an instance of DictionarySerializationOptions with Representation=Dynamic.
-        /// </summary>
-        public static DictionarySerializationOptions Dynamic
-        {
-            get { return __dynamic; }
         }
 
         // public properties

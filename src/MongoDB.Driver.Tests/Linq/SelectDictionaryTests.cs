@@ -39,8 +39,6 @@ namespace MongoDB.Driver.Tests.Linq
             public IDictionary<string, int> E { get; set; } // serialized as { E : [{ k : "x", v : 1 }, ...] }
             [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
             public IDictionary<string, int> F { get; set; } // serialized as { F : [["x", 1], ... ] }
-            [BsonDictionaryOptions(DictionaryRepresentation.Dynamic)]
-            public IDictionary<string, int> G { get; set; } // serialized form depends on actual key values
 
             [BsonDictionaryOptions(DictionaryRepresentation.Document)]
             public IDictionary H { get; set; } // serialized as { H : { x : 1, ... } }
@@ -48,8 +46,6 @@ namespace MongoDB.Driver.Tests.Linq
             public IDictionary I { get; set; } // serialized as { I : [{ k : "x", v : 1 }, ...] }
             [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
             public IDictionary J { get; set; } // serialized as { J : [["x", 1], ... ] }
-            [BsonDictionaryOptions(DictionaryRepresentation.Dynamic)]
-            public IDictionary K { get; set; } // serialized form depends on actual key values
         }
 
         private MongoServer _server;
@@ -72,10 +68,10 @@ namespace MongoDB.Driver.Tests.Linq
             var hy = new Hashtable { { "y", 1 } };
 
             _collection.Drop();
-            _collection.Insert(new C { D = null, E = null, F = null, G = null, H = null, I = null, J = null, K = null });
-            _collection.Insert(new C { D = de, E = de, F = de, G = de, H = he, I = he, J = he, K = he });
-            _collection.Insert(new C { D = dx, E = dx, F = dx, G = dx, H = hx, I = hx, J = hx, K = hx });
-            _collection.Insert(new C { D = dy, E = dy, F = dy, G = dy, H = hy, I = hy, J = hy, K = hy });
+            _collection.Insert(new C { D = null, E = null, F = null, H = null, I = null, J = null });
+            _collection.Insert(new C { D = de, E = de, F = de, H = he, I = he, J = he });
+            _collection.Insert(new C { D = dx, E = dx, F = dx, H = hx, I = hx, J = hx });
+            _collection.Insert(new C { D = dy, E = dy, F = dy, H = hy, I = hy, J = hy });
         }
 
         [Test]
@@ -194,29 +190,6 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         [Test]
-        public void TestWhereGContainsKeyX()
-        {
-            var query = from c in _collection.AsQueryable<C>()
-                        where c.G.ContainsKey("x")
-                        select c;
-
-            var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
-
-            var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.G.ContainsKey(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
-
-            var ex = Assert.Throws<NotSupportedException>(() => { selectQuery.BuildQuery(); });
-            Assert.AreEqual("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not Dynamic.", ex.Message);
-        }
-
-        [Test]
         public void TestWhereHContainsKeyX()
         {
             var query = from c in _collection.AsQueryable<C>()
@@ -329,29 +302,6 @@ namespace MongoDB.Driver.Tests.Linq
 
             var ex = Assert.Throws<NotSupportedException>(() => { selectQuery.BuildQuery(); });
             Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message);
-        }
-
-        [Test]
-        public void TestWhereKContainsKeyX()
-        {
-            var query = from c in _collection.AsQueryable<C>()
-                        where c.K.Contains("x")
-                        select c;
-
-            var translatedQuery = MongoQueryTranslator.Translate(query);
-            Assert.IsInstanceOf<SelectQuery>(translatedQuery);
-            Assert.AreSame(_collection, translatedQuery.Collection);
-            Assert.AreSame(typeof(C), translatedQuery.DocumentType);
-
-            var selectQuery = (SelectQuery)translatedQuery;
-            Assert.AreEqual("(C c) => c.K.Contains(\"x\")", ExpressionFormatter.ToString(selectQuery.Where));
-            Assert.IsNull(selectQuery.OrderBy);
-            Assert.IsNull(selectQuery.Projection);
-            Assert.IsNull(selectQuery.Skip);
-            Assert.IsNull(selectQuery.Take);
-
-            var ex = Assert.Throws<NotSupportedException>(() => { selectQuery.BuildQuery(); });
-            Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not Dynamic.", ex.Message);
         }
     }
 }

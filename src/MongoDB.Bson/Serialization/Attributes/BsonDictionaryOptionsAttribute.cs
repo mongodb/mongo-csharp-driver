@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDictionaryOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private DictionaryRepresentation _representation = DictionaryRepresentation.Dynamic;
+        private DictionaryRepresentation _representation = DictionaryRepresentation.Document;
 
         // constructors
         /// <summary>

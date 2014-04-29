@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
@@ -91,18 +93,13 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var rep = string.Format("[['{0}', 1]]", key.Replace("\u0000", "\\u0000"));
-            var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            using (var stream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
+            {
+                bsonWriter.CheckElementNames = true;
+                Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, obj));
+            }
         }
 
         [Test]
@@ -154,18 +151,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var rep = "[[1, 2]]";
-            var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -196,18 +182,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var rep = "[[1, 'x']]";
-            var expected = "{ 'D' : #R, 'ID' : #R, 'SD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -249,29 +224,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Dictionary<object, object>
-            {
-                { 1, "[1, { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'x' }]"},
-                { 2, "[2, { '_t' : 'DictionaryGenericSerializers.C', 'P' : 'y' }]"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(d, reps);
-            var sdRep = GetArrayRepresentationInKeyOrder(sd, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'SD' : #SD, 'SL' : #SL }";
-            expected = expected.Replace("#D", htRep);
-            expected = expected.Replace("#SD", sdRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -313,29 +266,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Dictionary<object, object>
-            {
-                { 1, "[1, 2]"},
-                { 3, "[3, 4]"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(d, reps);
-            var sdRep = GetArrayRepresentationInKeyOrder(sd, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'SD' : #SD, 'SL' : #SL }";
-            expected = expected.Replace("#D", htRep);
-            expected = expected.Replace("#SD", sdRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -377,29 +308,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Dictionary<object, object>
-            {
-                { 1, "[1, 'x']"},
-                { 2, "[2, 'y']"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(d, reps);
-            var sdRep = GetArrayRepresentationInKeyOrder(sd, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'SD' : #SD, 'SL' : #SL }";
-            expected = expected.Replace("#D", htRep);
-            expected = expected.Replace("#SD", sdRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -475,35 +384,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             var sd = CreateSortedDictionary(d);
             var sl = CreateSortedList(d);
             var obj = new T { D = d, ID = d, SD = sd, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Dictionary<object, object>
-            {
-                { 1, "[1, true]" }, 
-                { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
-                { 3, "[3, 1.5]" }, 
-                { 4, "[4, 1]" }, 
-                { 5, "[5, NumberLong(2)]" },
-                { 6, "[6, CSUUID('00000000-0000-0000-0000-000000000000')]" }, 
-                { 7, "[7, ObjectId('000000000000000000000000')]" }, 
-                { 8, "[8, 'x']" }
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(d, reps);
-            var sdRep = GetArrayRepresentationInKeyOrder(sd, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'SD' : #SD, 'SL' : #SL }";
-            expected = expected.Replace("#D", htRep);
-            expected = expected.Replace("#SD", sdRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsInstanceOf<SortedDictionary<object, object>>(rehydrated.SD);
-            Assert.IsInstanceOf<SortedList<object, object>>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -526,31 +407,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
                 { false, "x" }
             };
             var obj = new T { D = d, ID = d, SD = null, SL = null };
-            var json = obj.ToJson();
-            var reps = new Dictionary<object, object>
-            {
-                { "A", "['A', true]" }, 
-                { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
-                { "C", "['C', 1.5]" }, 
-                { "D", "['D', 1]" }, 
-                { 4, "[4, NumberLong(2)]" },
-                { 5.0, "[5.0, CSUUID('00000000-0000-0000-0000-000000000000')]" }, 
-                { true, "[true, ObjectId('000000000000000000000000')]" }, 
-                { false, "[false, 'x']" }
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(d, reps);
-            var expected = "{ 'D' : #D, 'ID' : #D, 'SD' : null, 'SL' : null }";
-            expected = expected.Replace("#D", htRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.D);
-            Assert.IsInstanceOf<Dictionary<object, object>>(rehydrated.ID);
-            Assert.IsNull(rehydrated.SD);
-            Assert.IsNull(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         private SortedDictionary<object, object> CreateSortedDictionary(Dictionary<object, object> d)

@@ -25,10 +25,6 @@ namespace MongoDB.Bson.Serialization.Options
     public enum DictionaryRepresentation
     {
         /// <summary>
-        /// Represent the dictionary as a document if the keys are strings and valid element names, otherwise as an array of arrays.
-        /// </summary>
-        Dynamic,
-        /// <summary>
         /// Represent the dictionary as a Document.
         /// </summary>
         Document,

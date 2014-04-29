@@ -29,7 +29,7 @@ namespace MongoDB.Bson.Tests.IO
             using (var stream = new MemoryStream())
             using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
             {
-                Assert.Throws<ArgumentException>(() => { bsonWriter.WriteName("a\0b"); });
+                Assert.Throws<BsonSerializationException>(() => { bsonWriter.WriteName("a\0b"); });
             }
         }
 

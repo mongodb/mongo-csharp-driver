@@ -73,17 +73,6 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_F As IDictionary(Of String, Integer)
             ' serialized as { F : [["x", 1], ... ] }
-            <BsonDictionaryOptions(DictionaryRepresentation.Dynamic)> _
-            Public Property G() As IDictionary(Of String, Integer)
-                Get
-                    Return m_G
-                End Get
-                Set(ByVal value As IDictionary(Of String, Integer))
-                    m_G = value
-                End Set
-            End Property
-            Private m_G As IDictionary(Of String, Integer)
-            ' serialized form depends on actual key values
             <BsonDictionaryOptions(DictionaryRepresentation.Document)> _
             Public Property H() As IDictionary
                 Get
@@ -117,17 +106,6 @@ Namespace MongoDB.Driver.VB.Tests.Linq
             End Property
             Private m_J As IDictionary
             ' serialized as { J : [["x", 1], ... ] }
-            <BsonDictionaryOptions(DictionaryRepresentation.Dynamic)> _
-            Public Property K() As IDictionary
-                Get
-                    Return m_K
-                End Get
-                Set(ByVal value As IDictionary)
-                    m_K = value
-                End Set
-            End Property
-            Private m_K As IDictionary
-            ' serialized form depends on actual key values
         End Class
 
         Private _server As MongoServer
@@ -161,41 +139,33 @@ Namespace MongoDB.Driver.VB.Tests.Linq
                 .D = Nothing, _
                 .E = Nothing, _
                 .F = Nothing, _
-                .G = Nothing, _
                 .H = Nothing, _
                 .I = Nothing, _
-                .J = Nothing, _
-                .K = Nothing _
+                .J = Nothing
             })
             _collection.Insert(New C() With { _
                 .D = de, _
                 .E = de, _
                 .F = de, _
-                .G = de, _
                 .H = he, _
                 .I = he, _
-                .J = he, _
-                .K = he _
+                .J = he
             })
             _collection.Insert(New C() With { _
                 .D = dx, _
                 .E = dx, _
                 .F = dx, _
-                .G = dx, _
                 .H = hx, _
                 .I = hx, _
-                .J = hx, _
-                .K = hx _
+                .J = hx
             })
             _collection.Insert(New C() With { _
                  .D = dy, _
                  .E = dy, _
                  .F = dy, _
-                 .G = dy, _
                  .H = hy, _
                  .I = hy, _
-                 .J = hy, _
-                 .K = hy _
+                 .J = hy _
             })
         End Sub
 
@@ -312,30 +282,6 @@ Namespace MongoDB.Driver.VB.Tests.Linq
         End Sub
 
         <Test()> _
-        Public Sub TestWhereGContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.G.ContainsKey("x")
-                        Select c
-
-            Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
-
-            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.G.ContainsKey(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
-
-            Dim ex = Assert.Throws(Of NotSupportedException)(Sub()
-                                                                 selectQuery.BuildQuery()
-                                                             End Sub)
-            Assert.AreEqual("ContainsKey in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not Dynamic.", ex.Message)
-        End Sub
-
-        <Test()> _
         Public Sub TestWhereHContainsKeyX()
             Dim query = From c In _collection.AsQueryable(Of C)()
                         Where c.H.Contains("x")
@@ -445,30 +391,6 @@ Namespace MongoDB.Driver.VB.Tests.Linq
                                                                  selectQuery.BuildQuery()
                                                              End Sub)
             Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not ArrayOfArrays.", ex.Message)
-        End Sub
-
-        <Test()> _
-        Public Sub TestWhereKContainsKeyX()
-            Dim query = From c In _collection.AsQueryable(Of C)()
-                        Where c.K.Contains("x")
-                        Select c
-
-            Dim translatedQuery = MongoQueryTranslator.Translate(query)
-            Assert.IsInstanceOf(Of SelectQuery)(translatedQuery)
-            Assert.AreSame(_collection, translatedQuery.Collection)
-            Assert.AreSame(GetType(C), translatedQuery.DocumentType)
-
-            Dim selectQuery = DirectCast(translatedQuery, SelectQuery)
-            Assert.AreEqual("(C c) => c.K.Contains(""x"")", ExpressionFormatter.ToString(selectQuery.Where))
-            Assert.IsNull(selectQuery.OrderBy)
-            Assert.IsNull(selectQuery.Projection)
-            Assert.IsNull(selectQuery.Skip)
-            Assert.IsNull(selectQuery.Take)
-
-            Dim ex = Assert.Throws(Of NotSupportedException)(Sub()
-                                                                 selectQuery.BuildQuery()
-                                                             End Sub)
-            Assert.AreEqual("Contains in a LINQ query is only supported for DictionaryRepresentation ArrayOfDocuments or Document, not Dynamic.", ex.Message)
         End Sub
     End Class
 End Namespace

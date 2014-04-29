@@ -16,9 +16,10 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
-using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using NUnit.Framework;
@@ -97,19 +98,13 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var rep = string.Format("[['{0}', 1]]", key.Replace("\u0000", "\\u0000"));
-            var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
 
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            using (var stream = new MemoryStream())
+            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
+            {
+                bsonWriter.CheckElementNames = true;
+                Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, obj));
+            }
         }
 
         [Test]
@@ -166,19 +161,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var rep = "[[1, 2]]";
-            var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -212,19 +195,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var rep = "[[1, 'x']]";
-            var expected = "{ 'HT' : #R, 'ID' : #R, 'LD' : #R, 'OD' : #R, 'SL' : #R }".Replace("#R", rep).Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -271,32 +242,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Hashtable
-            {
-                { 1, "[1, { '_t' : 'DictionarySerializers.C', 'P' : 'x' }]"},
-                { 2, "[2, { '_t' : 'DictionarySerializers.C', 'P' : 'y' }]"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
-            var ldRep = GetArrayRepresentationInKeyOrder(ld, reps);
-            var odRep = GetArrayRepresentationInKeyOrder(od, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'HT' : #HT, 'ID' : #HT, 'LD' : #LD, 'OD' : #OD, 'SL' : #SL }";
-            expected = expected.Replace("#HT", htRep);
-            expected = expected.Replace("#LD", ldRep);
-            expected = expected.Replace("#OD", odRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -343,32 +289,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Hashtable
-            {
-                { 1, "[1, 2]"},
-                { 3, "[3, 4]"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
-            var ldRep = GetArrayRepresentationInKeyOrder(ld, reps);
-            var odRep = GetArrayRepresentationInKeyOrder(od, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'HT' : #HT, 'ID' : #HT, 'LD' : #LD, 'OD' : #OD, 'SL' : #SL }";
-            expected = expected.Replace("#HT", htRep);
-            expected = expected.Replace("#LD", ldRep);
-            expected = expected.Replace("#OD", odRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -415,32 +336,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Hashtable
-            {
-                { 1, "[1, 'x']"},
-                { 2, "[2, 'y']"}
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
-            var ldRep = GetArrayRepresentationInKeyOrder(ld, reps);
-            var odRep = GetArrayRepresentationInKeyOrder(od, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'HT' : #HT, 'ID' : #HT, 'LD' : #LD, 'OD' : #OD, 'SL' : #SL }";
-            expected = expected.Replace("#HT", htRep);
-            expected = expected.Replace("#LD", ldRep);
-            expected = expected.Replace("#OD", odRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -521,38 +417,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var od = CreateOrderedDictionary(ht);
             var sl = CreateSortedList(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od, SL = sl };
-            var json = obj.ToJson();
-            var reps = new Hashtable
-            {
-                { 1, "[1, true]" },
-                { 2, "[2, ISODate('#')]".Replace("#", isoDate) },
-                { 3, "[3, 1.5]" },
-                { 4, "[4, 1]" },
-                { 5, "[5, NumberLong(2)]" },
-                { 6, "[6, CSUUID('00000000-0000-0000-0000-000000000000')]" },
-                { 7, "[7, ObjectId('000000000000000000000000')]" },
-                { 8, "[8, 'x']" }
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
-            var ldRep = GetArrayRepresentationInKeyOrder(ld, reps);
-            var odRep = GetArrayRepresentationInKeyOrder(od, reps);
-            var slRep = GetArrayRepresentationInKeyOrder(sl, reps);
-            var expected = "{ 'HT' : #HT, 'ID' : #HT, 'LD' : #LD, 'OD' : #OD, 'SL' : #SL }";
-            expected = expected.Replace("#HT", htRep);
-            expected = expected.Replace("#LD", ldRep);
-            expected = expected.Replace("#OD", odRep);
-            expected = expected.Replace("#SL", slRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsInstanceOf<SortedList>(rehydrated.SL);
-            Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         [Test]
@@ -577,40 +442,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
             var ld = CreateListDictionary(ht);
             var od = CreateOrderedDictionary(ht);
             var obj = new T { HT = ht, ID = ht, LD = ld, OD = od };
-            var json = obj.ToJson();
-            var reps = new Hashtable
-            {
-                { "A", "['A', true]" },
-                { "B", "['B', ISODate('#')]".Replace("#", isoDate) },
-                { "C", "['C', 1.5]" },
-                { "D", "['D', 1]" },
-                { 4, "[4, NumberLong(2)]" },
-                { 5.0, "[5.0, CSUUID('00000000-0000-0000-0000-000000000000')]" },
-                { true, "[true, ObjectId('000000000000000000000000')]" },
-                { false, "[false, 'x']" }
-            };
-            var htRep = GetArrayRepresentationInKeyOrder(ht, reps);
-            var ldRep = GetArrayRepresentationInKeyOrder(ld, reps);
-            var odRep = GetArrayRepresentationInKeyOrder(od, reps);
-            var expected = "{ 'HT' : #HT, 'ID' : #HT, 'LD' : #LD, 'OD' : #OD, 'SL' : null }";
-            expected = expected.Replace("#HT", htRep);
-            expected = expected.Replace("#LD", ldRep);
-            expected = expected.Replace("#OD", odRep);
-            expected = expected.Replace("'", "\"");
-            Assert.AreEqual(expected, json);
-
-            var bson = obj.ToBson();
-            var rehydrated = BsonSerializer.Deserialize<T>(bson);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.HT);
-            Assert.IsInstanceOf<Hashtable>(rehydrated.ID);
-            Assert.IsInstanceOf<ListDictionary>(rehydrated.LD);
-            Assert.IsInstanceOf<OrderedDictionary>(rehydrated.OD);
-            Assert.IsNull(rehydrated.SL);
-            Assert.IsTrue(CompareDictionaries(obj.HT, rehydrated.HT));
-            Assert.IsTrue(CompareDictionaries(obj.ID, rehydrated.ID));
-            Assert.IsTrue(CompareDictionaries(obj.LD, rehydrated.LD));
-            Assert.IsTrue(CompareOrderedDictionaries(obj.OD, rehydrated.OD));
-            // can't do usual BSON byte by byte comparison because order of Dictionary entries is not guaranteed to stay the same
+            Assert.Throws<BsonSerializationException>(() => obj.ToBson());
         }
 
         public bool CompareDictionaries(IDictionary dictionary1, IDictionary dictionary2)

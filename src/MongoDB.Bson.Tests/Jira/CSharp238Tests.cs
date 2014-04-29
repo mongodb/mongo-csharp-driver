@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 using NUnit.Framework;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp238
@@ -32,6 +34,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp238
 
         public class C
         {
+            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
             public Dictionary<Point, Point> Points;
         }
 
