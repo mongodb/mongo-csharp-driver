@@ -40,6 +40,14 @@ namespace MongoDB.DriverUnitTests.Builders
         }
 
         [Test]
+        public void TestBits()
+        {
+            var options = IndexOptions<TestClass>.SetBits(32);
+            string expected = "{ \"bits\" : 32 }";
+            Assert.AreEqual(expected, options.ToJson());
+        }
+
+        [Test]
         public void TestDropDups()
         {
             var options = IndexOptions<TestClass>.SetDropDups(true);

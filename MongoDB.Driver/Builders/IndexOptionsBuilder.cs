@@ -49,6 +49,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the location precision bits.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder SetBits(int value)
+        {
+            return new IndexOptionsBuilder().SetBits(value);
+        }
+
+        /// <summary>
         /// Sets the bucket size for geospatial haystack indexes.
         /// </summary>
         /// <param name="value">The bucket size.</param>
@@ -180,6 +190,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder SetBackground(bool value)
         {
             _document["background"] = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the location precision bits.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder SetBits(int value)
+        {
+            _document["bits"] = value;
             return this;
         }
 
@@ -353,6 +374,16 @@ namespace MongoDB.Driver.Builders
         }
 
         /// <summary>
+        /// Sets the location precision bits.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public static IndexOptionsBuilder<TDocument> SetBits(int value)
+        {
+            return new IndexOptionsBuilder<TDocument>().SetBits(value);
+        }
+
+        /// <summary>
         /// Sets the bucket size for geospatial haystack indexes.
         /// </summary>
         /// <param name="value">The bucket size.</param>
@@ -490,6 +521,17 @@ namespace MongoDB.Driver.Builders
         public IndexOptionsBuilder<TDocument> SetBackground(bool value)
         {
             _indexOptionsBuilder.SetBackground(value);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the location precision bits.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The builder (so method calls can be chained).</returns>
+        public IndexOptionsBuilder<TDocument> SetBits(int value)
+        {
+            _indexOptionsBuilder.SetBits(value);
             return this;
         }
 
