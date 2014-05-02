@@ -132,7 +132,6 @@
     <Compile Include="Serialization\IdGenerators\AscendingGuidGeneratorTests.cs" />
     <Compile Include="Serialization\IdGenerators\CombGuidGeneratorTests.cs" />
     <Compile Include="Serialization\Options\RepresentationConverterTests.cs" />
-    <Compile Include="Serialization\Options\RepresentationSerializationOptionsTests.cs" />
     <Compile Include="Serialization\Serializers\ExpandoObjectSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\ExtraElementsTests.cs" />
     <Compile Include="Serialization\Serializers\KeyValuePairSerializerTests.cs" />

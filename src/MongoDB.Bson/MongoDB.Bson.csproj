@@ -180,7 +180,6 @@
     <Compile Include="Serialization\ExpressionVisitor.cs" />
     <Compile Include="Serialization\IBsonDictionarySerializer.cs" />
     <Compile Include="Serialization\IBsonPolymorphicSerializer.cs" />
-    <Compile Include="Serialization\IBsonSerializationOptions.cs" />
     <Compile Include="Serialization\IChildSerializerConfigurable.cs" />
     <Compile Include="Serialization\ICreatorSelector.cs" />
     <Compile Include="Serialization\IdGenerators\AscendingGuidGenerator.cs" />
@@ -214,13 +213,6 @@
     <Compile Include="Serialization\IBsonArraySerializer.cs" />
     <Compile Include="Serialization\IBsonIdProvider.cs" />
     <Compile Include="Serialization\IBsonDocumentSerializer.cs" />
-    <Compile Include="Serialization\Options\ArraySerializationOptions.cs" />
-    <Compile Include="Serialization\Options\BsonBaseSerializationOptions.cs" />
-    <Compile Include="Serialization\Options\DateTimeSerializationOptions.cs" />
-    <Compile Include="Serialization\Options\DictionarySerializationOptions.cs" />
-    <Compile Include="Serialization\Options\DocumentSerializationOptions.cs" />
-    <Compile Include="Serialization\Options\KeyValuePairSerializationOptions.cs" />
-    <Compile Include="Serialization\Options\RepresentationSerializationOptions.cs" />
     <Compile Include="Exceptions\TruncationException.cs" />
     <Compile Include="IO\BsonDocumentReader.cs" />
     <Compile Include="IO\BsonDocumentReaderBookmark.cs" />
@@ -237,7 +229,6 @@
     <Compile Include="IO\JsonToken.cs" />
     <Compile Include="ObjectModel\BsonUndefined.cs" />
     <Compile Include="Serialization\Conventions\IDiscriminatorConvention.cs" />
-    <Compile Include="Serialization\Options\TimeSpanSerializationOptions.cs" />
     <Compile Include="Serialization\Options\TimeSpanUnits.cs" />
     <Compile Include="Serialization\BsonSerializationInfo.cs" />
     <Compile Include="Serialization\Serializers\BsonDocumentSerializer.cs" />
