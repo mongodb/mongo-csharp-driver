@@ -46,7 +46,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The value.</param>
         public BsonDocumentWrapper(object value)
-            : this(value, UndiscriminatedActualTypeSerializer.Instance)
+            : this(value, UndiscriminatedActualTypeSerializer<object>.Instance)
         {
         }
 

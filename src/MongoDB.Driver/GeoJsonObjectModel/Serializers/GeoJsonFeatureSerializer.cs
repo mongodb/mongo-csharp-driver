@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -25,7 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// Represents a serializer for a GeoJsonFeature value.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonFeatureSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonFeature<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonFeatureSerializer<TCoordinates> : ClassSerializerBase<GeoJsonFeature<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
 
@@ -46,10 +44,10 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonFeature<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonFeature<TCoordinates> value)
         {
             var helper = new Helper();
-            helper.Serialize(context, value);
+            helper.SerializeValue(context, value);
         }
 
         // nested classes

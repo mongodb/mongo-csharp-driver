@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for UInt16s.
     /// </summary>
     [CLSCompliant(false)]
-    public class UInt16Serializer : BsonBaseSerializer<ushort>, IRepresentationConfigurable<UInt16Serializer>, IRepresentationConverterConfigurable<UInt16Serializer>
+    public class UInt16Serializer : StructSerializerBase<ushort>, IRepresentationConfigurable<UInt16Serializer>, IRepresentationConverterConfigurable<UInt16Serializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -123,8 +123,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToUInt16(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize uInt16 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

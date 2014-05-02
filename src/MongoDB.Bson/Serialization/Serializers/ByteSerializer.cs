@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Bytes.
     /// </summary>
-    public class ByteSerializer : BsonBaseSerializer<byte>, IRepresentationConfigurable<ByteSerializer>
+    public class ByteSerializer : StructSerializerBase<byte>, IRepresentationConfigurable<ByteSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -119,8 +119,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("Cannot deserialize Byte from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
             if (lostData)

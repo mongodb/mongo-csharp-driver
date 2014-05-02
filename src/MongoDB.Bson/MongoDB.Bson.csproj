@@ -204,6 +204,10 @@
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
+    <Compile Include="Serialization\Serializers\DiscriminatedWrapperSerializer.cs" />
+    <Compile Include="Serialization\Serializers\SerializerBase.cs" />
+    <Compile Include="Serialization\Serializers\SealedClassSerializerBase.cs" />
+    <Compile Include="Serialization\Serializers\StructSerializerBase.cs" />
     <Compile Include="Serialization\Serializers\BsonValueCSharpNullSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonDateTimeSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonDocumentBackedClassSerializer.cs" />
@@ -253,6 +257,7 @@
     <Compile Include="Serialization\Serializers\BsonTimestampSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonUndefinedSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonValueSerializer.cs" />
+    <Compile Include="Serialization\Serializers\BsonValueSerializerBase.cs" />
     <Compile Include="Serialization\Serializers\ByteArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\ByteSerializer.cs" />
     <Compile Include="Serialization\Serializers\CharSerializer.cs" />
@@ -342,7 +347,7 @@
     <Compile Include="ObjectModel\BsonMaxKey.cs" />
     <Compile Include="ObjectModel\BsonMinKey.cs" />
     <Compile Include="Serialization\BsonDefaultSerializationProvider.cs" />
-    <Compile Include="Serialization\Serializers\BsonBaseSerializer.cs" />
+    <Compile Include="Serialization\Serializers\ClassSerializerBase.cs" />
     <Compile Include="Serialization\Serializers\EnumSerializer.cs" />
     <Compile Include="Serialization\Serializers\ArraySerializer.cs" />
     <Compile Include="Serialization\IIdGenerator.cs" />

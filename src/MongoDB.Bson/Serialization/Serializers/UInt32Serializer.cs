@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for UInt32s.
     /// </summary>
     [CLSCompliant(false)]
-    public class UInt32Serializer : BsonBaseSerializer<uint>, IRepresentationConfigurable<UInt32Serializer>, IRepresentationConverterConfigurable<UInt32Serializer>
+    public class UInt32Serializer : StructSerializerBase<uint>, IRepresentationConfigurable<UInt32Serializer>, IRepresentationConverterConfigurable<UInt32Serializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -123,8 +123,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToUInt32(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize UInt32 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

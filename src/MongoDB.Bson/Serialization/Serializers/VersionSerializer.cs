@@ -15,16 +15,13 @@
 
 using System;
 using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for Versions.
     /// </summary>
-    public class VersionSerializer : BsonBaseSerializer<Version>, IRepresentationConfigurable<VersionSerializer>
+    public class VersionSerializer : SealedClassSerializerBase<Version>, IRepresentationConfigurable<VersionSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -76,7 +73,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override Version Deserialize(BsonDeserializationContext context)
+        protected override Version DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
             string message;
@@ -84,10 +81,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     int major = -1, minor = -1, build = -1, revision = -1;
@@ -133,8 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return new Version(bsonReader.ReadString());
 
                 default:
-                    message = string.Format("Cannot deserialize Version from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 
@@ -143,41 +135,34 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, Version value)
+        protected override void SerializeValue(BsonSerializationContext context, Version value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            switch (_representation)
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                switch (_representation)
-                {
-                    case BsonType.Document:
-                        bsonWriter.WriteStartDocument();
-                        bsonWriter.WriteInt32("Major", value.Major);
-                        bsonWriter.WriteInt32("Minor", value.Minor);
-                        if (value.Build != -1)
+                case BsonType.Document:
+                    bsonWriter.WriteStartDocument();
+                    bsonWriter.WriteInt32("Major", value.Major);
+                    bsonWriter.WriteInt32("Minor", value.Minor);
+                    if (value.Build != -1)
+                    {
+                        bsonWriter.WriteInt32("Build", value.Build);
+                        if (value.Revision != -1)
                         {
-                            bsonWriter.WriteInt32("Build", value.Build);
-                            if (value.Revision != -1)
-                            {
-                                bsonWriter.WriteInt32("Revision", value.Revision);
-                            }
+                            bsonWriter.WriteInt32("Revision", value.Revision);
                         }
-                        bsonWriter.WriteEndDocument();
-                        break;
+                    }
+                    bsonWriter.WriteEndDocument();
+                    break;
 
-                    case BsonType.String:
-                        bsonWriter.WriteString(value.ToString());
-                        break;
+                case BsonType.String:
+                    bsonWriter.WriteString(value.ToString());
+                    break;
 
-                    default:
-                        var message = string.Format("'{0}' is not a valid Version representation.", _representation);
-                        throw new BsonSerializationException(message);
-                }
+                default:
+                    var message = string.Format("'{0}' is not a valid Version representation.", _representation);
+                    throw new BsonSerializationException(message);
             }
         }
 

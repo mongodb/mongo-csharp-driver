@@ -27,7 +27,7 @@ namespace MongoDB.Driver
     /// Represents a serializer for a DistinctCommandResult with values of type TValue.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class DistinctCommandResultSerializer<TValue> : BsonBaseSerializer<DistinctCommandResult<TValue>>
+    public class DistinctCommandResultSerializer<TValue> : SerializerBase<DistinctCommandResult<TValue>>
     {
         // private fields
         private readonly IBsonSerializer<TValue> _valueSerializer;

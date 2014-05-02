@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Internal
@@ -130,11 +129,11 @@ namespace MongoDB.Driver.Internal
             var serializer = request.Serializer;
             if (serializer == null)
             {
-                var actualType = document.GetType();
-                if (_cachedSerializerType != actualType)
+                var nominalType = request.NominalType;
+                if (_cachedSerializerType != nominalType)
                 {
-                    _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
-                    _cachedSerializerType = actualType;
+                    _cachedSerializer = BsonSerializer.LookupSerializer(nominalType);
+                    _cachedSerializerType = nominalType;
                 }
                 serializer = _cachedSerializer;
             }

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Base serializer for dynamic types.
     /// </summary>
-    public abstract class DynamicDocumentBaseSerializer<T> : BsonBaseSerializer<T> where T : IDynamicMetaObjectProvider
+    public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : IDynamicMetaObjectProvider
     {
         // private static fields
         private static readonly IBsonSerializer<object> _objectSerializer = BsonSerializer.LookupSerializer<object>();

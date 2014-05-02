@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -24,7 +23,7 @@ namespace MongoDB.Bson.Serialization
     /// Represents a serializer for TClass (a subclass of BsonDocumentBackedClass).
     /// </summary>
     /// <typeparam name="TClass">The subclass of BsonDocumentBackedClass.</typeparam>
-    public abstract class BsonDocumentBackedClassSerializer<TClass> : BsonBaseSerializer<TClass>, IBsonDocumentSerializer
+    public abstract class BsonDocumentBackedClassSerializer<TClass> : ClassSerializerBase<TClass>, IBsonDocumentSerializer
         where TClass : BsonDocumentBackedClass
     {
         // private fields
@@ -75,19 +74,10 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TClass value)
+        protected override void SerializeValue(BsonSerializationContext context, TClass value)
         {
-            var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
-                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, backingDocument);
-            }
+            var backingDocument = ((BsonDocumentBackedClass)value).BackingDocument;
+            context.SerializeWithChildContext(BsonDocumentSerializer.Instance, backingDocument);
         }
 
         // protected methods

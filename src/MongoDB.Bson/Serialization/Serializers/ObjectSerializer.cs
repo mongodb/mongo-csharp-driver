@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.IO;
-using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -24,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for objects.
     /// </summary>
-    public class ObjectSerializer : BsonBaseSerializer<object>
+    public class ObjectSerializer : ClassSerializerBase<object>
     {
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention;
@@ -72,6 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                         return context.DynamicArraySerializer.Deserialize(context);
                     }
                     goto default;
+
                 case BsonType.Binary:
                     var binaryData = bsonReader.ReadBinaryData();
                     var subType = binaryData.SubType;

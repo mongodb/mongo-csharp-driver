@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonInt32s.
     /// </summary>
-    public class BsonInt32Serializer : BsonBaseSerializer<BsonInt32>
+    public class BsonInt32Serializer : BsonValueSerializerBase<BsonInt32>
     {
         // private static fields
         private static BsonInt32Serializer __instance = new BsonInt32Serializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonInt32Serializer class.
         /// </summary>
         public BsonInt32Serializer()
+            : base(BsonType.Int32)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonInt32 Deserialize(BsonDeserializationContext context)
+        protected override BsonInt32 DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Int32:
-                    return new BsonInt32(bsonReader.ReadInt32());
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonInt32 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonInt32(bsonReader.ReadInt32());
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonInt32 value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonInt32 value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteInt32(value.Value);
         }
     }

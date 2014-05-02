@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonBooleans.
     /// </summary>
-    public class BsonBooleanSerializer : BsonBaseSerializer<BsonBoolean>
+    public class BsonBooleanSerializer : BsonValueSerializerBase<BsonBoolean>
     {
         // private static fields
         private static BsonBooleanSerializer __instance = new BsonBooleanSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonBooleanSerializer class.
         /// </summary>
         public BsonBooleanSerializer()
+            : base(BsonType.Boolean)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonBoolean Deserialize(BsonDeserializationContext context)
+        protected override BsonBoolean DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Boolean:
-                    return (BsonBoolean)bsonReader.ReadBoolean();
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonBoolean from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return (BsonBoolean)bsonReader.ReadBoolean();
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonBoolean value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonBoolean value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteBoolean(value.Value);
         }
     }

@@ -16,7 +16,6 @@
 using System;
 using System.IO;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -190,7 +189,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for MongoDBRefs.
     /// </summary>
-    public class MongoDBRefSerializer : BsonBaseSerializer<MongoDBRef>, IBsonDocumentSerializer
+    public class MongoDBRefSerializer : ClassSerializerBase<MongoDBRef>, IBsonDocumentSerializer
     {
         // public methods
         /// <summary>
@@ -281,26 +280,19 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, MongoDBRef value)
+        protected override void SerializeValue(BsonSerializationContext context, MongoDBRef value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteString("$ref", value.CollectionName);
+            bsonWriter.WriteName("$id");
+            context.SerializeWithChildContext(BsonValueSerializer.Instance, value.Id);
+            if (value.DatabaseName != null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteString("$db", value.DatabaseName);
             }
-            else
-            {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("$ref", value.CollectionName);
-                bsonWriter.WriteName("$id");
-                context.SerializeWithChildContext(BsonValueSerializer.Instance, value.Id);
-                if (value.DatabaseName != null)
-                {
-                    bsonWriter.WriteString("$db", value.DatabaseName);
-                }
-                bsonWriter.WriteEndDocument();
-            }
+            bsonWriter.WriteEndDocument();
         }
     }
 }

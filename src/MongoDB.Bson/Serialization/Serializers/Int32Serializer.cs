@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int32.
     /// </summary>
-    public class Int32Serializer : BsonBaseSerializer<int>, IRepresentationConfigurable<Int32Serializer>, IRepresentationConverterConfigurable<Int32Serializer>
+    public class Int32Serializer : StructSerializerBase<int>, IRepresentationConfigurable<Int32Serializer>, IRepresentationConverterConfigurable<Int32Serializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -122,8 +122,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToInt32(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Int32 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

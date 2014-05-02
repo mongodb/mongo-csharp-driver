@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Booleans.
     /// </summary>
-    public class BooleanSerializer : BsonBaseSerializer<bool>, IRepresentationConfigurable<BooleanSerializer>
+    public class BooleanSerializer : StructSerializerBase<bool>, IRepresentationConfigurable<BooleanSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -107,8 +107,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToBoolean(bsonReader.ReadString().ToLower());
 
                 default:
-                    var message = string.Format("Cannot deserialize Boolean from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

@@ -13,42 +13,34 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for LazyBsonArrays.
     /// </summary>
-    public class LazyBsonArraySerializer : BsonBaseSerializer<LazyBsonArray>
+    public class LazyBsonArraySerializer : BsonValueSerializerBase<LazyBsonArray>
     {
-        // public methods
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LazyBsonArraySerializer"/> class.
+        /// </summary>
+        public LazyBsonArraySerializer()
+            : base(BsonType.Array)
+        {
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override LazyBsonArray Deserialize(BsonDeserializationContext context)
+        protected override LazyBsonArray DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.Array:
-                    var slice = bsonReader.ReadRawBsonArray();
-                    return new LazyBsonArray(slice);
-
-                default:
-                    var message = string.Format("Cannot deserialize LazyBsonArray from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            var slice = bsonReader.ReadRawBsonArray();
+            return new LazyBsonArray(slice);
         }
 
         /// <summary>
@@ -56,27 +48,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, LazyBsonArray value)
+        protected override void SerializeValue(BsonSerializationContext context, LazyBsonArray value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            var slice = value.Slice;
+            if (slice == null)
             {
-                bsonWriter.WriteNull();
+                context.SerializeWithChildContext(BsonArraySerializer.Instance, value);
             }
             else
             {
-                var slice = value.Slice;
-                if (slice == null)
+                using (var clonedSlice = slice.GetSlice(0, slice.Length))
                 {
-                    context.SerializeWithChildContext(BsonArraySerializer.Instance, value);
-                }
-                else
-                {
-                    using (var clonedSlice = slice.GetSlice(0, slice.Length))
-                    {
-                        bsonWriter.WriteRawBsonArray(clonedSlice);
-                    }
+                    bsonWriter.WriteRawBsonArray(clonedSlice);
                 }
             }
         }

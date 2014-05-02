@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Operations
         }
 
         // nested classes
-        protected abstract class BatchSerializer : BsonBaseSerializer<Batch<WriteRequest>>
+        protected abstract class BatchSerializer : SerializerBase<Batch<WriteRequest>>
         {
             // private fields
             private int _batchCount;

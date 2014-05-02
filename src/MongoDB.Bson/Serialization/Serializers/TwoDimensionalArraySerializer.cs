@@ -13,12 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -27,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TItem">The type of the elements.</typeparam>
     public class TwoDimensionalArraySerializer<TItem> :
-        BsonBaseSerializer<TItem[,]>,
+        SealedClassSerializerBase<TItem[,]>,
         IChildSerializerConfigurable
     {
         // private fields
@@ -69,58 +65,45 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override TItem[,] Deserialize(BsonDeserializationContext context)
+        protected override TItem[,] DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-            string message;
+            EnsureBsonTypeEquals(bsonReader, BsonType.Array);
 
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
+            bsonReader.ReadStartArray();
+            var outerList = new List<List<TItem>>();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.Array:
-                    bsonReader.ReadStartArray();
-                    var outerList = new List<List<TItem>>();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        bsonReader.ReadStartArray();
-                        var innerList = new List<TItem>();
-                        while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                        {
-                            innerList.Add(context.DeserializeWithChildContext(_itemSerializer));
-                        }
-                        bsonReader.ReadEndArray();
-                        outerList.Add(innerList);
-                    }
-                    bsonReader.ReadEndArray();
-
-                    var length1 = outerList.Count;
-                    var length2 = (length1 == 0) ? 0 : outerList[0].Count;
-                    var array = new TItem[length1, length2];
-
-                    for (int i = 0; i < length1; i++)
-                    {
-                        var innerList = outerList[i];
-                        if (innerList.Count != length2)
-                        {
-                            message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
-                            throw new FileFormatException(message);
-                        }
-                        for (int j = 0; j < length2; j++)
-                        {
-                            array[i, j] = innerList[j];
-                        }
-                    }
-
-                    return array;
-
-                default:
-                    message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TItem[,]).FullName, bsonType);
-                    throw new FileFormatException(message);
+                bsonReader.ReadStartArray();
+                var innerList = new List<TItem>();
+                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                {
+                    innerList.Add(context.DeserializeWithChildContext(_itemSerializer));
+                }
+                bsonReader.ReadEndArray();
+                outerList.Add(innerList);
             }
+            bsonReader.ReadEndArray();
+
+            var length1 = outerList.Count;
+            var length2 = (length1 == 0) ? 0 : outerList[0].Count;
+            var array = new TItem[length1, length2];
+
+            for (int i = 0; i < length1; i++)
+            {
+                var innerList = outerList[i];
+                if (innerList.Count != length2)
+                {
+                    var message = string.Format("Inner list {0} is of length {1} but should be of length {2}.", i, innerList.Count, length2);
+                    throw new FileFormatException(message);
+                }
+                for (int j = 0; j < length2; j++)
+                {
+                    array[i, j] = innerList[j];
+                }
+            }
+
+            return array;
         }
 
         /// <summary>
@@ -128,31 +111,24 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TItem[,] value)
+        protected override void SerializeValue(BsonSerializationContext context, TItem[,] value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var length1 = value.GetLength(0);
-                var length2 = value.GetLength(1);
+            var length1 = value.GetLength(0);
+            var length2 = value.GetLength(1);
 
+            bsonWriter.WriteStartArray();
+            for (int i = 0; i < length1; i++)
+            {
                 bsonWriter.WriteStartArray();
-                for (int i = 0; i < length1; i++)
+                for (int j = 0; j < length2; j++)
                 {
-                    bsonWriter.WriteStartArray();
-                    for (int j = 0; j < length2; j++)
-                    {
-                        context.SerializeWithChildContext(_itemSerializer, value[i, j]);
-                    }
-                    bsonWriter.WriteEndArray();
+                    context.SerializeWithChildContext(_itemSerializer, value[i, j]);
                 }
                 bsonWriter.WriteEndArray();
             }
+            bsonWriter.WriteEndArray();
         }
 
         /// <summary>

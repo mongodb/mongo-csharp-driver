@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,7 +22,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJson2DCoordinates value.
     /// </summary>
-    public class GeoJson2DCoordinatesSerializer : BsonBaseSerializer<GeoJson2DCoordinates>
+    public class GeoJson2DCoordinatesSerializer : ClassSerializerBase<GeoJson2DCoordinates>
     {
         // private static fields
         private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
@@ -60,21 +58,14 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJson2DCoordinates value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJson2DCoordinates value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                bsonWriter.WriteStartArray();
-                bsonWriter.WriteDouble(value.X);
-                bsonWriter.WriteDouble(value.Y);
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteStartArray();
+            bsonWriter.WriteDouble(value.X);
+            bsonWriter.WriteDouble(value.Y);
+            bsonWriter.WriteEndArray();
         }
     }
 }

@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonDateTimes.
     /// </summary>
-    public class BsonDateTimeSerializer : BsonBaseSerializer<BsonDateTime>
+    public class BsonDateTimeSerializer : BsonValueSerializerBase<BsonDateTime>
     {
         // private static fields
         private static BsonDateTimeSerializer __instance = new BsonDateTimeSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDateTimeSerializer class.
         /// </summary>
         public BsonDateTimeSerializer()
+            : base(BsonType.DateTime)
         {
         }
 
@@ -44,27 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonDateTime Deserialize(BsonDeserializationContext context)
+        protected override BsonDateTime DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.DateTime:
-                    var millisecondsSinceEpoch = bsonReader.ReadDateTime();
-                    return new BsonDateTime(millisecondsSinceEpoch);
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonDateTime from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonDateTime(bsonReader.ReadDateTime());
         }
 
         /// <summary>
@@ -72,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonDateTime value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonDateTime value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteDateTime(value.MillisecondsSinceEpoch);
         }
     }

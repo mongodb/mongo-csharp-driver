@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -137,7 +136,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<GeoHaystackSearchOptionsBuilder>
+        new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder>
         {
             public override void Serialize(BsonSerializationContext context, GeoHaystackSearchOptionsBuilder value)
             {
@@ -267,7 +266,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<GeoHaystackSearchOptionsBuilder<TDocument>>
+        new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, GeoHaystackSearchOptionsBuilder<TDocument> value)
             {

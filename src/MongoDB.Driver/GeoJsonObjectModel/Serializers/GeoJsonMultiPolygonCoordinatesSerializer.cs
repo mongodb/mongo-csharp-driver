@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -25,7 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonMultiPolygonCoordinates value.
     /// </summary>
-    public class GeoJsonMultiPolygonCoordinatesSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonMultiPolygonCoordinatesSerializer<TCoordinates> : ClassSerializerBase<GeoJsonMultiPolygonCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
         private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _polygonCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
@@ -66,25 +64,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonMultiPolygonCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiPolygonCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            bsonWriter.WriteStartArray();
+            foreach (var polygon in value.Polygons)
             {
-                bsonWriter.WriteNull();
+                context.SerializeWithChildContext(_polygonCoordinatesSerializer, polygon);
             }
-            else
-            {
-                var multiPolygonCoordinates = (GeoJsonMultiPolygonCoordinates<TCoordinates>)value;
-
-                bsonWriter.WriteStartArray();
-                foreach (var polygon in multiPolygonCoordinates.Polygons)
-                {
-                    context.SerializeWithChildContext(_polygonCoordinatesSerializer, polygon);
-                }
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteEndArray();
         }
     }
 }

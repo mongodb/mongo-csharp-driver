@@ -13,15 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonDocumentWrappers.
     /// </summary>
-    public class BsonDocumentWrapperSerializer : BsonBaseSerializer<BsonDocumentWrapper>
+    public class BsonDocumentWrapperSerializer : BsonValueSerializerBase<BsonDocumentWrapper>
     {
         // private static fields
         private static BsonDocumentWrapperSerializer __instance = new BsonDocumentWrapperSerializer();
@@ -31,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDocumentWrapperSerializer class.
         /// </summary>
         public BsonDocumentWrapperSerializer()
+            : base(BsonType.Document)
         {
         }
 
@@ -45,18 +44,34 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // public methods
         /// <summary>
+        /// Deserializes a class.
+        /// </summary>
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>An object.</returns>
+        public override BsonDocumentWrapper Deserialize(BsonDeserializationContext context)
+        {
+            throw CreateCannotBeDeserializedException();
+        }
+
+        // protected methods
+        /// <summary>
+        /// Deserializes a class.
+        /// </summary>
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>An object.</returns>
+        protected override BsonDocumentWrapper DeserializeValue(BsonDeserializationContext context)
+        {
+            throw CreateCannotBeDeserializedException();
+        }
+
+        /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonDocumentWrapper value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonDocumentWrapper value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
 
             if (value.IsUpdateDocument)
             {

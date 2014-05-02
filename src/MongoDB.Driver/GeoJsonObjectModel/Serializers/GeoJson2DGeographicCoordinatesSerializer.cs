@@ -22,7 +22,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJson2DGeographicCoordinates value.
     /// </summary>
-    public class GeoJson2DGeographicCoordinatesSerializer : BsonBaseSerializer<GeoJson2DGeographicCoordinates>
+    public class GeoJson2DGeographicCoordinatesSerializer : ClassSerializerBase<GeoJson2DGeographicCoordinates>
     {
         // private static fields
         private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
@@ -58,21 +58,14 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJson2DGeographicCoordinates value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJson2DGeographicCoordinates value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                bsonWriter.WriteStartArray();
-                bsonWriter.WriteDouble(value.Longitude);
-                bsonWriter.WriteDouble(value.Latitude);
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteStartArray();
+            bsonWriter.WriteDouble(value.Longitude);
+            bsonWriter.WriteDouble(value.Latitude);
+            bsonWriter.WriteEndArray();
         }
     }
 }

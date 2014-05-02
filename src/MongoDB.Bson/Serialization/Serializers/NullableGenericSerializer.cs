@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="T">The underlying type.</typeparam>
     public class NullableSerializer<T> :
-        BsonBaseSerializer<Nullable<T>>,
+        SerializerBase<Nullable<T>>,
         IChildSerializerConfigurable
             where T : struct
     {

@@ -60,12 +60,8 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        internal class Serializer : BsonBaseSerializer<BuilderBase>
+        internal class Serializer : UndiscriminatedActualTypeSerializer<BuilderBase>
         {
-            public override void Serialize(BsonSerializationContext context, BuilderBase value)
-            {
-                SerializeActualType(context, value);
-            }
         }
     }
 }

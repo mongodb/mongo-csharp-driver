@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Decimals.
     /// </summary>
-    public class DecimalSerializer : BsonBaseSerializer<decimal>, IRepresentationConfigurable<DecimalSerializer>, IRepresentationConverterConfigurable<DecimalSerializer>
+    public class DecimalSerializer : StructSerializerBase<decimal>, IRepresentationConfigurable<DecimalSerializer>, IRepresentationConverterConfigurable<DecimalSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -132,8 +132,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToDecimal(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Decimal from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for ByteArrays.
     /// </summary>
-    public class ByteArraySerializer : BsonBaseSerializer<byte[]>, IRepresentationConfigurable<ByteArraySerializer>
+    public class ByteArraySerializer : SealedClassSerializerBase<byte[]>, IRepresentationConfigurable<ByteArraySerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -79,17 +79,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override byte[] Deserialize(BsonDeserializationContext context)
+        protected override byte[] DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
                 case BsonType.Binary:
                     return bsonReader.ReadBytes();
 
@@ -109,8 +105,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bytes;
 
                 default:
-                    var message = string.Format("Cannot deserialize Byte[] from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 #pragma warning restore 618
@@ -120,35 +115,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, byte[] value)
+        protected override void SerializeValue(BsonSerializationContext context, byte[] value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            switch (_representation)
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                switch (_representation)
-                {
-                    case BsonType.Binary:
-                        bsonWriter.WriteBytes(value);
-                        break;
+                case BsonType.Binary:
+                    bsonWriter.WriteBytes(value);
+                    break;
 
-                    case BsonType.String:
-                        var sb = new StringBuilder(value.Length * 2);
-                        for (int i = 0; i < value.Length; i++)
-                        {
-                            sb.Append(string.Format("{0:x2}", value[i]));
-                        }
-                        bsonWriter.WriteString(sb.ToString());
-                        break;
+                case BsonType.String:
+                    var sb = new StringBuilder(value.Length * 2);
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        sb.Append(string.Format("{0:x2}", value[i]));
+                    }
+                    bsonWriter.WriteString(sb.ToString());
+                    break;
 
-                    default:
-                        var message = string.Format("'{0}' is not a valid Byte[] representation.", _representation);
-                        throw new BsonSerializationException(message);
-                }
+                default:
+                    var message = string.Format("'{0}' is not a valid Byte[] representation.", _representation);
+                    throw new BsonSerializationException(message);
             }
         }
 

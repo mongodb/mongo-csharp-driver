@@ -17,16 +17,13 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BitArrays.
     /// </summary>
-    public class BitArraySerializer : BsonBaseSerializer<BitArray>, IRepresentationConfigurable<BitArraySerializer>
+    public class BitArraySerializer : SealedClassSerializerBase<BitArray>, IRepresentationConfigurable<BitArraySerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -79,7 +76,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BitArray Deserialize(BsonDeserializationContext context)
+        protected override BitArray DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
             BitArray bitArray;
@@ -123,8 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return bitArray;
 
                 default:
-                    var message = string.Format("Cannot deserialize BitArray from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 #pragma warning restore 618
@@ -133,46 +129,39 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
-        /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BitArray value)
+        /// <param name="value">The value.</param>
+        protected override void SerializeValue(BsonSerializationContext context, BitArray value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            switch (_representation)
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                switch (_representation)
-                {
-                    case BsonType.Binary:
-                        if ((value.Length % 8) == 0)
-                        {
-                            bsonWriter.WriteBytes(GetBytes(value));
-                        }
-                        else
-                        {
-                            bsonWriter.WriteStartDocument();
-                            bsonWriter.WriteInt32("Length", value.Length);
-                            bsonWriter.WriteBytes("Bytes", GetBytes(value));
-                            bsonWriter.WriteEndDocument();
-                        }
-                        break;
+                case BsonType.Binary:
+                    if ((value.Length % 8) == 0)
+                    {
+                        bsonWriter.WriteBytes(GetBytes(value));
+                    }
+                    else
+                    {
+                        bsonWriter.WriteStartDocument();
+                        bsonWriter.WriteInt32("Length", value.Length);
+                        bsonWriter.WriteBytes("Bytes", GetBytes(value));
+                        bsonWriter.WriteEndDocument();
+                    }
+                    break;
 
-                    case BsonType.String:
-                        var sb = new StringBuilder(value.Length);
-                        for (int i = 0; i < value.Length; i++)
-                        {
-                            sb.Append(value[i] ? '1' : '0');
-                        }
-                        bsonWriter.WriteString(sb.ToString());
-                        break;
+                case BsonType.String:
+                    var sb = new StringBuilder(value.Length);
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        sb.Append(value[i] ? '1' : '0');
+                    }
+                    bsonWriter.WriteString(sb.ToString());
+                    break;
 
-                    default:
-                        var message = string.Format("'{0}' is not a valid BitArray representation.", _representation);
-                        throw new BsonSerializationException(message);
-                }
+                default:
+                    var message = string.Format("'{0}' is not a valid BitArray representation.", _representation);
+                    throw new BsonSerializationException(message);
             }
         }
 

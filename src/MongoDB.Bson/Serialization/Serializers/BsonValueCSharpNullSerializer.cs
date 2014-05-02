@@ -22,8 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for a BsonValue that can round trip C# null.
     /// </summary>
-    public class BsonValueCSharpNullSerializer<TBsonValue> : BsonBaseSerializer<TBsonValue>
-        where TBsonValue : BsonValue
+    public class BsonValueCSharpNullSerializer<TBsonValue> : SerializerBase<TBsonValue> where TBsonValue : BsonValue
     {
         // private fields
         private readonly IBsonSerializer<TBsonValue> _wrappedSerializer;

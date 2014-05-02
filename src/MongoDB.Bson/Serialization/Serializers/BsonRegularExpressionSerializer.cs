@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonRegularExpressions.
     /// </summary>
-    public class BsonRegularExpressionSerializer : BsonBaseSerializer<BsonRegularExpression>
+    public class BsonRegularExpressionSerializer : BsonValueSerializerBase<BsonRegularExpression>
     {
         // private static fields
         private static BsonRegularExpressionSerializer __instance = new BsonRegularExpressionSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonRegularExpressionSerializer class.
         /// </summary>
         public BsonRegularExpressionSerializer()
+            : base(BsonType.RegularExpression)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonRegularExpression Deserialize(BsonDeserializationContext context)
+        protected override BsonRegularExpression DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.RegularExpression:
-                    return bsonReader.ReadRegularExpression();
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonRegularExpression from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return bsonReader.ReadRegularExpression();
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonRegularExpression value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonRegularExpression value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteRegularExpression(value);
         }
     }

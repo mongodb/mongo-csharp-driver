@@ -14,15 +14,13 @@
 */
 
 using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for Uris.
     /// </summary>
-    public class UriSerializer : BsonBaseSerializer<Uri>
+    public class UriSerializer : ClassSerializerBase<Uri>
     {
         // constructors
         /// <summary>
@@ -38,24 +36,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override Uri Deserialize(BsonDeserializationContext context)
+        protected override Uri DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            BsonType bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.String:
-                    return new Uri(bsonReader.ReadString(), UriKind.RelativeOrAbsolute);
-
-                default:
-                    var message = string.Format("Cannot deserialize Uri from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            EnsureBsonTypeEquals(bsonReader, BsonType.String);
+            return new Uri(bsonReader.ReadString(), UriKind.RelativeOrAbsolute);
         }
 
         /// <summary>
@@ -63,18 +48,10 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, Uri value)
+        protected override void SerializeValue(BsonSerializationContext context, Uri value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                bsonWriter.WriteString(value.OriginalString);
-            }
+            bsonWriter.WriteString(value.OriginalString);
         }
     }
 }

@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonObjectIds.
     /// </summary>
-    public class BsonObjectIdSerializer : BsonBaseSerializer<BsonObjectId>
+    public class BsonObjectIdSerializer : BsonValueSerializerBase<BsonObjectId>
     {
         // private static fields
         private static BsonObjectIdSerializer __instance = new BsonObjectIdSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonObjectIdSerializer class.
         /// </summary>
         public BsonObjectIdSerializer()
+            : base(BsonType.ObjectId)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonObjectId Deserialize(BsonDeserializationContext context)
+        protected override BsonObjectId DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.ObjectId:
-                    return new BsonObjectId(bsonReader.ReadObjectId());
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonObjectId from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonObjectId(bsonReader.ReadObjectId());
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonObjectId value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonObjectId value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteObjectId(value.Value);
         }
     }

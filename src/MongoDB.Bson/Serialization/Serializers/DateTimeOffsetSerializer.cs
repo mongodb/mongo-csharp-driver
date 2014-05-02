@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for DateTimeOffsets.
     /// </summary>
-    public class DateTimeOffsetSerializer : BsonBaseSerializer<DateTimeOffset>, IRepresentationConfigurable<DateTimeOffsetSerializer>
+    public class DateTimeOffsetSerializer : StructSerializerBase<DateTimeOffset>, IRepresentationConfigurable<DateTimeOffsetSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -106,8 +106,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToDateTimeOffset(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize DateTimeOffset from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

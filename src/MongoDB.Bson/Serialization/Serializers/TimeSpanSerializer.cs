@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Timespans.
     /// </summary>
-    public class TimeSpanSerializer : BsonBaseSerializer<TimeSpan>, IRepresentationConfigurable<TimeSpanSerializer>
+    public class TimeSpanSerializer : StructSerializerBase<TimeSpan>, IRepresentationConfigurable<TimeSpanSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -121,8 +121,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return TimeSpan.Parse(bsonReader.ReadString()); // not XmlConvert.ToTimeSpan (we're using .NET's format for TimeSpan)
 
                 default:
-                    var message = string.Format("Cannot deserialize TimeSpan from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

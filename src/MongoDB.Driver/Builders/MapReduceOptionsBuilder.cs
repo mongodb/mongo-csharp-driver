@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -585,7 +584,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<MapReduceOptionsBuilder>
+        new internal class Serializer : SerializerBase<MapReduceOptionsBuilder>
         {
             public override void Serialize(BsonSerializationContext context, MapReduceOptionsBuilder value)
             {

@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int16s.
     /// </summary>
-    public class Int16Serializer : BsonBaseSerializer<short>, IRepresentationConfigurable<Int16Serializer>, IRepresentationConverterConfigurable<Int16Serializer>
+    public class Int16Serializer : StructSerializerBase<short>, IRepresentationConfigurable<Int16Serializer>, IRepresentationConverterConfigurable<Int16Serializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -122,8 +122,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToInt16(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Int16 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

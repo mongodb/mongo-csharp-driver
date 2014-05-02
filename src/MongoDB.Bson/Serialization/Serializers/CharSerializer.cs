@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Chars.
     /// </summary>
-    public class CharSerializer : BsonBaseSerializer<char>, IRepresentationConfigurable<CharSerializer>
+    public class CharSerializer : StructSerializerBase<char>, IRepresentationConfigurable<CharSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -94,8 +94,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return (char)bsonReader.ReadString()[0];
 
                 default:
-                    var message = string.Format("Cannot deserialize Char from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

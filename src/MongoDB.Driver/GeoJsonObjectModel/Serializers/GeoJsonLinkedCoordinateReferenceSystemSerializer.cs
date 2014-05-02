@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,7 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonLinkedCoordinateReferenceSystem value.
     /// </summary>
-    public class GeoJsonLinkedCoordinateReferenceSystemSerializer : BsonBaseSerializer<GeoJsonLinkedCoordinateReferenceSystem>
+    public class GeoJsonLinkedCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonLinkedCoordinateReferenceSystem>
     {
         // public methods
         /// <summary>
@@ -70,27 +69,20 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonLinkedCoordinateReferenceSystem value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonLinkedCoordinateReferenceSystem value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteString("type", "link");
+            bsonWriter.WriteStartDocument("properties");
+            bsonWriter.WriteString("href", value.HRef);
+            if (value.HRefType != null)
             {
-                bsonWriter.WriteNull();
+                bsonWriter.WriteString("type", value.HRefType);
             }
-            else
-            {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("type", "link");
-                bsonWriter.WriteStartDocument("properties");
-                bsonWriter.WriteString("href", value.HRef);
-                if (value.HRefType != null)
-                {
-                    bsonWriter.WriteString("type", value.HRefType);
-                }
-                bsonWriter.WriteEndDocument();
-                bsonWriter.WriteEndDocument();
-            }
+            bsonWriter.WriteEndDocument();
+            bsonWriter.WriteEndDocument();
         }
     }
 }

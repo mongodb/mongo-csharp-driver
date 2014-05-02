@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for DateTimes.
     /// </summary>
-    public class DateTimeSerializer : BsonBaseSerializer<DateTime>, IRepresentationConfigurable<DateTimeSerializer>
+    public class DateTimeSerializer : StructSerializerBase<DateTime>, IRepresentationConfigurable<DateTimeSerializer>
     {
         // private static fields
         private static DateTimeSerializer __dateOnlyInstance = new DateTimeSerializer(true);
@@ -219,8 +219,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("Cannot deserialize DateTime from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
             if (_dateOnly)

@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests
             public int X { get; set; }
         }
 
-        private class CSerializer : BsonBaseSerializer<C>
+        private class CSerializer : ClassSerializerBase<C>
         {
             public override void Serialize(BsonSerializationContext context, C value)
             {
@@ -240,13 +240,13 @@ namespace MongoDB.Bson.Tests
 
             var wrapper = new BsonDocumentWrapper(c);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreSame(UndiscriminatedActualTypeSerializer.Instance, wrapper.Serializer);
+            Assert.AreSame(UndiscriminatedActualTypeSerializer<object>.Instance, wrapper.Serializer);
             Assert.AreSame(c, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
 
             wrapper = new BsonDocumentWrapper(null);
             Assert.AreEqual(false, wrapper.IsUpdateDocument);
-            Assert.AreSame(UndiscriminatedActualTypeSerializer.Instance, wrapper.Serializer);
+            Assert.AreSame(UndiscriminatedActualTypeSerializer<object>.Instance, wrapper.Serializer);
             Assert.AreSame(null, wrapper.Wrapped);
             Assert.AreEqual(false, wrapper.IsMaterialized);
         }

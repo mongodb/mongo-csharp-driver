@@ -13,17 +13,14 @@
 * limitations under the License.
 */
 
-using System;
 using System.Globalization;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for CultureInfos.
     /// </summary>
-    public class CultureInfoSerializer : BsonBaseSerializer<CultureInfo>
+    public class CultureInfoSerializer : ClassSerializerBase<CultureInfo>
     {
         // constructors
         /// <summary>
@@ -39,17 +36,13 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override CultureInfo Deserialize(BsonDeserializationContext context)
+        protected override CultureInfo DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
                 case BsonType.Document:
                     bsonReader.ReadStartDocument();
                     var name = bsonReader.ReadString("Name");
@@ -61,8 +54,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return new CultureInfo(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize CultureInfo from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 
@@ -71,28 +63,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, CultureInfo value)
+        protected override void SerializeValue(BsonSerializationContext context, CultureInfo value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            if (value.UseUserOverride)
             {
-                bsonWriter.WriteNull();
+                // the default for UseUserOverride is true so we don't need to serialize it
+                bsonWriter.WriteString(value.Name);
             }
             else
             {
-                if (value.UseUserOverride)
-                {
-                    // the default for UseUserOverride is true so we don't need to serialize it
-                    bsonWriter.WriteString(value.Name);
-                }
-                else
-                {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteString("Name", value.Name);
-                    bsonWriter.WriteBoolean("UseUserOverride", value.UseUserOverride);
-                    bsonWriter.WriteEndDocument();
-                }
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteString("Name", value.Name);
+                bsonWriter.WriteBoolean("UseUserOverride", value.UseUserOverride);
+                bsonWriter.WriteEndDocument();
             }
         }
     }

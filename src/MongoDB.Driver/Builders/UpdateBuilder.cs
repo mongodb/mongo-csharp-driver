@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -1773,7 +1772,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<UpdateBuilder>
+        new internal class Serializer : SerializerBase<UpdateBuilder>
         {
             public override void Serialize(BsonSerializationContext context, UpdateBuilder value)
             {
@@ -3096,7 +3095,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<UpdateBuilder<TDocument>>
+        new internal class Serializer : SerializerBase<UpdateBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, UpdateBuilder<TDocument> value)
             {

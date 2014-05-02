@@ -26,7 +26,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// Represents a serializer for a GeoJsonBoundingBox value.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonBoundingBoxSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonBoundingBox<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonBoundingBoxSerializer<TCoordinates> : ClassSerializerBase<GeoJsonBoundingBox<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
@@ -83,35 +83,28 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonBoundingBox<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonBoundingBox<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            // serialize min and max to a dummy document and then flatten the two arrays and serialize that
+            var document = new BsonDocument();
+            using (var documentWriter = BsonWriter.Create(document))
             {
-                bsonWriter.WriteNull();
+                var documentContext = BsonSerializationContext.CreateRoot(documentWriter, typeof(BsonDocument));
+                documentWriter.WriteStartDocument();
+                documentWriter.WriteName("min");
+                documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Min);
+                documentWriter.WriteName("max");
+                documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Max);
+                documentWriter.WriteEndDocument();
             }
-            else
-            {
-                // serialize min and max to a dummy document and then flatten the two arrays and serialize that
-                var document = new BsonDocument();
-                using (var documentWriter = BsonWriter.Create(document))
-                {
-                    var documentContext = BsonSerializationContext.CreateRoot(documentWriter, typeof(BsonDocument));
-                    documentWriter.WriteStartDocument();
-                    documentWriter.WriteName("min");
-                    documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Min);
-                    documentWriter.WriteName("max");
-                    documentContext.SerializeWithChildContext(_coordinatesSerializer, value.Max);
-                    documentWriter.WriteEndDocument();
-                }
 
-                var flattenedArray = new BsonArray();
-                flattenedArray.AddRange(document["min"].AsBsonArray);
-                flattenedArray.AddRange(document["max"].AsBsonArray);
+            var flattenedArray = new BsonArray();
+            flattenedArray.AddRange(document["min"].AsBsonArray);
+            flattenedArray.AddRange(document["max"].AsBsonArray);
 
-                context.SerializeWithChildContext(BsonArraySerializer.Instance, flattenedArray);
-            }
+            context.SerializeWithChildContext(BsonArraySerializer.Instance, flattenedArray);
         }
     }
 }

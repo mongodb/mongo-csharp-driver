@@ -25,7 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a serializer for a CommandResult.
     /// </summary>
-    public class CommandResultSerializer<TCommandResult> : BsonBaseSerializer<TCommandResult> where TCommandResult : CommandResult
+    public class CommandResultSerializer<TCommandResult> : SerializerBase<TCommandResult> where TCommandResult : CommandResult
     {
         /// <summary>
         /// Deserializes a value.

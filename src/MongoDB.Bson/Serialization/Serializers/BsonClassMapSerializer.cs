@@ -19,7 +19,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -27,7 +26,7 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serializer for a class map.
     /// </summary>
-    public class BsonClassMapSerializer<TClass> : BsonBaseSerializer<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
+    public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
         // private fields
         private BsonClassMap<TClass> _classMap;

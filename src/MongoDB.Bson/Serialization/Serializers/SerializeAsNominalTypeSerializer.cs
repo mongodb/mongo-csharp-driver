@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for a class that will be serialized as if it were one of its base classes.
     /// </summary>
-    public class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : BsonBaseSerializer<TActualType> where TActualType : TNominalType
+    public class SerializeAsNominalTypeSerializer<TActualType, TNominalType> : SerializerBase<TActualType> where TActualType : class, TNominalType
     {
         // private fields
         private readonly IBsonSerializer<TNominalType> _nominalTypeSerializer;
@@ -57,8 +57,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="value">The value.</param>
         public override void Serialize(BsonSerializationContext context, TActualType value)
         {
-            var childContext = context.CreateChild<TNominalType>(b => b.SerializeAsNominalType = true);
-            _nominalTypeSerializer.Serialize(childContext, value);
+            if (value == null)
+            {
+                var bsonWriter = context.Writer;
+                bsonWriter.WriteNull();
+            }
+            else
+            {
+                var childContext = context.CreateChild<TNominalType>(b => b.SerializeAsNominalType = true);
+                _nominalTypeSerializer.Serialize(childContext, value);
+            }
         }
     }
 }

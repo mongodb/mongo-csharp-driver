@@ -14,17 +14,14 @@
 */
 
 using System;
-using System.IO;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonDocuments.
     /// </summary>
-    public class BsonDocumentSerializer : BsonBaseSerializer<BsonDocument>, IBsonDocumentSerializer, IBsonIdProvider
+    public class BsonDocumentSerializer : BsonValueSerializerBase<BsonDocument>, IBsonDocumentSerializer, IBsonIdProvider
     {
         // private static fields
         private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
@@ -34,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDocumentSerializer class.
         /// </summary>
         public BsonDocumentSerializer()
+            : base(BsonType.Document)
         {
         }
 
@@ -52,30 +50,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonDocument Deserialize(BsonDeserializationContext context)
+        protected override BsonDocument DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            var bsonType = bsonReader.GetCurrentBsonType();
-            string message;
-            switch (bsonType)
+            bsonReader.ReadStartDocument();
+            var document = new BsonDocument(allowDuplicateNames: context.AllowDuplicateElementNames);
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    var document = new BsonDocument(allowDuplicateNames: context.AllowDuplicateElementNames);
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var name = bsonReader.ReadName();
-                        var value = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-                        document.Add(name, value);
-                    }
-                    bsonReader.ReadEndDocument();
-                    return document;
-
-                default:
-                    message = string.Format("Cannot deserialize BsonDocument from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                var name = bsonReader.ReadName();
+                var value = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                document.Add(name, value);
             }
+            bsonReader.ReadEndDocument();
+
+            return document;
         }
 
         /// <summary>
@@ -139,23 +128,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonDocument value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonDocument value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
-            var actualType = value.GetType();
-            if (actualType != typeof(BsonDocument) && !context.SerializeAsNominalType)
-            {
-                var serializer = BsonSerializer.LookupSerializer(actualType);
-                serializer.Serialize(context, value);
-                return;
-            }
-
             bsonWriter.WriteStartDocument();
 
             BsonElement idElement = null;

@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonNulls.
     /// </summary>
-    public class BsonNullSerializer : BsonBaseSerializer<BsonNull>
+    public class BsonNullSerializer : BsonValueSerializerBase<BsonNull>
     {
         // private static fields
         private static BsonNullSerializer __instance = new BsonNullSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonNullSerializer class.
         /// </summary>
         public BsonNullSerializer()
+            : base(BsonType.Null)
         {
         }
 
@@ -44,27 +42,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonNull Deserialize(BsonDeserializationContext context)
+        protected override BsonNull DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return BsonNull.Value;
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonNull from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            bsonReader.ReadNull();
+            return BsonNull.Value;
         }
 
         /// <summary>
@@ -72,15 +60,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonNull value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonNull value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteNull();
         }
     }

@@ -16,20 +16,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Conventions;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a base serializer for enumerable values.
     /// </summary>
-    public abstract class EnumerableSerializerBase<TValue> : BsonBaseSerializer<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
+    public abstract class EnumerableSerializerBase<TValue> : SerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable
     {
         // private fields
+        private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
         private readonly IBsonSerializer _itemSerializer;
 
         // constructors
@@ -94,9 +91,19 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadEndArray();
                     return FinalizeResult(accumulator);
 
+                case BsonType.Document:
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    if (serializer.IsPositionedAtDiscriminatedWrapper(context))
+                    {
+                        return (TValue)serializer.Deserialize(context);
+                    }
+                    else
+                    {
+                        goto default;
+                    }
+
                 default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TValue).FullName, bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 
@@ -125,12 +132,21 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                bsonWriter.WriteStartArray();
-                foreach (var item in EnumerateItemsInSerializationOrder(value))
+                var actualType = value.GetType();
+                if (actualType == context.NominalType || context.SerializeAsNominalType)
                 {
-                    context.SerializeWithChildContext(_itemSerializer, item);
+                    bsonWriter.WriteStartArray();
+                    foreach (var item in EnumerateItemsInSerializationOrder(value))
+                    {
+                        context.SerializeWithChildContext(_itemSerializer, item);
+                    }
+                    bsonWriter.WriteEndArray();
                 }
-                bsonWriter.WriteEndArray();
+                else
+                {
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    serializer.Serialize(context, value);
+                }
             }
         }
 
@@ -168,7 +184,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <typeparam name="TItem">The type of the items.</typeparam>
-    public abstract class EnumerableSerializerBase<TValue, TItem> : BsonBaseSerializer<TValue>, IBsonArraySerializer where TValue : class, IEnumerable<TItem>
+    public abstract class EnumerableSerializerBase<TValue, TItem> : SerializerBase<TValue>, IBsonArraySerializer where TValue : class, IEnumerable<TItem>
     {
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
@@ -238,12 +254,20 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return FinalizeResult(accumulator);
 
                 case BsonType.Document:
-                    return DeserializeDiscriminatedWrapper(context, _discriminatorConvention);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    if (serializer.IsPositionedAtDiscriminatedWrapper(context))
+                    {
+                        return (TValue)serializer.Deserialize(context);
+                    }
+                    else
+                    {
+                        goto default;
+                    }
 
                 default:
-                    var message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TValue).FullName, bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
+
         }
 
         /// <summary>
@@ -283,7 +307,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    SerializeDiscriminatedWrapper(context, value, _discriminatorConvention);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    serializer.Serialize(context, value);
                 }
             }
         }

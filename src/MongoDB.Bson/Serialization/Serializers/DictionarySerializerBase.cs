@@ -13,12 +13,9 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -26,7 +23,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for dictionaries.
     /// </summary>
-    public abstract class DictionarySerializerBase<TDictionary> : BsonBaseSerializer<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
+    public abstract class DictionarySerializerBase<TDictionary> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
     {
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
@@ -104,73 +101,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override TDictionary Deserialize(BsonDeserializationContext context)
+        protected override TDictionary DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else if (bsonType == BsonType.Document)
-            {
-                var dictionary = CreateInstance();
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var key = DeserializeKeyString(bsonReader.ReadName());
-                    var value = context.DeserializeWithChildContext(_valueSerializer);
-                    dictionary.Add(key, value);
-                }
-                bsonReader.ReadEndDocument();
-
-                return dictionary;
-            }
-            else if (bsonType == BsonType.Array)
-            {
-                var dictionary = CreateInstance();
-
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    object key;
-                    object value;
-
-                    switch (bsonReader.GetCurrentBsonType())
-                    {
-                        case BsonType.Array:
-                            bsonReader.ReadStartArray();
-                            key = context.DeserializeWithChildContext(_keySerializer);
-                            value = context.DeserializeWithChildContext(_valueSerializer);
-                            bsonReader.ReadEndArray();
-                            break;
-
-                        case BsonType.Document:
-                            bsonReader.ReadStartDocument();
-                            bsonReader.ReadName("k");
-                            key = context.DeserializeWithChildContext(_keySerializer);
-                            bsonReader.ReadName("v");
-                            value = context.DeserializeWithChildContext(_valueSerializer);
-                            bsonReader.ReadEndDocument();
-                            break;
-
-                        default:
-                            throw new FormatException(string.Format("Cannot deserialize dictionary key/value pair from BSON type: {0}.", bsonReader.GetCurrentBsonType()));
-                    }
-
-                    dictionary.Add(key, value);
-                }
-                bsonReader.ReadEndArray();
-
-                return dictionary;
-            }
-            else
-            {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", typeof(TDictionary).FullName, bsonType);
-                throw new FileFormatException(message);
+                case BsonType.Array:
+                    return DeserializeArrayRepresentation(context);
+                case BsonType.Document:
+                    return DeserializeDocumentRepresentation(context);
+                default:
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 
@@ -179,58 +121,27 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TDictionary value)
+        protected override void SerializeValue(BsonSerializationContext context, TDictionary value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            switch (_dictionaryRepresentation)
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                switch (_dictionaryRepresentation)
-                {
-                    case DictionaryRepresentation.Document:
-                        bsonWriter.WriteStartDocument();
-                        foreach (DictionaryEntry dictionaryEntry in value)
-                        {
-                            bsonWriter.WriteName(SerializeKeyString(dictionaryEntry.Key));
-                            context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
-                        }
-                        bsonWriter.WriteEndDocument();
-                        break;
+                case DictionaryRepresentation.Document:
+                    SerializeDocumentRepresentation(context, value);
+                    break;
 
-                    case DictionaryRepresentation.ArrayOfArrays:
-                        bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry dictionaryEntry in value)
-                        {
-                            bsonWriter.WriteStartArray();
-                            context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
-                            context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
-                            bsonWriter.WriteEndArray();
-                        }
-                        bsonWriter.WriteEndArray();
-                        break;
+                case DictionaryRepresentation.ArrayOfArrays:
+                    SerializeArrayOfArraysRepresentation(context, value);
+                    break;
 
-                    case DictionaryRepresentation.ArrayOfDocuments:
-                        bsonWriter.WriteStartArray();
-                        foreach (DictionaryEntry dictionaryEntry in value)
-                        {
-                            bsonWriter.WriteStartDocument();
-                            bsonWriter.WriteName("k");
-                            context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
-                            bsonWriter.WriteName("v");
-                            context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
-                            bsonWriter.WriteEndDocument();
-                        }
-                        bsonWriter.WriteEndArray();
-                        break;
+                case DictionaryRepresentation.ArrayOfDocuments:
+                    SerializeArrayOfDocumentsRepresentation(context, value);
+                    break;
 
-                    default:
-                        var message = string.Format("'{0}' is not a valid IDictionary representation.", _dictionaryRepresentation);
-                        throw new BsonSerializationException(message);
-                }
+                default:
+                    var message = string.Format("'{0}' is not a valid IDictionary representation.", _dictionaryRepresentation);
+                    throw new BsonSerializationException(message);
             }
         }
 
@@ -242,6 +153,62 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected abstract TDictionary CreateInstance();
 
         // private methods
+        private TDictionary DeserializeArrayRepresentation(BsonDeserializationContext context)
+        {
+            var dictionary = CreateInstance();
+
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                object key;
+                object value;
+
+                var bsonType = bsonReader.GetCurrentBsonType();
+                switch (bsonType)
+                {
+                    case BsonType.Array:
+                        bsonReader.ReadStartArray();
+                        key = context.DeserializeWithChildContext(_keySerializer);
+                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        bsonReader.ReadEndArray();
+                        break;
+
+                    case BsonType.Document:
+                        bsonReader.ReadStartDocument();
+                        bsonReader.ReadName("k");
+                        key = context.DeserializeWithChildContext(_keySerializer);
+                        bsonReader.ReadName("v");
+                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        bsonReader.ReadEndDocument();
+                        break;
+
+                    default:
+                        throw CreateCannotDeserializeFromBsonTypeException(bsonType);
+                }
+
+                dictionary.Add(key, value);
+            }
+            bsonReader.ReadEndArray();
+
+            return dictionary;
+        }
+
+        private TDictionary DeserializeDocumentRepresentation(BsonDeserializationContext context)
+        {
+            var dictionary = CreateInstance();
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                var key = DeserializeKeyString(bsonReader.ReadName());
+                var value = context.DeserializeWithChildContext(_valueSerializer);
+                dictionary.Add(key, value);
+            }
+            bsonReader.ReadEndDocument();
+            return dictionary;
+        }
+
         private object DeserializeKeyString(string keyString)
         {
             var keyDocument = new BsonDocument("k", keyString);
@@ -254,6 +221,48 @@ namespace MongoDB.Bson.Serialization.Serializers
                 keyReader.ReadEndDocument();
                 return key;
             }
+        }
+
+        private void SerializeArrayOfArraysRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartArray();
+            foreach (DictionaryEntry dictionaryEntry in value)
+            {
+                bsonWriter.WriteStartArray();
+                context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
+                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+                bsonWriter.WriteEndArray();
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        private void SerializeArrayOfDocumentsRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartArray();
+            foreach (DictionaryEntry dictionaryEntry in value)
+            {
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("k");
+                context.SerializeWithChildContext(_keySerializer, dictionaryEntry.Key);
+                bsonWriter.WriteName("v");
+                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+                bsonWriter.WriteEndDocument();
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        private void SerializeDocumentRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartDocument();
+            foreach (DictionaryEntry dictionaryEntry in value)
+            {
+                bsonWriter.WriteName(SerializeKeyString(dictionaryEntry.Key));
+                context.SerializeWithChildContext(_valueSerializer, dictionaryEntry.Value);
+            }
+            bsonWriter.WriteEndDocument();
         }
 
         private string SerializeKeyString(object key)
@@ -284,7 +293,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TDictionary">The type of the dictionary.</typeparam>
     /// <typeparam name="TKey">The type of the keys.</typeparam>
     /// <typeparam name="TValue">The type of the values.</typeparam>
-    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> : BsonBaseSerializer<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary<TKey, TValue>
+    public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary<TKey, TValue>
     {
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
@@ -362,73 +371,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override TDictionary Deserialize(BsonDeserializationContext context)
+        protected override TDictionary DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
             var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType == BsonType.Null)
+            switch (bsonType)
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else if (bsonType == BsonType.Document)
-            {
-                var dictionary = CreateInstance();
-
-                bsonReader.ReadStartDocument();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var key = DeserializeKeyString(bsonReader.ReadName());
-                    var value = context.DeserializeWithChildContext(_valueSerializer);
-                    dictionary.Add(key, value);
-                }
-                bsonReader.ReadEndDocument();
-
-                return dictionary;
-            }
-            else if (bsonType == BsonType.Array)
-            {
-                var dictionary = CreateInstance();
-
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    TKey key;
-                    TValue value;
-
-                    switch (bsonReader.GetCurrentBsonType())
-                    {
-                        case BsonType.Array:
-                            bsonReader.ReadStartArray();
-                            key = context.DeserializeWithChildContext(_keySerializer);
-                            value = context.DeserializeWithChildContext(_valueSerializer);
-                            bsonReader.ReadEndArray();
-                            break;
-
-                        case BsonType.Document:
-                            bsonReader.ReadStartDocument();
-                            bsonReader.ReadName("k");
-                            key = context.DeserializeWithChildContext(_keySerializer);
-                            bsonReader.ReadName("v");
-                            value = context.DeserializeWithChildContext(_valueSerializer);
-                            bsonReader.ReadEndDocument();
-                            break;
-
-                        default:
-                            throw new FormatException(string.Format("Cannot deserialize dictionary key/value pair from BSON type: {0}.", bsonReader.GetCurrentBsonType()));
-                    }
-
-                    dictionary.Add(key, value);
-                }
-                bsonReader.ReadEndArray();
-
-                return dictionary;
-            }
-            else
-            {
-                var message = string.Format("Can't deserialize a {0} from BsonType {1}.", this.GetType().FullName, bsonType);
-                throw new FileFormatException(message);
+                case BsonType.Array:
+                    return DeserializeArrayRepresentation(context);
+                case BsonType.Document:
+                    return DeserializeDocumentRepresentation(context);
+                default:
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 
@@ -437,61 +392,30 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, TDictionary value)
+        protected override void SerializeValue(BsonSerializationContext context, TDictionary value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            switch (_dictionaryRepresentation)
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                switch (_dictionaryRepresentation)
-                {
-                    case DictionaryRepresentation.Document:
-                        bsonWriter.WriteStartDocument();
-                        foreach (var keyValuePair in value)
-                        {
-                            bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key));
-                            context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
-                        }
-                        bsonWriter.WriteEndDocument();
-                        break;
+                case DictionaryRepresentation.Document:
+                    SerializeDocumentRepresentation(context, value);
+                    break;
 
-                    case DictionaryRepresentation.ArrayOfArrays:
-                        bsonWriter.WriteStartArray();
-                        foreach (var keyValuePair in value)
-                        {
-                            bsonWriter.WriteStartArray();
-                            context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
-                            context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
-                            bsonWriter.WriteEndArray();
-                        }
-                        bsonWriter.WriteEndArray();
-                        break;
+                case DictionaryRepresentation.ArrayOfArrays:
+                    SerializeArrayOfArraysRepresentation(context, value);
+                    break;
 
-                    case DictionaryRepresentation.ArrayOfDocuments:
-                        bsonWriter.WriteStartArray();
-                        foreach (var keyValuePair in value)
-                        {
-                            bsonWriter.WriteStartDocument();
-                            bsonWriter.WriteName("k");
-                            context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
-                            bsonWriter.WriteName("v");
-                            context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
-                            bsonWriter.WriteEndDocument();
-                        }
-                        bsonWriter.WriteEndArray();
-                        break;
+                case DictionaryRepresentation.ArrayOfDocuments:
+                    SerializeArrayOfDocumentsRepresentation(context, value);
+                    break;
 
-                    default:
-                        var message = string.Format("'{0}' is not a valid IDictionary<{1}, {2}> representation.",
-                            _dictionaryRepresentation,
-                            BsonUtils.GetFriendlyTypeName(typeof(TKey)),
-                            BsonUtils.GetFriendlyTypeName(typeof(TValue)));
-                        throw new BsonSerializationException(message);
-                }
+                default:
+                    var message = string.Format("'{0}' is not a valid IDictionary<{1}, {2}> representation.",
+                        _dictionaryRepresentation,
+                        BsonUtils.GetFriendlyTypeName(typeof(TKey)),
+                        BsonUtils.GetFriendlyTypeName(typeof(TValue)));
+                    throw new BsonSerializationException(message);
             }
         }
 
@@ -503,6 +427,64 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected abstract TDictionary CreateInstance();
 
         // private methods
+        private TDictionary DeserializeArrayRepresentation(BsonDeserializationContext context)
+        {
+            var dictionary = CreateInstance();
+
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                TKey key;
+                TValue value;
+
+                var bsonType = bsonReader.GetCurrentBsonType();
+                switch (bsonType)
+                {
+                    case BsonType.Array:
+                        bsonReader.ReadStartArray();
+                        key = context.DeserializeWithChildContext(_keySerializer);
+                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        bsonReader.ReadEndArray();
+                        break;
+
+                    case BsonType.Document:
+                        bsonReader.ReadStartDocument();
+                        bsonReader.ReadName("k");
+                        key = context.DeserializeWithChildContext(_keySerializer);
+                        bsonReader.ReadName("v");
+                        value = context.DeserializeWithChildContext(_valueSerializer);
+                        bsonReader.ReadEndDocument();
+                        break;
+
+                    default:
+                        throw CreateCannotDeserializeFromBsonTypeException(bsonType);
+                }
+
+                dictionary.Add(key, value);
+            }
+            bsonReader.ReadEndArray();
+
+            return dictionary;
+        }
+
+        private TDictionary DeserializeDocumentRepresentation(BsonDeserializationContext context)
+        {
+            var dictionary = CreateInstance();
+
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartDocument();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                var key = DeserializeKeyString(bsonReader.ReadName());
+                var value = context.DeserializeWithChildContext(_valueSerializer);
+                dictionary.Add(key, value);
+            }
+            bsonReader.ReadEndDocument();
+
+            return dictionary;
+        }
+
         private TKey DeserializeKeyString(string keyString)
         {
             var keyDocument = new BsonDocument("k", keyString);
@@ -515,6 +497,48 @@ namespace MongoDB.Bson.Serialization.Serializers
                 keyReader.ReadEndDocument();
                 return key;
             }
+        }
+
+        private void SerializeArrayOfArraysRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartArray();
+            foreach (var keyValuePair in value)
+            {
+                bsonWriter.WriteStartArray();
+                context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
+                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+                bsonWriter.WriteEndArray();
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        private void SerializeArrayOfDocumentsRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartArray();
+            foreach (var keyValuePair in value)
+            {
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("k");
+                context.SerializeWithChildContext(_keySerializer, keyValuePair.Key);
+                bsonWriter.WriteName("v");
+                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+                bsonWriter.WriteEndDocument();
+            }
+            bsonWriter.WriteEndArray();
+        }
+
+        private void SerializeDocumentRepresentation(BsonSerializationContext context, TDictionary value)
+        {
+            var bsonWriter = context.Writer;
+            bsonWriter.WriteStartDocument();
+            foreach (var keyValuePair in value)
+            {
+                bsonWriter.WriteName(SerializeKeyString(keyValuePair.Key));
+                context.SerializeWithChildContext(_valueSerializer, keyValuePair.Value);
+            }
+            bsonWriter.WriteEndDocument();
         }
 
         private string SerializeKeyString(TKey key)

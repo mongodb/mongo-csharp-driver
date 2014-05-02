@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,7 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonNamedCoordinateReferenceSystem value.
     /// </summary>
-    public class GeoJsonNamedCoordinateReferenceSystemSerializer : BsonBaseSerializer<GeoJsonNamedCoordinateReferenceSystem>
+    public class GeoJsonNamedCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonNamedCoordinateReferenceSystem>
     {
         // public methods
         /// <summary>
@@ -65,23 +64,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonNamedCoordinateReferenceSystem value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonNamedCoordinateReferenceSystem value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                bsonWriter.WriteStartDocument();
-                bsonWriter.WriteString("type", "name");
-                bsonWriter.WriteStartDocument("properties");
-                bsonWriter.WriteString("name", value.Name);
-                bsonWriter.WriteEndDocument();
-                bsonWriter.WriteEndDocument();
-            }
+            bsonWriter.WriteStartDocument();
+            bsonWriter.WriteString("type", "name");
+            bsonWriter.WriteStartDocument("properties");
+            bsonWriter.WriteString("name", value.Name);
+            bsonWriter.WriteEndDocument();
+            bsonWriter.WriteEndDocument();
         }
     }
 }

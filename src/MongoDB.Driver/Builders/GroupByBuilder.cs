@@ -17,7 +17,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
@@ -107,7 +106,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<GroupByBuilder>
+        new internal class Serializer : SerializerBase<GroupByBuilder>
         {
             public override void Serialize(BsonSerializationContext context, GroupByBuilder value)
             {
@@ -181,7 +180,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : BsonBaseSerializer<GroupByBuilder<TDocument>>
+        new internal class Serializer : SerializerBase<GroupByBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, GroupByBuilder<TDocument> value)
             {

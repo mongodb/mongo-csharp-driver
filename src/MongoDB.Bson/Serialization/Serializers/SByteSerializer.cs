@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Represents a serializer for SBytes.
     /// </summary>
     [CLSCompliant(false)]
-    public class SByteSerializer : BsonBaseSerializer<sbyte>, IRepresentationConfigurable<SByteSerializer>
+    public class SByteSerializer : StructSerializerBase<sbyte>, IRepresentationConfigurable<SByteSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -120,8 +120,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 default:
-                    var message = string.Format("Cannot deserialize SByte from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
 
             if (lostData)

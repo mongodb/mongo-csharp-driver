@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Singles.
     /// </summary>
-    public class SingleSerializer : BsonBaseSerializer<float>, IRepresentationConfigurable<SingleSerializer>, IRepresentationConverterConfigurable<SingleSerializer>
+    public class SingleSerializer : StructSerializerBase<float>, IRepresentationConfigurable<SingleSerializer>, IRepresentationConverterConfigurable<SingleSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -123,8 +123,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToSingle(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Single from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

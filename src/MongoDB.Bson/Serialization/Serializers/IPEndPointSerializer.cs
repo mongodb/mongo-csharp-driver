@@ -13,19 +13,17 @@
 * limitations under the License.
 */
 
-using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for IPEndPoints.
     /// </summary>
-    public class IPEndPointSerializer : BsonBaseSerializer<IPEndPoint>
+    public class IPEndPointSerializer : ClassSerializerBase<IPEndPoint>
     {
         // constructors
         /// <summary>
@@ -41,40 +39,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override IPEndPoint Deserialize(BsonDeserializationContext context)
+        protected override IPEndPoint DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-            string message;
+            EnsureBsonTypeEquals(bsonReader, BsonType.String);
 
-            BsonType bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
+            var stringValue = bsonReader.ReadString();
+            var match = Regex.Match(stringValue, @"^(?<address>(.+|\[.*\]))\:(?<port>\d+)$");
+            if (match.Success)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.String:
-                    var stringValue = bsonReader.ReadString();
-                    var match = Regex.Match(stringValue, @"^(?<address>(.+|\[.*\]))\:(?<port>\d+)$");
-                    if (match.Success)
+                IPAddress address;
+                if (IPAddress.TryParse(match.Groups["address"].Value, out address))
+                {
+                    int port;
+                    if (int.TryParse(match.Groups["port"].Value, out port))
                     {
-                        IPAddress address;
-                        if (IPAddress.TryParse(match.Groups["address"].Value, out address))
-                        {
-                            int port;
-                            if (int.TryParse(match.Groups["port"].Value, out port))
-                            {
-                                return new IPEndPoint(address, port);
-                            }
-                        }
+                        return new IPEndPoint(address, port);
                     }
-                    message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
-                    throw new FileFormatException(message);
-
-                default:
-                    message = string.Format("Cannot deserialize IPEndPoint from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                }
             }
+
+            var message = string.Format("Invalid IPEndPoint value '{0}'.", stringValue);
+            throw new FileFormatException(message);
         }
 
         /// <summary>
@@ -82,27 +68,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, IPEndPoint value)
+        protected override void SerializeValue(BsonSerializationContext context, IPEndPoint value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            string stringValue;
+            if (value.AddressFamily == AddressFamily.InterNetwork)
             {
-                bsonWriter.WriteNull();
+                stringValue = string.Format("{0}:{1}", value.Address, value.Port); // IPv4
             }
             else
             {
-                string stringValue;
-                if (value.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    stringValue = string.Format("{0}:{1}", value.Address, value.Port); // IPv4
-                }
-                else
-                {
-                    stringValue = string.Format("[{0}]:{1}", value.Address, value.Port); // IPv6
-                }
-                bsonWriter.WriteString(stringValue);
+                stringValue = string.Format("[{0}]:{1}", value.Address, value.Port); // IPv6
             }
+            bsonWriter.WriteString(stringValue);
         }
     }
 }

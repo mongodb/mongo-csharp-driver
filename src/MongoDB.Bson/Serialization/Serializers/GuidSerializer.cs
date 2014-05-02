@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Guids.
     /// </summary>
-    public class GuidSerializer : BsonBaseSerializer<Guid>, IRepresentationConfigurable<GuidSerializer>
+    public class GuidSerializer : StructSerializerBase<Guid>, IRepresentationConfigurable<GuidSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -109,8 +109,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return new Guid(bsonReader.ReadString());
 
                 default:
-                    message = string.Format("Cannot deserialize Guid from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

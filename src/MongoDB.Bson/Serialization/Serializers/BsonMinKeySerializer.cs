@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonMinKeys.
     /// </summary>
-    public class BsonMinKeySerializer : BsonBaseSerializer<BsonMinKey>
+    public class BsonMinKeySerializer : BsonValueSerializerBase<BsonMinKey>
     {
         // private static fields
         private static BsonMinKeySerializer __instance = new BsonMinKeySerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonMinKeySerializer class.
         /// </summary>
         public BsonMinKeySerializer()
+            : base(BsonType.MinKey)
         {
         }
 
@@ -44,27 +42,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonMinKey Deserialize(BsonDeserializationContext context)
+        protected override BsonMinKey DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.MinKey:
-                    bsonReader.ReadMinKey();
-                    return BsonMinKey.Value;
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonMinKey from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            bsonReader.ReadMinKey();
+            return BsonMinKey.Value;
         }
 
         /// <summary>
@@ -72,15 +60,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonMinKey value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonMinKey value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteMinKey();
         }
     }

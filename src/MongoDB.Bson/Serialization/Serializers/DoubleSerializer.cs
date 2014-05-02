@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Doubles.
     /// </summary>
-    public class DoubleSerializer : BsonBaseSerializer<double>, IRepresentationConfigurable<DoubleSerializer>, IRepresentationConverterConfigurable<DoubleSerializer>
+    public class DoubleSerializer : StructSerializerBase<double>, IRepresentationConfigurable<DoubleSerializer>, IRepresentationConverterConfigurable<DoubleSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -123,8 +123,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToDouble(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Double from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

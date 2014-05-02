@@ -13,18 +13,16 @@
 * limitations under the License.
 */
 
-using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for IPAddresses.
     /// </summary>
-    public class IPAddressSerializer : BsonBaseSerializer<IPAddress>
+    public class IPAddressSerializer : ClassSerializerBase<IPAddress>
     {
         // constructors
         /// <summary>
@@ -40,32 +38,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override IPAddress Deserialize(BsonDeserializationContext context)
+        protected override IPAddress DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-            string message;
+            EnsureBsonTypeEquals(bsonReader, BsonType.String);
 
-            BsonType bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
+            var stringValue = bsonReader.ReadString();
+            IPAddress address;
+            if (IPAddress.TryParse(stringValue, out address))
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.String:
-                    var stringValue = bsonReader.ReadString();
-                    IPAddress address;
-                    if (IPAddress.TryParse(stringValue, out address))
-                    {
-                        return address;
-                    }
-                    message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
-                    throw new FileFormatException(message);
-
-                default:
-                    message = string.Format("Cannot deserialize IPAddress from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                return address;
             }
+
+            var message = string.Format("Invalid IPAddress value '{0}'.", stringValue);
+            throw new FileFormatException(message);
         }
 
         /// <summary>
@@ -73,27 +59,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, IPAddress value)
+        protected override void SerializeValue(BsonSerializationContext context, IPAddress value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            string stringValue;
+            if (value.AddressFamily == AddressFamily.InterNetwork)
             {
-                bsonWriter.WriteNull();
+                stringValue = value.ToString();
             }
             else
             {
-                string stringValue;
-                if (value.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    stringValue = value.ToString();
-                }
-                else
-                {
-                    stringValue = string.Format("[{0}]", value);
-                }
-                bsonWriter.WriteString(stringValue);
+                stringValue = string.Format("[{0}]", value);
             }
+            bsonWriter.WriteString(stringValue);
         }
     }
 }

@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonTimestamps.
     /// </summary>
-    public class BsonTimestampSerializer : BsonBaseSerializer<BsonTimestamp>
+    public class BsonTimestampSerializer : BsonValueSerializerBase<BsonTimestamp>
     {
         // private static fields
         private static BsonTimestampSerializer __instance = new BsonTimestampSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonTimestampSerializer class.
         /// </summary>
         public BsonTimestampSerializer()
+            : base(BsonType.Timestamp)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonTimestamp Deserialize(BsonDeserializationContext context)
+        protected override BsonTimestamp DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Timestamp:
-                    return new BsonTimestamp(bsonReader.ReadTimestamp());
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonTimestamp from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonTimestamp(bsonReader.ReadTimestamp());
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonTimestamp value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonTimestamp value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteTimestamp(value.Value);
         }
     }

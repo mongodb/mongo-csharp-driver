@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonJavaScripts.
     /// </summary>
-    public class BsonJavaScriptSerializer : BsonBaseSerializer<BsonJavaScript>
+    public class BsonJavaScriptSerializer : BsonValueSerializerBase<BsonJavaScript>
     {
         // private static fields
         private static BsonJavaScriptSerializer __instance = new BsonJavaScriptSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonJavaScriptSerializer class.
         /// </summary>
         public BsonJavaScriptSerializer()
+            : base(BsonType.JavaScript)
         {
         }
 
@@ -44,27 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonJavaScript Deserialize(BsonDeserializationContext context)
+        protected override BsonJavaScript DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.JavaScript:
-                    var code = bsonReader.ReadJavaScript();
-                    return new BsonJavaScript(code);
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonJavaScript from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonJavaScript(bsonReader.ReadJavaScript());
         }
 
         /// <summary>
@@ -72,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonJavaScript value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonJavaScript value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteJavaScript(value.Code);
         }
     }

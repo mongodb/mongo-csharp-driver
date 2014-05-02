@@ -386,7 +386,7 @@ namespace MongoDB.Driver
         }
 
         // nested classes
-        internal class Serializer : BsonBaseSerializer<GeoHaystackSearchResult<TDocument>>
+        internal class Serializer : SerializerBase<GeoHaystackSearchResult<TDocument>>
         {
             private readonly IBsonSerializer<GeoHaystackSearchResult<TDocument>> _serializer = new CommandResultSerializer<GeoHaystackSearchResult<TDocument>>();
 

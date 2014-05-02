@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonBinaryDatas.
     /// </summary>
-    public class BsonBinaryDataSerializer : BsonBaseSerializer<BsonBinaryData>
+    public class BsonBinaryDataSerializer : BsonValueSerializerBase<BsonBinaryData>
     {
         // private static fields
         private static BsonBinaryDataSerializer __instance = new BsonBinaryDataSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonBinaryDataSerializer class.
         /// </summary>
         public BsonBinaryDataSerializer()
+            : base(BsonType.Binary)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonBinaryData Deserialize(BsonDeserializationContext context)
+        protected override BsonBinaryData DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Binary:
-                    return bsonReader.ReadBinaryData();
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonBinaryData from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return bsonReader.ReadBinaryData();
         }
 
         /// <summary>
@@ -71,14 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonBinaryData value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonBinaryData value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
 
             var subType = value.SubType;
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)

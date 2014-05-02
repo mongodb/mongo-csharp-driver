@@ -13,42 +13,34 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for RawBsonDocuments.
     /// </summary>
-    public class RawBsonDocumentSerializer : BsonBaseSerializer<RawBsonDocument>
+    public class RawBsonDocumentSerializer : BsonValueSerializerBase<RawBsonDocument>
     {
-        // public methods
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RawBsonDocumentSerializer"/> class.
+        /// </summary>
+        public RawBsonDocumentSerializer()
+            : base(BsonType.Document)
+        {
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override RawBsonDocument Deserialize(BsonDeserializationContext context)
+        protected override RawBsonDocument DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
-                case BsonType.Document:
-                    var slice = bsonReader.ReadRawBsonDocument();
-                    return new RawBsonDocument(slice);
-
-                default:
-                    var message = string.Format("Cannot deserialize RawBsonDocument from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            var slice = bsonReader.ReadRawBsonDocument();
+            return new RawBsonDocument(slice);
         }
 
         /// <summary>
@@ -56,21 +48,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, RawBsonDocument value)
+        protected override void SerializeValue(BsonSerializationContext context, RawBsonDocument value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            var slice = value.Slice;
+            using (var clonedSlice = slice.GetSlice(0, slice.Length))
             {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var slice = value.Slice;
-                using (var clonedSlice = slice.GetSlice(0, slice.Length))
-                {
-                    bsonWriter.WriteRawBsonDocument(clonedSlice);
-                }
+                bsonWriter.WriteRawBsonDocument(clonedSlice);
             }
         }
     }

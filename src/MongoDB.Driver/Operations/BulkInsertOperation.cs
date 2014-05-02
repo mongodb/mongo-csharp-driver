@@ -106,19 +106,14 @@ namespace MongoDB.Driver.Operations
                     throw new ArgumentException("Batch contains one or more null documents.");
                 }
 
-                var actualType = document.GetType();
-
-                IBsonSerializer serializer;
-                if (actualType == insertRequest.NominalType && insertRequest.Serializer != null)
+                var serializer = insertRequest.Serializer;
+                if (serializer == null)
                 {
-                    serializer = insertRequest.Serializer;
-                }
-                else
-                {
-                    if (_cachedSerializerType != actualType)
+                    var nominalType = insertRequest.NominalType;
+                    if (_cachedSerializerType != nominalType)
                     {
-                        _cachedSerializer = BsonSerializer.LookupSerializer(actualType);
-                        _cachedSerializerType = actualType;
+                        _cachedSerializer = BsonSerializer.LookupSerializer(nominalType);
+                        _cachedSerializerType = nominalType;
                     }
                     serializer = _cachedSerializer;
                 }

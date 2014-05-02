@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for enums.
     /// </summary>
-    public class EnumSerializer<TEnum> : BsonBaseSerializer<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>>
+    public class EnumSerializer<TEnum> : StructSerializerBase<TEnum>, IRepresentationConfigurable<EnumSerializer<TEnum>> where TEnum : struct
     {
         // private fields
         private readonly BsonType _representation;
@@ -98,8 +98,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case BsonType.Double: return (TEnum)Enum.ToObject(typeof(TEnum), (long)bsonReader.ReadDouble());
                 case BsonType.String: return (TEnum)Enum.Parse(typeof(TEnum), bsonReader.ReadString());
                 default:
-                    var message = string.Format("Cannot deserialize {0} enum from BsonType {1}.", typeof(TEnum).FullName, bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

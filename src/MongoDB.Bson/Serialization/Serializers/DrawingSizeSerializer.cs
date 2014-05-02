@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for System.Drawing.Size.
     /// </summary>
-    public class DrawingSizeSerializer : BsonBaseSerializer<System.Drawing.Size>
+    public class DrawingSizeSerializer : StructSerializerBase<System.Drawing.Size>
     {
         // constructors
         /// <summary>
@@ -53,8 +53,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return new System.Drawing.Size(width, height);
 
                 default:
-                    var message = string.Format("Cannot deserialize System.Drawing.Size from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

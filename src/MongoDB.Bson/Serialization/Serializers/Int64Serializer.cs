@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for Int64s.
     /// </summary>
-    public class Int64Serializer : BsonBaseSerializer<long>, IRepresentationConfigurable<Int64Serializer>, IRepresentationConverterConfigurable<Int64Serializer>
+    public class Int64Serializer : StructSerializerBase<long>, IRepresentationConfigurable<Int64Serializer>, IRepresentationConverterConfigurable<Int64Serializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -122,8 +122,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return XmlConvert.ToInt64(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize Int64 from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

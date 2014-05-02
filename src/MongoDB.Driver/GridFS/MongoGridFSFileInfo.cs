@@ -786,7 +786,7 @@ namespace MongoDB.Driver.GridFS
         }
     }
 
-    internal class MongoGridFSFileInfoSerializer : BsonBaseSerializer<MongoGridFSFileInfo>
+    internal class MongoGridFSFileInfoSerializer : SerializerBase<MongoGridFSFileInfo>
     {
         // private fields
         private readonly MongoServer _server;

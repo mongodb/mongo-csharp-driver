@@ -22,7 +22,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJson3DProjectedCoordinates value.
     /// </summary>
-    public class GeoJson3DProjectedCoordinatesSerializer : BsonBaseSerializer<GeoJson3DProjectedCoordinates>
+    public class GeoJson3DProjectedCoordinatesSerializer : ClassSerializerBase<GeoJson3DProjectedCoordinates>
     {
         // private static fields
         private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
@@ -59,22 +59,15 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJson3DProjectedCoordinates value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJson3DProjectedCoordinates value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                bsonWriter.WriteStartArray();
-                bsonWriter.WriteDouble(value.Easting);
-                bsonWriter.WriteDouble(value.Northing);
-                bsonWriter.WriteDouble(value.Altitude);
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteStartArray();
+            bsonWriter.WriteDouble(value.Easting);
+            bsonWriter.WriteDouble(value.Northing);
+            bsonWriter.WriteDouble(value.Altitude);
+            bsonWriter.WriteEndArray();
         }
     }
 }

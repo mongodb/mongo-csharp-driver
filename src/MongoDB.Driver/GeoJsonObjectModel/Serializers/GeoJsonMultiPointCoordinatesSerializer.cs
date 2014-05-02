@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -25,7 +23,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonMultiPointCoordinates value.
     /// </summary>
-    public class GeoJsonMultiPointCoordinatesSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonMultiPointCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonMultiPointCoordinatesSerializer<TCoordinates> : ClassSerializerBase<GeoJsonMultiPointCoordinates<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
@@ -66,23 +64,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonMultiPointCoordinates<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiPointCoordinates<TCoordinates> value)
         {
             var bsonWriter = context.Writer;
 
-            if (value == null)
+            bsonWriter.WriteStartArray();
+            foreach (var position in value.Positions)
             {
-                bsonWriter.WriteNull();
+                context.SerializeWithChildContext(_coordinatesSerializer, position);
             }
-            else
-            {
-                bsonWriter.WriteStartArray();
-                foreach (var position in value.Positions)
-                {
-                    context.SerializeWithChildContext(_coordinatesSerializer, position);
-                }
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteEndArray();
         }
     }
 }

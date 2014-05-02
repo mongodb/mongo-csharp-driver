@@ -428,7 +428,7 @@ namespace MongoDB.Driver
         }
 
         // nested classes
-        internal class Serializer : BsonBaseSerializer<GeoNearResult<TDocument>>
+        internal class Serializer : SerializerBase<GeoNearResult<TDocument>>
         {
             // private fields
             private readonly IBsonSerializer<GeoNearResult<TDocument>> _serializer = new CommandResultSerializer<GeoNearResult<TDocument>>();

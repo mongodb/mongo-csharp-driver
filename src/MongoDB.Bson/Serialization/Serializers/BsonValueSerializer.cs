@@ -13,15 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonValues.
     /// </summary>
-    public class BsonValueSerializer : BsonBaseSerializer<BsonValue>, IBsonArraySerializer, IBsonDocumentSerializer
+    public class BsonValueSerializer : BsonValueSerializerBase<BsonValue>, IBsonArraySerializer, IBsonDocumentSerializer
     {
         // private static fields
         private static BsonValueSerializer __instance = new BsonValueSerializer();
@@ -31,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonValueSerializer class.
         /// </summary>
         public BsonValueSerializer()
+            : base(null)
         {
         }
 
@@ -49,7 +48,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonValue Deserialize(BsonDeserializationContext context)
+        protected override BsonValue DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
@@ -116,13 +115,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonValue value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonValue value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             switch (value.BsonType)
             {
                 case BsonType.Array: BsonArraySerializer.Instance.Serialize(context, (BsonArray)value); break;

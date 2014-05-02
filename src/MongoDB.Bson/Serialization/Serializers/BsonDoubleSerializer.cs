@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonDoubles.
     /// </summary>
-    public class BsonDoubleSerializer : BsonBaseSerializer<BsonDouble>
+    public class BsonDoubleSerializer : BsonValueSerializerBase<BsonDouble>
     {
         // private static fields
         private static BsonDoubleSerializer __instance = new BsonDoubleSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonDoubleSerializer class.
         /// </summary>
         public BsonDoubleSerializer()
+            : base(BsonType.Double)
         {
         }
 
@@ -44,26 +42,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonDouble Deserialize(BsonDeserializationContext context)
+        protected override BsonDouble DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Double:
-                    return new BsonDouble(bsonReader.ReadDouble());
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonDouble from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            return new BsonDouble(bsonReader.ReadDouble());
         }
 
         /// <summary>
@@ -71,15 +59,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonDouble value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonDouble value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteDouble(value.Value);
         }
     }

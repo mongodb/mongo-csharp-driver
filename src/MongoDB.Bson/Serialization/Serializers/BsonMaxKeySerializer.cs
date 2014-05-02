@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonMaxKeys.
     /// </summary>
-    public class BsonMaxKeySerializer : BsonBaseSerializer<BsonMaxKey>
+    public class BsonMaxKeySerializer : BsonValueSerializerBase<BsonMaxKey>
     {
         // private static fields
         private static BsonMaxKeySerializer __instance = new BsonMaxKeySerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonMaxKeySerializer class.
         /// </summary>
         public BsonMaxKeySerializer()
+            : base(BsonType.MaxKey)
         {
         }
 
@@ -44,27 +42,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonMaxKey Deserialize(BsonDeserializationContext context)
+        protected override BsonMaxKey DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.MaxKey:
-                    bsonReader.ReadMaxKey();
-                    return BsonMaxKey.Value;
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonMaxKey from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            bsonReader.ReadMaxKey();
+            return BsonMaxKey.Value;
         }
 
         /// <summary>
@@ -72,15 +60,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonMaxKey value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonMaxKey value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteMaxKey();
         }
     }

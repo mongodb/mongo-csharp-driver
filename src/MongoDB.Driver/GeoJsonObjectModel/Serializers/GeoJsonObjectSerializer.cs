@@ -25,7 +25,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// Represents a serializer for a GeoJson object.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonObjectSerializer<TCoordinates> : BsonBaseSerializer<GeoJsonObject<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonObjectSerializer<TCoordinates> : ClassSerializerBase<GeoJsonObject<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
         // public methods
         /// <summary>
@@ -44,10 +44,10 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
+        protected override void SerializeValue(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
         {
             var helper = new Helper();
-            helper.Serialize(context, value);
+            helper.SerializeValue(context, value);
         }
 
         // nested types
@@ -126,27 +126,14 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             /// </summary>
             /// <param name="context">The serialization context.</param>
             /// <param name="value">The value.</param>
-            public void Serialize(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
+            public void SerializeValue(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
             {
                 var bsonWriter = context.Writer;
 
-                if (value == null)
-                {
-                    bsonWriter.WriteNull();
-                }
-                else
-                {
-                    var actualType = value.GetType();
-                    if (actualType == _objectType)
-                    {
-                        SerializeObject(context, value);
-                    }
-                    else
-                    {
-                        var serializer = BsonSerializer.LookupSerializer(actualType);
-                        serializer.Serialize(context, value);
-                    }
-                }
+                bsonWriter.WriteStartDocument();
+                SerializeFields(context, value);
+                SerializeExtraMembers(context, value.ExtraMembers);
+                bsonWriter.WriteEndDocument();
             }
 
             // protected methods
@@ -306,16 +293,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                         context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
                     }
                 }
-            }
-
-            private void SerializeObject(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                var bsonWriter = context.Writer;
-
-                bsonWriter.WriteStartDocument();
-                SerializeFields(context, obj);
-                SerializeExtraMembers(context, obj.ExtraMembers);
-                bsonWriter.WriteEndDocument();
             }
         }
     }

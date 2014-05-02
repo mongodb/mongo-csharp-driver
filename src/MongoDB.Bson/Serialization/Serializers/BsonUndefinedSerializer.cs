@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonUndefineds.
     /// </summary>
-    public class BsonUndefinedSerializer : BsonBaseSerializer<BsonUndefined>
+    public class BsonUndefinedSerializer : BsonValueSerializerBase<BsonUndefined>
     {
         // private static fields
         private static BsonUndefinedSerializer __instance = new BsonUndefinedSerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonUndefinedSerializer class.
         /// </summary>
         public BsonUndefinedSerializer()
+            : base(BsonType.Undefined)
         {
         }
 
@@ -44,27 +42,17 @@ namespace MongoDB.Bson.Serialization.Serializers
             get { return __instance; }
         }
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonUndefined Deserialize(BsonDeserializationContext context)
+        protected override BsonUndefined DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
-            {
-                case BsonType.Undefined:
-                    bsonReader.ReadUndefined();
-                    return BsonUndefined.Value;
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonUndefined from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
-            }
+            bsonReader.ReadUndefined();
+            return BsonUndefined.Value;
         }
 
         /// <summary>
@@ -72,15 +60,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonUndefined value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonUndefined value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
             bsonWriter.WriteUndefined();
         }
     }

@@ -24,7 +24,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonCoordinates value.
     /// </summary>
-    public class GeoJsonCoordinatesSerializer : BsonBaseSerializer<GeoJsonCoordinates>
+    public class GeoJsonCoordinatesSerializer : ClassSerializerBase<GeoJsonCoordinates>
     {
         // public methods
         /// <summary>
@@ -34,17 +34,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <returns>The value.</returns>
         /// <exception cref="System.InvalidOperationException">Only concrete subclasses of GeoJsonCoordinates can be serialized.</exception>
         public override GeoJsonCoordinates Deserialize(BsonDeserializationContext context)
-        {
-            throw new InvalidOperationException("Only concrete subclasses of GeoJsonCoordinates can be serialized.");
-        }
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="context">The serialization context.</param>
-        /// <param name="value">The value.</param>
-        /// <exception cref="System.InvalidOperationException">Only concrete subclasses of GeoJsonCoordinates can be serialized.</exception>
-        public override void Serialize(BsonSerializationContext context, GeoJsonCoordinates value)
         {
             throw new InvalidOperationException("Only concrete subclasses of GeoJsonCoordinates can be serialized.");
         }

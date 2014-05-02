@@ -13,16 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.IO;
-using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
     /// Represents a serializer for BsonArrays.
     /// </summary>
-    public class BsonArraySerializer : BsonBaseSerializer<BsonArray>, IBsonArraySerializer
+    public class BsonArraySerializer : BsonValueSerializerBase<BsonArray>, IBsonArraySerializer
     {
         // private static fields
         private static BsonArraySerializer __instance = new BsonArraySerializer();
@@ -32,6 +29,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the BsonArraySerializer class.
         /// </summary>
         public BsonArraySerializer()
+            : base(BsonType.Array)
         {
         }
 
@@ -50,28 +48,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>An object.</returns>
-        public override BsonArray Deserialize(BsonDeserializationContext context)
+        protected override BsonArray DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            var bsonType = bsonReader.GetCurrentBsonType();
-            switch (bsonType)
+            bsonReader.ReadStartArray();
+            var array = new BsonArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                case BsonType.Array:
-                    bsonReader.ReadStartArray();
-                    var array = new BsonArray();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var item = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-                        array.Add(item);
-                    }
-                    bsonReader.ReadEndArray();
-                    return array;
-
-                default:
-                    var message = string.Format("Cannot deserialize BsonArray from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                var item = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                array.Add(item);
             }
+            bsonReader.ReadEndArray();
+
+            return array;
         }
 
         /// <summary>
@@ -88,19 +78,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                 typeof(BsonValue));
         }
 
+        // protected methods
         /// <summary>
         /// Serializes a value.
         /// </summary>
         /// <param name="context">The serialization context.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonArray value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonArray value)
         {
             var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
 
             bsonWriter.WriteStartArray();
             for (int i = 0; i < value.Count; i++)

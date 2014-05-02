@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
             public int X;
         }
 
-        public class MyIdSerializer : BsonBaseSerializer<string>
+        public class MyIdSerializer : ClassSerializerBase<string>
         {
             public override string Deserialize(BsonDeserializationContext context)
             {

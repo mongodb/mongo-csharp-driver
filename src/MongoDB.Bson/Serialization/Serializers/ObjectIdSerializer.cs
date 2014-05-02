@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for ObjectIds.
     /// </summary>
-    public class ObjectIdSerializer : BsonBaseSerializer<ObjectId>, IRepresentationConfigurable<ObjectIdSerializer>
+    public class ObjectIdSerializer : StructSerializerBase<ObjectId>, IRepresentationConfigurable<ObjectIdSerializer>
     {
         // private fields
         private readonly BsonType _representation;
@@ -90,8 +90,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return ObjectId.Parse(bsonReader.ReadString());
 
                 default:
-                    var message = string.Format("Cannot deserialize ObjectId from BsonType {0}.", bsonType);
-                    throw new FileFormatException(message);
+                    throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
 

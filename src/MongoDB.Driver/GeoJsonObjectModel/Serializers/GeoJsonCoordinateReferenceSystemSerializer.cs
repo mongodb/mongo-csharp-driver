@@ -24,7 +24,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <summary>
     /// Represents a serializer for a GeoJsonCoordinateReferenceSystem value.
     /// </summary>
-    public class GeoJsonCoordinateReferenceSystemSerializer : BsonBaseSerializer<GeoJsonCoordinateReferenceSystem>
+    public class GeoJsonCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonCoordinateReferenceSystem>
     {
         // public methods
         /// <summary>
@@ -46,27 +46,6 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                 var actualType = GetActualType(bsonReader);
                 var serializer = BsonSerializer.LookupSerializer(actualType);
                 return (GeoJsonCoordinateReferenceSystem)serializer.Deserialize(context);
-            }
-        }
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="context">The serialization context.</param>
-        /// <param name="value">The value.</param>
-        public override void Serialize(BsonSerializationContext context, GeoJsonCoordinateReferenceSystem value)
-        {
-            var bsonWriter = context.Writer;
-
-            if (value == null)
-            {
-                bsonWriter.WriteNull();
-            }
-            else
-            {
-                var actualType = value.GetType();
-                var serializer = BsonSerializer.LookupSerializer(actualType);
-                serializer.Serialize(context, value);
             }
         }
 
