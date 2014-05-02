@@ -1,7 +1,32 @@
 Properties {
-    $base_version = "3.0.0"
-    $pre_release = "local"
-    $build_number = Get-BuildNumber
+    if(-not (Test-Path variable:base_version)) {
+        $base_version = "3.0.0"
+    }
+    if(-not (Test-Path variable:pre_release)) {
+        $pre_release = "local"
+    }
+    if(-not (Test-Path variable:build_number)) {
+        $build_number = Get-BuildNumber
+    }
+
+    $version = "$base_version.$build_number"
+    $sem_version = $base_version
+    if(-not [string]::IsNullOrEmpty($pre_release)) {
+        $sem_version = "$sem_version-$($pre_release)"
+
+        if(-not ($pre_release -eq "build" -or $pre_release -eq "local")) {
+            # These should be + instead of -, but nuget doesn't allow that right now
+            # Also padding the build number because nuget sorts lexigraphically
+            # meaning that 2 > 10.  So, we make it such that 0002 < 0010.
+            # Note: will we ever have > 9999 commits between releases?
+            # Note: 0 + $build_number is to coerce the build_number into an integer.
+            $bn = "{0:0000}" -f (0 + $build_number)
+            $sem_version = "$sem_version-$bn"
+        }
+    }
+
+    Write-Host "$config Version $sem_version($version)" -ForegroundColor Yellow
+
     $config = "Release"
 
     $git_commit = Get-GitCommit
@@ -25,46 +50,15 @@ Properties {
     $nuspec_build_file = "$build_dir\mongocsharpdriverbuild.nuspec"
     $license_file = "$base_dir\License.txt"
     $version_file = "$artifacts_dir\version.txt"
+    $chm_file = "$artifacts_dir\CSharpDriverDocs-$sem_version.chm"
+    $release_notes_file = "$base_dir\Release Notes\Release Notes v$base_version.md"
 
     $nuget_tool = "$tools_dir\nuget\nuget.exe"
     $nunit_tool = "$tools_dir\nunit\nunit-console.exe"
     $zip_tool = "$tools_dir\7Zip\7za.exe"
-}
 
-function IsReleaseBuild {
-    if($pre_release -eq "build" -or $pre_release -eq "local") {
-        return $false
-    }
-
-    return $true
-}
-
-TaskSetup {
-
-    $global:version = "$base_version.$build_number"
-    $global:sem_version = $base_version
-    if(-not [string]::IsNullOrEmpty($pre_release)) {
-        $global:sem_version = "$sem_version-$($pre_release)"
-
-        if(-not (IsReleaseBuild)) {
-            # These should be + instead of -, but nuget doesn't allow that right now
-            # Also padding the build number because nuget sorts lexigraphically
-            # meaning that 2 > 10.  So, we make it such that 0002 < 0010.
-            # Note: will we ever have > 9999 commits between releases?
-            # Note: 0 + $build_number is to coerce the build_number into an integer.
-            $bn = "{0:0000}" -f (0 + $build_number)
-            $global:sem_version = "$sem_version-$bn"
-        }
-    }
-
-    Write-Host "$config Version $sem_version($version)" -ForegroundColor Yellow
-
-    $global:release_notes_version = $base_version
-    $global:installer_product_id = New-Object System.Guid($git_commit.Hash.SubString(0,32))
-    $global:installer_upgrade_code = New-Object System.Guid($git_commit.Hash.SubString(1,32))
-
-    $global:chm_file = "$artifacts_dir\CSharpDriverDocs-$sem_version.chm"
-    $global:release_notes_file = "$base_dir\Release Notes\Release Notes v$release_notes_version.md"
+    $installer_product_id = New-Object System.Guid($git_commit.Hash.SubString(0,32))
+    $installer_upgrade_code = New-Object System.Guid($git_commit.Hash.SubString(1,32))
 }
 
 Framework('4.0')
@@ -199,7 +193,7 @@ Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
     $release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
     $doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$45_bin_dir}
+    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
     
     rm -force $artifacts_dir\*.wixpdb
 }
