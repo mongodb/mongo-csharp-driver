@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneEmptyArray()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -43,7 +43,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedEmptyArray()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoEmptyArrays()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedEmptyArrays()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -100,7 +100,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestEmptyDocument()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteEndDocument();
@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneEmptyDocument()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("a");
@@ -130,7 +130,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedEmptyDocument()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -148,7 +148,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoEmptyDocuments()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("a");
@@ -166,7 +166,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedEmptyDocuments()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -187,7 +187,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithOneElement()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -204,7 +204,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithTwoElements()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -222,7 +222,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithNestedEmptyArray()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -240,7 +240,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithNestedArrayWithOneElement()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -259,7 +259,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithNestedArrayWithTwoElements()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestArrayWithTwoNestedArrays()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartArray("a");
@@ -306,7 +306,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneBinary()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteBytes("a", new byte[] { 1 });
@@ -321,7 +321,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedBinary()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -338,7 +338,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoBinaries()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteBytes("a", new byte[] { 1 });
@@ -354,7 +354,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedBinaries()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -373,7 +373,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneBoolean()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteBoolean("a", true);
@@ -388,7 +388,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedBoolean()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -405,7 +405,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoBooleans()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteBoolean("a", true);
@@ -421,7 +421,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedBooleans()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -440,7 +440,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneDateTime()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteDateTime("a", 0);
@@ -455,7 +455,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedDateTime()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -472,7 +472,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoDateTimes()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteDateTime("a", 0);
@@ -488,7 +488,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedDateTimes()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -507,7 +507,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneDouble()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteDouble("a", 1.5);
@@ -522,7 +522,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedDouble()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -539,7 +539,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoDoubles()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteDouble("a", 1.5);
@@ -555,7 +555,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedDoubles()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -574,7 +574,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneInt32()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteInt32("a", 1);
@@ -589,7 +589,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedInt32()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -606,7 +606,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoInt32s()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteInt32("a", 1);
@@ -622,7 +622,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedInt32s()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -641,7 +641,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneInt64()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteInt64("a", 1);
@@ -656,7 +656,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedInt64()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -673,7 +673,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoInt64s()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteInt64("a", 1);
@@ -689,7 +689,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedInt64s()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -708,7 +708,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneJavaScript()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteJavaScript("a", "x");
@@ -723,7 +723,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedJavaScript()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -740,7 +740,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoJavaScripts()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteJavaScript("a", "x");
@@ -756,7 +756,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedJavaScripts()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -775,7 +775,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneJavaScriptWithScope()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteJavaScriptWithScope("a", "x");
@@ -794,7 +794,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedJavaScriptWithScope()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -815,7 +815,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoJavaScriptWithScopes()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteJavaScriptWithScope("a", "x");
@@ -837,7 +837,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedJavaScriptWithScopes()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -862,7 +862,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneMaxKey()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteMaxKey("a");
@@ -877,7 +877,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedMaxKey()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -894,7 +894,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoMaxKeys()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteMaxKey("a");
@@ -910,7 +910,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedMaxKeys()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -929,7 +929,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneMinKey()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteMinKey("a");
@@ -944,7 +944,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedMinKey()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -961,7 +961,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoMinKeys()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteMinKey("a");
@@ -977,7 +977,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedMinKeys()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -996,7 +996,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNull()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteNull("a");
@@ -1011,7 +1011,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedNull()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1028,7 +1028,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNulls()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteNull("a");
@@ -1044,7 +1044,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedNulls()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1063,7 +1063,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneObjectId()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteObjectId("a", ObjectId.Empty);
@@ -1078,7 +1078,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedObjectId()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1095,7 +1095,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoObjectIds()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteObjectId("a", ObjectId.Empty);
@@ -1111,7 +1111,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedObjectIds()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1130,7 +1130,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneRegularExpression()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
@@ -1145,7 +1145,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedRegularExpression()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1162,7 +1162,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoRegularExpressions()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteRegularExpression("a", new BsonRegularExpression("p", "i"));
@@ -1178,7 +1178,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedRegularExpressions()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1197,7 +1197,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneString()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteString("a", "x");
@@ -1212,7 +1212,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedString()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1229,7 +1229,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoStrings()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteString("a", "x");
@@ -1245,7 +1245,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedStrings()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1264,7 +1264,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneSymbol()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteSymbol("a", "x");
@@ -1279,7 +1279,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedSymbol()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1296,7 +1296,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoSymbols()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteSymbol("a", "x");
@@ -1312,7 +1312,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedSymbols()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1331,7 +1331,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneTimestamp()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteTimestamp("a", 1);
@@ -1346,7 +1346,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedTimestamp()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1363,7 +1363,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoTimestamps()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteTimestamp("a", 1);
@@ -1379,7 +1379,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedTimestamps()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1398,7 +1398,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneUndefined()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteUndefined("a");
@@ -1413,7 +1413,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestOneNestedUndefined()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");
@@ -1430,7 +1430,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoUndefineds()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteUndefined("a");
@@ -1446,7 +1446,7 @@ namespace MongoDB.Bson.Tests.IO
         public void TestTwoNestedUndefineds()
         {
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartDocument("nested");

@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private object DeserializeKeyString(string keyString)
         {
             var keyDocument = new BsonDocument("k", keyString);
-            using (var keyReader = BsonReader.Create(keyDocument))
+            using (var keyReader = new BsonDocumentReader(keyDocument))
             {
                 var context = BsonDeserializationContext.CreateRoot<BsonDocument>(keyReader);
                 keyReader.ReadStartDocument();
@@ -268,7 +268,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private string SerializeKeyString(object key)
         {
             var keyDocument = new BsonDocument();
-            using (var keyWriter = BsonWriter.Create(keyDocument))
+            using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
                 var context = BsonSerializationContext.CreateRoot<BsonDocument>(keyWriter);
                 keyWriter.WriteStartDocument();
@@ -488,7 +488,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private TKey DeserializeKeyString(string keyString)
         {
             var keyDocument = new BsonDocument("k", keyString);
-            using (var keyReader = BsonReader.Create(keyDocument))
+            using (var keyReader = new BsonDocumentReader(keyDocument))
             {
                 var context = BsonDeserializationContext.CreateRoot<BsonDocument>(keyReader);
                 keyReader.ReadStartDocument();
@@ -544,7 +544,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         private string SerializeKeyString(TKey key)
         {
             var keyDocument = new BsonDocument();
-            using (var keyWriter = BsonWriter.Create(keyDocument))
+            using (var keyWriter = new BsonDocumentWriter(keyDocument))
             {
                 var context = BsonSerializationContext.CreateRoot<BsonDocument>(keyWriter);
                 keyWriter.WriteStartDocument();

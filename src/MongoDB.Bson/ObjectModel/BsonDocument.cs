@@ -362,7 +362,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonDocument.</returns>
         public static BsonDocument Parse(string json)
         {
-            using (var bsonReader = BsonReader.Create(json))
+            using (var bsonReader = new JsonReader(json))
             {
                 var context = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
                 return BsonDocumentSerializer.Instance.Deserialize(context);
@@ -1248,7 +1248,7 @@ namespace MongoDB.Bson
         [Obsolete("Use BsonSerializer.Serialize<BsonDocument> instead.")]
         public void WriteTo(Stream stream)
         {
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 BsonSerializer.Serialize(bsonWriter, this);
             }
@@ -1263,7 +1263,7 @@ namespace MongoDB.Bson
         {
             using (FileStream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
             {
-                using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+                using (var bsonWriter = new BsonBinaryWriter(stream))
                 {
                     BsonSerializer.Serialize(bsonWriter, this);
                 }

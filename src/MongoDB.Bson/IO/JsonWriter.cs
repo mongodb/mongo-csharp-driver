@@ -35,6 +35,15 @@ namespace MongoDB.Bson.IO
         /// Initializes a new instance of the JsonWriter class.
         /// </summary>
         /// <param name="writer">A TextWriter.</param>
+        public JsonWriter(TextWriter writer)
+            : this(writer, JsonWriterSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the JsonWriter class.
+        /// </summary>
+        /// <param name="writer">A TextWriter.</param>
         /// <param name="settings">Optional JsonWriter settings.</param>
         public JsonWriter(TextWriter writer, JsonWriterSettings settings)
             : base(settings)

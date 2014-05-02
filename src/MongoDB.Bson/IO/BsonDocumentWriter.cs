@@ -32,6 +32,15 @@ namespace MongoDB.Bson.IO
         /// Initializes a new instance of the BsonDocumentWriter class.
         /// </summary>
         /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
+        public BsonDocumentWriter(BsonDocument topLevelDocument)
+            : this(topLevelDocument, BsonDocumentWriterSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentWriter class.
+        /// </summary>
+        /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
         /// <param name="settings">The settings.</param>
         public BsonDocumentWriter(BsonDocument topLevelDocument, BsonDocumentWriterSettings settings)
             : base(settings)

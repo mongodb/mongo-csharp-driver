@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
         public void TestFlushAndClose()
         {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream))
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteEndDocument();
@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
         public void Test1Chunk()
         {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream))
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 16]);
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
         public void Test1ChunkMinus1()
         {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream))
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 17]);
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp116
         public void Test1ChunkPlus1()
         {
             var stream = new MemoryStream();
-            using (var bsonWriter = BsonWriter.Create(stream))
+            using (var bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteBytes("Data", new byte[16 * 1024 - 15]);

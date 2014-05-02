@@ -37,12 +37,16 @@ namespace MongoDB.Bson.IO
         /// Initializes a new instance of the BsonBinaryWriter class.
         /// </summary>
         /// <param name="stream">A stream. The BsonBinaryWriter does not own the stream and will not Dispose it.</param>
+        public BsonBinaryWriter(Stream stream)
+            : this(stream, BsonBinaryWriterSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryWriter class.
+        /// </summary>
+        /// <param name="stream">A stream. The BsonBinaryWriter does not own the stream and will not Dispose it.</param>
         /// <param name="settings">The BsonBinaryWriter settings.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// encoder
-        /// or
-        /// settings
-        /// </exception>
         public BsonBinaryWriter(Stream stream, BsonBinaryWriterSettings settings)
             : base(settings)
         {

@@ -115,69 +115,6 @@ namespace MongoDB.Bson.IO
         }
 
         // public static methods
-        /// <summary>
-        /// Creates a BsonWriter to a BsonDocument.
-        /// </summary>
-        /// <param name="document">A BsonDocument.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(BsonDocument document)
-        {
-            return Create(document, BsonDocumentWriterSettings.Defaults);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a BsonDocument.
-        /// </summary>
-        /// <param name="document">A BsonDocument.</param>
-        /// <param name="settings">The settings.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(BsonDocument document, BsonDocumentWriterSettings settings)
-        {
-            return new BsonDocumentWriter(document, settings);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a BSON Stream.
-        /// </summary>
-        /// <param name="stream">A Stream.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(Stream stream)
-        {
-            return Create(stream, BsonBinaryWriterSettings.Defaults);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a BSON Stream.
-        /// </summary>
-        /// <param name="stream">A Stream.</param>
-        /// <param name="settings">Optional BsonBinaryWriterSettings.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(Stream stream, BsonBinaryWriterSettings settings)
-        {
-            return new BsonBinaryWriter(stream, settings);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a JSON TextWriter.
-        /// </summary>
-        /// <param name="writer">A TextWriter.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(TextWriter writer)
-        {
-            return new JsonWriter(writer, JsonWriterSettings.Defaults);
-        }
-
-        /// <summary>
-        /// Creates a BsonWriter to a JSON TextWriter.
-        /// </summary>
-        /// <param name="writer">A TextWriter.</param>
-        /// <param name="settings">Optional JsonWriterSettings.</param>
-        /// <returns>A BsonWriter.</returns>
-        public static BsonWriter Create(TextWriter writer, JsonWriterSettings settings)
-        {
-            return new JsonWriter(writer, settings);
-        }
-
         // public methods
         /// <summary>
         /// Closes the writer.

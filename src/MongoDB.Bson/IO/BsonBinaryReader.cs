@@ -34,12 +34,16 @@ namespace MongoDB.Bson.IO
         /// Initializes a new instance of the BsonBinaryReader class.
         /// </summary>
         /// <param name="stream">A stream (BsonBinary does not own the stream and will not Dispose it).</param>
+        public BsonBinaryReader(Stream stream)
+            : this(stream, BsonBinaryReaderSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonBinaryReader class.
+        /// </summary>
+        /// <param name="stream">A stream (BsonBinary does not own the stream and will not Dispose it).</param>
         /// <param name="settings">A BsonBinaryReaderSettings.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// buffer
-        /// or
-        /// settings
-        /// </exception>
         public BsonBinaryReader(Stream stream, BsonBinaryReaderSettings settings)
             : base(settings)
         {

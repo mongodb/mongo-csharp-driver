@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Operations
 
                 var firstBatch = cursor["firstBatch"].AsBsonArray.Select(v =>
                 {
-                    using (var reader = BsonReader.Create(v.AsBsonDocument))
+                    using (var reader = new BsonDocumentReader(v.AsBsonDocument))
                     {
                         return _serializer.Deserialize(BsonDeserializationContext.CreateRoot<TDocument>(reader));
                     }

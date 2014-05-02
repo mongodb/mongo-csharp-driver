@@ -15,7 +15,6 @@
 
 using System.IO;
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using NUnit.Framework;
@@ -381,7 +380,7 @@ namespace MongoDB.Bson.Tests.Jira
                 byteBufferStream.SetLength(byteBufferStream.Length - 20);
                 byteBufferStream.Position = 0;
 
-                using (var bsonReader = BsonReader.Create(byteBufferStream))
+                using (var bsonReader = new BsonBinaryReader(byteBufferStream))
                 {
                     Assert.Throws<EndOfStreamException>(() => BsonSerializer.Deserialize<BsonDocument>(bsonReader));
                 }

@@ -63,7 +63,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
                     { "max", new BsonArray(flattenedArray.Skip(half)) }
                 };
 
-                using (var documentReader = BsonReader.Create(document))
+                using (var documentReader = new BsonDocumentReader(document))
                 {
                     var documentContext = BsonDeserializationContext.CreateRoot(documentReader, typeof(BsonDocument));
                     documentReader.ReadStartDocument();
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
 
             // serialize min and max to a dummy document and then flatten the two arrays and serialize that
             var document = new BsonDocument();
-            using (var documentWriter = BsonWriter.Create(document))
+            using (var documentWriter = new BsonDocumentWriter(document))
             {
                 var documentContext = BsonSerializationContext.CreateRoot(documentWriter, typeof(BsonDocument));
                 documentWriter.WriteStartDocument();

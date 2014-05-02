@@ -64,22 +64,22 @@ namespace MongoDB.Bson.Tests.Serialization
             var expected = "{ 'X' : 1, 'NestedDocument' : { 'X' : 2, 'NestedDocument' : null, 'BsonArray' : { '_csharpnull' : true } }, 'BsonArray' : { '_csharpnull' : true } }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
 
-            var memoryWriter = new MemoryStream();
-            using (var writer = BsonWriter.Create(memoryWriter))
+            var memoryStream = new MemoryStream();
+            using (var writer = new BsonBinaryWriter(memoryStream))
             {
                 BsonSerializer.Serialize(writer, c1);
                 Assert.AreEqual(0, writer.SerializationDepth);
             }
 
             var document = new BsonDocument();
-            using (var writer = BsonWriter.Create(document))
+            using (var writer = new BsonDocumentWriter(document))
             {
                 BsonSerializer.Serialize(writer, c1);
                 Assert.AreEqual(0, writer.SerializationDepth);
             }
 
             var stringWriter = new StringWriter();
-            using (var writer = BsonWriter.Create(stringWriter))
+            using (var writer = new JsonWriter(stringWriter))
             {
                 BsonSerializer.Serialize(writer, c1);
                 Assert.AreEqual(0, writer.SerializationDepth);

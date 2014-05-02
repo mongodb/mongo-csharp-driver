@@ -33,6 +33,15 @@ namespace MongoDB.Bson.IO
         /// Initializes a new instance of the BsonDocumentReader class.
         /// </summary>
         /// <param name="document">A BsonDocument.</param>
+        public BsonDocumentReader(BsonDocument document)
+            : this(document, BsonDocumentReaderSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the BsonDocumentReader class.
+        /// </summary>
+        /// <param name="document">A BsonDocument.</param>
         /// <param name="settings">The reader settings.</param>
         public BsonDocumentReader(BsonDocument document, BsonDocumentReaderSettings settings)
             : base(settings)

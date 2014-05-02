@@ -39,17 +39,26 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Initializes a new instance of the JsonReader class.
         /// </summary>
-        /// <param name="buffer">The buffer.</param>
+        /// <param name="json">The JSON string.</param>
+        public JsonReader(string json)
+            : this(json, JsonReaderSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the JsonReader class.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
         /// <param name="settings">The reader settings.</param>
-        public JsonReader(JsonBuffer buffer, JsonReaderSettings settings)
+        public JsonReader(string json, JsonReaderSettings settings)
             : base(settings)
         {
-            if (buffer == null)
+            if (json == null)
             {
                 throw new ArgumentNullException("buffer");
             }
 
-            _buffer = buffer;
+            _buffer = new JsonBuffer(json);
             _jsonReaderSettings = settings; // already frozen by base class
             _context = new JsonReaderContext(null, ContextType.TopLevel);
         }

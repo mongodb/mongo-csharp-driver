@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq
             foreach (var value in _source)
             {
                 var document = new BsonDocument("_v", value);
-                using (var bsonReader = BsonReader.Create(document))
+                using (var bsonReader = new BsonDocumentReader(document))
                 {
                     var context = BsonDeserializationContext.CreateRoot<BsonDocument>(bsonReader);
                     bsonReader.ReadStartDocument();

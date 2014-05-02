@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests.IO
             string byteString = @"\x16\x00\x00\x00\x02hello\x00\x06\x00\x00\x00world\x00\x00";
             byte[] bytes = DecodeByteString(byteString);
             MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream))
+            using (BsonReader bsonReader = new BsonBinaryReader(stream))
             {
                 bsonReader.ReadStartDocument();
                 Assert.AreEqual(BsonType.String, bsonReader.ReadBsonType());
@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Tests.IO
             string byteString = @"1\x00\x00\x00\x04BSON\x00&\x00\x00\x00\x020\x00\x08\x00\x00\x00awesome\x00\x011\x00333333\x14@\x102\x00\xc2\x07\x00\x00\x00\x00";
             byte[] bytes = DecodeByteString(byteString);
             MemoryStream stream = new MemoryStream(bytes);
-            using (BsonReader bsonReader = BsonReader.Create(stream))
+            using (BsonReader bsonReader = new BsonBinaryReader(stream))
             {
                 bsonReader.ReadStartDocument();
                 Assert.AreEqual(BsonType.Array, bsonReader.ReadBsonType());

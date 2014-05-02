@@ -888,7 +888,7 @@ namespace MongoDB.Bson.Tests
         {
             // this test is from http://bsonspec.org/#/specification
             MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            using (BsonWriter bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteStartArray("BSON");
@@ -916,7 +916,7 @@ namespace MongoDB.Bson.Tests
         {
             // this test is from http://bsonspec.org/#/specification
             MemoryStream stream = new MemoryStream();
-            using (BsonWriter bsonWriter = BsonWriter.Create(stream))
+            using (BsonWriter bsonWriter = new BsonBinaryWriter(stream))
             {
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteString("hello", "world");
