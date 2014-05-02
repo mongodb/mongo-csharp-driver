@@ -369,53 +369,6 @@ namespace MongoDB.Bson
             }
         }
 
-        /// <summary>
-        /// Reads a BsonDocument from a BsonReader.
-        /// </summary>
-        /// <param name="bsonReader">The BsonReader.</param>
-        /// <returns>A BsonDocument.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonDocument> instead.")]
-        public static new BsonDocument ReadFrom(BsonReader bsonReader)
-        {
-            return BsonSerializer.Deserialize<BsonDocument>(bsonReader);
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a byte array.
-        /// </summary>
-        /// <param name="bytes">The byte array.</param>
-        /// <returns>A BsonDocument.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonDocument> instead.")]
-        public static BsonDocument ReadFrom(byte[] bytes)
-        {
-            return BsonSerializer.Deserialize<BsonDocument>(bytes);
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <returns>A BsonDocument.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonDocument> instead.")]
-        public static BsonDocument ReadFrom(Stream stream)
-        {
-            return BsonSerializer.Deserialize<BsonDocument>(stream);
-        }
-
-        /// <summary>
-        /// Reads a BsonDocument from a file.
-        /// </summary>
-        /// <param name="filename">The name of the file.</param>
-        /// <returns>A BsonDocument.</returns>
-        [Obsolete("Use BsonSerializer.Deserialize<BsonDocument> instead.")]
-        public static BsonDocument ReadFrom(string filename)
-        {
-            using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                return BsonSerializer.Deserialize<BsonDocument>(stream);
-            }
-        }
-
         // public methods
         /// <summary>
         /// Adds an element to the document.
@@ -1228,45 +1181,6 @@ namespace MongoDB.Bson
             {
                 value = null;
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Writes the document to a BsonWriter.
-        /// </summary>
-        /// <param name="bsonWriter">The writer.</param>
-        [Obsolete("Use BsonSerializer.Serialize<BsonDocument> instead.")]
-        public new void WriteTo(BsonWriter bsonWriter)
-        {
-            BsonSerializer.Serialize(bsonWriter, this);
-        }
-
-        /// <summary>
-        /// Writes the document to a Stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        [Obsolete("Use BsonSerializer.Serialize<BsonDocument> instead.")]
-        public void WriteTo(Stream stream)
-        {
-            using (var bsonWriter = new BsonBinaryWriter(stream))
-            {
-                BsonSerializer.Serialize(bsonWriter, this);
-            }
-        }
-
-        /// <summary>
-        /// Writes the document to a file.
-        /// </summary>
-        /// <param name="filename">The name of the file.</param>
-        [Obsolete("Use BsonSerializer.Serialize<BsonDocument> instead.")]
-        public void WriteTo(string filename)
-        {
-            using (FileStream stream = new FileStream(filename, FileMode.Create, FileAccess.Write))
-            {
-                using (var bsonWriter = new BsonBinaryWriter(stream))
-                {
-                    BsonSerializer.Serialize(bsonWriter, this);
-                }
             }
         }
 
