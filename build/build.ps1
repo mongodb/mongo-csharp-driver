@@ -14,7 +14,7 @@ Properties {
     if(-not [string]::IsNullOrEmpty($pre_release)) {
         $sem_version = "$sem_version-$($pre_release)"
 
-        if(-not ($pre_release -eq "build" -or $pre_release -eq "local")) {
+        if($pre_release -eq "build" -or $pre_release -eq "local") {
             # These should be + instead of -, but nuget doesn't allow that right now
             # Also padding the build number because nuget sorts lexigraphically
             # meaning that 2 > 10.  So, we make it such that 0002 < 0010.
