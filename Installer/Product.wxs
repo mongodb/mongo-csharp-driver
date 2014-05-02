@@ -20,7 +20,7 @@
     <WixVariable Id="WixUIExclamationIco" Value="Installer_Icon_32x32.ico" />
     <WixVariable Id="WixUINewIco" Value="Installer_Icon_16x16.ico" />
     <WixVariable Id="WixUIUpIco" Value="Installer_Icon_16x16.ico" />
-    <WixVariable Id="WixUILicenseRtf" Value="$(var.SourceBase)\$(var.License)" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.License)" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
@@ -63,15 +63,15 @@
 
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="c_License" Guid="*">
-        <File Id="f_License" Name="License.rtf" Source="$(var.SourceBase)\$(var.License)"
+        <File Id="f_License" Name="License.rtf" Source="$(var.License)"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_ReleaseNotes" Guid="*">
-        <File Id="f_ReleaseNotes" Name="Release Notes.txt" Source="$(var.SourceBase)\$(var.ReleaseNotes)"
+        <File Id="f_ReleaseNotes" Name="Release Notes.txt" Source="$(var.ReleaseNotes)"
               DiskId ="1" KeyPath="yes" />
       </Component>
       <Component Id="c_Help" Guid="*">
-        <File Id="f_Help" Name="CSharpDriverDocs.chm" Source="$(var.SourceBase)\$(var.Documentation)"
+        <File Id="f_Help" Name="CSharpDriverDocs.chm" Source="$(var.Documentation)"
               DiskId ="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>

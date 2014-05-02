@@ -49,6 +49,7 @@ Properties {
     $nuspec_file = "$build_dir\mongocsharpdriver.nuspec"
     $nuspec_build_file = "$build_dir\mongocsharpdriverbuild.nuspec"
     $license_file = "$base_dir\License.txt"
+    $license_file_rtf = "$base_dir\License.rtf"
     $version_file = "$artifacts_dir\version.txt"
     $chm_file = "$artifacts_dir\CSharpDriverDocs-$sem_version.chm"
     $release_notes_file = "$base_dir\Release Notes\Release Notes v$base_version.md"
@@ -193,7 +194,7 @@ Task Installer -precondition { (BuildHasBeenRun) -and (DocsHasBeenRun) } {
     $release_notes_relative_path = Get-Item $release_notes_file | Resolve-Path -Relative
     $doc_relative_path = Get-Item $chm_file | Resolve-Path -Relative
 
-    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_relative_path /p:License="License.rtf" /p:Documentation=$doc_relative_path /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
+    Exec { msbuild "$installer_file" /t:Rebuild /p:Configuration=$config /p:Version=$version /p:SemVersion=$sem_version /p:ProductId=$installer_product_id /p:UpgradeCode=$installer_upgrade_code /p:ReleaseNotes=$release_notes_file /p:License=$license_file_rtf /p:Documentation=$chm_file /p:OutputPath=$artifacts_dir /p:BinDir=$bin_dir}
     
     rm -force $artifacts_dir\*.wixpdb
 }
