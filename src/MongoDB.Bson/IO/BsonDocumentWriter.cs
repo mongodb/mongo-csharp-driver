@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentWriter : BsonWriter
     {
         // private fields
-        private BsonDocument _topLevelDocument;
+        private BsonDocument _document;
         private BsonDocumentWriterSettings _documentWriterSettings; // same value as in base class just declared as derived class
         private BsonDocumentWriterContext _context;
 
@@ -31,26 +31,26 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriter class.
         /// </summary>
-        /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
-        public BsonDocumentWriter(BsonDocument topLevelDocument)
-            : this(topLevelDocument, BsonDocumentWriterSettings.Defaults)
+        /// <param name="document">The document to write to (normally starts out as an empty document).</param>
+        public BsonDocumentWriter(BsonDocument document)
+            : this(document, BsonDocumentWriterSettings.Defaults)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the BsonDocumentWriter class.
         /// </summary>
-        /// <param name="topLevelDocument">The document to write to (normally starts out as an empty document).</param>
+        /// <param name="document">The document to write to (normally starts out as an empty document).</param>
         /// <param name="settings">The settings.</param>
-        public BsonDocumentWriter(BsonDocument topLevelDocument, BsonDocumentWriterSettings settings)
+        public BsonDocumentWriter(BsonDocument document, BsonDocumentWriterSettings settings)
             : base(settings)
         {
-            if (topLevelDocument == null)
+            if (document == null)
             {
-                throw new ArgumentNullException("topLevelDocument");
+                throw new ArgumentNullException("document");
             }
 
-            _topLevelDocument = topLevelDocument;
+            _document = document;
             _documentWriterSettings = settings; // already frozen by base class
             _context = null;
             State = BsonWriterState.Initial;
@@ -58,11 +58,11 @@ namespace MongoDB.Bson.IO
 
         // public properties
         /// <summary>
-        /// Gets the top level BsonDocument.
+        /// Gets the BsonDocument being written to.
         /// </summary>
-        public BsonDocument TopLevelDocument
+        public BsonDocument Document
         {
-            get { return _topLevelDocument; }
+            get { return _document; }
         }
 
         // public methods
@@ -413,7 +413,7 @@ namespace MongoDB.Bson.IO
             {
                 case BsonWriterState.Initial:
                 case BsonWriterState.Done:
-                    _context = new BsonDocumentWriterContext(null, ContextType.Document, _topLevelDocument);
+                    _context = new BsonDocumentWriterContext(null, ContextType.Document, _document);
                     break;
                 case BsonWriterState.Value:
                     _context = new BsonDocumentWriterContext(_context, ContextType.Document, new BsonDocument());
