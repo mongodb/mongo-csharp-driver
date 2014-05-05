@@ -28,8 +28,8 @@ namespace MongoDB.Bson.IO
     public class JsonReader : BsonReader
     {
         // private fields
-        private JsonBuffer _buffer;
-        private JsonReaderSettings _jsonReaderSettings; // same value as in base class just declared as derived class
+        private readonly JsonBuffer _buffer;
+        private readonly JsonReaderSettings _jsonReaderSettings; // same value as in base class just declared as derived class
         private JsonReaderContext _context;
         private JsonToken _currentToken;
         private BsonValue _currentValue;
@@ -51,14 +51,33 @@ namespace MongoDB.Bson.IO
         /// <param name="json">The JSON string.</param>
         /// <param name="settings">The reader settings.</param>
         public JsonReader(string json, JsonReaderSettings settings)
+            : this(new JsonBuffer(json), settings)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the JsonReader class.
+        /// </summary>
+        /// <param name="textReader">The TextReader.</param>
+        public JsonReader(TextReader textReader)
+            : this(textReader, JsonReaderSettings.Defaults)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the JsonReader class.
+        /// </summary>
+        /// <param name="textReader">The TextReader.</param>
+        /// <param name="settings">The reader settings.</param>
+        public JsonReader(TextReader textReader, JsonReaderSettings settings)
+            : this(new JsonBuffer(textReader), settings)
+        {
+        }
+
+        private JsonReader(JsonBuffer buffer, JsonReaderSettings settings)
             : base(settings)
         {
-            if (json == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-
-            _buffer = new JsonBuffer(json);
+            _buffer = buffer;
             _jsonReaderSettings = settings; // already frozen by base class
             _context = new JsonReaderContext(null, ContextType.TopLevel);
         }
@@ -80,6 +99,26 @@ namespace MongoDB.Bson.IO
         public override BsonReaderBookmark GetBookmark()
         {
             return new JsonReaderBookmark(State, CurrentBsonType, CurrentName, _context, _currentToken, _currentValue, _pushedToken, _buffer.Position);
+        }
+
+        /// <summary>
+        /// Determines whether this reader is at end of file.
+        /// </summary>
+        /// <returns>
+        /// Whether this reader is at end of file.
+        /// </returns>
+        public override bool IsAtEndOfFile()
+        {
+            int c;
+            while ((c = _buffer.Read()) != -1)
+            {
+                if (!char.IsWhiteSpace((char)c))
+                {
+                    _buffer.UnRead(c);
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
@@ -121,6 +160,11 @@ namespace MongoDB.Bson.IO
             value = default(TValue);
             if (State == BsonReaderState.Initial || State == BsonReaderState.Done || State == BsonReaderState.ScopeDocument)
             {
+                if (State == BsonReaderState.Initial || State == BsonReaderState.Done)
+                {
+                    _buffer.ResetBuffer();
+                }
+
                 // in JSON the top level value can be of any type so fall through
                 State = BsonReaderState.Type;
             }

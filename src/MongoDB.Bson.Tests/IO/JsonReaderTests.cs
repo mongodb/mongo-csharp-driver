@@ -419,6 +419,44 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        public void TestIsAtEndOfFileWithTwoArrays()
+        {
+            var json = "[1,2][1,2]";
+
+            using (var jsonReader = new JsonReader(json))
+            {
+                var count = 0;
+                while (!jsonReader.IsAtEndOfFile())
+                {
+                    var array = BsonSerializer.Deserialize<BsonArray>(jsonReader);
+                    var expected = new BsonArray { 1, 2 };
+                    Assert.AreEqual(expected, array);
+                    count += 1;
+                }
+                Assert.AreEqual(2, count);
+            }
+        }
+
+        [Test]
+        public void TestIsAtEndOfFileWithTwoDocuments()
+        {
+            var json = "{x:1}{x:1}";
+
+            using (var jsonReader = new JsonReader(json))
+            {
+                var count = 0;
+                while (!jsonReader.IsAtEndOfFile())
+                {
+                    var document = BsonSerializer.Deserialize<BsonDocument>(jsonReader);
+                    var expected = new BsonDocument("x", 1);
+                    Assert.AreEqual(expected, document);
+                    count += 1;
+                }
+                Assert.AreEqual(2, count);
+            }
+        }
+
+        [Test]
         public void TestJavaScript()
         {
             string json = "{ \"$code\" : \"function f() { return 1; }\" }";

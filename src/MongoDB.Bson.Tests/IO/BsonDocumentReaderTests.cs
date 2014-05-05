@@ -147,6 +147,24 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        public void TestIsAtEndOfFile()
+        {
+            var expected = new BsonDocument("x", 1);
+
+            using (var reader = new BsonDocumentReader(expected))
+            {
+                var count = 0;
+                while (!reader.IsAtEndOfFile())
+                {
+                    var document = BsonSerializer.Deserialize<BsonDocument>(reader);
+                    Assert.AreEqual(expected, document);
+                    count++;
+                }
+                Assert.AreEqual(1, count);
+            }
+        }
+
+        [Test]
         public void TestMaxKey()
         {
             var document = new BsonDocument

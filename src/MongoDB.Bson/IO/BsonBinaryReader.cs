@@ -82,6 +82,27 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Determines whether this reader is at end of file.
+        /// </summary>
+        /// <returns>
+        /// Whether this reader is at end of file.
+        /// </returns>
+        public override bool IsAtEndOfFile()
+        {
+            var stream = _streamReader.BaseStream;
+            var c = stream.ReadByte();
+            if (c == -1)
+            {
+                return true;
+            }
+            else
+            {
+                stream.Seek(-1, SeekOrigin.Current);
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Reads BSON binary data from the reader.
         /// </summary>
         /// <returns>A BsonBinaryData.</returns>

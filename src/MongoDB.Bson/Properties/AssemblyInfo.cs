@@ -15,6 +15,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -28,3 +29,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("7d694bb4-3437-431f-acac-7dbe38952ad0")]
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
+
+[assembly: InternalsVisibleTo("MongoDB.Bson.Tests")]

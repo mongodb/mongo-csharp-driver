@@ -23,7 +23,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// A static class that represents a JSON scanner.
     /// </summary>
-    public static class JsonScanner
+    internal static class JsonScanner
     {
         // public static methods
         /// <summary>
@@ -79,16 +79,8 @@ namespace MongoDB.Bson.IO
         // private methods
         private static string FormatMessage(string message, JsonBuffer buffer, int start)
         {
-            var length = 20;
-            string snippet;
-            if (buffer.Position + length >= buffer.Length)
-            {
-                snippet = buffer.Substring(start);
-            }
-            else
-            {
-                snippet = buffer.Substring(start, length) + "...";
-            }
+            var maxLength = 20;
+            var snippet = buffer.GetSnippet(start, maxLength);
             return string.Format("{0} '{1}'.", message, snippet);
         }
 
@@ -339,7 +331,7 @@ namespace MongoDB.Bson.IO
                 {
                     case NumberState.Done:
                         buffer.UnRead(c);
-                        var lexeme = buffer.Substring(start, buffer.Position - start);
+                        var lexeme = buffer.GetSubstring(start, buffer.Position - start);
                         if (type == JsonTokenType.Double)
                         {
                             var value = XmlConvert.ToDouble(lexeme);
@@ -418,7 +410,7 @@ namespace MongoDB.Bson.IO
                 {
                     case RegularExpressionState.Done:
                         buffer.UnRead(c);
-                        var lexeme = buffer.Substring(start, buffer.Position - start);
+                        var lexeme = buffer.GetSubstring(start, buffer.Position - start);
                         var regex = new BsonRegularExpression(lexeme);
                         return new RegularExpressionJsonToken(lexeme, regex);
                     case RegularExpressionState.Invalid:
@@ -474,7 +466,7 @@ namespace MongoDB.Bson.IO
                     default:
                         if (c == quoteCharacter)
                         {
-                            var lexeme = buffer.Substring(start, buffer.Position - start);
+                            var lexeme = buffer.GetSubstring(start, buffer.Position - start);
                             return new StringJsonToken(JsonTokenType.String, lexeme, sb.ToString());
                         }
                         if (c != -1)
@@ -500,7 +492,7 @@ namespace MongoDB.Bson.IO
                 c = buffer.Read();
             }
             buffer.UnRead(c);
-            var lexeme = buffer.Substring(start, buffer.Position - start);
+            var lexeme = buffer.GetSubstring(start, buffer.Position - start);
             return new StringJsonToken(JsonTokenType.UnquotedString, lexeme, lexeme);
         }
 

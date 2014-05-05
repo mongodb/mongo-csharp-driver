@@ -100,6 +100,7 @@
     <Compile Include="IO\BsonStreamWriter.cs" />
     <Compile Include="IO\BsonTrie.cs" />
     <Compile Include="IO\BsonWriterSettings.cs" />
+    <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\ByteBufferFactory.cs" />
     <Compile Include="IO\ByteArrayBuffer.cs" />
     <Compile Include="IO\ByteBufferStream.cs" />
@@ -220,7 +221,6 @@
     <Compile Include="IO\BsonDocumentWriter.cs" />
     <Compile Include="IO\BsonDocumentWriterContext.cs" />
     <Compile Include="IO\ContextType.cs" />
-    <Compile Include="IO\JsonBuffer.cs" />
     <Compile Include="IO\JsonReader.cs" />
     <Compile Include="IO\JsonReaderBookmark.cs" />
     <Compile Include="IO\JsonReaderContext.cs" />

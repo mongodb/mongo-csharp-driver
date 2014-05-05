@@ -162,8 +162,10 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A TNominalType.</returns>
         public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            var json = textReader.ReadToEnd();
-            return Deserialize<TNominalType>(json, configurator);
+            using (var bsonReader = new JsonReader(textReader))
+            {
+                return Deserialize<TNominalType>(bsonReader, configurator);
+            }
         }
 
         /// <summary>
@@ -249,8 +251,10 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An object.</returns>
         public static object Deserialize(TextReader textReader, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            var json = textReader.ReadToEnd();
-            return Deserialize(json, nominalType, configurator);
+            using (var bsonReader = new JsonReader(textReader))
+            {
+                return Deserialize(bsonReader, nominalType, configurator);
+            }
         }
 
         /// <summary>

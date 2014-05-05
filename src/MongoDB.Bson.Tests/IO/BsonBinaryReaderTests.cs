@@ -67,6 +67,34 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         [Test]
+        public void TestIsAtEndOfFileWithTwoDocuments()
+        {
+            var expected = new BsonDocument("x", 1);
+
+            byte[] bson;
+            using (var stream = new MemoryStream())
+            using (var writer = new BsonBinaryWriter(stream))
+            {
+                BsonSerializer.Serialize(writer, expected);
+                BsonSerializer.Serialize(writer, expected);
+                bson = stream.ToArray();
+            }
+
+            using (var stream = new MemoryStream(bson))
+            using (var reader = new BsonBinaryReader(stream))
+            {
+                var count = 0;
+                while (!reader.IsAtEndOfFile())
+                {
+                    var document = BsonSerializer.Deserialize<BsonDocument>(reader);
+                    Assert.AreEqual(expected, document);
+                    count++;
+                }
+                Assert.AreEqual(2, count);
+            }
+        }
+
+        [Test]
         public void TestReadRawBsonArray()
         {
             var bsonDocument = new BsonDocument { { "_id", 1 }, { "A", new BsonArray { 1, 2 } } };
@@ -96,6 +124,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
+        // private methods
         private static string __hexDigits = "0123456789abcdef";
 
         private byte[] DecodeByteString(string byteString)
