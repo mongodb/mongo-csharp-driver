@@ -1,0 +1,29 @@
+BSON library changes from 1.9.0 to 1.9.1
+
+JsonReader.cs
+    ParseDateTimeExtendedJson now supports $date with ISO8601 strings
+
+BsonArraySerializer.cs
+    Serialize now delegates to RawBsonArraySerializer when actual type is RawBsonArray
+
+BsonClassMapSerializer.cs
+    removed code to handle C# null representation (see new BsonValueCSharpNullSerializer)
+
+BsonDocumentSerializer.cs
+    Serializer now delegates to RawBsonDocumentSerializer when actual type is RawBsonDocument
+
+BsonValueCSharpValueSerializer.cs
+    new serializer to handle encoding of C# null values for BsonValues
+
+InterfaceSerializer.cs
+    fixed StackOverflowException in Deserialize when document was missing _t element
+
+RawBsonArraySerializer.cs
+    added static Instance property
+
+RawBsonDocumentSerializer.cs
+    added static Instance property
+
+BsonMemberMap.cs
+    GetSerializer returns new BsonValueCSharpSerializer if member type is a BsonValue
+

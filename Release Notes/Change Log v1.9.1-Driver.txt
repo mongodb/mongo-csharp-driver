@@ -1,0 +1,21 @@
+C#/.NET driver changes from 1.9.0 to 1.9.1
+
+IndexOptionsBuilder.cs
+    added SetBits
+
+QueryBuilder.cs
+    Near now generates $maxDistance inside $near/$nearSphere when using GeoJson data
+
+FeatureId.cs
+FeatureSetDetector.cs
+    added support for new GeoJson FeatureId
+
+ExceptionMapper.cs
+    Map no longer looks at wnote and jnote
+
+CanCommandBeSentToSecondary.cs
+    added "parallelCollectionScan" to white list
+    "aggregate" command can conditionally be sent to secondary as long as the pipeline doesn't contain $out
+
+MongoCollection.cs
+    AssignId now uses the actualType rather than the nominalType to determine if the _id field can be set (important if nominalType is an interface)
