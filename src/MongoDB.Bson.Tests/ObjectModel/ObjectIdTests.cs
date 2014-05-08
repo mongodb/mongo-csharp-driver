@@ -107,6 +107,23 @@ namespace MongoDB.Bson.Tests
             Assert.IsTrue(bytes.SequenceEqual(objectId.ToByteArray()));
         }
 
+        [TestCase(int.MinValue)]
+        [TestCase(int.MaxValue)]
+        public void TestDateTimeConstructorAtEdgeOfRange(int secondsSinceEpoch)
+        {
+            var timestamp = BsonConstants.UnixEpoch.AddSeconds(secondsSinceEpoch);
+            var objectId = new ObjectId(timestamp, 0, 0, 0);
+            Assert.AreEqual(timestamp, objectId.CreationTime);
+        }
+
+        [TestCase((long)int.MinValue - 1)]
+        [TestCase((long)int.MaxValue + 1)]
+        public void TestDateTimeConstructorArgumentOutOfRangeException(long secondsSinceEpoch)
+        {
+            var timestamp = BsonConstants.UnixEpoch.AddSeconds(secondsSinceEpoch);
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(timestamp, 0, 0, 0));
+        }
+
         [Test]
         public void TestStringConstructor()
         {

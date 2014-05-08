@@ -409,7 +409,12 @@ namespace MongoDB.Bson
 
         private static int GetTimestampFromDateTime(DateTime timestamp)
         {
-            return (int)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
+            var secondsSinceEpoch = (long)Math.Floor((BsonUtils.ToUniversalTime(timestamp) - BsonConstants.UnixEpoch).TotalSeconds);
+            if (secondsSinceEpoch < int.MinValue || secondsSinceEpoch > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException("timestamp");
+            }
+            return (int)secondsSinceEpoch;
         }
 
         // public methods
