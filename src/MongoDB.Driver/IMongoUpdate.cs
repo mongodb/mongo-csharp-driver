@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents an update modifier (see UpdateDocument and the Update builder).
     /// </summary>
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoUpdate>))]
     public interface IMongoUpdate
     {
     }

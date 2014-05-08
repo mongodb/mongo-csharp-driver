@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents the keys of an index (see IndexKeysDocument and the IndexKeys builder).
     /// </summary>
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoIndexKeys>))]
     public interface IMongoIndexKeys
     {
     }

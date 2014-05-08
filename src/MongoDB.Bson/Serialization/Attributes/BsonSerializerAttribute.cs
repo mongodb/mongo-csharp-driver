@@ -20,7 +20,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     /// <summary>
     /// Specifies the type of the serializer to use for a class.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Property | AttributeTargets.Field)]
     public class BsonSerializerAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields

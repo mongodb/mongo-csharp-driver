@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents options for creating an index (see IndexOptionsDocument and the IndexOptions builder).
     /// </summary>
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoIndexOptions>))]
     public interface IMongoIndexOptions
     {
     }

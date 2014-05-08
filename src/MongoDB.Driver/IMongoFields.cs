@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents a list of fields (see FieldsDocument and the Fields builder).
     /// </summary>
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoFields>))]
     public interface IMongoFields
     {
     }

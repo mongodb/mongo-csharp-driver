@@ -13,11 +13,15 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
+
 namespace MongoDB.Driver
 {
     /// <summary>
     /// A marker interface that represents a command (see CommandDocument).
     /// </summary>
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoCommand>))]
     public interface IMongoCommand : IMongoQuery
     {
     }

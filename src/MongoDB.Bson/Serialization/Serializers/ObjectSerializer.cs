@@ -24,6 +24,9 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class ObjectSerializer : ClassSerializerBase<object>
     {
+        // private static fields
+        private static readonly ObjectSerializer __instance = new ObjectSerializer();
+
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention;
 
@@ -49,6 +52,18 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _discriminatorConvention = discriminatorConvention;
+        }
+
+        // public static properties
+        /// <summary>
+        /// Gets the standard instance.
+        /// </summary>
+        /// <value>
+        /// The standard instance.
+        /// </value>
+        public static ObjectSerializer Instance
+        {
+            get { return __instance; }
         }
 
         // public methods

@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -21,6 +23,7 @@ namespace MongoDB.Driver
     /// A marker interface that represents options for a map/reduce operation (see MapReduceOptionsDocument and the MapReduceOptions builder).
     /// </summary>
     [Obsolete("Use MapReduceArgs instead.")]
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoMapReduceOptions>))]
     public interface IMongoMapReduceOptions
     {
     }

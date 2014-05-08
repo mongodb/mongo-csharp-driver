@@ -194,6 +194,7 @@ namespace MongoDB.Bson.Serialization
         {
             Type implementedGenericDictionaryInterface = null;
             Type implementedGenericEnumerableInterface = null;
+            Type implementedGenericSetInterface = null;
             Type implementedDictionaryInterface = null;
             Type implementedEnumerableInterface = null;
 
@@ -215,6 +216,10 @@ namespace MongoDB.Bson.Serialization
                     if (genericInterfaceDefinition == typeof(IEnumerable<>))
                     {
                         implementedGenericEnumerableInterface = implementedInterface;
+                    }
+                    if (genericInterfaceDefinition == typeof(ISet<>))
+                    {
+                        implementedGenericSetInterface = implementedInterface;
                     }
                 }
                 else
@@ -260,6 +265,23 @@ namespace MongoDB.Bson.Serialization
                 {
                     var serializerDefinition = typeof(DictionaryInterfaceImplementerSerializer<>);
                     return CreateGenericSerializer(serializerDefinition, type);
+                }
+            }
+            else if (implementedGenericSetInterface != null)
+            {
+                var itemType = implementedGenericSetInterface.GetGenericArguments()[0];
+                
+                if (type.IsInterface)
+                {
+                    var hashSetDefinition = typeof(HashSet<>);
+                    var hashSetType = hashSetDefinition.MakeGenericType(itemType);
+                    var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
+                    return CreateGenericSerializer(serializerDefinition, type, hashSetType);
+                }
+                else
+                {
+                    var serializerDefinition = typeof(EnumerableInterfaceImplementerSerializer<,>);
+                    return CreateGenericSerializer(serializerDefinition, type, itemType);
                 }
             }
             else if (implementedGenericEnumerableInterface != null)

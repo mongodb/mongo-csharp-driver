@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public class UndiscriminatedActualTypeSerializer<TValue> : SerializerBase<TValue>
     {
         // private static fields
-        private static readonly IBsonSerializer<TValue> __instance = new UndiscriminatedActualTypeSerializer<TValue>();
+        private static readonly UndiscriminatedActualTypeSerializer<TValue> __instance = new UndiscriminatedActualTypeSerializer<TValue>();
 
         // constructors
         /// <summary>
@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <value>
         /// The instance.
         /// </value>
-        public static IBsonSerializer Instance
+        public static UndiscriminatedActualTypeSerializer<TValue> Instance
         {
             get { return __instance; }
         }

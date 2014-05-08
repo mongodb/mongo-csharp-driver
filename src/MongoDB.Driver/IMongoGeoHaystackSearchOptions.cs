@@ -14,6 +14,8 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
@@ -21,6 +23,7 @@ namespace MongoDB.Driver
     /// A marker interface that represents geo haystack search options (see GeoSearchHaystackOptionsDocument and the GeoHaystackSearchOptions builder).
     /// </summary>
     [Obsolete("Use GeoHaystackSearchArgs instead.")]
+    [BsonSerializer(typeof(UndiscriminatedActualTypeSerializer<IMongoGeoHaystackSearchOptions>))]
     public interface IMongoGeoHaystackSearchOptions
     {
     }
