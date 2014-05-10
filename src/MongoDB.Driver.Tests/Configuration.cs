@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace MongoDB.Driver.Tests
 {
@@ -24,13 +23,6 @@ namespace MongoDB.Driver.Tests
     /// </summary>
     public static class Configuration
     {
-        // private static fields
-        private static MongoClient __testClient;
-        private static MongoServer __testServer;
-        private static MongoDatabase __testDatabase;
-        private static MongoCollection<BsonDocument> __testCollection;
-        private static bool __testServerIsReplicaSet;
-
         // static constructor
         static Configuration()
         {
@@ -44,18 +36,18 @@ namespace MongoDB.Driver.Tests
                 clientSettings.WriteConcern.W = 1; // ensure WriteConcern is enabled regardless of what the URL says
             }
 
-            __testClient = new MongoClient(clientSettings);
-            __testServer = __testClient.GetServer();
-            __testDatabase = __testServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
-            __testCollection = __testDatabase.GetCollection("testcollection");
+            TestClient = new MongoClient(clientSettings);
+            TestServer = TestClient.GetServer();
+            TestDatabase = TestServer.GetDatabase(mongoUrl.DatabaseName ?? "csharpdriverunittests");
+            TestCollection = TestDatabase.GetCollection("testcollection");
 
             // connect early so BuildInfo will be populated
-            __testServer.Connect();
-            var isMasterResult = __testDatabase.RunCommand("isMaster").Response;
+            TestServer.Connect();
+            var isMasterResult = TestDatabase.RunCommand("isMaster").Response;
             BsonValue setName = null;
             if (isMasterResult.TryGetValue("setName", out setName))
             {
-                __testServerIsReplicaSet = true;
+                TestServerIsReplicaSet = true;
             }
         }
 
@@ -63,42 +55,27 @@ namespace MongoDB.Driver.Tests
         /// <summary>
         /// Gets the test client.
         /// </summary>
-        public static MongoClient TestClient
-        {
-            get { return __testClient; }
-        }
+        public static MongoClient TestClient { get; private set; }
 
         /// <summary>
         /// Gets the test collection.
         /// </summary>
-        public static MongoCollection<BsonDocument> TestCollection
-        {
-            get { return __testCollection; }
-        }
+        public static MongoCollection<BsonDocument> TestCollection { get; private set; }
 
         /// <summary>
         /// Gets the test database.
         /// </summary>
-        public static MongoDatabase TestDatabase
-        {
-            get { return __testDatabase; }
-        }
+        public static MongoDatabase TestDatabase { get; private set; }
 
         /// <summary>
         /// Gets the test server.
         /// </summary>
-        public static MongoServer TestServer
-        {
-            get { return __testServer; }
-        }
+        public static MongoServer TestServer { get; private set; }
 
         /// <summary>
         /// Gets whether the tage MongoDB is a replica set.
         /// </summary>
-        public static bool TestServerIsReplicaSet
-        {
-            get { return __testServerIsReplicaSet; }
-        }
+        public static bool TestServerIsReplicaSet { get; private set; }
 
         // public static methods
         /// <summary>
@@ -108,7 +85,7 @@ namespace MongoDB.Driver.Tests
         /// <returns>The collection.</returns>
         public static MongoCollection<T> GetTestCollection<T>()
         {
-            return __testDatabase.GetCollection<T>(__testCollection.Name);
+            return TestDatabase.GetCollection<T>(TestCollection.Name);
         }
     }
 }
