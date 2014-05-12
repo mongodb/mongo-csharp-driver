@@ -426,8 +426,7 @@ namespace MongoDB.Driver
 
         // public indexers
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
@@ -438,8 +437,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
@@ -450,8 +448,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="writeConcern">The write concern to use with this database.</param>
@@ -624,8 +621,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseSettings">The settings to use with this database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
@@ -636,8 +632,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <returns>A new or existing instance of MongoDatabase.</returns>
@@ -648,8 +643,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="writeConcern">The write concern to use with this database.</param>
@@ -665,8 +659,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a MongoDatabase instance representing a database on this server. Only one instance
-        /// is created for each combination of database settings.
+        /// Gets a MongoDatabase instance representing a database on this server.
         /// </summary>
         /// <param name="databaseName">The name of the database.</param>
         /// <param name="databaseSettings">The settings to use with this database.</param>
