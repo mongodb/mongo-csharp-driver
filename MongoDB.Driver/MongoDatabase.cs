@@ -88,9 +88,8 @@ namespace MongoDB.Driver
 
         // factory methods
         /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
+        /// Creates an instance of a MongoDatabase.
+        /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
         /// <param name="builder">Server and database settings in the form of a MongoConnectionStringBuilder.</param>
         /// <returns>
@@ -105,9 +104,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
+        /// Creates an instance of a MongoDatabase.
+        /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
         /// <param name="serverSettings">The server settings for the server that contains this database.</param>
         /// <param name="databaseName">The name of this database (will be accessed using default settings).</param>
@@ -126,9 +124,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
+        /// Creates an instance of a MongoDatabase.
+        /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
         /// <param name="url">Server and database settings in the form of a MongoUrl.</param>
         /// <returns>
@@ -143,9 +140,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
+        /// Creates an instance of a MongoDatabase.
+        /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
         /// <param name="connectionString">Server and database settings in the form of a connection string.</param>
         /// <returns>
@@ -167,9 +163,8 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a new instance or returns an existing instance of MongoDatabase. Only one instance
-        /// is created for each combination of database settings. Automatically creates an instance
-        /// of MongoServer if needed.
+        /// Creates an instance of a MongoDatabase.
+        /// Automatically creates an instance of MongoServer if needed.
         /// </summary>
         /// <param name="uri">Server and database settings in the form of a Uri.</param>
         /// <returns>
