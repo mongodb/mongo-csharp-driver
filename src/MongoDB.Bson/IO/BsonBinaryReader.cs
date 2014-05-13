@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Text;
 
 namespace MongoDB.Bson.IO
 {
@@ -170,16 +169,10 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BsonType from the reader.
         /// </summary>
-        /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
-        /// <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
-        /// <param name="found">Set to true if a matching value was found in the trie.</param>
-        /// <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
         /// <returns>A BsonType.</returns>
-        public override BsonType ReadBsonType<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
+        public override BsonType ReadBsonType()
         {
             if (Disposed) { ThrowObjectDisposedException(); }
-            found = false;
-            value = default(TValue);
             if (State == BsonReaderState.Initial || State == BsonReaderState.Done || State == BsonReaderState.ScopeDocument)
             {
                 // there is an implied type of Document for the top level and for scope documents
@@ -220,7 +213,6 @@ namespace MongoDB.Bson.IO
                         break;
                     case ContextType.Document:
                     case ContextType.ScopeDocument:
-                        CurrentName = ReadName(bsonTrie, out found, out value);
                         State = BsonReaderState.Name;
                         break;
                     default:
@@ -424,6 +416,61 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Reads the name of an element from the reader.
+        /// </summary>
+        /// <returns>The name of the element.</returns>
+        public override string ReadName()
+        {
+            if (Disposed) { ThrowObjectDisposedException(); }
+            if (State == BsonReaderState.Type)
+            {
+                ReadBsonType();
+            }
+            if (State != BsonReaderState.Name)
+            {
+                ThrowInvalidState("ReadName", BsonReaderState.Name);
+            }
+
+            CurrentName = _streamReader.ReadCString();
+            State = BsonReaderState.Value;
+
+            return CurrentName;
+        }
+
+        /// <summary>
+        /// Reads the name of an element from the reader (using a trie).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="trie">The trie.</param>
+        /// <param name="found">Whether the element name was found in the trie.</param>
+        /// <param name="value">If found is true, the value found in the trie for the element name.</param>
+        /// <returns>
+        /// The name of the element.
+        /// </returns>
+        public override string ReadName<TValue>(BsonTrie<TValue> trie, out bool found, out TValue value)
+        {
+            if (trie == null)
+            {
+                throw new ArgumentNullException("trie");
+            }
+
+            if (Disposed) { ThrowObjectDisposedException(); }
+            if (State == BsonReaderState.Type)
+            {
+                ReadBsonType();
+            }
+            if (State != BsonReaderState.Name)
+            {
+                ThrowInvalidState("ReadName", BsonReaderState.Name);
+            }
+
+            CurrentName = ReadNameWithTrie(trie, out found, out value);
+            State = BsonReaderState.Value;
+
+            return CurrentName;
+        }
+
+        /// <summary>
         /// Reads a BSON null from the reader.
         /// </summary>
         public override void ReadNull()
@@ -611,6 +658,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("SkipName", BsonReaderState.Name);
             }
 
+            _streamReader.SkipCString();
             State = BsonReaderState.Value;
         }
 
@@ -689,18 +737,13 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private string ReadName<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value)
+        private string ReadNameWithTrie<TValue>(BsonTrie<TValue> trie, out bool found, out TValue value)
         {
             found = false;
             value = default(TValue);
 
-            if (bsonTrie == null)
-            {
-                return _streamReader.ReadCString();
-            }
-
             var savedPosition = _streamReader.Position;
-            var bsonTrieNode = bsonTrie.Root;
+            var node = trie.Root;
             while (true)
             {
                 var keyByte = _streamReader.ReadByte();
@@ -710,11 +753,11 @@ namespace MongoDB.Bson.IO
                 }
                 else if (keyByte == 0)
                 {
-                    if (bsonTrieNode.HasValue)
+                    if (node.HasValue)
                     {
                         found = true;
-                        value = bsonTrieNode.Value;
-                        return bsonTrieNode.ElementName;
+                        value = node.Value;
+                        return node.ElementName;
                     }
                     else
                     {
@@ -723,8 +766,8 @@ namespace MongoDB.Bson.IO
                     }
                 }
 
-                bsonTrieNode = bsonTrieNode.GetChild((byte)keyByte);
-                if (bsonTrieNode == null)
+                node = node.GetChild((byte)keyByte);
+                if (node == null)
                 {
                     _streamReader.Position = savedPosition;
                     return _streamReader.ReadCString();

@@ -147,11 +147,11 @@ namespace MongoDB.Bson.Serialization
 
             bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
-            bool memberMapFound;
-            int memberMapIndex;
-            while (bsonReader.ReadBsonType(elementTrie, out memberMapFound, out memberMapIndex) != BsonType.EndOfDocument)
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var elementName = bsonReader.ReadName();
+                bool memberMapFound;
+                int memberMapIndex;
+                var elementName = bsonReader.ReadName(elementTrie, out memberMapFound, out memberMapIndex);
                 if (memberMapFound)
                 {
                     var memberMap = allMemberMaps[memberMapIndex];
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.Serialization
             // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)
             for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
             {
-                memberMapIndex = bitArrayIndex << 5;
+                var memberMapIndex = bitArrayIndex << 5;
                 var memberMapBlock = ~memberMapBitArray[bitArrayIndex]; // notice that bits are flipped so 1's are now the missing elements
 
                 // work through this memberMapBlock of 32 elements

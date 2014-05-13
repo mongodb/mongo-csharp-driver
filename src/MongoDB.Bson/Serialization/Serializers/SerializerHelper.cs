@@ -82,11 +82,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             var foundMemberFlags = 0L;
 
             reader.ReadStartDocument();
-            bool found;
-            long memberFlag;
-            while (reader.ReadBsonType(_trie, out found, out memberFlag) != 0)
+            while (reader.ReadBsonType() != 0)
             {
-                var elementName = reader.ReadName();
+                bool found;
+                long memberFlag;
+                var elementName = reader.ReadName(_trie, out found, out memberFlag);
 
                 if (!found)
                 {

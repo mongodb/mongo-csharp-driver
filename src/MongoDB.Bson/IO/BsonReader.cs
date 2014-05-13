@@ -16,7 +16,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -300,22 +299,7 @@ namespace MongoDB.Bson.IO
         /// Reads a BsonType from the reader.
         /// </summary>
         /// <returns>A BsonType.</returns>
-        public BsonType ReadBsonType()
-        {
-            bool found;
-            object value;
-            return ReadBsonType(null, out found, out value);
-        }
-
-        /// <summary>
-        /// Reads a BsonType from the reader.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the BsonTrie values.</typeparam>
-        /// <param name="bsonTrie">An optional trie to search for a value that matches the next element name.</param>
-        /// <param name="found">Set to true if a matching value was found in the trie.</param>
-        /// <param name="value">Set to the matching value found in the trie or null if no matching value was found.</param>
-        /// <returns>A BsonType.</returns>
-        public abstract BsonType ReadBsonType<TValue>(BsonTrie<TValue> bsonTrie, out bool found, out TValue value);
+        public abstract BsonType ReadBsonType();
 
         /// <summary>
         /// Reads BSON binary data from the reader.
@@ -480,20 +464,24 @@ namespace MongoDB.Bson.IO
         /// Reads the name of an element from the reader.
         /// </summary>
         /// <returns>The name of the element.</returns>
-        public string ReadName()
-        {
-            if (_disposed) { ThrowObjectDisposedException(); }
-            if (_state == BsonReaderState.Type)
-            {
-                ReadBsonType();
-            }
-            if (_state != BsonReaderState.Name)
-            {
-                ThrowInvalidState("ReadName", BsonReaderState.Name);
-            }
+        public abstract string ReadName();
 
-            _state = BsonReaderState.Value;
-            return _currentName;
+        /// <summary>
+        /// Reads the name of an element from the reader (using a trie).
+        /// </summary>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="trie">The trie.</param>
+        /// <param name="found">Whether the element name was found in the trie.</param>
+        /// <param name="value">If found is true, the value found in the trie for the element name.</param>
+        /// <returns>
+        /// The name of the element.
+        /// </returns>
+        public virtual string ReadName<TValue>(BsonTrie<TValue> trie, out bool found, out TValue value)
+        {
+            // overridden in BsonBinaryReader to use the trie for UTF8 decoding
+            var name = ReadName();
+            found = trie.TryGetValue(name, out value);
+            return name;
         }
 
         /// <summary>
