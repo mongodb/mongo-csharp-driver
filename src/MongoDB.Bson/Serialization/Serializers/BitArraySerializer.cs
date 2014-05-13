@@ -84,10 +84,6 @@ namespace MongoDB.Bson.Serialization.Serializers
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.Null:
-                    bsonReader.ReadNull();
-                    return null;
-
                 case BsonType.Binary:
                     return new BitArray(bsonReader.ReadBytes());
 

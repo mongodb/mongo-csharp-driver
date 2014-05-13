@@ -193,53 +193,6 @@ namespace MongoDB.Driver
     {
         // public methods
         /// <summary>
-        /// Deserializes a value.
-        /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override MongoDBRef Deserialize(BsonDeserializationContext context)
-        {
-            var bsonReader = context.Reader;
-
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                string databaseName = null;
-                string collectionName = null;
-                BsonValue id = null;
-
-                bsonReader.ReadStartDocument();
-                BsonType bsonType;
-                while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
-                {
-                    var name = bsonReader.ReadName();
-                    switch (name)
-                    {
-                        case "$ref":
-                            collectionName = bsonReader.ReadString();
-                            break;
-                        case "$id":
-                            id = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-                            break;
-                        case "$db":
-                            databaseName = bsonReader.ReadString();
-                            break;
-                        default:
-                            var message = string.Format("Element '{0}' is not valid for MongoDBRef.", name);
-                            throw new FileFormatException(message);
-                    }
-                }
-                bsonReader.ReadEndDocument();
-
-                return new MongoDBRef(databaseName, collectionName, id);
-            }
-        }
-
-        /// <summary>
         /// Gets the serialization info for a member.
         /// </summary>
         /// <param name="memberName">The member name.</param>
@@ -273,6 +226,46 @@ namespace MongoDB.Driver
             }
 
             return new BsonSerializationInfo(elementName, serializer, serializer.ValueType);
+        }
+
+        // protected methods
+        /// <summary>
+        /// Deserializes a value.
+        /// </summary>
+        /// <param name="context">The deserialization context.</param>
+        /// <returns>The value.</returns>
+        protected override MongoDBRef DeserializeValue(BsonDeserializationContext context)
+        {
+            var bsonReader = context.Reader;
+
+            string databaseName = null;
+            string collectionName = null;
+            BsonValue id = null;
+
+            bsonReader.ReadStartDocument();
+            BsonType bsonType;
+            while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+            {
+                var name = bsonReader.ReadName();
+                switch (name)
+                {
+                    case "$ref":
+                        collectionName = bsonReader.ReadString();
+                        break;
+                    case "$id":
+                        id = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+                        break;
+                    case "$db":
+                        databaseName = bsonReader.ReadString();
+                        break;
+                    default:
+                        var message = string.Format("Element '{0}' is not valid for MongoDBRef.", name);
+                        throw new FileFormatException(message);
+                }
+            }
+            bsonReader.ReadEndDocument();
+
+            return new MongoDBRef(databaseName, collectionName, id);
         }
 
         /// <summary>
