@@ -25,7 +25,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class BitArraySerializer : SealedClassSerializerBase<BitArray>, IRepresentationConfigurable<BitArraySerializer>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Length = 1;
+            public const long Bytes = 2;
+        }
+
         // private fields
+        private readonly SerializerHelper _helper;
+        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -55,6 +64,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("Length", Flags.Length),
+                new SerializerHelper.Member("Bytes", Flags.Bytes)
+            );
         }
 
         // public properties
@@ -88,10 +103,16 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return new BitArray(bsonReader.ReadBytes());
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    var length = bsonReader.ReadInt32("Length");
-                    var bytes = bsonReader.ReadBytes("Bytes");
-                    bsonReader.ReadEndDocument();
+                    int length = 0;
+                    byte[] bytes = null;
+                    _helper.DeserializeMembers(context, (elementName, flag) =>
+                    {
+                        switch (flag)
+                        {
+                            case Flags.Length: length = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Bytes: bytes = bsonReader.ReadBytes(); break;
+                        }
+                    });
                     bitArray = new BitArray(bytes);
                     bitArray.Length = length;
                     return bitArray;

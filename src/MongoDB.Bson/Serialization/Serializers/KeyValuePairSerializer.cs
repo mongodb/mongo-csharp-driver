@@ -29,9 +29,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public class KeyValuePairSerializer<TKey, TValue> : StructSerializerBase<KeyValuePair<TKey, TValue>>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Key = 1;
+            public const long Value = 2;
+        }
+
         // private fields
-        private readonly BsonType _representation;
+        private readonly SerializerHelper _helper;
         private readonly IBsonSerializer<TKey> _keySerializer;
+        private readonly BsonType _representation;
         private readonly IBsonSerializer<TValue> _valueSerializer;
 
         // constructors
@@ -74,6 +82,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             _representation = representation;
             _keySerializer = keySerializer;
             _valueSerializer = valueSerializer;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("k", Flags.Key),
+                new SerializerHelper.Member("v", Flags.Value)
+            );
         }
 
         // public properties
@@ -170,43 +184,16 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private KeyValuePair<TKey, TValue> DeserializeDocumentRepresentation(BsonDeserializationContext context)
         {
-            var bsonReader = context.Reader;
             var key = default(TKey);
             var value = default(TValue);
-            bool keyFound = false, valueFound = false;
-
-            bsonReader.ReadStartDocument();
-            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            _helper.DeserializeMembers(context, (elementName, flag) =>
             {
-                var name = bsonReader.ReadName();
-                switch (name)
+                switch (flag)
                 {
-                    case "k":
-                        key = context.DeserializeWithChildContext(_keySerializer);
-                        keyFound = true;
-                        break;
-
-                    case "v":
-                        value = context.DeserializeWithChildContext(_valueSerializer);
-                        valueFound = true;
-                        break;
-
-                    default:
-                        var message = string.Format("Element '{0}' is not valid for KeyValuePairs (expecting 'k' or 'v').", name);
-                        throw new BsonSerializationException(message);
+                    case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
+                    case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
                 }
-            }
-            bsonReader.ReadEndDocument();
-
-            if (!keyFound)
-            {
-                throw new FileFormatException("KeyValuePair item was missing the 'k' element.");
-            }
-            if (!valueFound)
-            {
-                throw new FileFormatException("KeyValuePair item was missing the 'v' element.");
-            }
-
+            });
             return new KeyValuePair<TKey, TValue>(key, value);
         }
 

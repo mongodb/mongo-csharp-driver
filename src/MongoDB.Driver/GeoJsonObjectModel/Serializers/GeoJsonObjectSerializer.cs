@@ -14,8 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -27,272 +25,41 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonObjectSerializer<TCoordinates> : ClassSerializerBase<GeoJsonObject<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // public methods
+        // protected methods
         /// <summary>
-        /// Deserializes a value.
+        /// Gets the actual type.
         /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override GeoJsonObject<TCoordinates> Deserialize(BsonDeserializationContext context)
+        /// <param name="context">The context.</param>
+        /// <returns>The actual type.</returns>
+        protected override Type GetActualType(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return helper.Deserialize(context);
-        }
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="context">The serialization context.</param>
-        /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
-        {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
-        }
-
-        // nested types
-        /// <summary>
-        /// Represents data being collected during serialization to create an instance of a GeoJsonObject.
-        /// </summary>
-        internal class Helper
-        {
-            // private fields
-            private readonly Type _objectType;
-            private readonly string _expectedDiscriminator;
-            private readonly GeoJsonObjectArgs<TCoordinates> _args;
-            private readonly IBsonSerializer<GeoJsonBoundingBox<TCoordinates>> _boundingBoxSerializer = BsonSerializer.LookupSerializer<GeoJsonBoundingBox<TCoordinates>>();
-            private readonly IBsonSerializer<GeoJsonCoordinateReferenceSystem> _coordinateReferenceSystemSerializer = BsonSerializer.LookupSerializer<GeoJsonCoordinateReferenceSystem>();
-
-            // constructors
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Helper" /> class.
-            /// </summary>
-            public Helper()
-                : this(typeof(GeoJsonObject<TCoordinates>), null, null)
+            var bsonReader = context.Reader;
+            var bookmark = bsonReader.GetBookmark();
+            bsonReader.ReadStartDocument();
+            if (bsonReader.FindElement("type"))
             {
-            }
+                var discriminator = bsonReader.ReadString();
+                bsonReader.ReturnToBookmark(bookmark);
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Helper" /> class.
-            /// </summary>
-            /// <param name="objectType">The object type.</param>
-            /// <param name="expectedDiscriminator">The expected discriminator.</param>
-            /// <param name="args">The args.</param>
-            protected Helper(Type objectType, string expectedDiscriminator, GeoJsonObjectArgs<TCoordinates> args)
-            {
-                _objectType = objectType;
-                _expectedDiscriminator = expectedDiscriminator;
-                _args = args;
-            }
-
-            // public properties
-            public GeoJsonObjectArgs<TCoordinates> Args
-            {
-                get { return _args; }
-            }
-
-            // public methods
-            /// <summary>
-            /// Deserializes a value.
-            /// </summary>
-            /// <param name="context">The deserialization context.</param>
-            /// <returns>The value.</returns>
-            public GeoJsonObject<TCoordinates> Deserialize(BsonDeserializationContext context)
-            {
-                var bsonReader = context.Reader;
-
-                if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+                switch (discriminator)
                 {
-                    bsonReader.ReadNull();
-                    return null;
-                }
-                else
-                {
-                    var actualType = GetActualType(bsonReader);
-                    if (actualType == _objectType)
-                    {
-                        return DeserializeObject(context);
-                    }
-                    else
-                    {
-                        var serializer = BsonSerializer.LookupSerializer(actualType);
-                        return (GeoJsonObject<TCoordinates>)serializer.Deserialize(context);
-                    }
+                    case "Feature": return typeof(GeoJsonFeature<TCoordinates>);
+                    case "FeatureCollection": return typeof(GeoJsonFeatureCollection<TCoordinates>);
+                    case "GeometryCollection": return typeof(GeoJsonGeometryCollection<TCoordinates>);
+                    case "LineString": return typeof(GeoJsonLineString<TCoordinates>);
+                    case "MultiLineString": return typeof(GeoJsonMultiLineString<TCoordinates>);
+                    case "MultiPoint": return typeof(GeoJsonMultiPoint<TCoordinates>);
+                    case "MultiPolygon": return typeof(GeoJsonMultiPolygon<TCoordinates>);
+                    case "Point": return typeof(GeoJsonPoint<TCoordinates>);
+                    case "Polygon": return typeof(GeoJsonPolygon<TCoordinates>);
+                    default:
+                        var message = string.Format("The type field of the GeoJsonObject is not valid: '{0}'.", discriminator);
+                        throw new FormatException(message);
                 }
             }
-
-            /// <summary>
-            /// Serializes a value.
-            /// </summary>
-            /// <param name="context">The serialization context.</param>
-            /// <param name="value">The value.</param>
-            public void SerializeValue(BsonSerializationContext context, GeoJsonObject<TCoordinates> value)
+            else
             {
-                var bsonWriter = context.Writer;
-
-                bsonWriter.WriteStartDocument();
-                SerializeFields(context, value);
-                SerializeExtraMembers(context, value.ExtraMembers);
-                bsonWriter.WriteEndDocument();
-            }
-
-            // protected methods
-            /// <summary>
-            /// Creates the object.
-            /// </summary>
-            /// <returns>An instance of a GeoJsonObject.</returns>
-            protected virtual GeoJsonObject<TCoordinates> CreateObject()
-            {
-                throw new NotSupportedException("Cannot create an abstract GeoJsonObject.");
-            }
-
-            /// <summary>
-            /// Deserializes a field.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="name">The name.</param>
-            protected virtual void DeserializeField(BsonDeserializationContext context, string name)
-            {
-                switch (name)
-                {
-                    case "type": DeserializeDiscriminator(context, _expectedDiscriminator); break;
-                    case "bbox": _args.BoundingBox = DeserializeBoundingBox(context); break;
-                    case "crs": _args.CoordinateReferenceSystem = DeserializeCoordinateReferenceSystem(context); break;
-                    default: DeserializeExtraMember(context, name); break;
-                }
-            }
-
-            /// <summary>
-            /// Serializes the fields.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="obj">The GeoJson object.</param>
-            protected virtual void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                SerializeDiscriminator(context, obj.Type);
-                SerializeCoordinateReferenceSystem(context, obj.CoordinateReferenceSystem);
-                SerializeBoundingBox(context, obj.BoundingBox);
-            }
-
-            // private methods
-            private GeoJsonBoundingBox<TCoordinates> DeserializeBoundingBox(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(_boundingBoxSerializer);
-            }
-
-            private GeoJsonCoordinateReferenceSystem DeserializeCoordinateReferenceSystem(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(_coordinateReferenceSystemSerializer);
-            }
-
-            private void DeserializeDiscriminator(BsonDeserializationContext context, string expectedDiscriminator)
-            {
-                var discriminator = context.Reader.ReadString();
-                if (discriminator != expectedDiscriminator)
-                {
-                    var message = string.Format("Type '{0}' does not match expected type '{1}'.", discriminator, expectedDiscriminator);
-                    throw new FormatException(message);
-                }
-            }
-
-            private void DeserializeExtraMember(BsonDeserializationContext context, string name)
-            {
-                var value = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-                if (_args.ExtraMembers == null)
-                {
-                    _args.ExtraMembers = new BsonDocument();
-                }
-                _args.ExtraMembers[name] = value;
-            }
-
-            private GeoJsonObject<TCoordinates> DeserializeObject(BsonDeserializationContext context)
-            {
-                var bsonReader = context.Reader;
-
-                if (bsonReader.GetCurrentBsonType() == BsonType.Null)
-                {
-                    bsonReader.ReadNull();
-                    return null;
-                }
-                else
-                {
-                    bsonReader.ReadStartDocument();
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        var name = bsonReader.ReadName();
-                        DeserializeField(context, name);
-                    }
-                    bsonReader.ReadEndDocument();
-
-                    return CreateObject();
-                }
-            }
-
-            private Type GetActualType(BsonReader bsonReader)
-            {
-                var bookmark = bsonReader.GetBookmark();
-                bsonReader.ReadStartDocument();
-                if (bsonReader.FindElement("type"))
-                {
-                    var discriminator = bsonReader.ReadString();
-                    bsonReader.ReturnToBookmark(bookmark);
-
-                    switch (discriminator)
-                    {
-                        case "Feature": return typeof(GeoJsonFeature<TCoordinates>);
-                        case "FeatureCollection": return typeof(GeoJsonFeatureCollection<TCoordinates>);
-                        case "GeometryCollection": return typeof(GeoJsonGeometryCollection<TCoordinates>);
-                        case "LineString": return typeof(GeoJsonLineString<TCoordinates>);
-                        case "MultiLineString": return typeof(GeoJsonMultiLineString<TCoordinates>);
-                        case "MultiPoint": return typeof(GeoJsonMultiPoint<TCoordinates>);
-                        case "MultiPolygon": return typeof(GeoJsonMultiPolygon<TCoordinates>);
-                        case "Point": return typeof(GeoJsonPoint<TCoordinates>);
-                        case "Polygon": return typeof(GeoJsonPolygon<TCoordinates>);
-                        default:
-                            var message = string.Format("The type field of the GeoJsonGeometry is not valid: '{0}'.", discriminator);
-                            throw new FormatException(message);
-                    }
-                }
-                else
-                {
-                    throw new FormatException("GeoJson object is missing the type field.");
-                }
-            }
-
-            private void SerializeBoundingBox(BsonSerializationContext context, GeoJsonBoundingBox<TCoordinates> boundingBox)
-            {
-                if (boundingBox != null)
-                {
-                    context.Writer.WriteName("bbox");
-                    context.SerializeWithChildContext(_boundingBoxSerializer, boundingBox);
-                }
-            }
-
-            private void SerializeCoordinateReferenceSystem(BsonSerializationContext context, GeoJsonCoordinateReferenceSystem coordinateReferenceSystem)
-            {
-                if (coordinateReferenceSystem != null)
-                {
-                    context.Writer.WriteName("crs");
-                    context.SerializeWithChildContext(_coordinateReferenceSystemSerializer, coordinateReferenceSystem);
-                }
-            }
-
-            private void SerializeDiscriminator(BsonSerializationContext context, GeoJsonObjectType type)
-            {
-                context.Writer.WriteString("type", type.ToString());
-            }
-
-            private void SerializeExtraMembers(BsonSerializationContext context, BsonDocument extraMembers)
-            {
-                if (extraMembers != null)
-                {
-                    var bsonWriter = context.Writer;
-                    foreach (var element in extraMembers)
-                    {
-                        bsonWriter.WriteName(element.Name);
-                        context.SerializeWithChildContext(BsonValueSerializer.Instance, element.Value);
-                    }
-                }
+                throw new FormatException("GeoJsonObject is missing the type field.");
             }
         }
     }

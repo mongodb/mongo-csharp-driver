@@ -24,12 +24,27 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DrawingSizeSerializer : StructSerializerBase<System.Drawing.Size>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Width = 1;
+            public const long Height = 2;
+        }
+
+        // private fields
+        private readonly SerializerHelper _helper;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the DrawingSizeSerializer class.
         /// </summary>
         public DrawingSizeSerializer()
         {
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("Width", Flags.Width),
+                new SerializerHelper.Member("Height", Flags.Height)
+            );
         }
 
         // public methods
@@ -46,10 +61,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    var width = bsonReader.ReadInt32("Width");
-                    var height = bsonReader.ReadInt32("Height");
-                    bsonReader.ReadEndDocument();
+                    int width = 0, height = 0;
+                    _helper.DeserializeMembers(context, (elementName, flag) =>
+                    {
+                        switch (flag)
+                        {
+                            case Flags.Width: width = bsonReader.ReadInt32(); break;
+                            case Flags.Height: height = bsonReader.ReadInt32(); break;
+                        }
+                    });
                     return new System.Drawing.Size(width, height);
 
                 default:

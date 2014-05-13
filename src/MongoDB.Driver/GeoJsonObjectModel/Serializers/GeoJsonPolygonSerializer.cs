@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,16 +25,50 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonPolygonSerializer<TCoordinates> : ClassSerializerBase<GeoJsonPolygon<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // public methods
+        // private constants
+        private static class Flags
+        {
+            public const long Coordinates = 16;
+        }
+
+        // private fields
+        private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
+        private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonPointSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonPolygonSerializer()
+        {
+            _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
+            (
+                "Polygon",
+                new SerializerHelper.Member("coordinates", Flags.Coordinates)
+            );
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonPolygon<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonPolygon<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return (GeoJsonPolygon<TCoordinates>)helper.Deserialize(context);
+            var args = new GeoJsonObjectArgs<TCoordinates>();
+            GeoJsonPolygonCoordinates<TCoordinates> coordinates = null;
+
+            _helper.DeserializeMembers(context, (elementName, flag) =>
+            {
+                switch (flag)
+                {
+                    case Flags.Coordinates: coordinates = DeserializeCoordinates(context); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                }
+            });
+
+            return new GeoJsonPolygon<TCoordinates>(args, coordinates);
         }
 
         /// <summary>
@@ -43,73 +78,24 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="value">The value.</param>
         protected override void SerializeValue(BsonSerializationContext context, GeoJsonPolygon<TCoordinates> value)
         {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
+            _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
- 
-        // nested classes
-        internal class Helper : GeoJsonGeometrySerializer<TCoordinates>.Helper
+
+        // private methods
+        private GeoJsonPolygonCoordinates<TCoordinates> DeserializeCoordinates(BsonDeserializationContext context)
         {
-            // private fields
-            private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
-            private GeoJsonPolygonCoordinates<TCoordinates> _coordinates;
-
-            // constructors
-            public Helper()
-                : base(typeof(GeoJsonPolygon<TCoordinates>), "Polygon", new GeoJsonObjectArgs<TCoordinates>())
-            {
-            }
-
-            // public properties
-            public GeoJsonPolygonCoordinates<TCoordinates> Coordinates
-            {
-                get { return _coordinates; }
-                set { _coordinates = value; }
-            }
-
-            // protected methods
-            protected override GeoJsonObject<TCoordinates> CreateObject()
-            {
-                return new GeoJsonPolygon<TCoordinates>(Args, _coordinates);
-            }
-
-            /// <summary>
-            /// Deserializes a field.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="name">The name.</param>
-            protected override void DeserializeField(BsonDeserializationContext context, string name)
-            {
-                switch (name)
-                {
-                    case "coordinates": _coordinates = DeserializeCoordinates(context); break;
-                    default: base.DeserializeField(context, name); break;
-                }
-            }
-
-            /// <summary>
-            /// Serializes the fields.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="obj">The GeoJson object.</param>
-            protected override void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                base.SerializeFields(context, obj);
-                var polygon = (GeoJsonPolygon<TCoordinates>)obj;
-                SerializeCoordinates(context, polygon.Coordinates);
-            }
-
-            // private methods
-            private GeoJsonPolygonCoordinates<TCoordinates> DeserializeCoordinates(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(_coordinatesSerializer);
-            }
-
-            private void SerializeCoordinates(BsonSerializationContext context, GeoJsonPolygonCoordinates<TCoordinates> coordinates)
-            {
-                context.Writer.WriteName("coordinates");
-                context.SerializeWithChildContext(_coordinatesSerializer, coordinates);
-            }
+            return context.DeserializeWithChildContext(_coordinatesSerializer);
         }
-   }
+
+        private void SerializeCoordinates(BsonSerializationContext context, GeoJsonPolygonCoordinates<TCoordinates> coordinates)
+        {
+            context.Writer.WriteName("coordinates");
+            context.SerializeWithChildContext(_coordinatesSerializer, coordinates);
+        }
+
+        private void SerializeDerivedMembers(BsonSerializationContext context, GeoJsonPolygon<TCoordinates> value)
+        {
+            SerializeCoordinates(context, value.Coordinates);
+        }
+    }
 }

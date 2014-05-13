@@ -127,9 +127,11 @@
     <Compile Include="GeoJsonObjectModel\GeoJsonFeatureTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonGeometryCollectionTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonLineStringTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonLinkedCoordinateReferenceSystemTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonMultiLineStringTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonMultiPointTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonMultiPolygonTests.cs" />
+    <Compile Include="GeoJsonObjectModel\GeoJsonNamedCoordinateReferenceSystemTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPointTests.cs" />
     <Compile Include="GeoJsonObjectModel\GeoJsonPolygonTests.cs" />
     <Compile Include="Jira\CSharp613Tests.cs" />

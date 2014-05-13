@@ -191,6 +191,31 @@ namespace MongoDB.Driver
     /// </summary>
     public class MongoDBRefSerializer : ClassSerializerBase<MongoDBRef>, IBsonDocumentSerializer
     {
+        // private constants
+        private static class Flags
+        {
+            public const long CollectionName = 1;
+            public const long Id = 2;
+            public const long DatabaseName = 4;
+        }
+
+        // private fields
+        private readonly SerializerHelper _helper;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoDBRefSerializer"/> class.
+        /// </summary>
+        public MongoDBRefSerializer()
+        {
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("$ref", Flags.CollectionName),
+                new SerializerHelper.Member("$id", Flags.Id),
+                new SerializerHelper.Member("$db", Flags.DatabaseName, isOptional: true)
+            );
+        }
+
         // public methods
         /// <summary>
         /// Gets the serialization info for a member.
@@ -242,28 +267,15 @@ namespace MongoDB.Driver
             string collectionName = null;
             BsonValue id = null;
 
-            bsonReader.ReadStartDocument();
-            BsonType bsonType;
-            while ((bsonType = bsonReader.ReadBsonType()) != BsonType.EndOfDocument)
+            _helper.DeserializeMembers(context, (elementName, flag) =>
             {
-                var name = bsonReader.ReadName();
-                switch (name)
+                switch (flag)
                 {
-                    case "$ref":
-                        collectionName = bsonReader.ReadString();
-                        break;
-                    case "$id":
-                        id = context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-                        break;
-                    case "$db":
-                        databaseName = bsonReader.ReadString();
-                        break;
-                    default:
-                        var message = string.Format("Element '{0}' is not valid for MongoDBRef.", name);
-                        throw new FileFormatException(message);
+                    case Flags.CollectionName: collectionName = bsonReader.ReadString(); break;
+                    case Flags.Id:  id = context.DeserializeWithChildContext(BsonValueSerializer.Instance); break;
+                    case Flags.DatabaseName:  databaseName = bsonReader.ReadString(); break;
                 }
-            }
-            bsonReader.ReadEndDocument();
+            });
 
             return new MongoDBRef(databaseName, collectionName, id);
         }

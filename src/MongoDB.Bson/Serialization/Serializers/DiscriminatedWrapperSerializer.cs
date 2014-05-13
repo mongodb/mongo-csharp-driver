@@ -25,8 +25,18 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class DiscriminatedWrapperSerializer<TValue> : SerializerBase<TValue>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Discriminator = 1;
+            public const long Value = 2;
+            public const long Other = 4;
+        }
+
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention;
+        private readonly SerializerHelper _helper;
+        private readonly SerializerHelper _isPositionedHelper;
         private readonly IBsonSerializer<TValue> _wrappedSerializer;
 
         // constructors
@@ -39,6 +49,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             _discriminatorConvention = discriminatorConvention;
             _wrappedSerializer = wrappedSerializer;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member(discriminatorConvention.ElementName, Flags.Discriminator),
+                new SerializerHelper.Member("_v", Flags.Value)
+            );
+
+            _isPositionedHelper = new SerializerHelper
+            (
+                new SerializerHelper.Member(discriminatorConvention.ElementName, Flags.Discriminator, isOptional: true),
+                new SerializerHelper.Member("_v", Flags.Value, isOptional: true),
+                new SerializerHelper.Member("*", Flags.Other, isOptional: true)
+            );
         }
 
         // public methods
@@ -52,36 +75,19 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonReader = context.Reader;
             var nominalType = context.NominalType;
             var actualType = _discriminatorConvention.GetActualType(bsonReader, nominalType);
-
-            bsonReader.ReadStartDocument();
-
-            var firstElementName = bsonReader.ReadName();
-            if (firstElementName != _discriminatorConvention.ElementName)
-            {
-                var message = string.Format("Expected the first field of a discriminated wrapper to be '{0}', not: '{1}'.", _discriminatorConvention.ElementName, firstElementName);
-                throw new FormatException(message);
-            }
-            bsonReader.SkipValue();
-
-            var secondElementName = bsonReader.ReadName();
-            if (secondElementName != "_v")
-            {
-                var message = string.Format("Expected the second field of a discriminated wrapper to be '_v', not: '{0}'.", firstElementName);
-                throw new FormatException(message);
-            }
-
             var serializer = BsonSerializer.LookupSerializer(actualType);
-            var value = serializer.Deserialize(context.CreateChild(actualType));
 
-            if (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            TValue value = default(TValue);
+            _helper.DeserializeMembers(context, (elementName, flag) =>
             {
-                var message = string.Format("Expected a discriminated wrapper to be a document with exactly two fields, '{0}' and '_v'.", _discriminatorConvention.ElementName);
-                throw new FormatException(message);
-            }
+                switch (flag)
+                {
+                    case Flags.Discriminator: bsonReader.SkipValue(); break;
+                    case Flags.Value: value = (TValue)serializer.Deserialize(context.CreateChild(actualType)); break;
+                }
+            });
 
-            bsonReader.ReadEndDocument();
-
-            return (TValue)value;
+            return value;
         }
 
         /// <summary>
@@ -97,15 +103,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             try
             {
                 if (bsonReader.GetCurrentBsonType() != BsonType.Document) { return false; }
-                bsonReader.ReadStartDocument();
-                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument) { return false; }
-                if (bsonReader.ReadName() != _discriminatorConvention.ElementName) { return false; }
-                bsonReader.SkipValue();
-                if (bsonReader.ReadBsonType() == BsonType.EndOfDocument) { return false; }
-                if (bsonReader.ReadName() != "_v") { return false; }
-                bsonReader.SkipValue();
-                if (bsonReader.ReadBsonType() != BsonType.EndOfDocument) { return false; }
-                return true;
+                var foundFields = _isPositionedHelper.DeserializeMembers(context, (elementName, flag) =>
+                {
+                    context.Reader.SkipValue();
+                });
+                return foundFields == (Flags.Discriminator | Flags.Value);
             }
             finally
             {

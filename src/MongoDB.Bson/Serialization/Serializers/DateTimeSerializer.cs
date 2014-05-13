@@ -27,13 +27,22 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DateTimeSerializer : StructSerializerBase<DateTime>, IRepresentationConfigurable<DateTimeSerializer>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long DateTime = 1;
+            public const long Ticks = 2;
+        }
+
         // private static fields
-        private static DateTimeSerializer __dateOnlyInstance = new DateTimeSerializer(true);
-        private static DateTimeSerializer __localInstance = new DateTimeSerializer(DateTimeKind.Local);
-        private static DateTimeSerializer __utcInstance = new DateTimeSerializer(DateTimeKind.Utc);
+        private static readonly DateTimeSerializer __dateOnlyInstance = new DateTimeSerializer(true);
+        private static readonly DateTimeSerializer __localInstance = new DateTimeSerializer(DateTimeKind.Local);
+        private static readonly DateTimeSerializer __utcInstance = new DateTimeSerializer(DateTimeKind.Utc);
 
         // private fields
         private readonly bool _dateOnly;
+        private readonly SerializerHelper _helper;
+        private readonly Int64Serializer _int64Serializer = new Int64Serializer();
         private readonly DateTimeKind _kind;
         private readonly BsonType _representation;
 
@@ -61,23 +70,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="dateOnly">if set to <c>true</c> [date only].</param>
         /// <param name="representation">The representation.</param>
         public DateTimeSerializer(bool dateOnly, BsonType representation)
+            : this(dateOnly, DateTimeKind.Utc, representation)
         {
-            switch (representation)
-            {
-                case BsonType.DateTime:
-                case BsonType.Document:
-                case BsonType.Int64:
-                case BsonType.String:
-                    break;
-
-                default:
-                    var message = string.Format("{0} is not a valid representation for a DateTimeSerializer.", representation);
-                    throw new ArgumentException(message);
-            }
-
-            _kind = DateTimeKind.Utc;
-            _dateOnly = dateOnly;
-            _representation = representation;
         }
 
         /// <summary>
@@ -104,6 +98,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="kind">The kind.</param>
         /// <param name="representation">The representation.</param>
         public DateTimeSerializer(DateTimeKind kind, BsonType representation)
+            : this(false, kind, representation)
+        {
+        }
+
+        private DateTimeSerializer(bool dateOnly, DateTimeKind kind, BsonType representation)
         {
             switch (representation)
             {
@@ -118,8 +117,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new ArgumentException(message);
             }
 
+            _dateOnly = dateOnly;
             _kind = kind;
             _representation = representation;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("DateTime", Flags.DateTime),
+                new SerializerHelper.Member("Ticks", Flags.Ticks)
+            );
         }
 
         // public static properties
@@ -195,10 +201,15 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
 
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadDateTime("DateTime"); // ignore value (use Ticks instead)
-                    value = new DateTime(bsonReader.ReadInt64("Ticks"), DateTimeKind.Utc);
-                    bsonReader.ReadEndDocument();
+                    value = default(DateTime);
+                    _helper.DeserializeMembers(context, (elementName, flag) =>
+                    {
+                        switch (flag)
+                        {
+                            case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value (use Ticks instead)
+                            case Flags.Ticks: value = new DateTime(context.DeserializeWithChildContext(_int64Serializer), DateTimeKind.Utc); break;
+                        }
+                    });
                     break;
 
                 case BsonType.Int64:

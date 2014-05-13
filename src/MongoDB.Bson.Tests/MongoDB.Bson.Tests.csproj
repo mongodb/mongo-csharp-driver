@@ -236,6 +236,7 @@
     <Compile Include="Serialization\Serializers\BsonPrimitiveSerializerTests.cs" />
     <Compile Include="Serialization\Serializers\SerializeInterfaceTests.cs" />
     <Compile Include="Serialization\IdGenerators\IdGeneratorsTests.cs" />
+    <Compile Include="Serialization\Serializers\VersionSerializerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

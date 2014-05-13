@@ -28,36 +28,27 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonLinearRingCoordinates<TCoordinates>> _linearRingCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonLinearRingCoordinates<TCoordinates>>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonPolygonCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
+            var holes = new List<GeoJsonLinearRingCoordinates<TCoordinates>>();
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            bsonReader.ReadStartArray();
+            var exterior = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                bsonReader.ReadNull();
-                return null;
+                var hole = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
+                holes.Add(hole);
             }
-            else
-            {
-                var holes = new List<GeoJsonLinearRingCoordinates<TCoordinates>>();
+            bsonReader.ReadEndArray();
 
-                bsonReader.ReadStartArray();
-                var exterior = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var hole = context.DeserializeWithChildContext(_linearRingCoordinatesSerializer);
-                    holes.Add(hole);
-                }
-                bsonReader.ReadEndArray();
-
-                return new GeoJsonPolygonCoordinates<TCoordinates>(exterior, holes);
-            }
+            return new GeoJsonPolygonCoordinates<TCoordinates>(exterior, holes);
         }
 
         /// <summary>

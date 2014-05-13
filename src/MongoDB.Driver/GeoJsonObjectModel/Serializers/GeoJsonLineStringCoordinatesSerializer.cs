@@ -28,35 +28,27 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonLineStringCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var positions = new List<TCoordinates>();
+            var positions = new List<TCoordinates>();
 
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var position = _coordinatesSerializer.Deserialize(context.CreateChild(_coordinatesSerializer.ValueType));
-                    positions.Add(position);
-                }
-                bsonReader.ReadEndArray();
-
-                return new GeoJsonLineStringCoordinates<TCoordinates>(positions);
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                var position = _coordinatesSerializer.Deserialize(context.CreateChild(_coordinatesSerializer.ValueType));
+                positions.Add(position);
             }
+            bsonReader.ReadEndArray();
+
+            return new GeoJsonLineStringCoordinates<TCoordinates>(positions);
         }
 
         /// <summary>

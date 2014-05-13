@@ -28,35 +28,26 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonPolygonCoordinates<TCoordinates>> _polygonCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonPolygonCoordinates<TCoordinates>>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonMultiPolygonCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonMultiPolygonCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
+            var polygons = new List<GeoJsonPolygonCoordinates<TCoordinates>>();
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                bsonReader.ReadNull();
-                return null;
+                var polygon = _polygonCoordinatesSerializer.Deserialize(context.CreateChild(_polygonCoordinatesSerializer.ValueType));
+                polygons.Add(polygon);
             }
-            else
-            {
-                var polygons = new List<GeoJsonPolygonCoordinates<TCoordinates>>();
+            bsonReader.ReadEndArray();
 
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var polygon = _polygonCoordinatesSerializer.Deserialize(context.CreateChild(_polygonCoordinatesSerializer.ValueType));
-                    polygons.Add(polygon);
-                }
-                bsonReader.ReadEndArray();
-
-                return new GeoJsonMultiPolygonCoordinates<TCoordinates>(polygons);
-            }
+            return new GeoJsonMultiPolygonCoordinates<TCoordinates>(polygons);
         }
 
         /// <summary>

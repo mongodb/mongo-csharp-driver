@@ -31,50 +31,41 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        /// <exception cref="System.FormatException">Bounding box array does not have an even number of values.</exception>
-        public override GeoJsonBoundingBox<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonBoundingBox<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            var flattenedArray = BsonArraySerializer.Instance.Deserialize(context.CreateChild(typeof(BsonArray)));
+            if ((flattenedArray.Count % 2) != 0)
             {
-                bsonReader.ReadNull();
-                return null;
+                throw new FormatException("Bounding box array does not have an even number of values.");
             }
-            else
-            {
-                var flattenedArray = BsonArraySerializer.Instance.Deserialize(context.CreateChild(typeof(BsonArray)));
-                if ((flattenedArray.Count % 2) != 0)
-                {
-                    throw new FormatException("Bounding box array does not have an even number of values.");
-                }
-                var half = flattenedArray.Count / 2;
+            var half = flattenedArray.Count / 2;
 
-                // create a dummy document with a min and a max and then deserialize the min and max coordinates from there
-                var document = new BsonDocument
+            // create a dummy document with a min and a max and then deserialize the min and max coordinates from there
+            var document = new BsonDocument
                 {
                     { "min", new BsonArray(flattenedArray.Take(half)) },
                     { "max", new BsonArray(flattenedArray.Skip(half)) }
                 };
 
-                using (var documentReader = new BsonDocumentReader(document))
-                {
-                    var documentContext = BsonDeserializationContext.CreateRoot(documentReader, typeof(BsonDocument));
-                    documentReader.ReadStartDocument();
-                    documentReader.ReadName("min");
-                    var min = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
-                    documentReader.ReadName("max");
-                    var max = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
-                    documentReader.ReadEndDocument();
+            using (var documentReader = new BsonDocumentReader(document))
+            {
+                var documentContext = BsonDeserializationContext.CreateRoot(documentReader, typeof(BsonDocument));
+                documentReader.ReadStartDocument();
+                documentReader.ReadName("min");
+                var min = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
+                documentReader.ReadName("max");
+                var max = documentContext.DeserializeWithChildContext(_coordinatesSerializer);
+                documentReader.ReadEndDocument();
 
-                    return new GeoJsonBoundingBox<TCoordinates>(min, max);
-                }
+                return new GeoJsonBoundingBox<TCoordinates>(min, max);
             }
         }
 

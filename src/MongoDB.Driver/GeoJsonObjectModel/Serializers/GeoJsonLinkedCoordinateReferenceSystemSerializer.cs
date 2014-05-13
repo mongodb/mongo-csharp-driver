@@ -25,43 +25,78 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJsonLinkedCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonLinkedCoordinateReferenceSystem>
     {
-        // public methods
+        // private constants
+        private static class Flags
+        {
+            public const long Type = 1;
+            public const long Properties = 2;
+        }
+
+        private static class PropertiesFlags
+        {
+            public const long HRef = 1;
+            public const long Type = 2;
+        }
+
+        // private fields
+        private readonly SerializerHelper _helper;
+        private readonly SerializerHelper _propertiesHelper;
+
+        // constructors
         /// <summary>
-        /// Deserializes a value.
+        /// Initializes a new instance of the <see cref="GeoJsonLinkedCoordinateReferenceSystemSerializer"/> class.
+        /// </summary>
+        public GeoJsonLinkedCoordinateReferenceSystemSerializer()
+        {
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("type", Flags.Type),
+                new SerializerHelper.Member("properties", Flags.Properties)
+            );
+
+            _propertiesHelper = new SerializerHelper
+            (
+                new SerializerHelper.Member("href", PropertiesFlags.HRef),
+                new SerializerHelper.Member("type", PropertiesFlags.Type, isOptional: true)
+            );
+        }
+
+        // protected methods
+        /// <summary>
+        /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override GeoJsonLinkedCoordinateReferenceSystem Deserialize(BsonDeserializationContext context)
+        /// <returns>An object.</returns>
+        protected override GeoJsonLinkedCoordinateReferenceSystem DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            string type = null, href = null, hrefType = null;
+            _helper.DeserializeMembers(context, (elementName, flag) =>
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadStartDocument();
-                var type = bsonReader.ReadString("type");
-                if (type != "link")
+                switch (flag)
                 {
-                    var message = string.Format("Expected type to be 'link'.");
-                    throw new FormatException(message);
+                    case Flags.Type: type = bsonReader.ReadString(); break;
+                    case Flags.Properties:
+                        _propertiesHelper.DeserializeMembers(context, (propertiesElementName, propertiesFlag) =>
+                        {
+                            switch (propertiesFlag)
+                            {
+                                case PropertiesFlags.HRef: href = bsonReader.ReadString(); break;
+                                case PropertiesFlags.Type: hrefType = bsonReader.ReadString(); break;
+                            }
+                        });
+                        break;
                 }
-                bsonReader.ReadName("properties");
-                bsonReader.ReadStartDocument();
-                var href = bsonReader.ReadString("href");
-                string hrefType = null;
-                if (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    hrefType = bsonReader.ReadString("type");
-                }
-                bsonReader.ReadEndDocument();
-                bsonReader.ReadEndDocument();
+            });
 
-                return new GeoJsonLinkedCoordinateReferenceSystem(href, hrefType);
+            if (type != "link")
+            {
+                var message = string.Format("Expected type to be 'link'.");
+                throw new FormatException(message);
             }
+
+            return new GeoJsonLinkedCoordinateReferenceSystem(href, hrefType);
         }
 
         /// <summary>

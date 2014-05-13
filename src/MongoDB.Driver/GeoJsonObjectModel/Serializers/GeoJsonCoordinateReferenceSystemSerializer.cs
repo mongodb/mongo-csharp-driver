@@ -26,32 +26,15 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJsonCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonCoordinateReferenceSystem>
     {
-        // public methods
+        // protected methods
         /// <summary>
-        /// Deserializes a value.
+        /// Gets the actual type.
         /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override GeoJsonCoordinateReferenceSystem Deserialize(BsonDeserializationContext context)
+        /// <param name="context">The context.</param>
+        /// <returns>The actual type.</returns>
+        protected override Type GetActualType(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                var actualType = GetActualType(bsonReader);
-                var serializer = BsonSerializer.LookupSerializer(actualType);
-                return (GeoJsonCoordinateReferenceSystem)serializer.Deserialize(context);
-            }
-        }
-
-        // private methods
-        private Type GetActualType(BsonReader bsonReader)
-        {
             var bookmark = bsonReader.GetBookmark();
             bsonReader.ReadStartDocument();
             if (bsonReader.FindElement("type"))

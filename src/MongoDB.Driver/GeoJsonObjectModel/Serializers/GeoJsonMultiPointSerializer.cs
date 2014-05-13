@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -24,16 +25,50 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonMultiPointSerializer<TCoordinates> : ClassSerializerBase<GeoJsonMultiPoint<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // public methods
+        // private constants
+        private static class Flags
+        {
+            public const long Coordinates = 16;
+        }
+
+        // private fields
+        private readonly IBsonSerializer<GeoJsonMultiPointCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonMultiPointCoordinates<TCoordinates>>();
+        private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonMultiPointSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonMultiPointSerializer()
+        {
+            _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
+            (
+                "MultiPoint",
+                new SerializerHelper.Member("coordinates", Flags.Coordinates)
+            );
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonMultiPoint<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonMultiPoint<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return (GeoJsonMultiPoint<TCoordinates>)helper.Deserialize(context);
+            var args = new GeoJsonObjectArgs<TCoordinates>();
+            GeoJsonMultiPointCoordinates<TCoordinates> coordinates = null;
+
+            _helper.DeserializeMembers(context, (elementName, flag) =>
+            {
+                switch (flag)
+                {
+                    case Flags.Coordinates: coordinates = DeserializeCoordinates(context); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                }
+            });
+
+            return new GeoJsonMultiPoint<TCoordinates>(args, coordinates);
         }
 
         /// <summary>
@@ -43,73 +78,24 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="value">The value.</param>
         protected override void SerializeValue(BsonSerializationContext context, GeoJsonMultiPoint<TCoordinates> value)
         {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
+            _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
 
-        // nested classes
-        internal class Helper : GeoJsonGeometrySerializer<TCoordinates>.Helper
+        // private methods
+        private GeoJsonMultiPointCoordinates<TCoordinates> DeserializeCoordinates(BsonDeserializationContext context)
         {
-            // private fields
-            private readonly IBsonSerializer<GeoJsonMultiPointCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonMultiPointCoordinates<TCoordinates>>();
-            private GeoJsonMultiPointCoordinates<TCoordinates> _coordinates;
+            return context.DeserializeWithChildContext(_coordinatesSerializer);
+        }
 
-            // constructors
-            public Helper()
-                : base(typeof(GeoJsonMultiPoint<TCoordinates>), "MultiPoint", new GeoJsonObjectArgs<TCoordinates>())
-            {
-            }
+        private void SerializeCoordinates(BsonSerializationContext context, GeoJsonMultiPointCoordinates<TCoordinates> coordinates)
+        {
+            context.Writer.WriteName("coordinates");
+            context.SerializeWithChildContext(_coordinatesSerializer, coordinates);
+        }
 
-            // public properties
-            public GeoJsonMultiPointCoordinates<TCoordinates> Coordinates
-            {
-                get { return _coordinates; }
-                set { _coordinates = value; }
-            }
-
-            // protected methods
-            protected override GeoJsonObject<TCoordinates> CreateObject()
-            {
-                return new GeoJsonMultiPoint<TCoordinates>(Args, _coordinates);
-            }
-
-            /// <summary>
-            /// Deserializes a field.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="name">The name.</param>
-            protected override void DeserializeField(BsonDeserializationContext context, string name)
-            {
-                switch (name)
-                {
-                    case "coordinates": _coordinates = DeserializeCoordinates(context); break;
-                    default: base.DeserializeField(context, name); break;
-                }
-            }
-
-            /// <summary>
-            /// Serializes the fields.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="obj">The GeoJson object.</param>
-            protected override void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                base.SerializeFields(context, obj);
-                var multiPoint = (GeoJsonMultiPoint<TCoordinates>)obj;
-                SerializeCoordinates(context, multiPoint.Coordinates);
-            }
-
-            // private methods
-            private GeoJsonMultiPointCoordinates<TCoordinates> DeserializeCoordinates(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(_coordinatesSerializer);
-            }
-
-            private void SerializeCoordinates(BsonSerializationContext context, GeoJsonMultiPointCoordinates<TCoordinates> coordinates)
-            {
-                context.Writer.WriteName("coordinates");
-                context.SerializeWithChildContext(_coordinatesSerializer, coordinates);
-            }
+        private void SerializeDerivedMembers(BsonSerializationContext context, GeoJsonMultiPoint<TCoordinates> value)
+        {
+            SerializeCoordinates(context, value.Coordinates);
         }
     }
 }

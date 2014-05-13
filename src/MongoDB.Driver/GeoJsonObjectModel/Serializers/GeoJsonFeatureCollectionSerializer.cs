@@ -26,16 +26,50 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonFeatureCollectionSerializer<TCoordinates> : ClassSerializerBase<GeoJsonFeatureCollection<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // public methods
+        // private constants
+        private static class Flags
+        {
+            public const long Features = 16;
+        }
+
+        // private fields
+        private readonly IBsonSerializer<GeoJsonFeature<TCoordinates>> _featureSerializer = BsonSerializer.LookupSerializer<GeoJsonFeature<TCoordinates>>();
+        private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeatureCollectionSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonFeatureCollectionSerializer()
+        {
+            _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
+            (
+                "FeatureCollection",
+                new SerializerHelper.Member("features", Flags.Features)
+            );
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonFeatureCollection<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonFeatureCollection<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return (GeoJsonFeatureCollection<TCoordinates>)helper.Deserialize(context);
+            var args = new GeoJsonObjectArgs<TCoordinates>();
+            List<GeoJsonFeature<TCoordinates>> features = null;
+
+            _helper.DeserializeMembers(context, (elementName, flag) =>
+            {
+                switch (flag)
+                {
+                    case Flags.Features: features = DeserializeFeatures(context); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                }
+            });
+
+            return new GeoJsonFeatureCollection<TCoordinates>(args, features);
         }
 
         /// <summary>
@@ -45,91 +79,42 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="value">The value.</param>
         protected override void SerializeValue(BsonSerializationContext context, GeoJsonFeatureCollection<TCoordinates> value)
         {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
+            _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
 
-        // nested classes
-        internal class Helper : GeoJsonObjectSerializer<TCoordinates>.Helper
+        // private methods
+        private List<GeoJsonFeature<TCoordinates>> DeserializeFeatures(BsonDeserializationContext context)
         {
-            // private fields
-            private readonly IBsonSerializer<GeoJsonFeature<TCoordinates>> _featureSerializer = BsonSerializer.LookupSerializer<GeoJsonFeature<TCoordinates>>();
-            private List<GeoJsonFeature<TCoordinates>> _features;
+            var bsonReader = context.Reader;
 
-            // constructors
-            public Helper()
-                : base(typeof(GeoJsonFeatureCollection<TCoordinates>), "FeatureCollection", new GeoJsonObjectArgs<TCoordinates>())
+            bsonReader.ReadStartArray();
+            var features = new List<GeoJsonFeature<TCoordinates>>();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
+                var feature = context.DeserializeWithChildContext(_featureSerializer);
+                features.Add(feature);
             }
+            bsonReader.ReadEndArray();
 
-            // public properties
-            public List<GeoJsonFeature<TCoordinates>> Features
+            return features;
+        }
+
+        private void SerializeDerivedMembers(BsonSerializationContext context, GeoJsonFeatureCollection<TCoordinates> value)
+        {
+            SerializeFeatures(context, value.Features);
+        }
+
+        private void SerializeFeatures(BsonSerializationContext context, IEnumerable<GeoJsonFeature<TCoordinates>> features)
+        {
+            var bsonWriter = context.Writer;
+
+            bsonWriter.WriteName("features");
+            bsonWriter.WriteStartArray();
+            foreach (var feature in features)
             {
-                get { return _features; }
-                set { _features = value; }
+                context.SerializeWithChildContext(_featureSerializer, feature);
             }
-
-            // protected methods
-            protected override GeoJsonObject<TCoordinates> CreateObject()
-            {
-                return new GeoJsonFeatureCollection<TCoordinates>(Args, _features);
-            }
-
-            /// <summary>
-            /// Deserializes a field.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="name">The name.</param>
-            protected override void DeserializeField(BsonDeserializationContext context, string name)
-            {
-                switch (name)
-                {
-                    case "features": _features = DeserializeFeatures(context); break;
-                    default: base.DeserializeField(context, name); break;
-                }
-            }
-
-            /// <summary>
-            /// Serializes the fields.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="obj">The GeoJson object.</param>
-            protected override void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                base.SerializeFields(context, obj);
-                var featureCollection = (GeoJsonFeatureCollection<TCoordinates>)obj;
-                SerializeFeatures(context, featureCollection.Features);
-            }
-
-            // private methods
-            private List<GeoJsonFeature<TCoordinates>> DeserializeFeatures(BsonDeserializationContext context)
-            {
-                var bsonReader = context.Reader;
-
-                bsonReader.ReadStartArray();
-                var features = new List<GeoJsonFeature<TCoordinates>>();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var feature = context.DeserializeWithChildContext(_featureSerializer);
-                    features.Add(feature);
-                }
-                bsonReader.ReadEndArray();
-
-                return features;
-            }
-
-            private void SerializeFeatures(BsonSerializationContext context, IEnumerable<GeoJsonFeature<TCoordinates>> features)
-            {
-                var bsonWriter = context.Writer;
-
-                bsonWriter.WriteName("features");
-                bsonWriter.WriteStartArray();
-                foreach (var feature in features)
-                {
-                    context.SerializeWithChildContext(_featureSerializer, feature);
-                }
-                bsonWriter.WriteEndArray();
-            }
+            bsonWriter.WriteEndArray();
         }
     }
 }

@@ -28,35 +28,26 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<TCoordinates> _coordinatesSerializer = BsonSerializer.LookupSerializer<TCoordinates>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonMultiPointCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonMultiPointCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
+            var positions = new List<TCoordinates>();
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                bsonReader.ReadNull();
-                return null;
+                var position = _coordinatesSerializer.Deserialize(context.CreateChild(_coordinatesSerializer.ValueType));
+                positions.Add(position);
             }
-            else
-            {
-                var positions = new List<TCoordinates>();
+            bsonReader.ReadEndArray();
 
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var position = _coordinatesSerializer.Deserialize(context.CreateChild(_coordinatesSerializer.ValueType));
-                    positions.Add(position);
-                }
-                bsonReader.ReadEndArray();
-
-                return new GeoJsonMultiPointCoordinates<TCoordinates>(positions);
-            }
+            return new GeoJsonMultiPointCoordinates<TCoordinates>(positions);
         }
 
         /// <summary>

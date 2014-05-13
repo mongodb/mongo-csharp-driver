@@ -23,7 +23,21 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class VersionSerializer : SealedClassSerializerBase<Version>, IRepresentationConfigurable<VersionSerializer>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Major = 1;
+            public const long Minor = 2;
+            public const long Build = 4;
+            public const long Revision = 8;
+            public const long All = Major | Minor | Build | Revision;
+            public const long MajorMinor = Major | Minor;
+            public const long MajorMinorBuild = Major | Minor | Build;
+        }
+
         // private fields
+        private readonly SerializerHelper _helper;
+        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -53,6 +67,14 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("Major", Flags.Major),
+                new SerializerHelper.Member("Minor", Flags.Minor),
+                new SerializerHelper.Member("Build", Flags.Build, isOptional: true),
+                new SerializerHelper.Member("Revision", Flags.Revision, isOptional: true)
+            );
         }
 
         // public properties
@@ -76,50 +98,28 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override Version DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
-            string message;
 
             BsonType bsonType = bsonReader.GetCurrentBsonType();
             switch (bsonType)
             {
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    int major = -1, minor = -1, build = -1, revision = -1;
-                    while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+                    int major = 0, minor = 0, build = 0, revision = 0;
+                    var foundMemberFlags = _helper.DeserializeMembers(context, (elementName, flag) =>
                     {
-                        var name = bsonReader.ReadName();
-                        switch (name)
+                        switch (flag)
                         {
-                            case "Major": major = bsonReader.ReadInt32(); break;
-                            case "Minor": minor = bsonReader.ReadInt32(); break;
-                            case "Build": build = bsonReader.ReadInt32(); break;
-                            case "Revision": revision = bsonReader.ReadInt32(); break;
-                            default:
-                                message = string.Format("Unrecognized element '{0}' while deserializing a Version value.", name);
-                                throw new FileFormatException(message);
+                            case Flags.Major: major = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Minor: minor = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Build: build = context.DeserializeWithChildContext(_int32Serializer); break;
+                            case Flags.Revision: revision = context.DeserializeWithChildContext(_int32Serializer); break;
                         }
-                    }
-                    bsonReader.ReadEndDocument();
-                    if (major == -1)
+                    });
+                    switch (foundMemberFlags)
                     {
-                        message = string.Format("Version missing Major element.");
-                        throw new FileFormatException(message);
-                    }
-                    else if (minor == -1)
-                    {
-                        message = string.Format("Version missing Minor element.");
-                        throw new FileFormatException(message);
-                    }
-                    else if (build == -1)
-                    {
-                        return new Version(major, minor);
-                    }
-                    else if (revision == -1)
-                    {
-                        return new Version(major, minor, build);
-                    }
-                    else
-                    {
-                        return new Version(major, minor, build, revision);
+                        case Flags.MajorMinor: return new Version(major, minor);
+                        case Flags.MajorMinorBuild: return new Version(major, minor, build);
+                        case Flags.All: return new Version(major, minor, build, revision);
+                        default: throw new BsonInternalException();
                     }
 
                 case BsonType.String:

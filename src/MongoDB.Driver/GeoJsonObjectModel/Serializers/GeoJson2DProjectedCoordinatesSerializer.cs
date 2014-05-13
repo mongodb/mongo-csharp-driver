@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -27,30 +26,22 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private static fields
         private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJson2DProjectedCoordinates Deserialize(BsonDeserializationContext context)
+        protected override GeoJson2DProjectedCoordinates DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadStartArray();
-                var easting = context.DeserializeWithChildContext(__doubleSerializer);
-                var northing = context.DeserializeWithChildContext(__doubleSerializer);
-                bsonReader.ReadEndArray();
+            bsonReader.ReadStartArray();
+            var easting = context.DeserializeWithChildContext(__doubleSerializer);
+            var northing = context.DeserializeWithChildContext(__doubleSerializer);
+            bsonReader.ReadEndArray();
 
-                return new GeoJson2DProjectedCoordinates(easting, northing);
-            }
+            return new GeoJson2DProjectedCoordinates(easting, northing);
         }
 
         /// <summary>

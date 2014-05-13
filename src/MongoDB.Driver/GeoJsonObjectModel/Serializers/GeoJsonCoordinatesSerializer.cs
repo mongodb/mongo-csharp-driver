@@ -14,8 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -26,16 +24,15 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJsonCoordinatesSerializer : ClassSerializerBase<GeoJsonCoordinates>
     {
-        // public methods
+        // protected methods
         /// <summary>
-        /// Deserializes a value.
+        /// Gets the actual type.
         /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        /// <exception cref="System.InvalidOperationException">Only concrete subclasses of GeoJsonCoordinates can be serialized.</exception>
-        public override GeoJsonCoordinates Deserialize(BsonDeserializationContext context)
+        /// <param name="context">The context.</param>
+        /// <returns>The actual type.</returns>
+        protected override Type GetActualType(BsonDeserializationContext context)
         {
-            throw new InvalidOperationException("Only concrete subclasses of GeoJsonCoordinates can be serialized.");
+            throw new NotSupportedException("There is no way to determine the actual type of a GeoJsonCoordinates. Use a concrete subclass instead.");
         }
     }
 }

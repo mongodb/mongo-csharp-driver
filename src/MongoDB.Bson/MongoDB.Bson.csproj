@@ -204,6 +204,7 @@
     <Compile Include="Serialization\Serializers\BsonArraySerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBinaryDataSerializer.cs" />
     <Compile Include="Serialization\Serializers\BsonBooleanSerializer.cs" />
+    <Compile Include="Serialization\Serializers\SerializerHelper.cs" />
     <Compile Include="Serialization\Serializers\DiscriminatedWrapperSerializer.cs" />
     <Compile Include="Serialization\Serializers\SerializerBase.cs" />
     <Compile Include="Serialization\Serializers\SealedClassSerializerBase.cs" />

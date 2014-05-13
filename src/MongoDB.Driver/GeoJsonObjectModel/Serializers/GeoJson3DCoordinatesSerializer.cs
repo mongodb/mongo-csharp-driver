@@ -27,31 +27,23 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private static fields
         private static readonly IBsonSerializer<double> __doubleSerializer = new DoubleSerializer();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJson3DCoordinates Deserialize(BsonDeserializationContext context)
+        protected override GeoJson3DCoordinates DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
-            {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadStartArray();
-                var x = context.DeserializeWithChildContext(__doubleSerializer);
-                var y = context.DeserializeWithChildContext(__doubleSerializer);
-                var z = context.DeserializeWithChildContext(__doubleSerializer);
-                bsonReader.ReadEndArray();
+            bsonReader.ReadStartArray();
+            var x = context.DeserializeWithChildContext(__doubleSerializer);
+            var y = context.DeserializeWithChildContext(__doubleSerializer);
+            var z = context.DeserializeWithChildContext(__doubleSerializer);
+            bsonReader.ReadEndArray();
 
-                return new GeoJson3DCoordinates(x, y, z);
-            }
+            return new GeoJson3DCoordinates(x, y, z);
         }
 
         /// <summary>

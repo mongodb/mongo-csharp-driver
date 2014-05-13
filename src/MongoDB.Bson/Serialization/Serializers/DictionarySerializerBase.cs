@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MongoDB.Bson.IO;
@@ -25,8 +26,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public abstract class DictionarySerializerBase<TDictionary> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Key = 1;
+            public const long Value = 2;
+        }
+
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
+        private readonly SerializerHelper _helper;
         private readonly IBsonSerializer _keySerializer;
         private readonly IBsonSerializer _valueSerializer;
 
@@ -59,6 +68,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             _dictionaryRepresentation = dictionaryRepresentation;
             _keySerializer = keySerializer;
             _valueSerializer = valueSerializer;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("k", Flags.Key),
+                new SerializerHelper.Member("v", Flags.Value)
+            );
         }
 
         // public properties
@@ -175,12 +190,16 @@ namespace MongoDB.Bson.Serialization.Serializers
                         break;
 
                     case BsonType.Document:
-                        bsonReader.ReadStartDocument();
-                        bsonReader.ReadName("k");
-                        key = context.DeserializeWithChildContext(_keySerializer);
-                        bsonReader.ReadName("v");
-                        value = context.DeserializeWithChildContext(_valueSerializer);
-                        bsonReader.ReadEndDocument();
+                        key = null;
+                        value = null;
+                        _helper.DeserializeMembers(context, (elementName, flag) =>
+                        {
+                            switch (flag)
+                            {
+                                case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
+                                case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
+                            }
+                        });
                         break;
 
                     default:
@@ -295,8 +314,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values.</typeparam>
     public abstract class DictionarySerializerBase<TDictionary, TKey, TValue> : ClassSerializerBase<TDictionary>, IBsonDictionarySerializer where TDictionary : class, IDictionary<TKey, TValue>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Key = 1;
+            public const long Value = 2;
+        }
+
         // private fields
         private readonly DictionaryRepresentation _dictionaryRepresentation;
+        private readonly SerializerHelper _helper;
         private readonly IBsonSerializer<TKey> _keySerializer;
         private readonly IBsonSerializer<TValue> _valueSerializer;
 
@@ -329,6 +356,12 @@ namespace MongoDB.Bson.Serialization.Serializers
             _dictionaryRepresentation = dictionaryRepresentation;
             _keySerializer = keySerializer;
             _valueSerializer = valueSerializer;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("k", Flags.Key),
+                new SerializerHelper.Member("v", Flags.Value)
+            );
         }
 
         // public properties
@@ -449,12 +482,16 @@ namespace MongoDB.Bson.Serialization.Serializers
                         break;
 
                     case BsonType.Document:
-                        bsonReader.ReadStartDocument();
-                        bsonReader.ReadName("k");
-                        key = context.DeserializeWithChildContext(_keySerializer);
-                        bsonReader.ReadName("v");
-                        value = context.DeserializeWithChildContext(_valueSerializer);
-                        bsonReader.ReadEndDocument();
+                        key = default(TKey);
+                        value = default(TValue);
+                        _helper.DeserializeMembers(context, (elementName, flag) =>
+                        {
+                            switch (flag)
+                            {
+                                case Flags.Key: key = context.DeserializeWithChildContext(_keySerializer); break;
+                                case Flags.Value: value = context.DeserializeWithChildContext(_valueSerializer); break;
+                            }
+                        });
                         break;
 
                     default:

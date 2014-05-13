@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Globalization;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -22,12 +23,28 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class CultureInfoSerializer : ClassSerializerBase<CultureInfo>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long Name = 1;
+            public const long UseUserOverride = 2;
+        }
+
+        // private fields
+        private readonly BooleanSerializer _booleanSerializer = new BooleanSerializer();
+        private readonly SerializerHelper _helper;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the CultureInfoSerializer class.
         /// </summary>
         public CultureInfoSerializer()
         {
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("Name", Flags.Name),
+                new SerializerHelper.Member("UseUserOverride", Flags.UseUserOverride)
+            );
         }
 
         // public methods
@@ -44,10 +61,16 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (bsonType)
             {
                 case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    var name = bsonReader.ReadString("Name");
-                    var useUserOverride = bsonReader.ReadBoolean("UseUserOverride");
-                    bsonReader.ReadEndDocument();
+                    string name = null;
+                    bool useUserOverride = false;
+                    _helper.DeserializeMembers(context, (elementName, flag) =>
+                    {
+                        switch (flag)
+                        {
+                            case Flags.Name: name = bsonReader.ReadString(); break;
+                            case Flags.UseUserOverride: useUserOverride = context.DeserializeWithChildContext(_booleanSerializer); break;
+                        }
+                    });
                     return new CultureInfo(name, useUserOverride);
 
                 case BsonType.String:

@@ -27,7 +27,18 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DateTimeOffsetSerializer : StructSerializerBase<DateTimeOffset>, IRepresentationConfigurable<DateTimeOffsetSerializer>
     {
+        // private constants
+        private static class Flags
+        {
+            public const long DateTime = 1;
+            public const long Ticks = 2;
+            public const long Offset = 4;
+        }
+
         // private fields
+        private readonly SerializerHelper _helper;
+        private readonly Int32Serializer _int32Serializer = new Int32Serializer();
+        private readonly Int64Serializer _int64Serializer = new Int64Serializer();
         private readonly BsonType _representation;
 
         // constructors
@@ -58,6 +69,13 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _representation = representation;
+
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("DateTime", Flags.DateTime),
+                new SerializerHelper.Member("Ticks", Flags.Ticks),
+                new SerializerHelper.Member("Offset", Flags.Offset)
+            );
         }
 
         // public properties
@@ -94,12 +112,18 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
 
-                case BsonType.Document:
-                    bsonReader.ReadStartDocument();
-                    bsonReader.ReadDateTime("DateTime"); // ignore value
-                    ticks = bsonReader.ReadInt64("Ticks");
-                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32("Offset"));
-                    bsonReader.ReadEndDocument();
+                case BsonType.Document:                 
+                    ticks = 0;
+                    offset = TimeSpan.Zero;
+                    _helper.DeserializeMembers(context, (elementName, flag) =>
+                    {
+                        switch (flag)
+                        {
+                            case Flags.DateTime: bsonReader.SkipValue(); break; // ignore value
+                            case Flags.Ticks: ticks = context.DeserializeWithChildContext(_int64Serializer); break;
+                            case Flags.Offset: offset = TimeSpan.FromMinutes(context.DeserializeWithChildContext(_int32Serializer)); break;
+                        }
+                    });
                     return new DateTimeOffset(ticks, offset);
 
                 case BsonType.String:

@@ -92,6 +92,7 @@
     <Compile Include="Communication\FeatureDetection\AndDependency.cs" />
     <Compile Include="Communication\FeatureDetection\InstanceTypeDependency.cs" />
     <Compile Include="Communication\FeatureDetection\NotDependency.cs" />
+    <Compile Include="GeoJsonObjectModel\Serializers\GeoJsonObjectSerializerHelper.cs" />
     <Compile Include="Operations\ParallelScanOperation.cs" />
     <Compile Include="ParallelScanArgs.cs" />
     <Compile Include="WriteConcernError.cs" />

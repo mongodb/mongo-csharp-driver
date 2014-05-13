@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -25,18 +26,56 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonFeatureSerializer<TCoordinates> : ClassSerializerBase<GeoJsonFeature<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // private fields
+        // private constants
+        private static class Flags
+        {
+            public const long Geometry = 16;
+            public const long Id = 32;
+            public const long Properties = 64;
+        }
 
-        // public methods
+        // private fields
+        private readonly IBsonSerializer<GeoJsonGeometry<TCoordinates>> _geometrySerializer = BsonSerializer.LookupSerializer<GeoJsonGeometry<TCoordinates>>();
+        private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonFeatureSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonFeatureSerializer()
+        {
+            _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
+            (
+                "Feature",
+                new SerializerHelper.Member("geometry", Flags.Geometry),
+                new SerializerHelper.Member("id", Flags.Id, isOptional: true),
+                new SerializerHelper.Member("properties", Flags.Properties, isOptional: true)
+            );
+        }
+
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonFeature<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonFeature<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return (GeoJsonFeature<TCoordinates>)helper.Deserialize(context);
+            var args = new GeoJsonFeatureArgs<TCoordinates>();
+            GeoJsonGeometry<TCoordinates> geometry = null;
+
+            _helper.DeserializeMembers(context, (elementName, flag) =>
+            {
+                switch (flag)
+                {
+                    case Flags.Geometry: geometry = DeserializeGeometry(context); break;
+                    case Flags.Id: args.Id = DeserializeId(context); break;
+                    case Flags.Properties: args.Properties = DeserializeProperties(context); break;
+                    default: _helper.DeserializeBaseMember(context, elementName, flag, args); break;
+                }
+            });
+
+            return new GeoJsonFeature<TCoordinates>(args, geometry);
         }
 
         /// <summary>
@@ -46,109 +85,53 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="value">The value.</param>
         protected override void SerializeValue(BsonSerializationContext context, GeoJsonFeature<TCoordinates> value)
         {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
+            _helper.SerializeMembers(context, value, SerializeDerivedMembers);
         }
 
-        // nested classes
-        internal class Helper : GeoJsonObjectSerializer<TCoordinates>.Helper
+        // private methods
+        private GeoJsonGeometry<TCoordinates> DeserializeGeometry(BsonDeserializationContext context)
         {
-            // private fields
-            private readonly IBsonSerializer<GeoJsonGeometry<TCoordinates>> _geometrySerializer = BsonSerializer.LookupSerializer<GeoJsonGeometry<TCoordinates>>();
-            private GeoJsonGeometry<TCoordinates> _geometry;
+            return context.DeserializeWithChildContext(_geometrySerializer);
+        }
 
-            // constructors
-            public Helper()
-                : base(typeof(GeoJsonFeature<TCoordinates>), "Feature", new GeoJsonFeatureArgs<TCoordinates>())
+        private BsonValue DeserializeId(BsonDeserializationContext context)
+        {
+            return context.DeserializeWithChildContext(BsonValueSerializer.Instance);
+        }
+
+        private BsonDocument DeserializeProperties(BsonDeserializationContext context)
+        {
+            return context.DeserializeWithChildContext(BsonDocumentSerializer.Instance);
+        }
+
+        private void SerializeDerivedMembers(BsonSerializationContext context, GeoJsonFeature<TCoordinates> value)
+        {
+            SerializeGeometry(context, value.Geometry);
+            SerializeId(context, value.Id);
+            SerializeProperties(context, value.Properties);
+        }
+
+        private void SerializeGeometry(BsonSerializationContext context, GeoJsonGeometry<TCoordinates> geometry)
+        {
+            context.Writer.WriteName("geometry");
+            context.SerializeWithChildContext(_geometrySerializer, geometry);
+        }
+
+        private void SerializeId(BsonSerializationContext context, BsonValue id)
+        {
+            if (id != null)
             {
+                context.Writer.WriteName("id");
+                context.SerializeWithChildContext(BsonValueSerializer.Instance, id);
             }
+        }
 
-            // public properties
-            public GeoJsonFeatureArgs<TCoordinates> FeatureArgs
+        private void SerializeProperties(BsonSerializationContext context, BsonDocument properties)
+        {
+            if (properties != null)
             {
-                get { return (GeoJsonFeatureArgs<TCoordinates>)Args; }
-            }
-
-            public GeoJsonGeometry<TCoordinates> Geometry
-            {
-                get { return _geometry; }
-                set { _geometry = value; }
-            }
-
-            // protected methods
-            protected override GeoJsonObject<TCoordinates> CreateObject()
-            {
-                return new GeoJsonFeature<TCoordinates>(FeatureArgs, _geometry);
-            }
-
-            /// <summary>
-            /// Deserializes a field.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="name">The name.</param>
-            protected override void DeserializeField(BsonDeserializationContext context, string name)
-            {
-                switch (name)
-                {
-                    case "geometry": _geometry = DeserializeGeometry(context); break;
-                    case "id": FeatureArgs.Id = DeserializeId(context); break;
-                    case "properties": FeatureArgs.Properties = DeserializeProperties(context); break;
-                    default: base.DeserializeField(context, name); break;
-                }
-            }
-
-            /// <summary>
-            /// Serializes the fields.
-            /// </summary>
-            /// <param name="context">The context.</param>
-            /// <param name="obj">The GeoJson object.</param>
-            protected override void SerializeFields(BsonSerializationContext context, GeoJsonObject<TCoordinates> obj)
-            {
-                base.SerializeFields(context, obj);
-                var feature = (GeoJsonFeature<TCoordinates>)obj;
-                SerializeGeometry(context, feature.Geometry);
-                SerializeId(context, feature.Id);
-                SerializeProperties(context, feature.Properties);
-            }
-
-            // private methods
-            private GeoJsonGeometry<TCoordinates> DeserializeGeometry(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(_geometrySerializer);
-            }
-
-            private BsonValue DeserializeId(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(BsonValueSerializer.Instance);
-            }
-
-            private BsonDocument DeserializeProperties(BsonDeserializationContext context)
-            {
-                return context.DeserializeWithChildContext(BsonDocumentSerializer.Instance);
-            }
-
-            private void SerializeGeometry(BsonSerializationContext context, GeoJsonGeometry<TCoordinates> geometry)
-            {
-                context.Writer.WriteName("geometry");
-                context.SerializeWithChildContext(_geometrySerializer, geometry);
-            }
-
-            private void SerializeId(BsonSerializationContext context, BsonValue id)
-            {
-                if (id != null)
-                {
-                    context.Writer.WriteName("id");
-                    context.SerializeWithChildContext(BsonValueSerializer.Instance, id);
-                }
-            }
-
-            private void SerializeProperties(BsonSerializationContext context, BsonDocument properties)
-            {
-                if (properties != null)
-                {
-                    context.Writer.WriteName("properties");
-                    context.SerializeWithChildContext(BsonDocumentSerializer.Instance, properties);
-                }
+                context.Writer.WriteName("properties");
+                context.SerializeWithChildContext(BsonDocumentSerializer.Instance, properties);
             }
         }
     }

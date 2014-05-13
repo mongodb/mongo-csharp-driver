@@ -25,38 +25,75 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// </summary>
     public class GeoJsonNamedCoordinateReferenceSystemSerializer : ClassSerializerBase<GeoJsonNamedCoordinateReferenceSystem>
     {
-        // public methods
+        // private constants
+        private static class Flags
+        {
+            public const long Type = 1;
+            public const long Properties = 2;
+        }
+
+        private static class PropertiesFlags
+        {
+            public const long Name = 1;
+        }
+
+        // private fields
+        private readonly SerializerHelper _helper;
+        private readonly SerializerHelper _propertiesHelper;
+
+        // constructors
         /// <summary>
-        /// Deserializes a value.
+        /// Initializes a new instance of the <see cref="GeoJsonNamedCoordinateReferenceSystemSerializer"/> class.
+        /// </summary>
+        public GeoJsonNamedCoordinateReferenceSystemSerializer()
+        {
+            _helper = new SerializerHelper
+            (
+                new SerializerHelper.Member("type", Flags.Type),
+                new SerializerHelper.Member("properties", Flags.Properties)
+            );
+
+            _propertiesHelper = new SerializerHelper
+            (
+                new SerializerHelper.Member("name", PropertiesFlags.Name)
+            );
+        }
+
+        // protected methods
+        /// <summary>
+        /// Deserializes a class.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override GeoJsonNamedCoordinateReferenceSystem Deserialize(BsonDeserializationContext context)
+        /// <returns>An object.</returns>
+        protected override GeoJsonNamedCoordinateReferenceSystem DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            string type = null, name = null;
+            _helper.DeserializeMembers(context, (elementName, flag) =>
             {
-                bsonReader.ReadNull();
-                return null;
-            }
-            else
-            {
-                bsonReader.ReadStartDocument();
-                var type = bsonReader.ReadString("type");
-                if (type != "name")
+                switch (flag)
                 {
-                    var message = string.Format("Expected type to be 'name'.");
-                    throw new FormatException(message);
+                    case Flags.Type: type = bsonReader.ReadString(); break;
+                    case Flags.Properties:
+                        _propertiesHelper.DeserializeMembers(context, (propertiesElementName, propertiesFlag) =>
+                        {
+                            switch (propertiesFlag)
+                            {
+                                case PropertiesFlags.Name: name = bsonReader.ReadString(); break;
+                            }
+                        });
+                        break;
                 }
-                bsonReader.ReadName("properties");
-                bsonReader.ReadStartDocument();
-                var name = bsonReader.ReadString("name");
-                bsonReader.ReadEndDocument();
-                bsonReader.ReadEndDocument();
+            });
 
-                return new GeoJsonNamedCoordinateReferenceSystem(name);
+            if (type != "name")
+            {
+                var message = string.Format("Expected type to be 'name'.");
+                throw new FormatException(message);
             }
+
+            return new GeoJsonNamedCoordinateReferenceSystem(name);
         }
 
         /// <summary>

@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
@@ -25,40 +27,38 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
     public class GeoJsonGeometrySerializer<TCoordinates> : ClassSerializerBase<GeoJsonGeometry<TCoordinates>> where TCoordinates : GeoJsonCoordinates
     {
-        // public methods
         /// <summary>
-        /// Deserializes a value.
+        /// Gets the actual type.
         /// </summary>
-        /// <param name="context">The deserialization context.</param>
-        /// <returns>The value.</returns>
-        public override GeoJsonGeometry<TCoordinates> Deserialize(BsonDeserializationContext context)
+        /// <param name="context">The context.</param>
+        /// <returns>The actual type.</returns>
+        protected override Type GetActualType(BsonDeserializationContext context)
         {
-            var helper = new Helper();
-            return (GeoJsonGeometry<TCoordinates>)helper.Deserialize(context);
-        }
-
-        /// <summary>
-        /// Serializes a value.
-        /// </summary>
-        /// <param name="context">The serialization context.</param>
-        /// <param name="value">The value.</param>
-        protected override void SerializeValue(BsonSerializationContext context, GeoJsonGeometry<TCoordinates> value)
-        {
-            var helper = new Helper();
-            helper.SerializeValue(context, value);
-        }
-
-        // nested classes
-        internal class Helper : GeoJsonObjectSerializer<TCoordinates>.Helper
-        {
-            public Helper()
-                : base(typeof(GeoJsonGeometry<TCoordinates>), null, null)
+            var bsonReader = context.Reader;
+            var bookmark = bsonReader.GetBookmark();
+            bsonReader.ReadStartDocument();
+            if (bsonReader.FindElement("type"))
             {
+                var discriminator = bsonReader.ReadString();
+                bsonReader.ReturnToBookmark(bookmark);
+
+                switch (discriminator)
+                {
+                    case "GeometryCollection": return typeof(GeoJsonGeometryCollection<TCoordinates>);
+                    case "LineString": return typeof(GeoJsonLineString<TCoordinates>);
+                    case "MultiLineString": return typeof(GeoJsonMultiLineString<TCoordinates>);
+                    case "MultiPoint": return typeof(GeoJsonMultiPoint<TCoordinates>);
+                    case "MultiPolygon": return typeof(GeoJsonMultiPolygon<TCoordinates>);
+                    case "Point": return typeof(GeoJsonPoint<TCoordinates>);
+                    case "Polygon": return typeof(GeoJsonPolygon<TCoordinates>);
+                    default:
+                        var message = string.Format("The type field of the GeoJsonGeometry is not valid: '{0}'.", discriminator);
+                        throw new FormatException(message);
+                }
             }
-
-            protected Helper(Type objectType, string expectedDiscriminator, GeoJsonObjectArgs<TCoordinates> args)
-                : base(objectType, expectedDiscriminator, args)
+            else
             {
+                throw new FormatException("GeoJsonGeometry object is missing the type field.");
             }
         }
     }

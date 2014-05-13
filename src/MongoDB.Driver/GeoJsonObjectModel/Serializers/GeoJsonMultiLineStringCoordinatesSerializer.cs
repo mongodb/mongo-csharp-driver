@@ -28,35 +28,26 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonLineStringCoordinates<TCoordinates>> _lineStringCoordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonLineStringCoordinates<TCoordinates>>();
 
-        // public methods
+        // protected methods
         /// <summary>
         /// Deserializes a value.
         /// </summary>
         /// <param name="context">The deserialization context.</param>
         /// <returns>The value.</returns>
-        public override GeoJsonMultiLineStringCoordinates<TCoordinates> Deserialize(BsonDeserializationContext context)
+        protected override GeoJsonMultiLineStringCoordinates<TCoordinates> DeserializeValue(BsonDeserializationContext context)
         {
             var bsonReader = context.Reader;
+            var lineStrings = new List<GeoJsonLineStringCoordinates<TCoordinates>>();
 
-            if (bsonReader.GetCurrentBsonType() == BsonType.Null)
+            bsonReader.ReadStartArray();
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                bsonReader.ReadNull();
-                return null;
+                var lineString = _lineStringCoordinatesSerializer.Deserialize(context.CreateChild(_lineStringCoordinatesSerializer.ValueType));
+                lineStrings.Add(lineString);
             }
-            else
-            {
-                var lineStrings = new List<GeoJsonLineStringCoordinates<TCoordinates>>();
+            bsonReader.ReadEndArray();
 
-                bsonReader.ReadStartArray();
-                while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
-                {
-                    var lineString = _lineStringCoordinatesSerializer.Deserialize(context.CreateChild(_lineStringCoordinatesSerializer.ValueType));
-                    lineStrings.Add(lineString);
-                }
-                bsonReader.ReadEndArray();
-
-                return new GeoJsonMultiLineStringCoordinates<TCoordinates>(lineStrings);
-            }
+            return new GeoJsonMultiLineStringCoordinates<TCoordinates>(lineStrings);
         }
 
         /// <summary>
