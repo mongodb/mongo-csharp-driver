@@ -1,6 +1,6 @@
 Properties {
     if(-not (Test-Path variable:base_version)) {
-        $base_version = "3.0.0"
+        $base_version = "2.0.0"
     }
     if(-not (Test-Path variable:pre_release)) {
         $pre_release = "local"
