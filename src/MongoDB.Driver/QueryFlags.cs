@@ -36,6 +36,10 @@ namespace MongoDB.Driver
         /// </summary>
         SlaveOk = 4,
         /// <summary>
+        /// Internal replication use only - driver should not set
+        /// </summary>
+        OplogReplay = 8,
+        /// <summary>
         /// Tell the server not to let the cursor timeout.
         /// </summary>
         NoCursorTimeout = 16,
