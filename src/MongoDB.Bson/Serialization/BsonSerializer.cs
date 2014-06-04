@@ -117,7 +117,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>A TNominalType.</returns>
         public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            using (var memoryStream = new MemoryStream(bytes))
+            using (var memoryStream = new BsonMemoryStream(bytes))
             {
                 return Deserialize<TNominalType>(memoryStream, configurator);
             }
@@ -206,7 +206,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>An object.</returns>
         public static object Deserialize(byte[] bytes, Type nominalType, Action<BsonDeserializationContext.Builder> configurator = null)
         {
-            using (var memoryStream = new MemoryStream(bytes))
+            using (var memoryStream = new BsonMemoryStream(bytes))
             {
                 return Deserialize(memoryStream, nominalType, configurator);
             }

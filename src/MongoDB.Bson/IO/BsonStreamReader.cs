@@ -135,21 +135,26 @@ namespace MongoDB.Bson.IO
         /// Reads a BSON CString from the stream.
         /// </summary>
         /// <returns>A string.</returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// stream
-        /// or
-        /// encoding
-        /// </exception>
-        /// <exception cref="System.IO.EndOfStreamException"></exception>
         public string ReadCString()
+        {
+            var utf8 = ReadCStringBytes();
+            return Utf8Helper.DecodeUtf8String(utf8.Array, utf8.Offset, utf8.Count, Utf8Helper.StrictUtf8Encoding);
+        }
+
+        /// <summary>
+        /// Reads a BSON CString from the stream.
+        /// </summary>
+        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
+        public ArraySegment<byte> ReadCStringBytes()
         {
             if (_bsonStream != null)
             {
-                return _bsonStream.ReadBsonCString();
+                return _bsonStream.ReadBsonCStringBytes();
             }
             else
             {
                 var memoryStream = new MemoryStream(32); // override default capacity of zero
+
                 while (true)
                 {
                     var b = _stream.ReadByte();
@@ -157,16 +162,12 @@ namespace MongoDB.Bson.IO
                     {
                         throw new EndOfStreamException();
                     }
-                    else if (b == 0)
+                    if (b == 0)
                     {
-                        break;
+                        return new ArraySegment<byte>(memoryStream.GetBuffer(), 0, (int)memoryStream.Length); // without the null byte
                     }
-                    else
-                    {
-                        memoryStream.WriteByte((byte)b);
-                    }
+                    memoryStream.WriteByte((byte)b);
                 }
-                return Utf8Helper.DecodeUtf8String(memoryStream.GetBuffer(), 0, (int)memoryStream.Length, Utf8Helper.StrictUtf8Encoding);
             }
         }
 

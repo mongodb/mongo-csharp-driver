@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
@@ -149,11 +150,12 @@ namespace MongoDB.Bson.Serialization
             var elementTrie = _classMap.ElementTrie;
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                bool memberMapFound;
-                int memberMapIndex;
-                var elementName = bsonReader.ReadName(elementTrie, out memberMapFound, out memberMapIndex);
-                if (memberMapFound)
+                var trieDecoder = new TrieNameDecoder<int>(elementTrie);
+                var elementName = bsonReader.ReadName(trieDecoder);
+
+                if (trieDecoder.Found)
                 {
+                    var memberMapIndex = trieDecoder.Value;
                     var memberMap = allMemberMaps[memberMapIndex];
                     if (memberMapIndex != extraElementsMemberMapIndex)
                     {

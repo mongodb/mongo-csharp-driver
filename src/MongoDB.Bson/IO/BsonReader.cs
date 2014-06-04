@@ -464,25 +464,19 @@ namespace MongoDB.Bson.IO
         /// Reads the name of an element from the reader.
         /// </summary>
         /// <returns>The name of the element.</returns>
-        public abstract string ReadName();
+        public virtual string ReadName()
+        {
+            return ReadName(Utf8NameDecoder.Instance);
+        }
 
         /// <summary>
-        /// Reads the name of an element from the reader (using a trie).
+        /// Reads the name of an element from the reader (using the provided name decoder).
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <param name="trie">The trie.</param>
-        /// <param name="found">Whether the element name was found in the trie.</param>
-        /// <param name="value">If found is true, the value found in the trie for the element name.</param>
+        /// <param name="nameDecoder">The name decoder.</param>
         /// <returns>
         /// The name of the element.
         /// </returns>
-        public virtual string ReadName<TValue>(BsonTrie<TValue> trie, out bool found, out TValue value)
-        {
-            // overridden in BsonBinaryReader to use the trie for UTF8 decoding
-            var name = ReadName();
-            found = trie.TryGetValue(name, out value);
-            return name;
-        }
+        public abstract string ReadName(INameDecoder nameDecoder);
 
         /// <summary>
         /// Reads the name of an element from the reader.

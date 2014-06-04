@@ -338,11 +338,17 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads the name of an element from the reader.
         /// </summary>
+        /// <param name="nameDecoder">The name decoder.</param>
         /// <returns>
         /// The name of the element.
         /// </returns>
-        public override string ReadName()
+        public override string ReadName(INameDecoder nameDecoder)
         {
+            if (nameDecoder == null)
+            {
+                throw new ArgumentNullException("nameDecoder");
+            }
+
             if (Disposed) { ThrowObjectDisposedException(); }
             if (State == BsonReaderState.Type)
             {
@@ -353,6 +359,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("ReadName", BsonReaderState.Name);
             }
 
+            nameDecoder.Inform(CurrentName);
             State = BsonReaderState.Value;
             return CurrentName;
         }

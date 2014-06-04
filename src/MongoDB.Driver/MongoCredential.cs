@@ -310,7 +310,7 @@ namespace MongoDB.Driver
                 .Hash(_identity)
                 .Hash(_evidence)
                 .Hash(_mechanism)
-                .HashElements(_mechanismProperties)
+                .HashStructElements(_mechanismProperties)
                 .GetHashCode();
         }
 

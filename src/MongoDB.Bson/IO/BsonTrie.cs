@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.IO;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -56,10 +57,10 @@ namespace MongoDB.Bson.IO
         /// <param name="value">The value to add. The value can be null for reference types.</param>
         public void Add(string elementName, TValue value)
         {
-            var keyBytes = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
+            var utf8 = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
 
             var node = _root;
-            foreach (var keyByte in keyBytes)
+            foreach (var keyByte in utf8)
             {
                 var child = node.GetChild(keyByte);
                 if (child == null)
@@ -74,6 +75,73 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Gets the node associated with the specified element name.
+        /// </summary>
+        /// <param name="utf8">The element name.</param>
+        /// <param name="node">
+        /// When this method returns, contains the node associated with the specified element name, if the key is found;
+        /// otherwise, null. This parameter is passed unitialized.
+        /// </param>
+        /// <returns>True if the node was found; otherwise, false.</returns>
+        public bool TryGetNode(ArraySegment<byte> utf8, out BsonTrieNode<TValue> node)
+        {
+            node = _root;
+            for (var i = 0; node != null && i < utf8.Count; i++)
+            {
+                var keyByte = utf8.Array[utf8.Offset + i];
+                node = node.GetChild(keyByte);
+            }
+
+            return node != null;
+        }
+
+        /// <summary>
+        /// Tries to get the node associated with a name read from a stream.
+        /// </summary>
+        /// <param name="streamReader">The stream.</param>
+        /// <param name="node">The node.</param>
+        /// <returns>
+        /// True if the node was found.
+        /// If the node was found the stream is advanced over the name, otherwise
+        /// the stream is repositioned to the beginning of the name.
+        /// </returns>
+        public bool TryGetNode(BsonStreamReader streamReader, out BsonTrieNode<TValue> node)
+        {
+            var position = streamReader.Position;
+            var utf8 = streamReader.ReadCStringBytes();
+
+            if (TryGetNode(utf8, out node))
+            {
+                return true;
+            }
+
+            streamReader.Position = position;
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the value associated with the specified element name.
+        /// </summary>
+        /// <param name="utf8">The element name.</param>
+        /// <param name="value">
+        /// When this method returns, contains the value associated with the specified element name, if the key is found;
+        /// otherwise, the default value for the type of the value parameter. This parameter is passed unitialized.
+        /// </param>
+        /// <returns>True if the value was found; otherwise, false.</returns>
+        public bool TryGetValue(ArraySegment<byte> utf8, out TValue value)
+        {
+            BsonTrieNode<TValue> node;
+            if (TryGetNode(utf8, out node) && node.HasValue)
+            {
+                value = node.Value;
+                return true;
+            }
+
+            value = default(TValue);
+            return false;
+        }
+
+        /// <summary>
         /// Gets the value associated with the specified element name.
         /// </summary>
         /// <param name="elementName">The element name.</param>
@@ -84,27 +152,9 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the value was found; otherwise, false.</returns>
         public bool TryGetValue(string elementName, out TValue value)
         {
-            var keyBytes = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
-
-            var node = _root;
-            for (var i = 0; i < keyBytes.Length; i++)
-            {
-                node = node.GetChild(keyBytes[i]);
-                if (node == null)
-                {
-                    value = default(TValue);
-                    return false;
-                }
-            }
-
-            if (!node.HasValue)
-            {
-                value = default(TValue);
-                return false;
-            }
-
-            value = node.Value;
-            return true;
+            var bytes = Utf8Helper.StrictUtf8Encoding.GetBytes(elementName);
+            var utf8 = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            return TryGetValue(utf8, out value);
         }
     }
 

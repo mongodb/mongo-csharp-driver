@@ -101,7 +101,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
         {
             return new Hasher()
                 .Hash(GetType().GetHashCode())
-                .HashElements(Values)
+                .HashStructElements(Values)
                 .GetHashCode();
         }
     }

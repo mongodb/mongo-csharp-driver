@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Text;
 
 namespace MongoDB.Bson.IO
@@ -27,8 +28,8 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the stream.
         /// </summary>
-        /// <returns>A string.</returns>
-        string ReadBsonCString();
+        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
+        ArraySegment<byte> ReadBsonCStringBytes();
 
         /// <summary>
         /// Reads a BSON double from the stream.

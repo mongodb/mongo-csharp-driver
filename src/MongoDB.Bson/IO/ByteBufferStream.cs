@@ -424,29 +424,26 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the stream.
         /// </summary>
-        /// <returns>
-        /// A string.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">encoding</exception>
-        /// <exception cref="System.FormatException">CString is missing terminating null byte.</exception>
-        string IBsonStream.ReadBsonCString()
+        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
+        ArraySegment<byte> IBsonStream.ReadBsonCStringBytes()
         {
             ThrowIfDisposed();
             ThrowIfEndOfStream(1);
 
+            var startPosition = _position;
             var nullPosition = FindNullByte();
-            var length = nullPosition - _position + 1; // read null byte also
+            var length = nullPosition - startPosition;
 
-            var segment = _byteBuffer.AccessBackingBytes(_position);
+            var segment = _byteBuffer.AccessBackingBytes(startPosition);
             if (segment.Count >= length)
             {
-                _position += length;
-                return Utf8Helper.DecodeUtf8String(segment.Array, segment.Offset, length - 1, Utf8Helper.StrictUtf8Encoding); // don't decode null byte
+                _position = nullPosition + 1; // advance over null byte
+                return new ArraySegment<byte>(segment.Array, segment.Offset, length); // without the null byte
             }
             else
             {
-                var bytes = ReadBytes(length);
-                return Utf8Helper.DecodeUtf8String(bytes, 0, length - 1, Utf8Helper.StrictUtf8Encoding); // don't decode null byte
+                var cstring = ReadBytes(length + 1); // read null byte also
+                return new ArraySegment<byte>(cstring, 0, length); // without the null byte
             }
         }
 

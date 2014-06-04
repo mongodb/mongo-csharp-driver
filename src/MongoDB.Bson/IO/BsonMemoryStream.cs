@@ -722,23 +722,20 @@ namespace MongoDB.Bson.IO
         /// <summary>
         /// Reads a BSON CString from the stream.
         /// </summary>
-        /// <returns>
-        /// A string.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">encoding</exception>
-        string IBsonStream.ReadBsonCString()
+        /// <returns>An ArraySegment containing the CString bytes (without the null byte).</returns>
+        ArraySegment<byte> IBsonStream.ReadBsonCStringBytes()
         {
             if (!_isOpen)
             {
                 StreamIsClosed();
             }
 
+            var startPosition = _position;
             var nullPosition = FindNullByte();
-            var position = _position;
-            var length = nullPosition - position + 1; // read null byte also
-            _position = nullPosition + 1;
+            var length = nullPosition - startPosition;
+            _position = nullPosition + 1; // advance over the null byte
 
-            return Utf8Helper.DecodeUtf8String(_buffer, position, length - 1, Utf8Helper.StrictUtf8Encoding); // don't decode null byte
+            return new ArraySegment<byte>(_buffer, startPosition, length); // without the null byte
         }
 
         /// <summary>
@@ -865,6 +862,10 @@ namespace MongoDB.Bson.IO
             {
                 var message = string.Format("Invalid string length: {0}.", length);
                 throw new FormatException(message);
+            }
+            if (_buffer[_position + length - 1] != 0)
+            {
+                throw new FormatException("String is missing terminating null byte.");
             }
 
             var position = _position;
