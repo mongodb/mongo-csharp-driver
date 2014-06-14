@@ -63,14 +63,13 @@ namespace MongoDB.Driver.Operations
 
         protected SendMessageWithWriteConcernResult SendMessageWithWriteConcern(
             MongoConnection connection,
-            Stream stream,
-            int requestId,
+			MongoRequestMessage message,
             BsonBinaryReaderSettings readerSettings,
             BsonBinaryWriterSettings writerSettings,
             WriteConcern writeConcern)
         {
             var result = new SendMessageWithWriteConcernResult();
-
+			MongoQueryMessage getLastErrorMessage = null; 
             if (writeConcern.Enabled)
             {
                 var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
@@ -90,14 +89,13 @@ namespace MongoDB.Driver.Operations
                 };
 
                 // piggy back on network transmission for message
-                var getLastErrorMessage = new MongoQueryMessage(writerSettings, DatabaseName + ".$cmd", QueryFlags.None, maxDocumentSize, 0, 1, getLastErrorCommand, null);
-                getLastErrorMessage.WriteTo(stream);
+                getLastErrorMessage = new MongoQueryMessage(writerSettings, DatabaseName + ".$cmd", QueryFlags.None, maxDocumentSize, 0, 1, getLastErrorCommand, null);
 
                 result.GetLastErrorCommand = getLastErrorCommand;
                 result.GetLastErrorRequestId = getLastErrorMessage.RequestId;
             }
 
-            connection.SendMessage(stream, requestId);
+			connection.SendMessage(message, getLastErrorMessage);
 
             return result;
         }

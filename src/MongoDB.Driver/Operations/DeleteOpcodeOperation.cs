@@ -58,16 +58,9 @@ namespace MongoDB.Driver.Operations
                 default: throw new NotSupportedException("Delete Opcode only supports limit values of 0 and 1.");
             }
 
-            SendMessageWithWriteConcernResult sendMessageResult;
-            using (var stream = new MemoryStream())
-            {
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-
-                var message = new MongoDeleteMessage(WriterSettings, CollectionFullName, flags, maxDocumentSize, deleteRequest.Query);
-                message.WriteTo(stream);
-
-                sendMessageResult = SendMessageWithWriteConcern(connection, stream, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
-            }
+            var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+            var message = new MongoDeleteMessage(WriterSettings, CollectionFullName, flags, maxDocumentSize, deleteRequest.Query);
+			SendMessageWithWriteConcernResult sendMessageResult = SendMessageWithWriteConcern(connection, message, ReaderSettings, WriterSettings, WriteConcern);
 
             return WriteConcern.Enabled ? ReadWriteConcernResult(connection, sendMessageResult) : null;
         }

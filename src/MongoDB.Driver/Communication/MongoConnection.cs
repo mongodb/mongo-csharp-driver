@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal void SendMessage(Stream stream, int requestId)
+        private void SendMessage(Stream stream, int requestId)
         {
             if (_state == MongoConnectionState.Closed) { throw new InvalidOperationException("Connection is closed."); }
             lock (_connectionLock)
@@ -303,13 +303,26 @@ namespace MongoDB.Driver.Internal
             }
         }
 
-        internal void SendMessage(MongoRequestMessage message)
-        {
-            using (var stream = new MemoryStream())
-            {
-                message.WriteTo(stream);
-                SendMessage(stream, message.RequestId);
-            }
+        internal void SendMessage(params MongoRequestMessage[] messages)
+		{
+			if (messages.Length == 0) return;
+
+			using (var stream = new MemoryStream())
+			{
+				//original behavior would send the request ID of the first request
+				//and the rest are embedded in the stream
+				int requestId = messages[0].RequestId;
+				
+				for (int i = 0; i < messages.Length; i++)
+				{
+					MongoRequestMessage message = messages[i];
+					if (message != null)
+					{
+						message.WriteTo(stream);
+					}
+				}
+				SendMessage(stream, requestId);
+			}
         }
 
         // private methods

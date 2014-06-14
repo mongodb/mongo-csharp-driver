@@ -44,27 +44,23 @@ namespace MongoDB.Driver.Operations
             }
 
             SendMessageWithWriteConcernResult sendMessageResult;
-            using (var stream = new MemoryStream())
+            var requests = _args.Requests.ToList();
+            if (requests.Count != 1)
             {
-                var requests = _args.Requests.ToList();
-                if (requests.Count != 1)
-                {
-                    throw new NotSupportedException("Update opcode only supports a single update request.");
-                }
-                var updateRequest = (UpdateRequest)requests[0];
-
-                var flags = UpdateFlags.None;
-                if (updateRequest.IsMultiUpdate ?? false) { flags |= UpdateFlags.Multi; }
-                if (updateRequest.IsUpsert ?? false) { flags |= UpdateFlags.Upsert; }
-
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-                var query = updateRequest.Query ?? new QueryDocument();
-
-                var message = new MongoUpdateMessage(WriterSettings, CollectionFullName, _args.CheckElementNames, flags, maxDocumentSize, query, updateRequest.Update);
-                message.WriteTo(stream);
-
-                sendMessageResult = SendMessageWithWriteConcern(connection, stream, message.RequestId, ReaderSettings, WriterSettings, WriteConcern);
+                throw new NotSupportedException("Update opcode only supports a single update request.");
             }
+            var updateRequest = (UpdateRequest)requests[0];
+
+            var flags = UpdateFlags.None;
+            if (updateRequest.IsMultiUpdate ?? false) { flags |= UpdateFlags.Multi; }
+            if (updateRequest.IsUpsert ?? false) { flags |= UpdateFlags.Upsert; }
+
+            var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
+            var query = updateRequest.Query ?? new QueryDocument();
+
+            var message = new MongoUpdateMessage(WriterSettings, CollectionFullName, _args.CheckElementNames, flags, maxDocumentSize, query, updateRequest.Update);
+
+			sendMessageResult = SendMessageWithWriteConcern(connection, message, ReaderSettings, WriterSettings, WriteConcern);
 
             return WriteConcern.Enabled ? ReadWriteConcernResult(connection, sendMessageResult) : null;
         }
