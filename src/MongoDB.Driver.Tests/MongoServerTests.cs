@@ -195,6 +195,7 @@ namespace MongoDB.Driver.Tests
             Assert.IsFalse(_server.IsDatabaseNameValid("", out message));
             Assert.IsFalse(_server.IsDatabaseNameValid("/", out message));
             Assert.IsFalse(_server.IsDatabaseNameValid(new string('x', 128), out message));
+            Assert.IsTrue(_server.IsDatabaseNameValid("$external", out message));
         }
 
         [Test]
