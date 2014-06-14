@@ -713,6 +713,8 @@ namespace MongoDB.Driver
         /// <returns>True if the database name is valid; otherwise, false.</returns>
         public virtual bool IsDatabaseNameValid(string databaseName, out string message)
         {
+            message = null;
+
             if (databaseName == null)
             {
                 throw new ArgumentNullException("databaseName");
@@ -722,6 +724,12 @@ namespace MongoDB.Driver
             {
                 message = "Database name is empty.";
                 return false;
+            }
+
+            // make an exception for $external
+            if (databaseName == "$external")
+            {
+                return true;
             }
 
             foreach (var c in databaseName)
@@ -741,7 +749,6 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            message = null;
             return true;
         }
 
