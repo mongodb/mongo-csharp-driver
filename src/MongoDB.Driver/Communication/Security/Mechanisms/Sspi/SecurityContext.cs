@@ -415,7 +415,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
             {
                 try
                 {
-                    Win32.FreeContextBuffer(ref array);
+                    Win32.FreeContextBuffer(array);
                 }
                 catch
                 { }
