@@ -258,7 +258,28 @@ namespace MongoDB.Driver.Operations
         {
             var processedRequests = new[] { request };
             var unprocessedRequests = Enumerable.Empty<WriteRequest>();
-            var upsertId = (writeConcernResult == null) ? null : writeConcernResult.Upserted;
+            BsonValue upsertId = null;
+            var documentsAffected = 0L;
+            if(writeConcernResult != null)
+            {
+                documentsAffected = writeConcernResult.DocumentsAffected;
+                upsertId = writeConcernResult.Upserted;
+                var updateRequest = request as UpdateRequest;
+                if (upsertId == null &&
+                    documentsAffected == 1 &&
+                    updateRequest != null &&
+                    updateRequest.IsUpsert.GetValueOrDefault(false) &&
+                    !writeConcernResult.UpdatedExisting)
+                {
+                    // Get the _id field first from the Update document
+                    // and then from the Query document.
+                    upsertId = updateRequest.Update.ToBsonDocument()
+                        .GetValue(
+                            "_id",
+                            updateRequest.Query.ToBsonDocument()
+                                .GetValue("_id", null));
+                }
+            }
             var upserts = (upsertId == null) ? Enumerable.Empty<BulkWriteUpsert>() : new[] { new BulkWriteUpsert(0, upsertId) };
             var writeErrors = __noWriteErrors;
             WriteConcernError writeConcernError = null;
@@ -277,7 +298,6 @@ namespace MongoDB.Driver.Operations
                 }
             }
 
-            var documentsAffected = (writeConcernResult == null) ? 0 : writeConcernResult.DocumentsAffected;
             if (request.RequestType == WriteRequestType.Insert && writeErrors.Count == 0)
             {
                 documentsAffected = 1; // note: DocumentsAffected is 0 for inserts
