@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms.Sspi
         /// </remarks>
         [DllImport("security.dll", CharSet = CharSet.None)]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
-        public static extern uint FreeContextBuffer(ref IntPtr contextBuffer);
+        public static extern uint FreeContextBuffer(IntPtr contextBuffer);
 
         /// <summary>
         /// Frees the credentials handle.
