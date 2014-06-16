@@ -1087,8 +1087,10 @@ namespace MongoDB.Driver.Tests.Operations
         public void TestUpsertWithNoMatchingDocument(bool ordered)
         {
             _collection.Drop();
-            var id1 = ObjectId.GenerateNewId();
-            var id2 = ObjectId.GenerateNewId();
+
+            // use non-ObjectIds to ensure functionality against < 2.6 servers
+            var id1 = 1;
+            var id2 = 2;
             _collection.Insert(new BsonDocument { { "_id", id2 }, { "x", 2 } });
 
             var bulk = InitializeBulkOperation(_collection, ordered);
