@@ -47,7 +47,7 @@ namespace MongoDB.Bson
         // static constructor
         static ObjectId()
         {
-            __staticMachine = GetMachineHash();
+            __staticMachine = (GetMachineHash() + AppDomain.CurrentDomain.Id) & 0x00ffffff; // add AppDomain Id to ensure uniqueness across AppDomains
             __staticIncrement = (new Random()).Next();
 
             try
