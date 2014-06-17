@@ -13,11 +13,9 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Driver.Support;
 
@@ -260,11 +258,13 @@ namespace MongoDB.Driver.Operations
             var unprocessedRequests = Enumerable.Empty<WriteRequest>();
             BsonValue upsertId = null;
             var documentsAffected = 0L;
-            if(writeConcernResult != null)
+
+            if (writeConcernResult != null)
             {
-                documentsAffected = writeConcernResult.DocumentsAffected;
                 upsertId = writeConcernResult.Upserted;
+                documentsAffected = writeConcernResult.DocumentsAffected;
                 var updateRequest = request as UpdateRequest;
+
                 if (upsertId == null &&
                     documentsAffected == 1 &&
                     updateRequest != null &&
@@ -273,13 +273,12 @@ namespace MongoDB.Driver.Operations
                 {
                     // Get the _id field first from the Update document
                     // and then from the Query document.
-                    upsertId = updateRequest.Update.ToBsonDocument()
-                        .GetValue(
-                            "_id",
-                            updateRequest.Query.ToBsonDocument()
-                                .GetValue("_id", null));
+                    upsertId =
+                        updateRequest.Update.ToBsonDocument().GetValue("_id", null) ??
+                        updateRequest.Query.ToBsonDocument().GetValue("_id", null);
                 }
             }
+
             var upserts = (upsertId == null) ? Enumerable.Empty<BulkWriteUpsert>() : new[] { new BulkWriteUpsert(0, upsertId) };
             var writeErrors = __noWriteErrors;
             WriteConcernError writeConcernError = null;
