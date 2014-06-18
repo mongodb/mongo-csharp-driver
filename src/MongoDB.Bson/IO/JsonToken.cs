@@ -167,6 +167,17 @@ namespace MongoDB.Bson.IO
         }
 
         /// <summary>
+        /// Gets a value indicating whether this token is number.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this token is number; otherwise, <c>false</c>.
+        /// </value>
+        public virtual bool IsNumber
+        {
+            get { return false; }
+        }
+
+        /// <summary>
         /// Gets the value of an ObjectId token.
         /// </summary>
         public virtual ObjectId ObjectIdValue
@@ -249,6 +260,33 @@ namespace MongoDB.Bson.IO
         {
             get { return _value; }
         }
+
+        /// <summary>
+        /// Gets the value of an Int32 token.
+        /// </summary>
+        public override int Int32Value
+        {
+            get { return (int)_value; }
+        }
+
+        /// <summary>
+        /// Gets the value of an Int64 token.
+        /// </summary>
+        public override long Int64Value
+        {
+            get { return (long)_value; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this token is number.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this token is number; otherwise, <c>false</c>.
+        /// </value>
+        public override bool IsNumber
+        {
+            get { return true; }
+        }
     }
 
     /// <summary>
@@ -273,6 +311,14 @@ namespace MongoDB.Bson.IO
 
         // public properties
         /// <summary>
+        /// Gets the value of a Double token.
+        /// </summary>
+        public override double DoubleValue
+        {
+            get { return _value; }
+        }
+
+        /// <summary>
         /// Gets the value of an Int32 token.
         /// </summary>
         public override int Int32Value
@@ -286,6 +332,17 @@ namespace MongoDB.Bson.IO
         public override long Int64Value
         {
             get { return _value; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this token is number.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this token is number; otherwise, <c>false</c>.
+        /// </value>
+        public override bool IsNumber
+        {
+            get { return true; }
         }
     }
 
@@ -311,11 +368,38 @@ namespace MongoDB.Bson.IO
 
         // public properties
         /// <summary>
+        /// Gets the value of a Double token.
+        /// </summary>
+        public override double DoubleValue
+        {
+            get { return _value; }
+        }
+
+        /// <summary>
+        /// Gets the value of an Int32 token.
+        /// </summary>
+        public override int Int32Value
+        {
+            get { return (int)_value; }
+        }
+
+        /// <summary>
         /// Gets the value of an Int64 token.
         /// </summary>
         public override long Int64Value
         {
             get { return _value; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this token is number.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this token is number; otherwise, <c>false</c>.
+        /// </value>
+        public override bool IsNumber
+        {
+            get { return true; }
         }
     }
 
