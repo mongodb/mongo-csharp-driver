@@ -392,8 +392,20 @@ namespace MongoDB.BsonUnitTests.IO
             Assert.AreEqual(json, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson());
         }
 
+        [TestCase("Number(123)")]
+        [TestCase("NumberInt(123)")]
+        public void TestInt32Constructor(string json)
+        {
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.Int32, _bsonReader.ReadBsonType());
+                Assert.AreEqual(123, _bsonReader.ReadInt32());
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
         [Test]
-        public void TestInt64()
+        public void TestInt64ConstructorQuoted()
         {
             var json = "NumberLong(\"123456789012\")";
             using (_bsonReader = BsonReader.Create(json))
@@ -406,7 +418,7 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestInt64NumberLong()
+        public void TestInt64ConstructorUnqutoed()
         {
             var json = "NumberLong(123)";
             using (_bsonReader = BsonReader.Create(json))
@@ -416,6 +428,18 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestInt64ExtendedJson()
+        {
+            var json = "{ \"$numberLong\" : \"123\" }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.Int64, _bsonReader.ReadBsonType());
+                Assert.AreEqual(123, _bsonReader.ReadInt64());
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
         }
 
         [Test]
@@ -450,7 +474,7 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestMaxKey()
+        public void TestMaxKeyExtendedJson()
         {
             var json = "{ \"$maxkey\" : 1 }";
             using (_bsonReader = BsonReader.Create(json))
@@ -463,7 +487,31 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestMinKey()
+        public void TestMaxKeyExtendedJsonWithCapitalK()
+        {
+            var json = "{ \"$maxKey\" : 1 }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.MaxKey, _bsonReader.ReadBsonType());
+                _bsonReader.ReadMaxKey();
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestMaxKeyKeyword()
+        {
+            var json = "MaxKey";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.MaxKey, _bsonReader.ReadBsonType());
+                _bsonReader.ReadMaxKey();
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestMinKeyExtendedJson()
         {
             var json = "{ \"$minkey\" : 1 }";
             using (_bsonReader = BsonReader.Create(json))
@@ -473,6 +521,30 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
             Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
+        }
+
+        [Test]
+        public void TestMinKeyExtendedJsonWithCapitalK()
+        {
+            var json = "{ \"$minKey\" : 1 }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.MinKey, _bsonReader.ReadBsonType());
+                _bsonReader.ReadMinKey();
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestMinKeyKeyword()
+        {
+            var json = "MinKey";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.MinKey, _bsonReader.ReadBsonType());
+                _bsonReader.ReadMinKey();
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
         }
 
         [Test]
@@ -645,7 +717,31 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestTimestamp()
+        public void TestTimestampConstructor()
+        {
+            var json = "Timestamp(1, 2)";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.Timestamp, _bsonReader.ReadBsonType());
+                Assert.AreEqual(new BsonTimestamp(1, 2).Value, _bsonReader.ReadTimestamp());
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestTimestampExtendedJsonNewRepresentation()
+        {
+            var json = "{ \"$timestamp\" : { \"t\" : 1, \"i\" : 2 } }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.Timestamp, _bsonReader.ReadBsonType());
+                Assert.AreEqual(new BsonTimestamp(1, 2).Value, _bsonReader.ReadTimestamp());
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestTimestampExtendedJsonOldRepresentation()
         {
             var json = "{ \"$timestamp\" : NumberLong(1234) }";
             using (_bsonReader = BsonReader.Create(json))
@@ -658,7 +754,19 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestUndefined()
+        public void TestUndefinedExtendedJson()
+        {
+            var json = "{ \"$undefined\" : true }";
+            using (_bsonReader = BsonReader.Create(json))
+            {
+                Assert.AreEqual(BsonType.Undefined, _bsonReader.ReadBsonType());
+                _bsonReader.ReadUndefined();
+                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
+            }
+        }
+
+        [Test]
+        public void TestUndefinedKeyword()
         {
             var json = "undefined";
             using (_bsonReader = BsonReader.Create(json))

@@ -237,6 +237,19 @@ namespace MongoDB.Bson.IO
                             CurrentBsonType = BsonType.DateTime;
                             _currentValue = ParseISODateTimeConstructor();
                             break;
+                        case "MaxKey":
+                            CurrentBsonType = BsonType.MaxKey;
+                            _currentValue = BsonMaxKey.Value;
+                            break;
+                        case "MinKey":
+                            CurrentBsonType = BsonType.MinKey;
+                            _currentValue = BsonMinKey.Value;
+                            break;
+                        case "Number":
+                        case "NumberInt":
+                            CurrentBsonType = BsonType.Int32;
+                            _currentValue = ParseNumberConstructor();
+                            break;
                         case "NumberLong":
                             CurrentBsonType = BsonType.Int64;
                             _currentValue = ParseNumberLongConstructor();
@@ -248,6 +261,10 @@ namespace MongoDB.Bson.IO
                         case "RegExp":
                             CurrentBsonType = BsonType.RegularExpression;
                             _currentValue = ParseRegularExpressionConstructor();
+                            break;
+                        case "Timestamp":
+                            CurrentBsonType = BsonType.Timestamp;
+                            _currentValue = ParseTimestampConstructor();
                             break;
                         case "UUID":
                         case "GUID":
@@ -1036,12 +1053,14 @@ namespace MongoDB.Bson.IO
                     case "$binary": _currentValue = ParseBinDataExtendedJson(); return BsonType.Binary;
                     case "$code": return ParseJavaScriptExtendedJson(out _currentValue);
                     case "$date": _currentValue = ParseDateTimeExtendedJson(); return BsonType.DateTime;
-                    case "$maxkey": _currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
-                    case "$minkey": _currentValue = ParseMinKeyExtendedJson(); return BsonType.MinKey;
+                    case "$maxkey": case "$maxKey": _currentValue = ParseMaxKeyExtendedJson(); return BsonType.MaxKey;
+                    case "$minkey": case "$minKey": _currentValue = ParseMinKeyExtendedJson(); return BsonType.MinKey;
+                    case "$numberLong": _currentValue = ParseNumberLongExtendedJson(); return BsonType.Int64;
                     case "$oid": _currentValue = ParseObjectIdExtendedJson(); return BsonType.ObjectId;
                     case "$regex": _currentValue = ParseRegularExpressionExtendedJson(); return BsonType.RegularExpression;
                     case "$symbol": _currentValue = ParseSymbolExtendedJson(); return BsonType.Symbol;
                     case "$timestamp": _currentValue = ParseTimestampExtendedJson(); return BsonType.Timestamp;
+                    case "$undefined": _currentValue = ParseUndefinedExtendedJson(); return BsonType.Undefined;
                 }
             }
             PushToken(nameToken);
@@ -1242,6 +1261,9 @@ namespace MongoDB.Bson.IO
                 case "ISODate":
                     value = ParseISODateTimeConstructor();
                     return BsonType.DateTime;
+                case "NumberInt":
+                    value = ParseNumberConstructor();
+                    return BsonType.Int32;
                 case "NumberLong":
                     value = ParseNumberLongConstructor();
                     return BsonType.Int64;
@@ -1251,6 +1273,9 @@ namespace MongoDB.Bson.IO
                 case "RegExp":
                     value = ParseRegularExpressionConstructor();
                     return BsonType.RegularExpression;
+                case "Timestamp":
+                    value = ParseTimestampConstructor();
+                    return BsonType.Timestamp;
                 case "UUID":
                 case "GUID":
                 case "CSUUID":
@@ -1265,6 +1290,28 @@ namespace MongoDB.Bson.IO
                     var message = string.Format("JSON reader expected a type name but found '{0}'.", typeToken.Lexeme);
                     throw new FileFormatException(message);
             }
+        }
+
+        private BsonValue ParseNumberConstructor()
+        {
+            VerifyToken("(");
+            var valueToken = PopToken();
+            int value;
+            if (valueToken.IsNumber)
+            {
+                value = valueToken.Int32Value;
+            }
+            else if (valueToken.Type == JsonTokenType.String)
+            {
+                value = int.Parse(valueToken.StringValue);
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer or a string but found '{0}'.", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(")");
+            return new BsonInt32(value);
         }
 
         private BsonValue ParseNumberLongConstructor()
@@ -1287,6 +1334,19 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken(")");
             return new BsonInt64(value);
+        }
+
+        private BsonValue ParseNumberLongExtendedJson()
+        {
+            VerifyToken(":");
+            var valueToken = PopToken();
+            if (valueToken.Type != JsonTokenType.String)
+            {
+                var message = string.Format("JSON reader expected a string but found '{0}'.", valueToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            return new BsonInt64(long.Parse(valueToken.StringValue));
         }
 
         private BsonValue ParseObjectIdConstructor()
@@ -1388,10 +1448,86 @@ namespace MongoDB.Bson.IO
             return new BsonString(nameToken.StringValue); // will be converted to a BsonSymbol at a higher level
         }
 
+        private BsonValue ParseTimestampConstructor()
+        {
+            VerifyToken("(");
+            int secondsSinceEpoch;
+            var secondsSinceEpochToken = PopToken();
+            if (secondsSinceEpochToken.IsNumber)
+            {
+                secondsSinceEpoch = secondsSinceEpochToken.Int32Value;
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected a number but found '{0}'.", secondsSinceEpochToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(",");
+            int increment;
+            var incrementToken = PopToken();
+            if (secondsSinceEpochToken.IsNumber)
+            {
+                increment = incrementToken.Int32Value;
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected a number but found '{0}'.", secondsSinceEpochToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(")");
+            return new BsonTimestamp(secondsSinceEpoch, increment);
+        }
+
         private BsonValue ParseTimestampExtendedJson()
         {
             VerifyToken(":");
-            var valueToken = PopToken();
+            var nextToken = PopToken();
+            if (nextToken.Type == JsonTokenType.BeginObject)
+            {
+                return ParseTimestampExtendedJsonNewRepresentation();
+            }
+            else
+            {
+                return ParseTimestampExtendedJsonOldRepresentation(nextToken);
+            }
+        }
+
+        private BsonValue ParseTimestampExtendedJsonNewRepresentation()
+        {
+            VerifyString("t");
+            VerifyToken(":");
+            var secondsSinceEpochToken = PopToken();
+            int secondsSinceEpoch;
+            if (secondsSinceEpochToken.IsNumber)
+            {
+                secondsSinceEpoch = secondsSinceEpochToken.Int32Value;
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer but found '{0}'.", secondsSinceEpochToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken(",");
+            VerifyString("i");
+            VerifyToken(":");
+            var incrementToken = PopToken();
+            int increment;
+            if (incrementToken.IsNumber)
+            {
+                increment = incrementToken.Int32Value;
+            }
+            else
+            {
+                var message = string.Format("JSON reader expected an integer but found '{0}'.", incrementToken.Lexeme);
+                throw new FileFormatException(message);
+            }
+            VerifyToken("}");
+            VerifyToken("}");
+            return new BsonTimestamp(secondsSinceEpoch, increment);
+        }
+
+        private BsonValue ParseTimestampExtendedJsonOldRepresentation(JsonToken valueToken)
+        {
             long value;
             if (valueToken.Type == JsonTokenType.Int32 || valueToken.Type == JsonTokenType.Int64)
             {
@@ -1408,6 +1544,14 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken("}");
             return new BsonTimestamp(value);
+        }
+
+        private BsonValue ParseUndefinedExtendedJson()
+        {
+            VerifyToken(":");
+            VerifyToken("true");
+            VerifyToken("}");
+            return BsonMaxKey.Value;
         }
 
         private BsonValue ParseUUIDConstructor(string uuidConstructorName)
