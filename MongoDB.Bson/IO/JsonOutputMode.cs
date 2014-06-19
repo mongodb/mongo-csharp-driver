@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Bson.IO
 {
     /// <summary>
@@ -24,17 +26,22 @@ namespace MongoDB.Bson.IO
         /// Output strict JSON.
         /// </summary>
         Strict,
-        /// <summary>
-        /// Use JavaScript data types for some values.
-        /// </summary>
-        JavaScript,
-        /// <summary>
-        /// Use JavaScript and MongoDB data types for some values.
-        /// </summary>
-        TenGen,
+
         /// <summary>
         /// Use a format that can be pasted in to the MongoDB shell.
         /// </summary>
-        Shell
+        Shell,
+
+        /// <summary>
+        /// Use JavaScript data types for some values.
+        /// </summary>
+        [Obsolete("Use Shell instead.")]
+        JavaScript = Shell,
+
+        /// <summary>
+        /// Use JavaScript and MongoDB data types for some values.
+        /// </summary>
+        [Obsolete("Use Shell instead.")]
+        TenGen = Shell
     }
 }

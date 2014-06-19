@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -293,32 +294,6 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestDateTimeTenGen()
-        {
-            var utcNow = DateTime.UtcNow;
-            var utcNowTruncated = utcNow.AddTicks(-(utcNow.Ticks % 10000));
-            var ms = BsonUtils.ToMillisecondsSinceEpoch(utcNowTruncated);
-            var tenGenDate = string.Format("new Date({0})", ms);
-            var tests = new TestData<BsonDateTime>[]
-            {
-                new TestData<BsonDateTime>(new BsonDateTime(long.MinValue), "new Date(-9223372036854775808)"),
-                new TestData<BsonDateTime>(new BsonDateTime(0), "new Date(0)"),
-                new TestData<BsonDateTime>(new BsonDateTime(long.MaxValue), "new Date(9223372036854775807)"),
-                new TestData<BsonDateTime>(new BsonDateTime(DateTime.MinValue), "new Date(-62135596800000)"),
-                new TestData<BsonDateTime>(new BsonDateTime(BsonConstants.UnixEpoch), "new Date(0)"),
-                new TestData<BsonDateTime>(new BsonDateTime(utcNowTruncated), tenGenDate),
-                new TestData<BsonDateTime>(new BsonDateTime(DateTime.MaxValue), "new Date(253402300799999)"),
-            };
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            foreach (var test in tests)
-            {
-                var json = test.Value.ToJson(jsonSettings);
-                Assert.AreEqual(test.Expected, json);
-                Assert.AreEqual(test.Value, BsonSerializer.Deserialize<BsonDateTime>(json));
-            }
-        }
-
-        [Test]
         public void TestJavaScript()
         {
             var document = new BsonDocument
@@ -361,7 +336,7 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 { "maxkey", BsonMaxKey.Value }
             };
-            string expected = "{ \"maxkey\" : { \"$maxkey\" : 1 } }";
+            string expected = "{ \"maxkey\" : MaxKey }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }
@@ -373,7 +348,7 @@ namespace MongoDB.BsonUnitTests.IO
             {
                 { "minkey", BsonMinKey.Value }
             };
-            string expected = "{ \"minkey\" : { \"$minkey\" : 1 } }";
+            string expected = "{ \"minkey\" : MinKey }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }
@@ -509,9 +484,9 @@ namespace MongoDB.BsonUnitTests.IO
         {
             var document = new BsonDocument
             {
-                { "timestamp", new BsonTimestamp(1234567890) }
+                { "timestamp", new BsonTimestamp(1, 2) }
             };
-            string expected = "{ \"timestamp\" : { \"$timestamp\" : NumberLong(1234567890) } }";
+            string expected = "{ \"timestamp\" : Timestamp(1, 2) }";
             string actual = document.ToJson();
             Assert.AreEqual(expected, actual);
         }
@@ -543,7 +518,10 @@ namespace MongoDB.BsonUnitTests.IO
                 }
 
                 var bytes = memoryStream.ToArray();
-                Assert.AreEqual("feff007b00200022007800220020003a002000310020007d", BsonUtils.ToHexString(bytes));
+                var bom = new byte[] { 0xfe, 0xff };
+                var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
+
+                CollectionAssert.AreEqual(expected, bytes);
             }
         }
 
@@ -562,7 +540,10 @@ namespace MongoDB.BsonUnitTests.IO
                 }
 
                 var bytes = memoryStream.ToArray();
-                Assert.AreEqual("fffe7b00200022007800220020003a002000310020007d00", BsonUtils.ToHexString(bytes));
+                var bom = new byte[] { 0xff, 0xfe };
+                var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
+
+                CollectionAssert.AreEqual(expected, bytes);
             }
         }
 
@@ -581,7 +562,10 @@ namespace MongoDB.BsonUnitTests.IO
                 }
 
                 var bytes = memoryStream.ToArray();
-                Assert.AreEqual("efbbbf7b20227822203a2031207d", BsonUtils.ToHexString(bytes));
+                var bom = new byte[] { 0xef, 0xbb, 0xbf };
+                var expected = bom.Concat(encoding.GetBytes("{ \"x\" : 1 }")).ToArray();
+
+                CollectionAssert.AreEqual(expected, bytes);
             }
         }
     }

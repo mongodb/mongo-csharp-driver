@@ -239,20 +239,6 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestDateTimeTengen()
-        {
-            var json = "new Date(0)";
-            using (_bsonReader = BsonReader.Create(json))
-            {
-                Assert.AreEqual(BsonType.DateTime, _bsonReader.ReadBsonType());
-                Assert.AreEqual(0, _bsonReader.ReadDateTime());
-                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
-            }
-            var jsonSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            Assert.AreEqual(json, BsonSerializer.Deserialize<DateTime>(new StringReader(json)).ToJson(jsonSettings));
-        }
-
-        [Test]
         public void TestDocumentEmpty()
         {
             var json = "{ }";
@@ -402,6 +388,8 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(123, _bsonReader.ReadInt32());
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "123";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<int>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -440,6 +428,8 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(123, _bsonReader.ReadInt64());
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "NumberLong(123)";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<long>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -483,7 +473,8 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMaxKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
-            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
+            var canonicalJson = "MaxKey";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -496,6 +487,8 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMaxKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "MaxKey";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -508,6 +501,7 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMaxKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMaxKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -520,7 +514,8 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMinKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
-            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
+            var canonicalJson = "MinKey";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -533,6 +528,8 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMinKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "MinKey";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -545,6 +542,7 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadMinKey();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonMinKey>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -632,21 +630,6 @@ namespace MongoDB.BsonUnitTests.IO
         }
 
         [Test]
-        public void TestObjectIdTenGen()
-        {
-            var json = "ObjectId(\"4d0ce088e447ad08b4721a37\")";
-            using (_bsonReader = BsonReader.Create(json))
-            {
-                Assert.AreEqual(BsonType.ObjectId, _bsonReader.ReadBsonType());
-                var objectId = _bsonReader.ReadObjectId();
-                Assert.AreEqual("4d0ce088e447ad08b4721a37", objectId.ToString());
-                Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
-            }
-            var settings = new JsonWriterSettings { OutputMode = JsonOutputMode.TenGen };
-            Assert.AreEqual(json, BsonSerializer.Deserialize<ObjectId>(new StringReader(json)).ToJson(settings));
-        }
-
-        [Test]
         public void TestRegularExpressionShell()
         {
             var json = "/pattern/imxs";
@@ -726,6 +709,7 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(new BsonTimestamp(1, 2).Value, _bsonReader.ReadTimestamp());
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -738,6 +722,8 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(new BsonTimestamp(1, 2).Value, _bsonReader.ReadTimestamp());
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "Timestamp(1, 2)";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -750,7 +736,8 @@ namespace MongoDB.BsonUnitTests.IO
                 Assert.AreEqual(1234L, _bsonReader.ReadTimestamp());
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
-            Assert.AreEqual(json, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
+            var canonicalJson = "Timestamp(0, 1234)";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonTimestamp>(new StringReader(json)).ToJson());
         }
 
         [Test]
@@ -763,6 +750,8 @@ namespace MongoDB.BsonUnitTests.IO
                 _bsonReader.ReadUndefined();
                 Assert.AreEqual(BsonReaderState.Done, _bsonReader.State);
             }
+            var canonicalJson = "undefined";
+            Assert.AreEqual(canonicalJson, BsonSerializer.Deserialize<BsonUndefined>(new StringReader(json)).ToJson());
         }
 
         [Test]
