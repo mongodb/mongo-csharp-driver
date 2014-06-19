@@ -493,7 +493,7 @@ namespace MongoDB.Driver
         public virtual MongoCursor SetMaxScan(int maxScan)
         {
             if (_isFrozen) { ThrowFrozen(); }
-            SetOption("$maxscan", maxScan);
+            SetOption("$maxScan", maxScan);
             return this;
         }
 
