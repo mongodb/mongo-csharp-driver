@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Tests.Jira
         {
             var query = Query<C>.Where(c => c.MaxKey == BsonMaxKey.Value);
             var json = query.ToJson();
-            var expected = "{ 'MaxKey' : { '$maxkey' : 1 } }".Replace("'", "\"");
+            var expected = "{ 'MaxKey' : MaxKey }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Tests.Jira
         {
             var query = Query<C>.Where(c => c.MinKey == BsonMinKey.Value);
             var json = query.ToJson();
-            var expected = "{ 'MinKey' : { '$minkey' : 1 } }".Replace("'", "\"");
+            var expected = "{ 'MinKey' : MinKey }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 
@@ -367,9 +367,9 @@ namespace MongoDB.Driver.Tests.Jira
         [Test]
         public void TestBsonTimestampEqualsNotNull()
         {
-            var query = Query<C>.Where(c => c.Timestamp == new BsonTimestamp(1));
+            var query = Query<C>.Where(c => c.Timestamp == new BsonTimestamp(1, 2));
             var json = query.ToJson();
-            var expected = "{ 'Timestamp' : { '$timestamp' : NumberLong(1) } }".Replace("'", "\"");
+            var expected = "{ 'Timestamp' : Timestamp(1, 2) }".Replace("'", "\"");
             Assert.AreEqual(expected, json);
         }
 

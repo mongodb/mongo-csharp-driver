@@ -33,7 +33,7 @@ namespace MongoDB.Bson.IO
         private string _indentChars = "  ";
         private string _newLineChars = "\r\n";
         private JsonOutputMode _outputMode = JsonOutputMode.Shell;
-        private Version _shellVersion = new Version(2, 0, 0);
+        private Version _shellVersion;
 
         // constructors
         /// <summary>
