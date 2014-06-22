@@ -1252,6 +1252,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
+        public void TestFindWithMaxScan()
+        {
+            if (_collection.Exists()) { _collection.Drop(); }
+            var docs = Enumerable.Range(0, 10).Select(x => new BsonDocument("_id", x));
+            _collection.InsertBatch(docs);
+
+            var results = _collection.FindAll().SetMaxScan(4).ToList();
+            Assert.AreEqual(4, results.Count);
+        }
+
+        [Test]
         public void TestFindWithMaxTime()
         {
             if (_primary.Supports(FeatureId.MaxTime))
