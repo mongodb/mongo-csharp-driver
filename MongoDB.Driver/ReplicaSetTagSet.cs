@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -203,7 +204,7 @@ namespace MongoDB.Driver
                 return _frozenHashCode;
             }
 
-            return _tags.GetHashCode();
+            return new Hasher().HashElements(_tags).GetHashCode();
         }
 
         /// <summary>

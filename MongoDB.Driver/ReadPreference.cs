@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -320,11 +321,10 @@ namespace MongoDB.Driver
                 return _frozenHashCode;
             }
 
-            // see Effective Java by Joshua Bloch
-            int hash = 17;
-            hash = 37 * hash + _readPreferenceMode.GetHashCode();
-            hash = 37 * hash + ((_tagSets == null) ? 0 : _tagSets.GetHashCode());
-            return hash;
+            return new Hasher()
+                .Hash(_readPreferenceMode)
+                .HashElements(_tagSets)
+                .GetHashCode();
         }
 
         /// <summary>
