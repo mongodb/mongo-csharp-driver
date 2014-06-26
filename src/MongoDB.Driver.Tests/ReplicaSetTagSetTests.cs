@@ -39,22 +39,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Test]
-        public void TestGetHashCodeIsSameWhenTagsAreDifferent()
-        {
-            var tagSet1 = new ReplicaSetTagSet
-            {
-                new ReplicaSetTag("dc", "ny")
-            };
-
-            var tagSet2 = new ReplicaSetTagSet
-            {
-                new ReplicaSetTag("dc", "tx")
-            };
-
-            Assert.AreNotEqual(tagSet1.GetHashCode(), tagSet2.GetHashCode());
-        }
-
-        [Test]
         public void TestAreEqualWhenTagsAreEqual()
         {
             var tagSet1 = new ReplicaSetTagSet

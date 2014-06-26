@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var rp1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
 
             var tagSets2 = new List<ReplicaSetTagSet>()
             {
@@ -58,33 +58,9 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var rp2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
 
-            Assert.AreEqual(rp1.GetHashCode(), rp2.GetHashCode());
-        }
-
-        [Test]
-        public void TestGetHashCodeIsDifferentWhenTagsAreDifferent()
-        {
-            var tagSets1 = new List<ReplicaSetTagSet>()
-            {
-                new ReplicaSetTagSet
-                {
-                    new ReplicaSetTag("dc", "ny")
-                }
-            };
-            var rp1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
-
-            var tagSets2 = new List<ReplicaSetTagSet>()
-            {
-                new ReplicaSetTagSet
-                {
-                    new ReplicaSetTag("dc", "tx")
-                }
-            };
-            var rp2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
-
-            Assert.AreNotEqual(rp1.GetHashCode(), rp2.GetHashCode());
+            Assert.AreEqual(readPreference1.GetHashCode(), readPreference2.GetHashCode());
         }
 
         [Test]
@@ -97,7 +73,7 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var rp1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
 
             var tagSets2 = new List<ReplicaSetTagSet>()
             {
@@ -106,9 +82,33 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var rp2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
 
-            Assert.AreEqual(rp1, rp2);
+            Assert.AreEqual(readPreference1, readPreference2);
+        }
+
+        [Test]
+        public void TestAreNotEqualWhenTagSetsAreDifferent()
+        {
+            var tagSets1 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            var tagSets2 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            Assert.AreEqual(readPreference1, readPreference2);
         }
     }
 }
