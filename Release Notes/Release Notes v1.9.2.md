@@ -24,6 +24,15 @@ The 1.9.x releases will be the last non-bug fix release supporting .NET 3.5.
 
 The issues fixed in 1.9.2 are:
 
+[Kerberos authentication occasionally crashes runtime](|https://jira.mongodb.org/browse/CSHARP-980)
+[Allow $external special database to be used](https://jira.mongodb.org/browse/CSHARP-986)
+[Handle pre-2.6 upserted identifier](https://jira.mongodb.org/browse/CSHARP-987)
+[Altered ObjectId generation to take into account the AppDomain](https://jira.mongodb.org/browse/CSHARP-993)
+[Added 2.6 extended json support to JsonReader](https://jira.mongodb.org/browse/CSHARP-995)
+[SetMaxScan rendered $maxscan instead of $maxScan](https://jira.mongodb.org/browse/CSHARP-1000)
+[Updated output of JsonWriter to include 2.6 extended json support](https://jira.mongodb.org/browse/CSHARP-1001)
+[Replica set tags GetHashCode was calculated improperly](https://jira.mongodb.org/browse/CSHARP-1005)
+
 
 Compatibility Changes
 ---------------------
