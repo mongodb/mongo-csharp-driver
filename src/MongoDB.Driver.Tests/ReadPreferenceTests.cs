@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Driver;
 using NUnit.Framework;
 
@@ -36,6 +37,78 @@ namespace MongoDB.Driver.Tests
             var subject = new ReadPreference(other);
 
             Assert.AreEqual(subject, other);
+        }
+
+        [Test]
+        public void TestGetHashCodeIsSameWhenEverythingIsTheSame()
+        {
+            var tagSets1 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            var tagSets2 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
+
+            Assert.AreEqual(readPreference1.GetHashCode(), readPreference2.GetHashCode());
+        }
+
+        [Test]
+        public void TestEquality()
+        {
+            var tagSets1 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            var tagSets2 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            Assert.AreEqual(readPreference1, readPreference2);
+        }
+
+        [Test]
+        public void TestAreNotEqualWhenTagSetsAreDifferent()
+        {
+            var tagSets1 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference1 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            var tagSets2 = new List<ReplicaSetTagSet>()
+            {
+                new ReplicaSetTagSet
+                {
+                    new ReplicaSetTag("dc", "ny")
+                }
+            };
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+
+            Assert.AreEqual(readPreference1, readPreference2);
         }
     }
 }
