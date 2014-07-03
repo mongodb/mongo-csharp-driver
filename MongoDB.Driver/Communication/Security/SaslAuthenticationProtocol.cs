@@ -86,12 +86,19 @@ namespace MongoDB.Driver.Communication.Security
                         throw new MongoSecurityException(message, ex);
                     }
 
-                    if (result.Response["done"].AsBoolean)
+                    // we might be done here if the client is not expecting a reply from the server
+                    if (result.Response["done"].AsBoolean && currentStep.IsComplete)
                     {
                         break;
                     }
 
                     currentStep = currentStep.Transition(conversation, result.Response["payload"].AsByteArray);
+
+                    // we might be done here if the client had some final verification it needed to do
+                    if (result.Response["done"].AsBoolean && currentStep.IsComplete)
+                    {
+                        break;
+                    }
 
                     command = new CommandDocument
                     {

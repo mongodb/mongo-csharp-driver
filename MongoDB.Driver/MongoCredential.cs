@@ -257,6 +257,36 @@ namespace MongoDB.Driver
                 new PasswordEvidence(password));
         }
 
+        /// <summary>
+        /// Creates a credential used with SCRAM-SHA-1.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A credential for SCRAM-SHA-1.</returns>
+        public static MongoCredential CreateScramSha1Credential(string databaseName, string username, string password)
+        {
+            return FromComponents("SCRAM-SHA-1",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
+        /// <summary>
+        /// Creates a credential used with SCRAM-SHA-1.
+        /// </summary>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A credential for SCRAM-SHA-1.</returns>
+        public static MongoCredential CreateScramSha1Credential(string databaseName, string username, SecureString password)
+        {
+            return FromComponents("SCRAM-SHA-1",
+                databaseName,
+                username,
+                new PasswordEvidence(password));
+        }
+
         // public methods
         /// <summary>
         /// Gets the mechanism property.
@@ -376,6 +406,7 @@ namespace MongoDB.Driver
             switch (mechanism.ToUpperInvariant())
             {
                 case "MONGODB-CR":
+                case "SCRAM-SHA-1":
                     // it is allowed for a password to be an empty string, but not a username
                     source = source ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))

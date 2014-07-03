@@ -58,6 +58,14 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
             get { return new byte[0]; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the client is complete.
+        /// </summary>
+        public bool IsComplete
+        {
+            get { return false; }
+        }
+
         // public methods
         /// <summary>
         /// Transitions to the next step in the conversation.
@@ -125,6 +133,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                 get { return _bytesReceivedFromServer; }
             }
 
+            public bool IsComplete
+            {
+                get { return false; }
+            }
+
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
             {
                 byte[] bytesToSendToServer;
@@ -162,6 +175,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
             public byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
+            }
+
+            public bool IsComplete
+            {
+                get { return false; }
             }
 
             public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)

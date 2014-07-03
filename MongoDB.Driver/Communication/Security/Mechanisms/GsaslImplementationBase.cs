@@ -48,6 +48,14 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
             get { return _output; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the client is complete.
+        /// </summary>
+        public bool IsComplete
+        {
+            get { return false; }
+        }
+
         // public methods
         /// <summary>
         /// Transitions to the next step in the conversation.

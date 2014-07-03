@@ -26,6 +26,11 @@ namespace MongoDB.Driver.Communication.Security
         byte[] BytesToSendToServer { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the client is complete.
+        /// </summary>
+        bool IsComplete { get; }
+
+        /// <summary>
         /// Transitions to the next step in the conversation.
         /// </summary>
         /// <param name="conversation">The conversation.</param>

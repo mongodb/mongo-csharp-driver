@@ -41,6 +41,15 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestCreateScramSha1Credential()
+        {
+            var credential = MongoCredential.CreateScramSha1Credential("db", "username", "password");
+            Assert.AreEqual("SCRAM-SHA-1", credential.Mechanism);
+            Assert.AreEqual("username", credential.Username);
+            Assert.AreEqual(new PasswordEvidence("password"), credential.Evidence);
+        }
+
+        [Test]
         public void TestEquals()
         {
             var a = MongoCredential.CreateMongoCRCredential("db", "user1", "password");

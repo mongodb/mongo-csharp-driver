@@ -309,6 +309,19 @@ namespace MongoDB.DriverUnitTests
         }
 
         [Test]
+        public void TestFromUrlWithScramSha1()
+        {
+            var url = new MongoUrl("mongodb://username:pass@localhost/?authMechanism=SCRAM-SHA-1");
+            var settings = MongoClientSettings.FromUrl(url);
+
+            var credential = settings.Credentials.Single();
+            Assert.AreEqual("SCRAM-SHA-1", credential.Mechanism);
+            Assert.AreEqual("username", credential.Username);
+            Assert.IsInstanceOf<PasswordEvidence>(credential.Evidence);
+            Assert.AreEqual("pass", MongoUtils.ToInsecureString(((PasswordEvidence)credential.Evidence).SecurePassword));
+        }
+
+        [Test]
         public void TestFromUrlWithMongoDBX509()
         {
             var url = new MongoUrl("mongodb://username@localhost/?authMechanism=MONGODB-X509");
