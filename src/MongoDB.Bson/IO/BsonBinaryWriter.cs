@@ -80,6 +80,17 @@ namespace MongoDB.Bson.IO
             get { return _stream;  }
         }
 
+        /// <summary>
+        /// Gets the stream writer.
+        /// </summary>
+        /// <value>
+        /// The stream writer.
+        /// </value>
+        public BsonStreamWriter StreamWriter
+        {
+            get { return _streamWriter; }
+        }
+
         // public methods
         /// <summary>
         /// Closes the writer. Also closes the base stream.

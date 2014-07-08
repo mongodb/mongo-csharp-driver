@@ -31,6 +31,9 @@ Help
 *.swp
 *~
 
+# Nuget artifacts
+src/packages
+
 # Nupkg artifacts
 *.nupkg
 

@@ -61,6 +61,18 @@ namespace MongoDB.Bson.IO
             _context = new BsonBinaryReaderContext(null, ContextType.TopLevel, 0, 0);
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the stream reader.
+        /// </summary>
+        /// <value>
+        /// The stream reader.
+        /// </value>
+        public BsonStreamReader StreamReader
+        {
+            get { return _streamReader; }
+        }
+
         // public methods
         /// <summary>
         /// Closes the reader.

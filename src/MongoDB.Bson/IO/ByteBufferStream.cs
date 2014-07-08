@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class ByteBufferStream : Stream, IBsonStream, ISliceableStream
     {
         // private fields
-        private readonly IByteBuffer _byteBuffer;
+        private  IByteBuffer _byteBuffer;
         private readonly bool _ownsByteBuffer;
         private bool _disposed;
         private int _length;

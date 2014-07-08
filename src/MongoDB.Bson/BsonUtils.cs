@@ -91,6 +91,16 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Converts a string to camelCase.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The value converted to camel case.</returns>
+        public static string ToCamelCase(string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Converts from number of milliseconds since Unix epoch to DateTime.
         /// </summary>
         /// <param name="millisecondsSinceEpoch">The number of milliseconds since Unix epoch.</param>

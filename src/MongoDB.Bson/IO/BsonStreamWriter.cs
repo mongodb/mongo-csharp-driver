@@ -81,6 +81,19 @@ namespace MongoDB.Bson.IO
 
         // public methods
         /// <summary>
+        /// Backpatches the size.
+        /// </summary>
+        /// <param name="startPosition">The start position.</param>
+        public void BackpatchSize(long startPosition)
+        {
+            var endPosition = _stream.Position;
+            var size = (int)(endPosition - startPosition);
+            _stream.Position = startPosition;
+            _stream.Write(BitConverter.GetBytes(size), 0, 4);
+            _stream.Position = endPosition;
+        }
+
+        /// <summary>
         /// Writes a BSON boolean to the stream.
         /// </summary>
         /// <param name="value">The value.</param>
