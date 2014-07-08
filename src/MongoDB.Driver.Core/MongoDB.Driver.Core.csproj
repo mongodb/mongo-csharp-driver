@@ -144,6 +144,7 @@
     <Compile Include="Misc\BatchResult.cs" />
     <Compile Include="Misc\DnsEndPointParser.cs" />
     <Compile Include="Misc\Ensure.cs" />
+    <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />
     <Compile Include="Misc\SemanticVersion.cs" />
     <Compile Include="Misc\SlidingTimeout.cs" />
     <Compile Include="Misc\StreamExtensionMethods.cs" />

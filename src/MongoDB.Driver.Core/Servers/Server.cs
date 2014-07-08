@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Servers
     public class Server : IRootServer
     {
         // fields
+        private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
         private readonly IConnectionPool _connectionPool;
         private ServerDescription _description;
@@ -184,8 +185,9 @@ namespace MongoDB.Driver.Core.Servers
                         var heartbeatInfo = await HeartbeatWithRetryAsync(connection, _settings.HeartbeatTimeout, cancellationToken);
                         connection = heartbeatInfo.Connection; // HeartbeatWithRetryAsync creates (or recreates) connections as necessary
 
-                        var averageRoundTripTime = heartbeatInfo.RoundTripTime; // TODO: calculate moving average
-                        var serverDescription = ToServerDescription(heartbeatInfo, averageRoundTripTime);
+                        var averageRoundTripTime = _averageRoundTripTimeCalculator.AddSample(heartbeatInfo.RoundTripTime);
+                        var averageRoundTripTimeRounded = TimeSpan.FromMilliseconds(Math.Round(averageRoundTripTime.TotalMilliseconds));
+                        var serverDescription = ToServerDescription(heartbeatInfo, averageRoundTripTimeRounded);
                         CheckIfDescriptionChanged(serverDescription);
 
                         var heartbeatDelay = new InterruptibleDelay(_settings.HeartbeatInterval);

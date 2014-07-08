@@ -57,8 +57,8 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     return list;
                 default:
                     var minAverageRoundTripTime = list.Min(s => s.AverageRoundTripTime);
-                    var maxAverageRoundTime = minAverageRoundTripTime.Add(_allowedLatencyRange);
-                    return list.Where(s => s.AverageRoundTripTime <= maxAverageRoundTime);
+                    var maxAverageRoundTripTime = minAverageRoundTripTime.Add(_allowedLatencyRange);
+                    return list.Where(s => s.AverageRoundTripTime <= maxAverageRoundTripTime);
             }
         }
     }
