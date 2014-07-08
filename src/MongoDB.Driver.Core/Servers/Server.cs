@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Core.Servers
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         private bool _disposed;
         private readonly DnsEndPoint _endPoint;
+        private InterruptibleDelay _heartbeatDelay = new InterruptibleDelay(TimeSpan.Zero);
         private object _lock = new object();
-        private InterruptibleDelay _pingDelay = new InterruptibleDelay(TimeSpan.Zero);
         private readonly ServerSettings _settings;
 
         // events
@@ -155,12 +155,119 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        private async Task<HeartbeatInfo> HeartbeatAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var slidingTimeout = new SlidingTimeout(timeout);
+
+            var stopwatch = Stopwatch.StartNew();
+            var isMasterResult = new IsMasterResult(await new CommandWireProtocol("admin", new BsonDocument("isMaster", 1), true).ExecuteAsync(connection, slidingTimeout, cancellationToken));
+            stopwatch.Stop();
+            var roundTripTime = stopwatch.Elapsed;
+
+            var buildInfoResult = new BuildInfoResult(await new CommandWireProtocol("admin", new BsonDocument("buildInfo", 1), true).ExecuteAsync(connection, slidingTimeout, cancellationToken));
+
+            return new HeartbeatInfo { Connection = connection, RoundTripTime = roundTripTime, IsMasterResult = isMasterResult, BuildInfoResult = buildInfoResult };
+        }
+
+        public async Task HeartbeatBackgroundTask()
+        {
+            var cancellationToken = _backgroundTaskCancellationTokenSource.Token;
+            try
+            {
+                IConnection connection = null;
+                try
+                {
+                    while (true)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var heartbeatInfo = await HeartbeatWithRetryAsync(connection, _settings.HeartbeatTimeout, cancellationToken);
+                        connection = heartbeatInfo.Connection; // HeartbeatWithRetryAsync creates (or recreates) connections as necessary
+
+                        var averageRoundTripTime = heartbeatInfo.RoundTripTime; // TODO: calculate moving average
+                        var serverDescription = ToServerDescription(heartbeatInfo, averageRoundTripTime);
+                        CheckIfDescriptionChanged(serverDescription);
+
+                        var heartbeatDelay = new InterruptibleDelay(_settings.HeartbeatInterval);
+                        lock (_lock)
+                        {
+                            _heartbeatDelay = heartbeatDelay;
+                        }
+                        await heartbeatDelay.Task;
+                    }
+                }
+                finally
+                {
+                    if (connection != null)
+                    {
+                        connection.Dispose();
+                    }
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // ignore TaskCanceledException
+            }
+        }
+
+        private async Task<HeartbeatInfo> HeartbeatWithRetryAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            HeartbeatInfo heartbeatInfo = null;
+
+            var clusterListener = _settings.ClusterListener;
+            if (clusterListener != null)
+            {
+                var args = new PingingServerEventArgs(_endPoint);
+                clusterListener.PingingServer(args);
+            }
+
+            // if the first attempt fails try a second time with a new connection
+            for (var attempt = 0; heartbeatInfo == null && attempt < 2; attempt++)
+            {
+                try
+                {
+                    var slidingTimeout = new SlidingTimeout(timeout);
+                    if (connection == null)
+                    {
+                        connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken);
+                    }
+
+                    heartbeatInfo = await HeartbeatAsync(connection, slidingTimeout, cancellationToken);
+                }
+                catch
+                {
+                    // TODO: log the exception?
+                    if (connection != null)
+                    {
+                        connection.Dispose();
+                        connection = null;
+                    }
+                }
+            }
+
+            if (clusterListener != null)
+            {
+                PingedServerEventArgs args;
+                if (heartbeatInfo == null)
+                {
+                    args = new PingedServerEventArgs(_endPoint, TimeSpan.Zero, null, null);
+                }
+                else
+                {
+                    args = new PingedServerEventArgs(_endPoint, heartbeatInfo.RoundTripTime, heartbeatInfo.IsMasterResult, heartbeatInfo.BuildInfoResult);
+                }
+                clusterListener.PingedServer(args);
+            }
+
+            return heartbeatInfo ?? new HeartbeatInfo { Connection = null };
+        }
+
         internal void Initialize()
         {
             var info = _description.WithState(ServerState.Disconnected);
             CheckIfDescriptionChanged(info);
 
-            PingBackgroundTask().LogUnobservedExceptions();
+            HeartbeatBackgroundTask().LogUnobservedExceptions();
         }
 
         private void OnDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription)
@@ -180,131 +287,23 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async Task<PingInfo> PingAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private ServerDescription ToServerDescription(HeartbeatInfo heartbeatInfo, TimeSpan averageRoundTripTime)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
-
-            var stopwatch = Stopwatch.StartNew();
-            await new CommandWireProtocol("admin", new BsonDocument("ping", 1), true).ExecuteAsync(connection, slidingTimeout, cancellationToken);
-            stopwatch.Stop();
-            var pingTime = stopwatch.Elapsed;
-
-            var isMasterResult = new IsMasterResult(await new CommandWireProtocol("admin", new BsonDocument("isMaster", 1), true).ExecuteAsync(connection, slidingTimeout, cancellationToken));
-            var buildInfoResult = new BuildInfoResult(await new CommandWireProtocol("admin", new BsonDocument("buildInfo", 1), true).ExecuteAsync(connection, slidingTimeout, cancellationToken));
-
-            return new PingInfo { Connection = connection, PingTime = pingTime, IsMasterResult = isMasterResult, BuildInfoResult = buildInfoResult };
-        }
-
-        public async Task PingBackgroundTask()
-        {
-            var cancellationToken = _backgroundTaskCancellationTokenSource.Token;
-            try
-            {
-                IConnection connection = null;
-                try
-                {
-                    while (true)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        var pingInfo = await PingWithRetryAsync(connection, _settings.PingTimeout, cancellationToken);
-                        connection = pingInfo.Connection; // PingWithRetryAsync creates (or recreates) connections as necessary
-
-                        var averagePingTime = pingInfo.PingTime; // TODO: calculate running average
-                        var serverDescription = ToServerDescription(pingInfo, averagePingTime);
-                        CheckIfDescriptionChanged(serverDescription);
-
-                        var pingDelay = new InterruptibleDelay(_settings.PingInterval);
-                        lock (_lock)
-                        {
-                            _pingDelay = pingDelay;
-                        }
-                        await pingDelay.Task;
-                    }
-                }
-                finally
-                {
-                    if (connection != null)
-                    {
-                        connection.Dispose();
-                    }
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                // ignore TaskCanceledException
-            }
-        }
-
-        private async Task<PingInfo> PingWithRetryAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            PingInfo pingInfo = null;
-
-            var clusterListener = _settings.ClusterListener;
-            if (clusterListener != null)
-            {
-                var args = new PingingServerEventArgs(_endPoint);
-                clusterListener.PingingServer(args);
-            }
-
-            // if the first attempt fails try a second time with a new connection
-            for (var attempt = 0; pingInfo == null && attempt < 2; attempt++)
-            {
-                try
-                {
-                    var slidingTimeout = new SlidingTimeout(timeout);
-                    if (connection == null)
-                    {
-                        connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken);
-                    }
-
-                    pingInfo = await PingAsync(connection, slidingTimeout, cancellationToken);
-                }
-                catch
-                {
-                    // TODO: log the exception?
-                    if (connection != null)
-                    {
-                        connection.Dispose();
-                        connection = null;
-                    }
-                }
-            }
-
-            if (clusterListener != null)
-            {
-                PingedServerEventArgs args;
-                if (pingInfo == null)
-                {
-                    args = new PingedServerEventArgs(_endPoint, TimeSpan.Zero, null, null);
-                }
-                else
-                {
-                    args = new PingedServerEventArgs(_endPoint, pingInfo.PingTime, pingInfo.IsMasterResult, pingInfo.BuildInfoResult);
-                }
-                clusterListener.PingedServer(args);
-            }
-
-            return pingInfo ?? new PingInfo { Connection = null };
-        }
-
-        private ServerDescription ToServerDescription(PingInfo pingInfo, TimeSpan averagePingTime)
-        {
-            if (pingInfo.Connection == null)
+            if (heartbeatInfo.Connection == null)
             {
                 return _description.WithState(ServerState.Disconnected);
             }
             else
             {
-                return _description.WithPingInfo(pingInfo.IsMasterResult, pingInfo.BuildInfoResult, averagePingTime);
+                return _description.WithHeartbeatInfo(heartbeatInfo.IsMasterResult, heartbeatInfo.BuildInfoResult, averageRoundTripTime);
             }
         }
 
         // nested types
-        private class PingInfo
+        private class HeartbeatInfo
         {
             public IConnection Connection;
-            public TimeSpan PingTime;
+            public TimeSpan RoundTripTime;
             public IsMasterResult IsMasterResult;
             public BuildInfoResult BuildInfoResult;
         }

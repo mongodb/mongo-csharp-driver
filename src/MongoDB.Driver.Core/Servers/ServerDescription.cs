@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Servers
     public class ServerDescription
     {
         // fields
-        private readonly TimeSpan _averagePingTime;
+        private readonly TimeSpan _averageRoundTripTime;
         private readonly BuildInfoResult _buildInfoResult;
         private readonly DnsEndPoint _endPoint;
         private readonly IsMasterResult _isMasterResult;
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         private ServerDescription(
-            TimeSpan averagePingTime,
+            TimeSpan averageRoundTripTime,
             BuildInfoResult buildInfoResult,
             DnsEndPoint endPoint,
             IsMasterResult isMasterResult,
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Servers
             TagSet tags,
             ServerType type)
         {
-            _averagePingTime = averagePingTime;
+            _averageRoundTripTime = averageRoundTripTime;
             _buildInfoResult = buildInfoResult;
             _endPoint = endPoint;
             _isMasterResult = isMasterResult;
@@ -75,9 +75,9 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
-        public TimeSpan AveragePingTime
+        public TimeSpan AverageRoundTripTime
         {
-            get { return _averagePingTime; }
+            get { return _averageRoundTripTime; }
         }
 
         public BuildInfoResult BuildInfoResult
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Servers
             if (obj == null || obj.GetType() != typeof(ServerDescription)) { return false; }
             var rhs = (ServerDescription)obj;
             return
-                _averagePingTime == rhs._averagePingTime &&
+                _averageRoundTripTime == rhs._averageRoundTripTime &&
                 object.Equals(_buildInfoResult, rhs._buildInfoResult) &&
                 _endPoint.Equals(rhs._endPoint) &&
                 object.Equals(_isMasterResult, rhs._isMasterResult) &&
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Servers
         public override int GetHashCode()
         {
             return new Hasher()
-                .Hash(_averagePingTime)
+                .Hash(_averageRoundTripTime)
                 .Hash(_buildInfoResult)
                 .Hash(_endPoint)
                 .Hash(_isMasterResult)
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Servers
                 _revision);
         }
 
-        public ServerDescription WithPingInfo(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult, TimeSpan averagePingTime)
+        public ServerDescription WithHeartbeatInfo(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult, TimeSpan averageRoundTripTime)
         {
             var state = ServerState.Connected;
             var type = isMasterResult.ServerType;
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Core.Servers
             if (
                 _state == state && 
                 _type == type && 
-                _averagePingTime == averagePingTime &&
+                _averageRoundTripTime == averageRoundTripTime &&
                 object.Equals(_replicaSetConfig, replicaSetConfig) && object.Equals(_tags, tags))
             {
                 return this;
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Servers
             else
             {
                 return new ServerDescription(
-                    averagePingTime,
+                    averageRoundTripTime,
                     buildInfoResult,
                     _endPoint,
                     isMasterResult,
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Servers
         private struct Builder
         {
             // fields
-            private TimeSpan _averagePingTime;
+            private TimeSpan _averageRoundTripTime;
             private BuildInfoResult _buildInfoResult;
             private readonly DnsEndPoint _endPoint;
             private IsMasterResult _isMasterResult;
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Core.Servers
             // constructors
             public Builder(ServerDescription other)
             {
-                _averagePingTime = other._averagePingTime;
+                _averageRoundTripTime = other._averageRoundTripTime;
                 _buildInfoResult = other._buildInfoResult;
                 _endPoint = other._endPoint;
                 _isMasterResult = other._isMasterResult;
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Servers
             public ServerDescription Build()
             {
                 return new ServerDescription(
-                    _averagePingTime,
+                    _averageRoundTripTime,
                     _buildInfoResult,
                     _endPoint,
                     _isMasterResult,

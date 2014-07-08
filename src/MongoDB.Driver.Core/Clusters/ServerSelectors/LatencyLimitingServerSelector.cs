@@ -56,9 +56,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 case 1:
                     return list;
                 default:
-                    var minPingTime = list.Min(s => s.AveragePingTime);
-                    var maxPingTime = minPingTime.Add(_allowedLatencyRange);
-                    return list.Where(s => s.AveragePingTime <= maxPingTime);
+                    var minAverageRoundTripTime = list.Min(s => s.AverageRoundTripTime);
+                    var maxAverageRoundTime = minAverageRoundTripTime.Add(_allowedLatencyRange);
+                    return list.Where(s => s.AverageRoundTripTime <= maxAverageRoundTime);
             }
         }
     }

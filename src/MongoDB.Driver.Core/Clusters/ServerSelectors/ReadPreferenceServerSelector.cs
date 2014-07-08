@@ -74,9 +74,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                     throw new NotImplementedException(message);
             }
 
-            var minPingTime = selectedServers.Min(s => s.AveragePingTime);
-            var maxPingTime = minPingTime.Add(_allowedLatencyRange);
-            return selectedServers.Where(s => s.AveragePingTime <= maxPingTime);
+            var minAverageRoundTripTime = selectedServers.Min(s => s.AverageRoundTripTime);
+            var maxAverageRoundTripTime = minAverageRoundTripTime.Add(_allowedLatencyRange);
+            return selectedServers.Where(s => s.AverageRoundTripTime <= maxAverageRoundTripTime);
         }
 
         private IReadOnlyList<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)

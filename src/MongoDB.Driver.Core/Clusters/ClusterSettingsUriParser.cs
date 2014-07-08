@@ -123,12 +123,12 @@ namespace MongoDB.Driver.Core.Clusters
                         _endPoints.Add(endPoint);
                     }
                     break;
-                case "ping":
-                case "pinginterval":
-                    TimeSpan pingInterval;
-                    if (TimeSpanParser.TryParse(value, out pingInterval))
+                case "heartbeat":
+                case "heartbeatinterval":
+                    TimeSpan heartbeatInterval;
+                    if (TimeSpanParser.TryParse(value, out heartbeatInterval))
                     {
-                        _serverSettings = _serverSettings.WithPingInterval(pingInterval);
+                        _serverSettings = _serverSettings.WithHeartbeatInterval(heartbeatInterval);
                     }
                     break;
             }

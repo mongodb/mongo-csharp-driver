@@ -31,27 +31,27 @@ namespace MongoDB.Driver.Core.Servers
         // fields
         private readonly IClusterListener _clusterListener;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
-        private readonly TimeSpan _pingInterval;
-        private readonly TimeSpan _pingTimeout;
+        private readonly TimeSpan _heartbeatInterval;
+        private readonly TimeSpan _heartbeatTimeout;
 
         // constructors
         public ServerSettings()
         {
             _connectionPoolFactory = new ConnectionPoolFactory();
-            _pingInterval = TimeSpan.FromSeconds(10);
-            _pingTimeout = TimeSpan.FromSeconds(10);
+            _heartbeatInterval = TimeSpan.FromSeconds(10);
+            _heartbeatTimeout = TimeSpan.FromSeconds(10);
         }
 
         internal ServerSettings(
             IClusterListener clusterListener,
             IConnectionPoolFactory connectionPoolFactory,
-            TimeSpan pingInterval,
-            TimeSpan pingTimeout)
+            TimeSpan heartbeatInterval,
+            TimeSpan heartbeatTimeout)
         {
             _clusterListener = clusterListener;
             _connectionPoolFactory = connectionPoolFactory;
-            _pingInterval = pingInterval;
-            _pingTimeout = pingTimeout;
+            _heartbeatInterval = heartbeatInterval;
+            _heartbeatTimeout = heartbeatTimeout;
         }
 
         // properties
@@ -65,14 +65,14 @@ namespace MongoDB.Driver.Core.Servers
             get { return _connectionPoolFactory; }
         }
 
-        public TimeSpan PingInterval
+        public TimeSpan HeartbeatInterval
         {
-            get { return _pingInterval; }
+            get { return _heartbeatInterval; }
         }
 
-        public TimeSpan PingTimeout
+        public TimeSpan HeartbeatTimeout
         {
-            get { return _pingTimeout; }
+            get { return _heartbeatTimeout; }
         }
 
         // methods
@@ -86,14 +86,14 @@ namespace MongoDB.Driver.Core.Servers
             return object.ReferenceEquals(_connectionPoolFactory, value) ? this : new Builder(this) { _connectionPoolFactory = value }.Build();
         }
 
-        public ServerSettings WithPingInterval(TimeSpan value)
+        public ServerSettings WithHeartbeatInterval(TimeSpan value)
         {
-            return (_pingInterval == value) ? this : new Builder(this) { _pingInterval = value }.Build();
+            return (_heartbeatInterval == value) ? this : new Builder(this) { _heartbeatInterval = value }.Build();
         }
 
-        public ServerSettings WithPingTimeout(TimeSpan value)
+        public ServerSettings WithHeartbeatTimeout(TimeSpan value)
         {
-            return (_pingTimeout == value) ? this : new Builder(this) { _pingTimeout = value }.Build();
+            return (_heartbeatTimeout == value) ? this : new Builder(this) { _heartbeatTimeout = value }.Build();
         }
 
         // nested types
@@ -102,16 +102,16 @@ namespace MongoDB.Driver.Core.Servers
             // fields
             public IClusterListener _clusterListener;
             public IConnectionPoolFactory _connectionPoolFactory;
-            public TimeSpan _pingInterval;
-            public TimeSpan _pingTimeout;
+            public TimeSpan _heartbeatInterval;
+            public TimeSpan _heartbeatTimeout;
 
             // constructors
             public Builder(ServerSettings other)
             {
                 _clusterListener = other._clusterListener;
                 _connectionPoolFactory = other._connectionPoolFactory;
-                _pingInterval = other._pingInterval;
-                _pingTimeout = other._pingTimeout;
+                _heartbeatInterval = other._heartbeatInterval;
+                _heartbeatTimeout = other._heartbeatTimeout;
             }
 
             // methods
@@ -120,8 +120,8 @@ namespace MongoDB.Driver.Core.Servers
                 return new ServerSettings(
                     _clusterListener,
                     _connectionPoolFactory,
-                    _pingInterval,
-                    _pingTimeout);
+                    _heartbeatInterval,
+                    _heartbeatTimeout);
             }
         }
     }
