@@ -20,13 +20,19 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication.Credentials;
 using MongoDB.Driver.Core.Connections.Events;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class ConnectionSettings
     {
+        #region static
+        // static fields
+        private static readonly IReadOnlyList<ICredential> __noCredentials = new ICredential[0];
+        #endregion
+
         // fields
-        private readonly ICredential _credential;
+        private readonly IReadOnlyList<ICredential> _credentials = __noCredentials;
         private readonly IMessageListener _messageListener;
 
         // constructors
@@ -35,17 +41,17 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         private ConnectionSettings(
-            ICredential credential,
+            IReadOnlyList<ICredential> credentials,
             IMessageListener messageListener)
         {
-            _credential = credential;
+            _credentials = credentials;
             _messageListener = messageListener;
         }
 
         // properties
-        public ICredential Credential
+        public IReadOnlyList<ICredential> Credentials
         {
-            get { return _credential; }
+            get { return _credentials; }
         }
 
         public IMessageListener MessageListener
@@ -54,14 +60,21 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public ConnectionSettings WithCredential(ICredential value)
+        public ConnectionSettings WithCredentials(IEnumerable<ICredential> value)
         {
-            return object.Equals(_credential, value) ? this : new ConnectionSettings(value, _messageListener);
+            Ensure.IsNotNull(value, "value");
+
+            if (object.ReferenceEquals(_credentials, value))
+            {
+                return this;
+            }
+
+            return _credentials.SequenceEqual(value) ? this : new ConnectionSettings(value.ToList(), _messageListener);
         }
 
         public ConnectionSettings WithMessageListener(IMessageListener value)
         {
-            return object.ReferenceEquals(_messageListener, value) ? this : new ConnectionSettings(_credential, value);
+            return object.ReferenceEquals(_messageListener, value) ? this : new ConnectionSettings(_credentials, value);
         }
     }
 }

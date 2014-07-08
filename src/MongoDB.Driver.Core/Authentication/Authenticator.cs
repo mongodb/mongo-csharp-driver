@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public static async Task AuthenticateAsync(IRootConnection connection, ICredential credential, TimeSpan timeout, CancellationToken cancellationToken)
+        private static async Task AuthenticateAsync(IRootConnection connection, ICredential credential, TimeSpan timeout, CancellationToken cancellationToken)
         {
             foreach (var protocol in _protocols)
             {
@@ -53,6 +53,14 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             // TODO: throw?
+        }
+
+        public static async Task AuthenticateAsync(IRootConnection connection, IEnumerable<ICredential> credentials, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            foreach (var credential in credentials)
+            {
+                await AuthenticateAsync(connection, credential, timeout, cancellationToken);
+            }
         }
     }
 }
