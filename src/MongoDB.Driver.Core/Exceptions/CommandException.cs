@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Exceptions
@@ -52,6 +53,8 @@ namespace MongoDB.Driver.Core.Exceptions
         protected CommandException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _command = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_command", typeof(byte[])));
+            _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
         }
 
         // properties
@@ -68,8 +71,9 @@ namespace MongoDB.Driver.Core.Exceptions
         // methods
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            // TODO: serialize _command and _result?
             base.GetObjectData(info, context);
+            info.AddValue("_command", _command.ToBson());
+            info.AddValue("_result", _result.ToBson());
         }
     }
 }
