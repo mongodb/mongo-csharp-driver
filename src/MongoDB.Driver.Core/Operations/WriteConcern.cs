@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public WriteConcern(string mode)
-            : this(mode, null, null, null)
+            : this(Ensure.IsNotNull(mode, "mode"), null, null, null)
         {
         }
 
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
             bool? fsync,
             bool? journal)
         {
-            _w = Ensure.IsNotNull(w, "w");
+            _w = w;
             _wTimeout = wTimeout;
             _fsync = fsync;
             _journal = journal;
@@ -160,15 +160,15 @@ namespace MongoDB.Driver.Core.Operations
             }
             if (_wTimeout != null)
             {
-                parts.Add(string.Format("wtimeout : {0}", _wTimeout));
+                parts.Add(string.Format("wtimeout : {0}", TimeSpanParser.ToString(_wTimeout.Value)));
             }
             if (_fsync != null)
             {
-                parts.Add(string.Format("fsync : {0}", _fsync.Value));
+                parts.Add(string.Format("fsync : {0}", _fsync.Value ? "true" : "false" ));
             }
             if (_journal != null)
             {
-                parts.Add(string.Format("w : {0}", _journal.Value));
+                parts.Add(string.Format("journal : {0}", _journal.Value ? "true" : "false"));
             }
 
             if (parts.Count == 0)
@@ -235,6 +235,11 @@ namespace MongoDB.Driver.Core.Operations
                 return new WCount(value);
             }
 
+            public static implicit operator WValue(int? value)
+            {
+                return value.HasValue ? new WCount(value.Value) : null;
+            }
+
             public static implicit operator WValue(string value)
             {
                 return (value == null) ? null : new WMode(value);
@@ -296,6 +301,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return new BsonInt32(_value);
             }
+
+            public override string ToString()
+            {
+                return _value.ToString();
+            }
         }
 
         public sealed class WMode : WValue
@@ -346,6 +356,11 @@ namespace MongoDB.Driver.Core.Operations
             public override BsonValue ToBsonValue()
             {
                 return new BsonString(_value);
+            }
+
+            public override string ToString()
+            {
+                return "\"" + _value + "\"";
             }
         }
     }

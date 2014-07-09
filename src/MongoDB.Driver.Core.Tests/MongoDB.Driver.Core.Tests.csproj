@@ -52,6 +52,7 @@
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
+    <Compile Include="Operations\WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

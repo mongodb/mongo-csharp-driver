@@ -27,7 +27,31 @@ namespace MongoDB.Driver.Core.Misc
         // methods
         public static string ToString(TimeSpan value)
         {
-            throw new NotImplementedException();
+            const int msInOneSecond = 1000;
+            const int msInOneMinute = 60 * msInOneSecond;
+            const int msInOneHour = 60 * msInOneMinute;
+
+            var ms = (long)value.TotalMilliseconds;
+            if ((ms % msInOneHour) == 0)
+            {
+                return string.Format("{0}h", ms / msInOneHour);
+            }
+            else if ((ms % msInOneMinute) == 0 && ms < msInOneHour)
+            {
+                return string.Format("{0}m", ms / msInOneMinute);
+            }
+            else if ((ms % msInOneSecond) == 0 && ms < msInOneMinute)
+            {
+                return string.Format("{0}s", ms / msInOneSecond);
+            }
+            else if (ms < 1000)
+            {
+                return string.Format("{0}ms", ms);
+            }
+            else
+            {
+                return value.ToString();
+            }
         }
 
         public static bool TryParse(string s, out TimeSpan value)
