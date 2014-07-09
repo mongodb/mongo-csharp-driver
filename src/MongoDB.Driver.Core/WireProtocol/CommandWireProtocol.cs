@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             return ProcessReply(reply);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TCommandResult ProcessReply(ReplyMessage<RawBsonDocument> reply)
         {
             if (reply.NumberReturned == 0)
