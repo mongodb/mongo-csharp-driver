@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int? _maxDocumentSize;
         private readonly int? _maxWireDocumentSize;
         private readonly bool _ordered = true;
-        private readonly WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private readonly WriteConcern _writeConcern;
 
         // constructors
         public DeleteCommandOperation(
@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             _databaseName = Ensure.IsNotNullOrEmpty(databaseName, "databaseName");
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _deletes = Ensure.IsNotNull(deletes, "deletes");
+            _writeConcern = WriteConcern.Acknowledged;
         }
 
         private DeleteCommandOperation(

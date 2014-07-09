@@ -20,10 +20,11 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    public class WriteConcern
+    public class WriteConcern : IEquatable<WriteConcern>
     {
         #region static
         // static fields
@@ -40,9 +41,9 @@ namespace MongoDB.Driver.Core.Operations
             get { return __acknowledged; }
         }
 
-        public static WriteConcern None
+        public static WriteConcern Unacknowledged
         {
-            get { return null; }
+            get { return __unacknowledged; }
         }
 
         public static WriteConcern W1
@@ -58,11 +59,6 @@ namespace MongoDB.Driver.Core.Operations
         public static WriteConcern W3
         {
             get { return __w3; }
-        }
-
-        public static WriteConcern Unacknowledged
-        {
-            get { return __unacknowledged; }
         }
 
         public static WriteConcern WMajority
@@ -126,6 +122,35 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as WriteConcern);
+        }
+
+        public bool Equals(WriteConcern rhs)
+        {
+            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WriteConcern))
+            {
+                return false;
+            }
+
+            return
+                _fsync == rhs._fsync &&
+                _journal == rhs._journal &&
+                object.Equals(_w, rhs._w) &&
+                _wTimeout == rhs._wTimeout;
+        }
+
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_fsync)
+                .Hash(_journal)
+                .Hash(_w)
+                .Hash(_wTimeout)
+                .GetHashCode();
+        }
+
         public override string ToString()
         {
             var parts = new List<string>();
@@ -201,7 +226,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public abstract class WValue
+        public abstract class WValue : IEquatable<WValue>
         {
             #region static
             // static operators
@@ -222,10 +247,15 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
+            public bool Equals(WValue rhs)
+            {
+                return Equals((object)rhs);
+            }
+
             public abstract BsonValue ToBsonValue();
         }
 
-        public sealed class WCount : WValue
+        public sealed class WCount : WValue, IEquatable<WCount>
         {
             // fields
             private readonly int _value;
@@ -245,11 +275,15 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             public override bool Equals(object obj)
             {
-                if (obj == null || obj.GetType() != typeof(WCount))
+                return Equals(obj as WCount);
+            }
+
+            public bool Equals(WCount rhs)
+            {
+                if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WCount))
                 {
                     return false;
                 }
-                var rhs = (WCount)obj;
                 return _value == rhs._value;
             }
 
@@ -292,11 +326,15 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             public override bool Equals(object obj)
             {
-                if (obj == null || obj.GetType() != typeof(WMode))
+                return Equals(obj as WMode);
+            }
+
+            public bool Equals(WMode rhs)
+            {
+                if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(WMode))
                 {
                     return false;
                 }
-                var rhs = (WMode)obj;
                 return _value == rhs._value;
             }
 

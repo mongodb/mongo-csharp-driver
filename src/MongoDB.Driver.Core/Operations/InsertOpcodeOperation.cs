@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int? _maxDocumentSize;
         private readonly int? _maxMessageSize;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private readonly WriteConcern _writeConcern;
 
         // constructors
         public InsertOpcodeOperation(
@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documents = Ensure.IsNotNull(documents, "documents");
+            _writeConcern = WriteConcern.Acknowledged;
         }
 
         private InsertOpcodeOperation(

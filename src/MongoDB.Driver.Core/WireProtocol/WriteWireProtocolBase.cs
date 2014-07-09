@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             string collectionName,
             WriteConcern writeConcern)
         {
-            _databaseName = databaseName;
-            _collectionName = collectionName;
-            _writeConcern = writeConcern;
+            _databaseName = Ensure.IsNotNull(databaseName, "databaseName");
+            _collectionName = Ensure.IsNotNull(collectionName, "collectionName");
+            _writeConcern = Ensure.IsNotNull(writeConcern, "writeConcern");
         }
 
         // properties
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var slidingTimeout = new SlidingTimeout(timeout);
 
             var writeMessage = CreateWriteMessage(connection);
-            if (_writeConcern == null)
+            if (_writeConcern.Equals(WriteConcern.Unacknowledged))
             {
                 await connection.SendMessageAsync(writeMessage, slidingTimeout, cancellationToken);
                 return null;

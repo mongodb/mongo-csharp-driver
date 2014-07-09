@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly int? _maxWireDocumentSize;
         private readonly bool _ordered = true;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly WriteConcern _writeConcern = WriteConcern.Acknowledged;
+        private readonly WriteConcern _writeConcern;
 
         // constructors
         public InsertCommandOperation(
@@ -62,6 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             _collectionName = Ensure.IsNotNullOrEmpty(collectionName, "collectionName");
             _serializer = Ensure.IsNotNull(serializer, "serializer");
             _documents = Ensure.IsNotNull(documents, "documents");
+            _writeConcern = WriteConcern.Acknowledged;
         }
 
         private InsertCommandOperation(
@@ -210,6 +211,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public InsertCommandOperation<TDocument> WithWriteConcern(WriteConcern value)
         {
+            Ensure.IsNotNull(value, "value");
             return object.Equals(_writeConcern, value) ? this : new Builder(this) { _writeConcern = value }.Build();
         }
 
