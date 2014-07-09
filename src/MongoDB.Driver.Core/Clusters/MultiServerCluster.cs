@@ -145,6 +145,7 @@ namespace MongoDB.Driver.Core.Clusters
                         {
                             server.Dispose();
                         }
+                        _backgroundTaskCancellationTokenSource.Dispose();
                     }
                 }
                 _disposed = true;

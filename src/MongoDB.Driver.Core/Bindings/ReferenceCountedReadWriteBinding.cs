@@ -32,6 +32,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+
         IWriteBinding IWriteBinding.Fork()
         {
             throw new NotImplementedException(); // implemented by the handle

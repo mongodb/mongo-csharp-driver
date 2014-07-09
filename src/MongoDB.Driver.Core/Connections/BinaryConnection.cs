@@ -105,12 +105,13 @@ namespace MongoDB.Driver.Core.Connections
                 if (!_disposed)
                 {
                     _backgroundTaskCancellationTokenSource.Cancel();
+                    _backgroundTaskCancellationTokenSource.Dispose();
                 }
             }
             _disposed = true;
         }
 
-        IConnection IConnection.Fork()
+        public IConnection Fork()
         {
             throw new NotSupportedException();
         }

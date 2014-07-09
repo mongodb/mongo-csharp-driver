@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Clusters
 
         // fields
         private bool _disposed;
-        private readonly object _lock = new object();
         private readonly bool _ownsWrapped;
         private readonly ICluster _wrapped;
 
@@ -72,11 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         public void Dispose()
         {
-            lock (_lock)
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)

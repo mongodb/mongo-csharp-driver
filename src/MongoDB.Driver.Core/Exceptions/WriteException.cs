@@ -16,12 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Exceptions
 {
+    [Serializable]
     public class WriteException : MongoDBException
     {
         // fields
@@ -39,10 +41,22 @@ namespace MongoDB.Driver.Core.Exceptions
             _result = result; // can be null
         }
 
-        // properties
+        protected WriteException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+
+       // properties
         public BsonDocument Result
         {
             get { return _result; }
+        }
+
+        // methods
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            // TODO: serialize _result?
+            base.GetObjectData(info, context);
         }
     }
 }

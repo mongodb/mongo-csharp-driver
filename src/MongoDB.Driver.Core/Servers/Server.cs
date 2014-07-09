@@ -119,6 +119,7 @@ namespace MongoDB.Driver.Core.Servers
                     if (!_disposed)
                     {
                         _backgroundTaskCancellationTokenSource.Cancel();
+                        _backgroundTaskCancellationTokenSource.Dispose();
                         _connectionPool.Dispose();
                     }
                 }

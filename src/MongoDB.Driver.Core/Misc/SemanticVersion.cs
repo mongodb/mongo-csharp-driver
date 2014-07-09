@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             else
             {
-                return string.Format("{0}.{1}.{2}-{3]", _major, _minor, _patch, _preRelease);
+                return string.Format("{0}.{1}.{2}-{3}", _major, _minor, _patch, _preRelease);
             }
         }
 

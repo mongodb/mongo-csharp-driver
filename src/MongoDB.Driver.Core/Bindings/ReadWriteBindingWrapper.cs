@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // methods
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+        }
+
         IWriteBinding IWriteBinding.Fork()
         {
             return (IWriteBinding)ForkImplementation();
