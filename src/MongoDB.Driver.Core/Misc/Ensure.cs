@@ -105,9 +105,13 @@ namespace MongoDB.Driver.Core.Misc
 
         public static string IsNotNullOrEmpty(string value, string paramName)
         {
-            if (string.IsNullOrEmpty(value))
+            if (value == null)
             {
-                throw new ArgumentException("Value cannot be null or empty.", paramName);
+                throw new ArgumentNullException(paramName);
+            }
+            if (value.Length == 0)
+            {
+                throw new ArgumentException("Value cannot be empty.", paramName);
             }
             return value;
         }

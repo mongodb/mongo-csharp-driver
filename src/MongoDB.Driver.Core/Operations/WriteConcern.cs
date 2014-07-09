@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public WriteConcern(string mode)
-            : this(Ensure.IsNotNull(mode, "mode"), null, null, null)
+            : this(mode, null, null, null)
         {
         }
 

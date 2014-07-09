@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Operations;
 using NUnit.Framework;
 
@@ -85,13 +86,6 @@ namespace MongoDB.Driver.Core.Tests.Operations
             writeConcern.Journal.Should().NotHaveValue();
             writeConcern.W.Should().Be((WriteConcern.WValue)"mode");
             writeConcern.WTimeout.Should().NotHaveValue();
-        }
-
-        [Test]
-        public void Constructor_with_string_argument_should_through_if_value_is_null()
-        {
-            Action action = () => new WriteConcern((string)null);
-            action.ShouldThrow<ArgumentNullException>();
         }
 
         [TestCase(null, null, null, null)]
@@ -338,6 +332,174 @@ namespace MongoDB.Driver.Core.Tests.Operations
             writeConcern.Journal.Should().NotHaveValue();
             writeConcern.W.Should().Be((WriteConcern.WValue)"majority");
             writeConcern.WTimeout.Should().NotHaveValue();
+        }
+    }
+
+    [TestFixture]
+    public class WriteConcernWValueTests
+    {
+        [Test]
+        public void Static_implicit_conversion_with_int_argument_returns_properly_initialized_instance()
+        {
+            WriteConcern.WValue wValue = 1;
+            wValue.Should().BeOfType<WriteConcern.WCount>();
+            ((WriteConcern.WCount)wValue).Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Static_implicit_conversion_with_null_int_argument_returns_properly_initialized_instance()
+        {
+            WriteConcern.WValue wValue = (int?)null;
+            wValue.Should().BeNull();
+        }
+
+        [Test]
+        public void Static_implicit_conversion_with_nullable_int_argument_returns_properly_initialized_instance()
+        {
+            WriteConcern.WValue wValue = (int?)1;
+            wValue.Should().BeOfType<WriteConcern.WCount>();
+            ((WriteConcern.WCount)wValue).Value.Should().Be(1);
+        }
+
+        [Test]
+        public void Static_implicit_conversion_with_string_argument_returns_properly_initialized_instance()
+        {
+            WriteConcern.WValue wValue = "mode";
+            wValue.Should().BeOfType<WriteConcern.WMode>();
+            ((WriteConcern.WMode)wValue).Value.Should().Be("mode");
+        }
+
+        [Test]
+        public void Static_implicit_conversion_with_null_string_argument_returns_properly_initialized_instance()
+        {
+            WriteConcern.WValue wValue = (string)null;
+            wValue.Should().BeNull();
+        }
+    }
+
+    [TestFixture]
+    public class WriteConcernWCountTests
+    {
+        [TestCase(0)]
+        [TestCase(1)]
+        public void Constructor_should_initialize_instance(int w)
+        {
+            var wCount = new WriteConcern.WCount(w);
+            wCount.Value.Should().Be(w);
+        }
+
+        [Test]
+        public void Constructor_with_negative_value_should_throw()
+        {
+            Action action = () => new WriteConcern.WCount(-1);
+            action.ShouldThrow<ArgumentOutOfRangeException>();
+        }
+
+        [TestCase(0, 1)]
+        [TestCase(1, 0)]
+        public void Equals_should_return_false_if_any_fields_are_not_equal(int w1, int w2)
+        {
+            var wCount1 = new WriteConcern.WCount(w1);
+            var wCount2 = new WriteConcern.WCount(w2);
+            wCount1.Equals(wCount2).Should().BeFalse();
+            wCount1.Equals((object)wCount2).Should().BeFalse();
+            wCount1.GetHashCode().Should().NotBe(wCount2.GetHashCode());
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        public void Equals_should_return_true_if_all_fields_are_equal(int w)
+        {
+            var wCount1 = new WriteConcern.WCount(w);
+            var wCount2 = new WriteConcern.WCount(w);
+            wCount1.Equals(wCount2).Should().BeTrue();
+            wCount1.Equals((object)wCount2).Should().BeTrue();
+            wCount1.GetHashCode().Should().Be(wCount2.GetHashCode());
+        }
+
+        [Test]
+        public void ToBsonValue_should_return_proper_value()
+        {
+            var wCount = new WriteConcern.WCount(1);
+            var bsonValue = wCount.ToBsonValue();
+            bsonValue.Should().BeOfType<BsonInt32>();
+            bsonValue.AsInt32.Should().Be(1);
+        }
+
+        [Test]
+        public void ToString_should_return_proper_value()
+        {
+            var wCount = new WriteConcern.WCount(1);
+            wCount.ToString().Should().Be("1");
+        }
+    }
+
+    [TestFixture]
+    public class WriteConcernWModeTests
+    {
+        [Test]
+        public void Constructor_should_initialize_instance()
+        {
+            var mode = new WriteConcern.WMode("mode");
+            mode.Value.Should().Be("mode");
+        }
+
+        [Test]
+        public void Constructor_with_empty_mode_should_throw()
+        {
+            Action action = () => new WriteConcern.WMode("");
+            action.ShouldThrow<ArgumentException>();
+        }
+
+        [Test]
+        public void Constructor_with_null_mode_should_throw()
+        {
+            Action action = () => new WriteConcern.WMode(null);
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Test]
+        public void Majority_should_return_proper_value()
+        {
+            var mode = WriteConcern.WMode.Majority;
+            mode.Value.Should().Be("majority");
+        }
+
+        [TestCase("mode1", "mode2")]
+        [TestCase("mode2", "mode1")]
+        public void Equals_should_return_false_if_values_are_not_equal(string value1, string value2)
+        {
+            var wMode1 = new WriteConcern.WMode(value1);
+            var wMode2 = new WriteConcern.WMode(value2);
+            wMode1.Equals(wMode2).Should().BeFalse();
+            wMode1.Equals((object)wMode2).Should().BeFalse();
+            wMode1.GetHashCode().Should().NotBe(wMode2.GetHashCode());
+        }
+
+        [Test]
+        public void Equals_should_return_true_if_all_fields_are_equal()
+        {
+            var wMode1 = new WriteConcern.WMode("mode");
+            var wMode2 = new WriteConcern.WMode("mode");
+            wMode1.Equals(wMode2).Should().BeTrue();
+            wMode1.Equals((object)wMode2).Should().BeTrue();
+            wMode1.GetHashCode().Should().Be(wMode2.GetHashCode());
+        }
+
+        [Test]
+        public void ToBsonValue_should_return_proper_value()
+        {
+            var wMode = new WriteConcern.WMode("mode");
+            var bsonValue = wMode.ToBsonValue();
+            bsonValue.Should().BeOfType<BsonString>();
+            bsonValue.AsString.Should().Be("mode");
+        }
+
+        [Test]
+        public void ToString_should_return_proper_value()
+        {
+            var wMode = new WriteConcern.WMode("mode");
+            wMode.ToString().Should().Be("\"mode\"");
         }
     }
 }
