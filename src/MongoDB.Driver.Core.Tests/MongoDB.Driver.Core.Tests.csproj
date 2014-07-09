@@ -52,6 +52,10 @@
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
+    <Compile Include="Exceptions\CommandExceptionTests.cs" />
+    <Compile Include="Exceptions\MongoDBExceptionTests.cs" />
+    <Compile Include="Exceptions\QueryExceptionTests.cs" />
+    <Compile Include="Exceptions\WriteExceptionTests.cs" />
     <Compile Include="Operations\WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
