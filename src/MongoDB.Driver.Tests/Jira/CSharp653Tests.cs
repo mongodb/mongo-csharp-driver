@@ -80,9 +80,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp653
                 collection.Insert(e.GetType(), e, WriteConcern.Acknowledged);
             }
 
+#pragma warning disable 429 // unreachable code
             var query = (from e in collection.AsQueryable<Entity>()
                          where true || e.Name == "Name_22"
                          select e);
+#pragma warning restore
             var count = query.Count();
 
             Assert.AreEqual(100, count);

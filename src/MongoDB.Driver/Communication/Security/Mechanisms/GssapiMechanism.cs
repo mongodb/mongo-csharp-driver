@@ -91,8 +91,7 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
                     serviceName,
                     hostname,
                     realm,
-                    credential.Username,
-                    credential.Evidence);
+                    credential.Username);
             }
 
             return new WindowsGssapiImplementation(

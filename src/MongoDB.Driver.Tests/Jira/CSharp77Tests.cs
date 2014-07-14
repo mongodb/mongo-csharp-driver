@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp77
             conventions.Add(new NamedIdMemberConvention(new[] { "FooId" }));
             ConventionRegistry.Register("test", conventions, t => t == typeof(Foo));
 
-            var classMap = new BsonClassMap<Foo>(cm => cm.AutoMap());
+            BsonClassMap.RegisterClassMap<Foo>();
 
             collection.RemoveAll();
             for (int i = 0; i < 10; i++)

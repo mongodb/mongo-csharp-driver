@@ -55,14 +55,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp378
             }
         }
 
-        private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<C>();
         }

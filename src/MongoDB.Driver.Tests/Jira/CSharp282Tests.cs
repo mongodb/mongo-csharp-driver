@@ -24,15 +24,11 @@ namespace MongoDB.Driver.Tests.Jira
     [TestFixture]
     public class CSharp282Tests
     {
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
             _collection.Drop();
         }

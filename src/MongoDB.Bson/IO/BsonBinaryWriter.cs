@@ -594,7 +594,7 @@ namespace MongoDB.Bson.IO
                 WriteNameHelper();
             }
             var contextType = (State == BsonWriterState.ScopeDocument) ? ContextType.ScopeDocument : ContextType.Document;
-            _context = new BsonBinaryWriterContext(_context, ContextType.Document, (int)_streamWriter.Position);
+            _context = new BsonBinaryWriterContext(_context, contextType, (int)_streamWriter.Position);
             _streamWriter.WriteInt32(0); // reserve space for size
 
             State = BsonWriterState.Name;

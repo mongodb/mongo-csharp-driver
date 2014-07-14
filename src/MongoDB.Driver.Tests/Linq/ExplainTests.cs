@@ -33,13 +33,11 @@ namespace MongoDB.Driver.Tests.Linq
             public int Y { get; set; }
         }
 
-        private MongoServer _server;
         private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
             _collection = Configuration.TestCollection;
         }
 

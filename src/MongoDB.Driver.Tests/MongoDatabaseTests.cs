@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Tests
                     if (collection.Exists()) { collection.Drop(); }
                     collection.Insert(new BsonDocument("x", 1));
                     _database.SetProfilingLevel(ProfilingLevel.All);
-                    var count = collection.Count();
+                    collection.Count();
                     _database.SetProfilingLevel(ProfilingLevel.None);
                     var info = _database.GetProfilingInfo(Query.Null).SetSortOrder(SortBy.Descending("$natural")).SetLimit(1).First();
                     Assert.IsTrue(info.Timestamp >= new DateTime(2011, 10, 6, 0, 0, 0, DateTimeKind.Utc));

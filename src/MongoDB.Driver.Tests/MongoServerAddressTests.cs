@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests
         public void TestParse_InvalidValue(string value)
         {
             var message = string.Format("'{0}' is not a valid server address.", value);
-            Assert.Throws<FormatException>(() => { var address = MongoServerAddress.Parse(value); }, message);
+            Assert.Throws<FormatException>(() => MongoServerAddress.Parse(value), message);
         }
     }
 }

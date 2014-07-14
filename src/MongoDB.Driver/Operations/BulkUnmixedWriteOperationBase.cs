@@ -87,7 +87,6 @@ namespace MongoDB.Driver.Operations
         // private methods
         private CommandDocument CreateWriteCommand(BatchSerializer batchSerializer, Batch<WriteRequest> batch)
         {
-            var wrappedActualType = batch.GetType();
             var batchWrapper = new BsonDocumentWrapper(batch, batchSerializer, false);
 
             var writeConcern = _args.WriteConcern.ToBsonDocument();

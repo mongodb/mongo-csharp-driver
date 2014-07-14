@@ -133,7 +133,6 @@ namespace MongoDB.Bson.Tests.Serialization
             var guid = Guid.NewGuid();
             var obj = new TestClass(guid);
             var json = obj.ToJson();
-            var base64 = Convert.ToBase64String(obj.V.Bytes).Replace("\\", "\\\\");
             var expected = "{ 'B' : #, 'V' : # }".Replace("#", "CSUUID('" + guid.ToString() + "')").Replace("'", "\"");
             Assert.AreEqual(expected, json);
 

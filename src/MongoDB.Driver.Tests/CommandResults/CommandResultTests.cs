@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests.CommandResults
             {
                 try
                 {
-                    var result = _database.RunCommand("invalid");
+                    _database.RunCommand("invalid");
                 }
                 catch (Exception ex)
                 {

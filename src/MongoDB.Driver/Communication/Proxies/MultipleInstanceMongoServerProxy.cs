@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Internal
             {
                 while (connectionQueue.Count > 0)
                 {
-                    var instance = connectionQueue.Dequeue();
+                    connectionQueue.Dequeue();
                     Interlocked.Decrement(ref _outstandingInstanceConnections);
                 }
             });

@@ -84,15 +84,11 @@ namespace MongoDB.Driver.Tests.Samples
             }
         }
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<A> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<A>();
         }
 

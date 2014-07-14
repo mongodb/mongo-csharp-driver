@@ -48,15 +48,11 @@ namespace MongoDB.Driver.Tests.Linq
             public IDictionary J { get; set; } // serialized as { J : [["x", 1], ... ] }
         }
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<C>();
 
             var de = new Dictionary<string, int>();

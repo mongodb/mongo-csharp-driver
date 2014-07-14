@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp98
             collection.Insert<A>(b1);
             collection.Insert<A>(b2);
 
-            var docs = collection.FindAll().ToList();
+            collection.FindAll().ToList();
         }
     }
 }

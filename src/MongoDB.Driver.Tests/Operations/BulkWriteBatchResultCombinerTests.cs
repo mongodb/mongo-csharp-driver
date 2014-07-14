@@ -29,9 +29,6 @@ namespace MongoDB.Driver.Tests.Operations
     [TestFixture]
     public class BulkWriteBatchResultCombinerTests
     {
-        private static readonly ReadOnlyCollection<WriteRequest> __noProcessedRequests = new ReadOnlyCollection<WriteRequest>(new WriteRequest[0]);
-        private static readonly ReadOnlyCollection<BulkWriteUpsert> __noUpserts = new ReadOnlyCollection<BulkWriteUpsert>(new BulkWriteUpsert[0]);
-
         [Test]
         [TestCase(0, 0)]
         [TestCase(1, 0)]

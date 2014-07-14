@@ -23,9 +23,6 @@ namespace MongoDB.Driver.Internal
     /// </summary>
     internal class PingTimeAggregator
     {
-        // constants
-        private const int MAX_COUNT = 5;
-
         // private fields
         private readonly object _lock = new object();
         private readonly int _maxCount;
@@ -42,7 +39,7 @@ namespace MongoDB.Driver.Internal
         public PingTimeAggregator(int maxCount)
         {
             _maxCount = maxCount;
-            _pingTimes = new TimeSpan[5];
+            _pingTimes = new TimeSpan[_maxCount];
             _average = TimeSpan.MaxValue;
         }
 
@@ -84,11 +81,11 @@ namespace MongoDB.Driver.Internal
             lock (_lock)
             {
                 _pingTimes[_currentIndex++] = pingTime;
-                if (_currentIndex >= MAX_COUNT)
+                if (_currentIndex >= _maxCount)
                 {
                     _currentIndex = 0;
                 }
-                if (_currentTotal < MAX_COUNT)
+                if (_currentTotal < _maxCount)
                 {
                     _currentTotal++;
                 }

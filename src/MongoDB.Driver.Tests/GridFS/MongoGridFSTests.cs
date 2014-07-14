@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests.GridFS
             _gridFS.Delete(Query.Null);
             Assert.IsFalse(_gridFS.Exists("HelloWorld.txt"));
 
-            var fileInfo1 = UploadHelloWorld();
+            UploadHelloWorld();
             Thread.Sleep(TimeSpan.FromMilliseconds(1));
             var fileInfo2 = UploadHelloWorld();
             var foundInfo = _gridFS.FindOne("HelloWorld.txt", -1);
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Tests.GridFS
 
             var fileInfo1 = UploadHelloWorld();
             Thread.Sleep(TimeSpan.FromMilliseconds(1));
-            var fileInfo2 = UploadHelloWorld();
+            UploadHelloWorld();
             var foundInfo = _gridFS.FindOne("HelloWorld.txt", 1);
             Assert.AreEqual(fileInfo1, foundInfo);
         }

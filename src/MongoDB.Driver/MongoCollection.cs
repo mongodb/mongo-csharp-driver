@@ -206,8 +206,6 @@ namespace MongoDB.Driver
                 var checkElementNames = args.CheckElementNames ?? true;
                 var maxBatchCount = args.MaxBatchCount ?? int.MaxValue;
                 var maxBatchLength = args.MaxBatchLength ?? int.MaxValue;
-                var maxDocumentSize = connection.ServerInstance.MaxDocumentSize;
-                var maxWireDocumentSize = connection.ServerInstance.MaxWireDocumentSize;
                 var writeConcern = args.WriteConcern ?? _settings.WriteConcern;
                 
                 var operation = new BulkMixedWriteOperation(
@@ -217,8 +215,6 @@ namespace MongoDB.Driver
                     _database.Name,
                     maxBatchCount,
                     maxBatchLength,
-                    maxDocumentSize,
-                    maxWireDocumentSize,
                     args.IsOrdered ?? true,
                     GetBinaryReaderSettings(),
                     args.Requests,

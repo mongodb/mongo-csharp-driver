@@ -161,7 +161,7 @@ namespace MongoDB.Bson.Tests.Jira
                 else
                 {
                     Assert.IsFalse(bsonDateTime.IsValidDateTime);
-                    Assert.Throws<ArgumentOutOfRangeException>(() => { var value = bsonDateTime.ToUniversalTime(); });
+                    Assert.Throws<ArgumentOutOfRangeException>(() => bsonDateTime.ToUniversalTime());
                 }
             }
         }

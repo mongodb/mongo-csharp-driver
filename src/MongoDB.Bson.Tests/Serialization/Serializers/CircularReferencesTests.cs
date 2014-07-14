@@ -39,9 +39,9 @@ namespace MongoDB.Bson.Tests.Serialization
             var array = new BsonArray();
             array.Add(array);
             var c1 = new C { X = 1, BsonArray = array };
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToBson(); });
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToBsonDocument(); });
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToJson(); });
+            Assert.Throws<BsonSerializationException>(() => c1.ToBson());
+            Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument());
+            Assert.Throws<BsonSerializationException>(() => c1.ToJson());
         }
 
         [Test]
@@ -49,9 +49,9 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c1 = new C { X = 1 };
             c1.NestedDocument = c1;
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToBson(); });
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToBsonDocument(); });
-            Assert.Throws<BsonSerializationException>(() => { var json = c1.ToJson(); });
+            Assert.Throws<BsonSerializationException>(() => c1.ToBson());
+            Assert.Throws<BsonSerializationException>(() => c1.ToBsonDocument());
+            Assert.Throws<BsonSerializationException>(() => c1.ToJson());
         }
 
         [Test]

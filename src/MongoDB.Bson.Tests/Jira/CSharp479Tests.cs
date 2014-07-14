@@ -41,8 +41,9 @@ namespace MongoDB.Bson.Tests.Jira
             var bson = test.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Test>(bson);
 
-            Assert.AreEqual(id1, test.OtherIds[0]);
-            Assert.AreEqual(id2, test.OtherIds[1]);
+            Assert.AreEqual(rehydrated.OtherIds[0], test.OtherIds[0]);
+            Assert.AreEqual(rehydrated.OtherIds[1], test.OtherIds[1]);
+
         }
     }
 }

@@ -31,9 +31,6 @@ namespace MongoDB.Driver.Tests.Operations
     public class DeleteCommandEmulatorTests
     {
         private MongoCollection<BsonDocument> _collection;
-        private string _collectionName;
-        private MongoDatabase _database;
-        private string _databaseName;
         private MongoServerInstance _primary;
 
         [TestFixtureSetUp]
@@ -41,9 +38,6 @@ namespace MongoDB.Driver.Tests.Operations
         {
             _primary = Configuration.TestServer.Primary;
             _collection = Configuration.TestCollection;
-            _collectionName = Configuration.TestCollection.Name;
-            _database = Configuration.TestDatabase;
-            _databaseName = Configuration.TestDatabase.Name;
         }
 
         [Test]

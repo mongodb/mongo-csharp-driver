@@ -125,8 +125,7 @@ namespace MongoDB.Bson.IO
                 ThrowInvalidState("FindElement", BsonReaderState.Type);
             }
 
-            BsonType bsonType;
-            while ((bsonType = ReadBsonType()) != BsonType.EndOfDocument)
+            while (ReadBsonType() != BsonType.EndOfDocument)
             {
                 var elementName = ReadName();
                 if (elementName == name)

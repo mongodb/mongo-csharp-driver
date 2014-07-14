@@ -24,7 +24,6 @@ namespace MongoDB.Bson.IO
     public class BsonDocumentReader : BsonReader
     {
         // private fields
-        private BsonDocumentReaderSettings _documentReaderSettings; // same value as in base class just declared as derived class
         private BsonDocumentReaderContext _context;
         private BsonValue _currentValue;
 
@@ -53,7 +52,6 @@ namespace MongoDB.Bson.IO
 
             _context = new BsonDocumentReaderContext(null, ContextType.TopLevel, document);
             _currentValue = document;
-            _documentReaderSettings = settings; // already frozen by base class
         }
 
         // public methods

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Jira
             collection.Drop();
 
             IPerson person = new Person { Name = "Jack" };
-            var result = collection.Insert(person);
+            collection.Insert(person);
             Assert.AreNotEqual(ObjectId.Empty, ((Person)person).Id);
         }
     }

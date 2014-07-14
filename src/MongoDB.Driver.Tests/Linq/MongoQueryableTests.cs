@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Tests.Linq
         }
 
         private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection _collection;
 
         [TestFixtureSetUp]
@@ -40,7 +39,6 @@ namespace MongoDB.Driver.Tests.Linq
         {
             _server = Configuration.TestServer;
             _server.Connect();
-            _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }
 

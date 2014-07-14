@@ -62,7 +62,7 @@ namespace MongoDB.Bson.Tests
         {
             var objectId = new ObjectId(0, 0, 0, 0x00ffffff);
             Assert.AreEqual(0x00ffffff, objectId.Increment);
-            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(0, 0, 0, 0x01000000); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(0, 0, 0, 0x01000000));
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Tests
         {
             var objectId = new ObjectId(0, 0x00ffffff, 0, 0);
             Assert.AreEqual(0x00ffffff, objectId.Machine);
-            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(0, 0x01000000, 0, 0); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(0, 0x01000000, 0, 0));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace MongoDB.Bson.Tests
         {
             var objectId = new ObjectId(ObjectId.Pack(0, 0, 0, 0x00ffffff));
             Assert.AreEqual(0x00ffffff, objectId.Increment);
-            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(ObjectId.Pack(0, 0, 0, 0x01000000)); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(ObjectId.Pack(0, 0, 0, 0x01000000)));
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace MongoDB.Bson.Tests
         {
             var objectId = new ObjectId(ObjectId.Pack(0, 0x00ffffff, 0, 0));
             Assert.AreEqual(0x00ffffff, objectId.Machine);
-            Assert.Throws<ArgumentOutOfRangeException>(() => { var invalidId = new ObjectId(ObjectId.Pack(0, 0x01000000, 0, 0)); });
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ObjectId(ObjectId.Pack(0, 0x01000000, 0, 0)));
         }
 
         [Test]
@@ -359,7 +359,6 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestParse()
         {
-            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId1 = ObjectId.Parse("0102030405060708090a0b0c"); // lower case
             var objectId2 = ObjectId.Parse("0102030405060708090A0B0C"); // upper case
             Assert.IsTrue(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
@@ -373,7 +372,6 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestTryParse()
         {
-            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             ObjectId objectId1, objectId2;
             Assert.IsTrue(ObjectId.TryParse("0102030405060708090a0b0c", out objectId1)); // lower case
             Assert.IsTrue(ObjectId.TryParse("0102030405060708090A0B0C", out objectId2)); // upper case

@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
             public Guid Guid { get; set; }
         }
 
-        private MongoServer _server;
         private MongoDatabase _database;
         private MongoCollection<C> _collection;
         private IIdGenerator _generator = new AscendingGuidGenerator();
@@ -41,7 +40,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp714
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
             var collectionSettings = new MongoCollectionSettings() { GuidRepresentation = GuidRepresentation.Standard };
             _collection = _database.GetCollection<C>("csharp714", collectionSettings);

@@ -367,7 +367,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         public void TestMixedPrimitiveTypesWithIntKeys()
         {
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var d = new Dictionary<object, object>
@@ -392,7 +391,6 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         {
             // note: no SortedDictionary or SortedList in this test because you can't sort a set of keys that have mixed types
             var dateTime = DateTime.SpecifyKind(new DateTime(2010, 1, 1, 11, 22, 33), DateTimeKind.Utc);
-            var isoDate = dateTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.FFFZ");
             var guid = Guid.Empty;
             var objectId = ObjectId.Empty;
             var d = new Dictionary<object, object>

@@ -24,7 +24,6 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private BsonDocument _document;
-        private BsonDocumentWriterSettings _documentWriterSettings; // same value as in base class just declared as derived class
         private BsonDocumentWriterContext _context;
 
         // constructors
@@ -51,7 +50,6 @@ namespace MongoDB.Bson.IO
             }
 
             _document = document;
-            _documentWriterSettings = settings; // already frozen by base class
             _context = null;
             State = BsonWriterState.Initial;
         }

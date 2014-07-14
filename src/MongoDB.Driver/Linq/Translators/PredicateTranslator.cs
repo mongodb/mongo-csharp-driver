@@ -472,16 +472,7 @@ namespace MongoDB.Driver.Linq
                 }
             }
 
-            Type keyNominalType;
-            if (dictionaryGenericInterface != null)
-            {
-                keyNominalType = dictionaryGenericInterface.GetGenericArguments()[0]; // TKey
-            }
-            else if (dictionaryInterface != null)
-            {
-                keyNominalType = typeof(object);
-            }
-            else
+            if (dictionaryGenericInterface == null && dictionaryInterface == null)
             {
                 return null;
             }

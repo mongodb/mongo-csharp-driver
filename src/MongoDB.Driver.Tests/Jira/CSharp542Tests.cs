@@ -41,8 +41,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp542
 
             var query = collection.AsQueryable().Where(p => p.MyNullableInt == 3);
 
-            var list = query.ToList();
-
+            query.ToList();
         }
     }
 

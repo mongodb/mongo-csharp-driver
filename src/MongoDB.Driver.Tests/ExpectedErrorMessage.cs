@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests
 
             try
             {
-                var f = emptySequence.First();
+                emptySequence.First();
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
 
             try
             {
-                var f = emptySequence.Last();
+                emptySequence.Last();
             }
             catch (Exception ex)
             {
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests
 
             try
             {
-                var f = emptySequence.Single();
+                emptySequence.Single();
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests
 
             try
             {
-                var f = longElementSequence.Single();
+                longElementSequence.Single();
             }
             catch (Exception ex)
             {
