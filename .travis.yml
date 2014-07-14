@@ -1,0 +1,22 @@
+language: objective-c
+
+branches:
+  only:
+    - master
+
+env:
+  global:
+    - EnableNuGetPackageRestore=true 
+  matrix:
+    - MONO_VERSION="3.2.5"
+
+before_install:
+  - wget "http://download.xamarin.com/MonoFrameworkMDK/Macx86/MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg"
+  - sudo installer -pkg "MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg" -target /
+
+script:
+  - xbuild ./src/CSharpDriver-Mono.sln
+  - brew install mongodb
+  - mkdir -p ./build/db/data
+  - mongod --dbpath ./build/db/data --logpath ./build/db/log.log --fork --setParameter textSearchEnabled=true
+  - mono --runtime=v4.0.30319 ./Tools/NUnit/nunit-console.exe ./src/MongoDB.Bson.Tests/bin/Debug/MongoDB.Bson.Tests.dll ./src/MongoDB.Driver.Tests/bin/Debug/MongoDB.Driver.Tests.dll
