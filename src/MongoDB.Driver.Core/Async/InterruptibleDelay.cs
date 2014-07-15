@@ -18,10 +18,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Async
 {
-    public class InterruptibleDelay
+    internal class InterruptibleDelay
     {
         // fields
         private readonly TaskCompletionSource<bool> _interrupt;
@@ -30,6 +31,8 @@ namespace MongoDB.Driver.Core.Async
         // constructors
         public InterruptibleDelay(TimeSpan delay)
         {
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(delay, "delay");
+
             _interrupt = new TaskCompletionSource<bool>();
             _task = Task.WhenAny(Task.Delay(delay), _interrupt.Task);
         }
