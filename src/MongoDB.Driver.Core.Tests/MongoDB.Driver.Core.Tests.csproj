@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
+    <Compile Include="Async\AsyncDropboxTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
     <Compile Include="Async\InterruptibleDelayTests.cs" />
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
