@@ -33,9 +33,9 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var message = new KillCursorsMessage(_requestId, _cursorIds);
-            message.CursorIds.Should().Equal(_cursorIds);
-            message.RequestId.Should().Be(1);
+            var subject = new KillCursorsMessage(_requestId, _cursorIds);
+            subject.CursorIds.Should().Equal(_cursorIds);
+            subject.RequestId.Should().Be(1);
         }
 
         [Test]
@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetKillCursorsMessageEncoder().Returns(mockEncoder);
 
-            var message = new KillCursorsMessage(_requestId, _cursorIds);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new KillCursorsMessage(_requestId, _cursorIds);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }

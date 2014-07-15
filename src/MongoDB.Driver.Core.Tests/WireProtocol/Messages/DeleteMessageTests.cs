@@ -35,12 +35,12 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var message = new DeleteMessage(_requestId, _databaseName, _collectionName, _query, _isMulti);
-            message.CollectionName.Should().Be(_collectionName);
-            message.DatabaseName.Should().Be(_databaseName);
-            message.IsMulti.Should().Be(_isMulti);
-            message.Query.Equals(_query).Should().BeTrue();
-            message.RequestId.Should().Be(_requestId);
+            var subject = new DeleteMessage(_requestId, _databaseName, _collectionName, _query, _isMulti);
+            subject.CollectionName.Should().Be(_collectionName);
+            subject.DatabaseName.Should().Be(_databaseName);
+            subject.IsMulti.Should().Be(_isMulti);
+            subject.Query.Equals(_query).Should().BeTrue();
+            subject.RequestId.Should().Be(_requestId);
         }
 
         [Test]
@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
 
-            var message = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }

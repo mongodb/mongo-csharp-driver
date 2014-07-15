@@ -35,12 +35,12 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var message = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
-            message.BatchSize.Should().Be(_batchSize);
-            message.CursorId.Should().Be(_cursorId);
-            message.CollectionName.Should().Be(_collectionName);
-            message.DatabaseName.Should().Be(_databaseName);
-            message.RequestId.Should().Be(_requestId);
+            var subject = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
+            subject.BatchSize.Should().Be(_batchSize);
+            subject.CursorId.Should().Be(_cursorId);
+            subject.CollectionName.Should().Be(_collectionName);
+            subject.DatabaseName.Should().Be(_databaseName);
+            subject.RequestId.Should().Be(_requestId);
         }
 
         [Test]
@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetGetMoreMessageEncoder().Returns(mockEncoder);
 
-            var message = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }

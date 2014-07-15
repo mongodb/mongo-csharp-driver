@@ -36,14 +36,14 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [TestCase(false, true)]
         public void Constructor_should_initialize_instance(bool isMulti, bool isUpsert)
         {
-            var message = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, isMulti, isUpsert);
-            message.CollectionName.Should().Be(_collectionName);
-            message.DatabaseName.Should().Be(_databaseName);
-            message.IsMulti.Should().Be(isMulti);
-            message.IsUpsert.Should().Be(isUpsert);
-            message.Query.Equals(_query).Should().BeTrue();
-            message.Update.Equals(_update).Should().BeTrue();
-            message.RequestId.Should().Be(_requestId);
+            var subject = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, isMulti, isUpsert);
+            subject.CollectionName.Should().Be(_collectionName);
+            subject.DatabaseName.Should().Be(_databaseName);
+            subject.IsMulti.Should().Be(isMulti);
+            subject.IsUpsert.Should().Be(isUpsert);
+            subject.Query.Equals(_query).Should().BeTrue();
+            subject.Update.Equals(_update).Should().BeTrue();
+            subject.RequestId.Should().Be(_requestId);
         }
 
         [Test]
@@ -81,8 +81,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetUpdateMessageEncoder().Returns(mockEncoder);
 
-            var message = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, false, false);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, false, false);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }

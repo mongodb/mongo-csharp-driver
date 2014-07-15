@@ -42,15 +42,15 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var message = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documents, _maxBatchCount, _maxMessageSize, _continueOnError);
-            message.CollectionName.Should().Be(_collectionName);
-            message.ContinueOnError.Should().Be(_continueOnError);
-            message.DatabaseName.Should().Be(_databaseName);
-            message.Documents.Should().BeSameAs(_documents);
-            message.MaxBatchCount.Should().Be(_maxBatchCount);
-            message.MaxMessageSize.Should().Be(_maxMessageSize);
-            message.RequestId.Should().Be(_requestId);
-            message.Serializer.Should().BeSameAs(_serializer);
+            var subject = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documents, _maxBatchCount, _maxMessageSize, _continueOnError);
+            subject.CollectionName.Should().Be(_collectionName);
+            subject.ContinueOnError.Should().Be(_continueOnError);
+            subject.DatabaseName.Should().Be(_databaseName);
+            subject.Documents.Should().BeSameAs(_documents);
+            subject.MaxBatchCount.Should().Be(_maxBatchCount);
+            subject.MaxMessageSize.Should().Be(_maxMessageSize);
+            subject.RequestId.Should().Be(_requestId);
+            subject.Serializer.Should().BeSameAs(_serializer);
         }
 
         [Test]
@@ -102,8 +102,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetInsertMessageEncoder(_serializer).Returns(mockEncoder);
 
-            var message = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documents, _maxBatchCount, _maxMessageSize, _continueOnError);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new InsertMessage<BsonDocument>(_requestId, _databaseName, _collectionName, _serializer, _documents, _maxBatchCount, _maxMessageSize, _continueOnError);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }

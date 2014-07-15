@@ -41,18 +41,18 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         [TestCase(false, false, false, false, true)]
         public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool partialOk, bool slaveOk, bool tailableCursor)
         {
-            var message = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
-            message.AwaitData.Should().Be(awaitData);
-            message.BatchSize.Should().Be(_batchSize);
-            message.CollectionName.Should().Be(_collectionName);
-            message.DatabaseName.Should().Be(_databaseName);
-            message.Fields.Equals(_fields).Should().BeTrue();
-            message.NoCursorTimeout.Should().Be(noCursorTimeout);
-            message.PartialOk.Should().Be(partialOk);
-            message.Query.Equals(_query).Should().BeTrue();
-            message.RequestId.Should().Be(_requestId);
-            message.SlaveOk.Should().Be(slaveOk);
-            message.TailableCursor.Should().Be(tailableCursor);
+            var subject = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, tailableCursor, awaitData);
+            subject.AwaitData.Should().Be(awaitData);
+            subject.BatchSize.Should().Be(_batchSize);
+            subject.CollectionName.Should().Be(_collectionName);
+            subject.DatabaseName.Should().Be(_databaseName);
+            subject.Fields.Equals(_fields).Should().BeTrue();
+            subject.NoCursorTimeout.Should().Be(noCursorTimeout);
+            subject.PartialOk.Should().Be(partialOk);
+            subject.Query.Equals(_query).Should().BeTrue();
+            subject.RequestId.Should().Be(_requestId);
+            subject.SlaveOk.Should().Be(slaveOk);
+            subject.TailableCursor.Should().Be(tailableCursor);
         }
 
         [Test]
@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
             mockEncoderFactory.GetQueryMessageEncoder().Returns(mockEncoder);
 
-            var message = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, false, false, false, false, false);
-            var encoder = message.GetEncoder(mockEncoderFactory);
+            var subject = new QueryMessage(_requestId, _databaseName, _collectionName, _query, _fields, _skip, _batchSize, false, false, false, false, false);
+            var encoder = subject.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }
     }
