@@ -59,7 +59,14 @@ namespace MongoDB.Driver.Core.Misc
                     string host = match.Groups["host"].Value;
                     string portString = match.Groups["port"].Value;
                     int port = (portString != "") ? int.Parse(portString, CultureInfo.InvariantCulture) : 27017;
-                    endPoint = new DnsEndPoint(host, port, addressFamily);
+                    try
+                    {
+                        endPoint = new DnsEndPoint(host, port, addressFamily);
+                    }
+                    catch(ArgumentException)
+                    {
+                        endPoint = null;
+                    }
                 }
             }
 
