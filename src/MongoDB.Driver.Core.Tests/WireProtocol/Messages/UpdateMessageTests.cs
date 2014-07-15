@@ -24,54 +24,64 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
 {
     [TestFixture]
-    public class DeleteMessageTests
+    public class UpdateMessageTests
     {
         private readonly string _collectionName = "collection";
         private readonly string _databaseName = "database";
-        private readonly bool _isMulti = true;
         private readonly BsonDocument _query = new BsonDocument("x", 1);
         private readonly int _requestId = 1;
+        private readonly BsonDocument _update = new BsonDocument("$set", new BsonDocument("y", 2));
 
-        [Test]
-        public void Constructor_should_initialize_instance()
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public void Constructor_should_initialize_instance(bool isMulti, bool isUpsert)
         {
-            var message = new DeleteMessage(_requestId, _databaseName, _collectionName, _query, _isMulti);
+            var message = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, isMulti, isUpsert);
             message.CollectionName.Should().Be(_collectionName);
             message.DatabaseName.Should().Be(_databaseName);
-            message.IsMulti.Should().Be(_isMulti);
+            message.IsMulti.Should().Be(isMulti);
+            message.IsUpsert.Should().Be(isUpsert);
             message.Query.Equals(_query).Should().BeTrue();
+            message.Update.Equals(_update).Should().BeTrue();
             message.RequestId.Should().Be(_requestId);
         }
 
         [Test]
         public void Constructor_with_null_collectionName_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, null, _query, _isMulti);
+            Action action = () => new UpdateMessage(_requestId, _databaseName, null, _query, _update, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_databaseName_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, null, _collectionName, _query, _isMulti);
+            Action action = () => new UpdateMessage(_requestId, null, _collectionName, _query, _update, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_query_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, _collectionName, null, _isMulti);
+            Action action = () => new UpdateMessage(_requestId, _databaseName, _collectionName, null, _update, false, false);
+            action.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Test]
+        public void Constructor_with_null_update_should_throw()
+        {
+            Action action = () => new UpdateMessage(_requestId, _databaseName, _collectionName, _query, null, false, false);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void GetEncoder_should_return_encoder()
         {
-            var mockEncoder = Substitute.For<IMessageEncoder<DeleteMessage>>();
+            var mockEncoder = Substitute.For<IMessageEncoder<UpdateMessage>>();
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
-            mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
+            mockEncoderFactory.GetUpdateMessageEncoder().Returns(mockEncoder);
 
-            var message = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
+            var message = new UpdateMessage(_requestId, _databaseName, _collectionName, _query, _update, false, false);
             var encoder = message.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

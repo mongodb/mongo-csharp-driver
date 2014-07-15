@@ -24,54 +24,54 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
 {
     [TestFixture]
-    public class DeleteMessageTests
+    public class GetMoreMessageTests
     {
+        private readonly int _batchSize = 1;
         private readonly string _collectionName = "collection";
+        private readonly long _cursorId = 2;
         private readonly string _databaseName = "database";
-        private readonly bool _isMulti = true;
-        private readonly BsonDocument _query = new BsonDocument("x", 1);
-        private readonly int _requestId = 1;
+        private readonly int _requestId = 3;
 
         [Test]
         public void Constructor_should_initialize_instance()
         {
-            var message = new DeleteMessage(_requestId, _databaseName, _collectionName, _query, _isMulti);
+            var message = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
+            message.BatchSize.Should().Be(_batchSize);
+            message.CursorId.Should().Be(_cursorId);
             message.CollectionName.Should().Be(_collectionName);
             message.DatabaseName.Should().Be(_databaseName);
-            message.IsMulti.Should().Be(_isMulti);
-            message.Query.Equals(_query).Should().BeTrue();
             message.RequestId.Should().Be(_requestId);
+        }
+
+        [Test]
+        public void Constructor_with_negative_batchSize_should_throw()
+        {
+            Action action = () => new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, -1);
+            action.ShouldThrow<ArgumentOutOfRangeException>();
         }
 
         [Test]
         public void Constructor_with_null_collectionName_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, null, _query, _isMulti);
+            Action action = () => new GetMoreMessage(_requestId, _databaseName, null, _cursorId, _batchSize);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void Constructor_with_null_databaseName_should_throw()
         {
-            Action action = () => new DeleteMessage(_requestId, null, _collectionName, _query, _isMulti);
-            action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Constructor_with_null_query_should_throw()
-        {
-            Action action = () => new DeleteMessage(_requestId, _databaseName, _collectionName, null, _isMulti);
+            Action action = () => new GetMoreMessage(_requestId, null, _collectionName, _cursorId, _batchSize);
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
         public void GetEncoder_should_return_encoder()
         {
-            var mockEncoder = Substitute.For<IMessageEncoder<DeleteMessage>>();
+            var mockEncoder = Substitute.For<IMessageEncoder<GetMoreMessage>>();
             var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
-            mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
+            mockEncoderFactory.GetGetMoreMessageEncoder().Returns(mockEncoder);
 
-            var message = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
+            var message = new GetMoreMessage(_requestId, _databaseName, _collectionName, _cursorId, _batchSize);
             var encoder = message.GetEncoder(mockEncoderFactory);
             encoder.Should().BeSameAs(mockEncoder);
         }

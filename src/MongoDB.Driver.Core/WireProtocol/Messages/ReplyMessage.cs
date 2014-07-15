@@ -58,9 +58,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             IBsonSerializer<TDocument> serializer,
             int startingFrom)
         {
-            if (documents == null && queryFailureDocument == null || documents != null && queryFailureDocument != null)
+            if (documents == null && queryFailureDocument == null && !cursorNotFound)
             {
-                throw new ArgumentException("Either documents or queryFailureDocument, but not both, must be provided.");
+                throw new ArgumentException("Either documents or queryFailureDocument must be provided.");
+            }
+            if (documents != null && queryFailureDocument != null)
+            {
+                throw new ArgumentException("Documents and queryFailureDocument cannot both be provided.");
             }
             _cursorId = cursorId;
             _cursorNotFound = cursorNotFound;
