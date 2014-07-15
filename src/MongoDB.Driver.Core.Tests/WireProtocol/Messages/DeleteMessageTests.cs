@@ -14,13 +14,11 @@
 */
 
 using System;
-using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
@@ -57,33 +55,15 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
         }
 
         [Test]
-        public void GetEncoder_with_binary_encoder_factory_should_return_binary_encoder()
+        public void GetEncoder_should_return_encoder()
         {
-            var query = new BsonDocument("_id", 1);
-            var message = new DeleteMessage(1, "database", "collection", query, true);
+            var mockEncoder = Substitute.For<IMessageEncoder<DeleteMessage>>();
+            var mockEncoderFactory = Substitute.For<IMessageEncoderFactory>();
+            mockEncoderFactory.GetDeleteMessageEncoder().Returns(mockEncoder);
 
-            using (var stream = new MemoryStream())
-            using (var writer = new BsonBinaryWriter(stream))
-            {
-                var binaryEncoderFactory = new BinaryMessageEncoderFactory(writer);
-                var encoder = message.GetEncoder(binaryEncoderFactory);
-                encoder.Should().BeOfType<DeleteMessageBinaryEncoder>();
-            }
-        }
-
-        [Test]
-        public void GetEncoder_with_json_encoder_factory_should_return_json_encoder()
-        {
-            var query = new BsonDocument("_id", 1);
-            var message = new DeleteMessage(1, "database", "collection", query, true);
-
-            using (var stringWriter = new StringWriter())
-            using (var writer = new JsonWriter(stringWriter))
-            {
-                var jsonEncoderFactory = new JsonMessageEncoderFactory(writer);
-                var encoder = message.GetEncoder(jsonEncoderFactory);
-                encoder.Should().BeOfType<DeleteMessageJsonEncoder>();
-            }
+            var message = new DeleteMessage(1, "database", "collection", new BsonDocument("x", 1), true);
+            var encoder = message.GetEncoder(mockEncoderFactory);
+            encoder.Should().BeSameAs(mockEncoder);
         }
     }
 }
