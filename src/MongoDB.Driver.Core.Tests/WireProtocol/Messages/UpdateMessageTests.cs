@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             subject.DatabaseName.Should().Be(_databaseName);
             subject.IsMulti.Should().Be(isMulti);
             subject.IsUpsert.Should().Be(isUpsert);
-            subject.Query.Equals(_query).Should().BeTrue();
-            subject.Update.Equals(_update).Should().BeTrue();
+            subject.Query.Should().Be(_query);
+            subject.Update.Should().Be(_update);
             subject.RequestId.Should().Be(_requestId);
         }
 

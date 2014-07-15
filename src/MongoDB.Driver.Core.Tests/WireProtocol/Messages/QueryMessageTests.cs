@@ -46,10 +46,10 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             subject.BatchSize.Should().Be(_batchSize);
             subject.CollectionName.Should().Be(_collectionName);
             subject.DatabaseName.Should().Be(_databaseName);
-            subject.Fields.Equals(_fields).Should().BeTrue();
+            subject.Fields.Should().Be(_fields);
             subject.NoCursorTimeout.Should().Be(noCursorTimeout);
             subject.PartialOk.Should().Be(partialOk);
-            subject.Query.Equals(_query).Should().BeTrue();
+            subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
             subject.SlaveOk.Should().Be(slaveOk);
             subject.TailableCursor.Should().Be(tailableCursor);

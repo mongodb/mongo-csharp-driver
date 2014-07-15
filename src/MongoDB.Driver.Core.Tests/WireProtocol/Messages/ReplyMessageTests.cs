@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             subject.Documents.Should().BeNull();
             subject.NumberReturned.Should().Be(0);
             subject.QueryFailure.Should().BeTrue();
-            subject.QueryFailureDocument.Equals(_queryFailureDocument).Should().BeTrue();
+            subject.QueryFailureDocument.Should().Be(_queryFailureDocument);
             subject.RequestId.Should().Be(_requestId);
             subject.ResponseTo.Should().Be(_responseTo);
             subject.Serializer.Should().BeSameAs(_serializer);

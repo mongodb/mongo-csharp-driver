@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Tests.WireProtocol.Messages
             subject.CollectionName.Should().Be(_collectionName);
             subject.DatabaseName.Should().Be(_databaseName);
             subject.IsMulti.Should().Be(_isMulti);
-            subject.Query.Equals(_query).Should().BeTrue();
+            subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
         }
 
