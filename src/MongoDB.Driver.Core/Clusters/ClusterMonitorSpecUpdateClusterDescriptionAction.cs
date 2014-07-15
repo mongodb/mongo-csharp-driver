@@ -17,14 +17,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public class ClusterMonitorSpecNewClusterDescriptionAction : ClusterMonitorSpecAction
+    public class ClusterMonitorSpecUpdateClusterDescriptionAction : ClusterMonitorSpecAction
     {
         // fields
         private readonly ClusterDescription _clusterDescription;
 
         // constructors
-        public ClusterMonitorSpecNewClusterDescriptionAction(ClusterDescription clusterDescription)
-            : base(ClusterMonitorSpecActionType.NewClusterDescription)
+        public ClusterMonitorSpecUpdateClusterDescriptionAction(ClusterDescription clusterDescription)
+            : base(ClusterMonitorSpecActionType.UpdateClusterDescription)
         {
             _clusterDescription = Ensure.IsNotNull(clusterDescription, "clusterDescription");
         }

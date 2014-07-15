@@ -90,7 +90,7 @@
     <Compile Include="Clusters\ClusterMonitorSpecAction.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecActionType.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecAddServerAction.cs" />
-    <Compile Include="Clusters\ClusterMonitorSpecNewClusterDescriptionAction.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecUpdateClusterDescriptionAction.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecRemoveServerAction.cs" />
     <Compile Include="Clusters\ClusterSettings.cs" />
     <Compile Include="Clusters\ClusterSettingsUriParser.cs" />

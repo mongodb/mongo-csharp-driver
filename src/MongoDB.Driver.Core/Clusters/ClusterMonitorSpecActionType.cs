@@ -17,8 +17,8 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public enum ClusterMonitorSpecActionType
     {
-        NewClusterDescription,
         AddServer,
-        RemoveServer
+        RemoveServer,
+        UpdateClusterDescription
     }
 }
