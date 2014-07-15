@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
+        private readonly ClusterMonitorSpec _clusterMonitorSpec = new ClusterMonitorSpec();
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private bool _disposed;
@@ -77,9 +78,6 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         internal void AddServer(Server server)
         {
-            ClusterDescription oldDescription = null;
-            ClusterDescription newDescription = null;
-
             lock (_lock)
             {
                 if (_servers.Any(n => n.EndPoint == server.EndPoint))
@@ -88,14 +86,8 @@ namespace MongoDB.Driver.Core.Clusters
                     throw new ArgumentException(message, "server");
                 }
 
-                oldDescription = _description;
-                newDescription = oldDescription.WithServer(server.Description, oldDescription.ReplicaSetConfig);
-
-                _description = newDescription;
                 _servers.Add(server);
             }
-
-            OnDescriptionChanged(oldDescription, newDescription);
 
             server.DescriptionChanged += ServerDescriptionChangedHandler;
             server.Initialize();
@@ -264,17 +256,10 @@ namespace MongoDB.Driver.Core.Clusters
 
             lock (_lock)
             {
-                var newReplicaSetConfig = _description.ReplicaSetConfig;
-                if (newReplicaSetConfig == null || newServerDescription.Type == ServerType.Primary || !_description.Servers.Any(s => s.Type == ServerType.Primary))
+                var actions = _clusterMonitorSpec.Transition(_description, newServerDescription);
+                foreach (var action in actions)
                 {
-                    newReplicaSetConfig = newServerDescription.ReplicaSetConfig;
-                }
-
-                oldClusterDescription = _description;
-                newClusterDescription = oldClusterDescription.WithServer(newServerDescription, newReplicaSetConfig);
-                if (newClusterDescription.Equals(oldClusterDescription))
-                {
-                    return;
+                    // TODO: implement action
                 }
 
                 oldDescriptionChangedTaskCompletionSource = _descriptionChangedTaskCompletionSource;
@@ -313,24 +298,15 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void RemoveServer(Server server)
         {
-            ClusterDescription oldDescription = null;
-            ClusterDescription newDescription = null;
-
             server.DescriptionChanged -= ServerDescriptionChangedHandler;
             var endPoint = server.EndPoint;
 
             lock (_lock)
             {
-                oldDescription = _description;
-                newDescription = oldDescription.RemoveServer(endPoint, oldDescription.ReplicaSetConfig);
-
-                _description = newDescription;
                 _servers.Remove(server);
             }
 
             server.Dispose();
-
-            OnDescriptionChanged(oldDescription, newDescription);
 
             var clusterListener = _settings.ClusterListener;
             if (clusterListener != null)

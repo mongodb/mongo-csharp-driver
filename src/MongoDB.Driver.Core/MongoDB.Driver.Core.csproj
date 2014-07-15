@@ -86,6 +86,12 @@
     <Compile Include="Bindings\SplitBinding.cs" />
     <Compile Include="Clusters\Cluster.cs" />
     <Compile Include="Clusters\ClusterDescription.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpec.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecAction.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecActionType.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecAddServerAction.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecNewClusterDescriptionAction.cs" />
+    <Compile Include="Clusters\ClusterMonitorSpecRemoveServerAction.cs" />
     <Compile Include="Clusters\ClusterSettings.cs" />
     <Compile Include="Clusters\ClusterSettingsUriParser.cs" />
     <Compile Include="Clusters\ClusterState.cs" />

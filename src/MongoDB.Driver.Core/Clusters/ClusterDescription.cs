@@ -90,14 +90,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
-        private ClusterState ComputeState(IEnumerable<ServerDescription> servers)
-        {
-            return
-                servers.All(n => n.State == ServerState.Connected) ? ClusterState.Connected :
-                servers.Any(n => n.State == ServerState.Connected) ? ClusterState.PartiallyConnected :
-                ClusterState.Disconnected;
-        }
-
         public override bool Equals(object obj)
         {
             if (object.ReferenceEquals(this, obj)) { return true; }
@@ -120,29 +112,10 @@ namespace MongoDB.Driver.Core.Clusters
                 .GetHashCode();
         }
 
-        public ClusterDescription RemoveServer(DnsEndPoint endPoint, ReplicaSetConfig replicaSetConfig)
-        {
-            var servers = _servers.Where(n => n.EndPoint != endPoint).ToList();
-            var state = ComputeState(servers);
-            return new ClusterDescription(_type, state, servers, replicaSetConfig, 0);
-        }
-
         public override string ToString()
         {
             var servers = string.Join(", ", _servers.Select(n => n.ToString()).ToArray());
             return string.Format("{{ Type : {0}, State : {1}, Servers : [{2}], ReplicaSetConfig : {3}, Revision : {4} }}", _type, _state, servers, _replicaSetConfig, _revision);
-        }
-
-        public ClusterDescription WithServer(ServerDescription value, ReplicaSetConfig replicatSetConfig)
-        {
-            if (_servers.Any(n => n.Equals(value)) && object.Equals(_replicaSetConfig, replicatSetConfig))
-            {
-                return this;
-            }
-
-            var servers = _servers.Where(n => n.EndPoint != value.EndPoint).Concat(new[] { value });
-            var state = ComputeState(servers);
-            return new ClusterDescription(_type, state, servers, replicatSetConfig, 0);
         }
 
         public ClusterDescription WithRevision(int value)
