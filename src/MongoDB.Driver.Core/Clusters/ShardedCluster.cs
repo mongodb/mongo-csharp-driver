@@ -20,6 +20,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters.Events;
+using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -29,8 +32,8 @@ namespace MongoDB.Driver.Core.Clusters
     public class ShardedCluster : MultiServerCluster
     {
         // constructors
-        public ShardedCluster(ClusterSettings settings)
-            : base(settings)
+        public ShardedCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+            : base(settings, serverFactory, listener)
         {
             if (settings.ClusterType != ClusterType.Sharded)
             {

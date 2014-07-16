@@ -16,28 +16,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Servers.Events
 {
-    public class PingingServerEventArgs
+    public class ServerDescriptionChangedEventArgs : EventArgs
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly ServerDescription _oldServerDescription;
+        private readonly ServerDescription _newServerDescription;
 
         // constructors
-        public PingingServerEventArgs(DnsEndPoint endPoint)
+        public ServerDescriptionChangedEventArgs(ServerDescription oldServerDescription, ServerDescription newServerDescription)
         {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _oldServerDescription = Ensure.IsNotNull(oldServerDescription, "oldServerDescription");
+            _newServerDescription = Ensure.IsNotNull(newServerDescription, "newServerDescription");
         }
 
         // properties
-        public DnsEndPoint EndPoint
+        public ServerDescription OldServerDescription
         {
-            get { return _endPoint; }
+            get { return _oldServerDescription; }
+        }
+
+        public ServerDescription NewServerDescription
+        {
+            get { return _newServerDescription; }
         }
     }
 }

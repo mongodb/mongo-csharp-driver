@@ -29,42 +29,25 @@ namespace MongoDB.Driver.Core.Servers
     public class ServerSettings
     {
         // fields
-        private readonly IClusterListener _clusterListener;
-        private readonly IConnectionPoolFactory _connectionPoolFactory;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
 
         // constructors
         public ServerSettings()
         {
-            _connectionPoolFactory = new ConnectionPoolFactory();
             _heartbeatInterval = TimeSpan.FromSeconds(10);
             _heartbeatTimeout = TimeSpan.FromSeconds(10);
         }
 
         internal ServerSettings(
-            IClusterListener clusterListener,
-            IConnectionPoolFactory connectionPoolFactory,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout)
         {
-            _clusterListener = clusterListener;
-            _connectionPoolFactory = connectionPoolFactory;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
         }
 
         // properties
-        public IClusterListener ClusterListener
-        {
-            get { return _clusterListener; }
-        }
-
-        public IConnectionPoolFactory ConnectionPoolFactory
-        {
-            get { return _connectionPoolFactory; }
-        }
-
         public TimeSpan HeartbeatInterval
         {
             get { return _heartbeatInterval; }
@@ -76,16 +59,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
-        public ServerSettings WithClusterListener(IClusterListener value)
-        {
-            return object.ReferenceEquals(_clusterListener, value) ? this : new Builder(this) { _clusterListener = value }.Build();
-        }
-
-        public ServerSettings WithConnectionPoolFactory(IConnectionPoolFactory value)
-        {
-            return object.ReferenceEquals(_connectionPoolFactory, value) ? this : new Builder(this) { _connectionPoolFactory = value }.Build();
-        }
-
         public ServerSettings WithHeartbeatInterval(TimeSpan value)
         {
             return (_heartbeatInterval == value) ? this : new Builder(this) { _heartbeatInterval = value }.Build();
@@ -100,16 +73,12 @@ namespace MongoDB.Driver.Core.Servers
         private struct Builder
         {
             // fields
-            public IClusterListener _clusterListener;
-            public IConnectionPoolFactory _connectionPoolFactory;
             public TimeSpan _heartbeatInterval;
             public TimeSpan _heartbeatTimeout;
 
             // constructors
             public Builder(ServerSettings other)
             {
-                _clusterListener = other._clusterListener;
-                _connectionPoolFactory = other._connectionPoolFactory;
                 _heartbeatInterval = other._heartbeatInterval;
                 _heartbeatTimeout = other._heartbeatTimeout;
             }
@@ -118,8 +87,6 @@ namespace MongoDB.Driver.Core.Servers
             public ServerSettings Build()
             {
                 return new ServerSettings(
-                    _clusterListener,
-                    _connectionPoolFactory,
                     _heartbeatInterval,
                     _heartbeatTimeout);
             }

@@ -20,6 +20,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters.Events;
+using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
 {
@@ -29,8 +32,8 @@ namespace MongoDB.Driver.Core.Clusters
     public class DirectCluster : MultiServerCluster
     {
         // constructor
-        internal DirectCluster(ClusterSettings settings)
-            : base(settings)
+        internal DirectCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+            : base(settings, serverFactory, listener)
         {
             if (settings.ClusterType != ClusterType.Direct) { throw new ArgumentException(string.Format("Invalid cluster type: {0}.", settings.ClusterType), "settings"); }
         }

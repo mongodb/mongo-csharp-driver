@@ -20,30 +20,35 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.ConnectionPools;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers.Events;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Servers
 {
     /// <summary>
-    /// Represents a replica set cluster.
+    /// Represents the default server factory.
     /// </summary>
-    public class ReplicaSet : MultiServerCluster
+    public class ServerFactory : IServerFactory
     {
+        // fields
+        private readonly IConnectionPoolFactory _connectionPoolFactory;
+        private readonly IServerListener _listener;
+        private readonly ServerSettings _settings;
+
         // constructors
-        public ReplicaSet(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
-            : base(settings, serverFactory, listener)
+        public ServerFactory(ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerListener listener)
         {
-            if (settings.ClusterType != ClusterType.ReplicaSet)
-            {
-                throw new ArgumentException(string.Format("Invalid cluster type: {0}.", settings.ClusterType), "settings");
-            }
+            _settings = Ensure.IsNotNull(settings, "settings");
+            _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
+            _listener = listener;
         }
 
         // methods
-        protected override void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
+        public IRootServer Create(DnsEndPoint endPoint)
         {
+            return new Server(endPoint, _settings, _connectionPoolFactory, _listener);
         }
     }
 }

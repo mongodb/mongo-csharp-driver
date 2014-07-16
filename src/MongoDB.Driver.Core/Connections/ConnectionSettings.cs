@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.Connections
 
         // fields
         private readonly IReadOnlyList<ICredential> _credentials = __noCredentials;
-        private readonly IMessageListener _messageListener;
 
         // constructors
         public ConnectionSettings()
@@ -41,22 +40,15 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         private ConnectionSettings(
-            IReadOnlyList<ICredential> credentials,
-            IMessageListener messageListener)
+            IReadOnlyList<ICredential> credentials)
         {
             _credentials = credentials;
-            _messageListener = messageListener;
         }
 
         // properties
         public IReadOnlyList<ICredential> Credentials
         {
             get { return _credentials; }
-        }
-
-        public IMessageListener MessageListener
-        {
-            get { return _messageListener; }
         }
 
         // methods
@@ -69,12 +61,7 @@ namespace MongoDB.Driver.Core.Connections
                 return this;
             }
 
-            return _credentials.SequenceEqual(value) ? this : new ConnectionSettings(value.ToList(), _messageListener);
-        }
-
-        public ConnectionSettings WithMessageListener(IMessageListener value)
-        {
-            return object.ReferenceEquals(_messageListener, value) ? this : new ConnectionSettings(_credentials, value);
+            return _credentials.SequenceEqual(value) ? this : new ConnectionSettings(value.ToList());
         }
     }
 }

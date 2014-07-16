@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Servers.Events;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Servers
@@ -29,13 +30,15 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     public interface IServer
     {
+        // events
+        event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
+
         // properties
         DnsEndPoint EndPoint { get; }
         ServerDescription Description { get; }
 
         // methods
         Task<IConnection> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
-        Task<ServerDescription> GetDescriptionAsync(int minimumRevision, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>
@@ -43,5 +46,6 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     public interface IRootServer : IServer, IDisposable
     {
+        void Initialize();
     }
 }

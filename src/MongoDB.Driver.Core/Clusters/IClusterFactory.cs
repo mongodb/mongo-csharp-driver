@@ -13,19 +13,15 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Clusters
 {
-    public interface IClusterListener
+    /// <summary>
+    /// Represents a cluster factory.
+    /// </summary>
+    public interface IClusterFactory
     {
         // methods
-        void ClusterDescriptionChanged(ClusterDescriptionChangedEventArgs args);
-        void ServerAdded(ServerAddedEventArgs args);
-        void ServerRemoved(ServerRemovedEventArgs args);
+        ICluster Create();
     }
 }

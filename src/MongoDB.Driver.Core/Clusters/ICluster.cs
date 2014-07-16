@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Servers;
 
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Core.Clusters
     public interface ICluster : IDisposable
     {
         // events
-        event EventHandler DescriptionChanged;
+        event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
         ClusterDescription Description { get; }

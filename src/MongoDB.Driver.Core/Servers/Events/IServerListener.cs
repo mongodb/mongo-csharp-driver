@@ -19,13 +19,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Servers.Events
 {
-    public interface IClusterListener
+    public interface IServerListener
     {
         // methods
-        void ClusterDescriptionChanged(ClusterDescriptionChangedEventArgs args);
-        void ServerAdded(ServerAddedEventArgs args);
-        void ServerRemoved(ServerRemovedEventArgs args);
+        void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args);
     }
 }

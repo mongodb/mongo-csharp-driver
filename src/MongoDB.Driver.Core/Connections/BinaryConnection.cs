@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Connections
         private DnsEndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
+        private readonly IMessageListener _listener;
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
         private int _pendingResponseCount;
         private readonly ConnectionSettings _settings;
@@ -52,11 +53,12 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory)
+        public BinaryConnection(DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
+            _listener = Ensure.IsNotNull(listener, "listener");
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
             // postpone creating the Stream until OpenAsync because some Streams block or throw in the constructor
@@ -118,13 +120,13 @@ namespace MongoDB.Driver.Core.Connections
 
         private async Task OnSentMessagesAsync(List<RequestMessage> messages, Exception ex, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            if (_settings.MessageListener != null)
+            if (_listener != null)
             {
                 var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var message in messages)
                 {
                     var args = new SentMessageEventArgs(_endPoint, _description, message, ex);
-                    await _settings.MessageListener.SentMessageAsync(args, slidingTimeout, cancellationToken);
+                    await _listener.SentMessageAsync(args, slidingTimeout, cancellationToken);
                 }
             }
         }
@@ -194,10 +196,10 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             ReplyMessage<TDocument> substituteReply = null;
-            if (_settings.MessageListener != null)
+            if (_listener != null)
             {
                 var args = new ReceivedMessageEventArgs(_endPoint, _description, reply);
-                await _settings.MessageListener.ReceivedMessageAsync(args, slidingTimeout, cancellationToken);
+                await _listener.ReceivedMessageAsync(args, slidingTimeout, cancellationToken);
                 substituteReply = (ReplyMessage<TDocument>)args.SubstituteReply;
             }
 
@@ -254,10 +256,10 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         RequestMessage substituteMessage = null;
                         ReplyMessage substituteReply = null;
-                        if (_settings.MessageListener != null)
+                        if (_listener != null)
                         {
                             var args = new SendingMessageEventArgs(_endPoint, _description, message);
-                            await _settings.MessageListener.SendingMessageAsync(args, slidingTimeout, cancellationToken);
+                            await _listener.SendingMessageAsync(args, slidingTimeout, cancellationToken);
                             substituteMessage = args.SubstituteMessage;
                             substituteReply = args.SubstituteReply;
                         }

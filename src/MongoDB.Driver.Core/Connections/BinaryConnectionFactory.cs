@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections.Events;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
@@ -30,6 +31,7 @@ namespace MongoDB.Driver.Core.Connections
     public class BinaryConnectionFactory : IConnectionFactory
     {
         // fields
+        private readonly IMessageListener _listener;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
 
@@ -40,10 +42,11 @@ namespace MongoDB.Driver.Core.Connections
             _streamFactory = new TcpStreamFactory();
         }
 
-        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory)
+        public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
+            _listener = listener;
         }
 
         // methods
@@ -51,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(endPoint, "endPoint");
             // postpone creating the stream until BinaryConnection.OpenAsync because some Stream constructors block or throw
-            return new BinaryConnection(endPoint, _settings, _streamFactory);
+            return new BinaryConnection(endPoint, _settings, _streamFactory, _listener);
         }
     }
 }

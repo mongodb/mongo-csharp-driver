@@ -20,7 +20,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -31,7 +33,7 @@ namespace MongoDB.Driver.Core.Clusters
     public class ClusterWrapper : ICluster
     {
         // events
-        public event EventHandler DescriptionChanged;
+        public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // fields
         private bool _disposed;
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Core.Clusters
             return _wrapped.GetServer(endPoint);
         }
 
-        private void OnDescriptionChanged(object sender, EventArgs args)
+        private void OnDescriptionChanged(object sender, ClusterDescriptionChangedEventArgs args)
         {
             var handler = DescriptionChanged;
             if (handler != null)

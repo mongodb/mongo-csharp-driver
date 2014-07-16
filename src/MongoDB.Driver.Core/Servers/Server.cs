@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers.Events;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Servers
@@ -46,19 +47,21 @@ namespace MongoDB.Driver.Core.Servers
         private bool _disposed;
         private readonly DnsEndPoint _endPoint;
         private InterruptibleDelay _heartbeatDelay = new InterruptibleDelay(TimeSpan.Zero);
+        private readonly IServerListener _listener;
         private object _lock = new object();
         private readonly ServerSettings _settings;
 
         // events
-        public event EventHandler DescriptionChanged;
+        public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        internal Server(DnsEndPoint endPoint, ServerSettings settings)
+        internal Server(DnsEndPoint endPoint, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerListener listener)
         {
             _endPoint = endPoint;
             _settings = settings;
             _description = new ServerDescription(endPoint);
-            _connectionPool = settings.ConnectionPoolFactory.CreateConnectionPool(endPoint);
+            _connectionPool = connectionPoolFactory.CreateConnectionPool(endPoint);
+            _listener = listener;
         }
 
         // properties
@@ -132,31 +135,6 @@ namespace MongoDB.Driver.Core.Servers
             return await _connectionPool.AcquireConnectionAsync(timeout, cancellationToken);
         }
 
-        public async Task<ServerDescription> GetDescriptionAsync(int minimumRevision, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var slidingTimeout = new SlidingTimeout(timeout);
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                slidingTimeout.ThrowIfExpired();
-
-                ServerDescription description;
-                Task descriptionChangedTask;
-                lock (_lock)
-                {
-                    description = _description;
-                    descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
-                }
-
-                if (description.Revision >= minimumRevision)
-                {
-                    return description;
-                }
-
-                await descriptionChangedTask;
-            }
-        }
-
         private async Task<HeartbeatInfo> HeartbeatAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -217,13 +195,6 @@ namespace MongoDB.Driver.Core.Servers
         {
             HeartbeatInfo heartbeatInfo = null;
 
-            var clusterListener = _settings.ClusterListener;
-            if (clusterListener != null)
-            {
-                var args = new PingingServerEventArgs(_endPoint);
-                clusterListener.PingingServer(args);
-            }
-
             // if the first attempt fails try a second time with a new connection
             for (var attempt = 0; heartbeatInfo == null && attempt < 2; attempt++)
             {
@@ -248,24 +219,10 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            if (clusterListener != null)
-            {
-                PingedServerEventArgs args;
-                if (heartbeatInfo == null)
-                {
-                    args = new PingedServerEventArgs(_endPoint, TimeSpan.Zero, null, null);
-                }
-                else
-                {
-                    args = new PingedServerEventArgs(_endPoint, heartbeatInfo.RoundTripTime, heartbeatInfo.IsMasterResult, heartbeatInfo.BuildInfoResult);
-                }
-                clusterListener.PingedServer(args);
-            }
-
             return heartbeatInfo ?? new HeartbeatInfo { Connection = null };
         }
 
-        internal void Initialize()
+        public void Initialize()
         {
             var info = _description.WithState(ServerState.Disconnected);
             CheckIfDescriptionChanged(info);
@@ -275,17 +232,17 @@ namespace MongoDB.Driver.Core.Servers
 
         private void OnDescriptionChanged(ServerDescription oldDescription, ServerDescription newDescription)
         {
-            var clusterListener = _settings.ClusterListener;
-            if (clusterListener != null)
+            var args = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
+
+            if (_listener != null)
             {
-                var args = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
-                clusterListener.ServerDescriptionChanged(args);
+                _listener.ServerDescriptionChanged(args);
             }
 
             var handler = DescriptionChanged;
             if (handler != null)
             {
-                try { handler(this, EventArgs.Empty); }
+                try { handler(this, args); }
                 catch { } // ignore exceptions
             }
         }

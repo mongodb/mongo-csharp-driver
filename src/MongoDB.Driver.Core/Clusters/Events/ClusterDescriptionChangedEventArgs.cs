@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters.Events
 {
-    public class ClusterDescriptionChangedEventArgs
+    public class ClusterDescriptionChangedEventArgs : EventArgs
     {
         // fields
         private readonly ClusterDescription _oldClusterDescription;

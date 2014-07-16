@@ -29,11 +29,5 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
             Ensure.IsNotNull(server, "server");
             return server.GetConnectionAsync(timeout, cancellationToken).GetAwaiter().GetResult();
         }
-
-        public static ServerDescription GetDescription(this IServer server, int minimumRevision = 0, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(server, "server");
-            return server.GetDescriptionAsync(minimumRevision, timeout, cancellationToken).GetAwaiter().GetResult();
-        }
     }
 }
