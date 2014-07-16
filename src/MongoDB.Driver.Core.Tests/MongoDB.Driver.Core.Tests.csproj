@@ -65,6 +65,7 @@
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
     <Compile Include="Misc\DnsEndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
+    <Compile Include="Misc\TimeSpanParserTests.cs" />
     <Compile Include="Operations\WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WireProtocol\Messages\DeleteMessageTests.cs" />
