@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             lock (_lock)
             {
-                if (_servers.Any(n => n.EndPoint == server.EndPoint))
+                if (_servers.Any(n => n.EndPoint.Equals(server.EndPoint)))
                 {
                     var message = string.Format("The cluster already contains a server for end point: {0}.", DnsEndPointParser.ToString(server.EndPoint));
                     throw new ArgumentException(message, "server");
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             lock (_lock)
             {
-                return _servers.Where(s => s.EndPoint == endPoint).FirstOrDefault();
+                return _servers.Where(s => s.EndPoint.Equals(endPoint)).FirstOrDefault();
             }
         }
 
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             foreach (var endPoint in newConfig.Members)
             {
-                if (!_servers.Any(n => n.EndPoint == endPoint))
+                if (!_servers.Any(n => n.EndPoint.Equals(endPoint)))
                 {
                     var server = new Server(endPoint, _settings.ServerSettings);
                     AddServer(server);
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             lock (_lock)
             {
-                server = _servers.FirstOrDefault(s => s.EndPoint == endPoint);
+                server = _servers.FirstOrDefault(s => s.EndPoint.Equals(endPoint));
                 return server != null;
             }
         }

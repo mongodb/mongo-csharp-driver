@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         // methods
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
-            return servers.Where(server => server.EndPoint == _endPoint);
+            return servers.Where(server => server.EndPoint.Equals(_endPoint));
         }
     }
 }
