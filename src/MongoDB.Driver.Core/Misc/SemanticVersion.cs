@@ -15,16 +15,17 @@
 
 using System;
 using System.Text.RegularExpressions;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public class SemanticVersion
+    public class SemanticVersion : IEquatable<SemanticVersion>, IComparable<SemanticVersion>
     {
         // fields
-        private int _major;
-        private int _minor;
-        private int _patch;
-        private string _preRelease;
+        private readonly int _major;
+        private readonly int _minor;
+        private readonly int _patch;
+        private readonly string _preRelease;
 
         // constructors
         public SemanticVersion(int major, int minor, int patch)
@@ -62,16 +63,60 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // methods
-        public static SemanticVersion Parse(string s)
+        public int CompareTo(SemanticVersion other)
         {
-            SemanticVersion value;
-            if (TryParse(s, out value))
+            if(other == null)
             {
-                return value;
+                return 1;
             }
 
-            throw new FormatException(string.Format(
-                "Invalid SemanticVersion string: '{0}'.", s));
+            var result = _major.CompareTo(other._major);
+            if(result != 0)
+            {
+                return result;
+            }
+
+            result = _minor.CompareTo(other._minor);
+            if(result != 0)
+            {
+                return result;
+            }
+
+            result = _patch.CompareTo(other._patch);
+            if(result != 0)
+            {
+                return result;
+            }
+            
+            if(_preRelease == null && other._preRelease == null)
+            {
+                return 0;
+            }
+            else if(_preRelease == null)
+            {
+                return 1;
+            }
+            else if(other._preRelease == null)
+            {
+                return -1;
+            }
+
+            return _preRelease.CompareTo(other._preRelease);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as SemanticVersion);
+        }
+
+        public bool Equals(SemanticVersion other)
+        {
+            return CompareTo(other) == 0;
+        }
+
+        public override int GetHashCode()
+        {
+            return ToString().GetHashCode();
         }
 
         public override string ToString()
@@ -84,6 +129,18 @@ namespace MongoDB.Driver.Core.Misc
             {
                 return string.Format("{0}.{1}.{2}-{3}", _major, _minor, _patch, _preRelease);
             }
+        }
+
+        public static SemanticVersion Parse(string s)
+        {
+            SemanticVersion value;
+            if (TryParse(s, out value))
+            {
+                return value;
+            }
+
+            throw new FormatException(string.Format(
+                "Invalid SemanticVersion string: '{0}'.", s));
         }
 
         public static bool TryParse(string s, out SemanticVersion value)
@@ -106,6 +163,51 @@ namespace MongoDB.Driver.Core.Misc
 
             value = null;
             return false;
+        }
+
+        public static bool operator ==(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            if(object.ReferenceEquals(lhs, null))
+            {
+                return object.ReferenceEquals(rhs, null);
+            }
+
+            return lhs.CompareTo(rhs) == 0;
+        }
+
+        public static bool operator !=(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public static bool operator >(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            if(lhs == null)
+            {
+                if(rhs == null)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            return lhs.CompareTo(rhs) > 0;
+        }
+
+        public static bool operator >=(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            return !(lhs < rhs);
+        }
+
+        public static bool operator <(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            return rhs > lhs;
+        }
+
+        public static bool operator <=(SemanticVersion lhs, SemanticVersion rhs)
+        {
+            return !(rhs < lhs);
         }
     }
 }
