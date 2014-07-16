@@ -229,6 +229,20 @@ namespace MongoDB.Driver.Core.Operations
         public abstract class WValue : IEquatable<WValue>
         {
             #region static
+            // static methods
+            public static WValue Parse(string value)
+            {
+                int n;
+                if (int.TryParse(value, out n))
+                {
+                    return new WCount(n);
+                }
+                else
+                {
+                    return new WMode(value);
+                }
+            }
+
             // static operators
             public static implicit operator WValue(int value)
             {

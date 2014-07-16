@@ -501,5 +501,23 @@ namespace MongoDB.Driver.Core.Tests.Operations
             var wMode = new WriteConcern.WMode("mode");
             wMode.ToString().Should().Be("\"mode\"");
         }
+
+        [Test]
+        public void WValue_Parse_should_create_WCount_when_the_value_is_a_number()
+        {
+            var wValue = WriteConcern.WValue.Parse("2");
+
+            wValue.Should().BeOfType<WriteConcern.WCount>();
+            ((WriteConcern.WCount)wValue).Value.Should().Be(2);
+        }
+
+        [Test]
+        public void WValue_Parse_should_create_WMode_when_value_is_not_a_number()
+        {
+            var wValue = WriteConcern.WValue.Parse("goofy");
+
+            wValue.Should().BeOfType<WriteConcern.WMode>();
+            ((WriteConcern.WMode)wValue).Value.Should().Be("goofy");
+        }
     }
 }
