@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    public class SlidingTimeout
+    internal class SlidingTimeout
     {
         #region static
         // static operators
@@ -33,18 +33,26 @@ namespace MongoDB.Driver.Core.Misc
         #endregion
 
         // fields
+        private readonly IClock _clock;
         private readonly DateTime _expiration;
 
         // constructors
         public SlidingTimeout(TimeSpan timeout)
+            : this(timeout, SystemClock.Instance)
         {
+        }
+
+        public SlidingTimeout(TimeSpan timeout, IClock clock)
+        {
+            _clock = Ensure.IsNotNull(clock, "clock");
+
             if (timeout == TimeSpan.Zero || timeout == Timeout.InfiniteTimeSpan)
             {
                 _expiration = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
             }
             else
             {
-                _expiration = DateTime.UtcNow.Add(timeout);
+                _expiration = _clock.UtcNow.Add(timeout);
             }
         }
 
@@ -57,7 +65,7 @@ namespace MongoDB.Driver.Core.Misc
         // methods
         public void ThrowIfExpired()
         {
-            if (DateTime.UtcNow > _expiration)
+            if (_clock.UtcNow > _expiration)
             {
                 throw new TimeoutException();
             }
@@ -71,7 +79,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             else
             {
-                var timeout = _expiration.Subtract(DateTime.UtcNow);
+                var timeout = _expiration.Subtract(_clock.UtcNow);
                 if (timeout < TimeSpan.Zero)
                 {
                     throw new TimeoutException();

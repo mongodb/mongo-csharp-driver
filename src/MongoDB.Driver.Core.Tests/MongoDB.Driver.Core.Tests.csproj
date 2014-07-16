@@ -65,6 +65,8 @@
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
     <Compile Include="Misc\DnsEndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
+    <Compile Include="Misc\FrozenClock.cs" />
+    <Compile Include="Misc\SlidingTimeoutTests.cs" />
     <Compile Include="Misc\TimeSpanParserTests.cs" />
     <Compile Include="Operations\WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

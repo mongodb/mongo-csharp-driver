@@ -155,6 +155,8 @@
     <Compile Include="Misc\SemanticVersion.cs" />
     <Compile Include="Misc\SlidingTimeout.cs" />
     <Compile Include="Misc\StreamExtensionMethods.cs" />
+    <Compile Include="Misc\IClock.cs" />
+    <Compile Include="Misc\SystemClock.cs" />
     <Compile Include="Misc\ThreadStaticRandom.cs" />
     <Compile Include="Misc\TimeSpanParser.cs" />
     <Compile Include="Exceptions\CommandException.cs" />
