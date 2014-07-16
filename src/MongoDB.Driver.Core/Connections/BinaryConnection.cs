@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Connections
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
-            _listener = Ensure.IsNotNull(listener, "listener");
+            _listener = listener;
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
             // postpone creating the Stream until OpenAsync because some Streams block or throw in the constructor

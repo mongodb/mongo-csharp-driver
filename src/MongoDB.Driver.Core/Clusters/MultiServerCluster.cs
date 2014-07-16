@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Servers.Events;
@@ -238,16 +237,21 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected virtual void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
-            var args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
+            ClusterDescriptionChangedEventArgs args = null;
 
             if (_listener != null)
             {
+                args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
                 _listener.ClusterDescriptionChanged(args);
             }
 
             var handler = DescriptionChanged;
             if (handler != null)
             {
+                if (args == null)
+                {
+                    args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
+                }
                 handler(this, args);
             }
         }
