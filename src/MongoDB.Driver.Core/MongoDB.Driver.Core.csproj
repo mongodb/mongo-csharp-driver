@@ -101,6 +101,8 @@
     <Compile Include="Clusters\Events\IClusterListener.cs" />
     <Compile Include="Clusters\Events\NoOpClusterListener.cs" />
     <Compile Include="Clusters\Events\ServerAddedEventArgs.cs" />
+    <Compile Include="Configuration\ClusterBuilder.cs" />
+    <Compile Include="Configuration\ClusterBuilderExtensionMethods.cs" />
     <Compile Include="Connections\Events\NoOpMessageListener.cs" />
     <Compile Include="Servers\Events\NoOpServerListener.cs" />
     <Compile Include="Servers\Events\ServerDescriptionChangedEventArgs.cs" />
