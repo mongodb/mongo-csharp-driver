@@ -56,6 +56,7 @@
     <Compile Include="Async\AsyncDropboxTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
     <Compile Include="Async\InterruptibleDelayTests.cs" />
+    <Compile Include="Authentication\MongoDBX509AuthenticatorTests.cs" />
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
@@ -64,6 +65,8 @@
     <Compile Include="Exceptions\MongoDBExceptionTests.cs" />
     <Compile Include="Exceptions\QueryExceptionTests.cs" />
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
+    <Compile Include="Helpers\MockRootConnection.cs" />
+    <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
     <Compile Include="Misc\DnsEndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
     <Compile Include="Misc\FrozenClock.cs" />
@@ -77,6 +80,7 @@
     <Compile Include="WireProtocol\Messages\InsertMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\KillCursorsMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\QueryMessageTests.cs" />
+    <Compile Include="Helpers\ReplyMessageHelper.cs" />
     <Compile Include="WireProtocol\Messages\ReplyMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\UpdateMessageTests.cs" />
   </ItemGroup>
