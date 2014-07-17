@@ -13,14 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Clusters;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
     /// Represents settings for a cluster.

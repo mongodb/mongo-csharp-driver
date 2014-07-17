@@ -21,7 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Connections
+namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
     /// Represents settings for a TCP stream.

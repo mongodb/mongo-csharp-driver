@@ -15,7 +15,7 @@
 
 using System;
 
-namespace MongoDB.Driver.Core.ConnectionPools
+namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
     /// Represents settings for a pool of connections.

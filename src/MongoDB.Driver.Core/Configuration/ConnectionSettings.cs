@@ -13,15 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication.Credentials;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Connections
+namespace MongoDB.Driver.Core.Configuration
 {
     public class ConnectionSettings
     {

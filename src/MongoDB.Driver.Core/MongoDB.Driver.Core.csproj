@@ -92,7 +92,7 @@
     <Compile Include="Clusters\ClusterMonitorSpecAddServerAction.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecUpdateClusterDescriptionAction.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecRemoveServerAction.cs" />
-    <Compile Include="Clusters\ClusterSettings.cs" />
+    <Compile Include="Configuration\ClusterSettings.cs" />
     <Compile Include="Clusters\ClusterState.cs" />
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
@@ -127,7 +127,7 @@
     <Compile Include="ConnectionPools\AcquiredConnection.cs" />
     <Compile Include="ConnectionPools\ConnectionPool.cs" />
     <Compile Include="ConnectionPools\ConnectionPoolFactory.cs" />
-    <Compile Include="ConnectionPools\ConnectionPoolSettings.cs" />
+    <Compile Include="Configuration\ConnectionPoolSettings.cs" />
     <Compile Include="ConnectionPools\IConnectionPool.cs" />
     <Compile Include="ConnectionPools\IConnectionPoolFactory.cs" />
     <Compile Include="ConnectionPools\PooledConnection.cs" />
@@ -136,7 +136,7 @@
     <Compile Include="Connections\ConnectionDescription.cs" />
     <Compile Include="Connections\ConnectionExtensionMethods.cs" />
     <Compile Include="Connections\ConnectionInitializer.cs" />
-    <Compile Include="Connections\ConnectionSettings.cs" />
+    <Compile Include="Configuration\ConnectionSettings.cs" />
     <Compile Include="Connections\ConnectionWrapper.cs" />
     <Compile Include="Events\IMessageListener.cs" />
     <Compile Include="Events\ReceivedMessageEventArgs.cs" />
@@ -146,7 +146,7 @@
     <Compile Include="Connections\IConnectionFactory.cs" />
     <Compile Include="Connections\IStreamFactory.cs" />
     <Compile Include="Connections\TcpStreamFactory.cs" />
-    <Compile Include="Connections\TcpStreamSettings.cs" />
+    <Compile Include="Configuration\TcpStreamSettings.cs" />
     <Compile Include="Configuration\ConnectionString.cs" />
     <Compile Include="Exceptions\ConfigurationException.cs" />
     <Compile Include="Exceptions\MongoDBException.cs" />
@@ -221,7 +221,7 @@
     <Compile Include="Servers\Server.cs" />
     <Compile Include="Servers\ServerDescription.cs" />
     <Compile Include="Servers\ServerFactory.cs" />
-    <Compile Include="Servers\ServerSettings.cs" />
+    <Compile Include="Configuration\ServerSettings.cs" />
     <Compile Include="Servers\ServerState.cs" />
     <Compile Include="Servers\ServerType.cs" />
     <Compile Include="Sync\IAsyncEnumerableExtensionMethods.cs" />

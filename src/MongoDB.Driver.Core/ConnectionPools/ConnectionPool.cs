@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {

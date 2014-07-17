@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Events;
 
-namespace MongoDB.Driver.Core.Servers
+namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
     /// Represents settings for a server.
