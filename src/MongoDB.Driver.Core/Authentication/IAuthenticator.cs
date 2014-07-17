@@ -14,14 +14,16 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections;
 
-namespace MongoDB.Driver.Core.Authentication.Credentials
+namespace MongoDB.Driver.Core.Authentication
 {
-    public interface ICredential
+    public interface IAuthenticator
     {
+        string Name { get; }
+
+        Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken);
     }
 }

@@ -13,16 +13,11 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Authentication.Credentials
+namespace MongoDB.Driver.Core.Authentication
 {
-    public class UsernamePasswordCredential : ICredential
+    public class UsernamePasswordCredential
     {
         // fields
         private string _source;
@@ -43,14 +38,14 @@ namespace MongoDB.Driver.Core.Authentication.Credentials
             get { return _password; }
         }
 
-        public string Username
-        {
-            get { return _username; }
-        }
-
         public string Source
         {
             get { return _source; }
+        }
+
+        public string Username
+        {
+            get { return _username; }
         }
     }
 }

@@ -14,29 +14,27 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
+using System.Runtime.Serialization;
 
-namespace MongoDB.Driver.Core.Authentication.Credentials
+namespace MongoDB.Driver.Core.Exceptions
 {
-    public class X509Credential : ICredential
+    [Serializable]
+    public class AuthenticationException : MongoDBException
     {
-        // fields
-        private string _username;
-
         // constructors
-        public X509Credential(string username)
+        public AuthenticationException(string message)
+            : base(message)
         {
-            _username = Ensure.IsNotNullOrEmpty(username, "username");
         }
 
-        // properties
-        public string Username
+        public AuthenticationException(string message, Exception innerException)
+            : base(message, innerException)
         {
-            get { return _username; }
+        }
+
+        protected AuthenticationException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
     }
 }

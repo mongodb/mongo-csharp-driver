@@ -14,22 +14,27 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Authentication;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Authentication.Credentials;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Exceptions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 
-namespace MongoDB.Driver.Core.Authentication.Protocols
+namespace MongoDB.Driver.Core.Authentication
 {
-    public class X509AuthenticationProtocol : IAuthenticationProtocol
+    public class MongoDBX509Authenticator : IAuthenticator
     {
+        // fields
+        private readonly string _username;
+
+        // constructors
+        public MongoDBX509Authenticator(string username)
+        {
+            _username = Ensure.IsNotNullOrEmpty(username, "username");
+        }
+
         // properties
         public string Name
         {
@@ -37,35 +42,26 @@ namespace MongoDB.Driver.Core.Authentication.Protocols
         }
 
         // methods
-        public async Task AuthenticateAsync(IRootConnection connection, ICredential credential, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var x509Credential = (X509Credential)credential;
-            await AuthenticateAsync(connection, x509Credential, timeout, cancellationToken);
-        }
+            Ensure.IsNotNull(connection, "connection");
 
-        private async Task AuthenticateAsync(IRootConnection connection, X509Credential credential, TimeSpan timeout, CancellationToken cancellationToken)
-        {
             try
             {
                 var command = new BsonDocument
                 {
                     { "authenticate", 1 },
                     { "mechanism", Name },
-                    { "user", credential.Username }
+                    { "user", _username }
                 };
                 var protocol = new CommandWireProtocol("$external", command, true);
                 var result = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
             }
             catch (CommandException ex)
             {
-                var message = string.Format("Invalid credential for username '{0}' using protocol '{1}'.", credential.Username, Name);
+                var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
                 throw new AuthenticationException(message, ex);
             }
-        }
-
-        public bool CanUse(ICredential credential)
-        {
-            return credential.GetType() == typeof(X509Credential);
         }
     }
 }

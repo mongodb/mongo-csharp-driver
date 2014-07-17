@@ -50,8 +50,10 @@ namespace MongoDB.Driver.Core.Connections
             // authentication is currently broken on arbiters
             if (!isMasterResult.IsArbiter)
             {
-                var credentials = connection.Settings.Credentials;
-                await Authenticator.AuthenticateAsync(connection, credentials, slidingTimeout, cancellationToken);
+                foreach(var authenticator in connection.Settings.Authenticators)
+                {
+                    await authenticator.AuthenticateAsync(connection, slidingTimeout, cancellationToken);
+                }
             }
 
             var buildInfoCommand = new BsonDocument("buildInfo", 1);

@@ -13,51 +13,54 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.Core.Authentication.Credentials;
+using System.Text;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Connections.Events;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Configuration
+namespace MongoDB.Driver.Core.Connections
 {
     public class ConnectionSettings
     {
         #region static
         // static fields
-        private static readonly IReadOnlyList<ICredential> __noCredentials = new ICredential[0];
+        private static readonly IReadOnlyList<IAuthenticator> __noAuthenticators = new IAuthenticator[0];
         #endregion
 
         // fields
-        private readonly IReadOnlyList<ICredential> _credentials = __noCredentials;
+        private readonly IReadOnlyList<IAuthenticator> _authenticators = __noAuthenticators;
 
         // constructors
         public ConnectionSettings()
         {
         }
 
-        private ConnectionSettings(
-            IReadOnlyList<ICredential> credentials)
+        private ConnectionSettings(IReadOnlyList<IAuthenticator> authenticators)
         {
-            _credentials = credentials;
+            _authenticators = authenticators;
         }
 
         // properties
-        public IReadOnlyList<ICredential> Credentials
+        public IReadOnlyList<IAuthenticator> Authenticators
         {
-            get { return _credentials; }
+            get { return _authenticators; }
         }
 
         // methods
-        public ConnectionSettings WithCredentials(IEnumerable<ICredential> value)
+        public ConnectionSettings WithAuthenticators(IEnumerable<IAuthenticator> value)
         {
             Ensure.IsNotNull(value, "value");
 
-            if (object.ReferenceEquals(_credentials, value))
+            if (object.ReferenceEquals(_authenticators, value))
             {
                 return this;
             }
 
-            return _credentials.SequenceEqual(value) ? this : new ConnectionSettings(value.ToList());
+            return _authenticators.SequenceEqual(value) ? this : new ConnectionSettings(value.ToList());
         }
     }
 }
