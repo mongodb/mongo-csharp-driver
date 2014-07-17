@@ -23,20 +23,20 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver.Core.Exceptions
 {
     [Serializable]
-    public class MongoDBException : Exception
+    public class ConfigurationException : MongoDBException
     {
         // constructors
-        public MongoDBException(string message)
+        public ConfigurationException(string message)
             : base(message)
         {
         }
 
-        public MongoDBException(string message, Exception innerException)
+        public ConfigurationException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        protected MongoDBException(SerializationInfo info, StreamingContext context)
+        protected ConfigurationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

@@ -145,6 +145,8 @@
     <Compile Include="Connections\IStreamFactory.cs" />
     <Compile Include="Connections\TcpStreamFactory.cs" />
     <Compile Include="Connections\TcpStreamSettings.cs" />
+    <Compile Include="Configuration\ConnectionString.cs" />
+    <Compile Include="Exceptions\ConfigurationException.cs" />
     <Compile Include="Exceptions\MongoDBException.cs" />
     <Compile Include="Exceptions\QueryException.cs" />
     <Compile Include="Exceptions\WriteException.cs" />
