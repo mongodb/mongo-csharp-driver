@@ -18,8 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Servers
 {

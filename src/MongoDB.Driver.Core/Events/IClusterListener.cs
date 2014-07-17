@@ -13,14 +13,13 @@
 * limitations under the License.
 */
 
-
-namespace MongoDB.Driver.Core.Servers.Events
+namespace MongoDB.Driver.Core.Events
 {
-    public class NoOpServerListener : IServerListener
+    public interface IClusterListener
     {
         // methods
-        public void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
-        {
-        }
+        void ClusterDescriptionChanged(ClusterDescriptionChangedEventArgs args);
+        void ServerAdded(ServerAddedEventArgs args);
+        void ServerRemoved(ServerRemovedEventArgs args);
     }
 }

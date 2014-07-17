@@ -20,8 +20,8 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Servers.Events;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Servers
 {

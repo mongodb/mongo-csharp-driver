@@ -14,31 +14,28 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 
-namespace MongoDB.Driver.Core.Connections.Events
+namespace MongoDB.Driver.Core.Events
 {
-    public class SendingMessageEventArgs
+    public class SentMessageEventArgs
     {
         // fields
         private readonly ConnectionDescription _connectionDescription;
         private readonly DnsEndPoint _endPoint;
+        private readonly Exception _exception;
         private readonly RequestMessage _message;
-        private RequestMessage _substituteMessage;
-        private ReplyMessage _substituteReply;
 
         // constructors
-        public SendingMessageEventArgs(DnsEndPoint endPoint, ConnectionDescription connectionDescription, RequestMessage message)
+        public SentMessageEventArgs(DnsEndPoint endPoint, ConnectionDescription connectionDescription, RequestMessage message, Exception exception)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _connectionDescription = Ensure.IsNotNull(connectionDescription, "connectionDescription");
             _message = Ensure.IsNotNull(message, "message");
+            _exception = exception; // can be null
         }
 
         // properties
@@ -52,21 +49,14 @@ namespace MongoDB.Driver.Core.Connections.Events
             get { return _endPoint; }
         }
 
+        public Exception Exception
+        {
+            get { return _exception; }
+        }
+
         public RequestMessage Message
         {
             get { return _message; }
-        }
-
-        public RequestMessage SubstituteMessage
-        {
-            get { return _substituteMessage; }
-            set { _substituteMessage = value; }
-        }
-
-        public ReplyMessage SubstituteReply
-        {
-            get { return _substituteReply; }
-            set { _substituteReply = value; }
         }
     }
 }

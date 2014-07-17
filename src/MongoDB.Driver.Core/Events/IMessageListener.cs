@@ -14,18 +14,15 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Events
 {
-    public interface IClusterListener
+    public interface IMessageListener
     {
-        // methods
-        void ClusterDescriptionChanged(ClusterDescriptionChangedEventArgs args);
-        void ServerAdded(ServerAddedEventArgs args);
-        void ServerRemoved(ServerRemovedEventArgs args);
+        Task ReceivedMessageAsync(ReceivedMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
+        Task SendingMessageAsync(SendingMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
+        Task SentMessageAsync(SentMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
     }
 }

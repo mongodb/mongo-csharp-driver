@@ -13,19 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Connections.Events
+namespace MongoDB.Driver.Core.Events
 {
-    public interface IMessageListener
+    public class ServerAddedEventArgs
     {
-        Task ReceivedMessageAsync(ReceivedMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SendingMessageAsync(SendingMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SentMessageAsync(SentMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
+        // fields
+        private readonly ServerDescription _serverDescription;
+
+        // constructors
+        public ServerAddedEventArgs(ServerDescription serverDescription)
+        {
+            _serverDescription = Ensure.IsNotNull(serverDescription, "serverDescription");
+        }
+
+        // properties
+        public ServerDescription ServerDescription
+        {
+            get { return _serverDescription; }
+        }
     }
 }

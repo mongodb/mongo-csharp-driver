@@ -14,13 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Events
 {
     public class ClusterDescriptionChangedEventArgs : EventArgs
     {

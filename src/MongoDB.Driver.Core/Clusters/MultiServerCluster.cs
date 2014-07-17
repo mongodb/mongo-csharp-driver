@@ -20,11 +20,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
-using MongoDB.Driver.Core.Clusters.Events;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.Servers.Events;
 
 namespace MongoDB.Driver.Core.Clusters
 {

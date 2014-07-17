@@ -13,8 +13,7 @@
 * limitations under the License.
 */
 
-
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Events
 {
     public class NoOpClusterListener : IClusterListener
     {

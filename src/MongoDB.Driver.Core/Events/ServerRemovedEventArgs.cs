@@ -13,31 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Core.Clusters.Events
+namespace MongoDB.Driver.Core.Events
 {
-    public class ServerAddedEventArgs
+    public class ServerRemovedEventArgs
     {
         // fields
-        private readonly ServerDescription _serverDescription;
+        private readonly DnsEndPoint _endPoint;
 
         // constructors
-        public ServerAddedEventArgs(ServerDescription serverDescription)
+        public ServerRemovedEventArgs(DnsEndPoint endPoint)
         {
-            _serverDescription = Ensure.IsNotNull(serverDescription, "serverDescription");
+            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // properties
-        public ServerDescription ServerDescription
+        public DnsEndPoint EndPoint
         {
-            get { return _serverDescription; }
+            get { return _endPoint; }
         }
     }
 }

@@ -19,7 +19,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication.Credentials;
-using MongoDB.Driver.Core.Connections.Events;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections

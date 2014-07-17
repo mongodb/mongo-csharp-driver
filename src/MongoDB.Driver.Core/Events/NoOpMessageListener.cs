@@ -17,7 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MongoDB.Driver.Core.Connections.Events
+namespace MongoDB.Driver.Core.Events
 {
     public class NoOpMessageListener : IMessageListener
     {

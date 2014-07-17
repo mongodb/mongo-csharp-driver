@@ -15,8 +15,8 @@
 
 using System.Net;
 using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers.Events;
 
 namespace MongoDB.Driver.Core.Servers
 {
