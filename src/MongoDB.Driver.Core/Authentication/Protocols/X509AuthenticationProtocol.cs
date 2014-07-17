@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication.Credentials;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Exceptions;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Authentication.Protocols

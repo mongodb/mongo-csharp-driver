@@ -148,10 +148,10 @@
     <Compile Include="Connections\TcpStreamFactory.cs" />
     <Compile Include="Configuration\TcpStreamSettings.cs" />
     <Compile Include="Configuration\ConnectionString.cs" />
-    <Compile Include="Exceptions\ConfigurationException.cs" />
-    <Compile Include="Exceptions\MongoDBException.cs" />
-    <Compile Include="Exceptions\QueryException.cs" />
-    <Compile Include="Exceptions\WriteException.cs" />
+    <Compile Include="ConfigurationException.cs" />
+    <Compile Include="MongoDBException.cs" />
+    <Compile Include="QueryException.cs" />
+    <Compile Include="WriteException.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Misc\BatchResult.cs" />
     <Compile Include="Misc\DnsEndPointParser.cs" />
@@ -164,7 +164,7 @@
     <Compile Include="Misc\SystemClock.cs" />
     <Compile Include="Misc\ThreadStaticRandom.cs" />
     <Compile Include="Misc\TimeSpanParser.cs" />
-    <Compile Include="Exceptions\CommandException.cs" />
+    <Compile Include="CommandException.cs" />
     <Compile Include="Operations\AggregateCursorOperationBase.cs" />
     <Compile Include="Operations\AggregateOperation.cs" />
     <Compile Include="Operations\AggregateOperationBase.cs" />
@@ -279,7 +279,9 @@
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

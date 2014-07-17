@@ -23,44 +23,44 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver.Core
 {
     [Serializable]
-    public class QueryException : MongoDBException
+    public class CommandException : MongoDBException
     {
         // fields
-        private readonly BsonDocument _query;
+        private readonly BsonDocument _command;
         private readonly BsonDocument _result;
 
         // constructors
-        public QueryException(string message, BsonDocument query)
-            : this(message, query, null, null)
+        public CommandException(string message, BsonDocument command)
+            : this(message, command, null, null)
         {
         }
 
-        public QueryException(string message, BsonDocument query, BsonDocument result)
-            : this(message, query, result, null)
+        public CommandException(string message, BsonDocument command, BsonDocument result)
+            : this(message, command, result, null)
         {
         }
 
-        public QueryException(string message, BsonDocument query, BsonDocument result, Exception innerException)
+        public CommandException(string message, BsonDocument command, BsonDocument result, Exception innerException)
             : base(message, innerException)
         {
-            _query = Ensure.IsNotNull(query, "query");
+            _command = Ensure.IsNotNull(command, "command");
             _result = result; // can be null
         }
 
-        protected QueryException(SerializationInfo info, StreamingContext context)
+        protected CommandException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _query = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_query", typeof(byte[])));
+            _command = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_command", typeof(byte[])));
             _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
         }
 
         // properties
-        public BsonDocument Query
+        public BsonDocument Command
         {
-            get { return _query; }
+            get { return _command; }
         }
 
         public BsonDocument Result
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Exceptions
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("_query", _query.ToBson());
+            info.AddValue("_command", _command.ToBson());
             info.AddValue("_result", _result.ToBson());
         }
     }

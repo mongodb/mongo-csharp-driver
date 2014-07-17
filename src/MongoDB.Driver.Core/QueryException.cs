@@ -21,34 +21,48 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver.Core
 {
     [Serializable]
-    public class WriteException : MongoDBException
+    public class QueryException : MongoDBException
     {
         // fields
+        private readonly BsonDocument _query;
         private readonly BsonDocument _result;
 
         // constructors
-        public WriteException(string message)
-            : this(message, null)
+        public QueryException(string message, BsonDocument query)
+            : this(message, query, null, null)
         {
         }
 
-        public WriteException(string message, BsonDocument result)
-            : base(message, null)
+        public QueryException(string message, BsonDocument query, BsonDocument result)
+            : this(message, query, result, null)
         {
+        }
+
+        public QueryException(string message, BsonDocument query, BsonDocument result, Exception innerException)
+            : base(message, innerException)
+        {
+            _query = Ensure.IsNotNull(query, "query");
             _result = result; // can be null
         }
 
-        protected WriteException(SerializationInfo info, StreamingContext context)
+        protected QueryException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _query = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_query", typeof(byte[])));
             _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
         }
 
-       // properties
+        // properties
+        public BsonDocument Query
+        {
+            get { return _query; }
+        }
+
         public BsonDocument Result
         {
             get { return _result; }
@@ -58,6 +72,7 @@ namespace MongoDB.Driver.Core.Exceptions
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue("_query", _query.ToBson());
             info.AddValue("_result", _result.ToBson());
         }
     }

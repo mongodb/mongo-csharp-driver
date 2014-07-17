@@ -23,7 +23,6 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Exceptions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 

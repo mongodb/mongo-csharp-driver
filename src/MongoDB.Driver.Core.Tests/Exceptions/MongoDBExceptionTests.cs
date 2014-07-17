@@ -17,7 +17,6 @@ using System;
 using MongoDB.Driver.Core.Clusters;
 using FluentAssertions;
 using NUnit.Framework;
-using MongoDB.Driver.Core.Exceptions;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 

@@ -21,48 +21,34 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver.Core
 {
     [Serializable]
-    public class CommandException : MongoDBException
+    public class WriteException : MongoDBException
     {
         // fields
-        private readonly BsonDocument _command;
         private readonly BsonDocument _result;
 
         // constructors
-        public CommandException(string message, BsonDocument command)
-            : this(message, command, null, null)
+        public WriteException(string message)
+            : this(message, null)
         {
         }
 
-        public CommandException(string message, BsonDocument command, BsonDocument result)
-            : this(message, command, result, null)
+        public WriteException(string message, BsonDocument result)
+            : base(message, null)
         {
-        }
-
-        public CommandException(string message, BsonDocument command, BsonDocument result, Exception innerException)
-            : base(message, innerException)
-        {
-            _command = Ensure.IsNotNull(command, "command");
             _result = result; // can be null
         }
 
-        protected CommandException(SerializationInfo info, StreamingContext context)
+        protected WriteException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _command = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_command", typeof(byte[])));
             _result = BsonSerializer.Deserialize<BsonDocument>((byte[])info.GetValue("_result", typeof(byte[])));
         }
 
-        // properties
-        public BsonDocument Command
-        {
-            get { return _command; }
-        }
-
+       // properties
         public BsonDocument Result
         {
             get { return _result; }
@@ -72,7 +58,6 @@ namespace MongoDB.Driver.Core.Exceptions
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
-            info.AddValue("_command", _command.ToBson());
             info.AddValue("_result", _result.ToBson());
         }
     }
