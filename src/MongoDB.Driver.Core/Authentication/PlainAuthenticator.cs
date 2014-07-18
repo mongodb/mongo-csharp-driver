@@ -19,13 +19,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class PlainSaslAuthenticator : SaslAuthenticator
+    public class PlainAuthenticator : SaslAuthenticator
     {
         // fields
         private readonly string _databaseName;
 
         // constructors
-        public PlainSaslAuthenticator(UsernamePasswordCredential credential)
+        public PlainAuthenticator(UsernamePasswordCredential credential)
             : base(new PlainMechanism(credential))
         {
             _databaseName = credential.Source;
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Authentication
                     _credential.Password);
 
                 var bytes = new UTF8Encoding(false, true).GetBytes(dataString);
-                return new CompleteAfterTransitionStep(bytes);
+                return new CompletedStep(bytes);
             }
         }
     }

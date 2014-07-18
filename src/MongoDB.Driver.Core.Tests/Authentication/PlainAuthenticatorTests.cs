@@ -26,14 +26,14 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Authentication
 {
     [TestFixture]
-    public class MongoDBXCRAuthenticatorTests
+    public class PlainAuthenticatorTests
     {
         private static readonly UsernamePasswordCredential __credential = new UsernamePasswordCredential("source", "user", "pencil");
 
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
         {
-            Action act = () => new MongoDBCRAuthenticator(null);
+            Action act = () => new PlainAuthenticator(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
         [Test]
         public void AuthenticateAsync_should_throw_an_AuthenticationException_when_authentication_fails()
         {
-            var subject = new MongoDBCRAuthenticator(__credential);
+            var subject = new PlainAuthenticator(__credential);
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
             var connection = new MockRootConnection();
@@ -55,26 +55,22 @@ namespace MongoDB.Driver.Core.Tests.Authentication
         [Test]
         public void AuthenticateAsync_should_not_throw_when_authentication_succeeds()
         {
-            var subject = new MongoDBCRAuthenticator(__credential);
+            var subject = new PlainAuthenticator(__credential);
 
-            var getNonceReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}"));
-            var authenticateReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ok: 1}"));
+            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{conversationId: 0, payload: BinData(0,\"\"), done: true, ok: 1}"));
 
             var connection = new MockRootConnection();
-            connection.EnqueueReplyMessage(getNonceReply);
-            connection.EnqueueReplyMessage(authenticateReply);
+            connection.EnqueueReplyMessage(saslStartReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldNotThrow();
 
             var sentMessages = MessageHelper.TranslateRequestsToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
+            sentMessages.Count.Should().Be(1);
 
-            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 1) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {getnonce: 1}}");
-            sentMessages[1].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 2) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {authenticate: 1, user: \"user\", nonce: \"2375531c32080ae8\", key: \"21742f26431831d5cfca035a08c5bdf6\"}}");
+            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 1) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslStart: 1, mechanism: \"PLAIN\", payload: new BinData(0, \"AHVzZXIAcGVuY2ls\")}}");
         }
     }
 }

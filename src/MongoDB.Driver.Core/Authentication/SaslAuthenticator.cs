@@ -149,13 +149,18 @@ namespace MongoDB.Driver.Core.Authentication
             ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer);
         }
 
-        protected class CompleteAfterTransitionStep : ISaslStep
+        protected class CompletedStep : ISaslStep
         {
             // fields
             private readonly byte[] _bytesToSendToServer;
 
             // constructors
-            public CompleteAfterTransitionStep(byte[] bytesToSendToServer)
+            public CompletedStep()
+                : this(new byte[0])
+            {
+            }
+
+            public CompletedStep(byte[] bytesToSendToServer)
             {
                 _bytesToSendToServer = bytesToSendToServer;
             }
@@ -164,25 +169,6 @@ namespace MongoDB.Driver.Core.Authentication
             public byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
-            }
-
-            public bool IsComplete
-            {
-                get { return false; }
-            }
-
-            // methods
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
-            {
-                return new CompletedStep();
-            }
-        }
-
-        protected class CompletedStep : ISaslStep
-        {
-            public byte[] BytesToSendToServer
-            {
-                get { throw new InvalidOperationException("Sasl conversation has completed."); }
             }
 
             public bool IsComplete

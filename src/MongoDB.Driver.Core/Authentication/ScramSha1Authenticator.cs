@@ -9,14 +9,19 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {
-    public class ScramSha1SaslAuthenticator : SaslAuthenticator
+    public class ScramSha1Authenticator : SaslAuthenticator
     {
         // fields
         private readonly string _databaseName;
 
         // constructors
-        public ScramSha1SaslAuthenticator(UsernamePasswordCredential credential)
-            : base(new ScramSha1Mechanism(credential))
+        public ScramSha1Authenticator(UsernamePasswordCredential credential)
+            : this(credential, new RNGCryptoServiceProviderRandomStringGenerator())
+        {
+        }
+
+        internal ScramSha1Authenticator(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
+            : base(new ScramSha1Mechanism(credential, randomStringGenerator))
         {
             _databaseName = credential.Source;
         }
@@ -31,10 +36,12 @@ namespace MongoDB.Driver.Core.Authentication
         private class ScramSha1Mechanism : ISaslMechanism
         {
             private readonly UsernamePasswordCredential _credential;
+            private readonly IRandomStringGenerator _randomStringGenerator;
 
-            public ScramSha1Mechanism(UsernamePasswordCredential credential)
+            public ScramSha1Mechanism(UsernamePasswordCredential credential, IRandomStringGenerator randomStringGenerator)
             {
                 _credential = Ensure.IsNotNull(credential, "credential");
+                _randomStringGenerator = Ensure.IsNotNull(randomStringGenerator, "randomStringGenerator");
             }
 
             public string Name
@@ -59,28 +66,11 @@ namespace MongoDB.Driver.Core.Authentication
                     r);
             }
 
-            private static string GenerateRandomString()
+            private string GenerateRandomString()
             {
-                const int count = 24; // this is what the RFC uses, although it is unspecified
-                const int comma = 44;
-                const int low = 33;
-                const int high = 126;
-                const int range = high - low;
+                const string legalCharacters = "!\"#$%&'()*+-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-                var builder = new StringBuilder();
-                int ch;
-                for (int i = 0; i < count; i++)
-                {
-                    ch = ThreadStaticRandom.Next(range) + low;
-                    while (ch == comma)
-                    {
-                        ch = ThreadStaticRandom.Next(range) + low;
-                    }
-
-                    builder.Append((char)ch);
-                }
-
-                return builder.ToString();
+                return _randomStringGenerator.Generate(20, legalCharacters);
             }
 
             private static string PrepUsername(string username)
@@ -128,7 +118,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var s = map['s'];
                 var i = map['i'];
 
-                var gs2Header = "n,,";
+                const string gs2Header = "n,,";
                 var channelBinding = "c=" + Convert.ToBase64String(encoding.GetBytes(gs2Header));
                 var nonce = "r=" + r;
                 var clientFinalMessageWithoutProof = channelBinding + "," + nonce;

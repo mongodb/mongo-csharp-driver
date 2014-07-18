@@ -55,9 +55,9 @@
     <Compile Include="Async\TaskExtensionMethods.cs" />
     <Compile Include="Authentication\AuthenticationHelper.cs" />
     <Compile Include="Authentication\MongoDBX509Authenticator.cs" />
-    <Compile Include="Authentication\PlainSaslAuthenticator.cs" />
+    <Compile Include="Authentication\PlainAuthenticator.cs" />
     <Compile Include="Authentication\SaslAuthenticator.cs" />
-    <Compile Include="Authentication\ScramSha1SaslAuthenticator.cs" />
+    <Compile Include="Authentication\ScramSha1Authenticator.cs" />
     <Compile Include="Authentication\UsernamePasswordCredential.cs" />
     <Compile Include="Authentication\IAuthenticator.cs" />
     <Compile Include="Authentication\MongoDBCRAuthenticator.cs" />
@@ -158,6 +158,8 @@
     <Compile Include="Misc\DnsEndPointParser.cs" />
     <Compile Include="Misc\Ensure.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />
+    <Compile Include="Misc\IRandomStringGenerator.cs" />
+    <Compile Include="Misc\RNGCryptoServiceProviderRandomStringGenerator.cs" />    
     <Compile Include="Misc\SemanticVersion.cs" />
     <Compile Include="Misc\SlidingTimeout.cs" />
     <Compile Include="Misc\StreamExtensionMethods.cs" />

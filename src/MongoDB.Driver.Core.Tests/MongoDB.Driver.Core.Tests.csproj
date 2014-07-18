@@ -56,6 +56,8 @@
     <Compile Include="Async\AsyncDropboxTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
     <Compile Include="Async\InterruptibleDelayTests.cs" />
+    <Compile Include="Authentication\ScramSha1AuthenticatorTests.cs" />
+    <Compile Include="Authentication\PlainAuthenticatorTests.cs" />
     <Compile Include="Authentication\MongoDBCRAuthenticatorTests.cs" />
     <Compile Include="Authentication\MongoDBX509AuthenticatorTests.cs" />
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
     <Compile Include="Helpers\MockRootConnection.cs" />
     <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
+    <Compile Include="Misc\ConstantRandomStringGenerator.cs" />
     <Compile Include="Misc\DnsEndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
     <Compile Include="Misc\FrozenClock.cs" />
