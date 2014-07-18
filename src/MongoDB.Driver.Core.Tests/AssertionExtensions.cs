@@ -24,11 +24,6 @@ namespace MongoDB.Driver.Core.Tests
     [DebuggerNonUserCode]
     public static class AssertionExtensions
     {
-        public static ComparableTypeAssertions<BsonValue> Should(this BsonValue bsonValue)
-        {
-            return ((IComparable<BsonValue>)bsonValue).Should();
-        }
-
         public static ComparableTypeAssertions<BsonDocument> Should(this BsonDocument document)
         {
             return ((IComparable<BsonDocument>)document).Should();
