@@ -1,8 +1,21 @@
-﻿using System;
+﻿/* Copyright 2013-2014 MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
@@ -12,11 +25,13 @@ namespace MongoDB.Driver.Core.Tests.Helpers
 {
     public class MockRootConnection : IRootConnection
     {
-        private Queue<object> _replyMessages;
+        private readonly Queue<MongoDBMessage> _replyMessages;
+        private readonly List<RequestMessage> _sentMessages;
 
         public MockRootConnection()
         {
-            _replyMessages = new Queue<object>();
+            _replyMessages = new Queue<MongoDBMessage>();
+            _sentMessages = new List<RequestMessage>();
         }
 
         public ConnectionDescription Description { get; set; }
@@ -53,12 +68,18 @@ namespace MongoDB.Driver.Core.Tests.Helpers
 
         public Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            _sentMessages.AddRange(messages);
             return Task.FromResult<object>(null);
         }
 
-        public void AddReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)
+        public void EnqueueReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)
         {
             _replyMessages.Enqueue(replyMessage);
+        }
+
+        public List<RequestMessage> GetSentMessages()
+        {
+            return _sentMessages;
         }
     }
 }

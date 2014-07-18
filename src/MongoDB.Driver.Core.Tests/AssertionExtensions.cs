@@ -28,5 +28,15 @@ namespace MongoDB.Driver.Core.Tests
         {
             return ((IComparable<BsonValue>)bsonValue).Should();
         }
+
+        public static ComparableTypeAssertions<BsonDocument> Should(this BsonDocument document)
+        {
+            return ((IComparable<BsonDocument>)document).Should();
+        }
+
+        public static AndConstraint<ComparableTypeAssertions<BsonDocument>> Be(this ComparableTypeAssertions<BsonDocument> assertions, string json)
+        {
+            return assertions.Be(BsonDocument.Parse(json));
+        }
     }
 }

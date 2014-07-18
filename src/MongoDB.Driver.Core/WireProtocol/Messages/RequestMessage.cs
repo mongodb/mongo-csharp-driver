@@ -28,6 +28,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // static fields
         private static int __requestId;
 
+        // static properties
+        public static int CurrentGlobalRequestId
+        {
+            get { return __requestId; }
+        }
+
         // static methods
         public static int GetNextRequestId()
         {

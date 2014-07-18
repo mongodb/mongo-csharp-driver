@@ -42,9 +42,17 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, "connection");
 
-            var slidingTimeout = new SlidingTimeout(timeout);
-            var nonce = await GetNonceAsync(connection, slidingTimeout, cancellationToken);
-            await AuthenticateAsync(connection, nonce, slidingTimeout, cancellationToken);
+            try
+            {
+                var slidingTimeout = new SlidingTimeout(timeout);
+                var nonce = await GetNonceAsync(connection, slidingTimeout, cancellationToken);
+                await AuthenticateAsync(connection, nonce, slidingTimeout, cancellationToken);
+            }
+            catch(CommandException ex)
+            {
+                var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
+                throw new AuthenticationException(message, ex);
+            }
         }
 
         private async Task<string> GetNonceAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
@@ -52,10 +60,6 @@ namespace MongoDB.Driver.Core.Authentication
             var command = new BsonDocument("getnonce", 1);
             var protocol = new CommandWireProtocol(_credential.Source, command, true);
             var document = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-            if (!document.GetValue("ok", false).ToBoolean())
-            {
-                throw new AuthenticationException("getnonce failed.");
-            }
             return (string)document["nonce"];
         }
 
@@ -69,13 +73,7 @@ namespace MongoDB.Driver.Core.Authentication
                 { "key", AuthenticationHelper.HexMD5(_credential.Username, _credential.Password, nonce) }
             };
             var protocol = new CommandWireProtocol(_credential.Source, command, true);
-            var result = await protocol.ExecuteAsync(connection, timeout, cancellationToken);
-
-            if (!result.GetValue("ok", false).ToBoolean())
-            {
-                var message = string.Format("Unable to authenticate username '{0}' on database '{1}'.", _credential.Username, _credential.Source);
-                throw new AuthenticationException(message);
-            }
+            await protocol.ExecuteAsync(connection, timeout, cancellationToken);
         }
     }
 }
