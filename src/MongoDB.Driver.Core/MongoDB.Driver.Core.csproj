@@ -150,6 +150,7 @@
     <Compile Include="Configuration\TcpStreamSettings.cs" />
     <Compile Include="Configuration\ConnectionString.cs" />
     <Compile Include="ConfigurationException.cs" />
+    <Compile Include="AuthenticationException.cs" />
     <Compile Include="MongoDBException.cs" />
     <Compile Include="QueryException.cs" />
     <Compile Include="WriteException.cs" />
@@ -159,7 +160,7 @@
     <Compile Include="Misc\Ensure.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />
     <Compile Include="Misc\IRandomStringGenerator.cs" />
-    <Compile Include="Misc\RNGCryptoServiceProviderRandomStringGenerator.cs" />    
+    <Compile Include="Misc\RNGCryptoServiceProviderRandomStringGenerator.cs" />
     <Compile Include="Misc\SemanticVersion.cs" />
     <Compile Include="Misc\SlidingTimeout.cs" />
     <Compile Include="Misc\StreamExtensionMethods.cs" />
@@ -282,9 +283,7 @@
       <Name>MongoDB.Bson</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

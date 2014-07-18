@@ -18,7 +18,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Exceptions;
 using MongoDB.Driver.Core.Tests.Helpers;
 using NUnit.Framework;
 

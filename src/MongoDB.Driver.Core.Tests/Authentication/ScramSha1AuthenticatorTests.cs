@@ -18,7 +18,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
-using MongoDB.Driver.Core.Exceptions;
 using MongoDB.Driver.Core.Tests.Helpers;
 using MongoDB.Driver.Core.Tests.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -50,6 +49,43 @@ namespace MongoDB.Driver.Core.Tests.Authentication
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
+            act.ShouldThrow<AuthenticationException>();
+        }
+
+        [Test]
+        public void AuthenticateAsync_should_throw_when_server_provides_invalid_r_value()
+        {
+            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+
+            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
+
+            var connection = new MockRootConnection();
+            connection.EnqueueReplyMessage(saslStartReply);
+
+            var currentRequestId = RequestMessage.CurrentGlobalRequestId;
+            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            act.ShouldThrow<AuthenticationException>();
+        }
+
+        [Test]
+        public void AuthenticateAsync_should_throw_when_server_provides_invalid_serverSignature()
+        {
+            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
+            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator);
+
+            var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw\"), done: false, ok: 1}"));
+            var saslContinueReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
+                RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,\"dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTBh\"), done: true, ok: 1}"));
+
+            var connection = new MockRootConnection();
+            connection.EnqueueReplyMessage(saslStartReply);
+            connection.EnqueueReplyMessage(saslContinueReply);
+
+            var currentRequestId = RequestMessage.CurrentGlobalRequestId;
+            Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldThrow<AuthenticationException>();
         }
 

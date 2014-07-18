@@ -16,7 +16,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace MongoDB.Driver.Core.Exceptions
+namespace MongoDB.Driver.Core
 {
     [Serializable]
     public class AuthenticationException : MongoDBException
