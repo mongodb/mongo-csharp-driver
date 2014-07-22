@@ -14,13 +14,9 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
@@ -42,6 +38,7 @@ namespace MongoDB.Driver.Core.Connections
         // fields
         private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
+        private ConnectionId _connectionId;
         private bool _disposed;
         private DnsEndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
@@ -60,12 +57,19 @@ namespace MongoDB.Driver.Core.Connections
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
             _listener = listener;
+
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
+            _connectionId = ConnectionId.CreateConnectionId();
             // postpone creating the Stream until OpenAsync because some Streams block or throw in the constructor
         }
 
         // properties
+        public ConnectionId ConnectionId
+        {
+            get { return _connectionId; }
+        }
+
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
@@ -126,7 +130,7 @@ namespace MongoDB.Driver.Core.Connections
                 var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var message in messages)
                 {
-                    var args = new SentMessageEventArgs(_endPoint, _description, message, ex);
+                    var args = new SentMessageEventArgs(_endPoint, _connectionId, message, ex);
                     await _listener.SentMessageAsync(args, slidingTimeout, cancellationToken);
                 }
             }
@@ -185,7 +189,7 @@ namespace MongoDB.Driver.Core.Connections
                 using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                 {
                     var readerSettings = BsonBinaryReaderSettings.Defaults; // TODO: where are reader settings supposed to come from?
-                    var binaryReader = new BsonBinaryReader(_stream, readerSettings);
+                    var binaryReader = new BsonBinaryReader(stream, readerSettings);
                     var encoderFactory = new BinaryMessageEncoderFactory(binaryReader);
                     var encoder = encoderFactory.GetReplyMessageEncoder<TDocument>(serializer);
                     reply = encoder.ReadMessage();
@@ -199,7 +203,7 @@ namespace MongoDB.Driver.Core.Connections
             ReplyMessage<TDocument> substituteReply = null;
             if (_listener != null)
             {
-                var args = new ReceivedMessageEventArgs(_endPoint, _description, reply);
+                var args = new ReceivedMessageEventArgs(_endPoint, _connectionId, reply);
                 await _listener.ReceivedMessageAsync(args, slidingTimeout, cancellationToken);
                 substituteReply = (ReplyMessage<TDocument>)args.SubstituteReply;
             }
@@ -244,14 +248,13 @@ namespace MongoDB.Driver.Core.Connections
             var sentMessages = new List<RequestMessage>();
             var substituteReplies = new Dictionary<int, ReplyMessage>();
 
-            IByteBuffer completedBuffer = null;
+            Exception exception = null;
+            using (var buffer = new MultiChunkBuffer(BsonChunkPool.Default))
             {
-                IByteBuffer tempBuffer = null;
-                using (tempBuffer = new MultiChunkBuffer(BsonChunkPool.Default))
-                using (var stream = new ByteBufferStream(tempBuffer, ownsByteBuffer: false))
+                using (var stream = new ByteBufferStream(buffer, ownsByteBuffer: false))
                 {
                     var writerSettings = BsonBinaryWriterSettings.Defaults;
-                    var binaryWriter = new BsonBinaryWriter(_stream, writerSettings);
+                    var binaryWriter = new BsonBinaryWriter(stream, writerSettings);
                     var encoderFactory = new BinaryMessageEncoderFactory(binaryWriter);
                     foreach (var message in messages)
                     {
@@ -259,7 +262,7 @@ namespace MongoDB.Driver.Core.Connections
                         ReplyMessage substituteReply = null;
                         if (_listener != null)
                         {
-                            var args = new SendingMessageEventArgs(_endPoint, _description, message);
+                            var args = new SendingMessageEventArgs(_endPoint, _connectionId, message);
                             await _listener.SendingMessageAsync(args, slidingTimeout, cancellationToken);
                             substituteMessage = args.SubstituteMessage;
                             substituteReply = args.SubstituteReply;
@@ -278,20 +281,13 @@ namespace MongoDB.Driver.Core.Connections
                             substituteReplies.Add(message.RequestId, substituteReply);
                         }
                     }
-
-                    completedBuffer = tempBuffer;
-                    tempBuffer = null; // so it doesn't get Disposed
                 }
-            }
 
-            Exception exception = null;
-            using (completedBuffer)
-            {
-                if (completedBuffer.Length > 0)
+                if (buffer.Length > 0)
                 {
                     try
                     {
-                        var entry = new OutboundQueueEntry(completedBuffer, cancellationToken);
+                        var entry = new OutboundQueueEntry(buffer, cancellationToken);
                         _outboundQueue.Enqueue(entry);
                         Interlocked.Increment(ref _pendingResponseCount);
                         await entry.Task;
@@ -315,10 +311,10 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void SetConnectionDescription(ConnectionDescription description)
+        public void SetConnectionDescription(int serverConnectionId, ConnectionDescription description)
         {
-            Ensure.IsNotNull(description, "description");
-            _description = description;
+            _connectionId = _connectionId.WithServerConnectionId(serverConnectionId);
+            _description = Ensure.IsNotNull(description, "description");
         }
 
         private void StartBackgroundTasks()

@@ -18,6 +18,14 @@ namespace MongoDB.Driver.Core.Events
     public class NoOpServerListener : IServerListener
     {
         // methods
+        public void SendingHeartbeat(SendingHeartbeatEventArgs args)
+        {
+        }
+
+        public void SentHeartbeat(SentHeartbeatEventArgs args)
+        {
+        }
+
         public void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
         {
         }

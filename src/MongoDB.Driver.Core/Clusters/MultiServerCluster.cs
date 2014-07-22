@@ -31,58 +31,25 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents a multi server cluster.
     /// </summary>
-    public abstract class MultiServerCluster : ICluster
+    public class MultiServerCluster : Cluster
     {
         // fields
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
         private readonly ClusterMonitorSpec _clusterMonitorSpec = new ClusterMonitorSpec();
-        private ClusterDescription _description;
-        private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
-        private bool _disposed;
-        private readonly IClusterListener _listener;
-        private readonly object _lock = new object();
-        private readonly IServerSelector _randomServerSelector = new RandomServerSelector();
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
-        private readonly IServerFactory _serverFactory;
         private readonly List<IRootServer> _servers = new List<IRootServer>();
-        private readonly ClusterSettings _settings;
 
         // constructors
-        protected MultiServerCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+        public MultiServerCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
+            : base(settings, serverFactory, listener)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
-            _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
-            _listener = listener;
-
-            _description = ClusterDescription.CreateUninitialized(settings.ClusterType);
-            _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         }
-
-        // events
-        public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        public ClusterDescription Description
-        {
-            get
-            {
-                ThrowIfDisposed();
-                lock (_lock)
-                {
-                    return _description;
-                }
-            }
-        }
-
-        public ClusterSettings Settings
-        {
-            get { return _settings; }
-        }
-
         // methods
         internal void AddServer(IRootServer server)
         {
-            lock (_lock)
+            lock (Lock)
             {
                 if (_servers.Any(n => n.EndPoint.Equals(server.EndPoint)))
                 {
@@ -96,10 +63,10 @@ namespace MongoDB.Driver.Core.Clusters
             server.DescriptionChanged += ServerDescriptionChangedHandler;
             server.Initialize();
 
-            if (_listener != null)
+            if (Listener != null)
             {
                 var args = new ServerAddedEventArgs(server.Description);
-                _listener.ServerAdded(args);
+                Listener.ServerAdded(args);
             }
         }
 
@@ -121,60 +88,30 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            lock (_lock)
+            lock (Lock)
             {
                 if (disposing)
                 {
-                    if (!_disposed)
+                    if (!Disposed)
                     {
                         _backgroundTaskCancellationTokenSource.Cancel();
                         foreach (var server in _servers)
                         {
+                            server.DescriptionChanged -= ServerDescriptionChangedHandler;
                             server.Dispose();
                         }
                         _backgroundTaskCancellationTokenSource.Dispose();
                     }
                 }
-                _disposed = true;
             }
+            base.Dispose();
         }
 
-        public async Task<ClusterDescription> GetDescriptionAsync(int minimumRevision = 0, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public override IServer GetServer(DnsEndPoint endPoint)
         {
-            ThrowIfDisposed();
-            var slidingTimeout = new SlidingTimeout(timeout);
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                ClusterDescription description;
-                Task descriptionChangedTask;
-                lock (_lock)
-                {
-                    description = _description;
-                    descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
-                }
-
-                if (description.Revision >= minimumRevision)
-                {
-                    return description;
-                }
-
-                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken);
-            }
-        }
-
-        public IServer GetServer(DnsEndPoint endPoint)
-        {
-            lock (_lock)
+            lock (Lock)
             {
                 return _servers.Where(s => s.EndPoint.Equals(endPoint)).FirstOrDefault();
             }
@@ -182,51 +119,12 @@ namespace MongoDB.Driver.Core.Clusters
 
         public void Initialize()
         {
-            foreach (var endPoint in _settings.EndPoints)
+            foreach (var endPoint in Settings.EndPoints)
             {
-                var server = _serverFactory.Create(endPoint);
+                var server = CreateServer(endPoint);
                 AddServer(server);
             }
             BackgroundTask().LogUnobservedExceptions();
-        }
-
-        public async Task<IServer> SelectServerAsync(IServerSelector selector, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(selector, "selector");
-            var slidingTimeout = new SlidingTimeout(timeout);
-
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                ClusterDescription description;
-                Task descriptionChangedTask;
-                lock (_lock)
-                {
-                    description = _description;
-                    descriptionChangedTask = _descriptionChangedTaskCompletionSource.Task;
-                }
-
-                var connectedServers = description.Servers.Where(s => s.State == ServerState.Connected);
-                var selectedServers = selector.SelectServers(_description, connectedServers).ToList();
-
-                while (selectedServers.Any())
-                {
-                    var server = selectedServers.Count == 1 ?
-                        selectedServers[0] :
-                        _randomServerSelector.SelectServers(_description, selectedServers).Single();
-
-                    IRootServer rootServer;
-                    if (TryGetServer(server.EndPoint, out rootServer))
-                    {
-                        return rootServer;
-                    }
-
-                    selectedServers.Remove(server);
-                }
-
-                await descriptionChangedTask.WithTimeout(slidingTimeout, cancellationToken);
-            }
         }
 
         private void ServerDescriptionChangedHandler(object sender, ServerDescriptionChangedEventArgs args)
@@ -235,73 +133,20 @@ namespace MongoDB.Driver.Core.Clusters
             _serverDescriptionChangedQueue.Enqueue(args);
         }
 
-        protected virtual void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
-        {
-            ClusterDescriptionChangedEventArgs args = null;
-
-            if (_listener != null)
-            {
-                args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
-                _listener.ClusterDescriptionChanged(args);
-            }
-
-            var handler = DescriptionChanged;
-            if (handler != null)
-            {
-                if (args == null)
-                {
-                    args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
-                }
-                handler(this, args);
-            }
-        }
-
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs eventArgs)
         {
-            ClusterDescription oldClusterDescription = null;
             ClusterDescription newClusterDescription = null;
-            TaskCompletionSource<bool> oldDescriptionChangedTaskCompletionSource = null;
 
-            var actions = _clusterMonitorSpec.Transition(_description, eventArgs.NewServerDescription);
-            lock (_lock)
+            var actions = _clusterMonitorSpec.Transition(Description, eventArgs.NewServerDescription);
+            lock (Lock)
             {
                 foreach (var action in actions)
                 {
                     // TODO: implement action
                 }
-
-                oldDescriptionChangedTaskCompletionSource = _descriptionChangedTaskCompletionSource;
-                _description = newClusterDescription.WithRevision(oldClusterDescription.Revision + 1);
-                _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
             }
 
-            OnDescriptionChanged(oldClusterDescription, newClusterDescription);
-            oldDescriptionChangedTaskCompletionSource.TrySetResult(true);
-
-            if (newClusterDescription.Type == ClusterType.ReplicaSet && !object.Equals(oldClusterDescription.ReplicaSetConfig, newClusterDescription.ReplicaSetConfig))
-            {
-                ProcessReplicaSetConfigChanged(newClusterDescription.ReplicaSetConfig);
-            }
-        }
-
-        private void ProcessReplicaSetConfigChanged(ReplicaSetConfig newConfig)
-        {
-            foreach (var endPoint in newConfig.Members)
-            {
-                if (!_servers.Any(n => n.EndPoint.Equals(endPoint)))
-                {
-                    var server = _serverFactory.Create(endPoint);
-                    AddServer(server);
-                }
-            }
-
-            foreach (var server in _servers.ToList())
-            {
-                if (!newConfig.Members.Contains(server.EndPoint))
-                {
-                    RemoveServer(server);
-                }
-            }
+            UpdateClusterDescription(newClusterDescription);
         }
 
         protected void RemoveServer(IRootServer server)
@@ -309,31 +154,23 @@ namespace MongoDB.Driver.Core.Clusters
             server.DescriptionChanged -= ServerDescriptionChangedHandler;
             var endPoint = server.EndPoint;
 
-            lock (_lock)
+            lock (Lock)
             {
                 _servers.Remove(server);
             }
 
             server.Dispose();
 
-            if (_listener != null)
+            if (Listener != null)
             {
                 var args = new ServerRemovedEventArgs(endPoint);
-                _listener.ServerRemoved(args);
+                Listener.ServerRemoved(args);
             }
         }
 
-        protected void ThrowIfDisposed()
+        protected override bool TryGetServer(DnsEndPoint endPoint, out IRootServer server)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().Name);
-            }
-        }
-
-        private bool TryGetServer(DnsEndPoint endPoint, out IRootServer server)
-        {
-            lock (_lock)
+            lock (Lock)
             {
                 server = _servers.FirstOrDefault(s => s.EndPoint.Equals(endPoint));
                 return server != null;

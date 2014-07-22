@@ -25,71 +25,63 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class ClusterSettings
     {
+        #region static
+        // static fields
+        private readonly IReadOnlyList<DnsEndPoint> __defaultEndPoints = new DnsEndPoint[] { new DnsEndPoint("localhost", 27017) };
+        #endregion
+
         // fields
-        private readonly ClusterType _clusterType;
         private readonly IReadOnlyList<DnsEndPoint> _endPoints;
+        private readonly ClusterType? _requiredClusterType;
 
         // constructors
         public ClusterSettings()
         {
-            _clusterType = ClusterType.Standalone;
-            _endPoints = new DnsEndPoint[0];
+            _endPoints = __defaultEndPoints;
         }
 
         internal ClusterSettings(
-            ClusterType clusterType,
+            ClusterType? requiredClusterType,
             IReadOnlyList<DnsEndPoint> endPoints)
         {
-            _clusterType = clusterType;
+            _requiredClusterType = requiredClusterType;
             _endPoints = endPoints;
         }
 
-        //public ClusterSettings(string uriString)
-        //    : this(new Uri(Ensure.IsNotNull(uriString, "uriString")))
-        //{
-        //}
-
-        //public ClusterSettings(Uri uri)
-        //{
-        //    var parsed = ClusterSettingsUriParser.Parse(uri);
-        //    _clusterType = parsed._clusterType;
-        //    _endPoints = parsed._endPoints;
-        //}
-
         // properties
-        public ClusterType ClusterType
-        {
-            get { return _clusterType; }
-        }
-
         public IReadOnlyList<DnsEndPoint> EndPoints
         {
             get { return _endPoints; }
         }
 
-        // methods
-        public ClusterSettings WithClusterType(ClusterType value)
+        public ClusterType? RequiredClusterType
         {
-            return (_clusterType == value) ? this : new Builder(this) { _clusterType = value }.Build();
+            get { return _requiredClusterType; }
         }
 
+        // methods
         public ClusterSettings WithEndPoints(IEnumerable<DnsEndPoint> value)
         {
             var list = value.ToList();
             return _endPoints.SequenceEqual(list) ? this : new Builder(this) { _endPoints = list }.Build();
         }
 
+        public ClusterSettings WithRequiredClusterType(ClusterType value)
+        {
+            return (_requiredClusterType == value) ? this : new Builder(this) { _requiredClusterType = value }.Build();
+        }
+
         // nested types
         private struct Builder
         {
             // fields
-            public ClusterType _clusterType;
             public IReadOnlyList<DnsEndPoint> _endPoints;
+            public ClusterType? _requiredClusterType;
 
             // constructors
             public Builder(ClusterSettings other)
             {
-                _clusterType = other.ClusterType;
+                _requiredClusterType = other.RequiredClusterType;
                 _endPoints = other.EndPoints;
             }
 
@@ -97,7 +89,7 @@ namespace MongoDB.Driver.Core.Configuration
             public ClusterSettings Build()
             {
                 return new ClusterSettings(
-                    _clusterType,
+                    _requiredClusterType,
                     _endPoints);
             }
         }

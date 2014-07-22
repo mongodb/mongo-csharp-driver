@@ -17,6 +17,7 @@ using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -25,12 +26,15 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // fields
+        private IClusterListener _clusterListener;
         private ClusterSettings _clusterSettings;
-        private ServerSettings _serverSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
-        private TcpStreamSettings _tcpStreamSettings;
+        private IMessageListener _messageListener;
+        private IServerListener _serverListener;
+        private ServerSettings _serverSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
+        private TcpStreamSettings _tcpStreamSettings;
 
         // constructors
         public ClusterBuilder()
@@ -54,7 +58,7 @@ namespace MongoDB.Driver.Core.Configuration
             var connectionFactory = new BinaryConnectionFactory(
                 _connectionSettings,
                 streamFactory,
-                null);
+                _messageListener);
 
             var connectionPoolFactory = new ConnectionPoolFactory(
                 connectionFactory,
@@ -63,12 +67,13 @@ namespace MongoDB.Driver.Core.Configuration
             var serverFactory = new ServerFactory(
                 _serverSettings,
                 connectionPoolFactory,
-                null);
+                connectionFactory,
+                _serverListener);
 
             var clusterFactory = new ClusterFactory(
                 _clusterSettings,
                 serverFactory,
-                null);
+                _clusterListener);
 
             return clusterFactory.Create();
         }
@@ -81,9 +86,11 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configure)
+        public ClusterBuilder ConfigureConnection(Func<ConnectionSettings, ConnectionSettings> configure)
         {
-            _serverSettings = configure(_serverSettings);
+            Ensure.IsNotNull(configure, "configure");
+
+            _connectionSettings = configure(_connectionSettings);
             return this;
         }
 
@@ -95,11 +102,9 @@ namespace MongoDB.Driver.Core.Configuration
             return this;
         }
 
-        public ClusterBuilder ConfigureConnection(Func<ConnectionSettings, ConnectionSettings> configure)
+        public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configure)
         {
-            Ensure.IsNotNull(configure, "configure");
-
-            _connectionSettings = configure(_connectionSettings);
+            _serverSettings = configure(_serverSettings);
             return this;
         }
 
@@ -116,6 +121,24 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(wrapper, "wrapper");
 
             _streamFactoryWrapper = inner => wrapper(_streamFactoryWrapper(inner));
+            return this;
+        }
+
+        public ClusterBuilder SetClusterListener(IClusterListener clusterListener)
+        {
+            _clusterListener = clusterListener;
+            return this;
+        }
+
+        public ClusterBuilder SetMessageListener(IMessageListener messageListener)
+        {
+            _messageListener = messageListener;
+            return this;
+        }
+
+        public ClusterBuilder SetServerListener(IServerListener serverListener)
+        {
+            _serverListener = serverListener;
             return this;
         }
     }

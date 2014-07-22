@@ -22,7 +22,6 @@ namespace MongoDB.Driver.Core.Connections
     {
         // fields
         private readonly BuildInfoResult _buildInfoResult;
-        private readonly int _connectionId;
         private readonly IsMasterResult _isMasterResult;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
@@ -30,9 +29,8 @@ namespace MongoDB.Driver.Core.Connections
         private readonly SemanticVersion _serverVersion;
 
         // constructors
-        public ConnectionDescription(int connectionId, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
+        public ConnectionDescription(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
-            _connectionId = Ensure.IsGreaterThanOrEqualToZero(connectionId, "connectionId");
             _buildInfoResult = Ensure.IsNotNull(buildInfoResult, "buildInfoResult");
             _isMasterResult = Ensure.IsNotNull(isMasterResult, "isMasterResult");
 
@@ -46,11 +44,6 @@ namespace MongoDB.Driver.Core.Connections
         public BuildInfoResult BuildInfoResult
         {
             get { return _buildInfoResult; }
-        }
-
-        public int ConnectionId
-        {
-            get { return _connectionId; }
         }
 
         public IsMasterResult IsMasterResult

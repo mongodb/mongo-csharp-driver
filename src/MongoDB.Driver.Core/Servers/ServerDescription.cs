@@ -33,6 +33,23 @@ namespace MongoDB.Driver.Core.Servers
     /// </summary>
     public class ServerDescription
     {
+        #region static
+        // static methods
+        public static ServerDescription CreateDisconnectedServerDescription(DnsEndPoint endPoint)
+        {
+            return new ServerDescription(
+                TimeSpan.Zero,
+                null,
+                endPoint,
+                null,
+                null,
+                0,
+                ServerState.Disconnected,
+                null,
+                ServerType.Unknown);
+        }
+        #endregion
+
         // fields
         private readonly TimeSpan _averageRoundTripTime;
         private readonly BuildInfoResult _buildInfoResult;
@@ -45,13 +62,6 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerType _type;
 
         // constructors
-        public ServerDescription(DnsEndPoint endPoint)
-        {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _state = ServerState.Uninitialized;
-            _type = ServerType.Unknown;
-        }
-
         private ServerDescription(
             TimeSpan averageRoundTripTime,
             BuildInfoResult buildInfoResult,
@@ -163,21 +173,19 @@ namespace MongoDB.Driver.Core.Servers
 
         public ServerDescription WithHeartbeatInfo(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult, TimeSpan averageRoundTripTime)
         {
-            var state = ServerState.Connected;
-            var type = isMasterResult.ServerType;
-            var replicaSetConfig = isMasterResult.GetReplicaSetConfig(_endPoint.AddressFamily);
-            var tags = isMasterResult.Tags;
-
             if (
-                _state == state && 
-                _type == type && 
-                _averageRoundTripTime == averageRoundTripTime &&
-                object.Equals(_replicaSetConfig, replicaSetConfig) && object.Equals(_tags, tags))
+                _state == ServerState.Connected &&
+                object.Equals(_isMasterResult, isMasterResult) &&
+                object.Equals(_buildInfoResult, buildInfoResult) &&
+                _averageRoundTripTime == averageRoundTripTime)
             {
                 return this;
             }
             else
             {
+                var replicaSetConfig = isMasterResult.GetReplicaSetConfig(_endPoint.AddressFamily);
+                var tags = isMasterResult.Tags;
+
                 return new ServerDescription(
                     averageRoundTripTime,
                     buildInfoResult,
@@ -185,9 +193,9 @@ namespace MongoDB.Driver.Core.Servers
                     isMasterResult,
                     replicaSetConfig,
                     0,
-                    state,
+                    ServerState.Connected,
                     tags,
-                    type);
+                    isMasterResult.ServerType);
             }
         }
 

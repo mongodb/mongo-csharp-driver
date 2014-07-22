@@ -16,6 +16,7 @@
 using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,21 +29,23 @@ namespace MongoDB.Driver.Core.Servers
     {
         // fields
         private readonly IConnectionPoolFactory _connectionPoolFactory;
+        private readonly IConnectionFactory _heartbeatConnectionFactory;
         private readonly IServerListener _listener;
         private readonly ServerSettings _settings;
 
         // constructors
-        public ServerFactory(ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IServerListener listener)
+        public ServerFactory(ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory heartbeatConnectionFactory, IServerListener listener)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
+            _heartbeatConnectionFactory = Ensure.IsNotNull(heartbeatConnectionFactory, "heartbeatConnectionFactory");
             _listener = listener;
         }
 
         // methods
         public IRootServer Create(DnsEndPoint endPoint)
         {
-            return new Server(endPoint, _settings, _connectionPoolFactory, _listener);
+            return new Server(endPoint, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
     }
 }

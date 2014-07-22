@@ -42,41 +42,43 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         public ICluster Create()
         {
-            switch (_settings.ClusterType)
+            if (_settings.RequiredClusterType.HasValue)
             {
-                case ClusterType.Direct: return CreateDirectCluster();
-                case ClusterType.ReplicaSet: return CreateReplicaSet();
-                case ClusterType.Sharded: return CreateShardedCluster();
-                case ClusterType.Standalone: return CreateStandaloneCluster();
-                default:
-                    throw new ArgumentException(string.Format("Invalid cluster type: {0}.", _settings.ClusterType), "settings");
+                switch (_settings.RequiredClusterType.Value)
+                {
+                    case ClusterType.Direct:
+                    case ClusterType.Standalone:
+                        return CreateSingleServerCluster();
+
+                    case ClusterType.ReplicaSet:
+                    case ClusterType.Sharded:
+                        return CreateMultiServerCluster();
+
+                    default:
+                        throw new ArgumentException(string.Format("Invalid cluster type: {0}.", _settings.RequiredClusterType), "settings");
+                }
+            }
+
+            if (_settings.EndPoints.Count == 1)
+            {
+                return CreateSingleServerCluster();
+            }
+            else
+            {
+                return CreateMultiServerCluster();
             }
         }
 
-        private DirectCluster CreateDirectCluster()
+        private MultiServerCluster CreateMultiServerCluster()
         {
-            var directCluster = new DirectCluster(_settings, _serverFactory, _listener);
-            directCluster.Initialize();
-            return directCluster;
-        }
-
-        private ReplicaSet CreateReplicaSet()
-        {
-            var replicaSet = new ReplicaSet(_settings, _serverFactory, _listener);
-            replicaSet.Initialize();
-            return replicaSet;
-        }
-
-        private ShardedCluster CreateShardedCluster()
-        {
-            var shardedCluster = new ShardedCluster(_settings, _serverFactory, _listener);
+            var shardedCluster = new MultiServerCluster(_settings, _serverFactory, _listener);
             shardedCluster.Initialize();
             return shardedCluster;
         }
 
-        private StandaloneCluster CreateStandaloneCluster()
+        private SingleServerCluster CreateSingleServerCluster()
         {
-            var standaloneCluster = new StandaloneCluster(_settings, _serverFactory, _listener);
+            var standaloneCluster = new SingleServerCluster(_settings, _serverFactory, _listener);
             standaloneCluster.Initialize();
             return standaloneCluster;
         }

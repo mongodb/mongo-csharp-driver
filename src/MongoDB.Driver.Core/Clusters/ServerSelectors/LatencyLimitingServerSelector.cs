@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -49,6 +50,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         // methods
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
+            if (_allowedLatencyRange == Timeout.InfiniteTimeSpan)
+            {
+                return servers;
+            }
+
             var list = servers.ToList();
             switch (list.Count)
             {

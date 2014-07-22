@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(configuration, "configuration");
             Ensure.IsNotNullOrEmpty(connectionString, "connectionString");
 
-            var connString = new ConnectionString(connectionString);
-            return ConfigureWithConnectionString(configuration, connString);
+            var parsedConnectionString = new ConnectionString(connectionString);
+            return ConfigureWithConnectionString(configuration, parsedConnectionString);
         }
 
         public static ClusterBuilder ConfigureWithConnectionString(this ClusterBuilder configuration, ConnectionString connectionString)
@@ -35,47 +35,47 @@ namespace MongoDB.Driver.Core.Configuration
             Ensure.IsNotNull(connectionString, "connectionString");
 
             // TCP
-            if(connectionString.ConnectTimeout != null)
+            if (connectionString.ConnectTimeout != null)
             {
                 // TODO: nowhere to set this
             }
 
-            if(connectionString.SocketTimeout != null)
+            if (connectionString.SocketTimeout != null)
             {
                 configuration.ConfigureTcp(s => s
                     .WithReadTimeout(connectionString.SocketTimeout.Value)
                     .WithWriteTimeout(connectionString.SocketTimeout.Value));
             }
 
-            if(connectionString.Ssl != null)
+            if (connectionString.Ssl != null)
             {
                 // TODO: nowhere to set this
             }
 
             // Connection
-            if(connectionString.Username != null)
+            if (connectionString.Username != null)
             {
                 // TODO: nowhere to set this...
             }
 
             // Connection Pool
-            if(connectionString.MaxPoolSize != null)
+            if (connectionString.MaxPoolSize != null)
             {
                 configuration.ConfigureConnectionPool(s => s.WithMaxConnections(connectionString.MaxPoolSize.Value));
             }
-            if(connectionString.MinPoolSize != null)
+            if (connectionString.MinPoolSize != null)
             {
                 // TODO: nowhere to set this
             }
-            if(connectionString.MaxIdleTime != null)
+            if (connectionString.MaxIdleTime != null)
             {
                 configuration.ConfigureConnectionPool(s => s.WithConnectionMaxIdleTime(connectionString.MaxIdleTime.Value));
             }
-            if(connectionString.MaxLifeTime != null)
+            if (connectionString.MaxLifeTime != null)
             {
                 configuration.ConfigureConnectionPool(s => s.WithConnectionMaxLifeTime(connectionString.MaxLifeTime.Value));
             }
-            if(connectionString.WaitQueueMultiple != null)
+            if (connectionString.WaitQueueMultiple != null)
             {
                 // TODO: nowhere to set this
             }
@@ -84,13 +84,13 @@ namespace MongoDB.Driver.Core.Configuration
             // nothing to configure for server
 
             //Cluster
-            if(connectionString.Hosts.Count > 0)
+            if (connectionString.Hosts.Count > 0)
             {
                 configuration.ConfigureCluster(s => s.WithEndPoints(connectionString.Hosts));
             }
-            if(connectionString.ReplicaSet != null)
+            if (connectionString.ReplicaSet != null)
             {
-                configuration.ConfigureCluster(s => s.WithClusterType(ClusterType.ReplicaSet));
+                configuration.ConfigureCluster(s => s.WithRequiredClusterType(ClusterType.ReplicaSet));
                 // TODO: nowhere to set the name
             }
 

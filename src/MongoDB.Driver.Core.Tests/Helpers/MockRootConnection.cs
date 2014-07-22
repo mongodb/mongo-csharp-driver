@@ -33,7 +33,10 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         {
             _replyMessages = new Queue<MongoDBMessage>();
             _sentMessages = new List<RequestMessage>();
+            ConnectionId = ConnectionId.CreateConnectionId();
         }
+
+        public ConnectionId ConnectionId { get; private set; }
 
         public ConnectionDescription Description { get; set; }
 
@@ -57,8 +60,9 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             return Task.FromResult<object>(null);
         }
 
-        public void SetConnectionDescription(ConnectionDescription description)
+        public void SetConnectionDescription(int serverConnectionId, ConnectionDescription description)
         {
+            ConnectionId = ConnectionId.WithServerConnectionId(serverConnectionId);
             Description = description;
         }
 

@@ -13,13 +13,27 @@
 * limitations under the License.
 */
 
+using System.Net;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
+
 namespace MongoDB.Driver.Core.Events
 {
-    public interface IServerListener
+    public class SendingHeartbeatEventArgs
     {
-        // methods
-        void SendingHeartbeat(SendingHeartbeatEventArgs args);
-        void SentHeartbeat(SentHeartbeatEventArgs args);
-        void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args);
+        // fields
+        private readonly DnsEndPoint _endPoint;
+
+        // constructors
+        public SendingHeartbeatEventArgs(DnsEndPoint endPoint)
+        {
+            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+        }
+
+        // properties
+        public DnsEndPoint EndPoint
+        {
+            get { return _endPoint; }
+        }
     }
 }

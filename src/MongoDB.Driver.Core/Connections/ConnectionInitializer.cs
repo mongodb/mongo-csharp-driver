@@ -31,12 +31,6 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal static class ConnectionInitializer
     {
-        private static ConnectionDescription CreateConnectionDescription(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult, BsonDocument getLastErrorResult)
-        {
-            var connectionId = getLastErrorResult.GetValue("connectionId", -1).ToInt32();
-            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
-        }
-
         public static async Task InitializeConnectionAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
@@ -64,8 +58,9 @@ namespace MongoDB.Driver.Core.Connections
             var getLastErrorProtocol = new CommandWireProtocol("admin", getLastErrorCommand, true);
             var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
 
-            var connectionDescription = CreateConnectionDescription(isMasterResult, buildInfoResult, getLastErrorResult);
-            connection.SetConnectionDescription(connectionDescription);
+            var serverConnectionId = getLastErrorResult.GetValue("connectionId", -1).ToInt32();
+            var connectionDescription = new ConnectionDescription(isMasterResult, buildInfoResult);
+            connection.SetConnectionDescription(serverConnectionId, connectionDescription);
         }
     }
 }

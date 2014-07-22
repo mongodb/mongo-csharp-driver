@@ -23,24 +23,24 @@ namespace MongoDB.Driver.Core.Events
     public class SendingMessageEventArgs
     {
         // fields
-        private readonly ConnectionDescription _connectionDescription;
+        private readonly ConnectionId _connectionId;
         private readonly DnsEndPoint _endPoint;
         private readonly RequestMessage _message;
         private RequestMessage _substituteMessage;
         private ReplyMessage _substituteReply;
 
         // constructors
-        public SendingMessageEventArgs(DnsEndPoint endPoint, ConnectionDescription connectionDescription, RequestMessage message)
+        public SendingMessageEventArgs(DnsEndPoint endPoint, ConnectionId connectionId, RequestMessage message)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _connectionDescription = Ensure.IsNotNull(connectionDescription, "connectionDescription");
+            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _message = Ensure.IsNotNull(message, "message");
         }
 
         // properties
-        public ConnectionDescription ConnectionDescription
+        public ConnectionId ConnectionId
         {
-            get { return _connectionDescription; }
+            get { return _connectionId; }
         }
 
         public DnsEndPoint EndPoint

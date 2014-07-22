@@ -34,6 +34,16 @@ namespace MongoDB.Driver.Core.Misc
             return value;
         }
 
+        public static T IsEqualTo<T>(T value, T comparand, string paramName)
+        {
+            if (!value.Equals(comparand))
+            {
+                var message = string.Format("Value is not equal to {1}: {0}.", value, comparand);
+                throw new ArgumentException(paramName, message);
+            }
+            return value;
+        }
+
         public static T IsGreaterThanOrEqualTo<T>(T value, T comparand, string paramName) where T : IComparable<T>
         {
             if (value.CompareTo(comparand) < 0)

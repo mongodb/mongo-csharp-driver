@@ -85,6 +85,7 @@
     <Compile Include="Bindings\ServerReadBinding.cs" />
     <Compile Include="Bindings\ServerReadWriteBinding.cs" />
     <Compile Include="Bindings\SplitBinding.cs" />
+    <Compile Include="Clusters\Cluster.cs" />
     <Compile Include="Clusters\ClusterFactory.cs" />
     <Compile Include="Clusters\ClusterDescription.cs" />
     <Compile Include="Clusters\ClusterMonitorSpec.cs" />
@@ -97,10 +98,12 @@
     <Compile Include="Clusters\ClusterState.cs" />
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
-    <Compile Include="Clusters\DirectCluster.cs" />
+    <Compile Include="Connections\ConnectionId.cs" />
     <Compile Include="Events\ClusterDescriptionChangedEventArgs.cs" />
     <Compile Include="Events\IClusterListener.cs" />
     <Compile Include="Events\NoOpClusterListener.cs" />
+    <Compile Include="Events\SendingHeartbeatEventArgs.cs" />
+    <Compile Include="Events\SentHeartbeatEventArgs.cs" />
     <Compile Include="Events\ServerAddedEventArgs.cs" />
     <Compile Include="Configuration\ClusterBuilder.cs" />
     <Compile Include="Configuration\ClusterBuilderExtensionMethods.cs" />
@@ -113,7 +116,6 @@
     <Compile Include="Clusters\MultiServerCluster.cs" />
     <Compile Include="Clusters\ReadPreference.cs" />
     <Compile Include="Clusters\ReadPreferenceMode.cs" />
-    <Compile Include="Clusters\ReplicaSet.cs" />
     <Compile Include="Clusters\ReplicaSetConfig.cs" />
     <Compile Include="Clusters\ServerSelectors\LatencyLimitingServerSelector.cs" />
     <Compile Include="Clusters\ServerSelectors\CompositeServerSelector.cs" />
@@ -121,8 +123,7 @@
     <Compile Include="Clusters\ServerSelectors\IServerSelector.cs" />
     <Compile Include="Clusters\ServerSelectors\RandomServerSelector.cs" />
     <Compile Include="Clusters\ServerSelectors\ReadPreferenceServerSelector.cs" />
-    <Compile Include="Clusters\ShardedCluster.cs" />
-    <Compile Include="Clusters\StandaloneCluster.cs" />
+    <Compile Include="Clusters\SingleServerCluster.cs" />
     <Compile Include="Clusters\Tag.cs" />
     <Compile Include="Clusters\TagSet.cs" />
     <Compile Include="ConnectionPools\AcquiredConnection.cs" />

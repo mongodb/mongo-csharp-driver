@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         #endregion
 
         // fields
-        private readonly TimeSpan _allowedLatencyRange;
+        private readonly IServerSelector _latencyLimitingServerSelector;
         private readonly ReadPreference _readPreference;
 
         // constructors
@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         {
         }
 
-        public ReadPreferenceServerSelector(ReadPreference readPreference, TimeSpan allowedLatencyRange)
+        public ReadPreferenceServerSelector(ReadPreference readPreference, TimeSpan secondaryAcceptableLatency)
         {
             _readPreference = Ensure.IsNotNull(readPreference, "readPreference");
-            _allowedLatencyRange = allowedLatencyRange;
+            _latencyLimitingServerSelector = new LatencyLimitingServerSelector(secondaryAcceptableLatency);
         }
 
         // properties
@@ -69,14 +69,13 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 case ClusterType.ReplicaSet: selectedServers = SelectForReplicaSet(servers); break;
                 case ClusterType.Sharded: selectedServers = SelectForShardedCluster(servers); break;
                 case ClusterType.Standalone: selectedServers = SelectForStandaloneCluster(servers); break;
+                case ClusterType.Unknown: selectedServers = __noServers; break;
                 default:
                     var message = string.Format("ReadPreferenceServerSelector is not implemented for cluster of type: {0}.", cluster.Type);
                     throw new NotImplementedException(message);
             }
 
-            var minAverageRoundTripTime = selectedServers.Min(s => s.AverageRoundTripTime);
-            var maxAverageRoundTripTime = minAverageRoundTripTime.Add(_allowedLatencyRange);
-            return selectedServers.Where(s => s.AverageRoundTripTime <= maxAverageRoundTripTime);
+            return _latencyLimitingServerSelector.SelectServers(cluster, selectedServers);
         }
 
         private IReadOnlyList<ServerDescription> SelectByTagSets(IEnumerable<ServerDescription> servers)

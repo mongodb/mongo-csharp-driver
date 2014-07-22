@@ -24,31 +24,31 @@ namespace MongoDB.Driver.Core.Events
     public class ReceivedMessageEventArgs
     {
         // fields
-        private readonly ConnectionDescription _connectionDescription;
+        private readonly ConnectionId _connectionId;
         private readonly DnsEndPoint _endPoint;
         private readonly Exception _exception;
         private readonly ReplyMessage _reply;
         private ReplyMessage _substituteReply;
 
         // constructors
-        public ReceivedMessageEventArgs(DnsEndPoint endPoint, ConnectionDescription connectionDescription, ReplyMessage reply)
+        public ReceivedMessageEventArgs(DnsEndPoint endPoint, ConnectionId connectionId, ReplyMessage reply)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _connectionDescription = Ensure.IsNotNull(connectionDescription, "connectionDescription");
+            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _reply = Ensure.IsNotNull(reply, "reply");
         }
 
-        public ReceivedMessageEventArgs(DnsEndPoint endPoint, ConnectionDescription connectionDescription, Exception exception)
+        public ReceivedMessageEventArgs(DnsEndPoint endPoint, ConnectionId connectionId, Exception exception)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _connectionDescription = Ensure.IsNotNull(connectionDescription, "connectionDescription");
+            _connectionId = connectionId;
             _exception = Ensure.IsNotNull(exception, "exception");
         }
 
         // properties
-        public ConnectionDescription ConnectionDescription
+        public ConnectionId ConnectionId
         {
-            get { return _connectionDescription; }
+            get { return _connectionId; }
         }
 
         public DnsEndPoint EndPoint

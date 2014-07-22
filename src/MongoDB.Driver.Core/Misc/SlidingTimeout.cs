@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    internal class SlidingTimeout
+    public class SlidingTimeout
     {
         #region static
         // static operators
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
-        public SlidingTimeout(TimeSpan timeout, IClock clock)
+        internal SlidingTimeout(TimeSpan timeout, IClock clock)
         {
             _clock = Ensure.IsNotNull(clock, "clock");
 

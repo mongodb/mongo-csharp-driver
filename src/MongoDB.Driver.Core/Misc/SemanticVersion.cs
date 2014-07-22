@@ -65,38 +65,38 @@ namespace MongoDB.Driver.Core.Misc
         // methods
         public int CompareTo(SemanticVersion other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return 1;
             }
 
             var result = _major.CompareTo(other._major);
-            if(result != 0)
+            if (result != 0)
             {
                 return result;
             }
 
             result = _minor.CompareTo(other._minor);
-            if(result != 0)
+            if (result != 0)
             {
                 return result;
             }
 
             result = _patch.CompareTo(other._patch);
-            if(result != 0)
+            if (result != 0)
             {
                 return result;
             }
             
-            if(_preRelease == null && other._preRelease == null)
+            if (_preRelease == null && other._preRelease == null)
             {
                 return 0;
             }
-            else if(_preRelease == null)
+            else if (_preRelease == null)
             {
                 return 1;
             }
-            else if(other._preRelease == null)
+            else if (other._preRelease == null)
             {
                 return -1;
             }
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public static bool operator ==(SemanticVersion lhs, SemanticVersion rhs)
         {
-            if(object.ReferenceEquals(lhs, null))
+            if (object.ReferenceEquals(lhs, null))
             {
                 return object.ReferenceEquals(rhs, null);
             }
@@ -182,9 +182,9 @@ namespace MongoDB.Driver.Core.Misc
 
         public static bool operator >(SemanticVersion lhs, SemanticVersion rhs)
         {
-            if(lhs == null)
+            if (lhs == null)
             {
-                if(rhs == null)
+                if (rhs == null)
                 {
                     return true;
                 }

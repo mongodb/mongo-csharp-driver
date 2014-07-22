@@ -17,31 +17,36 @@ using System;
 using System.Net;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
 {
-    public class SentMessageEventArgs
+    public class SentHeartbeatEventArgs
     {
         // fields
-        private readonly ConnectionId _connectionId;
+        private readonly BuildInfoResult _buildInfoResult;
         private readonly DnsEndPoint _endPoint;
         private readonly Exception _exception;
-        private readonly RequestMessage _message;
+        private readonly IsMasterResult _isMasterResult;
 
         // constructors
-        public SentMessageEventArgs(DnsEndPoint endPoint, ConnectionId connectionId, RequestMessage message, Exception exception)
+        public SentHeartbeatEventArgs(DnsEndPoint endPoint, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
-            _message = Ensure.IsNotNull(message, "message");
-            _exception = exception; // can be null
+            _isMasterResult = Ensure.IsNotNull(isMasterResult, "isMasterResult");
+            _buildInfoResult = Ensure.IsNotNull(buildInfoResult, "buildInfoResult");
+        }
+
+        public SentHeartbeatEventArgs(DnsEndPoint endPoint, Exception exception)
+        {
+            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _exception = Ensure.IsNotNull(exception, "exception");
         }
 
         // properties
-        public ConnectionId ConnectionId
+        public BuildInfoResult BuildInfoResult
         {
-            get { return _connectionId; }
+            get { return _buildInfoResult; }
         }
 
         public DnsEndPoint EndPoint
@@ -54,9 +59,9 @@ namespace MongoDB.Driver.Core.Events
             get { return _exception; }
         }
 
-        public RequestMessage Message
+        public IsMasterResult IsMasterResult
         {
-            get { return _message; }
+            get { return _isMasterResult; }
         }
     }
 }
