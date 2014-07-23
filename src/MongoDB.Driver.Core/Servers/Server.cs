@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Servers
             var cancellationToken = _backgroundTaskCancellationTokenSource.Token;
             try
             {
-                IConnection connection = null;
+                IRootConnection connection = null;
                 try
                 {
                     while (true)
@@ -190,6 +190,7 @@ namespace MongoDB.Driver.Core.Servers
                             if (connection == null)
                             {
                                 connection = _heartbeatConnectionFactory.CreateConnection(_endPoint);
+                                await ConnectionInitializer.InitializeConnectionAsync(connection, TimeSpan.FromMinutes(1), cancellationToken);
                             }
 
                             try

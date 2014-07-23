@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Misc
             while (count > 0)
             {
                 var backingBytes = buffer.AccessBackingBytes(offset);
-                var bytesToRead = Math.Min(count, backingBytes.Count - backingBytes.Offset);
+                var bytesToRead = Math.Min(count, backingBytes.Count);
                 var bytesRead = await stream.ReadAsync(backingBytes.Array, backingBytes.Offset, bytesToRead, cancellationToken);
                 if (bytesRead == 0)
                 {

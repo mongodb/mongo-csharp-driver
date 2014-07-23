@@ -281,6 +281,7 @@ namespace MongoDB.Driver.Core.Connections
                             substituteReplies.Add(message.RequestId, substituteReply);
                         }
                     }
+                    buffer.Length = (int)stream.Length;
                 }
 
                 if (buffer.Length > 0)
