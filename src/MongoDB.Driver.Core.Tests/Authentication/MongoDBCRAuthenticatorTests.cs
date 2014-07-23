@@ -14,10 +14,13 @@
 */
 
 using System;
+using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Tests.Helpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using NUnit.Framework;
@@ -28,6 +31,8 @@ namespace MongoDB.Driver.Core.Tests.Authentication
     public class MongoDBXCRAuthenticatorTests
     {
         private static readonly UsernamePasswordCredential __credential = new UsernamePasswordCredential("source", "user", "pencil");
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
 
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
@@ -43,7 +48,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var subject = new MongoDBCRAuthenticator(__credential);
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
-            var connection = new MockRootConnection();
+            var connection = new MockRootConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -61,7 +66,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var authenticateReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
-            var connection = new MockRootConnection();
+            var connection = new MockRootConnection(__serverId);
             connection.EnqueueReplyMessage(getNonceReply);
             connection.EnqueueReplyMessage(authenticateReply);
 

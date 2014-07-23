@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -29,6 +30,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
     /// </summary>
     public interface IConnectionPool : IDisposable
     {
+        // properties
+        ServerId ServerId { get; }
+
         // methods
         Task<IConnection> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken);
     }

@@ -58,9 +58,16 @@ namespace MongoDB.Driver.Core.Connections
             var getLastErrorProtocol = new CommandWireProtocol("admin", getLastErrorCommand, true);
             var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
 
-            var serverConnectionId = getLastErrorResult.GetValue("connectionId", -1).ToInt32();
             var connectionDescription = new ConnectionDescription(isMasterResult, buildInfoResult);
-            connection.SetConnectionDescription(serverConnectionId, connectionDescription);
+            connection.SetDescription(connectionDescription);
+
+            BsonValue connectionIdBsonValue;
+            if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
+            {
+                var serverId = connection.ConnectionId.ServerId;
+                var serverConnectionId = new ConnectionId(serverId, connectionIdBsonValue.ToInt32(), ConnectionIdSource.Server);
+                connection.SetConnectionId(serverConnectionId);
+            }
         }
     }
 }

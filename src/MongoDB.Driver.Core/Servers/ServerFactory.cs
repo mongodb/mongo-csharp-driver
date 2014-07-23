@@ -14,6 +14,7 @@
 */
 
 using System.Net;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -43,9 +44,9 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
-        public IRootServer Create(DnsEndPoint endPoint)
+        public IRootServer CreateServer(ClusterId clusterId, DnsEndPoint endPoint)
         {
-            return new Server(endPoint, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
+            return new Server(clusterId, endPoint, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }
     }
 }

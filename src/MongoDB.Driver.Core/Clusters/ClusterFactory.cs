@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
-        public ICluster Create()
+        public ICluster CreateCluster()
         {
             if (_settings.RequiredClusterType.HasValue)
             {

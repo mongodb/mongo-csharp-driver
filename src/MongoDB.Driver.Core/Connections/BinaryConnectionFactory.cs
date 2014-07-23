@@ -17,6 +17,7 @@ using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -45,11 +46,11 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public IRootConnection CreateConnection(DnsEndPoint endPoint)
+        public IRootConnection CreateConnection(ServerId serverId, DnsEndPoint endPoint)
         {
             Ensure.IsNotNull(endPoint, "endPoint");
             // postpone creating the stream until BinaryConnection.OpenAsync because some Stream constructors block or throw
-            return new BinaryConnection(endPoint, _settings, _streamFactory, _listener);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _listener);
         }
     }
 }

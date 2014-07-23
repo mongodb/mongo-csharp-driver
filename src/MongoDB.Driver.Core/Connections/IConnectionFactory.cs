@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -29,6 +30,6 @@ namespace MongoDB.Driver.Core.Connections
     public interface IConnectionFactory
     {
         // methods
-        IRootConnection CreateConnection(DnsEndPoint endPoint);
+        IRootConnection CreateConnection(ServerId serverId, DnsEndPoint endPoint);
     }
 }

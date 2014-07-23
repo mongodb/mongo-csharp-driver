@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Core.Connections
 
         // methods
         Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken);
-        void SetConnectionDescription(int serverConnectionId, ConnectionDescription description);
+        void SetConnectionId(ConnectionId connectionId);
+        void SetDescription(ConnectionDescription description);
     }
 }

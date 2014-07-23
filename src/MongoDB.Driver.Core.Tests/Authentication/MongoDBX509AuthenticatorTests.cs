@@ -14,10 +14,13 @@
 */
 
 using System;
+using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Tests.Helpers;
 using NUnit.Framework;
 
@@ -26,6 +29,9 @@ namespace MongoDB.Driver.Core.Tests.Authentication
     [TestFixture]
     public class MongoDBX509AuthenticatorTests
     {
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
+
         [Test]
         [TestCase(null)]
         [TestCase("")]
@@ -42,7 +48,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US");
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
-            var connection = new MockRootConnection();
+            var connection = new MockRootConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -58,7 +64,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var reply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
-            var connection = new MockRootConnection();
+            var connection = new MockRootConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();

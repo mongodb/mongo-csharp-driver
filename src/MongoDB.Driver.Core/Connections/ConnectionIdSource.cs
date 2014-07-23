@@ -13,22 +13,11 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Servers;
-
-namespace MongoDB.Driver.Core.ConnectionPools
+namespace MongoDB.Driver.Core.Connections
 {
-    /// <summary>
-    /// Represents a connection pool factory.
-    /// </summary>
-    public interface IConnectionPoolFactory
+    public enum ConnectionIdSource
     {
-        // methods
-        IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint);
+        Driver,
+        Server
     }
 }

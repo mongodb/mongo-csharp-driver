@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverFactory,
                 _clusterListener);
 
-            return clusterFactory.Create();
+            return clusterFactory.CreateCluster();
         }
 
         public ClusterBuilder ConfigureCluster(Func<ClusterSettings, ClusterSettings> configure)

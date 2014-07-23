@@ -88,6 +88,7 @@
     <Compile Include="Clusters\Cluster.cs" />
     <Compile Include="Clusters\ClusterFactory.cs" />
     <Compile Include="Clusters\ClusterDescription.cs" />
+    <Compile Include="Clusters\ClusterId.cs" />
     <Compile Include="Clusters\ClusterMonitorSpec.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecAction.cs" />
     <Compile Include="Clusters\ClusterMonitorSpecActionType.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
     <Compile Include="Connections\ConnectionId.cs" />
+    <Compile Include="Connections\ConnectionIdSource.cs" />
     <Compile Include="Events\ClusterDescriptionChangedEventArgs.cs" />
     <Compile Include="Events\IClusterListener.cs" />
     <Compile Include="Events\NoOpClusterListener.cs" />
@@ -152,8 +154,10 @@
     <Compile Include="Configuration\ConnectionString.cs" />
     <Compile Include="ConfigurationException.cs" />
     <Compile Include="AuthenticationException.cs" />
+    <Compile Include="Misc\IdGenerator.cs" />
     <Compile Include="MongoDBException.cs" />
     <Compile Include="QueryException.cs" />
+    <Compile Include="Servers\ServerId.cs" />
     <Compile Include="WriteException.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Misc\BatchResult.cs" />

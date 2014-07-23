@@ -13,22 +13,31 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.ConnectionPools
+namespace MongoDB.Driver.Core.Clusters
 {
-    /// <summary>
-    /// Represents a connection pool factory.
-    /// </summary>
-    public interface IConnectionPoolFactory
+    public class ClusterId
     {
+        // fields
+        private readonly int _value;
+
+        // constructors
+        public ClusterId()
+        {
+            _value = IdGenerator<ClusterId>.GetNextId();
+        }
+
+        // properties
+        public int Value
+        {
+            get { return _value; }
+        }
+
         // methods
-        IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint);
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
     }
 }

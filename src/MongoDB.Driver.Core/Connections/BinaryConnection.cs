@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
@@ -51,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
+        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Core.Connections
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
-            _connectionId = ConnectionId.CreateConnectionId();
+            _connectionId = new ConnectionId(serverId);
             // postpone creating the Stream until OpenAsync because some Streams block or throw in the constructor
         }
 
@@ -312,9 +313,13 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void SetConnectionDescription(int serverConnectionId, ConnectionDescription description)
+        public void SetConnectionId(ConnectionId connectionId)
         {
-            _connectionId = _connectionId.WithServerConnectionId(serverConnectionId);
+            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
+        }
+
+        public void SetDescription(ConnectionDescription description)
+        {
             _description = Ensure.IsNotNull(description, "description");
         }
 

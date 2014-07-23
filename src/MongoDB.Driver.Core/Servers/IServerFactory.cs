@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Servers
@@ -30,6 +31,6 @@ namespace MongoDB.Driver.Core.Servers
     public interface IServerFactory
     {
         // methods
-        IRootServer Create(DnsEndPoint endPoint);
+        IRootServer CreateServer(ClusterId clusterId, DnsEndPoint endPoint);
     }
 }

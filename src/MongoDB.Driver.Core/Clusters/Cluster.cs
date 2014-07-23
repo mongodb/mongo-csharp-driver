@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Clusters
     public abstract class Cluster : ICluster
     {
         // fields
+        private readonly ClusterId _clusterId;
         private ClusterDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private bool _disposed;
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.Clusters
             _serverFactory = Ensure.IsNotNull(serverFactory, "serverFactory");
             _listener = listener;
 
+            _clusterId = new ClusterId();
             _description = ClusterDescription.CreateUninitialized(settings.RequiredClusterType ?? ClusterType.Unknown);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         }
@@ -57,6 +59,11 @@ namespace MongoDB.Driver.Core.Clusters
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
+        public ClusterId ClusterId
+        {
+            get { return _clusterId; }
+        }
+
         public ClusterDescription Description
         {
             get
@@ -91,7 +98,7 @@ namespace MongoDB.Driver.Core.Clusters
         // methods
         protected IRootServer CreateServer(DnsEndPoint endPoint)
         {
-            return _serverFactory.Create(endPoint);
+            return _serverFactory.CreateServer(_clusterId, endPoint);
         }
 
         public void Dispose()

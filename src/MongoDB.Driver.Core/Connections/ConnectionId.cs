@@ -22,50 +22,59 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class ConnectionId
     {
-        #region static
-        // static fields
-        private static int __lastDriverConnectionId;
-
-        // static methods
-        public static ConnectionId CreateConnectionId()
-        {
-            var driverConnectionId = Interlocked.Increment(ref __lastDriverConnectionId);
-            return new ConnectionId(driverConnectionId, 0);
-        }
-        #endregion
-
         // fields
-        private readonly int _driverConnectionId;
-        private int _serverConnectionId;
+        private readonly ServerId _serverId;
+        private readonly ConnectionIdSource _source;
+        private readonly int _value;
 
         // constructors
-        public ConnectionId(int driverConnectionId, int serverConnectionId)
+        public ConnectionId(ServerId serverId)
+            : this(serverId, IdGenerator<ConnectionId>.GetNextId(), ConnectionIdSource.Driver)
         {
-            _driverConnectionId = driverConnectionId;
-            _serverConnectionId = serverConnectionId;
+        }
+
+        public ConnectionId(ServerId serverId, int value, ConnectionIdSource source)
+        {
+            _serverId = Ensure.IsNotNull(serverId, "serverId");
+            _value = Ensure.IsGreaterThanOrEqualToZero(value, "value");
+            _source = source;
         }
 
         // properties
-        public int DriverConnectionId
+        public ServerId ServerId
         {
-            get { return _driverConnectionId; }
+            get { return _serverId; }
         }
 
-        public int ServerConnectionId
+        public ConnectionIdSource Source
         {
-            get { return _serverConnectionId; }
+            get { return _source; }
+        }
+
+        public int Value
+        {
+            get { return _value; }
         }
 
         // methods
-        public ConnectionId WithServerConnectionId(int serverConnectionId)
+        public override string ToString()
         {
-            return new ConnectionId(_driverConnectionId, serverConnectionId);
+            if (_source == ConnectionIdSource.Server)
+            {
+                return string.Format("{{ ServerId : {0}, Value : {1} }}", _serverId, _value);
+            }
+            else
+            {
+                return string.Format("{{ ServerId : {0}, Value : {1}, Source : \"{2}\" }}", _serverId, _value, _source);
+            }
         }
     }
 }

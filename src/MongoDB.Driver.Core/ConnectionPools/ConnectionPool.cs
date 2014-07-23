@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -38,17 +39,26 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private bool _disposed;
         private readonly DnsEndPoint _endPoint;
         private readonly object _lock = new object();
+        private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _settings;
 
         // constructors
         public ConnectionPool(
+            ServerId serverId,
             DnsEndPoint endPoint,
             ConnectionPoolSettings settings,
             IConnectionFactory connectionFactory)
         {
+            _serverId = Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
+        }
+
+        // properties
+        public ServerId ServerId
+        {
+            get { return _serverId; }
         }
 
         // methods
@@ -106,7 +116,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private PooledConnection CreateConnection()
         {
-            var rootConnection = _connectionFactory.CreateConnection(_endPoint); // will be initialized by caller outside of the lock
+            var rootConnection = _connectionFactory.CreateConnection(_serverId, _endPoint); // will be initialized by caller outside of the lock
             var connection = new PooledConnection(rootConnection);
             _connections.Add(connection);
             return connection;

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -50,9 +51,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // methods
-        public IConnectionPool CreateConnectionPool(DnsEndPoint endPoint)
+        public IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint)
         {
-            return new ConnectionPool(endPoint, _connectionPoolSettings, _connectionFactory);
+            return new ConnectionPool(serverId, endPoint, _connectionPoolSettings, _connectionFactory);
         }
     }
 }

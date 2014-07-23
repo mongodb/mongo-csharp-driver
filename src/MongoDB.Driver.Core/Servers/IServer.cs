@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Servers
         // properties
         DnsEndPoint EndPoint { get; }
         ServerDescription Description { get; }
+        ServerId ServerId { get; }
 
         // methods
         Task<IConnection> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));

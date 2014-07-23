@@ -13,22 +13,19 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Servers;
+using System.Threading;
 
-namespace MongoDB.Driver.Core.ConnectionPools
+namespace MongoDB.Driver.Core.Misc
 {
-    /// <summary>
-    /// Represents a connection pool factory.
-    /// </summary>
-    public interface IConnectionPoolFactory
+    public static class IdGenerator<T>
     {
-        // methods
-        IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint);
+        // static fields
+        private static int __lastId;
+
+        // static methods
+        public static int GetNextId()
+        {
+            return Interlocked.Increment(ref __lastId);
+        }
     }
 }

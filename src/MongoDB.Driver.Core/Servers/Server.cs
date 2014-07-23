@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
@@ -46,21 +47,23 @@ namespace MongoDB.Driver.Core.Servers
         private InterruptibleDelay _heartbeatDelay = new InterruptibleDelay(TimeSpan.Zero);
         private readonly IServerListener _listener;
         private object _lock = new object();
+        private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
 
         // events
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        internal Server(DnsEndPoint endPoint, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
+        internal Server(ClusterId clusterId, DnsEndPoint endPoint, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
         {
             _endPoint = endPoint;
             _settings = settings;
-            _connectionPool = connectionPoolFactory.CreateConnectionPool(endPoint);
             _heartbeatConnectionFactory = hearbeatConnectionFactory;
             _listener = listener;
 
             _description = ServerDescription.CreateDisconnectedServerDescription(endPoint);
+            _serverId = new ServerId(clusterId, endPoint);
+            _connectionPool = connectionPoolFactory.CreateConnectionPool(_serverId, endPoint);
         }
 
         // properties
@@ -78,6 +81,11 @@ namespace MongoDB.Driver.Core.Servers
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        public ServerId ServerId
+        {
+            get { return _serverId; }
         }
 
         // methods
@@ -189,7 +197,7 @@ namespace MongoDB.Driver.Core.Servers
                         {
                             if (connection == null)
                             {
-                                connection = _heartbeatConnectionFactory.CreateConnection(_endPoint);
+                                connection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
                                 await ConnectionInitializer.InitializeConnectionAsync(connection, TimeSpan.FromMinutes(1), cancellationToken);
                             }
 
