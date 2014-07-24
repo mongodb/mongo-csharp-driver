@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // constructors
         public DeleteMessageJsonEncoder(JsonReader jsonReader, JsonWriter jsonWriter)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
         }
@@ -43,19 +44,50 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         // methods
         public DeleteMessage ReadMessage()
         {
-            throw new NotImplementedException();
+            if (_jsonReader == null)
+            {
+                throw new InvalidOperationException("No jsonReader was provided.");
+            }
+
+            var context = BsonDeserializationContext.CreateRoot<BsonDocument>(_jsonReader);
+            var document = BsonDocumentSerializer.Instance.Deserialize(context);
+
+            var opcode = document["Opcode"].AsString;
+            if (opcode != "Delete")
+            {
+                throw new FormatException("Opcode is not Delete.");
+            }
+
+            var requestId = document["RequestId"].ToInt32();
+            var databaseName = document["DatabaseName"].AsString;
+            var collectionName = document["CollectionName"].AsString;
+            var query = document["Query"].AsBsonDocument;
+            var isMulti = document["IsMulti"].ToBoolean();
+
+            return new DeleteMessage(
+                requestId,
+                databaseName,
+                collectionName,
+                query,
+                isMulti);
         }
 
         public void WriteMessage(DeleteMessage message)
         {
+            Ensure.IsNotNull(message, "message");
+            if (_jsonWriter == null)
+            {
+                throw new InvalidOperationException("No jsonWriter was provided.");
+            }
+
             var document = new BsonDocument
             {
-                { "opcode", "delete" },
-                { "requestId", message.RequestId },
-                { "database", message.DatabaseName },
-                { "collection", message.CollectionName },
-                { "query", message.Query ?? new BsonDocument() },
-                { "isMulti", message.IsMulti }
+                { "Opcode", "Delete" },
+                { "RequestId", message.RequestId },
+                { "DatabaseName", message.DatabaseName },
+                { "CollectionName", message.CollectionName },
+                { "Query", message.Query ?? new BsonDocument() },
+                { "IsMulti", message.IsMulti }
             };
 
             var context = BsonSerializationContext.CreateRoot<BsonDocument>(_jsonWriter);

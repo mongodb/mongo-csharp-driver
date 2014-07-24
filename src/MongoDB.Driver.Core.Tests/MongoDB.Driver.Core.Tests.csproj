@@ -81,6 +81,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WireProtocol\Messages\DeleteMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\BinaryMessageEncoderFactoryTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\BinaryEncoders\DeleteMessageBinaryEncoderTests.cs" />
+    <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\DeleteMessageJsonEncoderTests.cs" />
     <Compile Include="WireProtocol\Messages\Encoders\JsonEncoders\JsonMessageEncoderFactoryTests.cs" />
     <Compile Include="WireProtocol\Messages\GetMoreMessageTests.cs" />
     <Compile Include="WireProtocol\Messages\InsertMessageTests.cs" />
