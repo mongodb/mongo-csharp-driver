@@ -28,12 +28,12 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         // constructors
         public BinaryMessageEncoderFactory(BsonBinaryReader binaryReader)
-            : this(binaryReader, null)
+            : this(Ensure.IsNotNull(binaryReader, "binaryReader"), null)
         {
         }
 
         public BinaryMessageEncoderFactory(BsonBinaryWriter binaryWriter)
-            : this(null, binaryWriter)
+            : this(null, Ensure.IsNotNull(binaryWriter, "binaryWriter"))
         {
         }
 

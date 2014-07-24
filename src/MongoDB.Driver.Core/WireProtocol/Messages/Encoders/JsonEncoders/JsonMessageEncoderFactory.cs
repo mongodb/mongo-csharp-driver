@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 {
@@ -32,17 +33,18 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
 
         // constructors
         public JsonMessageEncoderFactory(JsonReader jsonReader)
-            : this(jsonReader, null)
+            : this(Ensure.IsNotNull(jsonReader, "jsonReader"), null)
         {
         }
 
         public JsonMessageEncoderFactory(JsonWriter jsonWriter)
-            : this(null, jsonWriter)
+            : this(null, Ensure.IsNotNull(jsonWriter, "jsonWriter"))
         {
         }
 
         public JsonMessageEncoderFactory(JsonReader jsonReader, JsonWriter jsonWriter)
         {
+            Ensure.That(jsonReader != null || jsonWriter != null, "jsonReader and jsonWriter cannot both be null.");
             _jsonReader = jsonReader;
             _jsonWriter = jsonWriter;
         }
