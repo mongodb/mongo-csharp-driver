@@ -20,19 +20,19 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
     public class UpdateClusterDescriptionAction : Action
     {
         // fields
-        private readonly ClusterDescription _clusterDescription;
+        private readonly ClusterDescription _newClusterDescription;
 
         // constructors
-        public UpdateClusterDescriptionAction(ClusterDescription clusterDescription)
+        public UpdateClusterDescriptionAction(ClusterDescription newClusterDescription)
             : base(ActionType.UpdateClusterDescription)
         {
-            _clusterDescription = Ensure.IsNotNull(clusterDescription, "clusterDescription");
+            _newClusterDescription = Ensure.IsNotNull(newClusterDescription, "newClusterDescription");
         }
 
         // properties
-        public ClusterDescription Description
+        public ClusterDescription NewClusterDescription
         {
-            get { return _clusterDescription; }
+            get { return _newClusterDescription; }
         }
     }
 }

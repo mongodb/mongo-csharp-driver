@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
 
@@ -121,6 +122,32 @@ namespace MongoDB.Driver.Core.Clusters
         public ClusterDescription WithRevision(int value)
         {
             return _revision == value ? this : new ClusterDescription(_type, _state, _servers, _replicaSetConfig, value);
+        }
+
+        public ClusterDescription WithServerDescription(ServerDescription value)
+        {
+            Ensure.IsNotNull(value, "value");
+
+            var oldServerDescription = _servers.SingleOrDefault(s => s.EndPoint == value.EndPoint);
+            if (oldServerDescription == null)
+            {
+                var message = string.Format("No server description found: '{0}'.", DnsEndPointParser.ToString(value.EndPoint));
+                throw new ArgumentException(message, "value");
+            }
+
+            return oldServerDescription.Equals(value) ?
+                this :
+                new ClusterDescription(
+                    _type,
+                    _state,
+                    _servers.Select(s => s.EndPoint == value.EndPoint ? value : s),
+                    _replicaSetConfig,
+                    0);
+        }
+
+        public ClusterDescription WithType(ClusterType value)
+        {
+            return _type == value ? this : new ClusterDescription(value, _state, _servers, _replicaSetConfig, 0);
         }
     }
 }
