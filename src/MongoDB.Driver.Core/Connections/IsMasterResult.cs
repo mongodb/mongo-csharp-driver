@@ -119,7 +119,11 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         return ServerType.Arbiter;
                     }
-                    return ServerType.Other;
+                    if (_wrapped.Contains("setName"))
+                    {
+                        return ServerType.Other;
+                    }
+                    return ServerType.Ghost;
                 }
 
                 if ((string)_wrapped.GetValue("msg", null) == "isdbgrid")
