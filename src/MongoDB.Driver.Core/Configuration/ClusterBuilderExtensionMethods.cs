@@ -90,8 +90,9 @@ namespace MongoDB.Driver.Core.Configuration
             }
             if (connectionString.ReplicaSet != null)
             {
-                configuration.ConfigureCluster(s => s.WithRequiredClusterType(ClusterType.ReplicaSet));
-                // TODO: nowhere to set the name
+                configuration.ConfigureCluster(s => s
+                    .WithRequiredClusterType(ClusterType.ReplicaSet)
+                    .WithReplicaSetName(connectionString.ReplicaSet));
             }
 
             return configuration;

@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Servers
         Secondary,
         Passive,
         Arbiter,
-        Other
+        Other,
+        Ghost
     }
 }

@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         // fields
         private readonly IReadOnlyList<DnsEndPoint> _endPoints;
+        private readonly string _replicaSetName;
         private readonly ClusterType? _requiredClusterType;
 
         // constructors
@@ -42,10 +43,12 @@ namespace MongoDB.Driver.Core.Configuration
 
         internal ClusterSettings(
             ClusterType? requiredClusterType,
-            IReadOnlyList<DnsEndPoint> endPoints)
+            IReadOnlyList<DnsEndPoint> endPoints,
+            string replicaSetName)
         {
             _requiredClusterType = requiredClusterType;
             _endPoints = endPoints;
+            _replicaSetName = replicaSetName;
         }
 
         // properties
@@ -59,11 +62,21 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _requiredClusterType; }
         }
 
+        public string ReplicaSetName
+        {
+            get { return _replicaSetName; }
+        }
+
         // methods
         public ClusterSettings WithEndPoints(IEnumerable<DnsEndPoint> value)
         {
             var list = value.ToList();
             return _endPoints.SequenceEqual(list) ? this : new Builder(this) { _endPoints = list }.Build();
+        }
+
+        public ClusterSettings WithReplicaSetName(string value)
+        {
+            return object.Equals(_replicaSetName, value) ? this : new Builder(this) { _replicaSetName = value }.Build();
         }
 
         public ClusterSettings WithRequiredClusterType(ClusterType value)
@@ -76,13 +89,15 @@ namespace MongoDB.Driver.Core.Configuration
         {
             // fields
             public IReadOnlyList<DnsEndPoint> _endPoints;
+            public string _replicaSetName;
             public ClusterType? _requiredClusterType;
 
             // constructors
             public Builder(ClusterSettings other)
             {
-                _requiredClusterType = other.RequiredClusterType;
-                _endPoints = other.EndPoints;
+                _endPoints = other._endPoints;
+                _replicaSetName = other._replicaSetName;
+                _requiredClusterType = other._requiredClusterType;
             }
 
             // methods
@@ -90,7 +105,8 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return new ClusterSettings(
                     _requiredClusterType,
-                    _endPoints);
+                    _endPoints,
+                    _replicaSetName);
             }
         }
     }

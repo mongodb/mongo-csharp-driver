@@ -41,6 +41,21 @@ namespace MongoDB.Driver.Core.Clusters
             : base(settings, serverFactory, listener)
         {
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
+            Ensure.IsNull(settings.ReplicaSetName, "settings.ReplicaSetName");
+            if (settings.RequiredClusterType.HasValue)
+            {
+                switch (settings.RequiredClusterType.Value)
+                {
+                    case ClusterType.Direct:
+                    case ClusterType.Sharded:
+                    case ClusterType.Standalone:
+                    case ClusterType.Unknown:
+                        break;
+                    default:
+                        var message = string.Format("RequiredClusterType is not compatible with SingleServerCluster: {0}.", settings.RequiredClusterType.Value);
+                        throw new ArgumentException(message, "settings.RequiredClusterType");
+                }
+            }
         }
 
         // methods
