@@ -16,16 +16,16 @@
 using System.Net;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class ClusterMonitorSpecRemoveServerAction : ClusterMonitorSpecAction
+    public class RemoveServerAction : Action
     {
         // fields
         private readonly DnsEndPoint _endPoint;
 
         // constructors
-        public ClusterMonitorSpecRemoveServerAction(DnsEndPoint endPoint)
-            : base(ClusterMonitorSpecActionType.RemoveServer)
+        public RemoveServerAction(DnsEndPoint endPoint)
+            : base(ActionType.RemoveServer)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }

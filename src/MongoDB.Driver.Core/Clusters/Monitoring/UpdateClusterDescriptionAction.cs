@@ -13,18 +13,26 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class ClusterMonitorSpec
+    public class UpdateClusterDescriptionAction : Action
     {
-        // methods
-        public IEnumerable<ClusterMonitorSpecAction> Transition(ClusterDescription currentClusterDescription, ServerDescription newServerDescription)
+        // fields
+        private readonly ClusterDescription _clusterDescription;
+
+        // constructors
+        public UpdateClusterDescriptionAction(ClusterDescription clusterDescription)
+            : base(ActionType.UpdateClusterDescription)
         {
-            throw new NotImplementedException();
+            _clusterDescription = Ensure.IsNotNull(clusterDescription, "clusterDescription");
+        }
+
+        // properties
+        public ClusterDescription Description
+        {
+            get { return _clusterDescription; }
         }
     }
 }

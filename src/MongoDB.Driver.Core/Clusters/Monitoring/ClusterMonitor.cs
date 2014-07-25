@@ -13,23 +13,18 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver.Core.Clusters
+using System;
+using System.Collections.Generic;
+using MongoDB.Driver.Core.Servers;
+
+namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public abstract class ClusterMonitorSpecAction
+    public class ClusterMonitor
     {
-        // fields
-        private readonly ClusterMonitorSpecActionType _type;
-
-        // constructors
-        protected ClusterMonitorSpecAction(ClusterMonitorSpecActionType type)
+        // methods
+        public IEnumerable<Action> Transition(ClusterDescription currentClusterDescription, ServerDescription newServerDescription)
         {
-            _type = type;
-        }
-
-        // properties
-        public ClusterMonitorSpecActionType Type
-        {
-            get { return _type; }
+            throw new NotImplementedException();
         }
     }
 }

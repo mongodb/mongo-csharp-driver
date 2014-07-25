@@ -13,27 +13,12 @@
 * limitations under the License.
 */
 
-using System.Net;
-using MongoDB.Driver.Core.Misc;
-
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class ClusterMonitorSpecAddServerAction : ClusterMonitorSpecAction
+    public enum ActionType
     {
-        // fields
-        private readonly DnsEndPoint _endPoint;
-
-        // constructors
-        public ClusterMonitorSpecAddServerAction(DnsEndPoint endPoint)
-            : base(ClusterMonitorSpecActionType.AddServer)
-        {
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-        }
-
-        // properties
-        public DnsEndPoint EndPoint
-        {
-            get { return _endPoint; }
-        }
+        AddServer,
+        RemoveServer,
+        UpdateClusterDescription
     }
 }

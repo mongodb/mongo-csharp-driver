@@ -20,6 +20,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Async;
+using MongoDB.Driver.Core.Clusters.Monitoring;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -35,7 +36,7 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
-        private readonly ClusterMonitorSpec _clusterMonitorSpec = new ClusterMonitorSpec();
+        private readonly ClusterMonitor _clusterMonitor = new ClusterMonitor();
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
         private readonly List<IRootServer> _servers = new List<IRootServer>();
 
@@ -68,6 +69,11 @@ namespace MongoDB.Driver.Core.Clusters
                 var args = new ServerAddedEventArgs(server.Description);
                 Listener.ServerAdded(args);
             }
+        }
+
+        private void AddServerAction(AddServerAction action)
+        {
+            throw new NotImplementedException();
         }
 
         private async Task BackgroundTask()
@@ -137,12 +143,23 @@ namespace MongoDB.Driver.Core.Clusters
         {
             ClusterDescription newClusterDescription = null;
 
-            var actions = _clusterMonitorSpec.Transition(Description, eventArgs.NewServerDescription);
+            var actions = _clusterMonitor.Transition(Description, eventArgs.NewServerDescription);
             lock (Lock)
             {
                 foreach (var action in actions)
                 {
-                    // TODO: implement action
+                    switch (action.Type)
+                    {
+                        case ActionType.AddServer:
+                            AddServerAction((AddServerAction)action);
+                            break;
+                        case ActionType.RemoveServer:
+                            RemoveServerAction((RemoveServerAction)action);
+                            break;
+                        case ActionType.UpdateClusterDescription:
+                            UpdateClusterDescriptionAction((UpdateClusterDescriptionAction)action);
+                            break;
+                    }
                 }
             }
 
@@ -168,6 +185,11 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
+        private void RemoveServerAction(RemoveServerAction action)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override bool TryGetServer(DnsEndPoint endPoint, out IRootServer server)
         {
             lock (Lock)
@@ -175,6 +197,11 @@ namespace MongoDB.Driver.Core.Clusters
                 server = _servers.FirstOrDefault(s => s.EndPoint.Equals(endPoint));
                 return server != null;
             }
+        }
+
+        private void UpdateClusterDescriptionAction(UpdateClusterDescriptionAction action)
+        {
+            throw new NotImplementedException();
         }
     }
 }

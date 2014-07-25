@@ -13,26 +13,23 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
-
-namespace MongoDB.Driver.Core.Clusters
+namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class ClusterMonitorSpecUpdateClusterDescriptionAction : ClusterMonitorSpecAction
+    public abstract class Action
     {
         // fields
-        private readonly ClusterDescription _clusterDescription;
+        private readonly ActionType _type;
 
         // constructors
-        public ClusterMonitorSpecUpdateClusterDescriptionAction(ClusterDescription clusterDescription)
-            : base(ClusterMonitorSpecActionType.UpdateClusterDescription)
+        protected Action(ActionType type)
         {
-            _clusterDescription = Ensure.IsNotNull(clusterDescription, "clusterDescription");
+            _type = type;
         }
 
         // properties
-        public ClusterDescription ClusterDescription
+        public ActionType Type
         {
-            get { return _clusterDescription; }
+            get { return _type; }
         }
     }
 }
