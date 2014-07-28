@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Clusters
     {
         // fields
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
-        private readonly ClusterMonitor _clusterMonitor = new ClusterMonitor();
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
         private readonly List<IRootServer> _servers = new List<IRootServer>();
 
@@ -143,7 +142,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             ClusterDescription newClusterDescription = null;
 
-            var actions = _clusterMonitor.Transition(Description, eventArgs.NewServerDescription);
+            var clusterMonitorLogic = new ClusterMonitorLogic(Description, eventArgs.NewServerDescription);
+            var actions = clusterMonitorLogic.Transition();
             lock (Lock)
             {
                 foreach (var action in actions)

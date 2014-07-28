@@ -89,7 +89,7 @@
     <Compile Include="Clusters\ClusterFactory.cs" />
     <Compile Include="Clusters\ClusterDescription.cs" />
     <Compile Include="Clusters\ClusterId.cs" />
-    <Compile Include="Clusters\Monitoring\ClusterMonitor.cs" />
+    <Compile Include="Clusters\Monitoring\ClusterMonitorLogic.cs" />
     <Compile Include="Clusters\Monitoring\TransitionAction.cs" />
     <Compile Include="Clusters\Monitoring\TransitionActionType.cs" />
     <Compile Include="Clusters\Monitoring\AddServerAction.cs" />
