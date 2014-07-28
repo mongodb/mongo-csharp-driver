@@ -63,11 +63,11 @@ namespace MongoDB.Driver.Core.Clusters
         {
             switch (serverDescription.Type)
             {
-                case ServerType.Arbiter:
-                case ServerType.Other:
-                case ServerType.Passive:
-                case ServerType.Primary:
-                case ServerType.Secondary:
+                case ServerType.ReplicaSetArbiter:
+                case ServerType.ReplicaSetOther:
+                case ServerType.ReplicaSetPassive:
+                case ServerType.ReplicaSetPrimary:
+                case ServerType.ReplicaSetSecondary:
                     return ClusterType.ReplicaSet;
 
                 case ServerType.ShardRouter:

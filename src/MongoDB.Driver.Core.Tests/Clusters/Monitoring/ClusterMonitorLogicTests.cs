@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
         public void Transition_should_set_clusterType_if_it_is_unknown()
         {
             var oldClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, new[] { __port27017Disconnected }, null, 0);
-            var newServerDescription = __port27017Disconnected.WithState(ServerState.Connected).WithType(ServerType.Primary);
+            var newServerDescription = __port27017Disconnected.WithState(ServerState.Connected).WithType(ServerType.ReplicaSetPrimary);
             var subject = new ClusterMonitorLogic(oldClusterDescription, newServerDescription);
             var actions = subject.Transition().ToArray();
             var newClusterDescription = oldClusterDescription

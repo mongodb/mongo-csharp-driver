@@ -105,25 +105,25 @@ namespace MongoDB.Driver.Core.Connections
                 {
                     if (_wrapped.GetValue("ismaster", false).ToBoolean())
                     {
-                        return ServerType.Primary;
+                        return ServerType.ReplicaSetPrimary;
                     }
                     if (_wrapped.GetValue("secondary", false).ToBoolean())
                     {
-                        return ServerType.Secondary;
+                        return ServerType.ReplicaSetSecondary;
                     }
                     if (_wrapped.GetValue("passive", false).ToBoolean() || _wrapped.GetValue("hidden", false).ToBoolean())
                     {
-                        return ServerType.Passive;
+                        return ServerType.ReplicaSetPassive;
                     }
                     if (_wrapped.GetValue("arbiterOnly", false).ToBoolean())
                     {
-                        return ServerType.Arbiter;
+                        return ServerType.ReplicaSetArbiter;
                     }
                     if (_wrapped.Contains("setName"))
                     {
-                        return ServerType.Other;
+                        return ServerType.ReplicaSetOther;
                     }
-                    return ServerType.Ghost;
+                    return ServerType.ReplicaSetGhost;
                 }
 
                 if ((string)_wrapped.GetValue("msg", null) == "isdbgrid")

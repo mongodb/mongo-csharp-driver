@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Core.Servers
         Unknown = 0,
         Standalone,
         ShardRouter,
-        Primary,
-        Secondary,
-        Passive,
-        Arbiter,
-        Other,
-        Ghost
+        ReplicaSetPrimary,
+        ReplicaSetSecondary,
+        ReplicaSetPassive,
+        ReplicaSetArbiter,
+        ReplicaSetOther,
+        ReplicaSetGhost
     }
 }

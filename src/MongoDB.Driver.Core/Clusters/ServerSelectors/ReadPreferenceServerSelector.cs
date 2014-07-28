@@ -107,35 +107,35 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             switch (_readPreference.Mode)
             {
                 case ReadPreferenceMode.Primary:
-                    return materializedList.Where(n => n.Type == ServerType.Primary);
+                    return materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary);
 
                 case ReadPreferenceMode.PrimaryPreferred:
-                    var primary = materializedList.FirstOrDefault(n => n.Type == ServerType.Primary);
+                    var primary = materializedList.FirstOrDefault(n => n.Type == ServerType.ReplicaSetPrimary);
                     if (primary != null)
                     {
                         return new[] { primary };
                     }
                     else
                     {
-                        return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.Secondary));
+                        return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
                     }
 
                 case ReadPreferenceMode.Secondary:
-                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.Secondary));
+                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
 
                 case ReadPreferenceMode.SecondaryPreferred:
-                    var matchingSecondaries = SelectByTagSets(materializedList.Where(n => n.Type == ServerType.Secondary));
+                    var matchingSecondaries = SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetSecondary));
                     if (matchingSecondaries.Count != 0)
                     {
                         return matchingSecondaries;
                     }
                     else
                     {
-                        return materializedList.Where(n => n.Type == ServerType.Primary);
+                        return materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary);
                     }
 
                 case ReadPreferenceMode.Nearest:
-                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.Primary || n.Type == ServerType.Secondary));
+                    return SelectByTagSets(materializedList.Where(n => n.Type == ServerType.ReplicaSetPrimary || n.Type == ServerType.ReplicaSetSecondary));
 
                 default:
                     throw new ArgumentException("Invalid ReadPreferenceMode.");
