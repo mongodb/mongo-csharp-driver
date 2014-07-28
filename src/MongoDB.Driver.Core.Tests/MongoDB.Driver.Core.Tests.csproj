@@ -65,6 +65,7 @@
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
+    <Compile Include="Connections\BinaryConnectionTests.cs" />
     <Compile Include="Connections\BuildInfoResultTests.cs" />
     <Compile Include="Connections\IsMasterResultTests.cs" />
     <Compile Include="Exceptions\CommandExceptionTests.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Misc\FrozenClock.cs" />
     <Compile Include="Misc\SemanticVersionTests.cs" />
     <Compile Include="Misc\SlidingTimeoutTests.cs" />
+    <Compile Include="Misc\StateHelperTests.cs" />
     <Compile Include="Misc\TimeSpanParserTests.cs" />
     <Compile Include="Operations\WriteConcernTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
