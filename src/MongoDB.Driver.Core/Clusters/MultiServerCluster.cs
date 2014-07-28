@@ -150,13 +150,13 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     switch (action.Type)
                     {
-                        case ActionType.AddServer:
+                        case TransitionActionType.AddServer:
                             AddServerAction((AddServerAction)action);
                             break;
-                        case ActionType.RemoveServer:
+                        case TransitionActionType.RemoveServer:
                             RemoveServerAction((RemoveServerAction)action);
                             break;
-                        case ActionType.UpdateClusterDescription:
+                        case TransitionActionType.UpdateClusterDescription:
                             UpdateClusterDescriptionAction((UpdateClusterDescriptionAction)action);
                             break;
                     }

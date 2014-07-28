@@ -90,8 +90,8 @@
     <Compile Include="Clusters\ClusterDescription.cs" />
     <Compile Include="Clusters\ClusterId.cs" />
     <Compile Include="Clusters\Monitoring\ClusterMonitor.cs" />
-    <Compile Include="Clusters\Monitoring\Action.cs" />
-    <Compile Include="Clusters\Monitoring\ActionType.cs" />
+    <Compile Include="Clusters\Monitoring\TransitionAction.cs" />
+    <Compile Include="Clusters\Monitoring\TransitionActionType.cs" />
     <Compile Include="Clusters\Monitoring\AddServerAction.cs" />
     <Compile Include="Clusters\Monitoring\UpdateClusterDescriptionAction.cs" />
     <Compile Include="Clusters\Monitoring\RemoveServerAction.cs" />

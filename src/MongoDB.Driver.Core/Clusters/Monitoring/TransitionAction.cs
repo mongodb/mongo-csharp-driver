@@ -15,19 +15,19 @@
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public abstract class Action
+    public abstract class TransitionAction
     {
         // fields
-        private readonly ActionType _type;
+        private readonly TransitionActionType _type;
 
         // constructors
-        protected Action(ActionType type)
+        protected TransitionAction(TransitionActionType type)
         {
             _type = type;
         }
 
         // properties
-        public ActionType Type
+        public TransitionActionType Type
         {
             get { return _type; }
         }

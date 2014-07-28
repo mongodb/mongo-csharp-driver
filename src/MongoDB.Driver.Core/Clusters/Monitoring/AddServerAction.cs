@@ -18,14 +18,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class AddServerAction : Action
+    public class AddServerAction : TransitionAction
     {
         // fields
         private readonly DnsEndPoint _endPoint;
 
         // constructors
         public AddServerAction(DnsEndPoint endPoint)
-            : base(ActionType.AddServer)
+            : base(TransitionActionType.AddServer)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }

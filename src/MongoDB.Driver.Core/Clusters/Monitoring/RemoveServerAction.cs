@@ -18,14 +18,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class RemoveServerAction : Action
+    public class RemoveServerAction : TransitionAction
     {
         // fields
         private readonly DnsEndPoint _endPoint;
 
         // constructors
         public RemoveServerAction(DnsEndPoint endPoint)
-            : base(ActionType.RemoveServer)
+            : base(TransitionActionType.RemoveServer)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }

@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public enum ActionType
+    public enum TransitionActionType
     {
         AddServer,
         RemoveServer,

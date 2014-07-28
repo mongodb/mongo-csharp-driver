@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
             }
         }
 
-        public IEnumerable<Action> Transition(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
+        public IEnumerable<TransitionAction> Transition(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
         {
             switch (oldClusterDescription.Type)
             {
@@ -59,24 +59,24 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
             }
         }
 
-        public IEnumerable<Action> TransitionReplicaSet(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
+        public IEnumerable<TransitionAction> TransitionReplicaSet(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Action> TransitionShardedCluster(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
+        public IEnumerable<TransitionAction> TransitionShardedCluster(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Action> TransitionUnknownCluster(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
+        public IEnumerable<TransitionAction> TransitionUnknownCluster(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
         {
             var clusterType = DeduceClusterType(newServerDescription);
             if (clusterType == ClusterType.Unknown)
             {
                 var newClusterDescription = oldClusterDescription.WithServerDescription(newServerDescription);
                 var action = new UpdateClusterDescriptionAction(newClusterDescription);
-                return new Action[] { action };
+                return new TransitionAction[] { action };
             }
 
             var knownTypeClusterDescription = oldClusterDescription.WithType(clusterType);
