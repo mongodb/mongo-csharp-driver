@@ -209,6 +209,11 @@ namespace MongoDB.Driver.Core.Servers
             return _state == value ? this : new Builder(this) { _state = value }.Build();
         }
 
+        public ServerDescription WithType(ServerType value)
+        {
+            return _type == value ? this : new Builder(this) { _type = value }.Build();
+        }
+
         // nested types
         private struct Builder
         {

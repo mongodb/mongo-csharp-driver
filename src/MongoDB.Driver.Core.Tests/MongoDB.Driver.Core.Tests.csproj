@@ -60,6 +60,7 @@
     <Compile Include="Authentication\PlainAuthenticatorTests.cs" />
     <Compile Include="Authentication\MongoDBCRAuthenticatorTests.cs" />
     <Compile Include="Authentication\MongoDBX509AuthenticatorTests.cs" />
+    <Compile Include="Clusters\Monitoring\ClusterMonitorLogicTests.cs" />
     <Compile Include="Clusters\ReadPreferenceTests.cs" />
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />

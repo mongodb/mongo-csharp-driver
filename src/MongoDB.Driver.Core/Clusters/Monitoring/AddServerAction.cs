@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class AddServerAction : TransitionAction
+    public class AddServerAction : TransitionAction, IEquatable<AddServerAction>
     {
         // fields
         private readonly DnsEndPoint _endPoint;
@@ -34,6 +35,27 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        // methods
+        public bool Equals(AddServerAction rhs)
+        {
+            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(AddServerAction))
+            {
+                return false;
+            }
+
+            return _endPoint.Equals(rhs._endPoint);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as AddServerAction);
+        }
+
+        public override int GetHashCode()
+        {
+            return _endPoint.GetHashCode();
         }
     }
 }

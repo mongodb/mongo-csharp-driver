@@ -13,9 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public abstract class TransitionAction
+    public abstract class TransitionAction : IEquatable<TransitionAction>
     {
         // fields
         private readonly TransitionActionType _type;
@@ -30,6 +31,12 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
         public TransitionActionType Type
         {
             get { return _type; }
+        }
+
+        // methods
+        public bool Equals(TransitionAction rhs)
+        {
+            return Equals((object)rhs);
         }
     }
 }

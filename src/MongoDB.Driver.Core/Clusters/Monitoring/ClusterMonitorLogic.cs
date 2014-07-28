@@ -123,12 +123,10 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
 
         private void TransitionReplicaSet()
         {
-            throw new NotImplementedException();
         }
 
         private void TransitionShardedCluster()
         {
-            throw new NotImplementedException();
         }
     }
 }

@@ -13,11 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters.Monitoring
 {
-    public class UpdateClusterDescriptionAction : TransitionAction
+    public class UpdateClusterDescriptionAction : TransitionAction, IEquatable<UpdateClusterDescriptionAction>
     {
         // fields
         private readonly ClusterDescription _newClusterDescription;
@@ -33,6 +34,27 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
         public ClusterDescription NewClusterDescription
         {
             get { return _newClusterDescription; }
+        }
+
+        // methods
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as UpdateClusterDescriptionAction);
+        }
+
+        public bool Equals(UpdateClusterDescriptionAction rhs)
+        {
+            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(UpdateClusterDescriptionAction))
+            {
+                return false;
+            }
+
+            return _newClusterDescription.Equals(rhs._newClusterDescription);
+        }
+
+        public override int GetHashCode()
+        {
+            return _newClusterDescription.GetHashCode();
         }
     }
 }
