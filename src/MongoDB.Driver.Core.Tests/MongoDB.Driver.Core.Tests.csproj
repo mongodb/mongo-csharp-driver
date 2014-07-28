@@ -66,6 +66,7 @@
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
     <Compile Include="Connections\BuildInfoResultTests.cs" />
+    <Compile Include="Connections\IsMasterResultTests.cs" />
     <Compile Include="Exceptions\CommandExceptionTests.cs" />
     <Compile Include="Exceptions\MongoDBExceptionTests.cs" />
     <Compile Include="Exceptions\QueryExceptionTests.cs" />

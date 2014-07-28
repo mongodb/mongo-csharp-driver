@@ -33,4 +33,22 @@ namespace MongoDB.Driver.Core.Servers
         ReplicaSetOther,
         ReplicaSetGhost
     }
+
+    public static class ServerTypeExtensions
+    {
+        public static bool IsReplicaSetMember(this ServerType serverType)
+        {
+            switch (serverType)
+            {
+                case ServerType.ReplicaSetPrimary:
+                case ServerType.ReplicaSetSecondary:
+                case ServerType.ReplicaSetArbiter:
+                case ServerType.ReplicaSetOther:
+                case ServerType.ReplicaSetGhost:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
 }

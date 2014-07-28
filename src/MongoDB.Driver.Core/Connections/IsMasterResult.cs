@@ -41,18 +41,12 @@ namespace MongoDB.Driver.Core.Connections
         // properties
         public bool IsArbiter
         {
-            get
-            {
-                return _wrapped.GetValue("arbiterOnly", false).ToBoolean();
-            }
+            get { return ServerType == ServerType.ReplicaSetArbiter; }
         }
 
         public bool IsReplicaSetMember
         {
-            get
-            {
-                return _wrapped.GetValue("isreplicaset", false).ToBoolean() || _wrapped.Contains("setName");
-            }
+            get { return ServerType.IsReplicaSetMember(); }
         }
 
         public int MaxBatchCount
@@ -101,7 +95,17 @@ namespace MongoDB.Driver.Core.Connections
         {
             get
             {
-                if (IsReplicaSetMember)
+                if(!_wrapped.GetValue("ok", false).ToBoolean())
+                {
+                    return ServerType.Unknown;
+                }
+
+                if (_wrapped.GetValue("isreplicaset", false).ToBoolean())
+                {
+                    return ServerType.ReplicaSetGhost;
+                }
+
+                if (_wrapped.Contains("setName"))
                 {
                     if (_wrapped.GetValue("ismaster", false).ToBoolean())
                     {
@@ -119,11 +123,8 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         return ServerType.ReplicaSetArbiter;
                     }
-                    if (_wrapped.Contains("setName"))
-                    {
-                        return ServerType.ReplicaSetOther;
-                    }
-                    return ServerType.ReplicaSetGhost;
+
+                    return ServerType.ReplicaSetOther;
                 }
 
                 if ((string)_wrapped.GetValue("msg", null) == "isdbgrid")
@@ -131,12 +132,7 @@ namespace MongoDB.Driver.Core.Connections
                     return ServerType.ShardRouter;
                 }
 
-                if (_wrapped.GetValue("ismaster", false).ToBoolean())
-                {
-                    return ServerType.Standalone;
-                }
-
-                return ServerType.Unknown;
+                return ServerType.Standalone;
             }
         }
 
