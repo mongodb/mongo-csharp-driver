@@ -72,6 +72,7 @@
     <Compile Include="Exceptions\MongoDBExceptionTests.cs" />
     <Compile Include="Exceptions\QueryExceptionTests.cs" />
     <Compile Include="Exceptions\WriteExceptionTests.cs" />
+    <Compile Include="Helpers\BlockingMemoryStream.cs" />
     <Compile Include="Helpers\MockRootConnection.cs" />
     <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
     <Compile Include="Misc\ConstantRandomStringGenerator.cs" />

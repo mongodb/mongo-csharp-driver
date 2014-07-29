@@ -34,13 +34,12 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection using the binary wire protocol over a binary stream.
     /// </summary>
-    public class BinaryConnection : IRootConnection
+    internal class BinaryConnection : IRootConnection
     {
         // fields
         private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
         private ConnectionId _connectionId;
-        private bool _disposed;
         private DnsEndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
@@ -48,6 +47,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
         private int _pendingResponseCount;
         private readonly ConnectionSettings _settings;
+        private readonly StateHelper _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
 
@@ -62,7 +62,8 @@ namespace MongoDB.Driver.Core.Connections
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
             _connectionId = new ConnectionId(serverId);
-            // postpone creating the Stream until OpenAsync because some Streams block or throw in the constructor
+
+            _state = new StateHelper(State.Initial);
         }
 
         // properties
@@ -108,15 +109,11 @@ namespace MongoDB.Driver.Core.Connections
 
         private void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && _state.TryChange(State.Disposed))
             {
-                if (!_disposed)
-                {
-                    _backgroundTaskCancellationTokenSource.Cancel();
-                    _backgroundTaskCancellationTokenSource.Dispose();
-                }
+                _backgroundTaskCancellationTokenSource.Cancel();
+                _backgroundTaskCancellationTokenSource.Dispose();
             }
-            _disposed = true;
         }
 
         public IConnection Fork()
@@ -138,8 +135,15 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            _stream = await _streamFactory.CreateStreamAsync(_endPoint, timeout, cancellationToken);
-            StartBackgroundTasks();
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
+
+            ThrowIfDisposed();
+
+            if (_state.TryChange(State.Initial, State.Open))
+            {
+                _stream = await _streamFactory.CreateStreamAsync(_endPoint, timeout, cancellationToken);
+                StartBackgroundTasks();
+            }
         }
 
         private async Task ReceiveBackgroundTask()
@@ -179,6 +183,10 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(serializer, "serializer");
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
+            ThrowIfNotOpen();
+
             var slidingTimeout = new SlidingTimeout(timeout);
             var entry = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
 
@@ -244,6 +252,10 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(messages, "messages");
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
+            ThrowIfNotOpen();
+
             var slidingTimeout = new SlidingTimeout(timeout);
             var sentMessages = new List<RequestMessage>();
             var substituteReplies = new Dictionary<int, ReplyMessage>();
@@ -328,7 +340,32 @@ namespace MongoDB.Driver.Core.Connections
             ReceiveBackgroundTask().LogUnobservedExceptions();
         }
 
+        private void ThrowIfDisposed()
+        {
+            if (_state.Current == State.Disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
+            }
+        }
+
+        private void ThrowIfNotOpen()
+        {
+            if (_state.Current != State.Open)
+            {
+                ThrowIfDisposed();
+
+                throw new InvalidOperationException("The connection must be opened before it can be used.");
+            }
+        }
+
         // nested classes
+        private static class State
+        {
+            public static int Initial = 0;
+            public static int Open = 1;
+            public static int Disposed = 2;
+        }
+
         private class InboundDropboxEntry
         {
             // fields

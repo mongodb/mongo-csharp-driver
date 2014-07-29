@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
             act.ShouldNotThrow();
 
-            var sentMessages = MessageHelper.TranslateRequestsToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
             sentMessages.Count.Should().Be(1);
 
             sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + (currentRequestId + 1) + ", database: \"source\", collection: \"$cmd\", batchSize: -1, slaveOk: true, query: {saslStart: 1, mechanism: \"PLAIN\", payload: new BinData(0, \"AHVzZXIAcGVuY2ls\")}}");

@@ -91,7 +91,42 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 
         public void WriteMessage(ReplyMessage<TDocument> message)
         {
-            throw new NotImplementedException();
+            var streamWriter = _binaryWriter.StreamWriter;
+            var startPosition = streamWriter.Position;
+
+            streamWriter.WriteInt32(0); // messageSize
+            streamWriter.WriteInt32(message.RequestId);
+            streamWriter.WriteInt32(message.ResponseTo);
+            streamWriter.WriteInt32((int)Opcode.Reply);
+
+            var flags = ResponseFlags.AwaitCapable;
+            if(message.QueryFailure)
+            {
+                flags = flags ^ ResponseFlags.QueryFailure;
+            }
+            if(message.CursorNotFound)
+            {
+                flags = flags ^ ResponseFlags.CursorNotFound;
+            }
+            streamWriter.WriteInt32((int)flags);
+
+            streamWriter.WriteInt64(message.CursorId);
+            streamWriter.WriteInt32(message.StartingFrom);
+            streamWriter.WriteInt32(message.NumberReturned);
+            if(message.QueryFailure)
+            {
+                var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
+                _serializer.Serialize(context, message.QueryFailureDocument);
+            }
+            else
+            {
+                foreach(var doc in message.Documents)
+                {
+                    var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
+                    _serializer.Serialize(context, doc);
+                }
+            }
+            streamWriter.BackpatchSize(startPosition);
         }
 
         // explicit interface implementations
