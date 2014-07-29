@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
         }
 
-        private async Task LogMessageAsync(string eventType, DnsEndPoint endPoint, MongoDBMessage message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        private void LogMessage(string eventType, DnsEndPoint endPoint, MongoDBMessage message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
@@ -52,26 +52,26 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 encoder.WriteMessage(message);
                 var jsonMessage = stringWriter.ToString();
                 var logMessage = string.Format("EndPoint : '{0}', Message : {1}", DnsEndPointParser.ToString(endPoint), jsonMessage);
-                await WriteLogAsync(eventType, logMessage, timeout, cancellationToken);
+                WriteLog(eventType, logMessage, timeout, cancellationToken);
             }
         }
 
 
-        public Task ReceivedMessageAsync(ReceivedMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void ReceivedMessage(ReceivedMessageEventArgs args)
         {
-            return LogMessageAsync("ReceivedMessage", args.EndPoint, args.Reply, timeout, cancellationToken);
+            LogMessage("ReceivedMessage", args.EndPoint, args.Reply);
         }
 
         public void SendingHeartbeat(SendingHeartbeatEventArgs args)
         {
             var endPoint = args.EndPoint;
             var logMessage = string.Format("EndPoint : \"{0}\"", DnsEndPointParser.ToString(endPoint));
-            WriteLogAsync("SendingHeartbeat", logMessage).Wait();
+            WriteLog("SendingHeartbeat", logMessage);
         }
 
-        public Task SendingMessageAsync(SendingMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void SendingMessage(SendingMessageEventArgs args)
         {
-            return LogMessageAsync("SendingMessage", args.EndPoint, args.Message, timeout, cancellationToken);
+            LogMessage("SendingMessage", args.EndPoint, args.Message);
         }
 
         public void SentHeartbeat(SentHeartbeatEventArgs args)
@@ -81,19 +81,19 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 DnsEndPointParser.ToString(endPoint),
                 args.IsMasterResult.Wrapped.ToJson(),
                 args.BuildInfoResult.Wrapped.ToJson());
-            WriteLogAsync("SentHeartbeat", logMessage).Wait();
+            WriteLog("SentHeartbeat", logMessage);
         }
 
-        public Task SentMessageAsync(SentMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void SentMessage(SentMessageEventArgs args)
         {
-            return LogMessageAsync("SentMessage", args.EndPoint, args.Message, timeout, cancellationToken);
+            LogMessage("SentMessage", args.EndPoint, args.Message);
         }
 
         public void ServerAdded(ServerAddedEventArgs args)
         {
             var endPoint = args.ServerDescription.EndPoint;
             var logMessage = string.Format("EndPoint : '{0}'", DnsEndPointParser.ToString(endPoint));
-            WriteLogAsync("ServerAdded", logMessage).Wait();
+            WriteLog("ServerAdded", logMessage);
         }
 
         public void ServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
@@ -105,17 +105,17 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 DnsEndPointParser.ToString(endPoint),
                 newServerDescription.ToString(),
                 oldServerDescription.ToString());
-            WriteLogAsync("ServerDescriptionChanged", logMessage).Wait();
+            WriteLog("ServerDescriptionChanged", logMessage);
         }
 
         public void ServerRemoved(ServerRemovedEventArgs args)
         {
             var endPoint = args.EndPoint;
             var logMessage = string.Format("EndPoint : '{0}'", DnsEndPointParser.ToString(endPoint));
-            WriteLogAsync("ServerRemoved", logMessage).Wait();
+            WriteLog("ServerRemoved", logMessage);
         }
 
-        private async Task WriteLogAsync(string eventType, string message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        private void WriteLog(string eventType, string message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             var id = Interlocked.Increment(ref __id);
             var timestamp = DateTime.Now.ToString("s");
@@ -124,8 +124,8 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var slidingTimeout = new SlidingTimeout(timeout);
             foreach (var destination in _destinations)
             {
-                await destination.WriteLineAsync(timestampedMessage).WithTimeout(slidingTimeout, cancellationToken);
-                await destination.FlushAsync().WithTimeout(slidingTimeout, cancellationToken);
+                destination.WriteLine(timestampedMessage);
+                destination.Flush();
             }
         }
     }

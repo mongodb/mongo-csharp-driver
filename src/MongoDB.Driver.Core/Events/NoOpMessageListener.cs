@@ -27,19 +27,16 @@ namespace MongoDB.Driver.Core.Events
         #endregion
 
         // methods
-        public Task ReceivedMessageAsync(ReceivedMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void ReceivedMessage(ReceivedMessageEventArgs args)
         {
-            return __completedTask;
         }
 
-        public Task SendingMessageAsync(SendingMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void SendingMessage(SendingMessageEventArgs args)
         {
-            return __completedTask;
         }
 
-        public Task SentMessageAsync(SentMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken)
+        public void SentMessage(SentMessageEventArgs args)
         {
-            return __completedTask;
         }
     }
 }

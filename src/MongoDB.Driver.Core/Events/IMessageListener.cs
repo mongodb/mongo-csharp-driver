@@ -21,8 +21,8 @@ namespace MongoDB.Driver.Core.Events
 {
     public interface IMessageListener
     {
-        Task ReceivedMessageAsync(ReceivedMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SendingMessageAsync(SendingMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SentMessageAsync(SentMessageEventArgs args, TimeSpan timeout, CancellationToken cancellationToken);
+        void ReceivedMessage(ReceivedMessageEventArgs args);
+        void SendingMessage(SendingMessageEventArgs args);
+        void SentMessage(SentMessageEventArgs args);
     }
 }

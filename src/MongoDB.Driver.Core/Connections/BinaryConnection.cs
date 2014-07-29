@@ -124,15 +124,14 @@ namespace MongoDB.Driver.Core.Connections
             throw new NotSupportedException();
         }
 
-        private async Task OnSentMessagesAsync(List<RequestMessage> messages, Exception ex, TimeSpan timeout, CancellationToken cancellationToken)
+        private void OnSentMessages(List<RequestMessage> messages, Exception ex)
         {
             if (_listener != null)
             {
-                var slidingTimeout = new SlidingTimeout(timeout);
                 foreach (var message in messages)
                 {
                     var args = new SentMessageEventArgs(_endPoint, _connectionId, message, ex);
-                    await _listener.SentMessageAsync(args, slidingTimeout, cancellationToken);
+                    _listener.SentMessage(args);
                 }
             }
         }
@@ -205,7 +204,7 @@ namespace MongoDB.Driver.Core.Connections
             if (_listener != null)
             {
                 var args = new ReceivedMessageEventArgs(_endPoint, _connectionId, reply);
-                await _listener.ReceivedMessageAsync(args, slidingTimeout, cancellationToken);
+                _listener.ReceivedMessage(args);
                 substituteReply = (ReplyMessage<TDocument>)args.SubstituteReply;
             }
 
@@ -264,7 +263,7 @@ namespace MongoDB.Driver.Core.Connections
                         if (_listener != null)
                         {
                             var args = new SendingMessageEventArgs(_endPoint, _connectionId, message);
-                            await _listener.SendingMessageAsync(args, slidingTimeout, cancellationToken);
+                            _listener.SendingMessage(args);
                             substituteMessage = args.SubstituteMessage;
                             substituteReply = args.SubstituteReply;
                         }
@@ -301,7 +300,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
             }
 
-            await OnSentMessagesAsync(sentMessages, exception, slidingTimeout, cancellationToken);
+            OnSentMessages(sentMessages, exception);
             if (exception != null)
             {
                 throw exception;
