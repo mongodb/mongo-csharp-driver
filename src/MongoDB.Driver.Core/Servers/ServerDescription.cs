@@ -38,18 +38,20 @@ namespace MongoDB.Driver.Core.Servers
         private readonly DnsEndPoint _endPoint;
         private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly int _revision;
+        private readonly ServerId _serverId;
         private readonly ServerState _state;
         private readonly TagSet _tags;
         private readonly ServerType _type;
         private readonly SemanticVersion _version;
 
         // constructors
-        public ServerDescription(DnsEndPoint endPoint)
+        public ServerDescription(ServerId serverId, DnsEndPoint endPoint)
             : this(
                 TimeSpan.Zero,
-                Ensure.IsNotNull(endPoint, "endPoint"),
+                endPoint,
                 null,
                 0,
+                serverId,
                 ServerState.Disconnected,
                 null,
                 ServerType.Unknown,
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         public ServerDescription(
+            ServerId serverId,
             DnsEndPoint endPoint,
             ServerState state,
             ServerType type,
@@ -70,6 +73,7 @@ namespace MongoDB.Driver.Core.Servers
                 endPoint,
                 replicaSetConfig,
                 0,
+                serverId,
                 state,
                 tags,
                 type,
@@ -82,15 +86,24 @@ namespace MongoDB.Driver.Core.Servers
             DnsEndPoint endPoint,
             ReplicaSetConfig replicaSetConfig,
             int revision,
+            ServerId serverId,
             ServerState state,
             TagSet tags,
             ServerType type,
             SemanticVersion version)
         {
+            Ensure.IsNotNull(endPoint, "endPoint");
+            Ensure.IsNotNull(serverId, "serverId");
+            if (!endPoint.Equals(serverId.EndPoint))
+            {
+                throw new ArgumentException("EndPoint and ServerId.EndPoint must match.");
+            }
+
             _averageRoundTripTime = averageRoundTripTime;
-            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
+            _endPoint = endPoint;
             _replicaSetConfig = replicaSetConfig;
             _revision = revision;
+            _serverId = serverId;
             _state = state;
             _tags = tags;
             _type = type;
@@ -116,6 +129,11 @@ namespace MongoDB.Driver.Core.Servers
         public int Revision
         {
             get { return _revision; }
+        }
+
+        public ServerId ServerId
+        {
+            get { return _serverId; }
         }
 
         public ServerState State
@@ -156,6 +174,7 @@ namespace MongoDB.Driver.Core.Servers
                 _averageRoundTripTime == rhs._averageRoundTripTime &&
                 _endPoint.Equals(rhs._endPoint) &&
                 object.Equals(_replicaSetConfig, rhs._replicaSetConfig) &&
+                _serverId.Equals(rhs._serverId) &&
                 _state == rhs._state &&
                 object.Equals(_tags, rhs._tags) &&
                 _type == rhs._type &&
@@ -169,6 +188,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_averageRoundTripTime)
                 .Hash(_endPoint)
                 .Hash(_replicaSetConfig)
+                .Hash(_serverId)
                 .Hash(_state)
                 .Hash(_tags)
                 .Hash(_type)
@@ -179,7 +199,8 @@ namespace MongoDB.Driver.Core.Servers
         public override string ToString()
         {
             return string.Format(
-                "{{ EndPoint : {0}, State : {1}, Type : {2}, Tags : {3}, Revision : {4} }}",
+                "{{ ServerId : {0}, EndPoint : {1}, State : {2}, Type : {3}, Tags : {4}, Revision : {5} }}",
+                _serverId,
                 DnsEndPointParser.ToString(_endPoint),
                 _state,
                 _type,
@@ -210,6 +231,7 @@ namespace MongoDB.Driver.Core.Servers
                     _endPoint,
                     replicaSetConfig,
                     0,
+                    _serverId,
                     ServerState.Connected,
                     tags,
                     type,
@@ -224,6 +246,7 @@ namespace MongoDB.Driver.Core.Servers
                 _endPoint,
                 _replicaSetConfig,
                 value,
+                _serverId,
                 _state,
                 _tags,
                 _type,

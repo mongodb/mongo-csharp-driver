@@ -30,13 +30,19 @@ namespace MongoDB.Driver.Core.Tests.Servers
     {
         #region static
         // static fields
-        private static readonly DnsEndPoint __endPoint = new DnsEndPoint("localhost", 27017);
+        private static readonly ClusterId __clusterId;
+        private static readonly DnsEndPoint __endPoint;
+        private static readonly ServerId __serverId;
         private static readonly ServerDescription __subject;
 
         // static constructor
         static ServerDescriptionTests()
         {
+            __clusterId = new ClusterId();
+            __endPoint = new DnsEndPoint("localhost", 27017);
+            __serverId = new ServerId(__clusterId, __endPoint);
             __subject = new ServerDescription(
+                __serverId,
                 __endPoint,
                 ServerState.Connected,
                 ServerType.Standalone,
@@ -48,13 +54,14 @@ namespace MongoDB.Driver.Core.Tests.Servers
         #endregion
 
         [Test]
-        public void Constructor_with_endPoint_only_should_return_disconnected_instance()
+        public void Constructor_with_serverId_and_endPoint_only_should_return_disconnected_instance()
         {
-            var subject = new ServerDescription(__endPoint);
+            var subject = new ServerDescription(__serverId, __endPoint);
             subject.AverageRoundTripTime.Should().Be(TimeSpan.Zero);
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().BeNull();
             subject.Revision.Should().Be(0);
+            subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(ServerState.Disconnected);
             subject.Tags.Should().BeNull();
             subject.Type.Should().Be(ServerType.Unknown);
@@ -76,6 +83,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var version = new SemanticVersion(2, 6, 3);
 
             var subject = new ServerDescription(
+                __serverId,
                 __endPoint,
                 state,
                 type,
@@ -88,6 +96,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             subject.EndPoint.Should().Be(__endPoint);
             subject.ReplicaSetConfig.Should().Be(replicaSetConfig);
             subject.Revision.Should().Be(0);
+            subject.ServerId.Should().Be(__serverId);
             subject.State.Should().Be(state);
             subject.Tags.Should().Be(tags);
             subject.Type.Should().Be(type);
@@ -97,6 +106,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [TestCase("AverageRoundTripTime")]
         [TestCase("EndPoint")]
         [TestCase("ReplicaSetConfig")]
+        [TestCase("ServerId")]
         [TestCase("State")]
         [TestCase("Tags")]
         [TestCase("Type")]
@@ -110,12 +120,14 @@ namespace MongoDB.Driver.Core.Tests.Servers
                 "name",
                 new DnsEndPoint("localhost", 27017),
                 1);
+            var serverId = new ServerId(__clusterId, endPoint);
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
             var version = new SemanticVersion(2, 6, 3);
 
             var subject = new ServerDescription(
+                serverId,
                 endPoint,
                 state,
                 type,
@@ -127,22 +139,24 @@ namespace MongoDB.Driver.Core.Tests.Servers
             switch (notEqualField)
             {
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
-                case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); break;
+                case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); serverId = new ServerId(__clusterId, endPoint); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "State": state = ServerState.Disconnected; break;
+                case "ServerId": serverId = new ServerId(new ClusterId(), endPoint); break;
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
                 case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
             }
 
             var serverDescription2 = new ServerDescription(
-               endPoint,
-               state,
-               type,
-               averageRoundTripTime,
-               replicaSetConfig,
-               tags,
-               version);
+                serverId,
+                endPoint,
+                state,
+                type,
+                averageRoundTripTime,
+                replicaSetConfig,
+                tags,
+                version);
 
             subject.Equals(serverDescription2).Should().BeFalse();
             subject.Equals((object)serverDescription2).Should().BeFalse();
@@ -152,8 +166,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Equals_should_return_true_when_all_fields_are_equal()
         {
-            ServerDescription subject = new ServerDescription(new DnsEndPoint("localhost", 27017));
-            ServerDescription serverDescription2 = new ServerDescription(new DnsEndPoint("localhost", 27017));
+            ServerDescription subject = new ServerDescription(__serverId, __endPoint);
+            ServerDescription serverDescription2 = new ServerDescription(__serverId, __endPoint);
             subject.Equals(serverDescription2).Should().BeTrue();
             subject.Equals((object)serverDescription2).Should().BeTrue();
             subject.GetHashCode().Should().Be(serverDescription2.GetHashCode());
@@ -162,7 +176,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void Equals_should_return_true_when_all_fields_are_equal_and_revision_is_not_equal()
         {
-            ServerDescription subject = new ServerDescription(new DnsEndPoint("localhost", 27017));
+            ServerDescription subject = new ServerDescription(__serverId, __endPoint);
             ServerDescription serverDescription2 = subject.WithRevision(subject.Revision + 1);
             subject.Equals(serverDescription2).Should().BeTrue();
             subject.Equals((object)serverDescription2).Should().BeTrue();
@@ -177,7 +191,6 @@ namespace MongoDB.Driver.Core.Tests.Servers
         public void WithHeartbeat_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
-            var endPoint = new DnsEndPoint("localhost", 27017);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -189,7 +202,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var version = new SemanticVersion(2, 6, 3);
 
             var subject = new ServerDescription(
-                endPoint,
+                __serverId,
+                __endPoint,
                 state,
                 type,
                 averageRoundTripTime,
@@ -217,7 +231,6 @@ namespace MongoDB.Driver.Core.Tests.Servers
         public void WithHeartbeat_should_return_same_instance_when_all_fields_are_equal()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
-            var endPoint = new DnsEndPoint("localhost", 27017);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
                 "name",
@@ -229,7 +242,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
             var version = new SemanticVersion(2, 6, 3);
 
             var subject = new ServerDescription(
-                endPoint,
+                __serverId,
+                __endPoint,
                 state,
                 type,
                 averageRoundTripTime,
@@ -244,7 +258,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         [Test]
         public void WithRevision_should_return_new_instance_when_value_is_not_equal()
         {
-            var subject = new ServerDescription(__endPoint);
+            var subject = new ServerDescription(__serverId, __endPoint);
             var serverDescription2 = subject.WithRevision(subject.Revision + 1);
             serverDescription2.Revision.Should().NotBe(subject.Revision);
             serverDescription2.Should().Be(subject);

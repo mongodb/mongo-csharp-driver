@@ -31,9 +31,23 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
     {
         #region static
         // static fields
-        private readonly static ServerDescription __port27017Disconnected = new ServerDescription(new DnsEndPoint("localhost", 27017));
-        private readonly static ServerDescription __port27018Disconnected = new ServerDescription(new DnsEndPoint("localhost", 27018));
-        private readonly static ClusterDescription __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+        private static readonly ClusterId __clusterId;
+        private static readonly ServerDescription __port27017Disconnected;
+        private static readonly ServerDescription __port27018Disconnected;
+        private static readonly ClusterDescription __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+
+        // static constructor
+        static ClusterMonitorLogicTests()
+        {
+            __clusterId = new ClusterId();
+            __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+            var endPoint27017 = new DnsEndPoint("localhost", 27017);
+            var endPoint27018 = new DnsEndPoint("localhost", 27018);
+            var serverId27017 = new ServerId(__clusterId, endPoint27017);
+            var serverId27018 = new ServerId(__clusterId, endPoint27018);
+            __port27017Disconnected = new ServerDescription(serverId27017, endPoint27017);
+            __port27018Disconnected = new ServerDescription(serverId27018, endPoint27018);
+        }
         #endregion
 
         [Test]

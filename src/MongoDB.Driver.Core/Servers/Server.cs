@@ -61,8 +61,8 @@ namespace MongoDB.Driver.Core.Servers
             _heartbeatConnectionFactory = hearbeatConnectionFactory;
             _listener = listener;
 
-            _description = new ServerDescription(endPoint);
             _serverId = new ServerId(clusterId, endPoint);
+            _description = new ServerDescription(_serverId, endPoint);
             _connectionPool = connectionPoolFactory.CreateConnectionPool(_serverId, endPoint);
         }
 
@@ -81,11 +81,6 @@ namespace MongoDB.Driver.Core.Servers
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
-        }
-
-        public ServerId ServerId
-        {
-            get { return _serverId; }
         }
 
         // methods
@@ -234,7 +229,7 @@ namespace MongoDB.Driver.Core.Servers
                         }
                         else
                         {
-                            serverDescription = new ServerDescription(_endPoint);
+                            serverDescription = new ServerDescription(_serverId, _endPoint);
                         }
                         CheckIfDescriptionChanged(serverDescription);
 
