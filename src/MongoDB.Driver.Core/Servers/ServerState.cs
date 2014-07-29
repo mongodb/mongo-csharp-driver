@@ -23,9 +23,7 @@ namespace MongoDB.Driver.Core.Servers
 {
     public enum ServerState
     {
-        Uninitialized = 0,
         Disconnected,
-        Connected,
-        Disposed
+        Connected
     }
 }

@@ -31,57 +31,70 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents information about a server.
     /// </summary>
-    public class ServerDescription
+    public sealed class ServerDescription : IEquatable<ServerDescription>
     {
-        #region static
-        // static methods
-        public static ServerDescription CreateDisconnectedServerDescription(DnsEndPoint endPoint)
-        {
-            return new ServerDescription(
-                TimeSpan.Zero,
-                null,
-                endPoint,
-                null,
-                null,
-                0,
-                ServerState.Disconnected,
-                null,
-                ServerType.Unknown);
-        }
-        #endregion
-
         // fields
         private readonly TimeSpan _averageRoundTripTime;
-        private readonly BuildInfoResult _buildInfoResult;
         private readonly DnsEndPoint _endPoint;
-        private readonly IsMasterResult _isMasterResult;
         private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly int _revision;
         private readonly ServerState _state;
         private readonly TagSet _tags;
         private readonly ServerType _type;
+        private readonly SemanticVersion _version;
 
         // constructors
+        public ServerDescription(DnsEndPoint endPoint)
+            : this(
+                TimeSpan.Zero,
+                Ensure.IsNotNull(endPoint, "endPoint"),
+                null,
+                0,
+                ServerState.Disconnected,
+                null,
+                ServerType.Unknown,
+                null)
+        {
+        }
+
+        public ServerDescription(
+            DnsEndPoint endPoint,
+            ServerState state,
+            ServerType type,
+            TimeSpan averageRoundTripTime,
+            ReplicaSetConfig replicaSetConfig,
+            TagSet tags,
+            SemanticVersion version)
+            : this(
+                averageRoundTripTime,
+                endPoint,
+                replicaSetConfig,
+                0,
+                state,
+                tags,
+                type,
+                version)
+        {
+        }
+
         private ServerDescription(
             TimeSpan averageRoundTripTime,
-            BuildInfoResult buildInfoResult,
             DnsEndPoint endPoint,
-            IsMasterResult isMasterResult,
             ReplicaSetConfig replicaSetConfig,
             int revision,
             ServerState state,
             TagSet tags,
-            ServerType type)
+            ServerType type,
+            SemanticVersion version)
         {
             _averageRoundTripTime = averageRoundTripTime;
-            _buildInfoResult = buildInfoResult;
-            _endPoint = endPoint;
-            _isMasterResult = isMasterResult;
+            _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _replicaSetConfig = replicaSetConfig;
             _revision = revision;
             _state = state;
             _tags = tags;
             _type = type;
+            _version = version;
         }
 
         // properties
@@ -90,19 +103,9 @@ namespace MongoDB.Driver.Core.Servers
             get { return _averageRoundTripTime; }
         }
 
-        public BuildInfoResult BuildInfoResult
-        {
-            get { return _buildInfoResult; }
-        }
-
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
-        }
-
-        public IsMasterResult IsMasterResult
-        {
-            get { return _isMasterResult; }
         }
 
         public ReplicaSetConfig ReplicaSetConfig
@@ -130,34 +133,47 @@ namespace MongoDB.Driver.Core.Servers
             get { return _type; }
         }
 
+        public SemanticVersion Version
+        {
+            get { return _version; }
+        }
+
         // methods
         public override bool Equals(object obj)
         {
-            if (obj == null || obj.GetType() != typeof(ServerDescription)) { return false; }
-            var rhs = (ServerDescription)obj;
+            return Equals(obj as ServerDescription);
+        }
+
+        public bool Equals(ServerDescription rhs)
+        {
+            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(ServerDescription))
+            {
+                return false;
+            }
+
+            // revision is ignored
             return
                 _averageRoundTripTime == rhs._averageRoundTripTime &&
-                object.Equals(_buildInfoResult, rhs._buildInfoResult) &&
                 _endPoint.Equals(rhs._endPoint) &&
-                object.Equals(_isMasterResult, rhs._isMasterResult) &&
                 object.Equals(_replicaSetConfig, rhs._replicaSetConfig) &&
                 _state == rhs._state &&
                 object.Equals(_tags, rhs._tags) &&
-                _type == rhs._type; // don't include revision in comparison
+                _type == rhs._type &&
+                object.Equals(_version, rhs._version);
         }
 
         public override int GetHashCode()
         {
+            // revision is ignored
             return new Hasher()
                 .Hash(_averageRoundTripTime)
-                .Hash(_buildInfoResult)
                 .Hash(_endPoint)
-                .Hash(_isMasterResult)
                 .Hash(_replicaSetConfig)
                 .Hash(_state)
                 .Hash(_tags)
                 .Hash(_type)
-                .GetHashCode(); // don't include revision in hash code
+                .Hash(_version)
+                .GetHashCode();
         }
 
         public override string ToString()
@@ -171,91 +187,47 @@ namespace MongoDB.Driver.Core.Servers
                 _revision);
         }
 
-        public ServerDescription WithHeartbeatInfo(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult, TimeSpan averageRoundTripTime)
+        public ServerDescription WithHeartbeatInfo(
+            TimeSpan averageRoundTripTime,
+            ReplicaSetConfig replicaSetConfig,
+            TagSet tags,
+            ServerType type,
+            SemanticVersion version)
         {
-            if (
-                _state == ServerState.Connected &&
-                object.Equals(_isMasterResult, isMasterResult) &&
-                object.Equals(_buildInfoResult, buildInfoResult) &&
-                _averageRoundTripTime == averageRoundTripTime)
+            if (_state == ServerState.Connected && 
+                _averageRoundTripTime == averageRoundTripTime &&
+                object.Equals(_replicaSetConfig, replicaSetConfig) &&                
+                object.Equals(_tags, tags) &&
+                _type == type &&
+                object.Equals(_version, version))
             {
                 return this;
             }
             else
             {
-                var replicaSetConfig = isMasterResult.GetReplicaSetConfig(_endPoint.AddressFamily);
-                var tags = isMasterResult.Tags;
-
                 return new ServerDescription(
                     averageRoundTripTime,
-                    buildInfoResult,
                     _endPoint,
-                    isMasterResult,
                     replicaSetConfig,
                     0,
                     ServerState.Connected,
                     tags,
-                    isMasterResult.ServerType);
+                    type,
+                    version);
             }
         }
 
         public ServerDescription WithRevision(int value)
         {
-            return _revision == value ? this : new Builder(this) { _revision = value }.Build();
-        }
-
-        public ServerDescription WithState(ServerState value)
-        {
-            return _state == value ? this : new Builder(this) { _state = value }.Build();
-        }
-
-        public ServerDescription WithType(ServerType value)
-        {
-            return _type == value ? this : new Builder(this) { _type = value }.Build();
-        }
-
-        // nested types
-        private struct Builder
-        {
-            // fields
-            private TimeSpan _averageRoundTripTime;
-            private BuildInfoResult _buildInfoResult;
-            private readonly DnsEndPoint _endPoint;
-            private IsMasterResult _isMasterResult;
-            public ReplicaSetConfig _replicaSetConfig;
-            public int _revision;
-            public ServerState _state;
-            public TagSet _tags;
-            public ServerType _type;
-
-            // constructors
-            public Builder(ServerDescription other)
-            {
-                _averageRoundTripTime = other._averageRoundTripTime;
-                _buildInfoResult = other._buildInfoResult;
-                _endPoint = other._endPoint;
-                _isMasterResult = other._isMasterResult;
-                _replicaSetConfig = other._replicaSetConfig;
-                _revision = 0; // not copied from other
-                _state = other._state;
-                _tags = other._tags;
-                _type = other._type;
-            }
-
-            // methods
-            public ServerDescription Build()
-            {
-                return new ServerDescription(
-                    _averageRoundTripTime,
-                    _buildInfoResult,
-                    _endPoint,
-                    _isMasterResult,
-                    _replicaSetConfig,
-                    _revision,
-                    _state,
-                    _tags,
-                    _type);
-            }
+            return _revision == value ? this : new ServerDescription(
+                _averageRoundTripTime,
+                _endPoint,
+                _replicaSetConfig,
+                value,
+                _state,
+                _tags,
+                _type,
+                _version);
         }
     }
 }

@@ -21,6 +21,8 @@ using MongoDB.Driver.Core.Clusters.Monitoring;
 using MongoDB.Driver.Core.Servers;
 using System.Net;
 using System.Linq;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
 {
@@ -29,8 +31,8 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
     {
         #region static
         // static fields
-        private readonly static ServerDescription __port27017Disconnected = ServerDescription.CreateDisconnectedServerDescription(new DnsEndPoint("localhost", 27017));
-        private readonly static ServerDescription __port27018Disconnected = ServerDescription.CreateDisconnectedServerDescription(new DnsEndPoint("localhost", 27018));
+        private readonly static ServerDescription __port27017Disconnected = new ServerDescription(new DnsEndPoint("localhost", 27017));
+        private readonly static ServerDescription __port27018Disconnected = new ServerDescription(new DnsEndPoint("localhost", 27018));
         private readonly static ClusterDescription __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
         #endregion
 
@@ -63,20 +65,6 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
         {
             Action action = () => new ClusterMonitorLogic(null, __port27017Disconnected);
             action.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Test]
-        public void Transition_should_set_clusterType_if_it_is_unknown()
-        {
-            var oldClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, new[] { __port27017Disconnected }, null, 0);
-            var newServerDescription = __port27017Disconnected.WithState(ServerState.Connected).WithType(ServerType.ReplicaSetPrimary);
-            var subject = new ClusterMonitorLogic(oldClusterDescription, newServerDescription);
-            var actions = subject.Transition().ToArray();
-            var newClusterDescription = oldClusterDescription
-                .WithType(ClusterType.ReplicaSet)
-                .WithServerDescription(newServerDescription);
-            var expectedUpdateClusterDescriptionAction = new UpdateClusterDescriptionAction(newClusterDescription);
-            actions.Should().ContainInOrder(new [] { expectedUpdateClusterDescriptionAction });
         }
     }
 }

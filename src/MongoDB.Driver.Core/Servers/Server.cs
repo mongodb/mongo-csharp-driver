@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
             _heartbeatConnectionFactory = hearbeatConnectionFactory;
             _listener = listener;
 
-            _description = ServerDescription.CreateDisconnectedServerDescription(endPoint);
+            _description = new ServerDescription(endPoint);
             _serverId = new ServerId(clusterId, endPoint);
             _connectionPool = connectionPoolFactory.CreateConnectionPool(_serverId, endPoint);
         }
@@ -221,11 +221,20 @@ namespace MongoDB.Driver.Core.Servers
                         {
                             var averageRoundTripTime = _averageRoundTripTimeCalculator.AddSample(heartbeatInfo.RoundTripTime);
                             var averageRoundTripTimeRounded = TimeSpan.FromMilliseconds(Math.Round(averageRoundTripTime.TotalMilliseconds));
-                            serverDescription = _description.WithHeartbeatInfo(heartbeatInfo.IsMasterResult, heartbeatInfo.BuildInfoResult, averageRoundTripTimeRounded);
+                            var isMasterResult = heartbeatInfo.IsMasterResult;
+                            var buildInfoResult = heartbeatInfo.BuildInfoResult;
+
+                            serverDescription = _description.WithHeartbeatInfo(
+                                averageRoundTripTimeRounded,
+                                isMasterResult.GetReplicaSetConfig(_endPoint.AddressFamily),
+                                isMasterResult.Tags,
+                                isMasterResult.ServerType,
+                                buildInfoResult.ServerVersion);
+
                         }
                         else
                         {
-                            serverDescription = ServerDescription.CreateDisconnectedServerDescription(_endPoint);
+                            serverDescription = new ServerDescription(_endPoint);
                         }
                         CheckIfDescriptionChanged(serverDescription);
 
@@ -253,9 +262,6 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Initialize()
         {
-            var info = _description.WithState(ServerState.Disconnected);
-            CheckIfDescriptionChanged(info);
-
             HeartbeatBackgroundTask().LogUnobservedExceptions();
         }
 

@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class BuildInfoResult
+    public class BuildInfoResult : IEquatable<BuildInfoResult>
     {
         // fields
         private readonly BsonDocument _wrapped;
@@ -38,22 +38,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // properties
-        public int Bits
-        {
-            get
-            {
-                return _wrapped.GetValue("bits").ToInt32();
-            }
-        }
-
-        public string GitCommitId
-        {
-            get
-            {
-                return _wrapped.GetValue("gitVersion").ToString();
-            }
-        }
-
         public SemanticVersion ServerVersion
         {
             get
@@ -68,6 +52,26 @@ namespace MongoDB.Driver.Core.Connections
             {
                 return _wrapped;
             }
+        }
+
+        // methods
+        public bool Equals(BuildInfoResult rhs)
+        {
+            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(BuildInfoResult))
+            {
+                return false;
+            }
+            return _wrapped.Equals(rhs._wrapped);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as BuildInfoResult);
+        }
+
+        public override int GetHashCode()
+        {
+            return _wrapped.GetHashCode();
         }
     }
 }
