@@ -14,9 +14,12 @@
 */
 
 using System;
+using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Servers;
 using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Connections
@@ -24,18 +27,29 @@ namespace MongoDB.Driver.Core.Tests.Connections
     [TestFixture]
     public class ConnectionDescriptionTests
     {
-        private static readonly IsMasterResult __isMasterResult = new IsMasterResult(BsonDocument.Parse(
-            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30 }"
-        ));
-
         private static readonly BuildInfoResult __buildInfoResult = new BuildInfoResult(BsonDocument.Parse(
             "{ ok: 1, version: \"2.6.3\" }"
         ));
 
+        private static readonly ConnectionId __connectionId = new ConnectionId(
+            new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
+
+        private static readonly IsMasterResult __isMasterResult = new IsMasterResult(BsonDocument.Parse(
+            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30 }"
+        ));
+
+        [Test]
+        public void Constructor_should_throw_an_ArgumentNullException_when_connectionId_is_null()
+        {
+            Action act = () => new ConnectionDescription(null, __isMasterResult, __buildInfoResult);
+
+            act.ShouldThrow<ArgumentNullException>();
+        }
+
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_isMasterResult_is_null()
         {
-            Action act = () => new ConnectionDescription(null, __buildInfoResult);
+            Action act = () => new ConnectionDescription(__connectionId, null, __buildInfoResult);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -43,15 +57,45 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void Constructor_should_throw_an_ArgumentNullException_when_buildInfoResult_is_null()
         {
-            Action act = () => new ConnectionDescription(__isMasterResult, null);
+            Action act = () => new ConnectionDescription(__connectionId, __isMasterResult, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
+        public void Equals_should_return_correct_results()
+        {
+            var connectionId1 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10, ConnectionIdSource.Driver);
+            var connectionId2 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10, ConnectionIdSource.Driver);
+            var isMasterResult1 = new IsMasterResult(new BsonDocument("x", 1));
+            var isMasterResult2 = new IsMasterResult(new BsonDocument("x", 2));
+            var buildInfoResult1 = new BuildInfoResult(new BsonDocument("version", "2.6.3"));
+            var buildInfoResult2 = new BuildInfoResult(new BsonDocument("version", "2.4.10"));
+
+            var subject1 = new ConnectionDescription(connectionId1, isMasterResult1, buildInfoResult1);
+            var subject2 = new ConnectionDescription(connectionId1, isMasterResult1, buildInfoResult1);
+            var subject3 = new ConnectionDescription(connectionId1, isMasterResult1, buildInfoResult2);
+            var subject4 = new ConnectionDescription(connectionId1, isMasterResult2, buildInfoResult1);
+            var subject5 = new ConnectionDescription(connectionId2, isMasterResult1, buildInfoResult1);
+
+            subject1.Equals(subject2).Should().BeTrue();
+            subject1.Equals(subject3).Should().BeFalse();
+            subject1.Equals(subject4).Should().BeFalse();
+            subject1.Equals(subject5).Should().BeFalse();
+        }
+
+        [Test]
+        public void ConnectionId_should_return_ConnectionId()
+        {
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
+
+            subject.ConnectionId.Should().Be(__connectionId);
+        }
+
+        [Test]
         public void MaxBatchCount_should_return_isMasterResult_MaxBatchCount()
         {
-            var subject = new ConnectionDescription(__isMasterResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
 
             subject.MaxBatchCount.Should().Be(__isMasterResult.MaxBatchCount);
         }
@@ -59,7 +103,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void MaxDocumentSize_should_return_isMasterResult_MaxDocumentSize()
         {
-            var subject = new ConnectionDescription(__isMasterResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
 
             subject.MaxDocumentSize.Should().Be(__isMasterResult.MaxDocumentSize);
         }
@@ -67,7 +111,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void MaxMessageSize_should_return_isMasterResult_MaxMessageSize()
         {
-            var subject = new ConnectionDescription(__isMasterResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
 
             subject.MaxMessageSize.Should().Be(__isMasterResult.MaxMessageSize);
         }
@@ -75,7 +119,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void ServerVersion_should_return_buildInfoResult_ServerVersion()
         {
-            var subject = new ConnectionDescription(__isMasterResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __isMasterResult, __buildInfoResult);
 
             subject.ServerVersion.Should().Be(__buildInfoResult.ServerVersion);
         }

@@ -41,11 +41,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // properties
-        public virtual ConnectionId ConnectionId
-        {
-            get { return _wrapped.ConnectionId; }
-        }
-
         public bool Disposed
         {
             get { return _disposed; }

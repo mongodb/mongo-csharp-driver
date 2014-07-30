@@ -36,19 +36,21 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         {
             _replyMessages = new Queue<MongoDBMessage>();
             _sentMessages = new List<RequestMessage>();
-            ConnectionId = new ConnectionId(serverId);
+            Settings = new ConnectionSettings();
+            ServerId = serverId;
         }
 
         // properties
-        public ConnectionId ConnectionId { get; private set; }
-
         public ConnectionDescription Description { get; set; }
 
-        public DnsEndPoint EndPoint { get; set; }
+        public DnsEndPoint EndPoint
+        {
+            get { return ServerId.EndPoint; }
+        }
 
         public int PendingResponseCount { get; set; }
 
-        public ServerId ServerId { get; set; }
+        public ServerId ServerId { get; private set; }
 
         public ConnectionSettings Settings { get; set; }
 
@@ -86,16 +88,6 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         {
             _sentMessages.AddRange(messages);
             return Task.FromResult<object>(null);
-        }
-
-        public void SetConnectionId(ConnectionId connectionId)
-        {
-            ConnectionId = connectionId;
-        }
-
-        public void SetDescription(ConnectionDescription description)
-        {
-            Description = description;
         }
     }
 }

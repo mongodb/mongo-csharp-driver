@@ -46,6 +46,24 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
+        public void Equals_should_be_true_when_both_have_the_same_result()
+        {
+            var subject1 = new IsMasterResult(new BsonDocument("x", 1));
+            var subject2 = new IsMasterResult(new BsonDocument("x", 1));
+
+            subject1.Equals(subject2).Should().BeTrue();
+        }
+
+        [Test]
+        public void Equals_should_be_false_when_both_have_different_results()
+        {
+            var subject1 = new IsMasterResult(new BsonDocument("x", 1));
+            var subject2 = new IsMasterResult(new BsonDocument("x", 2));
+
+            subject1.Equals(subject2).Should().BeFalse();
+        }
+
+        [Test]
         [TestCase("{ maxWriteBatchSize: 100 }", 100)]
         [TestCase("{ maxWriteBatchSize: 0 }", 0)]
         [TestCase("{ }", 1000)]

@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
     [TestFixture]
     public class BinaryConnectionTests
     {
+        private IConnectionDescriptionProvider _connectionDescriptionProvider;
         private DnsEndPoint _endPoint;
         private IStreamFactory _streamFactory;
         private BinaryConnection _subject;
@@ -50,11 +51,19 @@ namespace MongoDB.Driver.Core.Tests.Connections
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
+            _connectionDescriptionProvider = Substitute.For<IConnectionDescriptionProvider>();
+            _connectionDescriptionProvider.CreateConnectionDescription(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+                .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
+                    new ConnectionId(serverId),
+                    new IsMasterResult(new BsonDocument()),
+                    new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+
             _subject = new BinaryConnection(
                 serverId: serverId,
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
                 streamFactory: _streamFactory,
+                connectionDescriptionProvider: _connectionDescriptionProvider,
                 listener: new NoOpMessageListener());
         }
 
@@ -79,22 +88,32 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
-        public void OpenAsync_should_create_a_stream()
-        {
-            _subject.OpenAsync(TimeSpan.FromMinutes(2), CancellationToken.None).Wait();
-
-            _streamFactory.Received(1).CreateStreamAsync(_endPoint, TimeSpan.FromMinutes(2), CancellationToken.None);
-        }
-
-        [Test]
-        public void OpenAsync_should_do_nothing_if_open_is_called_more_than_once()
+        public void OpenAsync_should_setup_the_description()
         {
             _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
-            Action act = () => _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            _subject.Description.Should().NotBeNull();
+        }
 
-            act.ShouldNotThrow();
-            _streamFactory.ReceivedWithAnyArgs(1).CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
+        [Test]
+        public void OpenAsync_should_not_complete_the_second_call_until_the_first_is_completed()
+        {
+            var completionSource = new TaskCompletionSource<Stream>();
+            _streamFactory.CreateStreamAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+                .ReturnsForAnyArgs(completionSource.Task);
+
+            var openTask = _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+            var openTask2 = _subject.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None);
+
+            openTask2.IsCompleted.Should().BeFalse();
+
+            _subject.Description.Should().BeNull();
+
+            completionSource.SetResult(Substitute.For<Stream>());
+
+            openTask2.IsCompleted.Should().BeTrue();
+
+            _subject.Description.Should().NotBeNull();
         }
 
         [Test]

@@ -25,10 +25,11 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class ConnectionId
+    public sealed class ConnectionId : IEquatable<ConnectionId>
     {
         // fields
         private readonly ServerId _serverId;
@@ -65,6 +66,32 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
+        public bool Equals(ConnectionId other)
+        {
+            if(other == null)
+            {
+                return false;
+            }
+
+            return _serverId.Equals(other._serverId) &&
+                _source == other._source &&
+                _value == other._value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ConnectionId);
+        }
+
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_serverId)
+                .Hash(_source)
+                .Hash(_value)
+                .GetHashCode();
+        }
+
         public override string ToString()
         {
             if (_source == ConnectionIdSource.Server)

@@ -38,6 +38,28 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
+        public void Equals_should_return_correct_results()
+        {
+            var serverId1 = __serverId;
+            var serverId2 = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018));
+            var value1 = 10;
+            var value2 = 11;
+            var source1 = ConnectionIdSource.Driver;
+            var source2 = ConnectionIdSource.Server;
+
+            var subject1 = new ConnectionId(serverId1, value1, source1);
+            var subject2 = new ConnectionId(serverId1, value1, source1);
+            var subject3 = new ConnectionId(serverId1, value1, source2);
+            var subject4 = new ConnectionId(serverId1, value2, source1);
+            var subject5 = new ConnectionId(serverId2, value1, source1);
+
+            subject1.Equals(subject2).Should().BeTrue();
+            subject1.Equals(subject3).Should().BeFalse();
+            subject1.Equals(subject4).Should().BeFalse();
+            subject1.Equals(subject5).Should().BeFalse();
+        }
+
+        [Test]
         public void IdSource_should_be_driver_when_using_the_single_argument_constructor()
         {
             var subject = new ConnectionId(__serverId);

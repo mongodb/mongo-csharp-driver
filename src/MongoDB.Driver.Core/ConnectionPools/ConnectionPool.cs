@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            await connection.LazyInitializeAsync(timeout, cancellationToken);
+            await connection.Wrapped.OpenAsync(timeout, cancellationToken);
             return new AcquiredConnection(connection);
         }
 

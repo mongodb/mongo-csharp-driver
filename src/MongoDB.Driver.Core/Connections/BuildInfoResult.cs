@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class BuildInfoResult : IEquatable<BuildInfoResult>
+    public sealed class BuildInfoResult : IEquatable<BuildInfoResult>
     {
         // fields
         private readonly BsonDocument _wrapped;
@@ -55,13 +55,14 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public bool Equals(BuildInfoResult rhs)
+        public bool Equals(BuildInfoResult other)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(BuildInfoResult))
+            if (other == null)
             {
                 return false;
             }
-            return _wrapped.Equals(rhs._wrapped);
+
+            return _wrapped.Equals(other._wrapped);
         }
 
         public override bool Equals(object obj)

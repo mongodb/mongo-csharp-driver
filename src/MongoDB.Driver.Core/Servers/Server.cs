@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Core.Servers
                             if (connection == null)
                             {
                                 connection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
-                                await ConnectionInitializer.InitializeConnectionAsync(connection, TimeSpan.FromMinutes(1), cancellationToken);
+                                await connection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken);
                             }
 
                             try

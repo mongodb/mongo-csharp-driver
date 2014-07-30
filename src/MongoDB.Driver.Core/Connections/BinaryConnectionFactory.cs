@@ -26,12 +26,19 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     public class BinaryConnectionFactory : IConnectionFactory
     {
+        // static fields
+        private static readonly IConnectionDescriptionProvider __connectionDescriptionProvider;
+
         // fields
         private readonly IMessageListener _listener;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
 
         // constructors
+        static BinaryConnectionFactory()
+        {
+            __connectionDescriptionProvider = new ConnectionDescriptionProvider();
+        }
         public BinaryConnectionFactory()
             : this(new ConnectionSettings(), new TcpStreamFactory(), null)
         {
@@ -49,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _listener);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionDescriptionProvider, _listener);
         }
     }
 }

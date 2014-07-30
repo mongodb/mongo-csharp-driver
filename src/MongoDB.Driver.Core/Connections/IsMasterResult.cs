@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class IsMasterResult : IEquatable<IsMasterResult>
+    public sealed class IsMasterResult : IEquatable<IsMasterResult>
     {
         // fields
         private readonly BsonDocument _wrapped;
@@ -156,13 +156,14 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public bool Equals(IsMasterResult rhs)
+        public bool Equals(IsMasterResult other)
         {
-            if (object.ReferenceEquals(rhs, null) || rhs.GetType() != typeof(IsMasterResult))
+            if (other == null)
             {
                 return false;
             }
-            return _wrapped.Equals(rhs._wrapped);
+
+            return _wrapped.Equals(other._wrapped);
         }
 
         public override bool Equals(object obj)

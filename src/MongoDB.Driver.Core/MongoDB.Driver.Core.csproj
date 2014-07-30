@@ -101,6 +101,7 @@
     <Compile Include="Clusters\ClusterWrapper.cs" />
     <Compile Include="Connections\ConnectionId.cs" />
     <Compile Include="Connections\ConnectionIdSource.cs" />
+    <Compile Include="Connections\IConnectionDescriptionProvider.cs" />
     <Compile Include="Events\ClusterDescriptionChangedEventArgs.cs" />
     <Compile Include="Events\IClusterListener.cs" />
     <Compile Include="Events\NoOpClusterListener.cs" />
@@ -139,7 +140,7 @@
     <Compile Include="Connections\BinaryConnectionFactory.cs" />
     <Compile Include="Connections\ConnectionDescription.cs" />
     <Compile Include="Connections\ConnectionExtensionMethods.cs" />
-    <Compile Include="Connections\ConnectionInitializer.cs" />
+    <Compile Include="Connections\ConnectionDescriptionProvider.cs" />
     <Compile Include="Configuration\ConnectionSettings.cs" />
     <Compile Include="Connections\ConnectionWrapper.cs" />
     <Compile Include="Events\IMessageListener.cs" />

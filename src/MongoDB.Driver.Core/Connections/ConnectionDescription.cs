@@ -13,15 +13,18 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class ConnectionDescription
+    public sealed class ConnectionDescription : IEquatable<ConnectionDescription>
     {
         // fields
         private readonly BuildInfoResult _buildInfoResult;
+        private readonly ConnectionId _connectionId;
         private readonly IsMasterResult _isMasterResult;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
@@ -29,8 +32,9 @@ namespace MongoDB.Driver.Core.Connections
         private readonly SemanticVersion _serverVersion;
 
         // constructors
-        public ConnectionDescription(IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
+        public ConnectionDescription(ConnectionId connectionId, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
+            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _buildInfoResult = Ensure.IsNotNull(buildInfoResult, "buildInfoResult");
             _isMasterResult = Ensure.IsNotNull(isMasterResult, "isMasterResult");
 
@@ -44,6 +48,11 @@ namespace MongoDB.Driver.Core.Connections
         public BuildInfoResult BuildInfoResult
         {
             get { return _buildInfoResult; }
+        }
+
+        public ConnectionId ConnectionId
+        {
+            get { return _connectionId; }
         }
 
         public IsMasterResult IsMasterResult
@@ -69,6 +78,32 @@ namespace MongoDB.Driver.Core.Connections
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
+        }
+
+        // methods
+        public bool Equals(ConnectionDescription other)
+        {
+            if(other == null)
+            {
+                return false;
+            }
+
+            return _connectionId.Equals(other._connectionId) &&
+                _isMasterResult.Equals(other._isMasterResult) &&
+                _buildInfoResult.Equals(other._buildInfoResult);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ConnectionDescription);
+        }
+
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_isMasterResult)
+                .Hash(_buildInfoResult)
+                .GetHashCode();
         }
     }
 }

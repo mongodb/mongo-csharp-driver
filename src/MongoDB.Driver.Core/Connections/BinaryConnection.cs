@@ -39,47 +39,48 @@ namespace MongoDB.Driver.Core.Connections
         // fields
         private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
+        private readonly IConnectionDescriptionProvider _connectionDescriptionProvider;
         private ConnectionId _connectionId;
         private DnsEndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
         private readonly IMessageListener _listener;
+        private readonly object _openLock = new object();
+        private Task _openTask;
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
         private int _pendingResponseCount;
+        private readonly ServerId _serverId;
         private readonly ConnectionSettings _settings;
         private readonly StateHelper _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
+        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionDescriptionProvider connectionDescriptionProvider, IMessageListener listener)
         {
+            _serverId = Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
+            _connectionDescriptionProvider = Ensure.IsNotNull(connectionDescriptionProvider, "connectionDescriptionProvider");
             _listener = listener;
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
-            _connectionId = new ConnectionId(serverId);
 
+            _connectionId = new ConnectionId(_serverId);
             _state = new StateHelper(State.Initial);
         }
 
         // properties
-        public ConnectionId ConnectionId
+        public ConnectionDescription Description
         {
-            get { return _connectionId; }
+            get { return _description; }
         }
 
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
-        }
-
-        public ConnectionDescription Description
-        {
-            get { return _description; }
         }
 
         public int PendingResponseCount
@@ -133,17 +134,30 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public async Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
 
             ThrowIfDisposed();
 
-            if (_state.TryChange(State.Initial, State.Open))
+            lock (_openLock)
             {
-                _stream = await _streamFactory.CreateStreamAsync(_endPoint, timeout, cancellationToken);
-                StartBackgroundTasks();
+                if (_state.TryChange(State.Initial, State.Open))
+                {
+                    _openTask = OpenAsyncHelper(timeout, cancellationToken);
+                }
             }
+
+            return _openTask;
+        }
+
+        private async Task OpenAsyncHelper(TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var slidingTimeout = new SlidingTimeout(timeout);
+            _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
+            StartBackgroundTasks();
+            _description = await _connectionDescriptionProvider.CreateConnectionDescription(this, _serverId, slidingTimeout, cancellationToken);
+            _connectionId = _description.ConnectionId;
         }
 
         private async Task ReceiveBackgroundTask()
@@ -322,16 +336,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _inboundDropbox.Post(requestId, new InboundDropboxEntry(substituteReplies[requestId]));
             }
-        }
-
-        public void SetConnectionId(ConnectionId connectionId)
-        {
-            _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
-        }
-
-        public void SetDescription(ConnectionDescription description)
-        {
-            _description = Ensure.IsNotNull(description, "description");
         }
 
         private void StartBackgroundTasks()

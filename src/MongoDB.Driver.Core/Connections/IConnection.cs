@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Core.Connections
     public interface IConnection : IDisposable
     {
         // properties
-        ConnectionId ConnectionId { get; }
         ConnectionDescription Description { get; }
         DnsEndPoint EndPoint { get; }
         ConnectionSettings Settings { get; }
@@ -61,7 +60,5 @@ namespace MongoDB.Driver.Core.Connections
 
         // methods
         Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken);
-        void SetConnectionId(ConnectionId connectionId);
-        void SetDescription(ConnectionDescription description);
     }
 }

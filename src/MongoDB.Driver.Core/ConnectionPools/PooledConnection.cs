@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
     {
         // fields
         private DateTime _createdAt;
-        private Task<IConnection> _initializeTask;
         private DateTime _lastUsedAt;
         private object _lock = new object();
         private int _referenceCount;
@@ -81,26 +80,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public void IncrementReferenceCount()
         {
             Interlocked.Increment(ref _referenceCount);
-        }
-
-        public Task<IConnection> LazyInitializeAsync(TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            ThrowIfDisposed();
-            lock (_lock)
-            {
-                if (_initializeTask == null)
-                {
-                    _initializeTask = LazyInitializeAsyncHelper(timeout, cancellationToken);
-                }
-            }
-            return _initializeTask;
-        }
-
-
-        private async Task<IConnection> LazyInitializeAsyncHelper(TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            await ConnectionInitializer.InitializeConnectionAsync(Wrapped, timeout, cancellationToken);
-            return this;
         }
 
         protected override Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
@@ -29,13 +30,15 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection initializer (opens and authenticates connections).
     /// </summary>
-    internal static class ConnectionInitializer
+    internal class ConnectionDescriptionProvider : IConnectionDescriptionProvider
     {
-        public static async Task InitializeConnectionAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> CreateConnectionDescription(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var slidingTimeout = new SlidingTimeout(timeout);
+            Ensure.IsNotNull(connection, "connection");
+            Ensure.IsNotNull(serverId, "serverId");
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
 
-            await connection.OpenAsync(slidingTimeout, cancellationToken);
+            var slidingTimeout = new SlidingTimeout(timeout);
 
             var isMasterCommand = new BsonDocument("isMaster", 1);
             var isMasterProtocol = new CommandWireProtocol("admin", isMasterCommand, true);
@@ -58,16 +61,18 @@ namespace MongoDB.Driver.Core.Connections
             var getLastErrorProtocol = new CommandWireProtocol("admin", getLastErrorCommand, true);
             var getLastErrorResult = await getLastErrorProtocol.ExecuteAsync(connection, slidingTimeout, cancellationToken);
 
-            var connectionDescription = new ConnectionDescription(isMasterResult, buildInfoResult);
-            connection.SetDescription(connectionDescription);
-
             BsonValue connectionIdBsonValue;
+            ConnectionId connectionId;
             if (getLastErrorResult.TryGetValue("connectionId", out connectionIdBsonValue))
             {
-                var serverId = connection.ConnectionId.ServerId;
-                var serverConnectionId = new ConnectionId(serverId, connectionIdBsonValue.ToInt32(), ConnectionIdSource.Server);
-                connection.SetConnectionId(serverConnectionId);
+                connectionId = new ConnectionId(serverId, connectionIdBsonValue.ToInt32(), ConnectionIdSource.Server);
             }
+            else
+            {
+                connectionId = new ConnectionId(serverId);
+            }
+
+            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
         }
     }
 }
