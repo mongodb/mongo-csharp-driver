@@ -49,19 +49,6 @@ namespace MongoDB.Driver.Core.Tests.Connections
 
         [Test]
         [RequiresServer]
-        public void CreateStreamAsync_should_throw_a_TimeoutException_when_connecting_times_out()
-        {
-            var subject = new TcpStreamFactory();
-
-            // Note: it is possible that we could successfully connect within 1 millisecond
-            // which means that the test will fail.
-            Action act = () => subject.CreateStreamAsync(new DnsEndPoint("localhost", 27017), TimeSpan.FromMilliseconds(1), CancellationToken.None).Wait();
-
-            act.ShouldThrow<TimeoutException>();
-        }
-
-        [Test]
-        [RequiresServer]
         public void CreateStreamAsync_should_connect_to_a_running_server_and_return_a_non_null_stream()
         {
             var subject = new TcpStreamFactory();

@@ -48,10 +48,8 @@ namespace MongoDB.Driver.Core.Connections
         public async Task<Stream> CreateStreamAsync(DnsEndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
-            var ipEndPoint = await ResolveAsync(endPoint, slidingTimeout, cancellationToken);
-            var protocolType = (ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6) ? ProtocolType.IPv6 : ProtocolType.IP;
-            var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, protocolType);
-            await ConnectAsync(socket, ipEndPoint, slidingTimeout, cancellationToken);
+            var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            await ConnectAsync(socket, endPoint, slidingTimeout, cancellationToken);
             socket.NoDelay = true;
             socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
             socket.SendBufferSize = _settings.SendBufferSize;
@@ -80,45 +78,10 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // non-public methods
-        private Task ConnectAsync(Socket socket, IPEndPoint ipEndPoint, TimeSpan timeout, CancellationToken cancellationToken)
+        private Task ConnectAsync(Socket socket, EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return Task.Factory.FromAsync(socket.BeginConnect(ipEndPoint, null, null), socket.EndConnect)
-                .WithTimeout(timeout, cancellationToken);
-        }
-
-        private async Task<IPEndPoint> ResolveAsync(DnsEndPoint dnsEndPoint, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            string message;
-
-            AddressFamily desiredAddressFamily;
-            switch (dnsEndPoint.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                case AddressFamily.Unspecified:
-                case AddressFamily.Unknown:
-                    desiredAddressFamily = AddressFamily.InterNetwork;
-                    break;
-
-                case AddressFamily.InterNetworkV6:
-                    desiredAddressFamily = AddressFamily.InterNetworkV6;
-                    break;
-
-                default:
-                    message = string.Format("AddressFamily '{0}' is not supported.", dnsEndPoint.AddressFamily);
-                    throw new ArgumentException(message, "dnsEndPoint");
-            }
-
-            var ipAddresses = await Dns.GetHostAddressesAsync(dnsEndPoint.Host);
-            foreach (var ipAddress in ipAddresses)
-            {
-                if (ipAddress.AddressFamily == desiredAddressFamily)
-                {
-                    return new IPEndPoint(ipAddress, dnsEndPoint.Port);
-                }
-            }
-
-            message = string.Format("Unable to resolve host name '{0}' for address family '{1}'.", dnsEndPoint.Host, desiredAddressFamily);
-            throw new SocketException((int)SocketError.HostNotFound);
+            // TODO: handle timeout and cancellation token
+            return Task.Factory.FromAsync(socket.BeginConnect(endPoint, null, null), socket.EndConnect);
         }
     }
 }
