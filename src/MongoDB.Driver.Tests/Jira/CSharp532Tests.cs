@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp532
         {
             var b = new B();
 
-            var t = Update<C>.Set(c => c.A, b);
+            Update<C>.Set(c => c.A, b);
         }
     }
 }

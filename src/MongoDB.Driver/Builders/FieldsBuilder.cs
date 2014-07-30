@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Builders
         public FieldsBuilder<TDocument> ElemMatch<TValue>(Expression<Func<TDocument, IEnumerable<TValue>>> memberExpression, Func<QueryBuilder<TValue>, IMongoQuery> elementQueryBuilderFunction)
         {
             var serializationInfo = _serializationInfoHelper.GetSerializationInfo(memberExpression);
-            var itemSerializationInfo = _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
+            _serializationInfoHelper.GetItemSerializationInfo("ElemMatch", serializationInfo);
             var elementQueryBuilder = new QueryBuilder<TValue>(_serializationInfoHelper);
             var elementQuery = elementQueryBuilderFunction(elementQueryBuilder);
             _fieldsBuilder.ElemMatch(serializationInfo.ElementName, elementQuery);

@@ -49,7 +49,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var convention = new EnumRepresentationConvention(value);
             var classMap = new BsonClassMap<TestClass>();
             var nonEnumMemberMap = classMap.MapMember(x => x.NonEnum);
-            var defaultEnumMemberMap = classMap.MapMember(x => x.DefaultEnum);
+            classMap.MapMember(x => x.DefaultEnum);
             var changedEnumMemberMap = classMap.MapMember(x => x.ChangedRepresentationEnum);
             convention.Apply(nonEnumMemberMap);
             convention.Apply(changedEnumMemberMap);

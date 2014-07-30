@@ -44,15 +44,11 @@ namespace MongoDB.Driver.Tests.Jira
             }
         }
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<B> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<B>();
 
             _collection.Drop();

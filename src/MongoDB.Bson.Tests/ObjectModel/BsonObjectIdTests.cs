@@ -303,7 +303,6 @@ namespace MongoDB.Bson.Tests
         public void TestParse()
         {
 #pragma warning disable 618
-            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             var objectId1 = BsonObjectId.Parse("0102030405060708090a0b0c"); // lower case
             var objectId2 = BsonObjectId.Parse("0102030405060708090A0B0C"); // upper case
             Assert.IsTrue(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
@@ -319,7 +318,6 @@ namespace MongoDB.Bson.Tests
         public void TestTryParse()
         {
 #pragma warning disable 618
-            byte[] bytes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             BsonObjectId objectId1, objectId2;
             Assert.IsTrue(BsonObjectId.TryParse("0102030405060708090a0b0c", out objectId1)); // lower case
             Assert.IsTrue(BsonObjectId.TryParse("0102030405060708090A0B0C", out objectId2)); // upper case

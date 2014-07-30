@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
 
             Assert.AreEqual(readPreference1, readPreference2);
         }
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests
                     new ReplicaSetTag("dc", "ny")
                 }
             };
-            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets1);
+            var readPreference2 = new ReadPreference(ReadPreferenceMode.Nearest, tagSets2);
 
             Assert.AreEqual(readPreference1, readPreference2);
         }

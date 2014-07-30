@@ -66,15 +66,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             public Hashtable Data;
         }
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<GDA> _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<GDA>();
             _collection.Drop();
         }

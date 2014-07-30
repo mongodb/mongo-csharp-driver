@@ -226,24 +226,20 @@ namespace MongoDB.Driver
         {
             string elementName;
             IBsonSerializer serializer;
-            Type nominalType;
 
             switch (memberName)
             {
                 case "DatabaseName":
                     elementName = "$db";
                     serializer = new StringSerializer();
-                    nominalType = typeof(string);
                     break;
                 case "CollectionName":
                     elementName = "$ref";
                     serializer = new StringSerializer();
-                    nominalType = typeof(string);
                     break;
                 case "Id":
                     elementName = "$id";
                     serializer = BsonValueSerializer.Instance;
-                    nominalType = typeof(BsonValue);
                     break;
                 default:
                     var message = string.Format("{0} is not a member of MongoDBRef.", memberName);

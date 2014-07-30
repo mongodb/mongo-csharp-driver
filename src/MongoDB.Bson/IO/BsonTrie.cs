@@ -290,7 +290,6 @@ namespace MongoDB.Bson.IO
                     // grow the indexes on the max side
                     maxChildKeyByte = child._keyByte;
                     childrenIndexes = new byte[maxChildKeyByte - minChildKeyByte + 1];
-                    var sizeDelta = childrenIndexes.Length - _childrenIndexes.Length;
                     Array.Copy(_childrenIndexes, 0, childrenIndexes, 0, _childrenIndexes.Length);
                     for (var i = _childrenIndexes.Length; i < childrenIndexes.Length; i++)
                     {

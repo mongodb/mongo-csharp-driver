@@ -23,14 +23,6 @@ namespace MongoDB.Driver.Tests.GridFS
     [TestFixture]
     public class MongoGridFSSettingsTests
     {
-        private MongoDatabase _database;
-
-        [TestFixtureSetUp]
-        public void TestFixtureSetup()
-        {
-            _database = Configuration.TestDatabase;
-        }
-
         [Test]
         public void TestDefaults()
         {

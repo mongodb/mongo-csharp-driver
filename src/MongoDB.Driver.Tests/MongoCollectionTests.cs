@@ -747,7 +747,7 @@ namespace MongoDB.Driver.Tests
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 3 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 1 }, { "y", 2 } });
-            var result = _collection.Find(Query.GT("x", 3)).Explain();
+            _collection.Find(Query.GT("x", 3)).Explain();
         }
 
         [Test]
@@ -1739,7 +1739,7 @@ namespace MongoDB.Driver.Tests
                     var document = new BsonDocument("data", new BsonBinaryData(new byte[1000000]));
                     _collection.Insert(document);
                 }
-                var list = _collection.FindAll().ToList();
+                _collection.FindAll().ToList();
             }
         }
 
@@ -2732,7 +2732,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetStats()
         {
-            var stats = _collection.GetStats();
+            _collection.GetStats();
         }
 
         [Test]
@@ -2806,7 +2806,7 @@ namespace MongoDB.Driver.Tests
             var rawBsonDocument = new RawBsonDocument(bson);
             collection.Insert(rawBsonDocument);
 
-            Assert.Throws<DecoderFallbackException>(() => { var rehydrated = collection.FindOne(Query.EQ("_id", document["_id"])); });
+            Assert.Throws<DecoderFallbackException>(() => collection.FindOne(Query.EQ("_id", document["_id"])));
         }
 
         [Test]
@@ -2850,13 +2850,13 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestTotalDataSize()
         {
-            var dataSize = _collection.GetTotalDataSize();
+            _collection.GetTotalDataSize();
         }
 
         [Test]
         public void TestTotalStorageSize()
         {
-            var dataSize = _collection.GetTotalStorageSize();
+            _collection.GetTotalStorageSize();
         }
 
         [Test]

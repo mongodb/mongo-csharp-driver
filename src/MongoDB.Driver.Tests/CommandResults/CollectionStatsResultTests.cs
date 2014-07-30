@@ -25,14 +25,12 @@ namespace MongoDB.Driver.Tests.CommandResults
     public class CollectionStatsResultTests
     {
         private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<BsonDocument> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
             _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }
 

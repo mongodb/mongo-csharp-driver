@@ -25,9 +25,8 @@ namespace MongoDB.Bson.Tests
         [Test]
         public void TestNewBsonArray()
         {
-            BsonArray array;
-            array = new BsonArray(new List<int>() { 1, 2, 3 });
-            array = new BsonArray(new int[] { 4, 5, 6 });
+            new BsonArray(new List<int>() { 1, 2, 3 });
+            new BsonArray(new int[] { 4, 5, 6 });
         }
 
         [Test]

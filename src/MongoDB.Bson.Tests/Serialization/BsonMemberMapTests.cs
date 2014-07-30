@@ -257,8 +257,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var classMap = new BsonClassMap<TestClass>(cm =>
             {
-                var mm = cm.MapMember(c => c.Property);
-
+                cm.MapMember(c => c.Property);
             });
 
             var originalSerializer = new Int32Serializer();

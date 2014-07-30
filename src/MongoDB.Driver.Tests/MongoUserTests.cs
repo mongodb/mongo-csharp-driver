@@ -16,18 +16,12 @@
 using MongoDB.Driver;
 using NUnit.Framework;
 
-#pragma warning disable 618
 namespace MongoDB.Driver.Tests
 {
+#pragma warning disable 618
     [TestFixture]
     public class MongoUserTests
     {
-        private MongoUser a = new MongoUser("a", new PasswordEvidence("p"), false);
-        private MongoUser b = new MongoUser("a", new PasswordEvidence("p"), false);
-        private MongoUser c = new MongoUser("c", new PasswordEvidence("p"), false);
-        private MongoUser q = new MongoUser("a", new PasswordEvidence("q"), false);
-        private MongoUser r = new MongoUser("a", new PasswordEvidence("p"), true);
-
         [Test]
         public void TestConstructor1()
         {
@@ -87,5 +81,5 @@ namespace MongoDB.Driver.Tests
             Assert.AreEqual(a1.GetHashCode(), a2.GetHashCode());
         }
     }
-}
 #pragma warning restore
+}

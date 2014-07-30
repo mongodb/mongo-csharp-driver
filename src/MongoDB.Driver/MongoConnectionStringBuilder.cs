@@ -949,6 +949,7 @@ namespace MongoDB.Driver
                     if (parts.Length != 2)
                     {
                         var message = string.Format("Invalid tag: {0}.", tagString);
+                        throw new MongoException(message);
                     }
                     var tag = new ReplicaSetTag(parts[0], parts[1]);
                     tagSet.Add(tag);

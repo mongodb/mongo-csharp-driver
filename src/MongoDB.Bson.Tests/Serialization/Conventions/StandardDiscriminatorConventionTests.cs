@@ -25,13 +25,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Test]
         public void TestConstructorThrowsWhenElementNameContainsNulls()
         {
-            Assert.Throws<ArgumentException>(() => { var discriminatorConvention = new ScalarDiscriminatorConvention("a\0b"); });
+            Assert.Throws<ArgumentException>(() => new ScalarDiscriminatorConvention("a\0b"));
         }
 
         [Test]
         public void TestConstructorThrowsWhenElementNameIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => { var discriminatorConvention = new ScalarDiscriminatorConvention(null); });
+            Assert.Throws<ArgumentNullException>(() => new ScalarDiscriminatorConvention(null));
         }
     }
 }

@@ -29,7 +29,6 @@ namespace MongoDB.Driver.GridFS
     {
         // private fields
         private readonly MongoGridFSFileInfo _fileInfo;
-        private readonly FileMode _mode;
         private readonly FileAccess _access;
         private long _length;
         private long _position;
@@ -61,7 +60,6 @@ namespace MongoDB.Driver.GridFS
         public MongoGridFSStream(MongoGridFSFileInfo fileInfo, FileMode mode, FileAccess access)
         {
             _fileInfo = fileInfo;
-            _mode = mode;
             _access = access;
             _updateMD5 = fileInfo.GridFSSettings.UpdateMD5;
 

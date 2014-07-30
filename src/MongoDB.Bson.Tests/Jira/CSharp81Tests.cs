@@ -48,8 +48,6 @@ namespace MongoDB.Bson.Tests.Jira
             idProvider.SetDocumentId(u, idGenerator.GenerateId(null, u));
             Assert.IsFalse(idGenerator.IsEmpty(u.Id));
             Assert.IsTrue(idGenerator.IsEmpty(u.FriendId));
-
-            var json = u.ToJson();
         }
     }
 }

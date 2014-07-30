@@ -181,7 +181,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsDateTime; });
 #pragma warning restore
-            Assert.Throws<NotSupportedException>(() => { var x = s.ToUniversalTime(); });
+            Assert.Throws<NotSupportedException>(() => s.ToUniversalTime());
         }
 
         [Test]
@@ -249,7 +249,7 @@ namespace MongoDB.Bson.Tests
 #pragma warning disable 618
             Assert.Throws<InvalidCastException>(() => { var x = s.AsNullableDateTime; });
 #pragma warning restore
-            Assert.Throws<NotSupportedException>(() => { var x = s.ToNullableUniversalTime(); });
+            Assert.Throws<NotSupportedException>(() => s.ToNullableUniversalTime());
         }
 
         [Test]

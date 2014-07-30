@@ -163,32 +163,32 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregate()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Aggregate((a, b) => null);
+            (from c in _collection.AsQueryable<C>()
+             select c).Aggregate((a, b) => null);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregateWithAccumulator()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Aggregate<C, int>(0, (a, c) => 0);
+            (from c in _collection.AsQueryable<C>()
+             select c).Aggregate<C, int>(0, (a, c) => 0);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Aggregate query operator is not supported.")]
         public void TestAggregateWithAccumulatorAndSelector()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Aggregate<C, int, int>(0, (a, c) => 0, a => a);
+            (from c in _collection.AsQueryable<C>()
+             select c).Aggregate<C, int, int>(0, (a, c) => 0, a => a);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The All query operator is not supported.")]
         public void TestAll()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).All(c => true);
+            (from c in _collection.AsQueryable<C>()
+             select c).All(c => true);
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Any with predicate after a projection is not supported.")]
         public void TestAnyWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).Any(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).Any(y => y == 11);
         }
 
         [Test]
@@ -257,32 +257,32 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverage()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select 1.0).Average();
+            (from c in _collection.AsQueryable<C>()
+             select 1.0).Average();
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageNullable()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select (double?)1.0).Average();
+            (from c in _collection.AsQueryable<C>()
+             select (double?)1.0).Average();
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageWithSelector()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Average(c => 1.0);
+            (from c in _collection.AsQueryable<C>()
+             select c).Average(c => 1.0);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Average query operator is not supported.")]
         public void TestAverageWithSelectorNullable()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Average(c => (double?)1.0);
+            (from c in _collection.AsQueryable<C>()
+             select c).Average(c => (double?)1.0);
         }
 
         [Test]
@@ -309,8 +309,8 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestContains()
         {
             var item = new C();
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Contains(item);
+            (from c in _collection.AsQueryable<C>()
+             select c).Contains(item);
         }
 
         [Test]
@@ -318,8 +318,8 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestContainsWithEqualityComparer()
         {
             var item = new C();
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Contains(item, new CEqualityComparer());
+            (from c in _collection.AsQueryable<C>()
+             select c).Contains(item, new CEqualityComparer());
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Count with predicate after a projection is not supported.")]
         public void TestCountWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).Count(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).Count(y => y == 11);
         }
 
         [Test]
@@ -568,7 +568,7 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestDistinctXWithQuery()
         {
             var query = (from c in _collection.AsQueryable<C>()
-                         where c.X >3
+                         where c.X > 3
                          select c.X).Distinct();
             var results = query.ToList();
             Assert.AreEqual(2, results.Count);
@@ -651,9 +651,9 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestElementAtWithNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.X == 9
-                          select c).ElementAt(0);
+            (from c in _collection.AsQueryable<C>()
+             where c.X == 9
+             select c).ElementAt(0);
         }
 
         [Test]
@@ -741,7 +741,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "FirstOrDefault with predicate after a projection is not supported.")]
         public void TestFirstOrDefaultWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).FirstOrDefault(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).FirstOrDefault(y => y == 11);
         }
 
         [Test]
@@ -805,9 +805,9 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestFirstWithNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.X == 9
-                          select c).First();
+            (from c in _collection.AsQueryable<C>()
+             where c.X == 9
+             select c).First();
         }
 
         [Test]
@@ -825,7 +825,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "First with predicate after a projection is not supported.")]
         public void TestFirstWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).First(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).First(y => y == 11);
         }
 
         [Test]
@@ -843,8 +843,8 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                var result = (from c in _collection.AsQueryable<C>()
-                              select c).First(c => c.X == 9);
+                (from c in _collection.AsQueryable<C>()
+                 select c).First(c => c.X == 9);
             });
             Assert.AreEqual(ExpectedErrorMessage.FirstEmptySequence, ex.Message);
         }
@@ -1049,7 +1049,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "LastOrDefault with predicate after a projection is not supported.")]
         public void TestLastOrDefaultWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).LastOrDefault(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).LastOrDefault(y => y == 11);
         }
 
         [Test]
@@ -1113,9 +1113,9 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestLastWithNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.X == 9
-                          select c).Last();
+            (from c in _collection.AsQueryable<C>()
+             where c.X == 9
+             select c).Last();
         }
 
         [Test]
@@ -1133,7 +1133,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Last with predicate after a projection is not supported.")]
         public void TestLastWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).Last(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).Last(y => y == 11);
         }
 
         [Test]
@@ -1149,12 +1149,11 @@ namespace MongoDB.Driver.Tests.Linq
         [Test]
         public void TestLastWithPredicateNoMatch()
         {
-            var ex = Assert.Throws<InvalidOperationException>(() =>
+            Assert.Throws<InvalidOperationException>(() =>
             {
-                var result = (from c in _collection.AsQueryable<C>()
-                              select c).Last(c => c.X == 9);
+                (from c in _collection.AsQueryable<C>()
+                 select c).Last(c => c.X == 9);
             });
-            Assert.AreEqual(ExpectedErrorMessage.LastEmptySequence, ex.Message);
         }
 
         [Test]
@@ -1245,8 +1244,8 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Max must be used with either Select or a selector argument, but not both.")]
         public void TestMaxWithProjectionAndSelector()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c.D).Max(d => d.Z);
+            (from c in _collection.AsQueryable<C>()
+             select c.D).Max(d => d.Z);
         }
 
         [Test]
@@ -1303,8 +1302,8 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Min must be used with either Select or a selector argument, but not both.")]
         public void TestMinWithProjectionAndSelector()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c.D).Min(d => d.Z);
+            (from c in _collection.AsQueryable<C>()
+             select c.D).Min(d => d.Z);
         }
 
         [Test]
@@ -1363,7 +1362,7 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var mongoQuery = MongoQueryTranslator.Translate(query);
             Assert.IsInstanceOf<SelectQuery>(mongoQuery);
-            var selectQuery = (SelectQuery) mongoQuery;
+            var selectQuery = (SelectQuery)mongoQuery;
             Assert.AreEqual(orderByString, ExpressionFormatter.ToString(selectQuery.OrderBy[0].Key));
         }
 
@@ -1665,8 +1664,8 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestSequenceEqual()
         {
             var source2 = new C[0];
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).SequenceEqual(source2);
+            (from c in _collection.AsQueryable<C>()
+             select c).SequenceEqual(source2);
         }
 
         [Test]
@@ -1674,16 +1673,16 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestSequenceEqualtWithEqualityComparer()
         {
             var source2 = new C[0];
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).SequenceEqual(source2, new CEqualityComparer());
+            (from c in _collection.AsQueryable<C>()
+             select c).SequenceEqual(source2, new CEqualityComparer());
         }
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleOrDefaultWithManyMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).SingleOrDefault();
+            (from c in _collection.AsQueryable<C>()
+             select c).SingleOrDefault();
         }
 
         [Test]
@@ -1710,7 +1709,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "SingleOrDefault with predicate after a projection is not supported.")]
         public void TestSingleOrDefaultWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).SingleOrDefault(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).SingleOrDefault(y => y == 11);
         }
 
         [Test]
@@ -1745,8 +1744,8 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                var result = (from c in _collection.AsQueryable<C>()
-                              select c).SingleOrDefault(c => c.Y == 11);
+                (from c in _collection.AsQueryable<C>()
+                 select c).SingleOrDefault(c => c.Y == 11);
             });
             Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message);
         }
@@ -1755,26 +1754,26 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleOrDefaultWithTwoMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.Y == 11
-                          select c).SingleOrDefault();
+            (from c in _collection.AsQueryable<C>()
+             where c.Y == 11
+             select c).SingleOrDefault();
         }
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithManyMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Single();
+            (from c in _collection.AsQueryable<C>()
+             select c).Single();
         }
 
         [Test]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithNoMatch()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.X == 9
-                          select c).Single();
+            (from c in _collection.AsQueryable<C>()
+             where c.X == 9
+             select c).Single();
         }
 
         [Test]
@@ -1792,7 +1791,7 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Single with predicate after a projection is not supported.")]
         public void TestSingleWithPredicateAfterProjection()
         {
-            var result = _collection.AsQueryable<C>().Select(c => c.Y).Single(y => y == 11);
+            _collection.AsQueryable<C>().Select(c => c.Y).Single(y => y == 11);
         }
 
         [Test]
@@ -1810,8 +1809,8 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                var result = (from c in _collection.AsQueryable<C>()
-                              select c).Single(c => c.X == 9);
+                (from c in _collection.AsQueryable<C>()
+                 select c).Single(c => c.X == 9);
             });
             Assert.AreEqual(ExpectedErrorMessage.SingleEmptySequence, ex.Message);
         }
@@ -1830,8 +1829,8 @@ namespace MongoDB.Driver.Tests.Linq
         {
             var ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                var result = (from c in _collection.AsQueryable<C>()
-                              select c).Single(c => c.Y == 11);
+                (from c in _collection.AsQueryable<C>()
+                 select c).Single(c => c.Y == 11);
             });
             Assert.AreEqual(ExpectedErrorMessage.SingleLongSequence, ex.Message);
         }
@@ -1840,9 +1839,9 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestSingleWithTwoMatches()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          where c.Y == 11
-                          select c).Single();
+            (from c in _collection.AsQueryable<C>()
+             where c.Y == 11
+             select c).Single();
         }
 
         [Test]
@@ -1879,32 +1878,32 @@ namespace MongoDB.Driver.Tests.Linq
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSum()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select 1.0).Sum();
+            (from c in _collection.AsQueryable<C>()
+             select 1.0).Sum();
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumNullable()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select (double?)1.0).Sum();
+            (from c in _collection.AsQueryable<C>()
+             select (double?)1.0).Sum();
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumWithSelector()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Sum(c => 1.0);
+            (from c in _collection.AsQueryable<C>()
+             select c).Sum(c => 1.0);
         }
 
         [Test]
         [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "The Sum query operator is not supported.")]
         public void TestSumWithSelectorNullable()
         {
-            var result = (from c in _collection.AsQueryable<C>()
-                          select c).Sum(c => (double?)1.0);
+            (from c in _collection.AsQueryable<C>()
+             select c).Sum(c => (double?)1.0);
         }
 
         [Test]
@@ -2019,7 +2018,7 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestWhereLocalListContainsX()
         {
             var local = new List<int> { 1, 2, 3 };
-            
+
             var query = from c in _collection.AsQueryable<C>()
                         where local.Contains(c.X)
                         select c;
@@ -2043,7 +2042,7 @@ namespace MongoDB.Driver.Tests.Linq
         [Test]
         public void TestWhereLocalArrayContainsX()
         {
-            var local = new [] { 1, 2, 3 };
+            var local = new[] { 1, 2, 3 };
 
             var query = from c in _collection.AsQueryable<C>()
                         where local.Contains(c.X)
@@ -3153,7 +3152,7 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestWhereEAContainsAll()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.EA.ContainsAll(new E[] { E.A, E.B})
+                        where c.EA.ContainsAll(new E[] { E.A, E.B })
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);
@@ -6974,7 +6973,7 @@ namespace MongoDB.Driver.Tests.Linq
         public void TestWhereXIn1Or9()
         {
             var query = from c in _collection.AsQueryable<C>()
-                        where c.X.In(new [] { 1, 9 })
+                        where c.X.In(new[] { 1, 9 })
                         select c;
 
             var translatedQuery = MongoQueryTranslator.Translate(query);

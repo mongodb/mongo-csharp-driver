@@ -49,19 +49,19 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestGreaterThanMaxToDateTimeConversion()
         {
-            var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
-                BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1);
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
+                    BsonConstants.DateTimeMaxValueMillisecondsSinceEpoch + 1));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestLessThanMinToDateTimeConversion()
         {
-            var actual = BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
-                BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1);
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                BsonUtils.ToDateTimeFromMillisecondsSinceEpoch(
+                    BsonConstants.DateTimeMinValueMillisecondsSinceEpoch - 1));
         }
 
         [Test]
@@ -112,17 +112,15 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void TestToHexStringNull()
         {
-            var actual = BsonUtils.ToHexString(null);
+            Assert.Throws<ArgumentNullException>(() => BsonUtils.ToHexString(null));
         }
 
         [Test]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void TestParseHexStringNull()
         {
-            var actual = BsonUtils.ParseHexString(null);
+            Assert.Throws<ArgumentNullException>(() => BsonUtils.ParseHexString(null));
         }
 
         [Test]
@@ -152,17 +150,15 @@ namespace MongoDB.Bson.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(FormatException))]
         public void TestParseHexStringInvalid()
         {
-            var actual = BsonUtils.ParseHexString("1G");
+            Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("1G"));
         }
 
         [Test]
-        [ExpectedException(typeof(FormatException))]
         public void TestParseHexStringInvalid2()
         {
-            var actual = BsonUtils.ParseHexString("00 1");
+            Assert.Throws<FormatException>(() => BsonUtils.ParseHexString("00 1"));
         }
 
         [Test]

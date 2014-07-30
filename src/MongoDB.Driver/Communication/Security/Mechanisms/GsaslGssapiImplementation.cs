@@ -24,7 +24,6 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
     {
         // private fields
         private readonly string _authorizationId;
-        private readonly MongoIdentityEvidence _evidence;
         private readonly string _hostname;
         private readonly string _hostRealm;
         private readonly string _service;
@@ -37,13 +36,11 @@ namespace MongoDB.Driver.Communication.Security.Mechanisms
         /// <param name="hostName">Name of the host.</param>
         /// <param name="username">The username.</param>
         /// <param name="hostRealm">The realm.</param>
-        /// <param name="evidence">The evidence.</param>
-        public GsaslGssapiImplementation(string serviceName, string hostName, string hostRealm, string username, MongoIdentityEvidence evidence)
+        public GsaslGssapiImplementation(string serviceName, string hostName, string hostRealm, string username)
             : base("GSSAPI", new byte[0])
         {
             _authorizationId = username;
             _hostRealm = hostRealm;
-            _evidence = evidence;
             _hostname = hostName;
             _service = serviceName;
         }

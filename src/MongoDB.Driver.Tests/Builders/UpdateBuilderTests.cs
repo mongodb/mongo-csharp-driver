@@ -126,13 +126,13 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAddToSetEachWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetEachWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.AddToSetEachWrapped(null, _a));
         }
 
         [Test]
         public void TestAddToSetEachWrappedNullValues()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetEachWrapped<C>("name", null); });
+            Assert.Throws<ArgumentNullException>(() => Update.AddToSetEachWrapped<C>("name", null));
         }
 
         [Test]
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestAddToSetWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.AddToSetWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.AddToSetWrapped(null, _a));
         }
 
         [Test]
@@ -615,13 +615,13 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestPullAllWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullAllWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.PullAllWrapped(null, _a));
         }
 
         [Test]
         public void TestPullAllWrappedNullValues()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullAllWrapped<C>("name", null); });
+            Assert.Throws<ArgumentNullException>(() => Update.PullAllWrapped<C>("name", null));
         }
 
         [Test]
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestPullWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PullWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.PullWrapped(null, _a));
         }
 
         [Test]
@@ -689,13 +689,13 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestPushAllWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushAllWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.PushAllWrapped(null, _a));
         }
 
         [Test]
         public void TestPushAllWrappedNullValue()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushAllWrapped<C>("name", null); });
+            Assert.Throws<ArgumentNullException>(() => Update.PushAllWrapped<C>("name", null));
         }
 
         [Test]
@@ -821,7 +821,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestPushWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.PushWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.PushWrapped(null, _a));
         }
 
         [Test]
@@ -913,7 +913,7 @@ namespace MongoDB.Driver.Tests.Builders
         [Test]
         public void TestSetWrappedNullName()
         {
-            Assert.Throws<ArgumentNullException>(() => { var update = Update.SetWrapped(null, _a); });
+            Assert.Throws<ArgumentNullException>(() => Update.SetWrapped(null, _a));
         }
 
         [Test]

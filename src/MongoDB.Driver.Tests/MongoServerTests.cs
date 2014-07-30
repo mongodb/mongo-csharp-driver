@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests
                 var databaseNames = _server.GetDatabaseNames();
                 Assert.IsTrue(databaseNames.Contains(_database.Name));
 
-                var result = _server.DropDatabase(_database.Name);
+                _server.DropDatabase(_database.Name);
                 databaseNames = _server.GetDatabaseNames();
                 Assert.IsFalse(databaseNames.Contains(_database.Name));
             }
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests
         [Test]
         public void TestGetDatabaseNames()
         {
-            var databaseNames = _server.GetDatabaseNames();
+            _server.GetDatabaseNames();
         }
 
         [Test]

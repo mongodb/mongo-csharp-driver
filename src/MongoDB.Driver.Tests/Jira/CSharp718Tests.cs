@@ -29,15 +29,11 @@ namespace MongoDB.Driver.Tests.Jira
             public int[] Foo;
         }
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection<C> _collection;
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.GetTestCollection<C>();
             TestSetup();
         }

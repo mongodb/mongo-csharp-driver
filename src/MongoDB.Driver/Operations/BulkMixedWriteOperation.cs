@@ -34,8 +34,6 @@ namespace MongoDB.Driver.Operations
         private readonly bool _isOrdered;
         private readonly int _maxBatchCount;
         private readonly int _maxBatchLength;
-        private readonly int _maxDocumentSize;
-        private readonly int _maxWireDocumentSize;
         private readonly IEnumerable<WriteRequest> _requests;
         private readonly BsonBinaryReaderSettings _readerSettings;
         private readonly WriteConcern _writeConcern;
@@ -49,8 +47,6 @@ namespace MongoDB.Driver.Operations
             string databaseName,
             int maxBatchCount,
             int maxBatchLength,
-            int maxDocumentSize,
-            int maxWireDocumentSize,
             bool isOrdered,
             BsonBinaryReaderSettings readerSettings,
             IEnumerable<WriteRequest> requests,
@@ -63,8 +59,6 @@ namespace MongoDB.Driver.Operations
             _databaseName = databaseName;
             _maxBatchCount = maxBatchCount;
             _maxBatchLength = maxBatchLength;
-            _maxDocumentSize = maxDocumentSize;
-            _maxWireDocumentSize = maxWireDocumentSize;
             _isOrdered = isOrdered;
             _readerSettings = readerSettings;
             _requests = requests;

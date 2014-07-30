@@ -46,6 +46,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                             if (argument == null)
                             {
                                 var message = string.Format("Unable to find a matching member to provide the value for parameter '{0}'.", parameter.Name);
+                                throw new BsonException(message);
                             }
                             arguments.Add(argument);
                         }

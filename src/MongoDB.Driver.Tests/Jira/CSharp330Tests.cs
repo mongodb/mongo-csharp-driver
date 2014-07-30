@@ -21,13 +21,11 @@ namespace MongoDB.Driver.Tests.Jira
     [TestFixture]
     public class CSharp330Tests
     {
-        private MongoServer _server;
         private MongoDatabase _database;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
             _database = Configuration.TestDatabase;
         }
 

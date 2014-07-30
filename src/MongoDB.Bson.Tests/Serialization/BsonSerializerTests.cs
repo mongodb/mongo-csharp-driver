@@ -97,7 +97,6 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeEmployee()
         {
             var employee = new Employee { FirstName = "John", LastName = "Smith", DateOfBirth = new DateTime(2001, 2, 3) };
-            var json = employee.ToJson();
 
             var bson = employee.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Employee>(bson);
@@ -114,7 +113,6 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeAccount()
         {
             var account = new Account { Opened = DateTimeOffset.Now, Balance = 12345.67M };
-            var json = account.ToJson();
 
             var bson = account.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Account>(bson);
@@ -180,7 +178,6 @@ namespace MongoDB.Bson.Tests.Serialization
         public void TestSerializeInventoryItem()
         {
             var item = new InventoryItem { Price = 42 };
-            var json = item.ToJson();
 
             var bson = item.ToBson();
             var rehydrated = BsonSerializer.Deserialize<InventoryItem>(bson);

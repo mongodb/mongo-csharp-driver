@@ -8,7 +8,10 @@ If you'd like to work with the bleeding edge, you can use our [build feed](https
 Build Status
 ------------
 
-[![Build Status](http://jenkins.bci.10gen.cc:8080/buildStatus/icon?job=mongo-csharp-driver-1.x)](http://jenkins.bci.10gen.cc:8080/job/mongo-csharp-driver-1.x/)
+.NET: [![Build status](https://ci.appveyor.com/api/projects/status/09m14g973xjfsndv)](https://ci.appveyor.com/project/craiggwilson/mongo-csharp-driver)
+
+Mono: [![Build Status](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)](https://travis-ci.org/mongodb/mongo-csharp-driver.svg?branch=master)
+
 
 Getting Started
 ---------------

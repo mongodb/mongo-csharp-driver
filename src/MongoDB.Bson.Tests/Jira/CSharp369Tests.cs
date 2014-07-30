@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Jira
         public void TestDWithExtraFields()
         {
             var json = "{ _id : 1, X : 2, Y : 3, Z : 4 }";
-            Assert.Throws<FileFormatException>(() => { var d = BsonSerializer.Deserialize<D>(json); });
+            Assert.Throws<FileFormatException>(() => BsonSerializer.Deserialize<D>(json));
         }
 
         [Test]

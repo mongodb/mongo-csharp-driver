@@ -24,17 +24,12 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public class ExpressionNormalizer : ExpressionVisitor
     {
-        // private fields
-        private Expression _expression;
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the ExpressionNormalizer class.
         /// </summary>
-        /// <param name="expression">The expression to be evaluated.</param>
-        private ExpressionNormalizer(Expression expression)
+        private ExpressionNormalizer()
         {
-            _expression = expression;
         }
 
         // public methods
@@ -45,7 +40,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The normalized expression.</returns>
         public static Expression Normalize(Expression node)
         {
-            var normalizer = new ExpressionNormalizer(node);
+            var normalizer = new ExpressionNormalizer();
             return normalizer.Visit(node);
         }
 

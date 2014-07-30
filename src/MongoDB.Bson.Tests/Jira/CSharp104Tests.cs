@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Tests.Jira
     {
         private static bool __firstTime = true;
 
-#pragma warning disable 169 // never used
+#pragma warning disable 169, 414 // never used
         private class Test
         {
             static Test()
@@ -72,10 +72,6 @@ namespace MongoDB.Bson.Tests.Jira
             }
 
             var test = new Test("x") { SetOnly = "y" };
-            var json = test.ToJson();
-            var expected = "{ '_id' : ObjectId('000000000000000000000000') }".Replace("'", "\"");
-            // Assert.AreEqual(expected, json);
-
             var bson = test.ToBson();
             var rehydrated = BsonSerializer.Deserialize<Test>(bson);
             Assert.IsTrue(bson.SequenceEqual(rehydrated.ToBson()));

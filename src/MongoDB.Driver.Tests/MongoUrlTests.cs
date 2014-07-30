@@ -25,8 +25,6 @@ namespace MongoDB.Driver.Tests
     [TestFixture]
     public class MongoUrlTests
     {
-        private MongoServerAddress _localhost = new MongoServerAddress("localhost");
-
         [Test]
         public void TestAll()
         {

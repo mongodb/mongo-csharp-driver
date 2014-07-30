@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = new byte[] { 9, 0, 0, 0, (byte)BsonType.Boolean, 0x80, 0, 0, 0 };
             Assert.AreEqual(9, bytes.Length);
-            var ex = Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
+            Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = new byte[] { 10, 0, 0, 0, (byte)BsonType.Boolean, (byte)'b', 0x80, 0, 0, 0 };
             Assert.AreEqual(10, bytes.Length);
-            var ex = Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
+            Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = new byte[] { 14, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 2, 0, 0, 0, 0x80, 0, 0 };
             Assert.AreEqual(14, bytes.Length);
-            var ex = Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
+            Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var bytes = new byte[] { 15, 0, 0, 0, (byte)BsonType.String, (byte)'s', 0, 3, 0, 0, 0, (byte)'x', 0x80, 0, 0 };
             Assert.AreEqual(15, bytes.Length);
-            var ex = Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
+            Assert.Throws<DecoderFallbackException>(() => { BsonSerializer.Deserialize<BsonDocument>(bytes); });
         }
     }
 }

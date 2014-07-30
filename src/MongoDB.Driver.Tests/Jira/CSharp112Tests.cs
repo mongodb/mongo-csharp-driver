@@ -45,15 +45,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
         }
 #pragma warning restore
 
-        private MongoServer _server;
-        private MongoDatabase _database;
         private MongoCollection _collection;
 
         [TestFixtureSetUp]
         public void TestFixtureSetup()
         {
-            _server = Configuration.TestServer;
-            _database = Configuration.TestDatabase;
             _collection = Configuration.TestCollection;
         }
 
