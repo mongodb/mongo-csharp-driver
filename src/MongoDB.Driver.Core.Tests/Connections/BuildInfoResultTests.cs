@@ -22,6 +22,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Connections
 {
+    [TestFixture]
     public class BuildInfoResultTests
     {
         [Test]

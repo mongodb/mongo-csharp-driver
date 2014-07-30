@@ -20,6 +20,7 @@ using NUnit.Framework;
 
 namespace MongoDB.Driver.Core.Tests.Misc
 {
+    [TestFixture]
     public class ExponentiallyWeightedMovingAverageTests
     {
         [Test]
