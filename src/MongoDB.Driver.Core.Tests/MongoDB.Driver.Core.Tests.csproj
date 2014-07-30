@@ -65,6 +65,7 @@
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
+    <Compile Include="Connections\BinaryConnectionFactoryTests.cs" />
     <Compile Include="Connections\BinaryConnectionTests.cs" />
     <Compile Include="Connections\BuildInfoResultTests.cs" />
     <Compile Include="Connections\IsMasterResultTests.cs" />

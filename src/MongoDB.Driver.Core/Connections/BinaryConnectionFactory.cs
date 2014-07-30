@@ -33,9 +33,8 @@ namespace MongoDB.Driver.Core.Connections
 
         // constructors
         public BinaryConnectionFactory()
+            : this(new ConnectionSettings(), new TcpStreamFactory(), null)
         {
-            _settings = new ConnectionSettings();
-            _streamFactory = new TcpStreamFactory();
         }
 
         public BinaryConnectionFactory(ConnectionSettings settings, IStreamFactory streamFactory, IMessageListener listener)
@@ -48,8 +47,8 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public IRootConnection CreateConnection(ServerId serverId, DnsEndPoint endPoint)
         {
+            Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
-            // postpone creating the stream until BinaryConnection.OpenAsync because some Stream constructors block or throw
             return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _listener);
         }
     }
