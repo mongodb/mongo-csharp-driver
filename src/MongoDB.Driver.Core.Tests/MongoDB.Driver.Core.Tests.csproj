@@ -67,6 +67,7 @@
     <Compile Include="Configuration\ConnectionStringTests.cs" />
     <Compile Include="Connections\BinaryConnectionFactoryTests.cs" />
     <Compile Include="Connections\BinaryConnectionTests.cs" />
+    <Compile Include="Connections\ConnectionDescriptionTests.cs" />
     <Compile Include="Connections\BuildInfoResultTests.cs" />
     <Compile Include="Connections\IsMasterResultTests.cs" />
     <Compile Include="Exceptions\CommandExceptionTests.cs" />
