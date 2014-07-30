@@ -19,6 +19,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
@@ -81,8 +82,8 @@ namespace MongoDB.Driver.Core.Connections
         // non-public methods
         private Task ConnectAsync(Socket socket, IPEndPoint ipEndPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            // TODO: handle timeout and cancellationToken
-            return Task.Factory.FromAsync(socket.BeginConnect(ipEndPoint, null, null), socket.EndConnect);
+            return Task.Factory.FromAsync(socket.BeginConnect(ipEndPoint, null, null), socket.EndConnect)
+                .WithTimeout(timeout, cancellationToken);
         }
 
         private async Task<IPEndPoint> ResolveAsync(DnsEndPoint dnsEndPoint, TimeSpan timeout, CancellationToken cancellationToken)
