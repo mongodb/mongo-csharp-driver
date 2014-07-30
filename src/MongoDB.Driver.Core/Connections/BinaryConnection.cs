@@ -242,19 +242,16 @@ namespace MongoDB.Driver.Core.Connections
                     _backgroundTaskCancellationToken.ThrowIfCancellationRequested();
 
                     var entry = await _outboundQueue.DequeueAsync();
-                    using (var buffer = entry.Buffer)
+                    try
                     {
-                        try
-                        {
-                            await _stream.WriteBufferAsync(buffer, 0, buffer.Length, _backgroundTaskCancellationToken);
-                            entry.TaskCompletionSource.TrySetResult(true);
-                        }
-                        catch (Exception ex)
-                        {
-                            entry.TaskCompletionSource.TrySetException(ex);
-                            ConnectionFailed(ex);
-                            throw;
-                        }
+                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, _backgroundTaskCancellationToken);
+                        entry.TaskCompletionSource.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        entry.TaskCompletionSource.TrySetException(ex);
+                        ConnectionFailed(ex);
+                        throw;
                     }
                 }
             }
