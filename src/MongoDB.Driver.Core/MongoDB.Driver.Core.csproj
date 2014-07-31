@@ -155,8 +155,9 @@
     <Compile Include="Configuration\ConnectionString.cs" />
     <Compile Include="ConfigurationException.cs" />
     <Compile Include="AuthenticationException.cs" />
+    <Compile Include="Misc\ToStringComparer.cs" />
     <Compile Include="Misc\IdGenerator.cs" />
-    <Compile Include="Misc\InterlockedValue.cs" />
+    <Compile Include="Misc\InterlockedInt32.cs" />
     <Compile Include="MongoDBException.cs" />
     <Compile Include="QueryException.cs" />
     <Compile Include="Servers\ServerId.cs" />

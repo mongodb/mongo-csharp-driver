@@ -13,19 +13,25 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public class ClusterId
+    public sealed class ClusterId : IEquatable<ClusterId>
     {
         // fields
         private readonly int _value;
 
         // constructors
         public ClusterId()
+            : this(IdGenerator<ClusterId>.GetNextId())
         {
-            _value = IdGenerator<ClusterId>.GetNextId();
+        }
+
+        public ClusterId(int value)
+        {
+            _value = value;
         }
 
         // properties
@@ -35,6 +41,25 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
+        public bool Equals(ClusterId other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return _value == other._value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ClusterId);
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
         public override string ToString()
         {
             return _value.ToString();

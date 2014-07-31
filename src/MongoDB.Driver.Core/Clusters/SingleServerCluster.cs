@@ -127,6 +127,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             var newClusterDescription = new ClusterDescription(
+                ClusterId,
                 clusterType,
                 newClusterState,
                 new[] { newServerDescription },

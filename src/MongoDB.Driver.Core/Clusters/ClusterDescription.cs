@@ -28,22 +28,23 @@ namespace MongoDB.Driver.Core.Clusters
     /// <summary>
     /// Represents information about a cluster.
     /// </summary>
-    public sealed class ClusterDescription
+    public sealed class ClusterDescription : IEquatable<ClusterDescription>
     {
         #region static
         // static methods
-        public static ClusterDescription CreateDisposed(ClusterType type)
+        public static ClusterDescription CreateDisposed(ClusterId clusterId, ClusterType type)
         {
-            return new ClusterDescription(type, ClusterState.Disposed, Enumerable.Empty<ServerDescription>(), null, 0);
+            return new ClusterDescription(clusterId, type, ClusterState.Disposed, Enumerable.Empty<ServerDescription>(), null, 0);
         }
 
-        public static ClusterDescription CreateUninitialized(ClusterType type)
+        public static ClusterDescription CreateUninitialized(ClusterId clusterId, ClusterType type)
         {
-            return new ClusterDescription(type, ClusterState.Uninitialized, Enumerable.Empty<ServerDescription>(), null, 0);
+            return new ClusterDescription(clusterId, type, ClusterState.Uninitialized, Enumerable.Empty<ServerDescription>(), null, 0);
         }
         #endregion
 
         // fields
+        private readonly ClusterId _clusterId;
         private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly int _revision;
         private readonly IReadOnlyList<ServerDescription> _servers;
@@ -52,17 +53,25 @@ namespace MongoDB.Driver.Core.Clusters
 
         // constructors
         public ClusterDescription(
+            ClusterId clusterId,
             ClusterType type,
             ClusterState state,
             IEnumerable<ServerDescription> servers,
             ReplicaSetConfig replicaSetConfig,
             int revision)
         {
+            _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _type = type;
             _state = state;
-            _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint).ToList();
+            _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<DnsEndPoint>()).ToList();
             _replicaSetConfig = replicaSetConfig; // can be null
-            _revision = 0;
+            _revision = revision;
+        }
+
+        // properties
+        public ClusterId ClusterId
+        {
+            get { return _clusterId; }
         }
 
         public ReplicaSetConfig ReplicaSetConfig
@@ -91,37 +100,55 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
+        public bool Equals(ClusterDescription other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            // ignore _revision
+            return
+                _clusterId.Equals(other._clusterId) &&
+                object.Equals(_replicaSetConfig, other.ReplicaSetConfig) &&
+                _servers.SequenceEqual(other._servers) &&
+                _state == other._state &&
+                _type == other._type;
+        }
+
         public override bool Equals(object obj)
         {
-            if (object.ReferenceEquals(this, obj)) { return true; }
-            if (obj == null || obj.GetType() != typeof(ClusterDescription)) { return false; }
-            var rhs = (ClusterDescription)obj;
-            return
-                _type.Equals(rhs._type) &&
-                _state.Equals(rhs._state) &&
-                _servers.SequenceEqual(rhs._servers) &&
-                object.Equals(_replicaSetConfig, rhs.ReplicaSetConfig);
+            return Equals(obj as ClusterDescription);
         }
 
         public override int GetHashCode()
         {
+            // ignore _revision
             return new Hasher()
-                .Hash(_type)
-                .Hash(_state)
-                .HashElements(_servers)
+                .Hash(_clusterId)
                 .Hash(_replicaSetConfig)
+                .HashElements(_servers)
+                .Hash(_state)
+                .Hash(_type)
                 .GetHashCode();
         }
 
         public override string ToString()
         {
             var servers = string.Join(", ", _servers.Select(n => n.ToString()).ToArray());
-            return string.Format("{{ Type : {0}, State : {1}, Servers : [{2}], ReplicaSetConfig : {3}, Revision : {4} }}", _type, _state, servers, _replicaSetConfig, _revision);
+            return string.Format(
+                "{{ ClusterId : {0}, Type : {1}, State : {2}, Servers : [{3}], ReplicaSetConfig : {4}, Revision : {5} }}",
+                _clusterId,
+                _type,
+                _state,
+                servers,
+                _replicaSetConfig == null ? "null" : _replicaSetConfig.ToString(),
+                _revision);
         }
 
         public ClusterDescription WithRevision(int value)
         {
-            return _revision == value ? this : new ClusterDescription(_type, _state, _servers, _replicaSetConfig, value);
+            return _revision == value ? this : new ClusterDescription(_clusterId, _type, _state, _servers, _replicaSetConfig, value);
         }
 
         public ClusterDescription WithServerDescription(ServerDescription value)
@@ -135,9 +162,9 @@ namespace MongoDB.Driver.Core.Clusters
                 throw new ArgumentException(message, "value");
             }
 
-            return oldServerDescription.Equals(value) ?
-                this :
+            return oldServerDescription.Equals(value) ? this :
                 new ClusterDescription(
+                    _clusterId,
                     _type,
                     _state,
                     _servers.Select(s => s.EndPoint == value.EndPoint ? value : s),
@@ -147,7 +174,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         public ClusterDescription WithType(ClusterType value)
         {
-            return _type == value ? this : new ClusterDescription(value, _state, _servers, _replicaSetConfig, 0);
+            return _type == value ? this : new ClusterDescription(_clusterId, value, _state, _servers, _replicaSetConfig, 0);
         }
     }
 }

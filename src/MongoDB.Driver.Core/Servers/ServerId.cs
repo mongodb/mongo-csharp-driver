@@ -13,13 +13,15 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    public class ServerId
+    public sealed class ServerId : IEquatable<ServerId>
     {
         // fields
         private readonly ClusterId _clusterId;
@@ -44,6 +46,30 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
+        public bool Equals(ServerId other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return
+                _clusterId.Equals(other._clusterId) &&
+                _endPoint.Equals(other._endPoint);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ServerId);
+        }
+
+        public override int GetHashCode()
+        {
+            return new Hasher()
+                .Hash(_clusterId)
+                .Hash(_endPoint)
+                .GetHashCode();
+        }
+
         public override string ToString()
         {
             return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, DnsEndPointParser.ToString(_endPoint));

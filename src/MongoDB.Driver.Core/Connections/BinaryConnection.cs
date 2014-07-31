@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
         private int _pendingResponseCount;
         private readonly ServerId _serverId;
         private readonly ConnectionSettings _settings;
-        private readonly InterlockedValue _state;
+        private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Connections
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(_serverId);
-            _state = new InterlockedValue(State.Initial);
+            _state = new InterlockedInt32(State.Initial);
         }
 
         // properties

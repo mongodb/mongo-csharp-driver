@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Clusters
         event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        ClusterId ClusterId { get; }
         ClusterDescription Description { get; }
         ClusterSettings Settings { get; }
 

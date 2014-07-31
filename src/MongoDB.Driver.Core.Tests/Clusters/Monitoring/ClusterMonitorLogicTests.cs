@@ -34,13 +34,13 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
         private static readonly ClusterId __clusterId;
         private static readonly ServerDescription __port27017Disconnected;
         private static readonly ServerDescription __port27018Disconnected;
-        private static readonly ClusterDescription __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+        private static readonly ClusterDescription __emptyClusterDescription;
 
         // static constructor
         static ClusterMonitorLogicTests()
         {
             __clusterId = new ClusterId();
-            __emptyClusterDescription = new ClusterDescription(ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+            __emptyClusterDescription = new ClusterDescription(__clusterId, ClusterType.Unknown, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
             var endPoint27017 = new DnsEndPoint("localhost", 27017);
             var endPoint27018 = new DnsEndPoint("localhost", 27018);
             var serverId27017 = new ServerId(__clusterId, endPoint27017);
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
         [Test]
         public void Constructor_should_throw_if_newServerDescription_is_not_member_of_cluster()
         {
-            var oldClusterDescription = new ClusterDescription(ClusterType.ReplicaSet, ClusterState.Disconnected, new[] { __port27017Disconnected }, null, 0);
+            var oldClusterDescription = new ClusterDescription(__clusterId, ClusterType.ReplicaSet, ClusterState.Disconnected, new[] { __port27017Disconnected }, null, 0);
             Action action = () => new ClusterMonitorLogic(oldClusterDescription, __port27018Disconnected);
             action.ShouldThrow<ArgumentException>();
         }
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Tests.Clusters.Monitoring
         [TestCase(ClusterType.Standalone)]
         public void Constructor_should_throw_if_oldClusterDescription_type_is_not_valid(ClusterType clusterType)
         {
-            var oldClusterDescription = new ClusterDescription(clusterType, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
+            var oldClusterDescription = new ClusterDescription(__clusterId, clusterType, ClusterState.Disconnected, Enumerable.Empty<ServerDescription>(), null, 0);
             Action action = () => new ClusterMonitorLogic(oldClusterDescription, __port27017Disconnected);
             action.ShouldThrow<ArgumentException>();
         }

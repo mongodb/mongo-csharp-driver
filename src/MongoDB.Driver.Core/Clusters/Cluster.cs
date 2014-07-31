@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
             _listener = listener;
 
             _clusterId = new ClusterId();
-            _description = ClusterDescription.CreateUninitialized(settings.RequiredClusterType ?? ClusterType.Unknown);
+            _description = ClusterDescription.CreateUninitialized(_clusterId, settings.RequiredClusterType ?? ClusterType.Unknown);
             _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Clusters
         public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        public ClusterId ClusterId
+        protected ClusterId ClusterId
         {
             get { return _clusterId; }
         }

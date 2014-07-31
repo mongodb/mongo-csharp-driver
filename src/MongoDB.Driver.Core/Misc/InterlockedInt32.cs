@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 
 namespace MongoDB.Driver.Core.Misc
@@ -20,13 +21,13 @@ namespace MongoDB.Driver.Core.Misc
     /// <summary>
     /// Thread-safe helper to manage a value.
     /// </summary>
-    internal class InterlockedValue
+    internal class InterlockedInt32
     {
         // fields
         private int _value;
 
         // constructors
-        public InterlockedValue(int initialValue)
+        public InterlockedInt32(int initialValue)
         {
             _value = initialValue;
         }
@@ -38,14 +39,18 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         // methods
-        public bool TryChange(int newValue)
+        public bool TryChange(int toValue)
         {
-            return Interlocked.Exchange(ref _value, newValue) != newValue;
+            return Interlocked.Exchange(ref _value, toValue) != toValue;
         }
 
-        public bool TryChange(int oldValue, int newValue)
+        public bool TryChange(int fromValue, int toValue)
         {
-            return Interlocked.CompareExchange(ref _value, newValue, oldValue) != newValue;
+            if (fromValue == toValue)
+            {
+                throw new ArgumentException("fromValue and toValue must be different.");
+            }
+            return Interlocked.CompareExchange(ref _value, toValue, fromValue) == fromValue;
         }
     }
 }

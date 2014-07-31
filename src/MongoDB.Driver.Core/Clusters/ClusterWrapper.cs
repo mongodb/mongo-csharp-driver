@@ -55,11 +55,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
-        public virtual ClusterId ClusterId
-        {
-            get { return _wrapped.ClusterId; }
-        }
-
         public virtual ClusterDescription Description
         {
             get { return _wrapped.Description; }
