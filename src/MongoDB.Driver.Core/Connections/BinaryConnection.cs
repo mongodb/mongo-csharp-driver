@@ -117,11 +117,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public IConnection Fork()
-        {
-            throw new NotSupportedException();
-        }
-
         private void OnSentMessages(List<RequestMessage> messages, Exception ex)
         {
             if (_listener != null)

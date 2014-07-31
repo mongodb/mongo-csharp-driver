@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Bindings
     public class ConnectionReadBinding : ReadBindingHandle
     {
         // constructors
-        public ConnectionReadBinding(IServer server, IConnection connection, ReadPreference readPreference)
+        public ConnectionReadBinding(IServer server, IConnectionHandle connection, ReadPreference readPreference)
             : this(new ReferenceCountedReadBinding(new Implementation(server, connection, readPreference)))
         {
         }
@@ -46,13 +46,13 @@ namespace MongoDB.Driver.Core.Bindings
         internal class Implementation : IReadBinding
         {
             // fields
-            private readonly IConnection _connection;
+            private readonly IConnectionHandle _connection;
             private bool _disposed;
             private readonly IServer _server;
             private readonly ReadPreference _readPreference;
 
             // constructors
-            public Implementation(IServer server, IConnection connection, ReadPreference readPreference)
+            public Implementation(IServer server, IConnectionHandle connection, ReadPreference readPreference)
             {
                 _server = Ensure.IsNotNull(server, "server");
                 _connection = Ensure.IsNotNull(connection, "connection");

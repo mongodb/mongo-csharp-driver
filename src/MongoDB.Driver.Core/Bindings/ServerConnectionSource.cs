@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new NotSupportedException(); // implemented by the handle
             }
 
-            public async Task<IConnection> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            public async Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
                 return await _server.GetConnectionAsync(timeout, cancellationToken);

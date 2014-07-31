@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IServerExtensionMethods
     {
         // static methods
-        public static IConnection GetConnection(this IServer server, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionHandle GetConnection(this IServer server, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(server, "server");
             return server.GetConnectionAsync(timeout, cancellationToken).GetAwaiter().GetResult();

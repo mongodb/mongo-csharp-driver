@@ -35,9 +35,12 @@ namespace MongoDB.Driver.Core.Connections
         ConnectionDescription Description { get; }
         DnsEndPoint EndPoint { get; }
         ConnectionSettings Settings { get; }
+    }
 
+    public interface IConnectionHandle : IConnection
+    {
         // methods
-        IConnection Fork();
+        IConnectionHandle Fork();
     }
 
     /// <summary>

@@ -15,15 +15,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.ConnectionPools;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
@@ -62,7 +59,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // methods
-        public async Task<IConnection> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<IConnectionHandle> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             PooledConnection connection;
@@ -77,7 +74,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             await connection.Wrapped.OpenAsync(timeout, cancellationToken);
-            return new AcquiredConnection(connection);
+            var acquiredConnection = new AcquiredConnection(connection);
+            var referenceCountedConnection = new ReferenceCountedConnection(acquiredConnection);
+            return new ConnectionHandle(referenceCountedConnection);
         }
 
         private PooledConnection ChooseAvailableConnection()

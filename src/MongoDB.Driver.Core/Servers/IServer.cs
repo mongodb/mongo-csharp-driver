@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Servers
         ServerDescription Description { get; }
 
         // methods
-        Task<IConnection> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
+        Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>

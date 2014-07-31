@@ -47,14 +47,14 @@ namespace MongoDB.Driver.Core.Connections
             protected set { _disposed = value;  }
         }
 
-        public virtual DnsEndPoint EndPoint
-        {
-            get { return _wrapped.EndPoint; }
-        }
-
         public virtual ConnectionDescription Description
         {
             get { return _wrapped.Description; }
+        }
+
+        public virtual DnsEndPoint EndPoint
+        {
+            get { return _wrapped.EndPoint; }
         }
 
         public virtual ConnectionSettings Settings
@@ -81,16 +81,6 @@ namespace MongoDB.Driver.Core.Connections
                 _wrapped.Dispose();
             }
             _disposed = true;
-        }
-
-        protected virtual IConnection Fork()
-        {
-            return _wrapped.Fork();
-        }
-
-        IConnection IConnection.Fork()
-        {
-            return Fork();
         }
 
         protected virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)

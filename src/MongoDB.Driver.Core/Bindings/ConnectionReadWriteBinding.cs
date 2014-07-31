@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Bindings
     public class ConnectionReadWriteBinding : ReadWriteBindingHandle
     {
         // constructors
-        public ConnectionReadWriteBinding(IServer server, IConnection connection)
+        public ConnectionReadWriteBinding(IServer server, IConnectionHandle connection)
             : this(new ReferenceCountedReadWriteBinding(new Implementation(server, connection)))
         {
         }
@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Bindings
         private class Implementation : ConnectionReadBinding.Implementation, IReadWriteBinding
         {
             // constructors
-            public Implementation(IServer server, IConnection connection)
+            public Implementation(IServer server, IConnectionHandle connection)
                 : base(server, connection, ReadPreference.Primary)
             {
             }

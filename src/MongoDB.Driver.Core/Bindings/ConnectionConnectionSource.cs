@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Bindings
     public class ConnectionConnectionSource : ConnectionSourceHandle
     {
         // constructors
-        public ConnectionConnectionSource(IServer server, IConnection connection)
+        public ConnectionConnectionSource(IServer server, IConnectionHandle connection)
             : this(new ReferenceCountedConnectionSource(new Implementation(server, connection)))
         {
         }
@@ -45,14 +45,14 @@ namespace MongoDB.Driver.Core.Bindings
         private class Implementation : IConnectionSource
         {
             // fields
-            private readonly IConnection _connection;
+            private readonly IConnectionHandle _connection;
             private bool _disposed;
             private readonly IServer _server;
 
             // constructors
             public Implementation(
                 IServer server,
-                IConnection connection)
+                IConnectionHandle connection)
             {
                 _server = Ensure.IsNotNull(server, "server");
                 _connection = Ensure.IsNotNull(connection, "connection");
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new NotSupportedException(); // implemented by the handle
             }
 
-            public Task<IConnection> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            public Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
             {
                 ThrowIfDisposed();
                 return Task.FromResult(_connection.Fork());

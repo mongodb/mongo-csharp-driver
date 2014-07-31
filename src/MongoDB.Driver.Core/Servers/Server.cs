@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public virtual async Task<IConnection> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
+        public virtual async Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
             return await _connectionPool.AcquireConnectionAsync(timeout, cancellationToken);
         }

@@ -13,38 +13,40 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
-
-namespace MongoDB.Driver.Core.ConnectionPools
+namespace MongoDB.Driver.Core.Connections
 {
     /// <summary>
-    /// Represents a connection that has been acquired from a pool. Calling Dispose will return it to the pool.
+    /// Represents a connection handle.
     /// </summary>
-    internal class AcquiredConnection : ConnectionWrapper
+    public class ConnectionHandle : ConnectionWrapper, IConnectionHandle
     {
         // fields
-        private readonly PooledConnection _pooledConnection;
+        private readonly ReferenceCountedConnection _wrapped;
 
         // constructors
-        public AcquiredConnection(PooledConnection wrapped)
+        public ConnectionHandle(ReferenceCountedConnection wrapped)
             : base(wrapped)
         {
-            _pooledConnection = Ensure.IsNotNull(wrapped, "wrapped");
-            _pooledConnection.IncrementReferenceCount();
+            _wrapped = wrapped;
         }
 
         // methods
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!Disposed)
             {
-                if (!Disposed)
+                if (disposing)
                 {
-                    _pooledConnection.DecrementReferenceCount();
+                    _wrapped.DecrementReferenceCount();
                 }
             }
             base.Dispose(disposing);
+        }
+
+        public IConnectionHandle Fork()
+        {
+            _wrapped.IncrementReferenceCount();
+            return new ConnectionHandle(_wrapped);
         }
     }
 }

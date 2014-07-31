@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.SyncExtensionMethods
     public static class IConnectionSourceExtensionMethods
     {
         // static methods
-        public static IConnection GetConnection(this IConnectionSource connectionSource, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        public static IConnectionHandle GetConnection(this IConnectionSource connectionSource, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             return connectionSource.GetConnectionAsync(timeout, cancellationToken).GetAwaiter().GetResult();
         }
