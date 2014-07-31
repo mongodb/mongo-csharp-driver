@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection wrapper.
     /// </summary>
-    public abstract class ConnectionWrapper : IConnectionInternal
+    public abstract class ConnectionWrapper : IConnection
     {
         // fields
         private bool _disposed;
@@ -83,26 +83,16 @@ namespace MongoDB.Driver.Core.Connections
             _disposed = true;
         }
 
-        protected virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+        public virtual Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _wrapped.ReceiveMessageAsync(responseTo, serializer, timeout, cancellationToken);
         }
 
-        Task<ReplyMessage<TDocument>> IConnectionInternal.ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            return ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
-        }
-
-        protected virtual Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+        public virtual Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
             return _wrapped.SendMessagesAsync(messages, timeout, cancellationToken);
-        }
-
-        Task IConnectionInternal.SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            return SendMessagesAsync(messages, timeout, cancellationToken);
         }
 
         protected void ThrowIfDisposed()

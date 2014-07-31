@@ -35,6 +35,10 @@ namespace MongoDB.Driver.Core.Connections
         ConnectionDescription Description { get; }
         DnsEndPoint EndPoint { get; }
         ConnectionSettings Settings { get; }
+
+        // methods
+        Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken);
+        Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken);
     }
 
     public interface IConnectionHandle : IConnection
@@ -44,19 +48,9 @@ namespace MongoDB.Driver.Core.Connections
     }
 
     /// <summary>
-    /// Represents additional IConnection methods that are only used internally.
-    /// </summary>
-    public interface IConnectionInternal : IConnection
-    {
-        // methods
-        Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken);
-        Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken);
-    }
-
-    /// <summary>
     /// Represents a connection that hasn't been wrapped.
     /// </summary>
-    public interface IRootConnection : IConnectionInternal
+    public interface IRootConnection : IConnection
     {
         // properties
         int PendingResponseCount { get; }

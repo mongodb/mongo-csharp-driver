@@ -80,13 +80,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Interlocked.Increment(ref _referenceCount);
         }
 
-        protected override Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+        public override Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
         {
             _lastUsedAt = DateTime.UtcNow;
             return base.ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
         }
 
-        protected override Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+        public override Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
         {
             _lastUsedAt = DateTime.UtcNow;
             return base.SendMessagesAsync(messages, timeout, cancellationToken);

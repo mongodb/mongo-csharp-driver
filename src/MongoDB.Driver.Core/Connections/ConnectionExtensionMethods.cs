@@ -31,22 +31,10 @@ namespace MongoDB.Driver.Core.Connections
     internal static class ConnectionExtensionMethods
     {
         // static methods
-        public static Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(this IConnection connection, int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(connection, "connection");
-            return ((IConnectionInternal)connection).ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
-        }
-
         public static Task SendMessageAsync(this IConnection connection, RequestMessage message, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
-            return ((IConnectionInternal)connection).SendMessagesAsync(new[] { message }, timeout, cancellationToken);
-        }
-
-        public static Task SendMessagesAsync(this IConnection connection, IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(connection, "connection");
-            return ((IConnectionInternal)connection).SendMessagesAsync(messages, timeout, cancellationToken);
+            return connection.SendMessagesAsync(new[] { message }, timeout, cancellationToken);
         }
     }
 }
