@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Connections
 
             lock (_openLock)
             {
-                if (_state.TryChange(State.Initial, State.Opening))
+                if (_state.TryChange(State.Initial, State.Connecting))
                 {
                     _openTask = OpenAsyncHelper(timeout, cancellationToken);
                 }
@@ -154,10 +154,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
-            _state.TryChange(State.Open); // wanted to set this after authentication but we need to send/receive message to authenticate
+            _state.TryChange(State.Initializing);
             StartBackgroundTasks();
             _description = await _connectionInitializer.InitializeConnectionAsync(this, _serverId, slidingTimeout, cancellationToken);
             _connectionId = _description.ConnectionId;
+            _state.TryChange(State.Open);
         }
 
         private async Task ReceiveBackgroundTask()
@@ -352,7 +353,7 @@ namespace MongoDB.Driver.Core.Connections
         private void ThrowIfDisposedOrNotOpen()
         {
             ThrowIfDisposed();
-            if (_state.Value != State.Open)
+            if (_state.Value != State.Open && _state.Value != State.Initializing)
             {
                 throw new InvalidOperationException("The connection must be opened before it can be used.");
             }
@@ -362,9 +363,10 @@ namespace MongoDB.Driver.Core.Connections
         private static class State
         {
             public static int Initial = 0;
-            public static int Opening = 1;
-            public static int Open = 2;
-            public static int Disposed = 3;
+            public static int Connecting = 1;
+            public static int Initializing = 2;
+            public static int Open = 3;
+            public static int Disposed = 4;
         }
 
         private class InboundDropboxEntry
