@@ -57,11 +57,6 @@ namespace MongoDB.Driver.Core.Connections
             get { return _wrapped.EndPoint; }
         }
 
-        public virtual int PendingResponseCount
-        {
-            get { return _wrapped.PendingResponseCount; }
-        }
-
         public virtual ConnectionSettings Settings
         {
             get { return _wrapped.Settings; }

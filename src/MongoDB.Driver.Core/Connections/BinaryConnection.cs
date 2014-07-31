@@ -48,7 +48,6 @@ namespace MongoDB.Driver.Core.Connections
         private readonly object _openLock = new object();
         private Task _openTask;
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
-        private int _pendingResponseCount;
         private readonly ServerId _serverId;
         private readonly ConnectionSettings _settings;
         private readonly InterlockedInt32 _state;
@@ -81,14 +80,6 @@ namespace MongoDB.Driver.Core.Connections
         public DnsEndPoint EndPoint
         {
             get { return _endPoint; }
-        }
-
-        public int PendingResponseCount
-        {
-            get
-            {
-                return Interlocked.CompareExchange(ref _pendingResponseCount, 0, 0);
-            }
         }
 
         public ConnectionSettings Settings
@@ -176,7 +167,6 @@ namespace MongoDB.Driver.Core.Connections
                         buffer.ReadBytes(8, responseToBytes, 0, 4);
                         var responseTo = BitConverter.ToInt32(responseToBytes, 0);
                         _inboundDropbox.Post(responseTo, new InboundDropboxEntry(buffer));
-                        Interlocked.Decrement(ref _pendingResponseCount);
                     }
                     catch (Exception ex)
                     {
@@ -309,7 +299,6 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         var entry = new OutboundQueueEntry(buffer, cancellationToken);
                         _outboundQueue.Enqueue(entry);
-                        Interlocked.Increment(ref _pendingResponseCount);
                         await entry.Task;
                     }
                     catch (Exception ex)

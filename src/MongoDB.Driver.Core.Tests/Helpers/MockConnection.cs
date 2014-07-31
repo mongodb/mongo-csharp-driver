@@ -48,8 +48,6 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             get { return ServerId.EndPoint; }
         }
 
-        public int PendingResponseCount { get; set; }
-
         public ServerId ServerId { get; private set; }
 
         public ConnectionSettings Settings { get; set; }

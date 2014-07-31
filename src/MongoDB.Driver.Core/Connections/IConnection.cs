@@ -34,7 +34,6 @@ namespace MongoDB.Driver.Core.Connections
         // properties
         ConnectionDescription Description { get; }
         DnsEndPoint EndPoint { get; }
-        int PendingResponseCount { get; }
         ConnectionSettings Settings { get; }
 
         // methods

@@ -81,35 +81,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private PooledConnection ChooseAvailableConnection()
         {
-            var leastBusyConnections = new List<PooledConnection>(_connections.Count);
-            var leastBusyConnectionsPendingResponseCount = int.MaxValue;
-
-            // find the least busy connections
-            foreach (var connection in _connections)
-            {
-                var pendingResponseCount = connection.PendingResponseCount;
-
-                if (pendingResponseCount < leastBusyConnectionsPendingResponseCount)
-                {
-                    leastBusyConnections.Clear();
-                    leastBusyConnections.Add(connection);
-                    leastBusyConnectionsPendingResponseCount = pendingResponseCount;
-                }
-                else if (pendingResponseCount == leastBusyConnectionsPendingResponseCount)
-                {
-                    leastBusyConnections.Add(connection);
-                }
-            }
-
-            // if all connections are busy but the pool is not full return null (so a new connection will be created)
-            if (leastBusyConnectionsPendingResponseCount > 0 && _connections.Count < _settings.MaxConnections)
+            // if the pool is not full return null (so a new connection will be created)
+            if (_connections.Count < _settings.MaxConnections)
             {
                 return null;
             }
 
-            // distribute load randomly among the equally least busy connections
-            var index = ThreadStaticRandom.Next(leastBusyConnections.Count);
-            return leastBusyConnections[index];
+            // distribute load randomly among the connections
+            var index = ThreadStaticRandom.Next(_connections.Count);
+            return _connections[index];
         }
 
         private PooledConnection CreateConnection()
