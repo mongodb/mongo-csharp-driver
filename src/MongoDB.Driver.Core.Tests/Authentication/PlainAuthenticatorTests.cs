@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var subject = new PlainAuthenticator(__credential);
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var saslStartReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{conversationId: 0, payload: BinData(0,\"\"), done: true, ok: 1}"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(saslStartReply);
 
             var currentRequestId = RequestMessage.CurrentGlobalRequestId;

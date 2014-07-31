@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Servers
             var cancellationToken = _backgroundTaskCancellationTokenSource.Token;
             try
             {
-                IRootConnection connection = null;
+                IConnection connection = null;
                 try
                 {
                     while (true)

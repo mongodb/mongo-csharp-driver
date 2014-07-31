@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            await connection.Wrapped.OpenAsync(timeout, cancellationToken);
+            await connection.OpenAsync(timeout, cancellationToken);
             var acquiredConnection = new AcquiredConnection(connection);
             var referenceCountedConnection = new ReferenceCountedConnection(acquiredConnection);
             return new ConnectionHandle(referenceCountedConnection);
@@ -87,8 +87,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             // find the least busy connections
             foreach (var connection in _connections)
             {
-                var rootConnection = connection.Wrapped;
-                var pendingResponseCount = rootConnection.PendingResponseCount;
+                var pendingResponseCount = connection.PendingResponseCount;
 
                 if (pendingResponseCount < leastBusyConnectionsPendingResponseCount)
                 {
@@ -115,10 +114,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private PooledConnection CreateConnection()
         {
-            var rootConnection = _connectionFactory.CreateConnection(_serverId, _endPoint); // will be initialized by caller outside of the lock
-            var connection = new PooledConnection(rootConnection);
-            _connections.Add(connection);
-            return connection;
+            var connection = _connectionFactory.CreateConnection(_serverId, _endPoint); // will be initialized by caller outside of the lock
+            var pooledConnection = new PooledConnection(connection);
+            _connections.Add(pooledConnection);
+            return pooledConnection;
         }
 
         public void Dispose()

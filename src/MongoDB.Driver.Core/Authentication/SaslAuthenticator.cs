@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
         public abstract string DatabaseName { get; }
 
         // methods
-        public async Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             using (var conversation = new SaslConversation())
             {
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Authentication
             string Name { get; }
 
             // methods
-            ISaslStep Initialize(IRootConnection connection);
+            ISaslStep Initialize(IConnection connection);
         }
 
         protected interface ISaslStep

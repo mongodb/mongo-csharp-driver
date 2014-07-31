@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public IRootConnection CreateConnection(ServerId serverId, DnsEndPoint endPoint)
+        public IConnection CreateConnection(ServerId serverId, DnsEndPoint endPoint)
         {
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");

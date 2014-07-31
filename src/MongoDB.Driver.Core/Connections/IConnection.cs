@@ -34,9 +34,11 @@ namespace MongoDB.Driver.Core.Connections
         // properties
         ConnectionDescription Description { get; }
         DnsEndPoint EndPoint { get; }
+        int PendingResponseCount { get; }
         ConnectionSettings Settings { get; }
 
         // methods
+        Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken);
         Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken);
         Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken);
     }
@@ -45,17 +47,5 @@ namespace MongoDB.Driver.Core.Connections
     {
         // methods
         IConnectionHandle Fork();
-    }
-
-    /// <summary>
-    /// Represents a connection that hasn't been wrapped.
-    /// </summary>
-    public interface IRootConnection : IConnection
-    {
-        // properties
-        int PendingResponseCount { get; }
-
-        // methods
-        Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken);
     }
 }

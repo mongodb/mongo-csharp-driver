@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US");
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var reply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();

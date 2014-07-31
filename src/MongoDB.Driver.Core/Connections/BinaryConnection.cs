@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection using the binary wire protocol over a binary stream.
     /// </summary>
-    internal class BinaryConnection : IRootConnection
+    internal class BinaryConnection : IConnection
     {
         // fields
         private readonly CancellationToken _backgroundTaskCancellationToken;

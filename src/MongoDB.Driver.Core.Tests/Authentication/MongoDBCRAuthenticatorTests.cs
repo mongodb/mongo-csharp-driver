@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var subject = new MongoDBCRAuthenticator(__credential);
 
             var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(reply);
 
             Action act = () => subject.AuthenticateAsync(connection, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Tests.Authentication
             var authenticateReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(getNonceReply);
             connection.EnqueueReplyMessage(authenticateReply);
 

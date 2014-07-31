@@ -25,14 +25,14 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Tests.Helpers
 {
-    public class MockRootConnection : IRootConnection
+    public class MockConnection : IConnection
     {
         // fields
         private readonly Queue<MongoDBMessage> _replyMessages;
         private readonly List<RequestMessage> _sentMessages;
 
         // constructors
-        public MockRootConnection(ServerId serverId)
+        public MockConnection(ServerId serverId)
         {
             _replyMessages = new Queue<MongoDBMessage>();
             _sentMessages = new List<RequestMessage>();

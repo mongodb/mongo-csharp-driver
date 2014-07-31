@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // methods
-        public async Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 

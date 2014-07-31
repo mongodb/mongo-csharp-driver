@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(serverId, "serverId");

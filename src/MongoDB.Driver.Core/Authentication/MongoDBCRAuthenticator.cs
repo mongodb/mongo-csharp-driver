@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Authentication
             get { return "MONGODB-CR"; }
         }
 
-        public async Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task AuthenticateAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
 
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private async Task<string> GetNonceAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task<string> GetNonceAsync(IConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var command = new BsonDocument("getnonce", 1);
             var protocol = new CommandWireProtocol(_credential.Source, command, true);
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Authentication
             return (string)document["nonce"];
         }
 
-        private async Task AuthenticateAsync(IRootConnection connection, string nonce, TimeSpan timeout, CancellationToken cancellationToken)
+        private async Task AuthenticateAsync(IConnection connection, string nonce, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var command = new BsonDocument
             {

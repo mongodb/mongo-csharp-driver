@@ -30,17 +30,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal class PooledConnection : ConnectionWrapper
     {
         // fields
+        private readonly IConnection _connection;
         private DateTime _createdAt;
         private DateTime _lastUsedAt;
         private object _lock = new object();
         private int _referenceCount;
-        private readonly IRootConnection _rootConnection;
 
         // constructors
-        public PooledConnection(IRootConnection rootConnection)
-            : base(rootConnection)
+        public PooledConnection(IConnection connection)
+            : base(connection)
         {
-            _rootConnection = Ensure.IsNotNull(rootConnection, "rootConnection");
+            _connection = Ensure.IsNotNull(connection, "connection");
             _createdAt = DateTime.UtcNow;
             _lastUsedAt = _createdAt;
         }
@@ -64,9 +64,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        internal new IRootConnection Wrapped
+        internal new IConnection Wrapped
         {
-            get { return _rootConnection; }
+            get { return _connection; }
         }
 
         // methods

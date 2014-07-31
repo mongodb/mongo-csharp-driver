@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Authentication
                 get { return "SCRAM-SHA-1"; }
             }
 
-            public ISaslStep Initialize(IRootConnection connection)
+            public ISaslStep Initialize(IConnection connection)
             {
                 const string gs2Header = "n,,";
                 var username = "n=" + PrepUsername(_credential.Username);

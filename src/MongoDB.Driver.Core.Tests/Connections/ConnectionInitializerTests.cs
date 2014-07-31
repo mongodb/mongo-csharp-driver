@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         [Test]
         public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_serverId_is_null()
         {
-            var connection = Substitute.For<IRootConnection>();
+            var connection = Substitute.For<IConnection>();
             Action act = () => _subject.InitializeConnectionAsync(connection, null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(isMasterReply);
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(isMasterReply);
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             var gleReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
-            var connection = new MockRootConnection(__serverId);
+            var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(isMasterReply);
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
