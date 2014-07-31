@@ -84,6 +84,10 @@ namespace MongoDB.Driver.Core.Async
                 {
                     delayCancellationTokenSource.Cancel();
                 }
+                else if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
                 else
                 {
                     throw new TimeoutException();
