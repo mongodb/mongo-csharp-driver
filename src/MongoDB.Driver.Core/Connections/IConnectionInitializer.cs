@@ -20,8 +20,8 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public interface IConnectionDescriptionProvider
+    public interface IConnectionInitializer
     {
-        Task<ConnectionDescription> CreateConnectionDescriptionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<ConnectionDescription> InitializeConnectionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken);
     }
 }

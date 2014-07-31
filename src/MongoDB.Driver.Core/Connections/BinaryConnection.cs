@@ -39,8 +39,8 @@ namespace MongoDB.Driver.Core.Connections
         // fields
         private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
-        private readonly IConnectionDescriptionProvider _connectionDescriptionProvider;
         private ConnectionId _connectionId;
+        private readonly IConnectionInitializer _connectionInitializer;
         private DnsEndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
@@ -56,13 +56,13 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionDescriptionProvider connectionDescriptionProvider, IMessageListener listener)
+        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IMessageListener listener)
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _streamFactory = Ensure.IsNotNull(streamFactory, "streamFactory");
-            _connectionDescriptionProvider = Ensure.IsNotNull(connectionDescriptionProvider, "connectionDescriptionProvider");
+            _connectionInitializer = Ensure.IsNotNull(connectionInitializer, "connectionInitializer");
             _listener = listener;
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Core.Connections
             _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
             _state.TryChange(State.Open); // wanted to set this after authentication but we need to send/receive message to authenticate
             StartBackgroundTasks();
-            _description = await _connectionDescriptionProvider.CreateConnectionDescriptionAsync(this, _serverId, slidingTimeout, cancellationToken);
+            _description = await _connectionInitializer.InitializeConnectionAsync(this, _serverId, slidingTimeout, cancellationToken);
             _connectionId = _description.ConnectionId;
         }
 

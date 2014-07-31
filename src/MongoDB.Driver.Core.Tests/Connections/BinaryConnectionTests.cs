@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
     [TestFixture]
     public class BinaryConnectionTests
     {
-        private IConnectionDescriptionProvider _connectionDescriptionProvider;
+        private IConnectionInitializer _connectionInitializer;
         private DnsEndPoint _endPoint;
         private IStreamFactory _streamFactory;
         private BinaryConnection _subject;
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Core.Tests.Connections
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
-            _connectionDescriptionProvider = Substitute.For<IConnectionDescriptionProvider>();
-            _connectionDescriptionProvider.CreateConnectionDescriptionAsync(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+            _connectionInitializer = Substitute.For<IConnectionInitializer>();
+            _connectionInitializer.InitializeConnectionAsync(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
                 .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
                 streamFactory: _streamFactory,
-                connectionDescriptionProvider: _connectionDescriptionProvider,
+                connectionInitializer: _connectionInitializer,
                 listener: new NoOpMessageListener());
         }
 

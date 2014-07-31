@@ -41,33 +41,33 @@ namespace MongoDB.Driver.Core.Tests.Connections
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 
-        private ConnectionDescriptionProvider _subject;
+        private ConnectionInitializer _subject;
 
         [SetUp]
         public void Setup()
         {
-            _subject = new ConnectionDescriptionProvider();
+            _subject = new ConnectionInitializer();
         }
 
         [Test]
-        public void CreateConnectionDescription_should_throw_an_ArgumentNullException_if_the_connection_is_null()
+        public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_connection_is_null()
         {
-            Action act = () => _subject.CreateConnectionDescriptionAsync(null, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.InitializeConnectionAsync(null, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void CreateConnectionDescription_should_throw_an_ArgumentNullException_if_the_serverId_is_null()
+        public void InitializeConnectionAsync_should_throw_an_ArgumentNullException_if_the_serverId_is_null()
         {
             var connection = Substitute.For<IRootConnection>();
-            Action act = () => _subject.CreateConnectionDescriptionAsync(connection, null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            Action act = () => _subject.InitializeConnectionAsync(connection, null, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Test]
-        public void CreateConnectionDescription_should_build_the_ConnectionDescription_correctly()
+        public void InitializeConnectionAsync_should_build_the_ConnectionDescription_correctly()
         {
             var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
-            var result = _subject.CreateConnectionDescriptionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+            var result = _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.Source.Should().Be(ConnectionIdSource.Server);
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
         }
 
         [Test]
-        public void CreateConnectionDescription_should_invoke_authenticators_when_they_exist()
+        public void InitializeConnectionAsync_should_invoke_authenticators_when_they_exist()
         {
             var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1 }"));
@@ -106,13 +106,13 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.Settings = new ConnectionSettings()
                 .WithAuthenticators(new[] { authenticator });
 
-            _subject.CreateConnectionDescriptionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             authenticator.ReceivedWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }
 
         [Test]
-        public void CreateConnectionDescription_should_not_invoke_authenticators_when_connected_to_an_arbiter()
+        public void InitializeConnectionAsync_should_not_invoke_authenticators_when_connected_to_an_arbiter()
         {
             var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, setName: \"funny\", arbiterOnly: true }"));
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             connection.Settings = new ConnectionSettings()
                 .WithAuthenticators(new[] { authenticator });
 
-            _subject.CreateConnectionDescriptionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+            _subject.InitializeConnectionAsync(connection, __serverId, Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
 
             authenticator.DidNotReceiveWithAnyArgs().AuthenticateAsync(null, Timeout.InfiniteTimeSpan, CancellationToken.None);
         }

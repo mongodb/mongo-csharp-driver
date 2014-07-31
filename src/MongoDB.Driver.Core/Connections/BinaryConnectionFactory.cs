@@ -28,12 +28,12 @@ namespace MongoDB.Driver.Core.Connections
     {
         #region static
         // static fields
-        private static readonly IConnectionDescriptionProvider __connectionDescriptionProvider;
+        private static readonly IConnectionInitializer __connectionInitializer;
 
         // static constructor
         static BinaryConnectionFactory()
         {
-            __connectionDescriptionProvider = new ConnectionDescriptionProvider();
+            __connectionInitializer = new ConnectionInitializer();
         }
         #endregion
 
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionDescriptionProvider, _listener);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, __connectionInitializer, _listener);
         }
     }
 }

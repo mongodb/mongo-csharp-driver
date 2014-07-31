@@ -26,9 +26,9 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents a connection initializer (opens and authenticates connections).
     /// </summary>
-    internal class ConnectionDescriptionProvider : IConnectionDescriptionProvider
+    internal class ConnectionInitializer : IConnectionInitializer
     {
-        public async Task<ConnectionDescription> CreateConnectionDescriptionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> InitializeConnectionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(serverId, "serverId");
