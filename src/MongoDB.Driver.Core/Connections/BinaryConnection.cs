@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Connections
         private int _pendingResponseCount;
         private readonly ServerId _serverId;
         private readonly ConnectionSettings _settings;
-        private readonly StateHelper _state;
+        private readonly InterlockedValue _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Connections
             _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(_serverId);
-            _state = new StateHelper(State.Initial);
+            _state = new InterlockedValue(State.Initial);
         }
 
         // properties
@@ -142,21 +142,21 @@ namespace MongoDB.Driver.Core.Connections
 
             lock (_openLock)
             {
-                if (_state.TryChange(State.Initial, State.Open))
+                if (_state.TryChange(State.Initial, State.Opening))
                 {
                     _openTask = OpenAsyncHelper(timeout, cancellationToken);
                 }
+                return _openTask;
             }
-
-            return _openTask;
         }
 
         private async Task OpenAsyncHelper(TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             _stream = await _streamFactory.CreateStreamAsync(_endPoint, slidingTimeout, cancellationToken);
+            _state.TryChange(State.Open); // wanted to set this after authentication but we need to send/receive message to authenticate
             StartBackgroundTasks();
-            _description = await _connectionDescriptionProvider.CreateConnectionDescription(this, _serverId, slidingTimeout, cancellationToken);
+            _description = await _connectionDescriptionProvider.CreateConnectionDescriptionAsync(this, _serverId, slidingTimeout, cancellationToken);
             _connectionId = _description.ConnectionId;
         }
 
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serializer, "serializer");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
-            ThrowIfNotOpen();
+            ThrowIfDisposedOrNotOpen();
 
             var slidingTimeout = new SlidingTimeout(timeout);
             var entry = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(messages, "messages");
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
-            ThrowIfNotOpen();
+            ThrowIfDisposedOrNotOpen();
 
             var slidingTimeout = new SlidingTimeout(timeout);
             var sentMessages = new List<RequestMessage>();
@@ -343,18 +343,17 @@ namespace MongoDB.Driver.Core.Connections
 
         private void ThrowIfDisposed()
         {
-            if (_state.Current == State.Disposed)
+            if (_state.Value == State.Disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
         }
 
-        private void ThrowIfNotOpen()
+        private void ThrowIfDisposedOrNotOpen()
         {
-            if (_state.Current != State.Open)
+            ThrowIfDisposed();
+            if (_state.Value != State.Open)
             {
-                ThrowIfDisposed();
-
                 throw new InvalidOperationException("The connection must be opened before it can be used.");
             }
         }
@@ -363,8 +362,9 @@ namespace MongoDB.Driver.Core.Connections
         private static class State
         {
             public static int Initial = 0;
-            public static int Open = 1;
-            public static int Disposed = 2;
+            public static int Opening = 1;
+            public static int Open = 2;
+            public static int Disposed = 3;
         }
 
         private class InboundDropboxEntry

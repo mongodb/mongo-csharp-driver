@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
             _connectionDescriptionProvider = Substitute.For<IConnectionDescriptionProvider>();
-            _connectionDescriptionProvider.CreateConnectionDescription(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
+            _connectionDescriptionProvider.CreateConnectionDescriptionAsync(null, null, Timeout.InfiniteTimeSpan, CancellationToken.None)
                 .ReturnsForAnyArgs(Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),

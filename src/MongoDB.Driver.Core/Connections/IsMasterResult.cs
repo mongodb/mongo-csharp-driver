@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             get
             {
-                if(!_wrapped.GetValue("ok", false).ToBoolean())
+                if (!_wrapped.GetValue("ok", false).ToBoolean())
                 {
                     return ServerType.Unknown;
                 }

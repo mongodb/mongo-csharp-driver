@@ -22,6 +22,6 @@ namespace MongoDB.Driver.Core.Connections
 {
     public interface IConnectionDescriptionProvider
     {
-        Task<ConnectionDescription> CreateConnectionDescription(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken);
+        Task<ConnectionDescription> CreateConnectionDescriptionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken);
     }
 }

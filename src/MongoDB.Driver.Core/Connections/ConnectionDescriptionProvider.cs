@@ -14,13 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
@@ -32,7 +28,7 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     internal class ConnectionDescriptionProvider : IConnectionDescriptionProvider
     {
-        public async Task<ConnectionDescription> CreateConnectionDescription(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> CreateConnectionDescriptionAsync(IRootConnection connection, ServerId serverId, TimeSpan timeout, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, "connection");
             Ensure.IsNotNull(serverId, "serverId");
@@ -47,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
             // authentication is currently broken on arbiters
             if (!isMasterResult.IsArbiter)
             {
-                foreach(var authenticator in connection.Settings.Authenticators)
+                foreach (var authenticator in connection.Settings.Authenticators)
                 {
                     await authenticator.AuthenticateAsync(connection, slidingTimeout, cancellationToken);
                 }

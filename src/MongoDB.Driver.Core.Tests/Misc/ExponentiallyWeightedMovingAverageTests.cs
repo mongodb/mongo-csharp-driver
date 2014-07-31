@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Tests.Misc
         {
             var subject = new ExponentiallyWeightedMovingAverage(alpha);
 
-            foreach(var sample in samples)
+            foreach (var sample in samples)
             {
                 subject.AddSample(TimeSpan.FromMilliseconds(sample));
             }

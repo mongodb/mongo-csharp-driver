@@ -26,8 +26,16 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     public class BinaryConnectionFactory : IConnectionFactory
     {
+        #region static
         // static fields
         private static readonly IConnectionDescriptionProvider __connectionDescriptionProvider;
+
+        // static constructor
+        static BinaryConnectionFactory()
+        {
+            __connectionDescriptionProvider = new ConnectionDescriptionProvider();
+        }
+        #endregion
 
         // fields
         private readonly IMessageListener _listener;
@@ -35,10 +43,6 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        static BinaryConnectionFactory()
-        {
-            __connectionDescriptionProvider = new ConnectionDescriptionProvider();
-        }
         public BinaryConnectionFactory()
             : this(new ConnectionSettings(), new TcpStreamFactory(), null)
         {

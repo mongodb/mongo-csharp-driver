@@ -18,34 +18,34 @@ using System.Threading;
 namespace MongoDB.Driver.Core.Misc
 {
     /// <summary>
-    /// Thread-safe helper to manage state.
+    /// Thread-safe helper to manage a value.
     /// </summary>
-    internal class StateHelper
+    internal class InterlockedValue
     {
         // fields
-        private int _current;
+        private int _value;
 
         // constructors
-        public StateHelper(int initialState)
+        public InterlockedValue(int initialValue)
         {
-            _current = initialState;
+            _value = initialValue;
         }
 
         // properties
-        public int Current
+        public int Value
         {
-            get { return Interlocked.CompareExchange(ref _current, 0, 0); }
+            get { return Interlocked.CompareExchange(ref _value, 0, 0); }
         }
 
         // methods
-        public bool TryChange(int newState)
+        public bool TryChange(int newValue)
         {
-            return Interlocked.Exchange(ref _current, newState) != newState;
+            return Interlocked.Exchange(ref _value, newValue) != newValue;
         }
 
-        public bool TryChange(int oldState, int newState)
+        public bool TryChange(int oldValue, int newValue)
         {
-            return Interlocked.CompareExchange(ref _current, newState, oldState) == oldState;
+            return Interlocked.CompareExchange(ref _value, newValue, oldValue) != newValue;
         }
     }
 }

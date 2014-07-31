@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Authentication
         // methods
         public async Task AuthenticateAsync(IRootConnection connection, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            using(var conversation = new SaslConversation())
+            using (var conversation = new SaslConversation())
             {
                 var currentStep = _mechanism.Initialize(connection);
 
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Authentication
 
                 var slidingTimeout = new SlidingTimeout(timeout);
 
-                while(true)
+                while (true)
                 {
                     BsonDocument result;
                     try
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Authentication
                     }
 
                     // we might be done here if the client is not expecting a reply from the server
-                    if(result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
+                    if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
                     {
                         break;
                     }
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Authentication
                     currentStep = currentStep.Transition(conversation, result["payload"].AsByteArray);
 
                     // we might be done here if the client had some final verification it needed to do
-                    if(result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
+                    if (result.GetValue("done", false).ToBoolean() && currentStep.IsComplete)
                     {
                         break;
                     }

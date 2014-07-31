@@ -31,7 +31,7 @@ namespace MongoDB
             if (type != null)
             {
                 var message = "Test is not valid on Mono.";
-                if(_reason != null)
+                if (_reason != null)
                 {
                     message += " " + _reason;
                 }

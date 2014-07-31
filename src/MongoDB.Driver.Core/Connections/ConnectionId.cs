@@ -68,12 +68,13 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public bool Equals(ConnectionId other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return _serverId.Equals(other._serverId) &&
+            return
+                _serverId.Equals(other._serverId) &&
                 _source == other._source &&
                 _value == other._value;
         }

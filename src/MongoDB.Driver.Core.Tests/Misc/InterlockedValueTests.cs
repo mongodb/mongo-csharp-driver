@@ -25,32 +25,32 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Misc
 {
     [TestFixture]
-    public class StateHelperTests
+    public class InterlockedValueTests
     {
         [Test]
-        public void Current_should_return_initial_state_after_construction()
+        public void Value_should_return_initial_value_after_construction()
         {
-            var subject = new StateHelper(3);
+            var subject = new InterlockedValue(3);
 
-            subject.Current.Should().Be(3);
+            subject.Value.Should().Be(3);
         }
 
         [Test]
-        public void Current_should_return_new_state_after_a_successful_change()
+        public void Value_should_return_new_value_after_a_successful_change()
         {
-            var subject = new StateHelper(3);
+            var subject = new InterlockedValue(3);
             subject.TryChange(5);
 
-            subject.Current.Should().Be(5);
+            subject.Value.Should().Be(5);
         }
 
         [Test]
-        public void Current_should_return_current_state_after_an_unsuccessful_change()
+        public void Value_should_return_current_value_after_an_unsuccessful_change()
         {
-            var subject = new StateHelper(3);
+            var subject = new InterlockedValue(3);
             subject.TryChange(4, 5);
 
-            subject.Current.Should().Be(3);
+            subject.Value.Should().Be(3);
         }
 
         [Test]
@@ -58,10 +58,10 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase(0, 1, true)]
         [TestCase(1, 0, true)]
         [TestCase(1, 1, false)]
-        public void TryChange_with_one_parameter(int currentState, int newState, bool expected)
+        public void TryChange_with_one_parameter(int currentValue, int newValue, bool expected)
         {
-            var subject = new StateHelper(currentState);
-            var result = subject.TryChange(newState);
+            var subject = new InterlockedValue(currentValue);
+            var result = subject.TryChange(newValue);
 
             result.Should().Be(expected);
         }
@@ -71,10 +71,10 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase(0, 1, 1, false)]
         [TestCase(0, 1, 2, false)]
         [TestCase(0, 1, 0, false)]
-        public void TryChange_with_two_parameters(int currentState, int fromState, int toState, bool expected)
+        public void TryChange_with_two_parameters(int currentValue, int oldValue, int newValue, bool expected)
         {
-            var subject = new StateHelper(currentState);
-            var result = subject.TryChange(fromState, toState);
+            var subject = new InterlockedValue(currentValue);
+            var result = subject.TryChange(oldValue, newValue);
 
             result.Should().Be(expected);
         }

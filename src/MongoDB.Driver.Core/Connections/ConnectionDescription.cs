@@ -14,7 +14,6 @@
 */
 
 using System;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -83,14 +82,15 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public bool Equals(ConnectionDescription other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }
 
-            return _connectionId.Equals(other._connectionId) &&
-                _isMasterResult.Equals(other._isMasterResult) &&
-                _buildInfoResult.Equals(other._buildInfoResult);
+            return
+                _buildInfoResult.Equals(other._buildInfoResult) &&
+                _connectionId.Equals(other._connectionId) &&
+                _isMasterResult.Equals(other._isMasterResult);
         }
 
         public override bool Equals(object obj)
@@ -101,8 +101,9 @@ namespace MongoDB.Driver.Core.Connections
         public override int GetHashCode()
         {
             return new Hasher()
-                .Hash(_isMasterResult)
                 .Hash(_buildInfoResult)
+                .Hash(_connectionId)
+                .Hash(_isMasterResult)
                 .GetHashCode();
         }
     }

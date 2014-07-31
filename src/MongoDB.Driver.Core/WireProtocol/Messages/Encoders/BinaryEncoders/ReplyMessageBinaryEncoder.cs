@@ -100,27 +100,27 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             streamWriter.WriteInt32((int)Opcode.Reply);
 
             var flags = ResponseFlags.AwaitCapable;
-            if(message.QueryFailure)
+            if (message.QueryFailure)
             {
-                flags = flags ^ ResponseFlags.QueryFailure;
+                flags |= ResponseFlags.QueryFailure;
             }
-            if(message.CursorNotFound)
+            if (message.CursorNotFound)
             {
-                flags = flags ^ ResponseFlags.CursorNotFound;
+                flags |= ResponseFlags.CursorNotFound;
             }
             streamWriter.WriteInt32((int)flags);
 
             streamWriter.WriteInt64(message.CursorId);
             streamWriter.WriteInt32(message.StartingFrom);
             streamWriter.WriteInt32(message.NumberReturned);
-            if(message.QueryFailure)
+            if (message.QueryFailure)
             {
                 var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
                 _serializer.Serialize(context, message.QueryFailureDocument);
             }
             else
             {
-                foreach(var doc in message.Documents)
+                foreach (var doc in message.Documents)
                 {
                     var context = BsonSerializationContext.CreateRoot<TDocument>(_binaryWriter);
                     _serializer.Serialize(context, doc);

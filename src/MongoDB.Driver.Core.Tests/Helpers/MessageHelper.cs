@@ -116,9 +116,9 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         public static void WriteRepliesToStream(Stream stream, IEnumerable<ReplyMessage> replies)
         {
             var startPosition = stream.Position;
-            foreach(var reply in replies)
+            foreach (var reply in replies)
             {
-                using(var writer = new BsonBinaryWriter(stream))
+                using (var writer = new BsonBinaryWriter(stream))
                 {
                     var encoderFactory = new BinaryMessageEncoderFactory(writer);
                     var encoder = reply.GetEncoder(encoderFactory);
