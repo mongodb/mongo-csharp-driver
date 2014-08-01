@@ -57,6 +57,14 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 // TODO: nowhere to set this...
             }
+            if (connectionString.MaxIdleTime != null)
+            {
+                configuration.ConfigureConnection(s => s.WithMaxIdleTime(connectionString.MaxIdleTime.Value));
+            }
+            if (connectionString.MaxLifeTime != null)
+            {
+                configuration.ConfigureConnection(s => s.WithMaxLifeTime(connectionString.MaxLifeTime.Value));
+            }
 
             // Connection Pool
             if (connectionString.MaxPoolSize != null)
@@ -65,19 +73,15 @@ namespace MongoDB.Driver.Core.Configuration
             }
             if (connectionString.MinPoolSize != null)
             {
-                // TODO: nowhere to set this
-            }
-            if (connectionString.MaxIdleTime != null)
-            {
-                configuration.ConfigureConnectionPool(s => s.WithConnectionMaxIdleTime(connectionString.MaxIdleTime.Value));
-            }
-            if (connectionString.MaxLifeTime != null)
-            {
-                configuration.ConfigureConnectionPool(s => s.WithConnectionMaxLifeTime(connectionString.MaxLifeTime.Value));
+                configuration.ConfigureConnectionPool(s => s.WithMinConnections(connectionString.MinPoolSize.Value));
             }
             if (connectionString.WaitQueueMultiple != null)
             {
-                // TODO: nowhere to set this
+                configuration.ConfigureConnectionPool(s => s.WithWaitQueueMultiple(connectionString.WaitQueueMultiple.Value));
+            }
+            if (connectionString.WaitQueueMultiple != null)
+            {
+                configuration.ConfigureConnectionPool(s => s.WithWaitQueueMultiple(connectionString.WaitQueueMultiple.Value));
             }
 
             // Server

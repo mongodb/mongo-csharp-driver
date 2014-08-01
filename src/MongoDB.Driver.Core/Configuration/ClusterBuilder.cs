@@ -61,8 +61,8 @@ namespace MongoDB.Driver.Core.Configuration
                 _messageListener);
 
             var connectionPoolFactory = new ConnectionPoolFactory(
-                connectionFactory,
-                _connectionPoolSettings);
+                _connectionPoolSettings,
+                connectionFactory);
 
             var serverFactory = new ServerFactory(
                 _serverSettings,

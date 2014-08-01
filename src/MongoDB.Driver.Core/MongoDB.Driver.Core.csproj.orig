@@ -99,9 +99,11 @@
     <Compile Include="Clusters\ClusterState.cs" />
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
-    <Compile Include="ConnectionPools\ConnectionPool.cs" />
-    <Compile Include="ConnectionPools\ConnectionPoolFactory.cs" />
+<<<<<<< HEAD
     <Compile Include="Connections\ConnectionHandle.cs" />
+=======
+    <Compile Include="ConnectionPools\ExclusiveConnectionPool.cs" />
+>>>>>>> temp before rebase with lots of changes.
     <Compile Include="Connections\ConnectionId.cs" />
     <Compile Include="Connections\ConnectionIdSource.cs" />
     <Compile Include="Connections\IConnectionInitializer.cs" />
@@ -133,11 +135,13 @@
     <Compile Include="Clusters\SingleServerCluster.cs" />
     <Compile Include="Clusters\Tag.cs" />
     <Compile Include="Clusters\TagSet.cs" />
+    <Compile Include="ConnectionPools\AcquiredConnection.cs" />
     <Compile Include="ConnectionPools\SharedConnectionPool.cs" />
     <Compile Include="ConnectionPools\SharedConnectionPoolFactory.cs" />
     <Compile Include="Configuration\ConnectionPoolSettings.cs" />
     <Compile Include="ConnectionPools\IConnectionPool.cs" />
     <Compile Include="ConnectionPools\IConnectionPoolFactory.cs" />
+    <Compile Include="ConnectionPools\PooledConnection.cs" />
     <Compile Include="Connections\BinaryConnection.cs" />
     <Compile Include="Connections\BinaryConnectionFactory.cs" />
     <Compile Include="Connections\ConnectionDescription.cs" />
@@ -166,7 +170,7 @@
     <Compile Include="WriteException.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Misc\BatchResult.cs" />
-    <Compile Include="Misc\EndPointParser.cs" />
+    <Compile Include="Misc\DnsEndPointParser.cs" />
     <Compile Include="Misc\Ensure.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />
     <Compile Include="Misc\IRandomStringGenerator.cs" />

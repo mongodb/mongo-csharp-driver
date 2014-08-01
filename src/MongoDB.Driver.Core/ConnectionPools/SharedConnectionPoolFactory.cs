@@ -13,7 +13,12 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -21,29 +26,34 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    public sealed class ConnectionPoolFactory : IConnectionPoolFactory
+    /// <summary>
+    /// Represents a connection pool factory.
+    /// </summary>
+    public class SharedConnectionPoolFactory : IConnectionPoolFactory
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
-        private readonly ConnectionPoolSettings _settings;
+        private readonly ConnectionPoolSettings _connectionPoolSettings;
 
-        public ConnectionPoolFactory()
-            : this(new ConnectionPoolSettings(), new BinaryConnectionFactory())
+        // constructors
+        public SharedConnectionPoolFactory()
         {
+            _connectionFactory = new BinaryConnectionFactory();
+            _connectionPoolSettings = new ConnectionPoolSettings();
         }
 
-        public ConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory)
+        public SharedConnectionPoolFactory(
+            IConnectionFactory connectionFactory,
+            ConnectionPoolSettings connectionPoolSettings)
         {
-            _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
+            _connectionPoolSettings = Ensure.IsNotNull(connectionPoolSettings, "connectionPoolSettings");
         }
 
+        // methods
         public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
         {
-            Ensure.IsNotNull(serverId, "serverId");
-            Ensure.IsNotNull(endPoint, "endPoint");
-
-            return new ConnectionPool(serverId, endPoint, _settings, _connectionFactory);
+            return new SharedConnectionPool(serverId, endPoint, _connectionPoolSettings, _connectionFactory);
         }
     }
 }

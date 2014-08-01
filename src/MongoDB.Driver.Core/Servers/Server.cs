@@ -134,7 +134,10 @@ namespace MongoDB.Driver.Core.Servers
 
         public virtual async Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            return await _connectionPool.AcquireConnectionAsync(timeout, cancellationToken);
+            var slidingTimeout = new SlidingTimeout(timeout);
+            var connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken);
+            await connection.OpenAsync(slidingTimeout, cancellationToken);
+            return connection;
         }
 
         private async Task<HeartbeatInfo> HeartbeatAsync(IConnection connection, CancellationToken cancellationToken)
@@ -257,6 +260,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Initialize()
         {
+            _connectionPool.Initialize();
             HeartbeatBackgroundTask().LogUnobservedExceptions();
         }
 

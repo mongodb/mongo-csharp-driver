@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Connections
         // properties
         ConnectionDescription Description { get; }
         EndPoint EndPoint { get; }
+        bool IsExpired { get; }
         ConnectionSettings Settings { get; }
 
         // methods

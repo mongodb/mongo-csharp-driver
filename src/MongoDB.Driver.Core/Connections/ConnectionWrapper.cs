@@ -57,6 +57,11 @@ namespace MongoDB.Driver.Core.Connections
             get { return _wrapped.EndPoint; }
         }
 
+        public virtual bool IsExpired
+        {
+            get { return _wrapped.IsExpired; }
+        }
+
         public virtual ConnectionSettings Settings
         {
             get { return _wrapped.Settings; }

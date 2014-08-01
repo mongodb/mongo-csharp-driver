@@ -48,6 +48,8 @@ namespace MongoDB.Driver.Core.Tests.Helpers
             get { return ServerId.EndPoint; }
         }
 
+        public bool IsExpired { get; set; }
+
         public ServerId ServerId { get; private set; }
 
         public ConnectionSettings Settings { get; set; }
@@ -55,6 +57,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         // methods
         public void Dispose()
         {
+            IsExpired = true;
         }
 
         public void EnqueueReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)

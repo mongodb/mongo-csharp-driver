@@ -25,19 +25,19 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    /// <summary>
-    /// Represents a connection pool.
-    /// </summary>
-    internal class ConnectionPool : IConnectionPool
+    internal sealed class ConnectionPool : IConnectionPool
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
-        private readonly List<PooledConnection> _connections = new List<PooledConnection>();
-        private bool _disposed;
+        private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
-        private readonly object _lock = new object();
+        private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _settings;
+        private readonly InterlockedInt32 _state;
+        private readonly object _sizeMaintenaceLock = new object();
+        private readonly Timer _sizeMaintenanceTimer;
+        private readonly SemaphoreSlim _waitQueue;
 
         // constructors
         public ConnectionPool(
@@ -50,80 +50,477 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
+
+            _connectionHolder = new ListConnectionHolder();
+            _poolQueue = new WaitQueue(settings.MaxConnections);
+            _waitQueue = new SemaphoreSlim(settings.MaxWaitQueueSize);
+            _sizeMaintenanceTimer = new Timer(_ => MaintainSize());
+            _state = new InterlockedInt32(State.Initial);
         }
 
         // properties
+        public int AvailableCount
+        {
+            get 
+            {
+                ThrowIfDisposed();
+                return _poolQueue.CurrentCount; 
+            }
+        }
+
+        public int CreatedCount
+        {
+            get 
+            {
+                ThrowIfDisposed();
+                return UsedCount + DormantCount; 
+            }
+        }
+
+        public int DormantCount
+        {
+            get 
+            {
+                ThrowIfDisposed();
+                return _connectionHolder.Count; 
+            }
+        }
+
+        public int UsedCount
+        {
+            get 
+            {
+                ThrowIfDisposed();
+                return _settings.MaxConnections - AvailableCount; 
+            }
+        }
+
         public ServerId ServerId
         {
             get { return _serverId; }
         }
 
-        // methods
+        // public methods
         public async Task<IConnectionHandle> AcquireConnectionAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            ThrowIfDisposed();
-            PooledConnection connection;
+            ThrowIfNotOpen();
 
-            lock (_lock)
+            var slidingTimeout = new SlidingTimeout(timeout);
+
+            bool enteredWaitQueue = false;
+            bool enteredPool = false;
+
+            try
             {
-                connection = ChooseAvailableConnection();
-                if (connection == null)
+                enteredWaitQueue = _waitQueue.Wait(0); // don't wait...
+                if (!enteredWaitQueue)
                 {
-                    connection = CreateConnection();
+                    throw new MongoDBException("Too many waiters in the connection pool.");
+                }
+
+                var waitQueueTimeout = (int)Math.Min(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
+                if(waitQueueTimeout == Timeout.Infinite)
+                {
+                    // if one of these is infinite (-1), then we don't timeout properly
+                    waitQueueTimeout = (int)Math.Max(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
+                }
+                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(waitQueueTimeout), cancellationToken);
+
+                if (enteredPool)
+                {
+                    return AcquireConnection();
+                }
+
+                throw new TimeoutException("Timed out waiting for a connection.");
+            }
+            catch
+            {
+                if (enteredPool)
+                {
+                    try
+                    {
+                        _poolQueue.Release();
+                    }
+                    catch
+                    {
+                        // TODO: log this, but don't throw... it's a bug if we get here
+                    }
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (enteredWaitQueue)
+                {
+                    try
+                    {
+                        _waitQueue.Release();
+                    }
+                    catch
+                    {
+                        // TODO: log this, but don't throw... it's a bug if we get here
+                    }
                 }
             }
-
-            await connection.OpenAsync(timeout, cancellationToken);
-            var acquiredConnection = new AcquiredConnection(connection);
-            var referenceCountedConnection = new ReferenceCountedConnection(acquiredConnection);
-            return new ConnectionHandle(referenceCountedConnection);
         }
 
-        private PooledConnection ChooseAvailableConnection()
+        private IConnectionHandle AcquireConnection()
         {
-            // if the pool is not full return null (so a new connection will be created)
-            if (_connections.Count < _settings.MaxConnections)
+            PooledConnection connection = _connectionHolder.Acquire();
+            if (connection == null)
             {
-                return null;
+                connection = CreateNewConnection();
             }
 
-            // distribute load randomly among the connections
-            var index = ThreadStaticRandom.Next(_connections.Count);
-            return _connections[index];
+            return new AcquiredConnection(this, connection);
         }
 
-        private PooledConnection CreateConnection()
+        private PooledConnection CreateNewConnection()
         {
-            var connection = _connectionFactory.CreateConnection(_serverId, _endPoint); // will be initialized by caller outside of the lock
-            var pooledConnection = new PooledConnection(connection);
-            _connections.Add(pooledConnection);
-            return pooledConnection;
+            var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
+            return new PooledConnection(connection);
+        }
+
+        public void Initialize()
+        {
+            ThrowIfDisposed();
+            if (_state.TryChange(State.Initial, State.Open))
+            {
+                _sizeMaintenanceTimer.Change(TimeSpan.Zero, _settings.MaintenanceInterval);
+            }
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_state.TryChange(State.Disposed))
+            {
+                // TODO: dispose all connections in the pool
+                _sizeMaintenanceTimer.Dispose();
+                _poolQueue.Dispose();
+                _waitQueue.Dispose();
+            }
         }
 
-        protected void Dispose(bool disposing)
+        private void MaintainSize()
         {
-            if (disposing)
+            if (_state.Value == State.Disposed)
             {
-                foreach (var connection in _connections)
+                return;
+            }
+
+            bool lockTaken = false;
+            try
+            {
+                lockTaken = Monitor.TryEnter(_sizeMaintenaceLock);
+                if (!lockTaken)
                 {
-                    connection.Dispose();
+                    return;
+                }
+
+                PrunePool();
+                EnsureMinSize();
+            }
+            catch
+            {
+                // eat all these exceptions.  Any that leak would cause an application crash.
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    Monitor.Exit(_sizeMaintenaceLock);
                 }
             }
-            _disposed = true;
         }
 
-        protected void ThrowIfDisposed()
+        private void PrunePool()
         {
-            if (_disposed)
+            bool enteredPool = false;
+            try
+            {
+                // if it takes too long to enter the pool, then the pool is fully utilized
+                // and we don't want to mess with it.
+                enteredPool = _poolQueue.Wait(TimeSpan.FromMilliseconds(20), CancellationToken.None);
+                if (!enteredPool)
+                {
+                    return;
+                }
+
+                _connectionHolder.Prune();
+            }
+            finally
+            {
+                if (enteredPool)
+                {
+                    try
+                    {
+                        _poolQueue.Release();
+                    }
+                    catch
+                    {
+                        // log this... it's a bug
+                    }
+                }
+            }
+        }
+
+        private void EnsureMinSize()
+        {
+            while (CreatedCount < _settings.MinConnections)
+            {
+                bool enteredPool = false;
+                try
+                {
+                    enteredPool = _poolQueue.Wait(TimeSpan.FromMilliseconds(20), CancellationToken.None);
+                    if (!enteredPool)
+                    {
+                        return;
+                    }
+
+                    var connection = CreateNewConnection();
+                    // when adding in a connection, we need to open it because 
+                    // the whole point of having a min pool size is to have
+                    // them available and ready...
+                    connection.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+                    _connectionHolder.Return(connection);
+                }
+                finally
+                {
+                    if (enteredPool)
+                    {
+                        try
+                        {
+                            _poolQueue.Release();
+                        }
+                        catch
+                        {
+                            // log this... it's a bug
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ReleaseConnection(PooledConnection connection)
+        {
+            if (_state.Value == State.Disposed)
+            {
+                connection.Dispose();
+                return;
+            }
+
+            _connectionHolder.Return(connection);
+            _poolQueue.Release();
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_state.Value == State.Disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }
+        }
+
+        private void ThrowIfNotOpen()
+        {
+            if (_state.Value != State.Open)
+            {
+                ThrowIfDisposed();
+                throw new InvalidOperationException("ConnectionPool must be initialized.");
+            }
+        }
+
+        // nested classes
+        private static class State
+        {
+            public const int Initial = 0;
+            public const int Open = 1;
+            public const int Disposed = 2;
+        }
+
+        private class PooledConnection : ConnectionWrapper
+        {
+            // fields
+            private int _referenceCount;
+
+            // constructors
+            public PooledConnection(IConnection connection)
+                : base(connection)
+            {
+            }
+
+            // properties
+            public int ReferenceCount
+            {
+                get
+                {
+                    return Interlocked.CompareExchange(ref _referenceCount, 0, 0);
+                }
+            }
+
+            // methods
+            public void DecrementReferenceCount()
+            {
+                Interlocked.Decrement(ref _referenceCount);
+            }
+
+            public void IncrementReferenceCount()
+            {
+                Interlocked.Increment(ref _referenceCount);
+            }
+        }
+
+        private class AcquiredConnection : ConnectionWrapper, IConnectionHandle
+        {
+            private ConnectionPool _connectionPool;
+            private PooledConnection _pooledConnection;
+
+            public AcquiredConnection(ConnectionPool connectionPool, PooledConnection pooledConnection)
+                : base(pooledConnection)
+            {
+                _connectionPool = connectionPool;
+                _pooledConnection = pooledConnection;
+                _pooledConnection.IncrementReferenceCount();
+            }
+
+            public override bool IsExpired
+            {
+                get
+                {
+                    ThrowIfDisposed();
+                    return base.IsExpired || _connectionPool._state.Value == State.Disposed;
+                }
+            }
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    if (!Disposed)
+                    {
+                        _pooledConnection.DecrementReferenceCount();
+                        if (_pooledConnection.ReferenceCount == 0)
+                        {
+                            _connectionPool.ReleaseConnection(_pooledConnection);
+                        }
+                    }
+                    Disposed = true;
+                    _pooledConnection = null;
+                    _connectionPool = null;
+                }
+                // don't call base.Dispose here because we don't want the underlying 
+                // connection to get disposed...
+            }
+
+            public IConnectionHandle Fork()
+            {
+                return new AcquiredConnection(_connectionPool, _pooledConnection);
+            }
+        }
+
+        private sealed class WaitQueue : IDisposable
+        {
+            private SemaphoreSlim _semaphore;
+
+            public WaitQueue(int count)
+            {
+                _semaphore = new SemaphoreSlim(count);
+            }
+
+            public int CurrentCount
+            {
+                get { return _semaphore.CurrentCount; }
+            }
+
+            public void Release()
+            {
+                _semaphore.Release();
+            }
+
+            public bool Wait(TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                return _semaphore.Wait(timeout, cancellationToken);
+            }
+
+            public Task<bool> WaitAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                return _semaphore.WaitAsync(timeout, cancellationToken);
+            }
+
+            public void Dispose()
+            {
+                _semaphore.Dispose();
+            }
+        }
+
+        private class ListConnectionHolder
+        {
+            private readonly object _lock = new object();
+            private readonly List<PooledConnection> _connections;
+
+            public ListConnectionHolder()
+            {
+                _connections = new List<PooledConnection>();
+            }
+
+            public int Count
+            {
+                get
+                {
+                    lock (_lock)
+                    {
+                        return _connections.Count;
+                    }
+                }
+            }
+
+            public void Prune()
+            {
+                lock (_lock)
+                {
+                    for (int i = 0; i < _connections.Count; i++)
+                    {
+                        if (_connections[i].IsExpired)
+                        {
+                            _connections[i].Dispose();
+                            _connections.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            public PooledConnection Acquire()
+            {
+                lock (_lock)
+                {
+                    if (_connections.Count > 0)
+                    {
+                        var connection = _connections[_connections.Count - 1];
+                        if (!connection.IsExpired)
+                        {
+                            _connections.RemoveAt(_connections.Count - 1);
+                            return connection;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            public void Return(PooledConnection connection)
+            {
+                if(connection.IsExpired)
+                {
+                    connection.Dispose();
+                    return;
+                }
+
+                lock (_lock)
+                {
+                    _connections.Add(connection);
+                }
+            }
+
         }
     }
 }

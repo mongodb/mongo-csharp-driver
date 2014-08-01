@@ -23,43 +23,37 @@ namespace MongoDB.Driver.Core.Configuration
     public class ConnectionPoolSettings
     {
         // fields
-        private readonly TimeSpan _connectionMaxIdleTime;
-        private readonly TimeSpan _connectionMaxLifeTime;
         private readonly TimeSpan _maintenanceInterval;
         private readonly int _maxConnections;
+        private readonly int _minConnections;
+        private readonly int _waitQueueMultiple;
+        private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
         public ConnectionPoolSettings()
         {
-            _connectionMaxIdleTime = TimeSpan.FromMinutes(10);
-            _connectionMaxLifeTime = TimeSpan.FromMinutes(30);
             _maintenanceInterval = TimeSpan.FromMinutes(1);
-            _maxConnections = 10;
+            _maxConnections = 100;
+            _minConnections = 0;
+            _waitQueueMultiple = 5;
+            _waitQueueTimeout = TimeSpan.FromMinutes(2);
         }
 
         private ConnectionPoolSettings(
-            TimeSpan connectionMaxIdleTime,
-            TimeSpan connectionMaxLifeTime,
             TimeSpan maintenanceInterval,
-            int maxConnections)
+            int maxConnections,
+            int minConnections,
+            int maxWaitQueueSize,
+            TimeSpan waitQueueTimeout)
         {
-            _connectionMaxIdleTime = connectionMaxIdleTime;
-            _connectionMaxLifeTime = connectionMaxLifeTime;
             _maintenanceInterval = maintenanceInterval;
             _maxConnections = maxConnections;
+            _minConnections = minConnections;
+            _waitQueueMultiple = maxWaitQueueSize;
+            _waitQueueTimeout = waitQueueTimeout;
         }
 
         // properties
-        public TimeSpan ConnectionMaxIdleTime
-        {
-            get { return _connectionMaxIdleTime; }
-        }
-
-        public TimeSpan ConnectionMaxLifeTime
-        {
-            get { return _connectionMaxLifeTime; }
-        }
-
         public TimeSpan MaintenanceInterval
         {
             get { return _maintenanceInterval; }
@@ -70,17 +64,27 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _maxConnections; }
         }
 
+        public int MaxWaitQueueSize
+        {
+            get { return _maxConnections * _waitQueueMultiple; }
+        }
+
+        public int MinConnections
+        {
+            get { return _minConnections; }
+        }
+
+        public int WaitQueueMultiple
+        {
+            get { return _waitQueueMultiple; }
+        }
+
+        public TimeSpan WaitQueueTimeout
+        {
+            get { return _waitQueueTimeout; }
+        }
+
         // methods
-        public ConnectionPoolSettings WithConnectionMaxIdleTime(TimeSpan value)
-        {
-            return (_connectionMaxIdleTime == value) ? this : new Builder(this) { _connectionMaxIdleTime = value }.Build();
-        }
-
-        public ConnectionPoolSettings WithConnectionMaxLifeTime(TimeSpan value)
-        {
-            return (_connectionMaxLifeTime == value) ? this : new Builder(this) { _connectionMaxLifeTime = value }.Build();
-        }
-
         public ConnectionPoolSettings WithMaintenanceInterval(TimeSpan value)
         {
             return (_maintenanceInterval == value) ? this : new Builder(this) { _maintenanceInterval = value }.Build();
@@ -91,32 +95,50 @@ namespace MongoDB.Driver.Core.Configuration
             return (_maxConnections == value) ? this : new Builder(this) { _maxConnections = value }.Build();
         }
 
+        public ConnectionPoolSettings WithWaitQueueMultiple(int value)
+        {
+            return (_waitQueueMultiple == value) ? this : new Builder(this) { _waitQueueMultiple = value }.Build();
+        }
+
+        public ConnectionPoolSettings WithMinConnections(int value)
+        {
+            return (_minConnections == value) ? this : new Builder(this) { _minConnections = value }.Build();
+        }
+
+        public ConnectionPoolSettings WithWaitQueueTimeout(TimeSpan value)
+        {
+            return (_waitQueueTimeout == value) ? this : new Builder(this) { _waitQueueTimeout = value }.Build();
+        }
+
         // nested types
         private struct Builder
         {
             // fields
-            public TimeSpan _connectionMaxIdleTime;
-            public TimeSpan _connectionMaxLifeTime;
             public TimeSpan _maintenanceInterval;
             public int _maxConnections;
+            public int _minConnections;
+            public int _waitQueueMultiple;
+            public TimeSpan _waitQueueTimeout;
 
             // constructors
             public Builder(ConnectionPoolSettings other)
             {
-                _connectionMaxIdleTime = other._connectionMaxIdleTime;
-                _connectionMaxLifeTime = other._connectionMaxLifeTime;
                 _maintenanceInterval = other._maintenanceInterval;
                 _maxConnections = other._maxConnections;
+                _minConnections = other._minConnections;
+                _waitQueueMultiple = other._waitQueueMultiple;
+                _waitQueueTimeout = other._waitQueueTimeout;
             }
 
             // methods
             public ConnectionPoolSettings Build()
             {
                 return new ConnectionPoolSettings(
-                    _connectionMaxIdleTime,
-                    _connectionMaxLifeTime,
                     _maintenanceInterval,
-                    _maxConnections);
+                    _maxConnections,
+                    _minConnections,
+                    _waitQueueMultiple,
+                    _waitQueueTimeout);
             }
         }
     }

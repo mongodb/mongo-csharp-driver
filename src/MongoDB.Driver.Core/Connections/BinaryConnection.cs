@@ -44,8 +44,10 @@ namespace MongoDB.Driver.Core.Connections
         private EndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
+        private DateTime _lastUsedAtUtc;
         private readonly IMessageListener _listener;
         private readonly object _openLock = new object();
+        private DateTime _openedAtUtc;
         private Task _openTask;
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
         private readonly ServerId _serverId;
@@ -80,6 +82,28 @@ namespace MongoDB.Driver.Core.Connections
         public EndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        public bool IsExpired
+        {
+            get
+            {
+                var now = DateTime.UtcNow;
+
+                //connection has been alive for too long
+                if (_settings.MaxLifeTime.TotalMilliseconds > -1 && now > _openedAtUtc.Add(_settings.MaxLifeTime))
+                {
+                    return true;
+                }
+
+                // connection has been idle for too long
+                if (_settings.MaxIdleTime.TotalMilliseconds > -1 && now > _lastUsedAtUtc.Add(_settings.MaxIdleTime))
+                {
+                    return true;
+                }
+
+                return _state.Value == State.Disposed;
+            }
         }
 
         public ConnectionSettings Settings
@@ -130,6 +154,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_state.TryChange(State.Initial, State.Connecting))
                 {
+                    _openedAtUtc = DateTime.UtcNow;
                     _openTask = OpenAsyncHelper(timeout, cancellationToken);
                 }
                 return _openTask;
@@ -187,6 +212,7 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
+            _lastUsedAtUtc = DateTime.UtcNow;
             var slidingTimeout = new SlidingTimeout(timeout);
             var entry = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
 
@@ -253,6 +279,7 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
+            _lastUsedAtUtc = DateTime.UtcNow;
             var slidingTimeout = new SlidingTimeout(timeout);
             var sentMessages = new List<RequestMessage>();
             var substituteReplies = new Dictionary<int, ReplyMessage>();
