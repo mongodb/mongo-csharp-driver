@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
-        private DnsEndPoint _endPoint;
+        private EndPoint _endPoint;
         private readonly AsyncDropbox<int, InboundDropboxEntry> _inboundDropbox = new AsyncDropbox<int, InboundDropboxEntry>();
         private ConnectionDescription _description;
         private readonly IMessageListener _listener;
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly IStreamFactory _streamFactory;
 
         // constructors
-        public BinaryConnection(ServerId serverId, DnsEndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IMessageListener listener)
+        public BinaryConnection(ServerId serverId, EndPoint endPoint, ConnectionSettings settings, IStreamFactory streamFactory, IConnectionInitializer connectionInitializer, IMessageListener listener)
         {
             _serverId = Ensure.IsNotNull(serverId, "serverId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Connections
             get { return _description; }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

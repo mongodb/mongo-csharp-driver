@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly IConnectionFactory _connectionFactory;
         private readonly List<PooledConnection> _connections = new List<PooledConnection>();
         private bool _disposed;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private readonly object _lock = new object();
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _settings;
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // constructors
         public ConnectionPool(
             ServerId serverId,
-            DnsEndPoint endPoint,
+            EndPoint endPoint,
             ConnectionPoolSettings settings,
             IConnectionFactory connectionFactory)
         {

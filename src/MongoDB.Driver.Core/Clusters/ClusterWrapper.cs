@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Clusters
             return _wrapped.GetDescriptionAsync(minimumRevision, timeout, cancellationToken);
         }
 
-        public virtual IServer GetServer(DnsEndPoint endPoint)
+        public virtual IServer GetServer(EndPoint endPoint)
         {
             ThrowIfDisposed();
             return _wrapped.GetServer(endPoint);

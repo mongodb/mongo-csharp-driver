@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // methods
-        public IRootServer CreateServer(ClusterId clusterId, DnsEndPoint endPoint)
+        public IRootServer CreateServer(ClusterId clusterId, EndPoint endPoint)
         {
             return new Server(clusterId, endPoint, _settings, _connectionPoolFactory, _heartbeatConnectionFactory, _listener);
         }

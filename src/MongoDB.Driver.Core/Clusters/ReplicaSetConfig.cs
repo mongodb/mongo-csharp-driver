@@ -30,21 +30,21 @@ namespace MongoDB.Driver.Core.Clusters
         // static properties
         public static ReplicaSetConfig Empty
         {
-            get { return new ReplicaSetConfig(Enumerable.Empty<DnsEndPoint>(), null, null, null); }
+            get { return new ReplicaSetConfig(Enumerable.Empty<EndPoint>(), null, null, null); }
         }
         #endregion
 
         // fields
-        private readonly List<DnsEndPoint> _members;
+        private readonly List<EndPoint> _members;
         private readonly string _name;
-        private readonly DnsEndPoint _primary;
+        private readonly EndPoint _primary;
         private readonly int? _version;
 
         // constructors
         public ReplicaSetConfig(
-            IEnumerable<DnsEndPoint> members,
+            IEnumerable<EndPoint> members,
             string name,
-            DnsEndPoint primary,
+            EndPoint primary,
             int? version)
         {
             _members = Ensure.IsNotNull(members, "members").ToList();
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // properties
-        public IReadOnlyCollection<DnsEndPoint> Members
+        public IReadOnlyCollection<EndPoint> Members
         {
             get { return _members; }
         }
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             get { return _name; }
         }
 
-        public DnsEndPoint Primary
+        public EndPoint Primary
         {
             get { return _primary; }
         }

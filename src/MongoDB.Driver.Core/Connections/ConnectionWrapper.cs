@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
             get { return _wrapped.Description; }
         }
 
-        public virtual DnsEndPoint EndPoint
+        public virtual EndPoint EndPoint
         {
             get { return _wrapped.EndPoint; }
         }

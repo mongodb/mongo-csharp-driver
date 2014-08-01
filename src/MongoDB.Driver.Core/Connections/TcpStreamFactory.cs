@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // methods
-        public async Task<Stream> CreateStreamAsync(DnsEndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
+        public async Task<Stream> CreateStreamAsync(EndPoint endPoint, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);

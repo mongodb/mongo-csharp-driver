@@ -22,17 +22,17 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
     public class AddServerAction : TransitionAction, IEquatable<AddServerAction>
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public AddServerAction(DnsEndPoint endPoint)
+        public AddServerAction(EndPoint endPoint)
             : base(TransitionActionType.AddServer)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // properties
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

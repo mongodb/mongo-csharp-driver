@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // methods
-        protected IRootServer CreateServer(DnsEndPoint endPoint)
+        protected IRootServer CreateServer(EndPoint endPoint)
         {
             return _serverFactory.CreateServer(_clusterId, endPoint);
         }
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        public abstract IServer GetServer(DnsEndPoint endPoint);
+        public abstract IServer GetServer(EndPoint endPoint);
 
         protected virtual void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
         {
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        protected abstract bool TryGetServer(DnsEndPoint endPoint, out IRootServer server);
+        protected abstract bool TryGetServer(EndPoint endPoint, out IRootServer server);
 
         protected void UpdateClusterDescription(ClusterDescription newClusterDescription)
         {

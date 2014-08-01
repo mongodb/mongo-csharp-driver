@@ -22,16 +22,16 @@ namespace MongoDB.Driver.Core.Events
     public class SendingHeartbeatEventArgs
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public SendingHeartbeatEventArgs(DnsEndPoint endPoint)
+        public SendingHeartbeatEventArgs(EndPoint endPoint)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // properties
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

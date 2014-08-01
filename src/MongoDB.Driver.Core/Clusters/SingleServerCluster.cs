@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Clusters
             base.Dispose(disposing);
         }
 
-        public override IServer GetServer(DnsEndPoint endPoint)
+        public override IServer GetServer(EndPoint endPoint)
         {
             if (_server.EndPoint.Equals(endPoint))
             {
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Clusters
             UpdateClusterDescription(newClusterDescription);
         }
 
-        protected override bool TryGetServer(DnsEndPoint endPoint, out IRootServer server)
+        protected override bool TryGetServer(EndPoint endPoint, out IRootServer server)
         {
             if (_server.EndPoint.Equals(endPoint))
             {

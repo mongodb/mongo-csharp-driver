@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Configuration
         private string _databaseName;
         private bool? _fsync;
         private string _gssapiServiceName;
-        private IReadOnlyList<DnsEndPoint> _hosts;
+        private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
         private bool? _journal;
         private TimeSpan? _maxIdleTime;
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the hosts.
         /// </summary>
-        public IReadOnlyList<DnsEndPoint> Hosts
+        public IReadOnlyList<EndPoint> Hosts
         {
             get { return _hosts; }
         }
@@ -349,13 +349,19 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ExtractHosts(Match match)
         {
-            List<DnsEndPoint> dnsEndPoints = new List<DnsEndPoint>();
+            var addressFamily = AddressFamily.Unspecified;
+            if (_ipv6.HasValue)
+            {
+                addressFamily = _ipv6.Value ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            }
+
+            List<EndPoint> endPoints = new List<EndPoint>();
             foreach (Capture host in match.Groups["host"].Captures)
             {
-                DnsEndPoint dnsEndPoint;
-                if (DnsEndPointParser.TryParse(host.Value, AddressFamily.Unspecified, out dnsEndPoint))
+                EndPoint endPoint;
+                if (EndPointParser.TryParse(host.Value, addressFamily, out endPoint))
                 {
-                    dnsEndPoints.Add(dnsEndPoint);
+                    endPoints.Add(endPoint);
                 }
                 else
                 {
@@ -363,7 +369,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
             }
 
-            _hosts = dnsEndPoints;
+            _hosts = endPoints;
         }
 
         private void ExtractOptions(Match match)
@@ -410,9 +416,9 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             ExtractUsernameAndPassword(match);
-            ExtractHosts(match);
             ExtractDatabaseName(match);
             ExtractOptions(match);
+            ExtractHosts(match);
         }
 
         private void ParseOption(string name, string value)

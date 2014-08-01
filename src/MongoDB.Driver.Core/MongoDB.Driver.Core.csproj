@@ -166,7 +166,7 @@
     <Compile Include="WriteException.cs" />
     <Compile Include="Misc\Batch.cs" />
     <Compile Include="Misc\BatchResult.cs" />
-    <Compile Include="Misc\DnsEndPointParser.cs" />
+    <Compile Include="Misc\EndPointParser.cs" />
     <Compile Include="Misc\Ensure.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverage.cs" />
     <Compile Include="Misc\IRandomStringGenerator.cs" />

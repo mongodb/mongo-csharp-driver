@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // methods
-        public IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint)
+        public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
         {
             return new ConnectionPool(serverId, endPoint, _connectionPoolSettings, _connectionFactory);
         }

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
         }
 
-        private void LogMessage(string eventType, DnsEndPoint endPoint, MongoDBMessage message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
+        private void LogMessage(string eventType, EndPoint endPoint, MongoDBMessage message, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken))
         {
             using (var stringWriter = new StringWriter())
             using (var jsonWriter = new JsonWriter(stringWriter))
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
                 var encoder = message.GetEncoder(encoderFactory);
                 encoder.WriteMessage(message);
                 var jsonMessage = stringWriter.ToString();
-                var logMessage = string.Format("EndPoint : '{0}', Message : {1}", DnsEndPointParser.ToString(endPoint), jsonMessage);
+                var logMessage = string.Format("EndPoint : '{0}', Message : {1}", endPoint, jsonMessage);
                 WriteLog(eventType, logMessage, timeout, cancellationToken);
             }
         }
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         public void SendingHeartbeat(SendingHeartbeatEventArgs args)
         {
             var endPoint = args.EndPoint;
-            var logMessage = string.Format("EndPoint : \"{0}\"", DnsEndPointParser.ToString(endPoint));
+            var logMessage = string.Format("EndPoint : \"{0}\"", endPoint);
             WriteLog("SendingHeartbeat", logMessage);
         }
 
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         {
             var endPoint = args.EndPoint;
             var logMessage = string.Format("EndPoint : \"{0}\", isMaster : {1}, buildInfo : {2}",
-                DnsEndPointParser.ToString(endPoint),
+                endPoint,
                 args.IsMasterResult.Wrapped.ToJson(),
                 args.BuildInfoResult.Wrapped.ToJson());
             WriteLog("SentHeartbeat", logMessage);
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         public void ServerAdded(ServerAddedEventArgs args)
         {
             var endPoint = args.ServerDescription.EndPoint;
-            var logMessage = string.Format("EndPoint : '{0}'", DnsEndPointParser.ToString(endPoint));
+            var logMessage = string.Format("EndPoint : '{0}'", endPoint);
             WriteLog("ServerAdded", logMessage);
         }
 
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
             var newServerDescription = args.NewServerDescription;
             var endPoint = newServerDescription.EndPoint;
             var logMessage = string.Format("EndPoint : '{0}', NewServerDescription : {1}, OldServerDescription : {1}",
-                DnsEndPointParser.ToString(endPoint),
+                endPoint,
                 newServerDescription.ToString(),
                 oldServerDescription.ToString());
             WriteLog("ServerDescriptionChanged", logMessage);
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.TestConsoleApplication
         public void ServerRemoved(ServerRemovedEventArgs args)
         {
             var endPoint = args.EndPoint;
-            var logMessage = string.Format("EndPoint : '{0}'", DnsEndPointParser.ToString(endPoint));
+            var logMessage = string.Format("EndPoint : '{0}'", endPoint);
             WriteLog("ServerRemoved", logMessage);
         }
 

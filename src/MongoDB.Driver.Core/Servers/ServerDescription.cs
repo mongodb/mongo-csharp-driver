@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Servers
     {
         // fields
         private readonly TimeSpan _averageRoundTripTime;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private readonly ReplicaSetConfig _replicaSetConfig;
         private readonly int _revision;
         private readonly ServerId _serverId;
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly SemanticVersion _version;
 
         // constructors
-        public ServerDescription(ServerId serverId, DnsEndPoint endPoint)
+        public ServerDescription(ServerId serverId, EndPoint endPoint)
             : this(
                 TimeSpan.Zero,
                 endPoint,
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public ServerDescription(
             ServerId serverId,
-            DnsEndPoint endPoint,
+            EndPoint endPoint,
             ServerState state,
             ServerType type,
             TimeSpan averageRoundTripTime,
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private ServerDescription(
             TimeSpan averageRoundTripTime,
-            DnsEndPoint endPoint,
+            EndPoint endPoint,
             ReplicaSetConfig replicaSetConfig,
             int revision,
             ServerId serverId,
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Servers
             get { return _averageRoundTripTime; }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Servers
             return string.Format(
                 "{{ ServerId : {0}, EndPoint : {1}, State : {2}, Type : {3}, Tags : {4}, Revision : {5} }}",
                 _serverId,
-                DnsEndPointParser.ToString(_endPoint),
+                _endPoint,
                 _state,
                 _type,
                 _tags,

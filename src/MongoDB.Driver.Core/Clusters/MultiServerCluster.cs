@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (_servers.Any(n => n.EndPoint.Equals(server.EndPoint)))
                 {
-                    var message = string.Format("The cluster already contains a server for end point: {0}.", DnsEndPointParser.ToString(server.EndPoint));
+                    var message = string.Format("The cluster already contains a server for end point: {0}.", server.EndPoint);
                     throw new ArgumentException(message, "server");
                 }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Clusters
             base.Dispose();
         }
 
-        public override IServer GetServer(DnsEndPoint endPoint)
+        public override IServer GetServer(EndPoint endPoint)
         {
             lock (Lock)
             {
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
             throw new NotImplementedException();
         }
 
-        protected override bool TryGetServer(DnsEndPoint endPoint, out IRootServer server)
+        protected override bool TryGetServer(EndPoint endPoint, out IRootServer server)
         {
             lock (Lock)
             {

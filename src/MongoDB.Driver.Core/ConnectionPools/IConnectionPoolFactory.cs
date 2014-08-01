@@ -29,6 +29,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
     public interface IConnectionPoolFactory
     {
         // methods
-        IConnectionPool CreateConnectionPool(ServerId serverId, DnsEndPoint endPoint);
+        IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint);
     }
 }

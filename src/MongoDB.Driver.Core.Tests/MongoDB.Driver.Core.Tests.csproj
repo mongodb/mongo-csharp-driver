@@ -84,7 +84,7 @@
     <Compile Include="Helpers\MockConnection.cs" />
     <Compile Include="Helpers\RawBsonDocumentHelper.cs" />
     <Compile Include="Misc\ConstantRandomStringGenerator.cs" />
-    <Compile Include="Misc\DnsEndPointParserTests.cs" />
+    <Compile Include="Misc\EndPointParserTests.cs" />
     <Compile Include="Misc\ExponentiallyWeightedMovingAverageTests.cs" />
     <Compile Include="Misc\FrozenClock.cs" />
     <Compile Include="Misc\SemanticVersionTests.cs" />

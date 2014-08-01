@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Clusters
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _type = type;
             _state = state;
-            _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<DnsEndPoint>()).ToList();
+            _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
             _replicaSetConfig = replicaSetConfig; // can be null
             _revision = revision;
         }
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Clusters
             var oldServerDescription = _servers.SingleOrDefault(s => s.EndPoint == value.EndPoint);
             if (oldServerDescription == null)
             {
-                var message = string.Format("No server description found: '{0}'.", DnsEndPointParser.ToString(value.EndPoint));
+                var message = string.Format("No server description found: '{0}'.", value.EndPoint);
                 throw new ArgumentException(message, "value");
             }
 

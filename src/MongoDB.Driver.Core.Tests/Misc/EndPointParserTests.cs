@@ -23,12 +23,12 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.Misc
 {
     [TestFixture]
-    public class DnsEndPointParserTests
+    public class EndPointParserTests
     {
         [Test]
         public void Parse_should_throw_an_ArgumentNullException_when_value_is_null()
         {
-            Action act = () => DnsEndPointParser.Parse(null, AddressFamily.InterNetwork);
+            Action act = () => EndPointParser.Parse(null, AddressFamily.Unspecified);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -40,22 +40,9 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase(":21")]
         public void Parse_should_throw_an_ArgumentException_when_value_is_not_a_valid_end_point(string value)
         {
-            Action act = () => DnsEndPointParser.Parse(value, AddressFamily.InterNetwork);
+            Action act = () => EndPointParser.Parse(value, AddressFamily.Unspecified);
 
             act.ShouldThrow<ArgumentException>();
-        }
-
-        [Test]
-        [TestCase("localhost", 21, "localhost:21")]
-        [TestCase("abc.test.com", 21, "abc.test.com:21")]
-        [TestCase("123.test.com", 21, "123.test.com:21")]
-        [TestCase("127.0.0.1", 21, "127.0.0.1:21")]
-        [TestCase("[::1]", 21, "[::1]:21")]
-        public void ToString_should_print_host_and_port(string host, int port, string expectedToString)
-        {
-            var result = DnsEndPointParser.ToString(new DnsEndPoint(host, port));
-
-            result.Should().Be(expectedToString);
         }
 
         [Test]
@@ -65,8 +52,8 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase(":21")]
         public void TryParse_should_return_false_when_the_end_point_is_invalid(string value)
         {
-            DnsEndPoint result;
-            var success = DnsEndPointParser.TryParse(value, AddressFamily.InterNetwork, out result);
+            EndPoint result;
+            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
 
             success.Should().BeFalse();
         }
@@ -80,40 +67,37 @@ namespace MongoDB.Driver.Core.Tests.Misc
         [TestCase("123.test.com:28017", "123.test.com", 28017)]
         public void TryParse_should_parse_a_hostname(string value, string expectedHost, int expectedPort)
         {
-            DnsEndPoint result;
-            var success = DnsEndPointParser.TryParse(value, AddressFamily.InterNetwork, out result);
+            EndPoint result;
+            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
 
             success.Should().BeTrue();
-            result.Host.Should().Be(expectedHost);
-            result.Port.Should().Be(expectedPort);
-            result.AddressFamily.Should().Be(AddressFamily.InterNetwork);
+            result.Should().Be(new DnsEndPoint(expectedHost, expectedPort));
+            result.AddressFamily.Should().Be(AddressFamily.Unspecified);
         }
 
         [Test]
         [TestCase("127.0.0.1", "127.0.0.1", 27017)]
         [TestCase("127.0.0.1:28017", "127.0.0.1", 28017)]
-        public void TryParse_should_parse_an_ipv4_address(string value, string expectedHost, int expectedPort)
+        public void TryParse_should_parse_an_ipv4_address(string value, string expectedAddress, int expectedPort)
         {
-            DnsEndPoint result;
-            var success = DnsEndPointParser.TryParse(value, AddressFamily.InterNetwork, out result);
+            EndPoint result;
+            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
 
             success.Should().BeTrue();
-            result.Host.Should().Be(expectedHost);
-            result.Port.Should().Be(expectedPort);
+            result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));
             result.AddressFamily.Should().Be(AddressFamily.InterNetwork);
         }
 
         [Test]
         [TestCase("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 27017)]
         [TestCase("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:28017", "[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]", 28017)]
-        public void TryParse_should_parse_an_ipv6_address(string value, string expectedHost, int expectedPort)
+        public void TryParse_should_parse_an_ipv6_address(string value, string expectedAddress, int expectedPort)
         {
-            DnsEndPoint result;
-            var success = DnsEndPointParser.TryParse(value, AddressFamily.InterNetworkV6, out result);
+            EndPoint result;
+            var success = EndPointParser.TryParse(value, AddressFamily.Unspecified, out result);
 
             success.Should().BeTrue();
-            result.Host.Should().Be(expectedHost);
-            result.Port.Should().Be(expectedPort);
+            result.Should().Be(new IPEndPoint(IPAddress.Parse(expectedAddress), expectedPort));
             result.AddressFamily.Should().Be(AddressFamily.InterNetworkV6);
         }
     }

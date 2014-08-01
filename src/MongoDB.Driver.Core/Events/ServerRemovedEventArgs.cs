@@ -21,16 +21,16 @@ namespace MongoDB.Driver.Core.Events
     public class ServerRemovedEventArgs
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public ServerRemovedEventArgs(DnsEndPoint endPoint)
+        public ServerRemovedEventArgs(EndPoint endPoint)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // properties
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

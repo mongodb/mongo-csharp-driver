@@ -25,19 +25,19 @@ namespace MongoDB.Driver.Core.Events
     {
         // fields
         private readonly BuildInfoResult _buildInfoResult;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private readonly Exception _exception;
         private readonly IsMasterResult _isMasterResult;
 
         // constructors
-        public SentHeartbeatEventArgs(DnsEndPoint endPoint, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
+        public SentHeartbeatEventArgs(EndPoint endPoint, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _isMasterResult = Ensure.IsNotNull(isMasterResult, "isMasterResult");
             _buildInfoResult = Ensure.IsNotNull(buildInfoResult, "buildInfoResult");
         }
 
-        public SentHeartbeatEventArgs(DnsEndPoint endPoint, Exception exception)
+        public SentHeartbeatEventArgs(EndPoint endPoint, Exception exception)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _exception = Ensure.IsNotNull(exception, "exception");
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Events
             get { return _buildInfoResult; }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

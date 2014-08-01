@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
         public void ToString_should_return_string_representation()
         {
             var subject = new ServerId(__clusterId, __endPoint);
-            subject.ToString().Should().Be("{ ClusterId : 1, EndPoint : \"localhost:27017\" }");
+            subject.ToString().Should().Be("{ ClusterId : 1, EndPoint : \"Unspecified/localhost:27017\" }");
         }
     }
 }

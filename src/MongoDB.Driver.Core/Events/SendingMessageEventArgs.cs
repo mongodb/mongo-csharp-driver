@@ -24,13 +24,13 @@ namespace MongoDB.Driver.Core.Events
     {
         // fields
         private readonly ConnectionId _connectionId;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private readonly RequestMessage _message;
         private RequestMessage _substituteMessage;
         private ReplyMessage _substituteReply;
 
         // constructors
-        public SendingMessageEventArgs(DnsEndPoint endPoint, ConnectionId connectionId, RequestMessage message)
+        public SendingMessageEventArgs(EndPoint endPoint, ConnectionId connectionId, RequestMessage message)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Events
             get { return _connectionId; }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

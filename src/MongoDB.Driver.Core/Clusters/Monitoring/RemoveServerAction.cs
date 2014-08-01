@@ -22,17 +22,17 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
     public class RemoveServerAction : TransitionAction, IEquatable<RemoveServerAction>
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public RemoveServerAction(DnsEndPoint endPoint)
+        public RemoveServerAction(EndPoint endPoint)
             : base(TransitionActionType.RemoveServer)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }
 
         // properties
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

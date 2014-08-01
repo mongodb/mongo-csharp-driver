@@ -27,10 +27,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     public class EndPointServerSelector : IServerSelector
     {
         // fields
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public EndPointServerSelector(DnsEndPoint endPoint)
+        public EndPointServerSelector(EndPoint endPoint)
         {
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
         }

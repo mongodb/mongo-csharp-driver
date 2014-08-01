@@ -27,11 +27,11 @@ namespace MongoDB.Driver.Core.Configuration
     {
         #region static
         // static fields
-        private readonly IReadOnlyList<DnsEndPoint> __defaultEndPoints = new DnsEndPoint[] { new DnsEndPoint("localhost", 27017) };
+        private readonly IReadOnlyList<EndPoint> __defaultEndPoints = new EndPoint[] { new DnsEndPoint("localhost", 27017) };
         #endregion
 
         // fields
-        private readonly IReadOnlyList<DnsEndPoint> _endPoints;
+        private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly string _replicaSetName;
         private readonly ClusterType? _requiredClusterType;
 
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         internal ClusterSettings(
             ClusterType? requiredClusterType,
-            IReadOnlyList<DnsEndPoint> endPoints,
+            IReadOnlyList<EndPoint> endPoints,
             string replicaSetName)
         {
             _requiredClusterType = requiredClusterType;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
-        public IReadOnlyList<DnsEndPoint> EndPoints
+        public IReadOnlyList<EndPoint> EndPoints
         {
             get { return _endPoints; }
         }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // methods
-        public ClusterSettings WithEndPoints(IEnumerable<DnsEndPoint> value)
+        public ClusterSettings WithEndPoints(IEnumerable<EndPoint> value)
         {
             var list = value.ToList();
             return _endPoints.SequenceEqual(list) ? this : new Builder(this) { _endPoints = list }.Build();
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Configuration
         private struct Builder
         {
             // fields
-            public IReadOnlyList<DnsEndPoint> _endPoints;
+            public IReadOnlyList<EndPoint> _endPoints;
             public string _replicaSetName;
             public ClusterType? _requiredClusterType;
 

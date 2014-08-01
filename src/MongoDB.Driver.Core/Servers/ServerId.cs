@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Core.Servers
     {
         // fields
         private readonly ClusterId _clusterId;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
 
         // constructors
-        public ServerId(ClusterId clusterId, DnsEndPoint endPoint)
+        public ServerId(ClusterId clusterId, EndPoint endPoint)
         {
             _clusterId = Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Servers
             get { return _clusterId; }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public override string ToString()
         {
-            return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, DnsEndPointParser.ToString(_endPoint));
+            return string.Format("{{ ClusterId : {0}, EndPoint : \"{1}\" }}", _clusterId, _endPoint);
         }
     }
 }

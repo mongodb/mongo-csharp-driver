@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Servers
         private ServerDescription _description;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         private bool _disposed;
-        private readonly DnsEndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private InterruptibleDelay _heartbeatDelay = new InterruptibleDelay(TimeSpan.Zero);
         private readonly IServerListener _listener;
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Servers
         public event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // constructors
-        internal Server(ClusterId clusterId, DnsEndPoint endPoint, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
+        internal Server(ClusterId clusterId, EndPoint endPoint, ServerSettings settings, IConnectionPoolFactory connectionPoolFactory, IConnectionFactory hearbeatConnectionFactory, IServerListener listener)
         {
             _endPoint = endPoint;
             _settings = settings;
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return _endPoint; }
         }

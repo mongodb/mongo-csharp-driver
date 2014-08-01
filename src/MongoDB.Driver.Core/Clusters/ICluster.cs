@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         // methods
         Task<ClusterDescription> GetDescriptionAsync(int minimumRevision = 0, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
-        IServer GetServer(DnsEndPoint endPoint);
+        IServer GetServer(EndPoint endPoint);
         Task<IServer> SelectServerAsync(IServerSelector selector = null, TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
     }
 }

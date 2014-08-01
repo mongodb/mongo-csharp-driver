@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         // properties
         public ConnectionDescription Description { get; set; }
 
-        public DnsEndPoint EndPoint
+        public EndPoint EndPoint
         {
             get { return ServerId.EndPoint; }
         }

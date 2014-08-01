@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
@@ -34,8 +36,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts.Single().Host.Should().Be("localhost");
-            subject.Hosts.Single().Port.Should().Be(27017);
+            subject.Hosts.Single().Should().Be(new DnsEndPoint("localhost", 27017));
         }
 
         [Test]
@@ -44,8 +45,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost:27092");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts.Single().Host.Should().Be("localhost");
-            subject.Hosts.Single().Port.Should().Be(27092);
+            subject.Hosts.Single().Should().Be(new DnsEndPoint("localhost", 27092));
         }
 
         [Test]
@@ -54,10 +54,8 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost:27092,remote");
 
             subject.Hosts.Count().Should().Be(2);
-            subject.Hosts[0].Host.Should().Be("localhost");
-            subject.Hosts[0].Port.Should().Be(27092);
-            subject.Hosts[1].Host.Should().Be("remote");
-            subject.Hosts[1].Port.Should().Be(27017);
+            subject.Hosts[0].Should().Be(new DnsEndPoint("localhost", 27092));
+            subject.Hosts[1].Should().Be(new DnsEndPoint("remote", 27017));
         }
 
         [Test]
@@ -66,10 +64,8 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost,remote:27092");
 
             subject.Hosts.Count().Should().Be(2);
-            subject.Hosts[0].Host.Should().Be("localhost");
-            subject.Hosts[0].Port.Should().Be(27017);
-            subject.Hosts[1].Host.Should().Be("remote");
-            subject.Hosts[1].Port.Should().Be(27092);
+            subject.Hosts[0].Should().Be(new DnsEndPoint("localhost", 27017));
+            subject.Hosts[1].Should().Be(new DnsEndPoint("remote", 27092));
         }
 
         [Test]
@@ -78,10 +74,8 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost:30000,remote:27092");
 
             subject.Hosts.Count().Should().Be(2);
-            subject.Hosts[0].Host.Should().Be("localhost");
-            subject.Hosts[0].Port.Should().Be(30000);
-            subject.Hosts[1].Host.Should().Be("remote");
-            subject.Hosts[1].Port.Should().Be(27092);
+            subject.Hosts[0].Should().Be(new DnsEndPoint("localhost", 30000));
+            subject.Hosts[1].Should().Be(new DnsEndPoint("remote", 27092));
         }
 
         [Test]
@@ -90,8 +84,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://127.0.0.1");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts[0].Host.Should().Be("127.0.0.1");
-            subject.Hosts[0].Port.Should().Be(27017);
+            subject.Hosts[0].Should().Be(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27017));
         }
 
         [Test]
@@ -100,8 +93,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://127.0.0.1:28017");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts[0].Host.Should().Be("127.0.0.1");
-            subject.Hosts[0].Port.Should().Be(28017);
+            subject.Hosts[0].Should().Be(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 28017));
         }
 
         [Test]
@@ -110,8 +102,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://[::1]");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts[0].Host.Should().Be("[::1]");
-            subject.Hosts[0].Port.Should().Be(27017);
+            subject.Hosts[0].Should().Be(new IPEndPoint(IPAddress.Parse("[::1]"), 27017));
         }
 
         [Test]
@@ -120,8 +111,7 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://[::1]:28017");
 
             subject.Hosts.Count().Should().Be(1);
-            subject.Hosts[0].Host.Should().Be("[::1]");
-            subject.Hosts[0].Port.Should().Be(28017);
+            subject.Hosts[0].Should().Be(new IPEndPoint(IPAddress.Parse("[::1]"), 28017));
         }
 
         [Test]
@@ -130,12 +120,9 @@ namespace MongoDB.Driver.Core.Tests.Configuration
             var subject = new ConnectionString("mongodb://localhost,10.0.0.1:30000,[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:28017");
 
             subject.Hosts.Count().Should().Be(3);
-            subject.Hosts[0].Host.Should().Be("localhost");
-            subject.Hosts[0].Port.Should().Be(27017);
-            subject.Hosts[1].Host.Should().Be("10.0.0.1");
-            subject.Hosts[1].Port.Should().Be(30000);
-            subject.Hosts[2].Host.Should().Be("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]");
-            subject.Hosts[2].Port.Should().Be(28017);
+            subject.Hosts[0].Should().Be(new DnsEndPoint("localhost", 27017, AddressFamily.Unspecified));
+            subject.Hosts[1].Should().Be(new IPEndPoint(IPAddress.Parse("10.0.0.1"), 30000));
+            subject.Hosts[2].Should().Be(new IPEndPoint(IPAddress.Parse("[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]"), 28017));
         }
 
         [Test]

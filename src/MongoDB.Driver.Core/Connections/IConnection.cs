@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         // properties
         ConnectionDescription Description { get; }
-        DnsEndPoint EndPoint { get; }
+        EndPoint EndPoint { get; }
         ConnectionSettings Settings { get; }
 
         // methods

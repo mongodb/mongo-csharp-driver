@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
         private ClusterDescription _newClusterDescription;
         private readonly ServerDescription _newServerDescription;
         private readonly ClusterDescription _oldClusterDescription;
-        private List<DnsEndPoint> _serversToAdd = new List<DnsEndPoint>();
-        private List<DnsEndPoint> _serversToRemove = new List<DnsEndPoint>();
+        private List<EndPoint> _serversToAdd = new List<EndPoint>();
+        private List<EndPoint> _serversToRemove = new List<EndPoint>();
 
         // constructors
         public ClusterMonitorLogic(ClusterDescription oldClusterDescription, ServerDescription newServerDescription)
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Clusters.Monitoring
             Ensure.IsNotNull(newServerDescription, "newServerDescription");
             if (!oldClusterDescription.Servers.Any(s => s.EndPoint.Equals(newServerDescription.EndPoint)))
             {
-                var message = string.Format("Server is not a member of the cluster: '{0}'.", DnsEndPointParser.ToString(newServerDescription.EndPoint));
+                var message = string.Format("Server is not a member of the cluster: '{0}'.", newServerDescription.EndPoint);
                 throw new ArgumentException(message, "newServerDescription");
             }
 

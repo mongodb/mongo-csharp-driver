@@ -31,6 +31,6 @@ namespace MongoDB.Driver.Core.Servers
     public interface IServerFactory
     {
         // methods
-        IRootServer CreateServer(ClusterId clusterId, DnsEndPoint endPoint);
+        IRootServer CreateServer(ClusterId clusterId, EndPoint endPoint);
     }
 }

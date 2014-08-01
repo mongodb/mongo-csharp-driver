@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Servers
         event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        DnsEndPoint EndPoint { get; }
+        EndPoint EndPoint { get; }
         ServerDescription Description { get; }
 
         // methods

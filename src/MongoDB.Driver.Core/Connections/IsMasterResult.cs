@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Connections
             return _wrapped.GetHashCode();
         }
 
-        private List<DnsEndPoint> GetMembers(AddressFamily addressFamily)
+        private List<EndPoint> GetMembers(AddressFamily addressFamily)
         {
             var hosts = GetMembers(addressFamily, "hosts");
             var passives = GetMembers(addressFamily, "passives");
@@ -184,23 +184,23 @@ namespace MongoDB.Driver.Core.Connections
             return hosts.Concat(passives).Concat(arbiters).ToList();
         }
 
-        private IEnumerable<DnsEndPoint> GetMembers(AddressFamily addressFamily, string elementName)
+        private IEnumerable<EndPoint> GetMembers(AddressFamily addressFamily, string elementName)
         {
             if (!_wrapped.Contains(elementName))
             {
-                return new DnsEndPoint[0];
+                return new EndPoint[0];
             }
 
-            return ((BsonArray)_wrapped[elementName]).Select(v => DnsEndPointParser.Parse((string)v, addressFamily));
+            return ((BsonArray)_wrapped[elementName]).Select(v => EndPointParser.Parse((string)v, addressFamily));
         }
 
-        private DnsEndPoint GetPrimary(AddressFamily addressFamily)
+        private EndPoint GetPrimary(AddressFamily addressFamily)
         {
             BsonValue primary;
             if (_wrapped.TryGetValue("primary", out primary))
             {
                 // TODO: what does primary look like when there is no current primary (null, empty string)?
-                return DnsEndPointParser.Parse((string)primary, addressFamily);
+                return EndPointParser.Parse((string)primary, addressFamily);
             }
 
             return null;
