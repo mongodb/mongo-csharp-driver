@@ -28,7 +28,10 @@ namespace MongoDB.Driver.Core.Async
                     cancellationToken.ThrowIfCancellationRequested();
 
                     await action(cancellationToken).ConfigureAwait(false);
-                    await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+                    if (!delay.Equals(TimeSpan.Zero))
+                    {
+                        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
             catch(TaskCanceledException)

@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Connections
     internal class BinaryConnection : IConnection
     {
         // fields
-        private readonly CancellationToken _backgroundTaskCancellationToken;
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource;
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
@@ -67,7 +66,6 @@ namespace MongoDB.Driver.Core.Connections
             _listener = listener;
 
             _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
-            _backgroundTaskCancellationToken = _backgroundTaskCancellationTokenSource.Token;
 
             _connectionId = new ConnectionId(_serverId);
             _state = new InterlockedInt32(State.Initial);
@@ -172,38 +170,26 @@ namespace MongoDB.Driver.Core.Connections
             _state.TryChange(State.Open);
         }
 
-        private async Task ReceiveBackgroundTask()
+        private async Task ReceiveBackgroundTask(CancellationToken cancellationToken)
         {
             try
             {
-                while (true)
-                {
-                    _backgroundTaskCancellationToken.ThrowIfCancellationRequested();
-
-                    try
-                    {
-                        var messageSizeBytes = new byte[4];
-                        await _stream.FillBufferAsync(messageSizeBytes, 0, 4, _backgroundTaskCancellationToken);
-                        var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
-                        var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
-                        buffer.WriteBytes(0, messageSizeBytes, 0, 4);
-                        await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken);
-                        _lastUsedAtUtc = DateTime.UtcNow;
-                        var responseToBytes = new byte[4];
-                        buffer.ReadBytes(8, responseToBytes, 0, 4);
-                        var responseTo = BitConverter.ToInt32(responseToBytes, 0);
-                        _inboundDropbox.Post(responseTo, new InboundDropboxEntry(buffer));
-                    }
-                    catch (Exception ex)
-                    {
-                        ConnectionFailed(ex);
-                        throw;
-                    }
-                }
+                var messageSizeBytes = new byte[4];
+                await _stream.FillBufferAsync(messageSizeBytes, 0, 4, cancellationToken);
+                var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+                var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
+                buffer.WriteBytes(0, messageSizeBytes, 0, 4);
+                await _stream.FillBufferAsync(buffer, 4, messageSize - 4, cancellationToken);
+                _lastUsedAtUtc = DateTime.UtcNow;
+                var responseToBytes = new byte[4];
+                buffer.ReadBytes(8, responseToBytes, 0, 4);
+                var responseTo = BitConverter.ToInt32(responseToBytes, 0);
+                _inboundDropbox.Post(responseTo, new InboundDropboxEntry(buffer));
             }
-            catch (TaskCanceledException)
+            catch (Exception ex)
             {
-                // ignore TaskCanceledException
+                ConnectionFailed(ex);
+                throw;
             }
         }
 
@@ -245,32 +231,20 @@ namespace MongoDB.Driver.Core.Connections
             return substituteReply ?? reply;
         }
 
-        private async Task SendBackgroundTask()
+        private async Task SendBackgroundTask(CancellationToken cancellationToken)
         {
+            var entry = await _outboundQueue.DequeueAsync();
             try
             {
-                while (true)
-                {
-                    _backgroundTaskCancellationToken.ThrowIfCancellationRequested();
-
-                    var entry = await _outboundQueue.DequeueAsync();
-                    try
-                    {
-                        await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, _backgroundTaskCancellationToken);
-                        _lastUsedAtUtc = DateTime.UtcNow;
-                        entry.TaskCompletionSource.TrySetResult(true);
-                    }
-                    catch (Exception ex)
-                    {
-                        entry.TaskCompletionSource.TrySetException(ex);
-                        ConnectionFailed(ex);
-                        throw;
-                    }
-                }
+                await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, cancellationToken);
+                _lastUsedAtUtc = DateTime.UtcNow;
+                entry.TaskCompletionSource.TrySetResult(true);
             }
-            catch (TaskCanceledException)
+            catch (Exception ex)
             {
-                // ignore TaskCanceledException
+                entry.TaskCompletionSource.TrySetException(ex);
+                ConnectionFailed(ex);
+                throw;
             }
         }
 
@@ -349,8 +323,10 @@ namespace MongoDB.Driver.Core.Connections
 
         private void StartBackgroundTasks()
         {
-            SendBackgroundTask().LogUnobservedExceptions();
-            ReceiveBackgroundTask().LogUnobservedExceptions();
+            AsyncBackgroundTask.Start(SendBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
+                .LogUnobservedExceptions();
+            AsyncBackgroundTask.Start(ReceiveBackgroundTask, TimeSpan.FromMilliseconds(0), _backgroundTaskCancellationTokenSource.Token)
+                .LogUnobservedExceptions();
         }
 
         private void ThrowIfDisposed()
