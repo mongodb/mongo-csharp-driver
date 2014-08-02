@@ -22,14 +22,13 @@ namespace MongoDB.Driver.Core.Async
 {
     internal static class AsyncBackgroundTask
     {
-        public static async Task Start(Func<CancellationToken, Task> action, TimeSpan delay, CancellationToken cancellationToken)
+        public static async Task Start(Func<CancellationToken, Task> action, Func<CancellationToken, Task> delayTask, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(action, "action");
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(delay, "delay");
 
             try
             {
-                if(delay.Equals(Timeout.InfiniteTimeSpan))
+                if (delayTask == null)
                 {
                     await action(cancellationToken).ConfigureAwait(false);
                     return;
@@ -40,14 +39,29 @@ namespace MongoDB.Driver.Core.Async
                     cancellationToken.ThrowIfCancellationRequested();
 
                     await action(cancellationToken).ConfigureAwait(false);
-                    if (!delay.Equals(TimeSpan.Zero))
-                    {
-                        await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
-                    }
+                    await delayTask(cancellationToken);
                 }
             }
-            catch(TaskCanceledException)
+            catch (TaskCanceledException)
             { }
+        }
+
+        public static Task Start(Func<CancellationToken, Task> action, TimeSpan delay, CancellationToken cancellationToken)
+        {
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(delay, "delay");
+
+            Func<CancellationToken, Task> delayTask = null;
+            if (delay.Equals(TimeSpan.Zero))
+            {
+                delayTask = ct => Task.FromResult<object>(null);
+            }
+            else if(!delay.Equals(Timeout.InfiniteTimeSpan))
+            {
+                delayTask = ct => Task.Delay(delay, ct);
+            }
+            
+
+            return Start(action, delayTask, cancellationToken);
         }
     }
 }

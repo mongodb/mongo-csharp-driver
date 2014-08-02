@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Core.Async;
 using NUnit.Framework;
@@ -26,7 +27,7 @@ namespace MongoDB.Driver.Core.Tests.Async
         [Test]
         public void Constructor_should_throw_an_ArgumentException_when_the_delay_is_less_than_negative_1()
         {
-            Action act = () => new InterruptibleDelay(TimeSpan.FromMilliseconds(-2));
+            Action act = () => new InterruptibleDelay(TimeSpan.FromMilliseconds(-2), CancellationToken.None);
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -34,14 +35,14 @@ namespace MongoDB.Driver.Core.Tests.Async
         [Test]
         public void Task_should_be_complete_after_the_delay_has_expired()
         {
-            var subject = new InterruptibleDelay(TimeSpan.FromMilliseconds(10));
+            var subject = new InterruptibleDelay(TimeSpan.FromMilliseconds(10), CancellationToken.None);
             subject.Task.Wait(TimeSpan.FromMilliseconds(100)).Should().BeTrue();
         }
 
         [Test]
         public void Task_should_be_complete_after_getting_interupted()
         {
-            var subject = new InterruptibleDelay(TimeSpan.FromHours(10));
+            var subject = new InterruptibleDelay(TimeSpan.FromHours(10), CancellationToken.None);
             subject.Interrupt();
             subject.Task.IsCompleted.Should().BeTrue();
         }

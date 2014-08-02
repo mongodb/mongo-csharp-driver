@@ -191,6 +191,39 @@ namespace MongoDB.Driver.Core.Tests.Servers
             connection.Should().NotBeNull();
         }
 
+        [Test]
+        public void Invalidate_should_force_another_heartbeat()
+        {
+            SetupHeartbeatConnection();
+            _subject.Initialize();
+
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+
+            _subject.Invalidate();
+
+            // the next requests down heartbeat connection will fail, so the state should
+            // go back to disconnected
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+        }
+
+        [Test]
+        public void A_failed_heartbeat_should_dispose_and_create_a_new_connectionPool()
+        {
+            _connectionPoolFactory.ClearReceivedCalls();
+            SetupHeartbeatConnection();
+            _subject.Initialize();
+
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Connected, TimeSpan.FromSeconds(4));
+
+            _subject.Invalidate();
+
+            // the next requests down heartbeat connection will fail, so the state should
+            // go back to disconnected
+            SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
+
+            _connectionPoolFactory.ReceivedWithAnyArgs().CreateConnectionPool(null, null);
+        }
+
         private void SetupHeartbeatConnection()
         {
             var isMasterReply = MessageHelper.BuildSuccessReply<RawBsonDocument>(

@@ -48,5 +48,6 @@ namespace MongoDB.Driver.Core.Servers
     {
         // methods
         void Initialize();
+        void Invalidate();
     }
 }

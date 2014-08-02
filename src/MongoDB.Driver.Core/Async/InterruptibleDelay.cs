@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
@@ -29,12 +30,12 @@ namespace MongoDB.Driver.Core.Async
         private readonly Task _task;
 
         // constructors
-        public InterruptibleDelay(TimeSpan delay)
+        public InterruptibleDelay(TimeSpan delay, CancellationToken cancellationToken)
         {
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(delay, "delay");
 
             _interrupt = new TaskCompletionSource<bool>();
-            _task = Task.WhenAny(Task.Delay(delay), _interrupt.Task);
+            _task = Task.WhenAny(Task.Delay(delay, cancellationToken), _interrupt.Task);
         }
 
         // properties

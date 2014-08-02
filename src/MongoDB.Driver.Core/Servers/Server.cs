@@ -37,14 +37,16 @@ namespace MongoDB.Driver.Core.Servers
     {
         // fields
         private readonly ExponentiallyWeightedMovingAverage _averageRoundTripTimeCalculator = new ExponentiallyWeightedMovingAverage(0.2);
-        private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
         private readonly ServerDescription _baseDescription;
-        private readonly IConnectionPool _connectionPool;
+        private IConnectionPool _connectionPool;
+        private readonly IConnectionPoolFactory _connectionPoolFactory;
         private ServerDescription _currentDescription;
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         private readonly EndPoint _endPoint;
+        private readonly CancellationTokenSource _heartbeatCancellationTokenSource = new CancellationTokenSource();
         private readonly IConnectionFactory _heartbeatConnectionFactory;
         private IConnection _heartbeatConnection;
+        private InterruptibleDelay _heartbeatDelay;
         private readonly IServerListener _listener;
         private readonly ServerId _serverId;
         private readonly ServerSettings _settings;
@@ -59,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
             _settings = Ensure.IsNotNull(settings, "settings"); ;
             Ensure.IsNotNull(clusterId, "clusterId");
             _endPoint = Ensure.IsNotNull(endPoint, "endPoint");
-            Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
+            _connectionPoolFactory = Ensure.IsNotNull(connectionPoolFactory, "connectionPoolFactory");
             _heartbeatConnectionFactory = Ensure.IsNotNull(hearbeatConnectionFactory, "hearbeatConnectionFactory");
             _listener = listener;
 
@@ -90,19 +92,30 @@ namespace MongoDB.Driver.Core.Servers
             {
                 _connectionPool.Initialize();
                 AsyncBackgroundTask.Start(
-                    HeartbeatBackgroundTask,
-                    _settings.HeartbeatInterval,
-                    _backgroundTaskCancellationTokenSource.Token)
+                    HeartbeatAsync,
+                    ct => 
+                    {
+                        var newDelay = new InterruptibleDelay(_settings.HeartbeatInterval, ct);
+                        Interlocked.Exchange(ref _heartbeatDelay, newDelay);
+                        return newDelay.Task;
+                    },
+                    _heartbeatCancellationTokenSource.Token)
                     .LogUnobservedExceptions();
             }
+        }
+
+        public void Invalidate()
+        {
+            ThrowIfNotOpen();
+            Interlocked.CompareExchange(ref _heartbeatDelay, null, null).Interrupt();
         }
 
         public void Dispose()
         {
             if (_state.TryChange(State.Disposed))
             {
-                _backgroundTaskCancellationTokenSource.Cancel();
-                _backgroundTaskCancellationTokenSource.Dispose();
+                _heartbeatCancellationTokenSource.Cancel();
+                _heartbeatCancellationTokenSource.Dispose();
                 _connectionPool.Dispose();
                 GC.SuppressFinalize(this);
             }
@@ -127,10 +140,11 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async Task HeartbeatBackgroundTask(CancellationToken cancellationToken)
+        private async Task HeartbeatAsync(CancellationToken cancellationToken)
         {
+            const int maxRetryCount = 2;
             HeartbeatInfo heartbeatInfo = null;
-            for (var attempt = 1; attempt <= 2; attempt++)
+            for (var attempt = 1; attempt <= maxRetryCount; attempt++)
             {
                 if (_heartbeatConnection == null)
                 {
@@ -145,10 +159,14 @@ namespace MongoDB.Driver.Core.Servers
                 }
                 catch
                 {
-                    if (attempt == 1)
+                    _heartbeatConnection.Dispose();
+                    _heartbeatConnection = null;
+
+                    if(attempt == maxRetryCount)
                     {
-                        _heartbeatConnection.Dispose();
-                        _heartbeatConnection = null;
+                        _connectionPool.Dispose();
+                        _connectionPool = _connectionPoolFactory.CreateConnectionPool(_serverId, _endPoint);
+                        _connectionPool.Initialize();
                     }
                 }
             }
