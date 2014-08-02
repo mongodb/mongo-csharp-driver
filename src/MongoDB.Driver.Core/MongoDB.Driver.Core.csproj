@@ -99,8 +99,8 @@
     <Compile Include="Clusters\ClusterState.cs" />
     <Compile Include="Clusters\ClusterType.cs" />
     <Compile Include="Clusters\ClusterWrapper.cs" />
-    <Compile Include="ConnectionPools\ConnectionPool.cs" />
-    <Compile Include="ConnectionPools\ConnectionPoolFactory.cs" />
+    <Compile Include="ConnectionPools\ExclusiveConnectionPool.cs" />
+    <Compile Include="ConnectionPools\ExclusiveConnectionPoolFactory.cs" />
     <Compile Include="Connections\ConnectionHandle.cs" />
     <Compile Include="Connections\ConnectionId.cs" />
     <Compile Include="Connections\ConnectionIdSource.cs" />

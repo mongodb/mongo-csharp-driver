@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    internal sealed class ConnectionPool : IConnectionPool
+    internal sealed class ExclusiveConnectionPool : IConnectionPool
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly SemaphoreSlim _waitQueue;
 
         // constructors
-        public ConnectionPool(
+        public ExclusiveConnectionPool(
             ServerId serverId,
             EndPoint endPoint,
             ConnectionPoolSettings settings,
@@ -86,6 +86,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        public ServerId ServerId
+        {
+            get { return _serverId; }
+        }
+
         public int UsedCount
         {
             get 
@@ -93,11 +98,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfDisposed();
                 return _settings.MaxConnections - AvailableCount; 
             }
-        }
-
-        public ServerId ServerId
-        {
-            get { return _serverId; }
         }
 
         // public methods
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
 
                 var waitQueueTimeout = (int)Math.Min(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
-                if(waitQueueTimeout == Timeout.Infinite)
+                if (waitQueueTimeout == Timeout.Infinite)
                 {
                     // if one of these is infinite (-1), then we don't timeout properly
                     waitQueueTimeout = (int)Math.Max(slidingTimeout.ToTimeout().TotalMilliseconds, timeout.TotalMilliseconds);
@@ -373,10 +373,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private class AcquiredConnection : ConnectionWrapper, IConnectionHandle
         {
-            private ConnectionPool _connectionPool;
+            private ExclusiveConnectionPool _connectionPool;
             private PooledConnection _pooledConnection;
 
-            public AcquiredConnection(ConnectionPool connectionPool, PooledConnection pooledConnection)
+            public AcquiredConnection(ExclusiveConnectionPool connectionPool, PooledConnection pooledConnection)
                 : base(pooledConnection)
             {
                 _connectionPool = connectionPool;

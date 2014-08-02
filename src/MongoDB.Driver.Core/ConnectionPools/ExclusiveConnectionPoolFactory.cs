@@ -21,18 +21,18 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    public sealed class ConnectionPoolFactory : IConnectionPoolFactory
+    public sealed class ExclusiveConnectionPoolFactory : IConnectionPoolFactory
     {
         // fields
         private readonly IConnectionFactory _connectionFactory;
         private readonly ConnectionPoolSettings _settings;
 
-        public ConnectionPoolFactory()
+        public ExclusiveConnectionPoolFactory()
             : this(new ConnectionPoolSettings(), new BinaryConnectionFactory())
         {
         }
 
-        public ConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory)
+        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory)
         {
             _settings = Ensure.IsNotNull(settings, "settings");
             _connectionFactory = Ensure.IsNotNull(connectionFactory, "connectionFactory");
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Ensure.IsNotNull(serverId, "serverId");
             Ensure.IsNotNull(endPoint, "endPoint");
 
-            return new ConnectionPool(serverId, endPoint, _settings, _connectionFactory);
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory);
         }
     }
 }

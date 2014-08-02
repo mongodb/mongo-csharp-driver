@@ -95,14 +95,14 @@ namespace MongoDB.Driver.Core.Configuration
             return (_maxConnections == value) ? this : new Builder(this) { _maxConnections = value }.Build();
         }
 
-        public ConnectionPoolSettings WithWaitQueueMultiple(int value)
-        {
-            return (_waitQueueMultiple == value) ? this : new Builder(this) { _waitQueueMultiple = value }.Build();
-        }
-
         public ConnectionPoolSettings WithMinConnections(int value)
         {
             return (_minConnections == value) ? this : new Builder(this) { _minConnections = value }.Build();
+        }
+
+        public ConnectionPoolSettings WithWaitQueueMultiple(int value)
+        {
+            return (_waitQueueMultiple == value) ? this : new Builder(this) { _waitQueueMultiple = value }.Build();
         }
 
         public ConnectionPoolSettings WithWaitQueueTimeout(TimeSpan value)

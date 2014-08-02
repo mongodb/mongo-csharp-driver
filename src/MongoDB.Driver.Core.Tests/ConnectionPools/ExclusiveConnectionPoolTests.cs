@@ -30,13 +30,13 @@ using NUnit.Framework;
 namespace MongoDB.Driver.Core.Tests.ConnectionPools
 {
     [TestFixture]
-    public class ConnectionPoolTests
+    public class ExclusiveConnectionPoolTests
     {
         private IConnectionFactory _connectionFactory;
         private DnsEndPoint _endPoint;
         private ServerId _serverId;
         private ConnectionPoolSettings _settings;
-        private ConnectionPool _subject;
+        private ExclusiveConnectionPool _subject;
 
         [SetUp]
         public void Setup()
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
                 .WithMinConnections(2)
                 .WithWaitQueueMultiple(1);
 
-            _subject = new ConnectionPool(
+            _subject = new ExclusiveConnectionPool(
                 _serverId,
                 _endPoint,
                 _settings,
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ConnectionPool(null, _endPoint, _settings, _connectionFactory);
+            Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _connectionFactory);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ConnectionPool(_serverId, null, _settings, _connectionFactory);
+            Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _connectionFactory);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ConnectionPool(_serverId, _endPoint, null, _connectionFactory);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _connectionFactory);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         [Test]
         public void Constructor_should_throw_when_settings_is_connectionFactory()
         {
-            Action act = () => new ConnectionPool(_serverId, _endPoint, _settings, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }

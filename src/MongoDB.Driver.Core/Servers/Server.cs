@@ -136,7 +136,15 @@ namespace MongoDB.Driver.Core.Servers
         {
             var slidingTimeout = new SlidingTimeout(timeout);
             var connection = await _connectionPool.AcquireConnectionAsync(slidingTimeout, cancellationToken);
-            await connection.OpenAsync(slidingTimeout, cancellationToken);
+            try
+            {
+                await connection.OpenAsync(slidingTimeout, cancellationToken);
+            }
+            catch
+            {
+                connection.Dispose();
+                throw;
+            }
             return connection;
         }
 

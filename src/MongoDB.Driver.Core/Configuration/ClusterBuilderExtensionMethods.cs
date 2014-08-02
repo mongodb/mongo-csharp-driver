@@ -79,9 +79,9 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 configuration.ConfigureConnectionPool(s => s.WithWaitQueueMultiple(connectionString.WaitQueueMultiple.Value));
             }
-            if (connectionString.WaitQueueMultiple != null)
+            if (connectionString.WaitQueueTimeout != null)
             {
-                configuration.ConfigureConnectionPool(s => s.WithWaitQueueMultiple(connectionString.WaitQueueMultiple.Value));
+                configuration.ConfigureConnectionPool(s => s.WithWaitQueueTimeout(connectionString.WaitQueueTimeout.Value));
             }
 
             // Server

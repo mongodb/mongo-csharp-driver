@@ -46,8 +46,8 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionDescription _description;
         private DateTime _lastUsedAtUtc;
         private readonly IMessageListener _listener;
-        private readonly object _openLock = new object();
         private DateTime _openedAtUtc;
+        private readonly object _openLock = new object();
         private Task _openTask;
         private readonly AsyncQueue<OutboundQueueEntry> _outboundQueue = new AsyncQueue<OutboundQueueEntry>();
         private readonly ServerId _serverId;
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var now = DateTime.UtcNow;
 
-                //connection has been alive for too long
+                // connection has been alive for too long
                 if (_settings.MaxLifeTime.TotalMilliseconds > -1 && now > _openedAtUtc.Add(_settings.MaxLifeTime))
                 {
                     return true;
@@ -188,6 +188,7 @@ namespace MongoDB.Driver.Core.Connections
                         var buffer = ByteBufferFactory.Create(BsonChunkPool.Default, messageSize);
                         buffer.WriteBytes(0, messageSizeBytes, 0, 4);
                         await _stream.FillBufferAsync(buffer, 4, messageSize - 4, _backgroundTaskCancellationToken);
+                        _lastUsedAtUtc = DateTime.UtcNow;
                         var responseToBytes = new byte[4];
                         buffer.ReadBytes(8, responseToBytes, 0, 4);
                         var responseTo = BitConverter.ToInt32(responseToBytes, 0);
@@ -212,7 +213,6 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
-            _lastUsedAtUtc = DateTime.UtcNow;
             var slidingTimeout = new SlidingTimeout(timeout);
             var entry = await _inboundDropbox.ReceiveAsync(responseTo, slidingTimeout, cancellationToken);
 
@@ -257,6 +257,7 @@ namespace MongoDB.Driver.Core.Connections
                     try
                     {
                         await _stream.WriteBufferAsync(entry.Buffer, 0, entry.Buffer.Length, _backgroundTaskCancellationToken);
+                        _lastUsedAtUtc = DateTime.UtcNow;
                         entry.TaskCompletionSource.TrySetResult(true);
                     }
                     catch (Exception ex)
@@ -279,7 +280,6 @@ namespace MongoDB.Driver.Core.Connections
             Ensure.IsInfiniteOrGreaterThanOrEqualToZero(timeout, "timeout");
             ThrowIfDisposedOrNotOpen();
 
-            _lastUsedAtUtc = DateTime.UtcNow;
             var slidingTimeout = new SlidingTimeout(timeout);
             var sentMessages = new List<RequestMessage>();
             var substituteReplies = new Dictionary<int, ReplyMessage>();

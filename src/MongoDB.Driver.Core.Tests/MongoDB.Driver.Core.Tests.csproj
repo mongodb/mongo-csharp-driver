@@ -68,8 +68,8 @@
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
-    <Compile Include="ConnectionPools\ConnectionPoolFactoryTests.cs" />
-    <Compile Include="ConnectionPools\ConnectionPoolTests.cs" />
+    <Compile Include="ConnectionPools\ExclusiveConnectionPoolFactoryTests.cs" />
+    <Compile Include="ConnectionPools\ExclusiveConnectionPoolTests.cs" />
     <Compile Include="Connections\BinaryConnectionFactoryTests.cs" />
     <Compile Include="Connections\BinaryConnectionTests.cs" />
     <Compile Include="Connections\ConnectionInitializerTests.cs" />
