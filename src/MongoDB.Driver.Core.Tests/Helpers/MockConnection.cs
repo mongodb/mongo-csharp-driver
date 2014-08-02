@@ -32,6 +32,11 @@ namespace MongoDB.Driver.Core.Tests.Helpers
         private readonly List<RequestMessage> _sentMessages;
 
         // constructors
+        public MockConnection()
+            : this(null)
+        {
+        }
+
         public MockConnection(ServerId serverId)
         {
             _replyMessages = new Queue<MongoDBMessage>();
@@ -50,7 +55,7 @@ namespace MongoDB.Driver.Core.Tests.Helpers
 
         public bool IsExpired { get; set; }
 
-        public ServerId ServerId { get; private set; }
+        public ServerId ServerId { get; set; }
 
         public ConnectionSettings Settings { get; set; }
 

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Clusters
         // fields
         private readonly CancellationTokenSource _backgroundTaskCancellationTokenSource = new CancellationTokenSource();
         private readonly AsyncQueue<ServerDescriptionChangedEventArgs> _serverDescriptionChangedQueue = new AsyncQueue<ServerDescriptionChangedEventArgs>();
-        private readonly List<IRootServer> _servers = new List<IRootServer>();
+        private readonly List<IClusterableServer> _servers = new List<IClusterableServer>();
 
         // constructors
         public MultiServerCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         // properties
         // methods
-        internal void AddServer(IRootServer server)
+        internal void AddServer(IClusterableServer server)
         {
             lock (Lock)
             {
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Clusters
             UpdateClusterDescription(newClusterDescription);
         }
 
-        protected void RemoveServer(IRootServer server)
+        protected void RemoveServer(IClusterableServer server)
         {
             server.DescriptionChanged -= ServerDescriptionChangedHandler;
             var endPoint = server.EndPoint;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
             throw new NotImplementedException();
         }
 
-        protected override bool TryGetServer(EndPoint endPoint, out IRootServer server)
+        protected override bool TryGetServer(EndPoint endPoint, out IClusterableServer server)
         {
             lock (Lock)
             {

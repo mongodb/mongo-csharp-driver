@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Clusters
     public class SingleServerCluster : Cluster
     {
         // fields
-        private IRootServer _server;
+        private IClusterableServer _server;
 
         // constructor
         internal SingleServerCluster(ClusterSettings settings, IServerFactory serverFactory, IClusterListener listener)
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Clusters
             UpdateClusterDescription(newClusterDescription);
         }
 
-        protected override bool TryGetServer(EndPoint endPoint, out IRootServer server)
+        protected override bool TryGetServer(EndPoint endPoint, out IClusterableServer server)
         {
             if (_server.EndPoint.Equals(endPoint))
             {

@@ -34,18 +34,19 @@ namespace MongoDB.Driver.Core.Servers
         event EventHandler<ServerDescriptionChangedEventArgs> DescriptionChanged;
 
         // properties
-        EndPoint EndPoint { get; }
         ServerDescription Description { get; }
+        EndPoint EndPoint { get; }
 
         // methods
         Task<IConnectionHandle> GetConnectionAsync(TimeSpan timeout = default(TimeSpan), CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>
-    /// Represents a server that hasn't been wrapped.
+    /// Represents a server that can be part of a cluster.
     /// </summary>
-    public interface IRootServer : IServer, IDisposable
+    public interface IClusterableServer : IServer, IDisposable
     {
+        // methods
         void Initialize();
     }
 }
