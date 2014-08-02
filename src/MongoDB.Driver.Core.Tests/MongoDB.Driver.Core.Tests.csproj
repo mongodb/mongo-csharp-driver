@@ -55,6 +55,7 @@
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Async\AsyncDropboxTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
+    <Compile Include="Async\AsyncBackgroundTaskTests.cs" />
     <Compile Include="Async\InterruptibleDelayTests.cs" />
     <Compile Include="Async\TaskExtensionMethodsTests.cs" />
     <Compile Include="Authentication\ScramSha1AuthenticatorTests.cs" />

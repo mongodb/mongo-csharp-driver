@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -31,12 +32,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly IConnectionFactory _connectionFactory;
         private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
+        private readonly CancellationTokenSource _maintenanceCancellationTokenSource;
         private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly object _sizeMaintenaceLock = new object();
-        private readonly Timer _sizeMaintenanceTimer;
         private readonly SemaphoreSlim _waitQueue;
 
         // constructors
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionHolder = new ListConnectionHolder();
             _poolQueue = new WaitQueue(settings.MaxConnections);
             _waitQueue = new SemaphoreSlim(settings.MaxWaitQueueSize);
-            _sizeMaintenanceTimer = new Timer(_ => MaintainSize());
+            _maintenanceCancellationTokenSource = new CancellationTokenSource();
             _state = new InterlockedInt32(State.Initial);
         }
 
@@ -187,7 +187,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _sizeMaintenanceTimer.Change(TimeSpan.Zero, _settings.MaintenanceInterval);
+                AsyncBackgroundTask.Start(
+                    ct => MaintainSize(ct),
+                    _settings.MaintenanceInterval,
+                    _maintenanceCancellationTokenSource.Token)
+                    .LogUnobservedExceptions();
             }
         }
 
@@ -196,52 +200,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
             if (_state.TryChange(State.Disposed))
             {
                 // TODO: dispose all connections in the pool
-                _sizeMaintenanceTimer.Dispose();
+                _maintenanceCancellationTokenSource.Cancel();
+                _maintenanceCancellationTokenSource.Dispose();
                 _poolQueue.Dispose();
                 _waitQueue.Dispose();
             }
         }
 
-        private void MaintainSize()
+        private async Task MaintainSize(CancellationToken cancellationToken)
         {
-            if (_state.Value == State.Disposed)
-            {
-                return;
-            }
-
-            bool lockTaken = false;
-            try
-            {
-                lockTaken = Monitor.TryEnter(_sizeMaintenaceLock);
-                if (!lockTaken)
-                {
-                    return;
-                }
-
-                PrunePool();
-                EnsureMinSize();
-            }
-            catch
-            {
-                // eat all these exceptions.  Any that leak would cause an application crash.
-            }
-            finally
-            {
-                if (lockTaken)
-                {
-                    Monitor.Exit(_sizeMaintenaceLock);
-                }
-            }
+            await PrunePool(cancellationToken);
+            await EnsureMinSize(cancellationToken);
         }
 
-        private void PrunePool()
+        private async Task PrunePool(CancellationToken cancellationToken)
         {
             bool enteredPool = false;
             try
             {
                 // if it takes too long to enter the pool, then the pool is fully utilized
                 // and we don't want to mess with it.
-                enteredPool = _poolQueue.Wait(TimeSpan.FromMilliseconds(20), CancellationToken.None);
+                enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken);
                 if (!enteredPool)
                 {
                     return;
@@ -265,14 +244,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private void EnsureMinSize()
+        private async Task EnsureMinSize(CancellationToken cancellationToken)
         {
             while (CreatedCount < _settings.MinConnections)
             {
                 bool enteredPool = false;
                 try
                 {
-                    enteredPool = _poolQueue.Wait(TimeSpan.FromMilliseconds(20), CancellationToken.None);
+                    enteredPool = await _poolQueue.WaitAsync(TimeSpan.FromMilliseconds(20), cancellationToken);
                     if (!enteredPool)
                     {
                         return;
@@ -282,7 +261,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // when adding in a connection, we need to open it because 
                     // the whole point of having a min pool size is to have
                     // them available and ready...
-                    connection.OpenAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Wait();
+                    await connection.OpenAsync(Timeout.InfiniteTimeSpan, cancellationToken);
                     _connectionHolder.Return(connection);
                 }
                 finally

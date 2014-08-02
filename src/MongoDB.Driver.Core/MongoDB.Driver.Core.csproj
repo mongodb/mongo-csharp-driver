@@ -47,6 +47,7 @@
     <Compile Include="..\MongoDB.Shared\Hasher.cs">
       <Link>Misc\Hasher.cs</Link>
     </Compile>
+    <Compile Include="Async\AsyncBackgroundTask.cs" />
     <Compile Include="Async\AsyncDropbox.cs" />
     <Compile Include="Async\AsyncQueue.cs" />
     <Compile Include="Async\IAsyncEnumerable.cs" />
