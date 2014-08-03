@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Async
             {
                 delayTask = ct => Task.FromResult<object>(null);
             }
-            else if(!delay.Equals(Timeout.InfiniteTimeSpan))
+            else if (!delay.Equals(Timeout.InfiniteTimeSpan))
             {
                 delayTask = ct => Task.Delay(delay, ct);
             }

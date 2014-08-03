@@ -41,7 +41,6 @@ namespace MongoDB.Driver.Core.Servers
         private IConnectionPool _connectionPool;
         private readonly IConnectionPoolFactory _connectionPoolFactory;
         private ServerDescription _currentDescription;
-        private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource = new TaskCompletionSource<bool>();
         private readonly EndPoint _endPoint;
         private readonly CancellationTokenSource _heartbeatCancellationTokenSource = new CancellationTokenSource();
         private readonly IConnectionFactory _heartbeatConnectionFactory;
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.Servers
                 _connectionPool.Initialize();
                 AsyncBackgroundTask.Start(
                     HeartbeatAsync,
-                    ct => 
+                    ct =>
                     {
                         var newDelay = new InterruptibleDelay(_settings.HeartbeatInterval, ct);
                         Interlocked.Exchange(ref _heartbeatDelay, newDelay);
@@ -112,12 +111,20 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
             if (_state.TryChange(State.Disposed))
             {
-                _heartbeatCancellationTokenSource.Cancel();
-                _heartbeatCancellationTokenSource.Dispose();
-                _connectionPool.Dispose();
-                GC.SuppressFinalize(this);
+                if (disposing)
+                {
+                    _heartbeatCancellationTokenSource.Cancel();
+                    _heartbeatCancellationTokenSource.Dispose();
+                    _connectionPool.Dispose();
+                }
             }
         }
 
@@ -162,7 +169,7 @@ namespace MongoDB.Driver.Core.Servers
                     _heartbeatConnection.Dispose();
                     _heartbeatConnection = null;
 
-                    if(attempt == maxRetryCount)
+                    if (attempt == maxRetryCount)
                     {
                         _connectionPool.Dispose();
                         _connectionPool = _connectionPoolFactory.CreateConnectionPool(_serverId, _endPoint);
@@ -207,21 +214,23 @@ namespace MongoDB.Driver.Core.Servers
             {
                 var slidingTimeout = new SlidingTimeout(_settings.HeartbeatTimeout);
 
-                var stopwatch = Stopwatch.StartNew();
                 var isMasterCommand = new CommandWireProtocol(
-                    "admin", 
-                    new BsonDocument("isMaster", 1), 
+                    "admin",
+                    new BsonDocument("isMaster", 1),
                     true);
 
-                var isMasterResult = new IsMasterResult(await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken));
+                var stopwatch = Stopwatch.StartNew();
+                var isMasterResultDocument = await isMasterCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
                 stopwatch.Stop();
+                var isMasterResult = new IsMasterResult(isMasterResultDocument);
 
                 var buildInfoCommand = new CommandWireProtocol(
-                    "admin", 
+                    "admin",
                     new BsonDocument("buildInfo", 1),
                     true);
 
-                var buildInfoResult = new BuildInfoResult(await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken));
+                var buildInfoResultRocument = await buildInfoCommand.ExecuteAsync(connection, slidingTimeout, cancellationToken);
+                var buildInfoResult = new BuildInfoResult(buildInfoResultRocument);
 
                 if (_listener != null)
                 {
@@ -229,11 +238,11 @@ namespace MongoDB.Driver.Core.Servers
                     _listener.SentHeartbeat(args);
                 }
 
-                return new HeartbeatInfo 
-                { 
-                    RoundTripTime = stopwatch.Elapsed, 
-                    IsMasterResult = isMasterResult, 
-                    BuildInfoResult = buildInfoResult 
+                return new HeartbeatInfo
+                {
+                    RoundTripTime = stopwatch.Elapsed,
+                    IsMasterResult = isMasterResult,
+                    BuildInfoResult = buildInfoResult
                 };
             }
             catch (Exception exception)
@@ -249,11 +258,13 @@ namespace MongoDB.Driver.Core.Servers
 
         private void OnDescriptionChanged(ServerDescription newDescription)
         {
-            var oldDescription = Interlocked.Exchange(ref _currentDescription, newDescription);
-            if(oldDescription.Equals(newDescription))
+            var oldDescription = Interlocked.CompareExchange(ref _currentDescription, null, null);
+            if (oldDescription.Equals(newDescription))
             {
                 return;
             }
+            newDescription = newDescription.WithRevision(oldDescription.Revision + 1);
+            Interlocked.Exchange(ref _currentDescription, newDescription);
 
             var args = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
 

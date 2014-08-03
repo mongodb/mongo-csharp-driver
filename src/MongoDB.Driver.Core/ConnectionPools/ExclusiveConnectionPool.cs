@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             if (_state.TryChange(State.Initial, State.Open))
             {
                 AsyncBackgroundTask.Start(
-                    ct => MaintainSize(ct),
+                    ct => MaintainSizeAsync(ct),
                     _settings.MaintenanceInterval,
                     _maintenanceCancellationTokenSource.Token)
                     .LogUnobservedExceptions();
@@ -207,13 +207,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task MaintainSize(CancellationToken cancellationToken)
+        private async Task MaintainSizeAsync(CancellationToken cancellationToken)
         {
-            await PrunePool(cancellationToken);
-            await EnsureMinSize(cancellationToken);
+            await PrunePoolAsync(cancellationToken);
+            await EnsureMinSizeAsync(cancellationToken);
         }
 
-        private async Task PrunePool(CancellationToken cancellationToken)
+        private async Task PrunePoolAsync(CancellationToken cancellationToken)
         {
             bool enteredPool = false;
             try
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task EnsureMinSize(CancellationToken cancellationToken)
+        private async Task EnsureMinSizeAsync(CancellationToken cancellationToken)
         {
             while (CreatedCount < _settings.MinConnections)
             {
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Return(PooledConnection connection)
             {
-                if(connection.IsExpired)
+                if (connection.IsExpired)
                 {
                     connection.Dispose();
                     return;

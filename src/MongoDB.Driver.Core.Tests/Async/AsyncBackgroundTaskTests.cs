@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Async
                 ct => 
                 { 
                     count++; 
-                    if(count == 5)
+                    if (count == 5)
                     {
                         cancellationTokenSource.Cancel();
                     }
