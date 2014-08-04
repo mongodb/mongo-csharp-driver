@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AssertionExtensions.cs" />
     <Compile Include="Async\AsyncDropboxTests.cs" />
+    <Compile Include="Async\AsyncMetronomeTests.cs" />
     <Compile Include="Async\AsyncQueueTests.cs" />
     <Compile Include="Async\AsyncBackgroundTaskTests.cs" />
     <Compile Include="Async\InterruptibleDelayTests.cs" />
