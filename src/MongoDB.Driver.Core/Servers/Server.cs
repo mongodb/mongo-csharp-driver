@@ -336,11 +336,11 @@ namespace MongoDB.Driver.Core.Servers
                 _server = server;
             }
 
-            public override Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return base.OpenAsync(timeout, cancellationToken);
+                    await base.OpenAsync(timeout, cancellationToken);
                 }
                 catch(Exception ex)
                 {
@@ -349,11 +349,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return base.ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
+                    return await base.ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -362,11 +362,11 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public override Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+            public override async Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
             {
                 try
                 {
-                    return base.SendMessagesAsync(messages, timeout, cancellationToken);
+                    await base.SendMessagesAsync(messages, timeout, cancellationToken);
                 }
                 catch (Exception ex)
                 {
