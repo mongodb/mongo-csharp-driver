@@ -153,14 +153,14 @@ namespace MongoDB.Driver.Core.Servers
             HeartbeatInfo heartbeatInfo = null;
             for (var attempt = 1; attempt <= maxRetryCount; attempt++)
             {
-                if (_heartbeatConnection == null)
-                {
-                    _heartbeatConnection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
-                    await _heartbeatConnection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken);
-                }
-
                 try
                 {
+                    if (_heartbeatConnection == null)
+                    {
+                        _heartbeatConnection = _heartbeatConnectionFactory.CreateConnection(_serverId, _endPoint);
+                        await _heartbeatConnection.OpenAsync(TimeSpan.FromMinutes(1), cancellationToken);
+                    }
+
                     heartbeatInfo = await GetHeartbeatInfoAsync(_heartbeatConnection, cancellationToken);
                     break;
                 }
