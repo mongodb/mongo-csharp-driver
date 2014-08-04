@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
     public class ServerTests
     {
         private ClusterId _clusterId;
+        private IConnectionPool _connectionPool;
         private IConnectionPoolFactory _connectionPoolFactory;
         private EndPoint _endPoint;
         private MockConnection _heartbeatConnection;
@@ -51,7 +52,10 @@ namespace MongoDB.Driver.Core.Tests.Servers
         public void Setup()
         {
             _clusterId = new ClusterId();
+            _connectionPool = Substitute.For<IConnectionPool>();
             _connectionPoolFactory = Substitute.For<IConnectionPoolFactory>();
+            _connectionPoolFactory.CreateConnectionPool(null, null)
+                .ReturnsForAnyArgs(_connectionPool);
 
             _endPoint = new DnsEndPoint("localhost", 27017);
             _heartbeatConnection = new MockConnection();
@@ -207,9 +211,8 @@ namespace MongoDB.Driver.Core.Tests.Servers
         }
 
         [Test]
-        public void A_failed_heartbeat_should_dispose_and_create_a_new_connectionPool()
+        public void A_failed_heartbeat_should_clear_the_connection_pool()
         {
-            _connectionPoolFactory.ClearReceivedCalls();
             SetupHeartbeatConnection();
             _subject.Initialize();
 
@@ -221,7 +224,7 @@ namespace MongoDB.Driver.Core.Tests.Servers
             // go back to disconnected
             SpinWait.SpinUntil(() => _subject.Description.State == ServerState.Disconnected, TimeSpan.FromSeconds(4));
 
-            _connectionPoolFactory.ReceivedWithAnyArgs().CreateConnectionPool(null, null);
+            _connectionPool.ReceivedWithAnyArgs().Clear();
         }
 
         private void SetupHeartbeatConnection()

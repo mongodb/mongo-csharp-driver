@@ -171,9 +171,7 @@ namespace MongoDB.Driver.Core.Servers
 
                     if (attempt == maxRetryCount)
                     {
-                        _connectionPool.Dispose();
-                        _connectionPool = _connectionPoolFactory.CreateConnectionPool(_serverId, _endPoint);
-                        _connectionPool.Initialize();
+                        _connectionPool.Clear();
                     }
                 }
             }

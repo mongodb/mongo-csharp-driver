@@ -204,6 +204,36 @@ namespace MongoDB.Driver.Core.Tests.ConnectionPools
         }
 
         [Test]
+        public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
+        {
+            Action act = () => _subject.Clear();
+
+            act.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public void Clear_should_throw_an_ObjectDisposedException_after_disposing()
+        {
+            _subject.Dispose();
+
+            Action act = () => _subject.Clear();
+
+            act.ShouldThrow<ObjectDisposedException>();
+        }
+
+        [Test]
+        public void Clear_should_cause_existing_connections_to_be_expired()
+        {
+            _subject.Initialize();
+
+            var connection = _subject.AcquireConnectionAsync(Timeout.InfiniteTimeSpan, CancellationToken.None).Result;
+
+            connection.IsExpired.Should().BeFalse();
+            _subject.Clear();
+            connection.IsExpired.Should().BeTrue();
+        }
+
+        [Test]
         public void Initialize_should_throw_an_ObjectDisposedException_after_disposing()
         {
             _subject.Dispose();

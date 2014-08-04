@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly IConnectionFactory _connectionFactory;
         private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
+        private int _generation;
         private readonly CancellationTokenSource _maintenanceCancellationTokenSource;
         private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
@@ -84,6 +85,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfDisposed();
                 return _connectionHolder.Count; 
             }
+        }
+
+        public int Generation
+        {
+            get { return Interlocked.CompareExchange(ref _generation, 0, 0); }
         }
 
         public ServerId ServerId
@@ -176,10 +182,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return new AcquiredConnection(this, connection);
         }
 
+        public void Clear()
+        {
+            ThrowIfNotOpen();
+            Interlocked.Increment(ref _generation);
+        }
+
         private PooledConnection CreateNewConnection()
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
-            return new PooledConnection(connection);
+            return new PooledConnection(this, connection);
         }
 
         public void Initialize()
@@ -321,15 +333,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private class PooledConnection : ConnectionWrapper
         {
             // fields
+            private readonly ExclusiveConnectionPool _connectionPool;
+            private readonly int _generation;
             private int _referenceCount;
 
             // constructors
-            public PooledConnection(IConnection connection)
+            public PooledConnection(ExclusiveConnectionPool connectionPool, IConnection connection)
                 : base(connection)
             {
+                _connectionPool = connectionPool;
+                _generation = _connectionPool.Generation;
             }
 
             // properties
+            public override bool IsExpired
+            {
+                get
+                {
+                    return base.IsExpired || _generation < _connectionPool.Generation;
+                }
+            }
+
             public int ReferenceCount
             {
                 get

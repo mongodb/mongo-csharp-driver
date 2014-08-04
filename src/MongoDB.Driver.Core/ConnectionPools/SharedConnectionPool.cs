@@ -79,6 +79,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return new ConnectionHandle(referenceCountedConnection);
         }
 
+        public void Clear()
+        {
+            // TODO
+        }
+
         public void Initialize()
         {
             // do nothing
