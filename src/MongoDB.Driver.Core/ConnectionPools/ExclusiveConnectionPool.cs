@@ -221,8 +221,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private async Task MaintainSizeAsync(CancellationToken cancellationToken)
         {
-            await PrunePoolAsync(cancellationToken);
-            await EnsureMinSizeAsync(cancellationToken);
+            try
+            {
+                await PrunePoolAsync(cancellationToken);
+                await EnsureMinSizeAsync(cancellationToken);
+            }
+            catch
+            {
+                // do nothing, this is called in the background
+            }
         }
 
         private async Task PrunePoolAsync(CancellationToken cancellationToken)
