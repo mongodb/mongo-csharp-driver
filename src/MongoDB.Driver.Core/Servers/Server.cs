@@ -14,11 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Async;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -27,6 +29,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -138,7 +141,7 @@ namespace MongoDB.Driver.Core.Servers
             try
             {
                 await connection.OpenAsync(slidingTimeout, cancellationToken);
-                return connection;
+                return new ServerConnection(this, connection);
             }
             catch
             {
@@ -279,6 +282,16 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        private void HandleConnectionException(IConnection connection, Exception ex)
+        {
+            if (_state.Value == State.Open)
+            {
+                // For any connection exception, we are going to immediately
+                // invalidate the server
+                Invalidate();
+            }
+        }
+
         private void ThrowIfDisposed()
         {
             if (_state.Value == State.Disposed)
@@ -309,6 +322,63 @@ namespace MongoDB.Driver.Core.Servers
             public TimeSpan RoundTripTime;
             public IsMasterResult IsMasterResult;
             public BuildInfoResult BuildInfoResult;
+        }
+
+        private sealed class ServerConnection : ConnectionWrapper, IConnectionHandle
+        {
+            private readonly Server _server;
+            private readonly IConnectionHandle _wrappedHandle;
+            
+            public ServerConnection(Server server, IConnectionHandle wrapped)
+                : base(wrapped)
+            {
+                _wrappedHandle = wrapped;
+                _server = server;
+            }
+
+            public override Task OpenAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return base.OpenAsync(timeout, cancellationToken);
+                }
+                catch(Exception ex)
+                {
+                    _server.HandleConnectionException(this, ex);
+                    throw;
+                }
+            }
+
+            public override Task<ReplyMessage<TDocument>> ReceiveMessageAsync<TDocument>(int responseTo, IBsonSerializer<TDocument> serializer, TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return base.ReceiveMessageAsync<TDocument>(responseTo, serializer, timeout, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _server.HandleConnectionException(this, ex);
+                    throw;
+                }
+            }
+
+            public override Task SendMessagesAsync(IEnumerable<RequestMessage> messages, TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    return base.SendMessagesAsync(messages, timeout, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _server.HandleConnectionException(this, ex);
+                    throw;
+                }
+            }
+
+            public IConnectionHandle Fork()
+            {
+                return new ServerConnection(_server, _wrappedHandle.Fork());
+            }
         }
     }
 }
