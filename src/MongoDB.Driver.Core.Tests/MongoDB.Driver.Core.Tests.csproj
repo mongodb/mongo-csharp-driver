@@ -70,6 +70,7 @@
     <Compile Include="Clusters\TagSetTests.cs" />
     <Compile Include="Clusters\TagTests.cs" />
     <Compile Include="Configuration\ConnectionStringTests.cs" />
+    <Compile Include="Configuration\ServerSettingsTests.cs" />
     <Compile Include="ConnectionPools\ExclusiveConnectionPoolFactoryTests.cs" />
     <Compile Include="ConnectionPools\ExclusiveConnectionPoolTests.cs" />
     <Compile Include="Connections\BinaryConnectionFactoryTests.cs" />

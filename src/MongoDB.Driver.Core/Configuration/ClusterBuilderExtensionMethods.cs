@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Net.Sockets;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 
@@ -85,9 +86,14 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             // Server
-            // nothing to configure for server
+            var addressFamily = AddressFamily.Unspecified;
+            if (connectionString.Ipv6.HasValue)
+            {
+                addressFamily = connectionString.Ipv6.Value ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            }
+            configuration.ConfigureServer(s => s.WithAddressFamily(addressFamily));
 
-            //Cluster
+            // Cluster
             if (connectionString.Hosts.Count > 0)
             {
                 configuration.ConfigureCluster(s => s.WithEndPoints(connectionString.Hosts));
