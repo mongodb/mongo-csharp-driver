@@ -24,8 +24,31 @@ namespace MongoDB.Driver.Core.Async
     {
         // fields
         private readonly object _lock = new object();
-        private readonly Dictionary<TId, Queue<TMessage>> _dropbox = new Dictionary<TId, Queue<TMessage>>();
+        private readonly Dictionary<TId, TMessage> _messages = new Dictionary<TId, TMessage>();
         private readonly Dictionary<TId, TaskCompletionSource<TMessage>> _awaiters = new Dictionary<TId, TaskCompletionSource<TMessage>>();
+
+        // properties
+        public int AwaiterCount
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _awaiters.Count;
+                }
+            }
+        }
+
+        public int MessageCount
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _messages.Count;
+                }
+            }
+        }
 
         // methods
         public void Post(TId id, TMessage message)
@@ -39,13 +62,7 @@ namespace MongoDB.Driver.Core.Async
                 }
                 else
                 {
-                    Queue<TMessage> queue;
-                    if (!_dropbox.TryGetValue(id, out queue))
-                    {
-                        queue = new Queue<TMessage>(1); // queue length will usually be 1 unless Exhaust is used
-                        _dropbox.Add(id, queue);
-                    }
-                    queue.Enqueue(message);
+                    _messages.Add(id, message);
                 }
             }
 
@@ -59,14 +76,10 @@ namespace MongoDB.Driver.Core.Async
         {
             lock (_lock)
             {
-                Queue<TMessage> queue;
-                if (_dropbox.TryGetValue(id, out queue))
+                TMessage message;
+                if (_messages.TryGetValue(id, out message))
                 {
-                    var message = queue.Dequeue();
-                    if (queue.Count == 0)
-                    {
-                        _dropbox.Remove(id);
-                    }
+                    _messages.Remove(id);
                     return Task.FromResult(message);
                 }
                 else

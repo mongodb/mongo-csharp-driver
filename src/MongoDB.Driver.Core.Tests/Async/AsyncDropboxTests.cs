@@ -14,9 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -50,6 +47,19 @@ namespace MongoDB.Driver.Core.Tests.Async
         }
 
         [Test]
+        public async Task Receive_async_should_remove_message_from_dropbox()
+        {
+            var subject = new AsyncDropbox<int, int>();
+            subject.Post(10, 11);
+
+            subject.MessageCount.Should().Be(1);
+            var result = await subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
+            subject.MessageCount.Should().Be(0);
+
+            result.Should().Be(11);
+        }
+
+        [Test]
         public void Receive_async_should_complete_when_message_is_posted()
         {
             var subject = new AsyncDropbox<int, int>();
@@ -61,18 +71,13 @@ namespace MongoDB.Driver.Core.Tests.Async
         }
 
         [Test]
-        public void Items_with_the_same_id_should_be_completed_in_the_order_they_were_posted()
+        public void Received_messages_with_the_same_id_should_throw()
         {
             var subject = new AsyncDropbox<int, int>();
 
             subject.Post(10, 11);
-            subject.Post(10, 12);
-
-            var result = subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
-            var result2 = subject.ReceiveAsync(10, Timeout.InfiniteTimeSpan, CancellationToken.None);
-
-            result.Result.Should().Be(11);
-            result2.Result.Should().Be(12);
+            Action act = () => subject.Post(10, 12);
+            act.ShouldThrow<ArgumentException>();
         }
     }
 }
